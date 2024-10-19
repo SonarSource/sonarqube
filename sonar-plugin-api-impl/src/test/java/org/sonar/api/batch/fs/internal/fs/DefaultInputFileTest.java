@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,6 +51,8 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class DefaultInputFileTest {
 
@@ -74,10 +77,31 @@ public class DefaultInputFileTest {
   }
 
   @Test
-  public void test() {
+  public void status_whenScmAvailable_shouldUseScmToCompute() {
+    Consumer<DefaultInputFile> metadata = mock(Consumer.class);
+    Consumer<DefaultInputFile> scmStatus = f -> f.setStatus(InputFile.Status.SAME);
 
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, metadata, scmStatus);
+    assertThat(inputFile.status()).isEqualTo(InputFile.Status.SAME);
+    assertThat(inputFile.isStatusSet()).isTrue();
+    verifyNoInteractions(metadata);
+  }
+
+  @Test
+  public void status_whenNoScmAvailable_shouldUseMetadataToCompute() {
+    Consumer<DefaultInputFile> metadata = f -> f.setStatus(InputFile.Status.ADDED);
+    Consumer<DefaultInputFile> scmStatus = mock(Consumer.class);
+
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, metadata, scmStatus);
+    assertThat(inputFile.status()).isEqualTo(InputFile.Status.ADDED);
+    assertThat(inputFile.isStatusSet()).isTrue();
+    verify(scmStatus).accept(inputFile);
+  }
+
+  @Test
+  public void test() {
     Metadata metadata = new Metadata(42, 42, "", new int[0], new int[0], 10);
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, (f) -> f.setMetadata(metadata))
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(metadata), NO_OP)
       .setStatus(InputFile.Status.ADDED)
       .setCharset(StandardCharsets.ISO_8859_1);
 
@@ -104,10 +128,11 @@ public class DefaultInputFileTest {
 
   @Test
   public void test_moved_file() {
-    DefaultIndexedFile indexedFileForMovedFile = new DefaultIndexedFile(baseDir.resolve(PROJECT_RELATIVE_PATH), "ABCDE", PROJECT_RELATIVE_PATH, MODULE_RELATIVE_PATH, InputFile.Type.TEST, "php", 0,
+    DefaultIndexedFile indexedFileForMovedFile = new DefaultIndexedFile(baseDir.resolve(PROJECT_RELATIVE_PATH), "ABCDE", PROJECT_RELATIVE_PATH, MODULE_RELATIVE_PATH,
+      InputFile.Type.TEST, "php", 0,
       sensorStrategy, OLD_RELATIVE_PATH);
     Metadata metadata = new Metadata(42, 42, "", new int[0], new int[0], 10);
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFileForMovedFile, (f) -> f.setMetadata(metadata))
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFileForMovedFile, f -> f.setMetadata(metadata), NO_OP)
       .setStatus(InputFile.Status.ADDED)
       .setCharset(StandardCharsets.ISO_8859_1);
 
@@ -125,7 +150,7 @@ public class DefaultInputFileTest {
 
     Metadata metadata = new Metadata(42, 30, "", new int[0], new int[0], 10);
 
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(metadata))
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(metadata), NO_OP)
       .setStatus(InputFile.Status.ADDED)
       .setCharset(StandardCharsets.ISO_8859_1);
 
@@ -151,7 +176,7 @@ public class DefaultInputFileTest {
 
     Metadata metadata = new Metadata(42, 30, "", new int[0], new int[0], 10);
 
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(metadata))
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(metadata), NO_OP)
       .setStatus(InputFile.Status.ADDED)
       .setCharset(StandardCharsets.UTF_8);
 
@@ -165,9 +190,9 @@ public class DefaultInputFileTest {
 
   @Test
   public void test_equals_and_hashcode() {
-    DefaultInputFile f1 = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
-    DefaultInputFile f1a = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
-    DefaultInputFile f2 = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), "src/Bar.php", null), (f) -> mock(Metadata.class));
+    DefaultInputFile f1 = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), NO_OP, NO_OP);
+    DefaultInputFile f1a = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), NO_OP, NO_OP);
+    DefaultInputFile f2 = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), "src/Bar.php", null), NO_OP, NO_OP);
 
     assertThat(f1)
       .isEqualTo(f1)
@@ -183,14 +208,15 @@ public class DefaultInputFileTest {
 
   @Test
   public void test_toString() {
-    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
+    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), NO_OP, NO_OP);
     assertThat(file).hasToString(MODULE_RELATIVE_PATH);
   }
 
   @Test
   public void checkValidPointer() {
-    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{9, 15}, 16);
-    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
+    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null),
+      f -> f.setMetadata(metadata), NO_OP);
     assertThat(file.newPointer(1, 0).line()).isOne();
     assertThat(file.newPointer(1, 0).lineOffset()).isZero();
     // Don't fail
@@ -226,8 +252,10 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidPointerUsingGlobalOffset() {
-    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{8, 15}, 16);
-    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {8, 15}, 16);
+    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null),
+      f -> f.setMetadata(metadata), f -> {
+    });
     assertThat(file.newPointer(0).line()).isOne();
     assertThat(file.newPointer(0).lineOffset()).isZero();
 
@@ -263,7 +291,8 @@ public class DefaultInputFileTest {
   @Test
   public void checkValidRange() {
     Metadata metadata = new FileMetadata(mock(AnalysisWarnings.class)).readMetadata(new StringReader("bla bla a\nabcde"));
-    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
+    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null),
+      f -> f.setMetadata(metadata), NO_OP);
 
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 1)).start().line()).isOne();
     // Don't fail
@@ -289,7 +318,8 @@ public class DefaultInputFileTest {
   @Test
   public void selectLine() {
     Metadata metadata = new FileMetadata(mock(AnalysisWarnings.class)).readMetadata(new StringReader("bla bla a\nabcde\n\nabc"));
-    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
+    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null),
+      f -> f.setMetadata(metadata), NO_OP);
 
     assertThat(file.selectLine(1).start().line()).isOne();
     assertThat(file.selectLine(1).start().lineOffset()).isZero();
@@ -312,8 +342,9 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidRangeUsingGlobalOffset() {
-    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{9, 15}, 16);
-    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
+    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null),
+      f -> f.setMetadata(metadata), NO_OP);
     TextRange newRange = file.newRange(10, 13);
     assertThat(newRange.start().line()).isEqualTo(2);
     assertThat(newRange.start().lineOffset()).isZero();
@@ -323,12 +354,16 @@ public class DefaultInputFileTest {
 
   @Test
   public void testRangeOverlap() {
-    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{9, 15}, 16);
-    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
+    DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null),
+      f -> f.setMetadata(metadata), NO_OP);
     // Don't fail
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)))).isTrue();
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 2)))).isTrue();
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 1), file.newPointer(1, 2)))).isFalse();
     assertThat(file.newRange(file.newPointer(1, 2), file.newPointer(1, 3)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 2)))).isFalse();
   }
+
+  private static final Consumer<DefaultInputFile> NO_OP = f -> {
+  };
 }

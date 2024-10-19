@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,11 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import javax.crypto.BadPaddingException;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
 
 public class AesECBCipherTest {
 
@@ -61,7 +60,7 @@ public class AesECBCipherTest {
 
     assertThatThrownBy(() -> cipher.encrypt("this is a secret"))
       .isInstanceOf(RuntimeException.class)
-      .hasMessageContaining("Invalid AES key");
+      .hasCauseInstanceOf(InvalidKeyException.class);
   }
 
   @Test
@@ -79,13 +78,9 @@ public class AesECBCipherTest {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
     AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
 
-    try {
-      cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
-      fail();
-
-    } catch (RuntimeException e) {
-      assertThat(e.getCause()).isInstanceOf(InvalidKeyException.class);
-    }
+    assertThatThrownBy(() -> cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY="))
+      .isInstanceOf(RuntimeException.class)
+      .hasCauseInstanceOf(InvalidKeyException.class);
   }
 
   @Test
@@ -93,14 +88,9 @@ public class AesECBCipherTest {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/other_secret_key.txt");
     AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
 
-    try {
-      // text encrypted with another key
-      cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
-      fail();
-
-    } catch (RuntimeException e) {
-      assertThat(e.getCause()).isInstanceOf(BadPaddingException.class);
-    }
+    assertThatThrownBy(() -> cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY="))
+      .isInstanceOf(RuntimeException.class)
+      .hasCauseInstanceOf(BadPaddingException.class);
   }
 
   @Test

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,14 +21,12 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
@@ -47,7 +45,7 @@ import org.sonar.scanner.scm.ScmRevision;
 
 public class MetadataPublisher implements ReportPublisherStep {
 
-  private static final Logger LOG = Loggers.get(MetadataPublisher.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataPublisher.class);
 
   private final QualityProfiles qProfiles;
   private final ProjectInfo projectInfo;
@@ -112,24 +110,12 @@ public class MetadataPublisher implements ReportPublisherStep {
         .setUpdatedAt(pluginEntry.getValue().getUpdatedAt()).build());
     }
 
-    addModulesRelativePaths(builder);
+    addRelativePathFromScmRoot(builder);
 
     writer.writeMetadata(builder.build());
   }
 
-  private void addModulesRelativePaths(ScannerReport.Metadata.Builder builder) {
-    LinkedList<DefaultInputModule> queue = new LinkedList<>();
-    queue.add(moduleHierarchy.root());
-
-    while (!queue.isEmpty()) {
-      DefaultInputModule module = queue.removeFirst();
-      queue.addAll(moduleHierarchy.children(module));
-      String relativePath = moduleHierarchy.relativePathToRoot(module);
-      if (relativePath != null) {
-        builder.putModulesProjectRelativePathByKey(module.key(), relativePath);
-      }
-    }
-
+  private void addRelativePathFromScmRoot(ScannerReport.Metadata.Builder builder) {
     ScmProvider scmProvider = scmConfiguration.provider();
     if (scmProvider == null) {
       return;
@@ -146,7 +132,7 @@ public class MetadataPublisher implements ReportPublisherStep {
   private void addScmInformation(ScannerReport.Metadata.Builder builder) {
     try {
       scmRevision.get().ifPresent(revisionId -> {
-        LOG.debug("SCM revision ID '{}'", revisionId);
+        LOG.info("SCM revision ID '{}'", revisionId);
         builder.setScmRevisionId(revisionId);
       });
     } catch (UnsupportedOperationException e) {

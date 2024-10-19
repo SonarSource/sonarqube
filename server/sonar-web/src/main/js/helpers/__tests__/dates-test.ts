@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,12 @@ import * as dates from '../dates';
 const { parseDate } = dates;
 const recentDate = parseDate('2017-08-16T12:00:00.000Z');
 
-it('toShortNotSoISOString', () => {
-  expect(dates.toShortNotSoISOString(recentDate)).toBe('2017-08-16');
+it('toShortISO8601String', () => {
+  expect(dates.toShortISO8601String(recentDate)).toBe('2017-08-16');
 });
 
-it('toNotSoISOString', () => {
-  expect(dates.toNotSoISOString(recentDate)).toBe('2017-08-16T12:00:00+0000');
+it('toISO8601WithOffsetString', () => {
+  expect(dates.toISO8601WithOffsetString(recentDate)).toBe('2017-08-16T12:00:00+0000');
 });
 
 it('isValidDate', () => {

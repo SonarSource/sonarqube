@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +35,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.project.ProjectDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.server.es.EsIndexSyncInProgressException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,77 +54,46 @@ public class IssueIndexSyncProgressCheckerTest {
   private final IssueIndexSyncProgressChecker underTest = new IssueIndexSyncProgressChecker(db.getDbClient());
 
   @Test
-  public void return_100_if_there_is_no_tasks_left() {
+  public void getIssueSyncProgress_whenNoTasksLeft_shouldReturnCompleted() {
     IssueSyncProgress issueSyncProgress = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(issueSyncProgress.getCompleted()).isZero();
+    assertThat(issueSyncProgress.getCompletedCount()).isZero();
     assertThat(issueSyncProgress.getTotal()).isZero();
-    assertThat(issueSyncProgress.toPercentCompleted()).isEqualTo(100);
     assertThat(issueSyncProgress.isCompleted()).isTrue();
     assertThat(issueSyncProgress.hasFailures()).isFalse();
   }
 
   @Test
-  public void return_100_if_all_branches_have_need_issue_sync_set_FALSE() {
-    IntStream.range(0, 13).forEach(value -> insertProjectWithBranches(false, 2));
-    IntStream.range(0, 14).forEach(value -> insertProjectWithBranches(false, 4));
-    IntStream.range(0, 4).forEach(value -> insertProjectWithBranches(false, 10));
+  public void getIssueSyncProgress_whenNoBranchesNeedsIssueSync_shouldReturnCompleted() {
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 1));
+    IntStream.range(0, 20).forEach(value -> insertProjectWithBranches(false, 2));
 
     IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(result.getCompleted()).isEqualTo(153);
-    assertThat(result.getTotal()).isEqualTo(153);
-    assertThat(result.toPercentCompleted()).isEqualTo(100);
+    assertThat(result.getCompletedCount()).isEqualTo(30);
+    assertThat(result.getTotal()).isEqualTo(30);
     assertThat(result.isCompleted()).isTrue();
   }
 
   @Test
-  public void return_has_failure_true_if_exists_task() {
+  public void getIssueSyncProgress_whenTasksExist_shouldReturnFailures() {
     assertThat(underTest.getIssueSyncProgress(db.getSession()).hasFailures()).isFalse();
 
-    ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
-    insertCeActivity("TASK_1", projectDto1, SUCCESS);
+    ProjectData projectData1 = insertProjectWithBranches(false, 0);
+    insertCeActivity("TASK_1", projectData1, SUCCESS);
 
-    ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
-    insertCeActivity("TASK_2", projectDto2, SUCCESS);
+    ProjectData projectData2 = insertProjectWithBranches(false, 0);
+    insertCeActivity("TASK_2", projectData2, SUCCESS);
 
     assertThat(underTest.getIssueSyncProgress(db.getSession()).hasFailures()).isFalse();
 
-    ProjectDto projectDto3 = insertProjectWithBranches(true, 0);
-    insertCeActivity("TASK_3", projectDto3, FAILED);
+    ProjectData projectData3 = insertProjectWithBranches(true, 0);
+    insertCeActivity("TASK_3", projectData3, FAILED);
 
     assertThat(underTest.getIssueSyncProgress(db.getSession()).hasFailures()).isTrue();
   }
 
   @Test
-  @UseDataProvider("various_task_numbers")
-  public void return_correct_percent_value_for_branches_to_sync(int toSync, int synced, int expectedPercent) {
-    IntStream.range(0, toSync).forEach(value -> insertProjectWithBranches(true, 0));
-    IntStream.range(0, synced).forEach(value -> insertProjectWithBranches(false, 0));
-
-    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(result.getCompleted()).isEqualTo(synced);
-    assertThat(result.getTotal()).isEqualTo(toSync + synced);
-    assertThat(result.toPercentCompleted()).isEqualTo(expectedPercent);
-  }
-
-  @DataProvider
-  public static Object[][] various_task_numbers() {
-    return new Object[][] {
-      // toSync, synced, expected result
-      {0, 0, 100},
-      {0, 9, 100},
-      {10, 0, 0},
-      {99, 1, 1},
-      {2, 1, 33},
-      {6, 4, 40},
-      {7, 7, 50},
-      {1, 2, 66},
-      {4, 10, 71},
-      {1, 99, 99},
-    };
-  }
-
-  @Test
-  public void return_0_if_all_branches_have_need_issue_sync_set_true() {
+  public void getIssueSyncProgress_whenBranchesNeedIssueSync_shouldReturnNotCompleted() {
+    insertCeQueue("TASK_1", Status.PENDING);
     // only project
     IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(true, 0));
 
@@ -134,9 +101,9 @@ public class IssueIndexSyncProgressCheckerTest {
     IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(true, 1));
 
     IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(result.getCompleted()).isZero();
-    assertThat(result.getTotal()).isEqualTo(30);
-    assertThat(result.toPercentCompleted()).isZero();
+    assertThat(result.getCompletedCount()).isZero();
+    assertThat(result.getTotal()).isEqualTo(20);
+    assertThat(result.isCompleted()).isFalse();
   }
 
   @Test
@@ -205,10 +172,10 @@ public class IssueIndexSyncProgressCheckerTest {
 
   @Test
   public void checkIfAnyComponentsNeedIssueSync_throws_exception_if_all_components_have_need_issue_sync_TRUE() {
-    ProjectDto projectDto1 = insertProjectWithBranches(true, 0);
-    ProjectDto projectDto2 = insertProjectWithBranches(true, 0);
+    ProjectData projectData1 = insertProjectWithBranches(true, 0);
+    ProjectData projectData2 = insertProjectWithBranches(true, 0);
     DbSession session = db.getSession();
-    List<String> projectKeys = Arrays.asList(projectDto1.getKey(), projectDto2.getKey());
+    List<String> projectKeys = Arrays.asList(projectData1.getProjectDto().getKey(), projectData2.getProjectDto().getKey());
     assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session, projectKeys))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
@@ -218,18 +185,18 @@ public class IssueIndexSyncProgressCheckerTest {
   @Test
   public void checkIfAnyComponentsNeedIssueSync_does_not_throw_exception_if_all_components_have_need_issue_sync_FALSE() {
     underTest.checkIfAnyComponentsNeedIssueSync(db.getSession(), Collections.emptyList());
-    ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
-    ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
-    underTest.checkIfAnyComponentsNeedIssueSync(db.getSession(), Arrays.asList(projectDto1.getKey(), projectDto2.getKey()));
+    ProjectData projectData1 = insertProjectWithBranches(false, 0);
+    ProjectData projectData2 = insertProjectWithBranches(false, 0);
+    underTest.checkIfAnyComponentsNeedIssueSync(db.getSession(), Arrays.asList(projectData1.getProjectDto().getKey(), projectData2.getProjectDto().getKey()));
   }
 
   @Test
   public void checkIfAnyComponentsNeedIssueSync_throws_exception_if_at_least_one_component_has_need_issue_sync_TRUE() {
-    ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
-    ProjectDto projectDto2 = insertProjectWithBranches(true, 0);
+    ProjectData projectData1 = insertProjectWithBranches(false, 0);
+    ProjectData projectData2 = insertProjectWithBranches(true, 0);
 
     DbSession session = db.getSession();
-    List<String> projectKeys = Arrays.asList(projectDto1.getKey(), projectDto2.getKey());
+    List<String> projectKeys = Arrays.asList(projectData1.getProjectDto().getKey(), projectData2.getProjectDto().getKey());
     assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session, projectKeys))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
@@ -238,15 +205,15 @@ public class IssueIndexSyncProgressCheckerTest {
 
   @Test
   public void checkIfComponentNeedIssueSync_single_component() {
-    ProjectDto projectDto1 = insertProjectWithBranches(true, 0);
-    ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
+    ProjectData projectData1 = insertProjectWithBranches(true, 0);
+    ProjectData projectData2 = insertProjectWithBranches(false, 0);
 
     DbSession session = db.getSession();
     // do nothing when need issue sync false
-    underTest.checkIfComponentNeedIssueSync(session, projectDto2.getKey());
+    underTest.checkIfComponentNeedIssueSync(session, projectData2.getProjectDto().getKey());
 
     // throws if flag set to TRUE
-    String key = projectDto1.getKey();
+    String key = projectData1.getProjectDto().getKey();
     assertThatThrownBy(() -> underTest.checkIfComponentNeedIssueSync(session, key))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
@@ -255,14 +222,14 @@ public class IssueIndexSyncProgressCheckerTest {
 
   @Test
   public void checkIfAnyComponentsNeedIssueSync_single_view_subview_or_app() {
-    ProjectDto projectDto1 = insertProjectWithBranches(true, 0);
+    ProjectData projectData1 = insertProjectWithBranches(true, 0);
 
-    ComponentDto app = db.components().insertPublicApplication();
+    ComponentDto app = db.components().insertPublicApplication().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertSubView(view);
 
     DbSession session = db.getSession();
-    List<String> appViewOrSubviewKeys = Arrays.asList(projectDto1.getKey(), app.getKey(), view.getKey(), subview.getKey());
+    List<String> appViewOrSubviewKeys = Arrays.asList(projectData1.getProjectDto().getKey(), app.getKey(), view.getKey(), subview.getKey());
 
     // throws if flag set to TRUE
     assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session,
@@ -287,32 +254,32 @@ public class IssueIndexSyncProgressCheckerTest {
 
   @Test
   public void doProjectNeedIssueSync() {
-    ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
-    assertThat(underTest.doProjectNeedIssueSync(db.getSession(), projectDto1.getUuid())).isFalse();
-    ProjectDto projectDto2 = insertProjectWithBranches(true, 0);
-    assertThat(underTest.doProjectNeedIssueSync(db.getSession(), projectDto2.getUuid())).isTrue();
+    ProjectData projectData1 = insertProjectWithBranches(false, 0);
+    assertThat(underTest.doProjectNeedIssueSync(db.getSession(), projectData1.getProjectDto().getUuid())).isFalse();
+    ProjectData projectData2 = insertProjectWithBranches(true, 0);
+    assertThat(underTest.doProjectNeedIssueSync(db.getSession(), projectData2.getProjectDto().getUuid())).isTrue();
   }
 
   @Test
   public void findProjectUuidsWithIssuesSyncNeed() {
-    ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
-    ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
-    ProjectDto projectDto3 = insertProjectWithBranches(true, 0);
-    ProjectDto projectDto4 = insertProjectWithBranches(true, 0);
+    ProjectData projectData1 = insertProjectWithBranches(false, 0);
+    ProjectData projectData2 = insertProjectWithBranches(false, 0);
+    ProjectData projectData3 = insertProjectWithBranches(true, 0);
+    ProjectData projectData4 = insertProjectWithBranches(true, 0);
 
     assertThat(underTest.findProjectUuidsWithIssuesSyncNeed(db.getSession(),
-      Arrays.asList(projectDto1.getUuid(), projectDto2.getUuid(), projectDto3.getUuid(), projectDto4.getUuid())))
-        .containsOnly(projectDto3.getUuid(), projectDto4.getUuid());
+      Arrays.asList(projectData1.getProjectDto().getUuid(), projectData2.getProjectDto().getUuid(), projectData3.getProjectDto().getUuid(), projectData4.getProjectDto().getUuid())))
+        .containsOnly(projectData3.getProjectDto().getUuid(), projectData4.getProjectDto().getUuid());
   }
 
-  private ProjectDto insertProjectWithBranches(boolean needIssueSync, int numberOfBranches) {
-    ProjectDto projectDto = db.components()
-      .insertPrivateProjectDto(branchDto -> branchDto.setNeedIssueSync(needIssueSync), c -> {
+  private ProjectData insertProjectWithBranches(boolean needIssueSync, int numberOfBranches) {
+    ProjectData projectData = db.components()
+      .insertPrivateProject(branchDto -> branchDto.setNeedIssueSync(needIssueSync), c -> {
       }, p -> {
       });
     IntStream.range(0, numberOfBranches).forEach(
-      i -> db.components().insertProjectBranch(projectDto, branchDto -> branchDto.setNeedIssueSync(needIssueSync)));
-    return projectDto;
+      i -> db.components().insertProjectBranch(projectData.getProjectDto(), branchDto -> branchDto.setNeedIssueSync(needIssueSync)));
+    return projectData;
   }
 
   private CeQueueDto insertCeQueue(String uuid, CeQueueDto.Status status) {
@@ -324,14 +291,14 @@ public class IssueIndexSyncProgressCheckerTest {
     return queueDto;
   }
 
-  private CeActivityDto insertCeActivity(String uuid, ProjectDto projectDto, CeActivityDto.Status status) {
+  private CeActivityDto insertCeActivity(String uuid, ProjectData projectData, CeActivityDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(uuid);
     queueDto.setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC);
 
     CeActivityDto dto = new CeActivityDto(queueDto);
-    dto.setComponentUuid(projectDto.getUuid());
-    dto.setMainComponentUuid(projectDto.getUuid());
+    dto.setComponentUuid(projectData.getMainBranchComponent().uuid());
+    dto.setEntityUuid(projectData.projectUuid());
     dto.setStatus(status);
     dto.setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC);
     dto.setAnalysisUuid(uuid + "_AA");

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ComponentDescriptor } from './context';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import WorkspaceNavItem from './WorkspaceNavItem';
+import { ComponentDescriptor } from './context';
 
 export interface Props {
   component: ComponentDescriptor;
@@ -40,7 +40,7 @@ export default class WorkspaceNavComponent extends React.PureComponent<Props> {
   render() {
     return (
       <WorkspaceNavItem onClose={this.handleClose} onOpen={this.handleOpen}>
-        <WorkspaceComponentTitle component={this.props.component} limited={true} />
+        <WorkspaceComponentTitle component={this.props.component} limited />
       </WorkspaceNavItem>
     );
   }

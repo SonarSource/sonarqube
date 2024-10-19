@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.auth.ldap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 
 import static org.sonar.auth.ldap.LdapSettingsManager.MANDATORY_LDAP_PROPERTY_ERROR;
@@ -44,10 +44,10 @@ public class LdapUserMapping {
   public LdapUserMapping(Configuration config, String settingsPrefix) {
     String userBaseDnSettingKey = settingsPrefix + ".user.baseDn";
     this.baseDn = config.get(userBaseDnSettingKey).orElseThrow(() -> new LdapException(String.format(MANDATORY_LDAP_PROPERTY_ERROR, userBaseDnSettingKey)));
-    this.realNameAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.realNameAttribute").orElse(null), DEFAULT_NAME_ATTRIBUTE);
-    this.emailAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.emailAttribute").orElse(null), DEFAULT_EMAIL_ATTRIBUTE);
+    this.realNameAttribute = config.get(settingsPrefix + ".user.realNameAttribute").orElse(DEFAULT_NAME_ATTRIBUTE);
+    this.emailAttribute = config.get(settingsPrefix + ".user.emailAttribute").orElse(DEFAULT_EMAIL_ATTRIBUTE);
 
-    String req = StringUtils.defaultString(config.get(settingsPrefix + ".user.request").orElse(null), DEFAULT_REQUEST);
+    String req = config.get(settingsPrefix + ".user.request").orElse(DEFAULT_REQUEST);
     req = StringUtils.replace(req, "{login}", "{0}");
     this.request = req;
   }

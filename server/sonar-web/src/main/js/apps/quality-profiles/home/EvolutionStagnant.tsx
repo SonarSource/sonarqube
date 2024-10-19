@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Heading } from '@sonarsource/echoes-react';
+import { DiscreetLink, FlagMessage, Note } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import ProfileLink from '../components/ProfileLink';
+import { isDefined } from '../../../helpers/types';
 import { Profile } from '../types';
-import { isStagnant } from '../utils';
+import { getProfilePath, isStagnant } from '../utils';
 
 interface Props {
   organization: string;
   profiles: Profile[];
 }
 
-export default function EvolutionStagnant(props: Props) {
+export default function EvolutionStagnant(props: Readonly<Props>) {
+  const intl = useIntl();
   const outdated = props.profiles.filter((profile) => !profile.isBuiltIn && isStagnant(profile));
 
   if (outdated.length === 0) {
@@ -37,42 +41,39 @@ export default function EvolutionStagnant(props: Props) {
   }
 
   return (
-    <div className="boxed-group boxed-group-inner quality-profiles-evolution-stagnant">
-      <div className="spacer-bottom">
-        <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
-      </div>
-      <div className="spacer-bottom">
-        {translate('quality_profiles.not_updated_more_than_year')}
-      </div>
-      <ul>
+    <section aria-label={intl.formatMessage({ id: 'quality_profiles.stagnant_profiles' })}>
+      <Heading as="h2" hasMarginBottom>
+        {intl.formatMessage({ id: 'quality_profiles.stagnant_profiles' })}
+      </Heading>
+
+      <FlagMessage variant="warning" className="sw-mb-3">
+        {intl.formatMessage({ id: 'quality_profiles.not_updated_more_than_year' })}
+      </FlagMessage>
+
+      <ul className="sw-flex sw-flex-col sw-gap-4 sw-typo-default">
         {outdated.map((profile) => (
-          <li className="spacer-top" key={profile.key}>
-            <div className="text-ellipsis">
-              <ProfileLink
-                className="link-no-underline"
-                language={profile.language}
-                organization={props.organization}
-                name={profile.name}
-              >
+          <li className="sw-flex sw-flex-col sw-gap-1" key={profile.key}>
+            <div className="sw-truncate">
+              <DiscreetLink to={getProfilePath(profile.name, profile.language, props.organization)}>
                 {profile.name}
-              </ProfileLink>
+              </DiscreetLink>
             </div>
-            {profile.rulesUpdatedAt && (
-              <DateFormatter date={profile.rulesUpdatedAt} long={true}>
-                {(formattedDate) => (
-                  <div className="note">
-                    {translateWithParameters(
-                      'quality_profiles.x_updated_on_y',
-                      profile.languageName,
-                      formattedDate
-                    )}
-                  </div>
-                )}
-              </DateFormatter>
+
+            {isDefined(profile.rulesUpdatedAt) && profile.rulesUpdatedAt !== '' && (
+              <Note>
+                <DateFormatter date={profile.rulesUpdatedAt} long>
+                  {(formattedDate) =>
+                    intl.formatMessage(
+                      { id: 'quality_profiles.x_updated_on_y' },
+                      { name: profile.languageName, date: formattedDate },
+                    )
+                  }
+                </DateFormatter>
+              </Note>
             )}
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }

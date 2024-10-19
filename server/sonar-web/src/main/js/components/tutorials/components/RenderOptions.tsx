@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import ButtonToggle from '../../controls/ButtonToggle';
 
 export interface RenderOptionsProps {
   checked: string | undefined;
@@ -38,13 +38,17 @@ export default function RenderOptions({
   options,
   titleLabelKey,
 }: RenderOptionsProps) {
-  return (
-    <div className="big-spacer-top">
-      {titleLabelKey && <h4 className="spacer-bottom">{translate(titleLabelKey)}</h4>}
+  const onChange = (checked: string) => {
+    onCheck(checked);
+  };
 
-      <ButtonToggle
+  return (
+    <div className="sw-mt-4">
+      {titleLabelKey && <label className="sw-block sw-mb-1">{translate(titleLabelKey)}</label>}
+
+      <ToggleButton
         label={label}
-        onCheck={onCheck}
+        onChange={onChange}
         options={options.map((build) => ({
           label: translate(optionLabelKey, build),
           value: build,

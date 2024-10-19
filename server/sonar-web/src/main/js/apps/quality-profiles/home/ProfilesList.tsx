@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,114 +17,98 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, FlagMessage, HelperHintIcon, Table, TableRow } from 'design-system';
 import { groupBy, pick, sortBy } from 'lodash';
 import * as React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { Alert } from '../../../components/ui/Alert';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useIntl } from 'react-intl';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Language } from '../../../types/languages';
 import { Dict } from '../../../types/types';
 import { Profile } from '../types';
-import ProfilesListHeader from './ProfilesListHeader';
 import ProfilesListRow from './ProfilesListRow';
 
 interface Props {
+  organization: string;
   language?: string;
   languages: Language[];
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
-  organization: string;
 }
 
-export default class ProfilesList extends React.PureComponent<Props> {
-  renderProfiles(profiles: Profile[]) {
-    return profiles.map((profile) => (
-      <ProfilesListRow
-        key={profile.key}
-        profile={profile}
-        updateProfiles={this.props.updateProfiles}
-        isComparable={profiles.length > 1}
-        organization={this.props.organization}
-      />
-    ));
+export default function ProfilesList(props: Readonly<Props>) {
+  const { organization, profiles, languages, language } = props;
+  const intl = useIntl();
+
+  const profilesIndex: Dict<Profile[]> = groupBy<Profile>(profiles, (profile) => profile.language);
+  const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
+
+  let languagesToShow = sortBy(languages, ({ name }) => name).map(({ key }) => key);
+
+  if (language) {
+    languagesToShow = languagesToShow.find((key) => key === language) ? [language] : [];
   }
 
-  renderHeader(languageKey: string, profilesCount: number) {
-    const language = this.props.languages.find((l) => l.key === languageKey);
+  const renderHeader = React.useCallback(
+    (languageKey: string, count: number) => {
+      const language = languages.find((l) => l.key === languageKey);
 
-    if (!language) {
-      return null;
-    }
-
-    return (
-      <thead>
-        <tr>
-          <th>
-            {language.name}
-            {', '}
-            {translateWithParameters('quality_profiles.x_profiles', profilesCount)}
-          </th>
-          <th className="text-right nowrap">
-            {translate('quality_profiles.list.projects')}
+      return (
+        <TableRow>
+          <ContentCell>
+            {intl.formatMessage(
+              { id: 'quality_profiles.x_profiles' },
+              { count, name: language?.name },
+            )}
+          </ContentCell>
+          <ContentCell>
+            {intl.formatMessage({ id: 'quality_profiles.list.projects' })}
             <HelpTooltip
-              className="table-cell-doc"
-              overlay={
-                <div className="big-padded-top big-padded-bottom">
-                  {translate('quality_profiles.list.projects.help')}
-                </div>
-              }
+              className="sw-ml-1"
+              overlay={intl.formatMessage({ id: 'quality_profiles.list.projects.help' })}
+            >
+              <HelperHintIcon />
+            </HelpTooltip>
+          </ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'quality_profiles.list.rules' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'quality_profiles.list.updated' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'quality_profiles.list.used' })}</ContentCell>
+          <ContentCell>&nbsp;</ContentCell>
+        </TableRow>
+      );
+    },
+    [languages, intl],
+  );
+
+  return (
+    <div>
+      {Object.keys(profilesToShow).length === 0 && (
+        <FlagMessage className="sw-mt-4 sw-w-full" variant="warning">
+          {intl.formatMessage({ id: 'no_results' })}
+        </FlagMessage>
+      )}
+
+      {languagesToShow.map((languageKey) => (
+        <Table
+          className="sw-mb-12"
+          noSidePadding
+          noHeaderTopBorder
+          key={languageKey}
+          columnCount={6}
+          columnWidths={['43%', '14%', '14%', '14%', '14%', '1%']}
+          header={renderHeader(languageKey, profilesToShow[languageKey].length)}
+          data-language={languageKey}
+        >
+          {(profilesToShow[languageKey] ?? []).map((profile) => (
+            <ProfilesListRow
+              organization={organization}
+              key={profile.key}
+              profile={profile}
+              updateProfiles={props.updateProfiles}
+              isComparable={profilesToShow[languageKey].length > 1}
             />
-          </th>
-          <th className="text-right nowrap">{translate('quality_profiles.list.rules')}</th>
-          <th className="text-right nowrap">{translate('quality_profiles.list.updated')}</th>
-          <th className="text-right nowrap">{translate('quality_profiles.list.used')}</th>
-          <th>&nbsp;</th>
-        </tr>
-      </thead>
-    );
-  }
-
-  renderLanguage = (languageKey: string, profiles: Profile[] | undefined) => {
-    return (
-      <div className="boxed-group boxed-group-inner quality-profiles-table" key={languageKey}>
-        <table className="data zebra zebra-hover" data-language={languageKey}>
-          {profiles !== undefined && this.renderHeader(languageKey, profiles.length)}
-          <tbody>{profiles !== undefined && this.renderProfiles(profiles)}</tbody>
-        </table>
-      </div>
-    );
-  };
-
-  render() {
-    const { profiles, languages, language } = this.props;
-
-    const profilesIndex: Dict<Profile[]> = groupBy<Profile>(
-      profiles,
-      (profile) => profile.language
-    );
-
-    const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
-
-    let languagesToShow: string[];
-    if (language) {
-      languagesToShow = languages.find(({ key }) => key === language) ? [language] : [];
-    } else {
-      languagesToShow = sortBy(languages, ({ name }) => name).map(({ key }) => key);
-    }
-
-    return (
-      <div>
-        <ProfilesListHeader currentFilter={language} languages={languages} organization={this.props.organization} />
-        {Object.keys(profilesToShow).length === 0 && (
-          <Alert className="spacer-top" variant="warning">
-            {translate('no_results')}
-          </Alert>
-        )}
-
-        {languagesToShow.map((languageKey) =>
-          this.renderLanguage(languageKey, profilesToShow[languageKey])
-        )}
-      </div>
-    );
-  }
+          ))}
+        </Table>
+      ))}
+    </div>
+  );
 }

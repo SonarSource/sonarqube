@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getMyProjects } from '../../../api/components';
@@ -62,27 +63,18 @@ export default class ProjectsContainer extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const helmet = <Helmet title={translate('my_account.projects')} />;
-
-    if (this.state.projects == null) {
-      return (
-        <div className="text-center">
-          {helmet}
-          <i className="spinner spacer" />
-        </div>
-      );
-    }
+    const { loading, projects = [], total } = this.state;
 
     return (
-      <div className="account-body account-container">
-        {helmet}
-        <Projects
-          loadMore={this.loadMore}
-          loading={this.state.loading}
-          projects={this.state.projects}
-          total={this.state.total}
-        />
-      </div>
+      <>
+        <Helmet title={translate('my_account.projects')} />
+
+        <Title>{translate('my_account.projects')}</Title>
+
+        <Spinner loading={loading && projects.length === 0}>
+          <Projects loadMore={this.loadMore} loading={loading} projects={projects} total={total} />
+        </Spinner>
+      </>
     );
   }
 }

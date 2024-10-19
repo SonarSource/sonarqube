@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,11 @@ package org.sonar.ce.task.projectanalysis.metric;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.metric.ScannerMetrics;
 
@@ -42,13 +44,20 @@ public class ReportMetricValidatorImplTest {
 
   ScannerMetrics scannerMetrics = mock(ScannerMetrics.class);
 
+  private static final String expectedLog = "The metric 'metric_key' is ignored and should not be send in the batch report";
+
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
+
   @Test
   public void validate_metric() {
     when(scannerMetrics.getMetrics()).thenReturn(ImmutableSet.of(new Builder(METRIC_KEY, "name", ValueType.INT).create()));
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isTrue();
-    assertThat(logTester.logs()).isEmpty();
+    assertThat(logTester.logs()).noneMatch(expectedLog::equals);
   }
 
   @Test
@@ -57,7 +66,8 @@ public class ReportMetricValidatorImplTest {
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();
-    assertThat(logTester.logs()).containsOnly("The metric 'metric_key' is ignored and should not be send in the batch report");
+
+    assertThat(logTester.logs()).contains(expectedLog);
   }
 
   @Test
@@ -66,8 +76,8 @@ public class ReportMetricValidatorImplTest {
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();
-    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs()).filteredOn(expectedLog::equals).hasSize(1);
     assertThat(validator.validate(METRIC_KEY)).isFalse();
-    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs()).filteredOn(expectedLog::equals).hasSize(1);
   }
 }

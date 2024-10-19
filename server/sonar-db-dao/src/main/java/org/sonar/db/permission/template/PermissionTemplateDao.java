@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,16 +28,16 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
-import org.sonar.db.permission.CountPerProjectPermission;
+import org.sonar.db.permission.CountPerEntityPermission;
 import org.sonar.db.permission.PermissionQuery;
 
 import static java.lang.String.format;
@@ -64,7 +64,7 @@ public class PermissionTemplateDao implements Dao {
    * @return a paginated list of user logins.
    */
   public List<String> selectUserLoginsByQueryAndTemplate(DbSession session, PermissionQuery query, String templateUuid) {
-    return mapper(session).selectUserLoginsByQueryAndTemplate(query, templateUuid, new RowBounds(query.getPageOffset(), query.getPageSize()));
+    return mapper(session).selectUserLoginsByQueryAndTemplate(query, templateUuid, Pagination.forPage(query.getPageIndex()).andSize(query.getPageSize()));
   }
 
   public int countUserLoginsByQueryAndTemplate(DbSession session, PermissionQuery query, String templateUuid) {
@@ -80,7 +80,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   public List<String> selectGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, String templateUuid) {
-    return mapper(session).selectGroupNamesByQueryAndTemplate(templateUuid, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+    return mapper(session).selectGroupNamesByQueryAndTemplate(templateUuid, query, Pagination.forPage(query.getPageIndex()).andSize(query.getPageSize()));
   }
 
   public int countGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, String organizationUuid, String templateUuid) {
@@ -128,7 +128,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * Each row returns a #{@link CountPerProjectPermission}
+   * Each row returns a #{@link CountPerEntityPermission}
    */
   public void usersCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
     Map<String, Object> parameters = new HashMap<>(1);
@@ -142,7 +142,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * Each row returns a #{@link CountPerProjectPermission}
+   * Each row returns a #{@link CountPerEntityPermission}
    */
   public void groupsCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);

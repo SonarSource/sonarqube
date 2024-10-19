@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,15 +23,15 @@ import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.server.notification.NotificationChannel;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class NotificationCenter {
 
-  private static final Logger LOG = Loggers.get(NotificationCenter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NotificationCenter.class);
 
   private final NotificationDispatcherMetadata[] dispatchersMetadata;
   private final NotificationChannel[] channels;

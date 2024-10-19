@@ -9,35 +9,37 @@ dependencies {
 
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'org.apache.commons:commons-csv'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'junit:junit'
 
-  testCompileOnly 'com.google.code.findbugs:jsr305'
+  testCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'com.google.guava:guava'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
   filter ReplaceTokens, tokens: [
-          'project.version': project.version
+          'project.version': project.version,
+          'versionEOL': project.properties["versionEOL"]
   ]
 }
 
 artifactoryPublish.skip = false
-
-// Produce Java 11 bytecode while making sure the code does not use any APIs from Java 17
-tasks.withType(JavaCompile) {
-  options.release = 11
-}
 
 publishing {
   publications {
@@ -49,4 +51,8 @@ publishing {
       }
     }
   }
+}
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

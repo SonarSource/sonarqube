@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,8 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.server.http.JavaxHttpRequest;
 
 @ServerSide
 public class SamlIdentityProvider implements OAuth2IdentityProvider {
@@ -74,7 +76,8 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public void init(InitContext context) {
     SamlAuthenticator samlAuthenticator = new SamlAuthenticator(samlSettings, samlMessageIdChecker);
-    samlAuthenticator.initLogin(context.getCallbackUrl(), context.generateCsrfState(), context.getRequest(), context.getResponse());
+    samlAuthenticator.initLogin(context.getCallbackUrl(), context.generateCsrfState(),
+      context.getHttpRequest(), context.getHttpResponse());
   }
 
   @Override
@@ -86,7 +89,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
     // - https://github.com/onelogin/java-saml/issues/198
     // - https://github.com/onelogin/java-saml/issues/95
     //
-    HttpServletRequest processedRequest = useProxyHeadersInRequest(context.getRequest());
+    HttpRequest processedRequest = useProxyHeadersInRequest(context.getHttpRequest());
 
     SamlAuthenticator samlAuthenticator = new SamlAuthenticator(samlSettings, samlMessageIdChecker);
     UserIdentity userIdentity = samlAuthenticator.buildUserIdentity(context, processedRequest);
@@ -95,10 +98,10 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
   }
 
-  private static HttpServletRequest useProxyHeadersInRequest(HttpServletRequest request) {
+  private static HttpRequest useProxyHeadersInRequest(HttpRequest request) {
     String forwardedScheme = request.getHeader("X-Forwarded-Proto");
     if (forwardedScheme != null) {
-      request = new HttpServletRequestWrapper(request) {
+      HttpServletRequest httpServletRequest = new HttpServletRequestWrapper(((JavaxHttpRequest) request).getDelegate()) {
         @Override
         public String getScheme() {
           return forwardedScheme;
@@ -110,6 +113,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
           return new StringBuffer(HTTPS_PATTERN.matcher(originalURL.toString()).replaceFirst(forwardedScheme + "://"));
         }
       };
+      return new JavaxHttpRequest(httpServletRequest);
     }
 
     return request;

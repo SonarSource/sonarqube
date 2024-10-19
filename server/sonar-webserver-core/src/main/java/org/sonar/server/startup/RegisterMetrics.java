@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.server.startup;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.FluentIterable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +36,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.metric.MetricToDto;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.collect.FluentIterable.concat;
 import static com.google.common.collect.Lists.newArrayList;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.sonar.db.metric.RemovedMetricConverter.REMOVED_METRIC;
 
 public class RegisterMetrics implements Startable {
 
@@ -65,7 +67,9 @@ public class RegisterMetrics implements Startable {
 
   @Override
   public void start() {
-    register(concat(CoreMetrics.getMetrics(), getPluginMetrics()));
+    FluentIterable<Metric> metricsToRegister = concat(CoreMetrics.getMetrics(), getPluginMetrics())
+      .filter(m -> !REMOVED_METRIC.equals(m.getKey()));
+    register(metricsToRegister);
   }
 
   @Override

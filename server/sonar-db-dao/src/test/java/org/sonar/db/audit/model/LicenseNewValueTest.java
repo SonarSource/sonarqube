@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,20 +19,21 @@
  */
 package org.sonar.db.audit.model;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LicenseNewValueTest {
+class LicenseNewValueTest {
 
   @Test
-  public void toStringIsEmptyForNullEdition(){
+  void toStringIsEmptyForNullEdition() {
     LicenseNewValue newValue = new LicenseNewValue(null);
     assertThat(newValue).hasToString("{}");
   }
 
   @Test
-  public void toStringHasEdition(){
+  void toStringHasEdition() {
     LicenseNewValue newValue = new LicenseNewValue("Developer");
     assertThat(newValue.toString()).contains("edition");
   }

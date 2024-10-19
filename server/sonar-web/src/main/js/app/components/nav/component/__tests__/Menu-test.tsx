@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import {
-  mockBranch,
-  mockMainBranch,
-  mockPullRequest,
-} from '../../../../../helpers/mocks/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../../types/component';
+import { ComponentPropsType } from '../../../../../helpers/testUtils';
+import { Feature } from '../../../../../types/features';
 import { Menu } from '../Menu';
+
+const handler = new BranchesServiceMock();
 
 const BASE_COMPONENT = mockComponent({
   analysisDate: '2019-12-01',
@@ -35,7 +37,10 @@ const BASE_COMPONENT = mockComponent({
   name: 'foo',
 });
 
-it('should render correctly', () => {
+beforeEach(() => handler.reset());
+
+it('should render correctly', async () => {
+  const user = userEvent.setup();
   const component = {
     ...BASE_COMPONENT,
     configuration: {
@@ -58,52 +63,76 @@ it('should render correctly', () => {
   expect(screen.getByRole('link', { name: 'layout.security_reports' })).toBeInTheDocument();
 
   // Check the dropdown.
-  const button = screen.getByRole('button', { name: 'more' });
+  const button = screen.getByRole('link', { name: 'more' });
   expect(button).toBeInTheDocument();
-  button.click();
-  expect(screen.getByRole('link', { name: 'ComponentFoo' })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'ComponentBar' })).toBeInTheDocument();
+  await user.click(button);
+  expect(screen.getByRole('menuitem', { name: 'ComponentFoo' })).toBeInTheDocument();
+  expect(screen.getByRole('menuitem', { name: 'ComponentBar' })).toBeInTheDocument();
 });
 
-it('should render correctly when on a branch', () => {
-  renderMenu({
-    branchLike: mockBranch(),
-    component: {
-      ...BASE_COMPONENT,
-      configuration: { showSettings: true },
-      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+it('should render correctly when on a Portofolio', () => {
+  const component = {
+    ...BASE_COMPONENT,
+    configuration: {
+      showSettings: true,
+      extensions: [
+        { key: 'foo', name: 'Foo' },
+        { key: 'bar', name: 'Bar' },
+      ],
     },
-  });
-
+    qualifier: ComponentQualifier.Portfolio,
+    extensions: [
+      { key: 'governance/foo', name: 'governance foo' },
+      { key: 'governance/bar', name: 'governance bar' },
+    ],
+  };
+  renderMenu({ component });
   expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'project.info.title' })).toBeInTheDocument();
-
-  // If on a branch, regardless is the user is an admin or not, we do not show
-  // the settings link.
-  expect(
-    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` })
-  ).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'portfolio_breakdown.page' })).toBeInTheDocument();
 });
 
-it('should render correctly when on a pull request', () => {
-  renderMenu({
-    branchLike: mockPullRequest(),
-    component: {
-      ...BASE_COMPONENT,
-      configuration: { showSettings: true },
-      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+it('should render correctly when on a branch', async () => {
+  renderMenu(
+    {
+      component: {
+        ...BASE_COMPONENT,
+        configuration: { showSettings: true },
+        extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+      },
     },
-  });
+    'id=foo&branch=normal-branch',
+  );
 
-  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'project.info.title' })).toBeInTheDocument();
+});
+
+it('should render correctly when on a pull request', async () => {
+  renderMenu(
+    {
+      component: {
+        ...BASE_COMPONENT,
+        configuration: { showSettings: true },
+        extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+      },
+    },
+    'id=foo&pullRequest=01',
+  );
+
+  expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
 
-  expect(
-    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` })
-  ).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(
+      screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` }),
+    ).not.toBeInTheDocument();
+  });
+
   expect(screen.queryByRole('button', { name: 'project.info.title' })).not.toBeInTheDocument();
 });
 
@@ -114,10 +143,16 @@ it('should disable links if no analysis has been done', () => {
       analysisDate: undefined,
     },
   });
-  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'layout.measures' })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'project.info.title' })).toBeInTheDocument();
+
+  expect(screen.queryByRole('link', { name: 'issues.page' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  expect(screen.queryByRole('link', { name: 'layout.measures' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  expect(screen.getByRole('link', { name: 'project.info.title' })).toBeInTheDocument();
 });
 
 it('should disable links if application has inaccessible projects', () => {
@@ -128,25 +163,31 @@ it('should disable links if application has inaccessible projects', () => {
       canBrowseAllChildProjects: false,
     },
   });
-  expect(screen.queryByRole('link', { name: 'overview.page' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'layout.measures' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'overview.page' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  expect(screen.queryByRole('link', { name: 'issues.page' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  expect(screen.queryByRole('link', { name: 'layout.measures' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
   expect(screen.queryByRole('button', { name: 'application.info.title' })).not.toBeInTheDocument();
 });
 
-function renderMenu(props: Partial<Menu['props']> = {}) {
-  const mainBranch = mockMainBranch();
+function renderMenu(props: Partial<ComponentPropsType<typeof Menu>> = {}, params?: string) {
   return renderComponent(
     <Menu
       hasFeature={jest.fn().mockReturnValue(false)}
-      branchLike={mainBranch}
-      branchLikes={[mainBranch]}
       component={BASE_COMPONENT}
       isInProgress={false}
       isPending={false}
-      onToggleProjectInfo={jest.fn()}
-      projectInfoDisplayed={false}
       {...props}
-    />
+    />,
+    params ? `/?${params}` : '/',
+    { featureList: [Feature.BranchSupport] },
   );
 }

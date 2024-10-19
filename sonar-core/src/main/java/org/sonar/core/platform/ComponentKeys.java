@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,11 +23,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.sonar.core.util.Uuids;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ComponentKeys {
-  private static final Logger LOG = Loggers.get(ComponentKeys.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ComponentKeys.class);
   private static final Pattern IDENTITY_HASH_PATTERN = Pattern.compile(".+@[a-f0-9]+");
   private final Set<Class> objectsWithoutToString = new HashSet<>();
 

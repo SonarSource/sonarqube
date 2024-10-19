@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,24 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
 import { translate } from '../../../helpers/l10n';
 
 export default function NoWorkersSupportPopup() {
   return (
     <>
-      <p className="spacer-bottom">
+      <p className="sw-mb-2">
         <strong>{translate('background_tasks.add_more_workers')}</strong>
       </p>
-      <p className="big-spacer-bottom markdown">
-        {translate('background_tasks.add_more_workers.text')}
-      </p>
+      <p className="sw-mb-4 markdown">{translate('background_tasks.add_more_workers.text')}</p>
       <p>
-        <Link
-          to="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
-          target="_blank"
-        >
+        <Link to="https://www.sonarsource.com/plans-and-pricing/enterprise/?referrer=sonarqube-background-tasks">
           {translate('learn_more')}
         </Link>
       </p>

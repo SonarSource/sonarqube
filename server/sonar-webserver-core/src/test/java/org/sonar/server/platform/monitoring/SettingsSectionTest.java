@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.PropertyType;
@@ -30,10 +31,17 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.platform.NodeInformation;
 
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_JAVA_OPTS;
+import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_OPTS;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeDoesNotExist;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
 public class SettingsSectionTest {
@@ -45,7 +53,39 @@ public class SettingsSectionTest {
 
   private PropertyDefinitions defs = new PropertyDefinitions(System2.INSTANCE, PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
   private Settings settings = new MapSettings(defs);
-  private SettingsSection underTest = new SettingsSection(dbTester.getDbClient(), settings);
+  private NodeInformation nodeInformation = mock(NodeInformation.class);
+  private SettingsSection underTest= new SettingsSection(dbTester.getDbClient(), settings, nodeInformation);
+
+  @Before
+  public void setup(){
+    when(nodeInformation.isStandalone()).thenReturn(true);
+  }
+
+  @Test
+  public void should_show_java_settings_in_standalone(){
+    settings.setProperty(WEB_JAVA_OPTS.getKey(), WEB_JAVA_OPTS.getDefaultValue());
+    settings.setProperty(CE_JAVA_OPTS.getKey(), CE_JAVA_OPTS.getDefaultValue());
+    settings.setProperty(SEARCH_JAVA_OPTS.getKey(), SEARCH_JAVA_OPTS.getDefaultValue());
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+
+    assertThatAttributeIs(protobuf, WEB_JAVA_OPTS.getKey(), WEB_JAVA_OPTS.getDefaultValue());
+    assertThatAttributeIs(protobuf, CE_JAVA_OPTS.getKey(), CE_JAVA_OPTS.getDefaultValue());
+    assertThatAttributeIs(protobuf, SEARCH_JAVA_OPTS.getKey(), SEARCH_JAVA_OPTS.getDefaultValue());
+  }
+  @Test
+  public void should_not_show_java_settings_in_cluster(){
+    when(nodeInformation.isStandalone()).thenReturn(false);
+    settings.setProperty(WEB_JAVA_OPTS.getKey(), WEB_JAVA_OPTS.getDefaultValue());
+    settings.setProperty(CE_JAVA_OPTS.getKey(), CE_JAVA_OPTS.getDefaultValue());
+    settings.setProperty(SEARCH_JAVA_OPTS.getKey(), SEARCH_JAVA_OPTS.getDefaultValue());
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+
+    assertThatAttributeDoesNotExist(protobuf, WEB_JAVA_OPTS.getKey());
+    assertThatAttributeDoesNotExist(protobuf, CE_JAVA_OPTS.getKey());
+    assertThatAttributeDoesNotExist(protobuf, SEARCH_JAVA_OPTS.getKey());
+  }
 
   @Test
   public void return_properties_and_sort_by_key() {
@@ -80,12 +120,13 @@ public class SettingsSectionTest {
   }
 
   @Test
-  public void truncate_long_property_values() {
-    settings.setProperty("foo", repeat("abcde", 1_000));
+  public void long_property_values_are_not_truncated() {
+    String value = repeat("abcde", 1_000);
+    settings.setProperty("foo", value);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    String value = attribute(protobuf, "foo").getStringValue();
-    assertThat(value).hasSize(500).startsWith("abcde");
+    String actualValue = attribute(protobuf, "foo").getStringValue();
+    assertThat(actualValue).isEqualTo(value);
   }
 
   @Test

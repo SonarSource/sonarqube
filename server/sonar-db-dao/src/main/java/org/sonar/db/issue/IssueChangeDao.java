@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -40,7 +39,7 @@ public class IssueChangeDao implements Dao {
     return selectByTypeAndIssueKeys(session, singletonList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)
       .stream()
       .map(IssueChangeDto::toFieldDiffs)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   public List<IssueChangeDto> selectByTypeAndIssueKeys(DbSession session, Collection<String> issueKeys, String changeType) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 package org.sonar.server.platform;
 
 import java.util.Optional;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.ServerUpgradeStatus;
@@ -68,10 +68,6 @@ public class DefaultServerUpgradeStatus implements ServerUpgradeStatus, Startabl
   @Override
   public int getInitialDbVersion() {
     return (int) initialDbVersion;
-  }
-
-  public boolean isBlueGreen() {
-    return configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
   }
 
   public boolean isAutoDbUpgrade() {

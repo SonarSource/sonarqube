@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputField, InputSelect } from 'design-system';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import { LabelValueSelectOption } from '../../../helpers/search';
 import { Metric } from '../../../types/types';
 
 interface Props {
-  name: string;
-  value: string;
+  disabled?: boolean;
   metric: Metric;
+  name: string;
   onChange: (value: string) => void;
+  value: string;
 }
 
 export default class ThresholdInput extends React.PureComponent<Props> {
@@ -33,8 +35,12 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     this.props.onChange(e.currentTarget.value);
   };
 
-  handleSelectChange = (option: { value: string }) => {
-    this.props.onChange(option.value);
+  handleSelectChange = (option: LabelValueSelectOption) => {
+    if (option) {
+      this.props.onChange(option.value);
+    } else {
+      this.props.onChange('');
+    }
   };
 
   renderRatingInput() {
@@ -48,33 +54,31 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     ];
 
     return (
-      <Select
-        className="input-tiny text-middle"
-        aria-labelledby="condition-threshold-label"
-        isClearable={false}
-        id="condition-threshold"
+      <InputSelect
+        className="sw-w-abs-150"
+        inputId="condition-threshold"
         name={name}
         onChange={this.handleSelectChange}
         options={options}
         placeholder=""
-        isSearchable={false}
+        size="small"
         value={options.find((o) => o.value === value)}
       />
     );
   }
 
   render() {
-    const { name, value, metric } = this.props;
+    const { name, value, disabled, metric } = this.props;
 
     if (metric.type === 'RATING') {
       return this.renderRatingInput();
     }
 
     return (
-      <input
-        className="input-tiny text-middle"
-        aria-labelledby="condition-threshold-label"
+      <InputField
+        size="small"
         data-type={metric.type}
+        disabled={disabled}
         id="condition-threshold"
         name={name}
         onChange={this.handleChange}

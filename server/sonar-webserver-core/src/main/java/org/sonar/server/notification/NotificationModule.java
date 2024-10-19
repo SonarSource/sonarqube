@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.notification;
 
 import org.sonar.api.config.EmailSettings;
 import org.sonar.core.platform.Module;
+import org.sonar.server.email.EmailSmtpConfiguration;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 
 public class NotificationModule extends Module {
@@ -28,6 +29,7 @@ public class NotificationModule extends Module {
   protected void configureModule() {
     add(
       EmailSettings.class,
+      EmailSmtpConfiguration.class,
       NotificationService.class,
       DefaultNotificationManager.class,
       NotificationDaemon.class,

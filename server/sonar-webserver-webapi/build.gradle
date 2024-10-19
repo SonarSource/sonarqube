@@ -8,16 +8,17 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   api 'com.google.guava:guava'
-  api 'com.github.everit-org.json-schema:org.everit.json.schema'
-
+  implementation 'com.github.erosb:json-sKema'
   api 'io.prometheus:simpleclient_common'
   api 'io.prometheus:simpleclient_servlet'
+  implementation 'org.apache.commons:commons-text'
 
   api project(':server:sonar-ce-common')
   api project(':server:sonar-ce-task')
   api project(':server:sonar-db-dao')
   api project(':server:sonar-process')
   api project(':server:sonar-webserver-auth')
+  api project(':server:sonar-webserver-common')
   api project(':server:sonar-webserver-es')
   api project(':server:sonar-webserver-ws')
   api project(':server:sonar-webserver-pushapi')
@@ -27,22 +28,37 @@ dependencies {
   }
   api project(':sonar-scanner-protocol')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
-  compileOnlyApi 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+  compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
   testImplementation 'org.assertj:assertj-guava'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
-  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'jakarta.servlet:jakarta.servlet-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+  testImplementation 'org.springframework:spring-test'
   testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation testFixtures(project(':server:sonar-webserver-api'))
   testImplementation testFixtures(project(':server:sonar-webserver-auth'))
   testImplementation testFixtures(project(':server:sonar-webserver-es'))
   testImplementation testFixtures(project(':server:sonar-webserver-ws'))
   testImplementation project(':sonar-testing-harness')
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
-}
 
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
+}

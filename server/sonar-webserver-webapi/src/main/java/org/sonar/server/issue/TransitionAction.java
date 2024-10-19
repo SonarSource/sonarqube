@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
@@ -65,7 +65,7 @@ public class TransitionAction extends Action {
     return transitionService.listTransitions(issue)
       .stream()
       .map(Transition::key)
-      .collect(MoreCollectors.toSet())
+      .collect(Collectors.toSet())
       .contains(transitionKey);
   }
 

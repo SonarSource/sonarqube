@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,16 +33,15 @@ import java.util.stream.IntStream;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
-import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static java.lang.Math.abs;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -52,22 +51,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class DBSessionsImplTest {
-  @Rule
-  public LogTester logTester = new LogTester();
+class DBSessionsImplTest {
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private final MyBatis myBatis = mock(MyBatis.class);
   private final DbSession myBatisDbSession = mock(DbSession.class);
   private final Random random = new Random();
   private final DBSessionsImpl underTest = new DBSessionsImpl(myBatis);
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     underTest.disableCaching();
   }
 
   @Test
-  public void openSession_without_caching_always_returns_a_new_regular_session_when_parameter_is_false() {
+  void openSession_without_caching_always_returns_a_new_regular_session_when_parameter_is_false() {
     DbSession[] expected = {mock(DbSession.class), mock(DbSession.class), mock(DbSession.class), mock(DbSession.class)};
     when(myBatis.openSession(false))
       .thenReturn(expected[0])
@@ -76,12 +75,12 @@ public class DBSessionsImplTest {
       .thenReturn(expected[3])
       .thenThrow(oneCallTooMuch());
 
-    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(false)).collect(MoreCollectors.toList()))
+    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(false)).toList())
       .containsExactly(expected);
   }
 
   @Test
-  public void openSession_without_caching_always_returns_a_new_batch_session_when_parameter_is_true() {
+  void openSession_without_caching_always_returns_a_new_batch_session_when_parameter_is_true() {
     DbSession[] expected = {mock(DbSession.class), mock(DbSession.class), mock(DbSession.class), mock(DbSession.class)};
     when(myBatis.openSession(true))
       .thenReturn(expected[0])
@@ -90,12 +89,12 @@ public class DBSessionsImplTest {
       .thenReturn(expected[3])
       .thenThrow(oneCallTooMuch());
 
-    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(true)).collect(MoreCollectors.toList()))
+    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(true)).toList())
       .containsExactly(expected);
   }
 
   @Test
-  public void openSession_with_caching_always_returns_the_same_regular_session_when_parameter_is_false() {
+  void openSession_with_caching_always_returns_the_same_regular_session_when_parameter_is_false() {
     DbSession expected = mock(DbSession.class);
     when(myBatis.openSession(false))
       .thenReturn(expected)
@@ -103,7 +102,7 @@ public class DBSessionsImplTest {
     underTest.enableCaching();
 
     int size = 1 + abs(random.nextInt(10));
-    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(false)).collect(MoreCollectors.toSet());
+    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(false)).collect(Collectors.toSet());
     assertThat(dbSessions).hasSize(size);
     assertThat(getWrappedDbSessions(dbSessions))
       .hasSize(1)
@@ -111,7 +110,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void openSession_with_caching_always_returns_the_same_batch_session_when_parameter_is_true() {
+  void openSession_with_caching_always_returns_the_same_batch_session_when_parameter_is_true() {
     DbSession expected = mock(DbSession.class);
     when(myBatis.openSession(true))
       .thenReturn(expected)
@@ -119,7 +118,7 @@ public class DBSessionsImplTest {
     underTest.enableCaching();
 
     int size = 1 + abs(random.nextInt(10));
-    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(true)).collect(MoreCollectors.toSet());
+    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(true)).collect(Collectors.toSet());
     assertThat(dbSessions).hasSize(size);
     assertThat(getWrappedDbSessions(dbSessions))
       .hasSize(1)
@@ -127,7 +126,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void openSession_with_caching_returns_a_session_per_thread() {
+  void openSession_with_caching_returns_a_session_per_thread() {
     boolean batchOrRegular = random.nextBoolean();
     DbSession[] expected = {mock(DbSession.class), mock(DbSession.class), mock(DbSession.class), mock(DbSession.class)};
     when(myBatis.openSession(batchOrRegular))
@@ -178,7 +177,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void openSession_with_caching_returns_wrapper_of_MyBatis_DbSession_which_delegates_all_methods_but_close() {
+  void openSession_with_caching_returns_wrapper_of_MyBatis_DbSession_which_delegates_all_methods_but_close() {
     boolean batchOrRegular = random.nextBoolean();
 
     underTest.enableCaching();
@@ -348,7 +347,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void openSession_with_caching_returns_DbSession_that_rolls_back_on_close_if_any_mutation_call_was_not_followed_by_commit_nor_rollback() throws SQLException {
+  void openSession_with_caching_returns_DbSession_that_rolls_back_on_close_if_any_mutation_call_was_not_followed_by_commit_nor_rollback() throws SQLException {
     DbSession dbSession = openSessionAndDoSeveralMutatingAndNeutralCalls();
 
     dbSession.close();
@@ -357,7 +356,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void openSession_with_caching_returns_DbSession_that_does_not_roll_back_on_close_if_any_mutation_call_was_followed_by_commit() throws SQLException {
+  void openSession_with_caching_returns_DbSession_that_does_not_roll_back_on_close_if_any_mutation_call_was_followed_by_commit() throws SQLException {
     DbSession dbSession = openSessionAndDoSeveralMutatingAndNeutralCalls();
     COMMIT_CALLS[random.nextBoolean() ? 0 : 1].consume(dbSession);
 
@@ -367,7 +366,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void openSession_with_caching_returns_DbSession_that_does_not_roll_back_on_close_if_any_mutation_call_was_followed_by_rollback_without_parameters() throws SQLException {
+  void openSession_with_caching_returns_DbSession_that_does_not_roll_back_on_close_if_any_mutation_call_was_followed_by_rollback_without_parameters() throws SQLException {
     DbSession dbSession = openSessionAndDoSeveralMutatingAndNeutralCalls();
     dbSession.rollback();
 
@@ -377,7 +376,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void openSession_with_caching_returns_DbSession_that_does_not_roll_back_on_close_if_any_mutation_call_was_followed_by_rollback_with_parameters() throws SQLException {
+  void openSession_with_caching_returns_DbSession_that_does_not_roll_back_on_close_if_any_mutation_call_was_followed_by_rollback_with_parameters() throws SQLException {
     boolean force = random.nextBoolean();
     DbSession dbSession = openSessionAndDoSeveralMutatingAndNeutralCalls();
     dbSession.rollback(force);
@@ -391,8 +390,8 @@ public class DBSessionsImplTest {
   private DbSession openSessionAndDoSeveralMutatingAndNeutralCalls() throws SQLException {
     boolean batchOrRegular = random.nextBoolean();
     when(myBatis.openSession(batchOrRegular))
-        .thenReturn(myBatisDbSession)
-        .thenThrow(oneCallTooMuch());
+      .thenReturn(myBatisDbSession)
+      .thenThrow(oneCallTooMuch());
     underTest.enableCaching();
     DbSession dbSession = underTest.openSession(batchOrRegular);
 
@@ -452,7 +451,7 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void disableCaching_does_not_open_DB_connection_if_openSession_was_never_called() {
+  void disableCaching_does_not_open_DB_connection_if_openSession_was_never_called() {
     when(myBatis.openSession(anyBoolean()))
       .thenThrow(oneCallTooMuch());
     underTest.enableCaching();
@@ -463,14 +462,14 @@ public class DBSessionsImplTest {
   }
 
   @Test
-  public void disableCaching_has_no_effect_if_enabledCaching_has_not_been_called() {
+  void disableCaching_has_no_effect_if_enabledCaching_has_not_been_called() {
     underTest.disableCaching();
 
     verifyNoMoreInteractions(myBatis);
   }
 
   @Test
-  public void disableCaching_does_not_fail_but_logs_if_closing_MyBatis_session_close_throws_an_exception() {
+  void disableCaching_does_not_fail_but_logs_if_closing_MyBatis_session_close_throws_an_exception() {
     boolean batchOrRegular = random.nextBoolean();
     IllegalStateException toBeThrown = new IllegalStateException("Faking MyBatisSession#close failing");
 
@@ -484,7 +483,7 @@ public class DBSessionsImplTest {
 
     underTest.disableCaching();
 
-    List<String> errorLogs = logTester.logs(LoggerLevel.ERROR);
+    List<String> errorLogs = logTester.logs(Level.ERROR);
     assertThat(errorLogs)
       .hasSize(1)
       .containsOnly("Failed to close " + (batchOrRegular ? "batch" : "regular") + " connection in " + Thread.currentThread());

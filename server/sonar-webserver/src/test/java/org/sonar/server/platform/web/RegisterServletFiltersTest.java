@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.server.platform.web;
 
 import org.junit.Test;
+import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.ServletFilter;
 
 import static org.mockito.ArgumentMatchers.anyList;
@@ -30,15 +31,15 @@ public class RegisterServletFiltersTest {
   @Test
   public void should_not_fail_if_master_filter_is_not_up() {
     MasterServletFilter.setInstance(null);
-    new RegisterServletFilters(new ServletFilter[2]).start();
+    new RegisterServletFilters(new ServletFilter[2], new HttpFilter[2]).start();
   }
 
   @Test
   public void should_register_filters_if_master_filter_is_up() {
     MasterServletFilter.setInstance(mock(MasterServletFilter.class));
-    new RegisterServletFilters(new ServletFilter[2]).start();
+    new RegisterServletFilters(new ServletFilter[2], new HttpFilter[2]).start();
 
-    verify(MasterServletFilter.getInstance()).initFilters(anyList());
+    verify(MasterServletFilter.getInstance()).initServletFilters(anyList());
   }
 
   @Test
@@ -46,6 +47,7 @@ public class RegisterServletFiltersTest {
     MasterServletFilter.setInstance(mock(MasterServletFilter.class));
     new RegisterServletFilters().start();
     // do not fail
-    verify(MasterServletFilter.getInstance()).initFilters(anyList());
+    verify(MasterServletFilter.getInstance()).initHttpFilters(anyList());
+    verify(MasterServletFilter.getInstance()).initServletFilters(anyList());
   }
 }

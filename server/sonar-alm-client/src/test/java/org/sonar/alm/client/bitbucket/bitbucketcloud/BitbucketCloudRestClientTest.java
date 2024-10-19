@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,8 +36,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -182,7 +182,7 @@ public class BitbucketCloudRestClientTest {
     assertThatIllegalArgumentException()
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "401", "Unauthorized"));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "401", "Unauthorized"));
   }
 
   @Test
@@ -218,7 +218,7 @@ public class BitbucketCloudRestClientTest {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(ERROR_BBC_SERVERS + ": " + MISSING_PULL_REQUEST_READ_PERMISSION);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(MISSING_PULL_REQUEST_READ_PERMISSION + String.format(SCOPE, ""));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(MISSING_PULL_REQUEST_READ_PERMISSION + String.format(SCOPE, ""));
   }
 
   @Test
@@ -233,7 +233,7 @@ public class BitbucketCloudRestClientTest {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage("Error returned by Bitbucket Cloud: No workspace with identifier 'workspace'.");
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "404", response));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "404", response));
   }
 
   @Test
@@ -246,7 +246,7 @@ public class BitbucketCloudRestClientTest {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + OAUTH_CONSUMER_NOT_PRIVATE);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "400", "invalid_grant"));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "400", "invalid_grant"));
   }
 
   @Test
@@ -258,7 +258,7 @@ public class BitbucketCloudRestClientTest {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + UNAUTHORIZED_CLIENT);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "400", "unauthorized_client"));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "400", "unauthorized_client"));
   }
 
   @Test
@@ -274,7 +274,7 @@ public class BitbucketCloudRestClientTest {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage("Error returned by Bitbucket Cloud: Your credentials lack one or more required privilege scopes.");
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "400", error));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "400", error));
   }
 
   @Test
@@ -303,7 +303,7 @@ public class BitbucketCloudRestClientTest {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validateAppPassword("wrong:wrong", "workspace"))
       .withMessage("Error returned by Bitbucket Cloud: Invalid credentials.");
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "401", response));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "401", response));
   }
 
   @Test
@@ -326,7 +326,7 @@ public class BitbucketCloudRestClientTest {
     assertThatIllegalArgumentException()
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, url, "500", message));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, url, "500", message));
   }
 
   @Test
@@ -339,7 +339,7 @@ public class BitbucketCloudRestClientTest {
     assertThatIllegalArgumentException()
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "500", body));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "500", body));
   }
 
   @Test
@@ -352,7 +352,7 @@ public class BitbucketCloudRestClientTest {
     assertThatIllegalArgumentException()
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "500", body));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL, "500", body));
   }
 
   @Test
@@ -368,6 +368,6 @@ public class BitbucketCloudRestClientTest {
     assertThatIllegalArgumentException()
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly(String.format(BBC_FAIL_WITH_ERROR, serverURL, "SSL verification failed"));
+    assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_ERROR, serverURL, "SSL verification failed"));
   }
 }

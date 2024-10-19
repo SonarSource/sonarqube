@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,65 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { TopBar } from 'design-system';
 import * as React from 'react';
-import ContextNavBar from '../../../../components/ui/ContextNavBar';
-import {
-  ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingResponse,
-} from '../../../../types/alm-settings';
-import { BranchLike } from '../../../../types/branch-like';
-import { ComponentQualifier } from '../../../../types/component';
-import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import NCDAutoUpdateMessage from '../../../../components/new-code-definition/NCDAutoUpdateMessage';
+import { getBranchLikeDisplayName } from '../../../../helpers/branch-like';
+import { translate } from '../../../../helpers/l10n';
+import { isDefined } from '../../../../helpers/types';
+import { useCurrentBranchQuery } from '../../../../queries/branch';
+import { ProjectAlmBindingConfigurationErrors } from '../../../../types/alm-settings';
+import { Feature } from '../../../../types/features';
 import { Component, Organization } from '../../../../types/types';
-import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
-import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps,
+} from '../../available-features/withAvailableFeatures';
 import ComponentNavProjectBindingErrorNotif from './ComponentNavProjectBindingErrorNotif';
 import Header from './Header';
-import HeaderMeta from './HeaderMeta';
 import Menu from './Menu';
-import InfoDrawer from './projectInformation/InfoDrawer';
-import ProjectInformation from './projectInformation/ProjectInformation';
 
-export interface ComponentNavProps {
-  branchLikes: BranchLike[];
-  currentBranchLike: BranchLike | undefined;
+export interface ComponentNavProps extends WithAvailableFeaturesProps {
+  organization: Organization;
   component: Component;
-  currentTask?: Task;
-  currentTaskOnSameBranch?: boolean;
+  comparisonBranchesEnabled: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
-  onComponentChange: (changes: Partial<Component>) => void;
-  onWarningDismiss: () => void;
-  projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
-  warnings: TaskWarning[];
-  organization: Organization;
-  comparisonBranchesEnabled: boolean;
 }
 
-const ALERT_HEIGHT = 30;
-const BRANCHLIKE_TOGGLE_ADDED_HEIGHT = 6;
+function ComponentNav(props: Readonly<ComponentNavProps>) {
+  const { organization, component, comparisonBranchesEnabled, hasFeature, isInProgress, isPending, projectBindingErrors } = props;
 
-export default function ComponentNav(props: ComponentNavProps) {
-  const {
-    branchLikes,
-    component,
-    currentBranchLike,
-    currentTask,
-    currentTaskOnSameBranch,
-    isInProgress,
-    isPending,
-    projectBinding,
-    projectBindingErrors,
-    warnings,
-    organization,
-    comparisonBranchesEnabled,
-  } = props;
-  const { contextNavHeightRaw, globalNavHeightRaw } = rawSizes;
-
-  const [displayProjectInfo, setDisplayProjectInfo] = React.useState(false);
+  const { data: branchLike } = useCurrentBranchQuery(component);
 
   React.useEffect(() => {
     const { breadcrumbs, key, name } = component;
@@ -85,92 +58,31 @@ export default function ComponentNav(props: ComponentNavProps) {
         ComponentQualifier.Project,
         ComponentQualifier.Portfolio,
         ComponentQualifier.Application,
-        ComponentQualifier.Developper,
       ].includes(qualifier as ComponentQualifier)
     ) {
       RecentHistory.add(key, name, qualifier.toLowerCase());
     }
   }, [component, component.key]);
 
-  let contextNavHeight = contextNavHeightRaw;
-
-  let bgTaskNotifComponent;
-  if (isInProgress || isPending || (currentTask && currentTask.status === TaskStatuses.Failed)) {
-    bgTaskNotifComponent = (
-      <ComponentNavBgTaskNotif
-        component={component}
-        currentTask={currentTask}
-        currentTaskOnSameBranch={currentTaskOnSameBranch}
-        isInProgress={isInProgress}
-        isPending={isPending}
-      />
-    );
-    contextNavHeight += ALERT_HEIGHT;
-  }
-
-  let prDecoNotifComponent;
-  if (projectBindingErrors !== undefined) {
-    prDecoNotifComponent = <ComponentNavProjectBindingErrorNotif component={component} />;
-    contextNavHeight += ALERT_HEIGHT;
-  }
-
-  if (branchLikes.length) {
-    contextNavHeight += BRANCHLIKE_TOGGLE_ADDED_HEIGHT;
-  }
+  const branchName =
+    hasFeature(Feature.BranchSupport) || !isDefined(branchLike)
+      ? undefined
+      : getBranchLikeDisplayName(branchLike);
 
   return (
-    <ContextNavBar
-      height={contextNavHeight}
-      id="context-navigation"
-      notif={
-        <>
-          {bgTaskNotifComponent}
-          {prDecoNotifComponent}
-        </>
-      }
-    >
-      <div
-        className={classNames('display-flex-center display-flex-space-between', {
-          'little-padded-bottom little-padded-top': warnings.length === 0,
-          'little-padded-bottom': warnings.length > 0,
-        })}
-      >
-        <Header
-          branchLikes={branchLikes}
-          component={component}
-          currentBranchLike={currentBranchLike}
-          projectBinding={projectBinding}
-          organization={organization}
-          comparisonBranchesEnabled={comparisonBranchesEnabled}
-        />
-        <HeaderMeta
-          branchLike={currentBranchLike}
-          component={component}
-          onWarningDismiss={props.onWarningDismiss}
-          warnings={warnings}
-        />
-      </div>
-      <Menu
-        branchLike={currentBranchLike}
-        branchLikes={branchLikes}
-        component={component}
-        isInProgress={isInProgress}
-        isPending={isPending}
-        onToggleProjectInfo={() => setDisplayProjectInfo(!displayProjectInfo)}
-        projectInfoDisplayed={displayProjectInfo}
-        comparisonBranchesEnabled={comparisonBranchesEnabled}
-      />
-      <InfoDrawer
-        displayed={displayProjectInfo}
-        onClose={() => setDisplayProjectInfo(false)}
-        top={globalNavHeightRaw + contextNavHeight}
-      >
-        <ProjectInformation
-          branchLike={currentBranchLike}
-          component={component}
-          onComponentChange={props.onComponentChange}
-        />
-      </InfoDrawer>
-    </ContextNavBar>
+    <>
+      <TopBar id="context-navigation" aria-label={translate('qualifier', component.qualifier)}>
+        <div className="sw-min-h-10 sw-flex sw-justify-between">
+          <Header component={component} organization={organization} comparisonBranchesEnabled={comparisonBranchesEnabled} />
+        </div>
+        <Menu component={component} isInProgress={isInProgress} isPending={isPending} comparisonBranchesEnabled={comparisonBranchesEnabled} />
+      </TopBar>
+      <NCDAutoUpdateMessage branchName={branchName} component={component} />
+      {projectBindingErrors !== undefined && (
+        <ComponentNavProjectBindingErrorNotif component={component} />
+      )}
+    </>
   );
 }
+
+export default withAvailableFeatures(ComponentNav);

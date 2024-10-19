@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,12 +19,14 @@
  */
 package org.sonar.db.user;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface RoleMapper {
 
-  List<String> selectComponentUuidsByPermissionAndUserUuid(@Param("permission") String permission, @Param("userUuid") String userUuid);
+  List<String> selectEntityUuidsByPermissionAndUserUuidAndQualifier(@Param("permission") String permission,
+    @Param("userUuid") String userUuid, @Param("qualifiers") Collection<String> qualifiers);
 
   void deleteGroupRolesByGroupUuid(String groupUuid);
 

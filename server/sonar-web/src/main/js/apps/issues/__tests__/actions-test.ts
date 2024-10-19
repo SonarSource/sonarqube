@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,26 +34,26 @@ describe('selectFlow', () => {
 describe('enableLocationsNavigator', () => {
   it('should compute the correct flow index', () => {
     expect(
-      enableLocationsNavigator({ openIssue: mockIssue(true), selectedFlowIndex: 20 } as State)
+      enableLocationsNavigator({ openIssue: mockIssue(true), selectedFlowIndex: 20 } as State),
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
         selectedFlowIndex: 20,
-      })
+      }),
     );
     expect(enableLocationsNavigator({ openIssue: mockIssue(true) } as State)).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
         selectedFlowIndex: 0,
-      })
+      }),
     );
     expect(
-      enableLocationsNavigator({ openIssue: mockIssue(true, { flows: [] }) } as State)
+      enableLocationsNavigator({ openIssue: mockIssue(true, { flows: [] }) } as State),
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
         selectedFlowIndex: undefined,
-      })
+      }),
     );
   });
 
@@ -62,25 +62,25 @@ describe('enableLocationsNavigator', () => {
       expect.objectContaining({
         locationsNavigator: true,
         selectedLocationIndex: undefined,
-      })
+      }),
     );
 
     expect(
-      enableLocationsNavigator({ openIssue: mockIssue(true), selectedLocationIndex: -1 } as State)
+      enableLocationsNavigator({ openIssue: mockIssue(true), selectedLocationIndex: -1 } as State),
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
         selectedLocationIndex: 0,
-      })
+      }),
     );
 
     expect(
-      enableLocationsNavigator({ openIssue: mockIssue(true), selectedLocationIndex: 20 } as State)
+      enableLocationsNavigator({ openIssue: mockIssue(true), selectedLocationIndex: 20 } as State),
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
         selectedLocationIndex: 20,
-      })
+      }),
     );
   });
 
@@ -89,7 +89,7 @@ describe('enableLocationsNavigator', () => {
     expect(
       enableLocationsNavigator({
         openIssue: mockIssue(true, { flows: [], secondaryLocations: [] }),
-      } as State)
+      } as State),
     ).toBeNull();
   });
 

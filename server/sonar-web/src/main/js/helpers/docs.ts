@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const VERSION_PARSER = /^(\d+\.\d+).*$/;
 
-export function getUrlForDoc(version: string, to: string) {
-  const versionPrefix = VERSION_PARSER.exec(version);
-  const isSnapshot = version.indexOf('SNAPSHOT') !== -1;
-  const docPrefix =
-    versionPrefix && versionPrefix.length === 2 && !isSnapshot ? versionPrefix[1] : 'latest';
+import React from 'react';
+import { AppStateContext } from '../app/components/app-state/AppStateContext';
+import { DocLink } from './doc-links';
 
-  return `${to}`;
+// This is only meant to be used directly for DocumentationRedirect. For all other uses,
+// please use useDocUrl instead (it forces the use of a catalogued documentation link)
+export function useUncataloguedDocUrl(to?: string) {
+  const { version, documentationUrl: docUrl } = React.useContext(AppStateContext);
+
+  const formatDocUrl = React.useCallback(
+    (href: string) => {
+      const isSnapshot = version.indexOf('SNAPSHOT') !== -1;
+
+      const path = href.replace(/^\//, '');
+
+      return isSnapshot
+        ? `${docUrl.replace(docUrl.slice(docUrl.lastIndexOf('/')), '/latest')}/${path}`
+        : `${docUrl}/${path}`;
+    },
+    [docUrl, version],
+  );
+
+  return to ? formatDocUrl(to) : formatDocUrl;
+}
+
+export function useDocUrl(to: DocLink): string;
+export function useDocUrl(): (to: DocLink) => string;
+export function useDocUrl(to?: DocLink) {
+  return useUncataloguedDocUrl(to);
 }

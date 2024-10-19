@@ -1,0 +1,47 @@
+sonar {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: WebServer :: Common"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+  api 'com.google.guava:guava'
+
+  api project(':server:sonar-db-dao')
+  api project(':server:sonar-webserver-auth')
+  api project(':server:sonar-webserver-ws')
+  implementation project(path: ':server:sonar-auth-gitlab')
+  implementation project(path: ':server:sonar-alm-client')
+
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+  compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
+
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+
+  testImplementation project(':sonar-testing-harness')
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation testFixtures(project(':server:sonar-webserver-api'))
+  testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+  testImplementation testFixtures(project(':server:sonar-webserver-es'))
+
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
+}

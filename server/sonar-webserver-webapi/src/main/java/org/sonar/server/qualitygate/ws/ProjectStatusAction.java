@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
@@ -96,6 +96,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .setSince("5.3")
       .setHandler(this)
       .setChangelog(
+        new Change("10.0", "The fields 'periods' and 'periodIndex' in the response are removed"),
         new Change("9.9", "'caycStatus' field is added to the response"),
         new Change("9.5", "The 'Execute Analysis' permission also allows to access the endpoint"),
         new Change("8.5", "The field 'periods' in the response is deprecated. Use 'period' instead"),
@@ -154,7 +155,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     checkPermission(projectAndSnapshot.project);
     Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
     OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, projectAndSnapshot.project.getOrganizationUuid())
-            .orElseThrow(IllegalArgumentException::new);
+        .orElseThrow(IllegalArgumentException::new);
     QualityGateCaycStatus caycStatus = qualityGateCaycChecker.checkCaycCompliantFromProject(dbSession, organization, projectAndSnapshot.project.getUuid());
 
     return ProjectStatusResponse.newBuilder()
@@ -192,7 +193,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
 
   private ProjectAndSnapshot getSnapshotThenProject(DbSession dbSession, String analysisUuid) {
     SnapshotDto snapshotDto = getSnapshot(dbSession, analysisUuid);
-    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, snapshotDto.getComponentUuid())
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, snapshotDto.getRootComponentUuid())
       .orElseThrow(() -> new IllegalStateException(String.format("Branch '%s' not found", snapshotDto.getUuid())));
     ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, branchDto.getProjectUuid())
       .orElseThrow(() -> new IllegalStateException(String.format("Project '%s' not found", branchDto.getProjectUuid())));
@@ -212,8 +213,8 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       }
       // get the gate status as it was computed during the specified analysis
       String analysisUuid = projectAndSnapshot.snapshotDto.get().getUuid();
-      return dbClient.measureDao().selectMeasure(dbSession, analysisUuid, projectAndSnapshot.branch.getUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY)
-        .map(MeasureDto::getData);
+      return dbClient.projectMeasureDao().selectMeasure(dbSession, analysisUuid, projectAndSnapshot.branch.getUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY)
+        .map(ProjectMeasureDto::getData);
     }
 
     // do not restrict to a specified analysis, use the live measure
@@ -222,9 +223,9 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    if (!userSession.hasProjectPermission(UserRole.ADMIN, project) &&
-      !userSession.hasProjectPermission(UserRole.USER, project) &&
-      !userSession.hasProjectPermission(UserRole.SCAN, project)) {
+    if (!userSession.hasEntityPermission(UserRole.ADMIN, project) &&
+        !userSession.hasEntityPermission(UserRole.USER, project) &&
+        !userSession.hasEntityPermission(UserRole.SCAN, project)) {
       throw insufficientPrivilegesException();
     }
   }

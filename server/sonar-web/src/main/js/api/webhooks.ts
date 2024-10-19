@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { post, postJSON } from '../helpers/request';
 import { Paging } from '../types/types';
-import { Webhook, WebhookDelivery } from '../types/webhook';
+import {
+  WebhookCreatePayload,
+  WebhookDelivery,
+  WebhookResponse,
+  WebhookSearchDeliveriesPayload,
+  WebhookUpdatePayload,
+} from '../types/webhook';
 
-export function createWebhook(data: {
-  name: string;
-  project?: string;
-  secret?: string;
-  url: string;
-}): Promise<{ webhook: Webhook }> {
+export function createWebhook(data: WebhookCreatePayload): Promise<{ webhook: WebhookResponse }> {
   return postJSON('/api/webhooks/create', data).catch(throwGlobalError);
 }
 
@@ -35,26 +37,18 @@ export function deleteWebhook(data: { webhook: string }): Promise<void | Respons
   return post('/api/webhooks/delete', data).catch(throwGlobalError);
 }
 
-export function searchWebhooks(data: { organization?: string; project?: string }): Promise<{ webhooks: Webhook[] }> {
+export function searchWebhooks(data: {
+  organization?: string;
+  project?: string;
+}): Promise<{ webhooks: WebhookResponse[] }> {
   return getJSON('/api/webhooks/list', data).catch(throwGlobalError);
 }
 
-export function updateWebhook(data: {
-  webhook: string;
-  name: string;
-  secret?: string;
-  url: string;
-}): Promise<void | Response> {
+export function updateWebhook(data: WebhookUpdatePayload): Promise<void | Response> {
   return post('/api/webhooks/update', data).catch(throwGlobalError);
 }
 
-export function searchDeliveries(data: {
-  ceTaskId?: string;
-  componentKey?: string;
-  webhook?: string;
-  p?: number;
-  ps?: number;
-}): Promise<{
+export function searchDeliveries(data: WebhookSearchDeliveriesPayload): Promise<{
   deliveries: WebhookDelivery[];
   paging: Paging;
 }> {

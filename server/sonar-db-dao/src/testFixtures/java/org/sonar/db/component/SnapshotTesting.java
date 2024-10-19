@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +21,8 @@ package org.sonar.db.component;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
 
 public class SnapshotTesting {
 
@@ -44,10 +44,10 @@ public class SnapshotTesting {
   public static SnapshotDto newAnalysis(String uuid) {
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
-      .setComponentUuid(uuid)
+      .setRootComponentUuid(uuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setCreatedAt(System.currentTimeMillis())
-      .setBuildDate(System.currentTimeMillis())
+      .setAnalysisDate(System.currentTimeMillis())
       .setRevision(randomAlphanumeric(50))
       .setLast(true);
   }
@@ -55,10 +55,10 @@ public class SnapshotTesting {
   public static SnapshotDto newSnapshot() {
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
-      .setComponentUuid(randomAlphanumeric(40))
+      .setRootComponentUuid(randomAlphanumeric(40))
       .setStatus(randomAscii(1))
       .setCreatedAt(System.currentTimeMillis())
-      .setBuildDate(System.currentTimeMillis())
+      .setAnalysisDate(System.currentTimeMillis())
       .setLast(true);
   }
 }

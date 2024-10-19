@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,8 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.ce.task.ChangeLogLevel;
@@ -96,7 +97,7 @@ public class ComputationStepExecutorTest {
       ChangeLogLevel logLevel3 = new ChangeLogLevel(step3.getClass(), LoggerLevel.INFO)) {
       new ComputationStepExecutor(mockComputationSteps(step1, step2, step3), taskInterrupter).execute();
 
-      List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
+      List<String> infoLogs = logTester.logs(Level.INFO);
       assertThat(infoLogs).hasSize(3);
       assertThat(infoLogs.get(0)).contains("Step One | foo=100 | bar=20 | status=SUCCESS | time=");
       assertThat(infoLogs.get(1)).contains("Step Two | foo=50 | baz=10 | status=SUCCESS | time=");
@@ -126,7 +127,7 @@ public class ComputationStepExecutorTest {
         new ComputationStepExecutor(mockComputationSteps(step1, step2, step3), taskInterrupter).execute();
         fail("a RuntimeException should have been thrown");
       } catch (RuntimeException e) {
-        List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
+        List<String> infoLogs = logTester.logs(Level.INFO);
         assertThat(infoLogs).hasSize(3);
         assertThat(infoLogs.get(0)).contains("Step One | foo=100 | bar=20 | status=SUCCESS | time=");
         assertThat(infoLogs.get(1)).contains("Step Two | foo=50 | baz=10 | status=SUCCESS | time=");

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,11 @@ import com.google.protobuf.AbstractMessageLite;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
 
 @ServerSide
 public class PullActionResponseWriter {
@@ -43,10 +45,11 @@ public class PullActionResponseWriter {
     messageLite.writeDelimitedTo(outputStream);
   }
 
-  public void appendIssuesToResponse(List<IssueDto> issueDtos, OutputStream outputStream) {
+  public void appendIssuesToResponse(List<IssueDto> issueDtos, Map<String, RuleDto> ruleCache, OutputStream outputStream) {
     try {
       for (IssueDto issueDto : issueDtos) {
-        AbstractMessageLite messageLite = protobufObjectGenerator.generateIssueMessage(issueDto);
+        RuleDto ruleDto = ruleCache.get(issueDto.getRuleUuid());
+        AbstractMessageLite messageLite = protobufObjectGenerator.generateIssueMessage(issueDto, ruleDto);
         messageLite.writeDelimitedTo(outputStream);
       }
       outputStream.flush();

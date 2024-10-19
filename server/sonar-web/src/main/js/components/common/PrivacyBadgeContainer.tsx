@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,9 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { Visibility } from '~sonar-aligned/types/component';
 import Tooltip from '../../components/controls/Tooltip';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from '../../types/types';
 
 interface PrivacyBadgeContainerProps {
   className?: string;
@@ -34,12 +34,8 @@ export default function PrivacyBadgeContainer({
   qualifier,
   visibility,
 }: PrivacyBadgeContainerProps) {
-  if (visibility !== 'private') {
-    return null;
-  }
-
   return (
-    <Tooltip overlay={translate('visibility', visibility, 'description', qualifier)}>
+    <Tooltip content={translate('visibility', visibility, 'description', qualifier)}>
       <div className={classNames('badge', className)}>{translate('visibility', visibility)}</div>
     </Tooltip>
   );

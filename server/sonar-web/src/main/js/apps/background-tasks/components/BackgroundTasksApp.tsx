@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
 import {
   cancelAllTasks,
   cancelTask as cancelTaskAPI,
@@ -30,15 +35,14 @@ import {
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { toShortNotSoISOString } from '../../../helpers/dates';
+import { toShortISO8601String } from '../../../helpers/dates';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
-import { Component, Paging, RawQuery } from '../../../types/types';
-import '../background-tasks.css';
+import { Component, Paging } from '../../../types/types';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, PAGE_SIZE } from '../constants';
-import { mapFiltersToParameters, Query, updateTask } from '../utils';
+import { Query, mapFiltersToParameters, updateTask } from '../utils';
 import Header from './Header';
 import Search from './Search';
 import Stats from './Stats';
@@ -84,7 +88,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
         this.setState({ types });
         this.loadTasks();
       },
-      () => {}
+      () => {},
     );
   }
 
@@ -146,7 +150,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
           }));
         }
       },
-      this.stopLoading
+      this.stopLoading,
     );
   };
 
@@ -161,11 +165,11 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     });
 
     if (nextQuery.minSubmittedAt) {
-      nextQuery.minSubmittedAt = toShortNotSoISOString(nextQuery.minSubmittedAt);
+      nextQuery.minSubmittedAt = toShortISO8601String(nextQuery.minSubmittedAt);
     }
 
     if (nextQuery.maxExecutedAt) {
-      nextQuery.maxExecutedAt = toShortNotSoISOString(nextQuery.maxExecutedAt);
+      nextQuery.maxExecutedAt = toShortISO8601String(nextQuery.maxExecutedAt);
     }
 
     this.props.router.push({
@@ -191,7 +195,9 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     this.handleFilterUpdate({ query: task.componentKey });
   };
 
-  handleShowFailing = () => {
+  handleShowFailing = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+
     this.handleFilterUpdate({
       ...DEFAULT_FILTERS,
       status: TaskStatuses.Failed,
@@ -210,69 +216,64 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component } = this.props;
+    const { component, location } = this.props;
     const { loading, pagination, types, tasks } = this.state;
 
-    if (!types) {
-      return (
-        <div className="page page-limited">
-          <i className="spinner" />
-        </div>
-      );
-    }
-
-    const status = this.props.location.query.status || DEFAULT_FILTERS.status;
-    const taskType = this.props.location.query.taskType || DEFAULT_FILTERS.taskType;
-    const currents = this.props.location.query.currents || DEFAULT_FILTERS.currents;
-    const minSubmittedAt = parseAsDate(this.props.location.query.minSubmittedAt);
-    const maxExecutedAt = parseAsDate(this.props.location.query.maxExecutedAt);
-    const query = this.props.location.query.query || '';
+    const status = location.query.status || DEFAULT_FILTERS.status;
+    const taskType = location.query.taskType || DEFAULT_FILTERS.taskType;
+    const currents = location.query.currents || DEFAULT_FILTERS.currents;
+    const minSubmittedAt = parseAsDate(location.query.minSubmittedAt);
+    const maxExecutedAt = parseAsDate(location.query.maxExecutedAt);
+    const query = location.query.query ?? '';
 
     return (
-      <div className="page page-limited">
-        <Suggestions suggestions="background_tasks" />
-        <Helmet defer={false} title={translate('background_tasks.page')} />
-        <Header component={component} />
+      <LargeCenteredLayout id="background-tasks">
+        <PageContentFontWrapper className="sw-my-4 sw-typo-default">
+          <Suggestions suggestion={DocLink.BackgroundTasks} />
+          <Helmet defer={false} title={translate('background_tasks.page')} />
+          <Spinner isLoading={!types}>
+            <Header component={component} />
 
-        <Stats
-          component={component}
-          failingCount={this.state.failingCount}
-          onCancelAllPending={this.handleCancelAllPending}
-          onShowFailing={this.handleShowFailing}
-          pendingCount={this.state.pendingCount}
-          pendingTime={this.state.pendingTime}
-        />
+            <Stats
+              component={component}
+              failingCount={this.state.failingCount}
+              onCancelAllPending={this.handleCancelAllPending}
+              onShowFailing={this.handleShowFailing}
+              pendingCount={this.state.pendingCount}
+              pendingTime={this.state.pendingTime}
+            />
 
-        <Search
-          component={component}
-          currents={currents}
-          loading={loading}
-          maxExecutedAt={maxExecutedAt}
-          minSubmittedAt={minSubmittedAt}
-          onFilterUpdate={this.handleFilterUpdate}
-          onReload={this.loadTasksDebounced}
-          query={query}
-          status={status}
-          taskType={taskType}
-          types={types}
-        />
+            <Search
+              component={component}
+              currents={currents}
+              loading={loading}
+              maxExecutedAt={maxExecutedAt}
+              minSubmittedAt={minSubmittedAt}
+              onFilterUpdate={this.handleFilterUpdate}
+              onReload={this.loadTasksDebounced}
+              query={query}
+              status={status}
+              taskType={taskType}
+              types={types ?? []}
+            />
 
-        <Tasks
-          component={component}
-          loading={loading}
-          onCancelTask={this.handleCancelTask}
-          onFilterTask={this.handleFilterTask}
-          tasks={tasks}
-        />
+            <Tasks
+              component={component}
+              onCancelTask={this.handleCancelTask}
+              onFilterTask={this.handleFilterTask}
+              tasks={tasks}
+            />
 
-        <ListFooter
-          count={tasks.length}
-          loadMore={this.loadMoreTasks}
-          loading={loading}
-          pageSize={pagination.pageSize}
-          total={pagination.total}
-        />
-      </div>
+            <ListFooter
+              count={tasks.length}
+              loadMore={this.loadMoreTasks}
+              loading={loading}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+            />
+          </Spinner>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

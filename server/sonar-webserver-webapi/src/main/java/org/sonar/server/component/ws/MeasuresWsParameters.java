@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -48,15 +48,9 @@ public class MeasuresWsParameters {
 
   public static final String ADDITIONAL_METRICS = "metrics";
 
-  /**
-   * @deprecated since 8.1
-   */
-  @Deprecated
-  public static final String DEPRECATED_ADDITIONAL_PERIODS = "periods";
-
   public static final String ADDITIONAL_PERIOD = "period";
 
-  public static final Set<String> ADDITIONAL_FIELDS = ImmutableSortedSet.of(ADDITIONAL_METRICS, DEPRECATED_ADDITIONAL_PERIODS, ADDITIONAL_PERIOD);
+  public static final Set<String> ADDITIONAL_FIELDS = ImmutableSortedSet.of(ADDITIONAL_METRICS, ADDITIONAL_PERIOD);
 
   private MeasuresWsParameters() {
     // static constants only

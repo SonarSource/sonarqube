@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.user.UserSession;
@@ -54,14 +54,14 @@ public class SettingsWsSupport {
       });
   }
 
-  boolean isVisible(String key, Optional<ComponentDto> component) {
+  boolean isVisible(String key, Optional<EntityDto> component) {
     if (isAdmin(component)) {
       return true;
     }
     return hasPermission(OrganizationPermission.SCAN, UserRole.SCAN, component) || !isProtected(key);
   }
 
-  private boolean isAdmin(Optional<ComponentDto> component) {
+  private boolean isAdmin(Optional<EntityDto> component) {
     return userSession.isSystemAdministrator() || hasPermission(OrganizationPermission.ADMINISTER, ADMIN, component);
   }
 
@@ -77,12 +77,12 @@ public class SettingsWsSupport {
     return ADMIN_ONLY_SETTINGS.contains(key);
   }
 
-  private boolean hasPermission(OrganizationPermission orgPermission, String projectPermission, Optional<ComponentDto> component) {
-    if (userSession.isSystemAdministrator()) {
+  private boolean hasPermission(OrganizationPermission orgPermission, String projectPermission, Optional<EntityDto> component) {
+    if (userSession.hasPermission(orgPermission, component.getOrganizationUuid())) {
       return true;
     }
     return component
-      .map(c -> userSession.hasPermission(orgPermission, c.getOrganizationUuid()) || userSession.hasComponentPermission(projectPermission, c))
+      .map(c -> userSession.hasEntityPermission(projectPermission, c))
       .orElse(false);
   }
 

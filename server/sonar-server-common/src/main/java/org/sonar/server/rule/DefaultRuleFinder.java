@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -133,7 +133,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
   private org.sonar.api.rules.Rule toRule(RuleDto rule, List<RuleParamDto> params) {
     String severity = rule.getSeverityString();
 
-    org.sonar.api.rules.Rule apiRule = new org.sonar.api.rules.Rule();
+    org.sonar.api.rules.Rule apiRule = org.sonar.api.rules.Rule.create();
     apiRule
       .setName(rule.getName())
       .setLanguage(rule.getLanguage())
@@ -150,12 +150,13 @@ public class DefaultRuleFinder implements ServerRuleFinder {
 
     Optional.ofNullable(ruleDescriptionFormatter.getDescriptionAsHtml(rule)).ifPresent(apiRule::setDescription);
 
-    List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {
-      apiParams.add(new org.sonar.api.rules.RuleParam(apiRule, param.getName(), param.getDescription(), param.getType())
-        .setDefaultValue(param.getDefaultValue()));
+      apiRule.createParameter()
+        .setType(param.getType())
+        .setDescription(param.getDescription())
+        .setKey(param.getName())
+        .setDefaultValue(param.getDefaultValue());
     }
-    apiRule.setParams(apiParams);
 
     return apiRule;
   }

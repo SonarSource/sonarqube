@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.issue.IssueDto;
 
+import static java.util.Collections.emptyMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -55,7 +56,7 @@ public class PullActionResponseWriterTest {
     issueDto.setStatus("OPEN");
     issueDto.setRuleKey("repo", "rule");
 
-    underTest.appendIssuesToResponse(List.of(issueDto), outputStream);
+    underTest.appendIssuesToResponse(List.of(issueDto), emptyMap(), outputStream);
 
     verify(outputStream, atLeastOnce()).write(any(byte[].class), anyInt(), anyInt());
   }

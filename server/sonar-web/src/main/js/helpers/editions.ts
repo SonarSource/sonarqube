@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,19 +31,19 @@ const EDITIONS: { [x in EditionKey]: Edition } = {
   developer: {
     key: EditionKey.developer,
     name: 'Developer Edition',
-    homeUrl: 'https://www.sonarsource.com/plans-and-pricing/developer/',
+    homeUrl: 'https://www.sonarsource.com/products/sonarqube/developer-edition/marketplace/',
     downloadProperty: 'downloadDeveloperUrl',
   },
   enterprise: {
     key: EditionKey.enterprise,
     name: 'Enterprise Edition',
-    homeUrl: 'https://www.sonarsource.com/plans-and-pricing/enterprise/',
+    homeUrl: 'https://www.sonarsource.com/products/sonarqube/enterprise-edition/marketplace/',
     downloadProperty: 'downloadEnterpriseUrl',
   },
   datacenter: {
     key: EditionKey.datacenter,
     name: 'Data Center Edition',
-    homeUrl: 'https://www.sonarsource.com/plans-and-pricing/data-center/',
+    homeUrl: 'https://www.sonarsource.com/products/sonarqube/data-center-edition/marketplace/',
     downloadProperty: 'downloadDatacenterUrl',
   },
 };
@@ -60,7 +60,7 @@ export function getAllEditionsAbove(currentEdition?: EditionKey) {
 
 export function getEditionUrl(
   edition: Edition,
-  data: { serverId?: string; ncloc?: number; sourceEdition?: EditionKey }
+  data: { ncloc?: number; serverId?: string; sourceEdition?: EditionKey },
 ) {
   let url = edition.homeUrl;
   const query = new URLSearchParams(omitNil(data)).toString();

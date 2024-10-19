@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -82,19 +82,6 @@ public class AllProcessesCommandsTest {
       commands.setOperational(PROCESS_NUMBER);
       assertThat(commands.isOperational(PROCESS_NUMBER)).isTrue();
       assertThat(readByte(commands, offset)).isEqualTo(OPERATIONAL);
-    }
-  }
-
-  @Test
-  public void write_and_read_ping() throws IOException {
-    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
-      int offset = 5;
-
-      assertThat(readLong(commands, offset)).isZero();
-
-      long currentTime = System.currentTimeMillis();
-      commands.ping(PROCESS_NUMBER);
-      assertThat(readLong(commands, offset)).isGreaterThanOrEqualTo(currentTime);
     }
   }
 

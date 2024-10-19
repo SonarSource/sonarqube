@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ public class ListAction implements WsAction {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginArray();
       sonarQubeFeatures.stream()
-        .filter(SonarQubeFeature::isEnabled)
+        .filter(SonarQubeFeature::isAvailable)
         .forEach(f -> json.value(f.getName()));
       json.endArray();
     }

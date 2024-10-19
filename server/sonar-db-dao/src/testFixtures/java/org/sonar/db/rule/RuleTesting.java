@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,29 +19,31 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Date;
+import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.Uuids;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -58,10 +60,16 @@ public class RuleTesting {
 
   private static final AtomicLong nextRuleId = new AtomicLong(0);
 
+  private static final Random RANDOM = new SecureRandom();
+
   private static final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   private RuleTesting() {
     // only static helpers
+  }
+
+  public static RuleDto newRule() {
+    return newRule(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
   }
 
   public static RuleDto newRule(RuleDescriptionSectionDto... ruleDescriptionSectionDtos) {
@@ -91,21 +99,25 @@ public class RuleTesting {
       .setName("name_" + randomAlphanumeric(5))
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setType(CODE_SMELL)
+      .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
+      .addDefaultImpact(new ImpactDto()
+        .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
+        .setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setStatus(RuleStatus.READY)
-      .setConfigKey("configKey_" + randomAlphanumeric(5))
-      .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
+      .setConfigKey("configKey_" + ruleKey.rule())
+      .setSeverity(Severity.ALL.get(RANDOM.nextInt(Severity.ALL.size())))
       .setIsTemplate(false)
       .setIsExternal(false)
       .setIsAdHoc(false)
       .setSystemTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
       .setLanguage("lang_" + randomAlphanumeric(3))
       .setGapDescription("gapDescription_" + randomAlphanumeric(5))
-      .setDefRemediationBaseEffort(nextInt(10) + "h")
-      //voluntarily offset the remediation to be able to detect issues
-      .setDefRemediationGapMultiplier((nextInt(10) + 10) + "h")
+      .setDefRemediationBaseEffort(RANDOM.nextInt(10) + "h")
+      // voluntarily offset the remediation to be able to detect issues
+      .setDefRemediationGapMultiplier((RANDOM.nextInt(10) + 10) + "h")
       .setDefRemediationFunction("LINEAR_OFFSET")
-      .setRemediationBaseEffort(nextInt(10) + "h")
-      .setRemediationGapMultiplier(nextInt(10) + "h")
+      .setRemediationBaseEffort(RANDOM.nextInt(10) + "h")
+      .setRemediationGapMultiplier(RANDOM.nextInt(10) + "h")
       .setRemediationFunction("LINEAR_OFFSET")
       .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
       .setNoteData("noteData_" + randomAlphanumeric(5))
@@ -114,8 +126,8 @@ public class RuleTesting {
       .setNoteUpdatedAt(System.currentTimeMillis() - 150)
       .setAdHocName("adHocName_" + randomAlphanumeric(5))
       .setAdHocDescription("adHocDescription_" + randomAlphanumeric(5))
-      .setAdHocSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
-      .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)])
+      .setAdHocSeverity(Severity.ALL.get(RANDOM.nextInt(Severity.ALL.size())))
+      .setAdHocType(RuleType.values()[RANDOM.nextInt(RuleType.values().length - 1)])
       .setCreatedAt(currentTimeMillis)
       .setUpdatedAt(currentTimeMillis + 5)
       .setScope(Scope.MAIN)
@@ -140,72 +152,16 @@ public class RuleTesting {
       .setCreatedAt(System.currentTimeMillis());
   }
 
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
   public static RuleDto newXooX1() {
-    return newDto(XOO_X1).setLanguage("xoo");
+    return newRule(XOO_X1).setLanguage("xoo");
   }
 
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
   public static RuleDto newXooX2() {
-    return newDto(XOO_X2).setLanguage("xoo");
-  }
-
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
-  public static RuleDto newXooX3() {
-    return newDto(XOO_X3).setLanguage("xoo");
-  }
-
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
-  public static RuleDto newDto(RuleKey ruleKey) {
-
-    return new RuleDto()
-      .setUuid("uuid_" + Uuids.createFast())
-      .setRuleKey(ruleKey.rule())
-      .setRepositoryKey(ruleKey.repository())
-      .setName("Rule " + ruleKey.rule())
-      .setDescriptionFormat(RuleDto.Format.HTML)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Description" + ruleKey.rule()))
-      .setStatus(RuleStatus.READY)
-      .setConfigKey("InternalKey" + ruleKey.rule())
-      .setSeverity(Severity.INFO)
-      .setIsTemplate(false)
-      .setSystemTags(ImmutableSet.of("systag1", "systag2"))
-      .setLanguage("js")
-      .setDefRemediationFunction("LINEAR_OFFSET")
-      .setDefRemediationGapMultiplier("5d")
-      .setDefRemediationBaseEffort("10h")
-      .setGapDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setType(CODE_SMELL)
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime())
-      .setScope(Scope.MAIN)
-      .setTags(ImmutableSet.of("tag1", "tag2"))
-      .setRemediationFunction("LINEAR")
-      .setRemediationGapMultiplier("1h");
-  }
-
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
-  public static RuleDto newRuleDto() {
-    return newDto(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
+    return newRule(XOO_X2).setLanguage("xoo");
   }
 
   public static RuleDto newTemplateRule(RuleKey ruleKey) {
-    return newDto(ruleKey)
+    return newRule(ruleKey)
       .setIsTemplate(true);
   }
 
@@ -288,6 +244,14 @@ public class RuleTesting {
 
   public static Consumer<RuleDto> setTags(String... tags) {
     return rule -> rule.setTags(copyOf(tags));
+  }
+
+  public static Consumer<RuleDto> setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+    return rule -> rule.setCleanCodeAttribute(cleanCodeAttribute);
+  }
+
+  public static Consumer<RuleDto> setImpacts(Collection<ImpactDto> impacts) {
+    return rule -> rule.replaceAllDefaultImpacts(impacts);
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,41 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
+import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../../types/component';
-import { TaskStatuses } from '../../../../../types/tasks';
 import ComponentNav, { ComponentNavProps } from '../ComponentNav';
 
-it('renders correctly when there are warnings', () => {
-  renderComponentNav({ warnings: [mockTaskWarning()] });
-  expect(
-    screen.getByText('component_navigation.last_analysis_had_warnings', { exact: false })
-  ).toBeInTheDocument();
-});
+const branchesHandler = new BranchesServiceMock();
+const almHandler = new AlmSettingsServiceMock();
 
-it('renders correctly when there is a background task in progress', () => {
-  renderComponentNav({ isInProgress: true });
-  expect(
-    screen.getByText('component_navigation.status.in_progress', { exact: false })
-  ).toBeInTheDocument();
-});
-
-it('renders correctly when there is a background task pending', () => {
-  renderComponentNav({ isPending: true });
-  expect(
-    screen.getByText('component_navigation.status.pending', { exact: false })
-  ).toBeInTheDocument();
-});
-
-it('renders correctly when there is a failing background task', () => {
-  renderComponentNav({ currentTask: mockTask({ status: TaskStatuses.Failed }) });
-  expect(
-    screen.getByText('component_navigation.status.failed_X', { exact: false })
-  ).toBeInTheDocument();
+afterEach(() => {
+  branchesHandler.reset();
+  almHandler.reset();
 });
 
 it('renders correctly when the project binding is incorrect', () => {
@@ -60,34 +41,27 @@ it('renders correctly when the project binding is incorrect', () => {
     projectBindingErrors: mockProjectAlmBindingConfigurationErrors(),
   });
   expect(
-    screen.getByText('component_navigation.pr_deco.error_detected_X', { exact: false })
+    screen.getByText('component_navigation.pr_deco.error_detected_X', { exact: false }),
   ).toBeInTheDocument();
 });
 
-it('correctly returns focus to the Project Information link when the drawer is closed', () => {
+it('correctly returns focus to the Project Information link when the drawer is closed', async () => {
+  const user = userEvent.setup();
   renderComponentNav();
-  screen.getByRole('button', { name: 'project.info.title' }).click();
-  expect(screen.getByRole('button', { name: 'project.info.title' })).not.toHaveFocus();
-
-  screen.getByRole('button', { name: 'close' }).click();
-  expect(screen.getByRole('button', { name: 'project.info.title' })).toHaveFocus();
+  await user.click(screen.getByRole('link', { name: 'project.info.title' }));
+  expect(await screen.findByText('/project/information?id=my-project')).toBeInTheDocument();
 });
 
 function renderComponentNav(props: Partial<ComponentNavProps> = {}) {
   return renderApp(
     '/',
     <ComponentNav
-      branchLikes={[]}
       component={mockComponent({
         breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
       })}
-      currentBranchLike={undefined}
       isInProgress={false}
       isPending={false}
-      onComponentChange={jest.fn()}
-      onWarningDismiss={jest.fn()}
-      warnings={[]}
       {...props}
-    />
+    />,
   );
 }

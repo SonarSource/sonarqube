@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
 import org.sonar.core.config.PurgeProperties;
@@ -34,20 +40,26 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
 import static java.util.Collections.emptySet;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ProjectCleanerTest {
 
+  public static final String DUMMY_PROFILE_CONTENT = "DUMMY PROFILE CONTENT";
   private ProjectCleaner underTest;
   private PurgeDao dao = mock(PurgeDao.class);
   private PurgeProfiler profiler = mock(PurgeProfiler.class);
   private DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
   private PurgeListener purgeListener = mock(PurgeListener.class);
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, PurgeProperties.all()));
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Before
   public void before() {
@@ -70,15 +82,25 @@ public class ProjectCleanerTest {
 
     underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptySet());
 
-    verify(profiler, never()).dump(anyLong(), any());
+    verify(profiler, never()).getProfilingResult(anyLong());
+    assertThat(logTester.getLogs().stream()
+      .map(LogAndArguments::getFormattedMsg)
+      .collect(Collectors.joining()))
+      .doesNotContain("Profiling for purge");
   }
 
   @Test
   public void profiling_when_property_is_true() {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
+    when(profiler.getProfilingResult(anyLong())).thenReturn(List.of(DUMMY_PROFILE_CONTENT));
 
     underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptySet());
 
-    verify(profiler).dump(anyLong(), any());
+    verify(profiler).getProfilingResult(anyLong());
+    assertThat(logTester.getLogs(Level.INFO).stream()
+      .map(LogAndArguments::getFormattedMsg)
+      .collect(Collectors.joining()))
+      .contains("Profiling for purge")
+      .contains(DUMMY_PROFILE_CONTENT);
   }
 }

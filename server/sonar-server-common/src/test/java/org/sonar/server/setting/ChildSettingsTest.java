@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -52,7 +52,7 @@ public class ChildSettingsTest {
     parent.setProperty(randomAlphanumeric(12), RANDOM.nextDouble());
     parent.setProperty(randomAlphanumeric(13), RANDOM.nextFloat());
     parent.setProperty(randomAlphanumeric(14), RANDOM.nextBoolean());
-    parent.setProperty(randomAlphanumeric(15), RANDOM.nextInt());
+    parent.setProperty(randomAlphanumeric(15), RANDOM.nextInt(Integer.MAX_VALUE));
     parent.setProperty(randomAlphanumeric(16), new Date(RANDOM.nextInt()));
     parent.setProperty(randomAlphanumeric(17), new Date(RANDOM.nextInt()), true);
     parent.setProperty(randomAlphanumeric(18), new Date(RANDOM.nextInt()), false);
@@ -100,7 +100,7 @@ public class ChildSettingsTest {
     assertThat(underTest.get(key)).isEqualTo(Optional.of(childValue));
 
     underTest.remove(key);
-    assertThat(underTest.get(key)).isEqualTo(Optional.empty());
+    assertThat(underTest.get(key)).isEmpty();
   }
 
   @Test

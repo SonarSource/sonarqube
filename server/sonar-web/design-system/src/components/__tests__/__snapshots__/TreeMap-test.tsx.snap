@@ -1,0 +1,194 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly and forward click event 1`] = `
+.emotion-0 {
+  position: relative;
+}
+
+.emotion-2 {
+  position: absolute;
+  box-sizing: border-box;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+}
+
+.emotion-4 {
+  height: 100%;
+  width: 100%;
+  border-width: 0px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  color: rgb(62,67,87);
+}
+
+.emotion-4:hover,
+.emotion-4:active,
+.emotion-4:focus {
+  border-width: 0px;
+  outline: none;
+}
+
+.emotion-4:focus .treemap-text,
+.emotion-4:hover .treemap-text {
+  text-decoration-line: underline;
+}
+
+.emotion-6 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  gap: 0.5rem;
+  line-height: 1.2;
+  max-width: 83px;
+}
+
+.emotion-6 .treemap-text {
+  -webkit-flex-shrink: 1;
+  -ms-flex-negative: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.emotion-8 {
+  position: absolute!important;
+  left: -10000px!important;
+  top: auto!important;
+  width: 1px!important;
+  height: 1px!important;
+  overflow: hidden!important;
+}
+
+.emotion-22 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  gap: 0.5rem;
+  line-height: 1.2;
+  max-width: 17px;
+}
+
+.emotion-22 .treemap-text {
+  -webkit-flex-shrink: 1;
+  -ms-flex-negative: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+<div>
+  <ul
+    class="emotion-0 emotion-1"
+    style="width: 100px; height: 100px;"
+  >
+    <li
+      class="emotion-2 emotion-3"
+      style="left: 0px; top: 0px; width: 83px; height: 60px; background-color: rgb(119, 119, 119); font-size: 12.974358974358974px; line-height: 60px;"
+    >
+      <a
+        class="emotion-4 emotion-5"
+        href="#"
+      >
+        <div
+          class="emotion-6 emotion-7"
+          width="83"
+        >
+          <span
+            class="shrink-0"
+          />
+          <span
+            class="treemap-text"
+          >
+            SonarQube_Web
+          </span>
+          <span
+            class="emotion-8 emotion-9"
+          />
+        </div>
+      </a>
+    </li>
+    <li
+      class="emotion-2 emotion-3"
+      style="left: 0px; top: 60px; width: 83px; height: 40px; font-size: 12.276041666666668px; line-height: 40px;"
+    >
+      <a
+        class="emotion-4 emotion-5"
+        href="#"
+      >
+        <div
+          class="emotion-6 emotion-7"
+          width="83"
+        >
+          <span
+            class="shrink-0"
+          />
+          <span
+            class="emotion-8 emotion-9"
+          />
+        </div>
+      </a>
+    </li>
+    <li
+      class="emotion-2 emotion-3"
+      style="left: 83px; top: 0px; width: 17px; height: 100px; background-color: rgb(119, 119, 119); font-size: 11px; line-height: 100px;"
+    >
+      <a
+        class="emotion-4 emotion-5"
+        href="#"
+      >
+        <div
+          class="emotion-22 emotion-7"
+          width="17"
+        >
+          <span
+            class="emotion-8 emotion-9"
+          />
+        </div>
+      </a>
+    </li>
+  </ul>
+</div>
+`;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
 
@@ -46,29 +50,39 @@ public class BaseContextFactory {
     this.threadLocalUserSession = threadLocalUserSession;
   }
 
-  public BaseIdentityProvider.Context newContext(HttpServletRequest request, HttpServletResponse response, BaseIdentityProvider identityProvider) {
+  public BaseIdentityProvider.Context newContext(HttpRequest request, HttpResponse response, BaseIdentityProvider identityProvider) {
     return new ContextImpl(request, response, identityProvider);
   }
 
   private class ContextImpl implements BaseIdentityProvider.Context {
-    private final HttpServletRequest request;
-    private final HttpServletResponse response;
+    private final HttpRequest request;
+    private final HttpResponse response;
     private final BaseIdentityProvider identityProvider;
 
-    public ContextImpl(HttpServletRequest request, HttpServletResponse response, BaseIdentityProvider identityProvider) {
+    public ContextImpl(HttpRequest request, HttpResponse response, BaseIdentityProvider identityProvider) {
       this.request = request;
       this.response = response;
       this.identityProvider = identityProvider;
     }
 
     @Override
-    public HttpServletRequest getRequest() {
+    public HttpRequest getHttpRequest() {
       return request;
     }
 
     @Override
-    public HttpServletResponse getResponse() {
+    public HttpResponse getHttpResponse() {
       return response;
+    }
+
+    @Override
+    public HttpServletRequest getRequest() {
+      return ((JavaxHttpRequest) request).getDelegate();
+    }
+
+    @Override
+    public HttpServletResponse getResponse() {
+      return ((JavaxHttpResponse) response).getDelegate();
     }
 
     @Override
@@ -85,7 +99,7 @@ public class BaseContextFactory {
           .setSource(Source.external(identityProvider))
           .build());
       jwtHttpHandler.generateToken(userDto, request, response);
-      threadLocalUserSession.set(userSessionFactory.create(userDto));
+      threadLocalUserSession.set(userSessionFactory.create(userDto, true));
     }
   }
 }

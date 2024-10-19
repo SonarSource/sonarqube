@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,17 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { chunk, flatMap, groupBy, sortBy } from 'lodash';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  OLD_TO_NEW_TAXONOMY_METRICS_MAP,
+} from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
-import { MetricKey } from '../../types/metrics';
 import { GraphType, MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
 import { Dict, Metric } from '../../types/types';
 
 export const DEFAULT_GRAPH = GraphType.issues;
 
 const GRAPHS_METRICS_DISPLAYED: Dict<string[]> = {
-  [GraphType.issues]: [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
+  [GraphType.issues]: [MetricKey.violations],
   [GraphType.coverage]: [MetricKey.lines_to_cover, MetricKey.uncovered_lines],
   [GraphType.duplications]: [MetricKey.ncloc, MetricKey.duplicated_lines],
 };
@@ -46,12 +50,15 @@ const GRAPHS_METRICS: Dict<string[]> = {
   ],
 };
 
+export const LINE_CHART_DASHES = [0, 3, 7];
+
 export function isCustomGraph(graph: GraphType) {
   return graph === GraphType.custom;
 }
 
 export function getGraphTypes(ignoreCustom = false) {
   const graphs = [GraphType.issues, GraphType.coverage, GraphType.duplications];
+
   return ignoreCustom ? graphs : [...graphs, GraphType.custom];
 }
 
@@ -64,7 +71,7 @@ export function hasHistoryData(series: Serie[]) {
 }
 
 export function getSeriesMetricType(series: Serie[]) {
-  return series.length > 0 ? series[0].type : 'INT';
+  return series.length > 0 ? series[0].type : MetricType.Integer;
 }
 
 export function getDisplayedHistoryMetrics(graph: GraphType, customMetrics: string[]) {
@@ -82,17 +89,18 @@ export function hasHistoryDataValue(series: Serie[]) {
 export function splitSeriesInGraphs(series: Serie[], maxGraph: number, maxSeries: number) {
   return flatMap(
     groupBy(series, (serie) => serie.type),
-    (type) => chunk(type, maxSeries)
+    (type) => chunk(type, maxSeries),
   ).slice(0, maxGraph);
 }
 
 export function generateCoveredLinesMetric(
   uncoveredLines: MeasureHistory,
-  measuresHistory: MeasureHistory[]
-) {
+  measuresHistory: MeasureHistory[],
+): Serie {
   const linesToCover = measuresHistory.find(
-    (measure) => measure.metric === MetricKey.lines_to_cover
+    (measure) => measure.metric === MetricKey.lines_to_cover,
   );
+
   return {
     data: linesToCover
       ? uncoveredLines.history.map((analysis, idx) => ({
@@ -102,19 +110,20 @@ export function generateCoveredLinesMetric(
       : [],
     name: 'covered_lines',
     translatedName: translate('project_activity.custom_metric.covered_lines'),
-    type: 'INT',
+    type: MetricType.Integer,
   };
 }
 
 export function generateSeries(
   measuresHistory: MeasureHistory[],
   graph: GraphType,
-  metrics: Metric[] | Dict<Metric>,
-  displayedMetrics: string[]
+  metrics: Metric[],
+  displayedMetrics: string[],
 ): Serie[] {
   if (displayedMetrics.length <= 0 || measuresHistory === undefined) {
     return [];
   }
+
   return sortBy(
     measuresHistory
       .filter((measure) => displayedMetrics.indexOf(measure.metric) >= 0)
@@ -123,18 +132,30 @@ export function generateSeries(
           return generateCoveredLinesMetric(measure, measuresHistory);
         }
         const metric = findMetric(measure.metric, metrics);
+        const isSoftwareQualityMetric = CCT_SOFTWARE_QUALITY_METRICS.includes(
+          metric?.key as MetricKey,
+        );
         return {
-          data: measure.history.map((analysis) => ({
-            x: analysis.date,
-            y: metric && metric.type === 'LEVEL' ? analysis.value : Number(analysis.value),
-          })),
+          data: measure.history.map((analysis) => {
+            let { value } = analysis;
+
+            if (value !== undefined && isSoftwareQualityMetric) {
+              value = JSON.parse(value).total;
+            }
+            return {
+              x: analysis.date,
+              y: metric?.type === MetricType.Level ? value : Number(value),
+            };
+          }),
           name: measure.metric,
           translatedName: metric ? getLocalizedMetricName(metric) : localizeMetric(measure.metric),
-          type: metric ? metric.type : 'INT',
+          type: !metric || isSoftwareQualityMetric ? MetricType.Integer : metric.type,
         };
       }),
     (serie) =>
-      displayedMetrics.indexOf(serie.name === 'covered_lines' ? 'uncovered_lines' : serie.name)
+      displayedMetrics.indexOf(
+        serie.name === 'covered_lines' ? MetricKey.uncovered_lines : serie.name,
+      ),
   );
 }
 
@@ -142,19 +163,21 @@ export function saveActivityGraph(
   namespace: string,
   project: string,
   graph: GraphType,
-  metrics: string[] = []
+  metrics?: string[],
 ) {
   save(namespace, graph, project);
-  if (isCustomGraph(graph)) {
+
+  if (isCustomGraph(graph) && metrics) {
     save(`${namespace}.custom`, metrics.join(','), project);
   }
 }
 
 export function getActivityGraph(
   namespace: string,
-  project: string
-): { graph: GraphType; customGraphs: string[] } {
+  project: string,
+): { customGraphs: string[]; graph: GraphType } {
   const customGraphs = get(`${namespace}.custom`, project);
+
   return {
     graph: (get(namespace, project) as GraphType) || DEFAULT_GRAPH,
     customGraphs: customGraphs ? customGraphs.split(',') : [],
@@ -168,12 +191,23 @@ export function getAnalysisEventsForDate(analyses: ParsedAnalysis[], date?: Date
       return analysis.events;
     }
   }
+
   return [];
 }
 
-function findMetric(key: string, metrics: Metric[] | Dict<Metric>) {
-  if (Array.isArray(metrics)) {
-    return metrics.find((metric) => metric.key === key);
+export function getDeprecatedTranslationKeyForTooltip(metric: MetricKey) {
+  const quality = OLD_TO_NEW_TAXONOMY_METRICS_MAP[metric];
+
+  let deprecatedKey = 'severity';
+  if (quality) {
+    deprecatedKey = 'quality';
+  } else if (metric === MetricKey.confirmed_issues) {
+    deprecatedKey = 'confirmed';
   }
-  return metrics[key];
+
+  return `project_activity.custom_metric.deprecated.${deprecatedKey}`;
+}
+
+function findMetric(key: string, metrics: Metric[]) {
+  return metrics.find((metric) => metric.key === key);
 }

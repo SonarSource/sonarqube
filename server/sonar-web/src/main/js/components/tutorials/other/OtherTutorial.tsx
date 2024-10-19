@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LightLabel, PageContentFontWrapper, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
-import InstanceMessage from '../../common/InstanceMessage';
-import {getHostUrl} from "../../../helpers/urls";
+import ProjectAnalysisStep from './ProjectAnalysisStep';
+import TokenStep from './TokenStep';
 
 export enum Steps {
   ANALYSIS,
@@ -30,9 +31,9 @@ export enum Steps {
 }
 
 interface Props {
+  baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
-  baseUrl: string;
   isLocal?: boolean;
 }
 
@@ -53,17 +54,36 @@ export default class OtherTutorial extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const projectKey = this.props.component.key;
+    const { component, baseUrl, currentUser, isLocal = false } = this.props;
+    const { step, token } = this.state;
 
     return (
-      <>
-        <div className="page-header big-spacer-bottom">
-          <h2 className="page-title">{translate('onboarding.project_analysis.header')}</h2>
-          <p className="page-description">
-            <p>{translate('layout.must_be_configured')} Run analysis on <a href={getHostUrl() + '/project/extension/developer/project?id=' + projectKey}>Project Analysis</a> Page. </p>
-          </p>
+      <PageContentFontWrapper className="sw-typo-default">
+        <div className="sw-mb-4">
+          <Title>{translate('onboarding.project_analysis.header')} </Title>
+          <LightLabel>{translate('onboarding.project_analysis.description')}</LightLabel>
         </div>
-      </>
+
+        <TokenStep
+          currentUser={currentUser}
+          projectKey={component.key}
+          finished={Boolean(this.state.token)}
+          initialTokenName={`Analyze "${component.name}"`}
+          onContinue={this.handleTokenDone}
+          onOpen={this.handleTokenOpen}
+          open={step === Steps.TOKEN}
+          stepNumber={1}
+        />
+
+        <ProjectAnalysisStep
+          component={component}
+          baseUrl={baseUrl}
+          isLocal={isLocal}
+          open={step === Steps.ANALYSIS}
+          token={token}
+          stepNumber={2}
+        />
+      </PageContentFontWrapper>
     );
   }
 }

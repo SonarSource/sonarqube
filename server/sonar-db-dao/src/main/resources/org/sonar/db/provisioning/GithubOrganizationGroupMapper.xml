@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.provisioning.GithubOrganizationGroupMapper">
+
+  <sql id="githubOrganizationGroupColumns">
+    gog.group_uuid as groupUuid,
+    gog.organization_name as organizationName
+  </sql>
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="GithubOrganizationGroup">
+    insert into github_orgs_groups (
+      group_uuid,
+      organization_name
+    ) values (
+      #{groupUuid,jdbcType=VARCHAR},
+      #{organizationName,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <select id="selectAll" resultType="GithubOrganizationGroup">
+    SELECT
+      <include refid="githubOrganizationGroupColumns"/>,
+      g.name as name
+    FROM github_orgs_groups gog
+    LEFT JOIN groups g ON gog.group_uuid = g.uuid
+  </select>
+
+  <select id="selectByGroupUuid" parameterType="String" resultType="GithubOrganizationGroup">
+    SELECT
+      <include refid="githubOrganizationGroupColumns"/>,
+      g.name as name
+    FROM github_orgs_groups gog
+    LEFT JOIN groups g ON gog.group_uuid = g.uuid
+    WHERE group_uuid=#{groupUuid,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByGroupUuid" parameterType="String">
+    delete from github_orgs_groups where group_uuid = #{groupUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteAll" >
+    delete from github_orgs_groups
+  </delete>
+
+</mapper>

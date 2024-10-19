@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { InputSizeKeys } from 'design-system';
 import { sortBy } from 'lodash';
 import { Path } from 'react-router-dom';
 import { hasMessage, translate } from '../../helpers/l10n';
+import { isDefined } from '../../helpers/types';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
 import {
+  DefinitionV2,
   ExtendedSettingDefinition,
   Setting,
   SettingDefinition,
@@ -35,31 +39,41 @@ import { Component, Dict } from '../../types/types';
 export const DEFAULT_CATEGORY = 'CodeScan';
 
 export type DefaultSpecializedInputProps = DefaultInputProps & {
-  className?: string;
   autoComplete?: string;
+  className?: string;
+  index?: number;
   isDefault: boolean;
   name: string;
   type?: string;
 };
 
 export interface DefaultInputProps {
+  ariaDescribedBy?: string;
   autoFocus?: boolean;
-  isEditing?: boolean;
   hasValueChanged?: boolean;
+  id?: string;
+  isEditing?: boolean;
+  isInvalid?: boolean;
   onCancel?: () => void;
   onChange: (value: any) => void;
   onEditing?: () => void;
   onSave?: () => void;
   setting: Setting;
+  size?: InputSizeKeys;
   value: any;
 }
 
-export function getPropertyName(definition: SettingDefinition) {
+export function getPropertyName(definition: SettingDefinition | DefinitionV2) {
   const key = `property.${definition.key}.name`;
-  return hasMessage(key) ? translate(key) : definition.name;
+
+  if (hasMessage(key)) {
+    return translate(key);
+  }
+
+  return definition.name ?? definition.key;
 }
 
-export function getPropertyDescription(definition: SettingDefinition) {
+export function getPropertyDescription(definition: SettingDefinition | DefinitionV2) {
   const key = `property.${definition.key}.description`;
   return hasMessage(key) ? translate(key) : definition.description;
 }
@@ -86,21 +100,23 @@ export function getUniqueName(definition: SettingDefinition, index?: string) {
 
 export function getSettingValue(definition: SettingDefinition, settingValue?: SettingValue) {
   const { fieldValues, value, values } = settingValue || {};
-  if (isCategoryDefinition(definition) && definition.multiValues) {
-    return values;
-  } else if (definition.type === SettingType.PROPERTY_SET) {
+  if (definition.type === SettingType.PROPERTY_SET) {
     return fieldValues;
+  } else if (isCategoryDefinition(definition) && definition.multiValues) {
+    return values;
   } else if (definition.type === SettingType.FORMATTED_TEXT) {
     return values ? values[0] : undefined;
   }
+
   return value;
 }
 
 export function combineDefinitionAndSettingValue(
   definition: ExtendedSettingDefinition,
-  value?: SettingValue
+  value?: SettingValue | null,
 ): SettingWithCategory {
-  const hasValue = value !== undefined && value.inherited !== true;
+  const hasValue = isDefined(value) && value.inherited !== true;
+
   return {
     key: definition.key,
     hasValue,
@@ -113,9 +129,11 @@ export function getDefaultCategory(categories: string[]) {
   if (categories.includes(DEFAULT_CATEGORY)) {
     return DEFAULT_CATEGORY;
   }
+
   const sortedCategories = sortBy(categories, (category) =>
-    getCategoryName(category).toLowerCase()
+    getCategoryName(category).toLowerCase(),
   );
+
   return sortedCategories[0];
 }
 
@@ -141,8 +159,8 @@ export function isURLKind(definition: SettingDefinition) {
   ].includes(definition.key);
 }
 
-export function isSecuredDefinition(item: SettingDefinition): boolean {
-  return item.key.endsWith('.secured');
+export function isSecuredDefinition(item: SettingDefinition | DefinitionV2): boolean {
+  return 'secured' in item ? item.secured : item.key.endsWith('.secured');
 }
 
 export function isCategoryDefinition(item: SettingDefinition): item is ExtendedSettingDefinition {
@@ -151,25 +169,26 @@ export function isCategoryDefinition(item: SettingDefinition): item is ExtendedS
 
 export function getEmptyValue(item: SettingDefinition | ExtendedSettingDefinition): any {
   if (isCategoryDefinition(item)) {
-    if (item.multiValues) {
-      return [getEmptyValue({ ...item, multiValues: false })];
-    }
-
-    if (item.type === 'PROPERTY_SET') {
+    if (item.type === SettingType.PROPERTY_SET) {
       const value: Dict<string> = {};
       item.fields.forEach((field) => (value[field.key] = getEmptyValue(field)));
       return [value];
+    }
+
+    if (item.multiValues) {
+      return [getEmptyValue({ ...item, multiValues: false })];
     }
   }
 
   if (item.type === 'BOOLEAN' || item.type === 'SINGLE_SELECT_LIST') {
     return null;
   }
+
   return '';
 }
 
 export function isDefaultOrInherited(setting?: Pick<SettingValue, 'inherited'>) {
-  return Boolean(setting && setting.inherited);
+  return Boolean(setting?.inherited);
 }
 
 export function getDefaultValue(setting: Setting) {
@@ -179,7 +198,7 @@ export function getDefaultValue(setting: Setting) {
     return translate('settings.default.password');
   }
 
-  if (definition.type === 'BOOLEAN' && parentValue) {
+  if (definition.type === 'BOOLEAN' && Boolean(parentValue)) {
     const isTrue = parentValue === 'true';
     return isTrue ? translate('settings.boolean.true') : translate('settings.boolean.false');
   }
@@ -193,7 +212,11 @@ export function getDefaultValue(setting: Setting) {
     return parentValues.join(', ');
   }
 
-  if (definition.type === 'PROPERTY_SET' && parentFieldValues && parentFieldValues.length > 0) {
+  if (
+    definition.type === SettingType.PROPERTY_SET &&
+    parentFieldValues &&
+    parentFieldValues.length > 0
+  ) {
     return translate('settings.default.complex_value');
   }
 
@@ -218,7 +241,7 @@ export function isRealSettingKey(key: string) {
 
 export function buildSettingLink(
   definition: ExtendedSettingDefinition,
-  component?: Component
+  component?: Component,
 ): Partial<Path> {
   const { category, key } = definition;
 
@@ -246,137 +269,3 @@ export function buildSettingLink(
     hash: `#${escape(key)}`,
   };
 }
-
-export const ADDITIONAL_PROJECT_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
-  {
-    name: 'DevOps Platform Integration',
-    description: `
-      Display your Quality Gate status directly in your DevOps Platform.
-      Each DevOps Platform instance must be configured globally first, and given a unique name. Pick the instance your project is hosted on.
-      `,
-    category: 'pull_request_decoration_binding',
-    key: ``,
-    fields: [],
-    options: [],
-    subCategory: '',
-  },
-];
-
-export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
-  {
-    name: 'Default New Code behavior',
-    description: `
-        The New Code definition is used to compare measures and track new issues.
-        This setting is the default for all projects. A specific New Code definition can be configured at project level.
-      `,
-    category: 'new_code_period',
-    key: `sonar.new_code_period`,
-    fields: [],
-    options: [],
-    subCategory: '',
-  },
-  {
-    name: 'Azure DevOps integration',
-    description: `azure devops integration configuration
-      Configuration name
-      Give your configuration a clear and succinct name. 
-      This name will be used at project level to identify the correct configured Azure instance for a project.
-      Azure DevOps URL
-      For Azure DevOps Server, provide the full collection URL:
-      https://ado.your-company.com/your_collection
-
-      For Azure DevOps Services, provide the full organization URL:
-      https://dev.azure.com/your_organization
-      Personal Access Token
-      SonarQube needs a Personal Access Token to report the Quality Gate status on Pull Requests in Azure DevOps. 
-      To create this token, we recommend using a dedicated Azure DevOps account with administration permissions. 
-      The token itself needs Code > Read & Write permission.
-    `,
-    category: 'almintegration',
-    key: `sonar.almintegration.${AlmKeys.Azure}`,
-    fields: [],
-    options: [],
-    subCategory: '',
-  },
-  {
-    name: 'Bitbucket integration',
-    description: `bitbucket server cloud integration configuration
-      Configuration name
-      Give your configuration a clear and succinct name. 
-      This name will be used at project level to identify the correct configured Bitbucket instance for a project.
-      Bitbucket Server URL
-      Example: https://bitbucket-server.your-company.com
-      Personal Access Token
-      SonarQube needs a Personal Access Token to report the Quality Gate status on Pull Requests in Bitbucket Server. 
-      To create this token, we recommend using a dedicated Bitbucket Server account with administration permissions. 
-      The token itself needs Read permission.
-      Workspace ID
-      The workspace ID is part of your bitbucket cloud URL https://bitbucket.org/{workspace}/{repository}
-      SonarQube needs you to create an OAuth consumer in your Bitbucket Cloud workspace settings 
-      to report the Quality Gate status on Pull Requests. 
-      It needs to be a private consumer with Pull Requests: Read permission. 
-      An OAuth callback URL is required by Bitbucket Cloud but not used by SonarQube so any URL works.
-      OAuth Key
-      Bitbucket automatically creates an OAuth key when you create your OAuth consumer. 
-      You can find it in your Bitbucket Cloud workspace settings under OAuth consumers.
-      OAuth Secret
-      Bitbucket automatically creates an OAuth secret when you create your OAuth consumer. 
-      You can find it in your Bitbucket Cloud workspace settings under OAuth consumers.
-    `,
-    category: 'almintegration',
-    key: `sonar.almintegration.${AlmKeys.BitbucketServer}`,
-    fields: [],
-    options: [],
-    subCategory: '',
-  },
-  {
-    name: 'GitHub integration',
-    description: `github integration configuration
-      Configuration name
-      Give your configuration a clear and succinct name. 
-      This name will be used at project level to identify the correct configured GitHub App for a project.
-      GitHub API URL
-      Example for Github Enterprise:
-      https://github.company.com/api/v3
-      If using GitHub.com:
-      https://api.github.com/
-      You need to install a GitHub App with specific settings and permissions to enable 
-      Pull Request Decoration on your Organization or Repository. 
-      GitHub App ID
-      The App ID is found on your GitHub App's page on GitHub at Settings > Developer Settings > GitHub Apps
-      Client ID
-      The Client ID is found on your GitHub App's page.
-      Client Secret
-      The Client secret is found on your GitHub App's page.
-      Private Key
-      Your GitHub App's private key. You can generate a .pem file from your GitHub App's page under Private keys. 
-      Copy and paste the whole contents of the file here.     
-    `,
-    category: 'almintegration',
-    key: `sonar.almintegration.${AlmKeys.GitHub}`,
-    fields: [],
-    options: [],
-    subCategory: '',
-  },
-  {
-    name: 'Gitlab integration',
-    description: `gitlab integration configuration
-      Configuration name
-      Give your configuration a clear and succinct name. 
-      This name will be used at project level to identify the correct configured GitLab instance for a project.
-      GitLab API URL
-      Provide the GitLab API URL. For example:
-      https://gitlab.com/api/v4
-      Personal Access Token
-      SonarQube needs a Personal Access Token to report the Quality Gate status on Merge Requests in GitLab. 
-      To create this token, 
-      we recommend using a dedicated GitLab account with Reporter permission to all target projects.
-      The token itself needs the api scope.
-    `,
-    category: 'almintegration',
-    key: `sonar.almintegration.${AlmKeys.GitLab}`,
-    fields: [],
-    options: [],
-    subCategory: '',
-  },
-];

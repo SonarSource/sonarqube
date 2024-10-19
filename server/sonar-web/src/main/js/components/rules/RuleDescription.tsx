@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import styled from '@emotion/styled';
+import {
+  CodeSyntaxHighlighter,
+  FlagMessage,
+  HtmlFormatter,
+  ToggleButton,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
-import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
+import { RuleDescriptionSection, RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { sanitizeString } from '../../helpers/sanitize';
-import ButtonToggle from '../controls/ButtonToggle';
-import { Alert } from '../ui/Alert';
+import { isDefined } from '../../helpers/types';
+import { Cve as CveDetailsType } from '../../types/cves';
+import { CveDetails } from './CveDetails';
 import OtherContextOption from './OtherContextOption';
 
 const OTHERS_KEY = 'others';
 
 interface Props {
-  isDefault?: boolean;
-  sections: RuleDescriptionSection[];
-  defaultContextKey?: string;
   className?: string;
+  cve?: CveDetailsType;
+  defaultContextKey?: string;
+  language?: string;
+  sections: RuleDescriptionSection[];
 }
 
 interface State {
@@ -43,8 +53,8 @@ interface State {
 }
 
 interface RuleDescriptionContextDisplay {
-  displayName: string;
   content: string;
+  displayName: string;
   key: string;
 }
 
@@ -68,9 +78,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     const contexts = sections
       .filter(
         (
-          section
+          section,
         ): section is RuleDescriptionSection & Required<Pick<RuleDescriptionSection, 'context'>> =>
-          section.context != null
+          section.context != null,
       )
       .map((section) => ({
         displayName: section.context.displayName || section.context.key,
@@ -104,14 +114,19 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     const { contexts } = this.state;
 
     const selected = contexts.find((ctxt) => ctxt.displayName === value);
+
     if (selected) {
       this.setState({ selectedContext: selected });
     }
   };
 
   render() {
-    const { className, sections, isDefault } = this.props;
+    const { className, language, sections, cve } = this.props;
     const { contexts, defaultContext, selectedContext } = this.state;
+
+    const introductionSection = sections?.find(
+      (section) => section.key === RuleDescriptionSections.INTRODUCTION,
+    )?.content;
 
     const options = contexts.map((ctxt) => ({
       label: ctxt.displayName,
@@ -120,70 +135,123 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
 
     if (contexts.length > 0 && selectedContext) {
       return (
-        <div
-          className={classNames(className, {
-            markdown: isDefault,
-            'rule-desc': !isDefault,
-          })}
-          ref={(node) => {
+        <StyledHtmlFormatter
+          className={className}
+          ref={(node: HTMLDivElement) => {
             applyCodeDifferences(node);
           }}
         >
-          <div className="rules-context-description">
-            <h2 className="rule-contexts-title">
-              {translate('coding_rules.description_context.title')}
-            </h2>
-            {defaultContext && (
-              <Alert variant="info" display="inline" className="big-spacer-bottom">
-                {translateWithParameters(
-                  'coding_rules.description_context.default_information',
-                  defaultContext.displayName
-                )}
-              </Alert>
-            )}
-            <div className="big-spacer-bottom">
-              <ButtonToggle
-                label={translate('coding_rules.description_context.title')}
-                onCheck={this.handleToggleContext}
-                options={options}
-                value={selectedContext.displayName}
-              />
-              {selectedContext.key !== OTHERS_KEY && (
-                <h2>
-                  {translateWithParameters(
-                    'coding_rules.description_context.sub_title',
-                    selectedContext.displayName
-                  )}
-                </h2>
+          <h2 className="sw-typo-semibold sw-mb-4">
+            {translate('coding_rules.description_context.title')}
+          </h2>
+          {isDefined(introductionSection) && (
+            <CodeSyntaxHighlighter
+              className="rule-desc"
+              htmlAsString={sanitizeString(introductionSection)}
+              language={language}
+            />
+          )}
+          {defaultContext && (
+            <FlagMessage variant="info" className="sw-mb-4">
+              {translateWithParameters(
+                'coding_rules.description_context.default_information',
+                defaultContext.displayName,
               )}
-            </div>
-            {selectedContext.key === OTHERS_KEY ? (
-              <OtherContextOption />
-            ) : (
-              <div
-                /* eslint-disable-next-line react/no-danger */
-                dangerouslySetInnerHTML={{ __html: sanitizeString(selectedContext.content) }}
-              />
+            </FlagMessage>
+          )}
+          <div className="sw-mb-4">
+            <ToggleButton
+              label={translate('coding_rules.description_context.title')}
+              onChange={this.handleToggleContext}
+              options={options}
+              value={selectedContext.displayName}
+            />
+
+            {selectedContext.key !== OTHERS_KEY && (
+              <h2>
+                {translateWithParameters(
+                  'coding_rules.description_context.subtitle',
+                  selectedContext.displayName,
+                )}
+              </h2>
             )}
           </div>
-        </div>
+          {selectedContext.key === OTHERS_KEY ? (
+            <OtherContextOption />
+          ) : (
+            <CodeSyntaxHighlighter
+              htmlAsString={sanitizeString(selectedContext.content)}
+              language={language}
+            />
+          )}
+
+          {cve && <CveDetails cve={cve} />}
+        </StyledHtmlFormatter>
       );
     }
 
     return (
-      <div
-        className={classNames(className, {
-          markdown: isDefault,
-          'rule-desc': !isDefault,
-        })}
-        ref={(node) => {
+      <StyledHtmlFormatter
+        className={className}
+        ref={(node: HTMLDivElement) => {
           applyCodeDifferences(node);
         }}
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: sanitizeString(sections[0].content),
-        }}
-      />
+      >
+        {isDefined(introductionSection) && (
+          <CodeSyntaxHighlighter
+            className="rule-desc"
+            htmlAsString={sanitizeString(introductionSection)}
+            language={language}
+          />
+        )}
+
+        <CodeSyntaxHighlighter
+          htmlAsString={sanitizeString(sections[0].content)}
+          language={language}
+        />
+
+        {cve && <CveDetails cve={cve} />}
+      </StyledHtmlFormatter>
     );
   }
 }
+
+const StyledHtmlFormatter = styled(HtmlFormatter)`
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  .code-difference-container {
+    flex-direction: column;
+    width: fit-content;
+    min-width: 100%;
+  }
+
+  .code-difference-scrollable {
+    background-color: ${themeColor('codeSnippetBackground')};
+    border: ${themeBorder('default', 'codeSnippetBorder')};
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    overflow-x: auto;
+  }
+
+  .code-difference-scrollable .code-added,
+  .code-difference-scrollable .code-removed {
+    padding-left: 1.5rem;
+    margin-left: -1.5rem;
+    padding-right: 1.5rem;
+    margin-right: -1.5rem;
+    border-radius: 0;
+  }
+
+  .code-difference-scrollable .code-added {
+    background-color: ${themeColor('codeLineCoveredUnderline')};
+  }
+
+  .code-difference-scrollable .code-removed {
+    background-color: ${themeColor('codeLineUncoveredUnderline')};
+  }
+
+  a:has(code) {
+    padding-bottom: 0.125rem;
+  }
+`;

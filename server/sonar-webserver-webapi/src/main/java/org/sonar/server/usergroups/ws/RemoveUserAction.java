@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,25 +20,26 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.group.service.GroupMembershipService;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
@@ -46,28 +47,36 @@ import static org.sonar.server.usergroups.ws.GroupWsSupport.defineLoginWsParamet
 
 public class RemoveUserAction implements UserGroupsWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(RemoveUserAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
-  private final Logger logger = Loggers.get(RemoveUserAction.class);
+  private final ManagedInstanceChecker managedInstanceChecker;
+  private final GroupMembershipService groupMembershipService;
 
-  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker,
+    GroupMembershipService groupMembershipService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.managedInstanceChecker = managedInstanceChecker;
+    this.groupMembershipService = groupMembershipService;
   }
 
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("remove_user")
       .setDescription(format("Remove a user from a group.<br />" +
-          "'%s' or '%s' must be provided.<br>" +
-          "Requires the following permission: 'Administer System'.",
-        PARAM_GROUP_ID, PARAM_GROUP_NAME))
+                             "'%s' must be provided.<br>" +
+                             "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use DELETE /api/v2/authorizations/group-memberships instead"),
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
     defineGroupWsParameters(action);
@@ -77,33 +86,14 @@ public class RemoveUserAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
-
+    managedInstanceChecker.throwIfInstanceIsManaged();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupDto group = support.findGroupDto(dbSession, request);
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
-      support.checkGroupIsNotDefault(dbSession, group);
-
-      String login = request.mandatoryParam(PARAM_LOGIN);
-      UserDto user = getUser(dbSession, login);
-      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
-      logger.info("Remove User: {} from UserGroup: {} :: groupId: {}, organization: {}, orgId: {} and LoggedInUser: {}",
-              login, group.getName(), group.getUuid(), organization.get().getKey(), organization.get().getUuid(), userSession.getLogin());
-      ensureLastAdminIsNotRemoved(dbSession, group, user);
-
-      dbClient.userGroupDao().delete(dbSession, group, user);
-      dbSession.commit();
-
+      GroupDto groupDto = support.findGroupDto(dbSession, request);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, groupDto.getOrganizationUuid());
+      UserDto userDto = getUser(dbSession, request.mandatoryParam(PARAM_LOGIN));
+      groupMembershipService.removeMembership(groupDto.getUuid(), userDto.getUuid());
       response.noContent();
     }
-  }
-
-  /**
-   * Ensure that there are still users with admin global permission if user is removed from the group.
-   */
-  private void ensureLastAdminIsNotRemoved(DbSession dbSession, GroupDto group, UserDto user) {
-    int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
-            group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getUuid(), user.getUuid());
-    checkRequest(remainingAdmins > 0, "The last administrator user cannot be removed");
   }
 
   private UserDto getUser(DbSession dbSession, String userLogin) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,10 @@ interface State {
   userOrganizations: Organization[];
 }
 
-export default class CurrentUserContextProvider extends React.PureComponent<Props, State> {
+export default class CurrentUserContextProvider extends React.PureComponent<
+  React.PropsWithChildren<Props>,
+  State
+> {
   constructor(props: Props) {
     super(props);
     this.state = {

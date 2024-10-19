@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,8 +34,7 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class XooBlameCommand extends BlameCommand {
 
@@ -73,7 +72,7 @@ public class XooBlameCommand extends BlameCommand {
       List<CSVRecord> records = csvParser.getRecords();
       return records.stream()
         .map(r -> convertToBlameLine(now, r))
-        .collect(toList());
+        .toList();
     }
   }
 

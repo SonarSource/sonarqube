@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,10 @@ package org.sonar.ce.task.projectanalysis.api.posttask;
 
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.QualityGate.EvaluationStatus;
 import org.sonar.api.measures.Metric;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
@@ -47,7 +47,7 @@ public class QGToEvaluatedQG implements Function<QualityGate, EvaluatedQualityGa
           q.getStatus() == EvaluationStatus.NO_VALUE ? null : q.getValue());
         return condition;
       })
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     return builder.setQualityGate(new org.sonar.server.qualitygate.QualityGate(qg.getId(), qg.getName(), conditions))
       .setStatus(Metric.Level.valueOf(qg.getStatus().name()))
       .build();

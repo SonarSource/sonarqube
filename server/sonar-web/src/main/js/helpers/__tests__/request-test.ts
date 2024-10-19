@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import { Dict } from '../../types/types';
 import handleRequiredAuthentication from '../handleRequiredAuthentication';
 import {
   checkStatus,
-  getJSON,
   getText,
   HttpStatus,
   isSuccessStatus,
@@ -46,26 +45,6 @@ beforeEach(() => {
   window.fetch = jest.fn().mockResolvedValue(mockResponse({}, HttpStatus.Ok, {}));
 });
 
-describe('getJSON', () => {
-  it('should get json without parameters', async () => {
-    const response = mockResponse({}, HttpStatus.Ok, {});
-    window.fetch = jest.fn().mockResolvedValue(response);
-    getJSON(url);
-    await new Promise(setImmediate);
-
-    expect(window.fetch).toHaveBeenCalledWith(url, expect.objectContaining({ method: 'GET' }));
-    expect(response.json).toHaveBeenCalled();
-  });
-
-  it('should get json with parameters', () => {
-    getJSON(url, { data: 'test' });
-    expect(window.fetch).toHaveBeenCalledWith(
-      url + '?data=test',
-      expect.objectContaining({ method: 'GET' })
-    );
-  });
-});
-
 describe('getText', () => {
   it('should get text without parameters', async () => {
     const response = mockResponse({}, HttpStatus.Ok, '');
@@ -81,7 +60,7 @@ describe('getText', () => {
     getText(url, { data: 'test' });
     expect(window.fetch).toHaveBeenCalledWith(
       url + '?data=test',
-      expect.objectContaining({ method: 'GET' })
+      expect.objectContaining({ method: 'GET' }),
     );
   });
 });
@@ -97,7 +76,7 @@ describe('parseError', () => {
   it('should parse error and return concatenated messages', async () => {
     const response = new Response(
       JSON.stringify({ errors: [{ msg: 'Error1' }, { msg: 'Error2' }] }),
-      { status: HttpStatus.BadRequest }
+      { status: HttpStatus.BadRequest },
     );
     await expect(parseError(response)).resolves.toBe('Error1. Error2');
   });
@@ -145,7 +124,7 @@ describe('postJSON', () => {
     postJSON(url, { data: 'test' });
     expect(window.fetch).toHaveBeenCalledWith(
       url,
-      expect.objectContaining({ body: 'data=test', method: 'POST' })
+      expect.objectContaining({ body: 'data=test', method: 'POST' }),
     );
   });
 });
@@ -169,7 +148,7 @@ describe('postJSONBody', () => {
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: '{"nested":{"data":"test","withArray":[1,2]}}',
         method: 'POST',
-      })
+      }),
     );
   });
 });
@@ -183,7 +162,7 @@ describe('post', () => {
 
     expect(window.fetch).toHaveBeenCalledWith(
       url,
-      expect.objectContaining({ body: 'data=test', method: 'POST' })
+      expect.objectContaining({ body: 'data=test', method: 'POST' }),
     );
     expect(response.json).not.toHaveBeenCalled();
     expect(response.text).not.toHaveBeenCalled();
@@ -197,23 +176,20 @@ describe('post', () => {
 
     expect(window.fetch).toHaveBeenCalledWith(
       url,
-      expect.objectContaining({ body: 'dataArray=1&dataArray=2', method: 'POST' })
+      expect.objectContaining({ body: 'dataArray=1&dataArray=2', method: 'POST' }),
     );
   });
 });
 
 describe('requestTryAndRepeatUntil', () => {
-  beforeAll(() => {
+  beforeEach(() => {
+    jest.clearAllTimers();
     jest.useFakeTimers();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
-  });
-
-  beforeEach(() => {
-    jest.clearAllTimers();
   });
 
   it('should repeat call until stop condition is met', async () => {
@@ -223,7 +199,7 @@ describe('requestTryAndRepeatUntil', () => {
     const promiseResult = requestTryAndRepeatUntil(
       apiCall,
       { max: -1, slowThreshold: -20 },
-      stopRepeat
+      stopRepeat,
     );
 
     for (let i = 1; i < 5; i++) {
@@ -248,7 +224,7 @@ describe('requestTryAndRepeatUntil', () => {
       apiCall,
       { max: -1, slowThreshold: -20 },
       stopRepeat,
-      [HttpStatus.GatewayTimeout]
+      [HttpStatus.GatewayTimeout],
     );
 
     for (let i = 1; i < 5; i++) {
@@ -271,7 +247,7 @@ describe('requestTryAndRepeatUntil', () => {
     const promiseResult = requestTryAndRepeatUntil(
       apiCall,
       { max: 3, slowThreshold: 0 },
-      stopRepeat
+      stopRepeat,
     );
 
     for (let i = 1; i < 3; i++) {
@@ -293,7 +269,7 @@ describe('requestTryAndRepeatUntil', () => {
     const promiseResult = requestTryAndRepeatUntil(
       apiCall,
       { max: 5, slowThreshold: 3 },
-      stopRepeat
+      stopRepeat,
     );
 
     for (let i = 1; i < 3; i++) {

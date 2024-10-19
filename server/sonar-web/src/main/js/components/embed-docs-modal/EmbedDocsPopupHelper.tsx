@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,84 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  ButtonIcon,
+  ButtonVariety,
+  DropdownMenu,
+  DropdownMenuAlign,
+  IconQuestionMark,
+} from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { ButtonLink, ClearButton } from '../controls/buttons';
-import Toggler from '../controls/Toggler';
-import HelpIcon from '../icons/HelpIcon';
-import EmbedDocsPopup from './EmbedDocsPopup';
-import Modal from "../controls/Modal";
-import { getBaseUrl } from "../../helpers/system";
+import { EmbedDocsPopup } from './EmbedDocsPopup';
 
-interface State {
-  helpOpen: boolean;
-  aboutCodescanOpen: boolean;
-}
-
-export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State> {
-  mounted = false;
-  state: State = { helpOpen: false, aboutCodescanOpen: false };
-
-  setHelpDisplay = (helpOpen: boolean) => {
-    this.setState({ helpOpen });
-  };
-
-  handleClick = () => {
-    this.toggleHelp();
-  };
-
-  toggleHelp = () => {
-    this.setState((state) => {
-      return { helpOpen: !state.helpOpen };
-    });
-  };
-
-  closeHelp = () => {
-    this.setState({ helpOpen: false });
-  };
-
-  renderAboutCodescan(link: string, icon: string, text: string) {
-    return (
-        <Modal
-            className="abs-width-auto"
-            onRequestClose={() => this.setState({ aboutCodescanOpen: false })}
-            contentLabel=''
-        >
-          <a href={link} rel="noopener noreferrer" target="_blank">
-            <img alt={text} src={`${getBaseUrl()}/images/${icon}`}/>
-          </a>
-          <span className="cross-button">
-            <ClearButton onClick={() => this.setState({ aboutCodescanOpen: false })}/>
-          </span>
-        </Modal>
-    );
-  }
-
-  render() {
-    return (
-      <div className="dropdown">
-        <Toggler
-          onRequestClose={this.closeHelp}
-          open={this.state.helpOpen}
-          overlay={<EmbedDocsPopup onClose={this.closeHelp} showAboutCodescanPopup={() => this.setState({aboutCodescanOpen: true})} />}
-        >
-          <ButtonLink
-            aria-expanded={this.state.helpOpen}
-            aria-haspopup={true}
-            className="navbar-help navbar-icon"
-            onClick={this.handleClick}
-            title={translate('help')}
-          >
-            <HelpIcon />
-          </ButtonLink>
-        </Toggler>
-
-        {this.state.aboutCodescanOpen && this.renderAboutCodescan(
-            'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
-            'embed-doc/codescan-version-24_0_11.png',
-            translate('embed_docs.codescan_version')
-        )}
-      </div>
-    );
-  }
+export default function EmbedDocsPopupHelper() {
+  return (
+    <div className="dropdown">
+      <DropdownMenu.Root
+        align={DropdownMenuAlign.End}
+        id="help-menu-dropdown"
+        items={<EmbedDocsPopup />}
+      >
+        <ButtonIcon
+          Icon={IconQuestionMark}
+          data-guiding-id="issue-5"
+          ariaLabel={translate('help')}
+          isIconFilled
+          variety={ButtonVariety.DefaultGhost}
+        />
+      </DropdownMenu.Root>
+    </div>
+  );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,8 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.es.RuleExtensionId;
+import org.sonar.db.Pagination;
+import org.sonar.db.issue.ImpactDto;
 
 public interface RuleMapper {
 
@@ -60,9 +62,15 @@ public interface RuleMapper {
 
   List<RuleDto> selectByLanguage(@Param("language") String language);
 
+  Long countByLanguage(@Param("language") String language);
+
   void insertRule(RuleDto ruleDefinitionDto);
 
   void insertRuleDescriptionSection(@Param("ruleUuid") String ruleUuid, @Param("dto") RuleDescriptionSectionDto ruleDescriptionSectionDto);
+
+  void insertRuleDefaultImpact(@Param("ruleUuid") String ruleUuid, @Param("dto") ImpactDto ruleDefaultImpactDto);
+
+  void insertRuleTag(@Param("ruleUuid") String ruleUuid, @Param("value") String value, @Param("isSystemTag") boolean isSystemTag);
 
   void updateRule(RuleDto ruleDefinitionDto);
 
@@ -97,4 +105,14 @@ public interface RuleMapper {
   void deleteMetadata(RuleMetadataDto ruleMetadataDto);
 
   void updateMetadata(RuleMetadataDto ruleMetadataDto);
+
+  void deleteRuleDefaultImpacts(String ruleUuid);
+
+  void deleteRuleTags(String ruleUuid);
+
+  List<String> selectTags(@Param("query") String query, @Param("pagination") Pagination pagination);
+
+  List<String> selectRules(@Param("query") RuleListQuery query, @Param("pagination") Pagination pagination);
+
+  Long countByQuery(@Param("query") RuleListQuery query);
 }

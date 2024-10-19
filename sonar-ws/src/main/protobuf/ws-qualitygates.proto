@@ -33,7 +33,7 @@ message ProjectStatusResponse {
   message ProjectStatus {
     optional Status status = 1;
     repeated Condition conditions = 2;
-    repeated Period periods = 3;
+    reserved 3; //drop periods
     optional bool ignoredConditions = 4;
     optional NewCodePeriod period = 5;
     optional string caycStatus = 6;
@@ -43,7 +43,7 @@ message ProjectStatusResponse {
     optional Status status = 1;
     optional string metricKey = 2;
     optional Comparator comparator = 3;
-    optional int32 periodIndex = 4;
+    reserved 4; //drop periodIndex
     optional string warningThreshold = 5;
     optional string errorThreshold = 6;
     optional string actualValue = 7;
@@ -54,13 +54,6 @@ message ProjectStatusResponse {
       optional string date = 2;
       optional string parameter = 3;
     }
-
-  message Period {
-    optional int32 index = 1;
-    optional string mode = 2;
-    optional string date = 3;
-    optional string parameter = 4;
-  }
 
   enum Status {
     OK = 1;
@@ -104,7 +97,7 @@ message AppResponse {
 
 // POST api/qualitygates/create
 message CreateResponse {
-  optional string id = 1;
+  reserved 1; //drop id in web-api response
   optional string name = 2;
 }
 
@@ -127,24 +120,25 @@ message UpdateConditionResponse {
 // GET api/qualitygates/show
 message ShowWsResponse {
   optional string id = 1;
-  optional string name = 2;
+  required string name = 2;
   repeated Condition conditions = 3;
-  optional bool isBuiltIn = 4;
+  required bool isBuiltIn = 4;
   optional Actions actions = 5;
-  optional string caycStatus = 6;
+  required string caycStatus = 6;
+  required bool isDefault = 7;
 
   message Condition {
-    optional string id = 1;
-    optional string metric = 2;
-    optional string op = 4;
+    required string id = 1;
+    required string metric = 2;
+    required string op = 4;
     optional string error = 6;
+    required bool isCaycCondition = 7;
   }
 }
 
 // GET api/qualitygates/search
 message SearchResponse {
-  // Deprecated since 7.9
-  optional bool more = 1;
+  reserved 1; // drop more
   repeated Result results = 2;
   optional sonarqube.ws.commons.Paging paging = 3;
 
@@ -152,14 +146,14 @@ message SearchResponse {
     optional string name = 2;
     optional bool selected = 3;
     optional string key = 4;
+    optional bool isAiCodeAssured = 5;
   }
 }
 
 // GET api/qualitygates/list
 message ListWsResponse {
   repeated QualityGate qualitygates = 1;
-  // Deprecated since 7.0
-  optional string default = 2;
+  reserved 2; //drop default
   optional RootActions actions = 3;
 
   message QualityGate {

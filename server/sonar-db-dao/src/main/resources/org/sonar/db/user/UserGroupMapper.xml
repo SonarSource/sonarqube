@@ -5,9 +5,11 @@
 
   <insert id="insert" parameterType="UserGroup" useGeneratedKeys="false">
     insert into groups_users (
+    uuid,
     user_uuid,
     group_uuid
     ) values (
+    #{uuid,jdbcType=VARCHAR},
     #{userUuid,jdbcType=VARCHAR},
     #{groupUuid,jdbcType=VARCHAR}
     )
@@ -18,6 +20,38 @@
     from groups_users gu
     where gu.group_uuid=#{groupUuid,jdbcType=VARCHAR}
   </select>
+
+  <select id="selectByQuery" resultType="org.sonar.db.user.UserGroupDto">
+    select
+      gu.uuid as uuid,
+      gu.user_uuid as userUuid,
+      gu.group_uuid as groupUuid
+    from groups_users gu
+    <include refid="searchByQueryWhereClause"/>
+    order by gu.group_uuid, gu.user_uuid
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    select count(1)
+    from groups_users gu
+    <include refid="searchByQueryWhereClause"/>
+  </select>
+
+  <sql id="searchByQueryWhereClause">
+     <where>
+        1=1
+        <if test="query.uuid != null">
+            AND gu.uuid=#{query.uuid, jdbcType=VARCHAR}
+        </if>
+        <if test="query.userUuid != null">
+            AND gu.user_uuid=#{query.userUuid, jdbcType=VARCHAR}
+        </if>
+        <if test="query.groupUuid != null">
+            AND gu.group_uuid=#{query.groupUuid, jdbcType=VARCHAR}
+        </if>
+    </where>
+  </sql>
 
   <delete id="delete" parameterType="map">
     delete from groups_users

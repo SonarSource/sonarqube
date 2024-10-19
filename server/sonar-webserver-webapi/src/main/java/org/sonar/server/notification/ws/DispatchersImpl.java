@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.server.notification.ws;
 import java.util.List;
 import org.sonar.api.Startable;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 
@@ -52,11 +51,11 @@ public class DispatchersImpl implements Dispatchers, Startable {
     this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true")
       .stream()
       .sorted()
-      .collect(toList());
+      .toList();
     this.projectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true")
       .stream()
       .sorted()
-      .collect(toList());
+      .toList();
   }
 
   @Override

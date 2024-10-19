@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Location, useLocation } from 'react-router-dom';
 
 export default function withLocation<P>(
-  WrappedComponent: React.ComponentType<P & { location: Location }>
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & { location: Location }>>,
 ) {
   return function WithLocation(props: Omit<P, 'location'>) {
     const location = useLocation();

@@ -7,17 +7,25 @@ configurations {
 dependencies {
     // please keep the list ordered
 
-    api 'commons-lang:commons-lang'
+    api 'org.apache.commons:commons-lang3'
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
-    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+    compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
     compileOnlyApi project(':server:sonar-process')
     compileOnlyApi project(':sonar-core')
 
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.mockito:mockito-core'
     testImplementation project(":sonar-testing-ldap")
 
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+    // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+    useJUnitPlatform()
 }

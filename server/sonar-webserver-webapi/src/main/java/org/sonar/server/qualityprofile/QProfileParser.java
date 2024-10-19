@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -53,6 +53,7 @@ public class QProfileParser {
   private static final String ATTRIBUTE_REPOSITORY_KEY = "repositoryKey";
   private static final String ATTRIBUTE_KEY = "key";
   private static final String ATTRIBUTE_PRIORITY = "priority";
+  private static final String ATTRIBUTE_PRIORITIZED_RULE = "prioritizedRule";
   private static final String ATTRIBUTE_TEMPLATE_KEY = "templateKey";
   private static final String ATTRIBUTE_TYPE = "type";
   private static final String ATTRIBUTE_DESCRIPTION = "description";
@@ -75,6 +76,9 @@ public class QProfileParser {
       xml.prop(ATTRIBUTE_KEY, ruleToExport.getRuleKey().rule());
       xml.prop(ATTRIBUTE_TYPE, ruleToExport.getRuleType().name());
       xml.prop(ATTRIBUTE_PRIORITY, ruleToExport.getSeverityString());
+      if (Boolean.TRUE.equals(ruleToExport.getPrioritizedRule())) {
+        xml.prop(ATTRIBUTE_PRIORITIZED_RULE, ruleToExport.getPrioritizedRule());
+      }
 
       if (ruleToExport.isCustomRule()) {
         xml.prop(ATTRIBUTE_NAME, ruleToExport.getName());
@@ -177,6 +181,8 @@ public class QProfileParser {
         rule.setDescription(StringUtils.trim(ruleCursor.collectDescendantText(false)));
       } else if (StringUtils.equals(ATTRIBUTE_PRIORITY, nodeName)) {
         rule.setSeverity(StringUtils.trim(ruleCursor.collectDescendantText(false)));
+      } else if (StringUtils.equals(ATTRIBUTE_PRIORITIZED_RULE, nodeName)) {
+        rule.setPrioritizedRule(Boolean.valueOf(StringUtils.trim(ruleCursor.collectDescendantText(false))));
       } else if (StringUtils.equals(ATTRIBUTE_PARAMETERS, nodeName)) {
         SMInputCursor propsCursor = ruleCursor.childElementCursor(ATTRIBUTE_PARAMETER);
         readParameters(propsCursor, parameters);

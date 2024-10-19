@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.server.platform;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.SumNclocDbQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,7 +36,7 @@ public class StatisticsSupportTest {
 
   @Test
   public void should_return_metric_from_liveMeasureDao() {
-    when(dbClient.liveMeasureDao().sumNclocOfBiggestBranch(any(DbSession.class), any(SumNclocDbQuery.class))).thenReturn(1800999L);
+    when(dbClient.projectDao().getNclocSum(any(DbSession.class))).thenReturn(1800999L);
 
     long linesOfCode = statisticsSupport.getLinesOfCode();
 

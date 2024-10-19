@@ -1,5 +1,6 @@
 {
-  "isCompleted": true,
-  "percentCompleted": 100,
-  "hasFailures": false
+  "isCompleted": false,
+  "hasFailures": false,
+  "completedCount": 22,
+  "total": 38
 }

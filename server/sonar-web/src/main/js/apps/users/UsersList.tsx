@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,55 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, ContentCell, HelperHintIcon, TableRow } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { StickyTable } from '../../app/components/admin/StickyTable';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider } from '../../types/types';
-import { User } from '../../types/users';
+import { IdentityProvider, Provider } from '../../types/types';
+import { RestUserDetailed } from '../../types/users';
 import UserListItem from './components/UserListItem';
 
 interface Props {
-  currentUser: { isLoggedIn: boolean; login?: string };
   identityProviders: IdentityProvider[];
-  onUpdateUsers: () => void;
-  updateTokensCount: (login: string, tokensCount: number) => void;
-  users: User[];
+  manageProvider: Provider | undefined;
+  users: RestUserDetailed[];
 }
 
-export default function UsersList({
-  currentUser,
-  identityProviders,
-  onUpdateUsers,
-  updateTokensCount,
-  users,
-}: Props) {
+export default function UsersList({ identityProviders, users, manageProvider }: Props) {
+  const header = (
+    <TableRow>
+      <ContentCell>{translate('users.user_name')}</ContentCell>
+      <ContentCell>{translate('my_profile.scm_accounts')}</ContentCell>
+      <ContentCell>{translate('users.last_connection')}</ContentCell>
+      <ContentCell>
+        {translate('users.last_sonarlint_connection')}
+        <HelpTooltip overlay={translate('users.last_sonarlint_connection.help_text')}>
+          <HelperHintIcon />
+        </HelpTooltip>
+      </ContentCell>
+      <ContentCell>{translate('my_profile.groups')}</ContentCell>
+      <ContentCell>{translate('users.tokens')}</ContentCell>
+      {(manageProvider === undefined || users.some((u) => !u.managed)) && (
+        <ActionCell>{translate('actions')}</ActionCell>
+      )}
+    </TableRow>
+  );
+
   return (
-    <div className="boxed-group boxed-group-inner">
-      <table className="data zebra" id="users-list">
-        <thead>
-          <tr>
-            <th />
-            <th className="nowrap" />
-            <th className="nowrap">{translate('my_profile.scm_accounts')}</th>
-            <th className="nowrap">{translate('users.last_connection')}</th>
-            <th className="nowrap">{translate('users.tokens')}</th>
-            <th className="nowrap">&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <UserListItem
-              identityProvider={identityProviders.find(
-                (provider) => user.externalProvider === provider.key
-              )}
-              isCurrentUser={currentUser.isLoggedIn && currentUser.login === user.login}
-              key={user.login}
-              onUpdateUsers={onUpdateUsers}
-              updateTokensCount={updateTokensCount}
-              user={user}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <StickyTable columnCount={7} header={header} id="users-list">
+      {users.map((user) => (
+        <UserListItem
+          identityProvider={identityProviders.find(
+            (provider) => user.externalProvider === provider.key,
+          )}
+          key={user.login}
+          user={user}
+          manageProvider={manageProvider}
+        />
+      ))}
+    </StickyTable>
   );
 }

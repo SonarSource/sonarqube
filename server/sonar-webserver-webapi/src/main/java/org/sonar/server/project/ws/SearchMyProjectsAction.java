@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,10 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
@@ -35,11 +36,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.Pagination;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Link;
@@ -51,7 +53,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.project.ws.SearchMyProjectsData.builder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -97,6 +98,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     SearchMyProjectsWsResponse.Builder response = SearchMyProjectsWsResponse.newBuilder();
 
     ProjectDtoToWs projectDtoToWs = new ProjectDtoToWs(data);
+
     data.projects().stream()
       .map(projectDtoToWs)
       .forEach(response::addProjects);
@@ -121,7 +123,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       .build();
   }
 
-  private static class ProjectDtoToWs implements Function<ComponentDto, Project> {
+  private static class ProjectDtoToWs implements Function<ProjectDto, Project> {
     private final SearchMyProjectsData data;
 
     private ProjectDtoToWs(SearchMyProjectsData data) {
@@ -129,21 +131,23 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     }
 
     @Override
-    public Project apply(ComponentDto dto) {
+    public Project apply(ProjectDto dto) {
       Project.Builder project = Project.newBuilder();
+
       project
         .setKey(dto.getKey())
-        .setName(dto.name());
-      data.lastSnapshot(dto.uuid()).ifPresent(s -> {
+        .setName(dto.getName());
+      ofNullable(emptyToNull(dto.getDescription())).ifPresent(project::setDescription);
+      data.projectLinksFor(dto.getUuid()).stream()
+        .map(ProjectLinkDtoToWs.INSTANCE)
+        .forEach(project::addLinks);
+
+      String mainBranchUuid = data.mainBranchUuidForProjectUuid(dto.getUuid());
+      data.lastSnapshot(mainBranchUuid).ifPresent(s -> {
         project.setLastAnalysisDate(formatDateTime(s.getCreatedAt()));
         ofNullable(s.getRevision()).ifPresent(project::setRevision);
       });
-      data.qualityGateStatusFor(dto.uuid()).ifPresent(project::setQualityGate);
-      ofNullable(emptyToNull(dto.description())).ifPresent(project::setDescription);
-
-      data.projectLinksFor(dto.uuid()).stream()
-        .map(ProjectLinkDtoToWs.INSTANCE)
-        .forEach(project::addLinks);
+      data.qualityGateStatusFor(mainBranchUuid).ifPresent(project::setQualityGate);
 
       return project.build();
     }
@@ -171,14 +175,22 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   private SearchMyProjectsData load(DbSession dbSession, SearchMyProjectsRequest request) {
     SearchMyProjectsData.Builder data = builder();
     ProjectsResult searchResult = searchProjects(dbSession, request);
-    List<ComponentDto> projects = searchResult.projects;
-    List<String> projectUuids = Lists.transform(projects, ComponentDto::branchUuid);
-    List<ProjectLinkDto> projectLinks = dbClient.projectLinkDao().selectByProjectUuids(dbSession, projectUuids);
-    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
-    List<LiveMeasureDto> qualityGates = dbClient.liveMeasureDao()
-      .selectByComponentUuidsAndMetricKeys(dbSession, projectUuids, singletonList(CoreMetrics.ALERT_STATUS_KEY));
+    List<ProjectDto> projects = searchResult.projects;
 
-    data.setProjects(projects)
+    List<String> projectUuids = projects.stream().map(ProjectDto::getUuid).toList();
+    List<ProjectLinkDto> projectLinks = dbClient.projectLinkDao().selectByProjectUuids(dbSession, projectUuids);
+
+    List<BranchDto> branches = searchResult.branches;
+
+    Set<String> mainBranchUuids = branches.stream().map(BranchDto::getUuid).collect(Collectors.toSet());
+    List<SnapshotDto> snapshots = dbClient.snapshotDao()
+      .selectLastAnalysesByRootComponentUuids(dbSession, mainBranchUuids);
+    List<LiveMeasureDto> qualityGates = dbClient.liveMeasureDao()
+      .selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, singletonList(CoreMetrics.ALERT_STATUS_KEY));
+
+    data
+      .setProjects(projects)
+      .setBranches(searchResult.branches)
       .setProjectLinks(projectLinks)
       .setSnapshots(snapshots)
       .setQualityGates(qualityGates)
@@ -190,24 +202,34 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   private ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
     String userUuid = requireNonNull(userSession.getUuid(), "Current user must be authenticated");
 
-    List<String> componentUuids = dbClient.roleDao().selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, userUuid);
-    ComponentQuery dbQuery = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
-      .setComponentUuids(ImmutableSet.copyOf(componentUuids.subList(0, Math.min(componentUuids.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE))))
-      .build();
+    List<String> entitiesUuid = dbClient.roleDao().selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, userUuid, Set.of(Qualifiers.PROJECT));
 
-    return new ProjectsResult(
-      dbClient.componentDao().selectByQuery(dbSession, dbQuery, offset(request.getPage(), request.getPageSize()), request.getPageSize()),
-      dbClient.componentDao().countByQuery(dbSession, dbQuery));
+    ImmutableSet<String> subSetEntityUuids = ImmutableSet.copyOf(entitiesUuid.subList(0, Math.min(entitiesUuid.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)));
+    Pagination pagination = Pagination.forPage(request.page).andSize(request.pageSize);
+    List<ProjectDto> projectDtos = dbClient.projectDao().selectByUuids(dbSession, subSetEntityUuids, pagination);
+
+    List<BranchDto> branchDtos = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, projectDtos.stream().map(ProjectDto::getUuid).collect(Collectors.toSet()));
+
+    return new ProjectsResult(projectDtos, branchDtos, subSetEntityUuids.size());
   }
 
   private static class ProjectsResult {
-    private final List<ComponentDto> projects;
+
+    private final List<ProjectDto> projects;
+    private final List<BranchDto> branches;
     private final int total;
 
-    private ProjectsResult(List<ComponentDto> projects, int total) {
+    private ProjectsResult(List<ProjectDto> projects, List<BranchDto> branches, int total) {
       this.projects = projects;
+      this.branches = branches;
+      assertThatAllCollectionsHaveSameSize(projects, branches);
       this.total = total;
+    }
+
+    private static void assertThatAllCollectionsHaveSameSize(List<ProjectDto> projects, List<BranchDto> branches) {
+      if (projects.size() != branches.size()) {
+        throw new IllegalStateException("There must be the same number of projects as the branches.");
+      }
     }
   }
 

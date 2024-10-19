@@ -13,7 +13,8 @@
     r.plugin_name as "repository",
     rp.uuid as "ruleProfileUuid",
     a.created_at as "createdAt",
-    a.updated_at as "updatedAt"
+    a.updated_at as "updatedAt",
+    a.prioritized_rule as "prioritizedRule"
   </sql>
 
   <sql id="orgActiveRuleColumns">
@@ -22,6 +23,7 @@
     a.rule_uuid as "ruleUuid",
     a.failure_level as "severity",
     a.inheritance as "inheritance",
+    a.prioritized_rule as "prioritizedRule",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
     r.security_standards as "securityStandards",
@@ -44,6 +46,7 @@
       rule_uuid,
       failure_level,
       inheritance,
+      prioritized_rule,
       created_at,
       updated_at
     ) values (
@@ -52,6 +55,7 @@
       #{ruleUuid, jdbcType=VARCHAR},
       #{severity, jdbcType=INTEGER},
       #{inheritance, jdbcType=VARCHAR},
+      #{prioritizedRule, jdbcType=BOOLEAN},
       #{createdAt, jdbcType=BIGINT},
       #{updatedAt, jdbcType=BIGINT}
     )
@@ -62,6 +66,7 @@
     set
       failure_level = #{severity, jdbcType=INTEGER},
       inheritance = #{inheritance, jdbcType=VARCHAR},
+      prioritized_rule = #{prioritizedRule, jdbcType=BOOLEAN},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=BIGINT}
@@ -142,6 +147,32 @@
     r.uuid in <foreach collection="ruleUuids" item="ruleUuid" separator="," open="(" close=")">#{ruleUuid, jdbcType=VARCHAR}</foreach>
     and rp.uuid in <foreach collection="ruleProfileUuids" item="ruleProfileUuid" separator="," open="(" close=")">#{ruleProfileUuid, jdbcType=VARCHAR}</foreach>
   </select>
+
+  <select id="selectPrioritizedRules" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+    select
+      r.plugin_rule_key as "rulefield",
+      r.plugin_name as "repository"
+    from active_rules ar
+        inner join rules_profiles rp on rp.uuid = ar.profile_uuid
+        inner join org_qprofiles oq on oq.rules_profile_uuid = rp.uuid
+        and oq.uuid in
+        <foreach item="qprofile_uuid" collection="ruleProfileUuids" open="(" separator="," close=")">
+          #{qprofile_uuid, jdbcType=VARCHAR}
+        </foreach>
+        inner join rules r on r.uuid = ar.rule_uuid
+    <include refid="isPrioritizedRule"/>
+  </select>
+
+  <sql id="isPrioritizedRule" databaseId="mssql">
+    where ar.prioritized_rule = 1
+  </sql>
+  <sql id="isPrioritizedRule" databaseId="oracle">
+    where ar.prioritized_rule = 1
+  </sql>
+  <sql id="isPrioritizedRule">
+    where ar.prioritized_rule = true
+  </sql>
+
 
   <select id="selectOrgByRuleUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
@@ -235,7 +266,8 @@
     delete from active_rule_parameters
     where
       active_rule_uuid in
-    <foreach collection="activeRuleUuids" open="(" close=")" item="activeRuleUuid" separator=",">#{activeRuleUuid, jdbcType=VARCHAR}</foreach>
+    <foreach collection="activeRuleUuids" open="(" close=")" item="activeRuleUuid"
+             separator=",">#{activeRuleUuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
   <select id="selectParamsByActiveRuleUuid" parameterType="String" resultType="ActiveRuleParam">
@@ -283,17 +315,20 @@
     group by oqp.uuid
   </select>
 
-  <select id="scrollAllForIndexing" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollAllForIndexing" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY">
     <include refid="scrollAllForIndexingSql"/>
   </select>
 
-  <select id="scrollByUuidsForIndexing" parameterType="map" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollByUuidsForIndexing" parameterType="map" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto"
+          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     <include refid="scrollAllForIndexingSql"/>
     where ar.uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
 
-  <select id="scrollByRuleProfileUuidForIndexing" parameterType="String" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollByRuleProfileUuidForIndexing" parameterType="String" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto"
+          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     <include refid="scrollAllForIndexingSql"/>
     where rp.uuid = #{ruleProfileUuid, jdbcType=VARCHAR}
   </select>
@@ -303,6 +338,7 @@
     ar.uuid as "uuid",
     ar.failure_level as "severity",
     ar.inheritance as "inheritance",
+    ar.prioritized_rule as "prioritizedRule",
     r.uuid as "ruleUuid",
     r.plugin_name as "repository",
     r.plugin_rule_key as "key",
@@ -311,5 +347,17 @@
     inner join rules_profiles rp on rp.uuid = ar.profile_uuid
     inner join rules r on r.uuid = ar.rule_uuid
   </sql>
+
+  <select id="countMissingRules" parameterType="String" resultType="int">
+    select count(ar.rule_uuid) from active_rules ar
+    inner join rules r on r.uuid = ar.rule_uuid
+    where r.status != 'REMOVED'
+    and not exists (
+      select 1 from active_rules ar2
+      where ar.rule_uuid = ar2.rule_uuid
+      and ar2.profile_uuid = #{rulesProfileUuid,jdbcType=VARCHAR})
+    and ar.profile_uuid = #{compareToRulesProfileUuid,jdbcType=VARCHAR}
+  </select>
+
 </mapper>
 

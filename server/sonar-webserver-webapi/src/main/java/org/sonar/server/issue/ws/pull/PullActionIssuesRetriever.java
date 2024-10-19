@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -41,7 +42,7 @@ public class PullActionIssuesRetriever {
     this.issueQueryParams = queryParams;
   }
 
-  public void processIssuesByBatch(DbSession dbSession, Set<String> issueKeysSnapshot, Consumer<List<IssueDto>> listConsumer) {
+  public void processIssuesByBatch(DbSession dbSession, Set<String> issueKeysSnapshot, Consumer<List<IssueDto>> listConsumer, Predicate<? super IssueDto> filter) {
     boolean hasMoreIssues = !issueKeysSnapshot.isEmpty();
     long offset = 0;
 
@@ -49,24 +50,16 @@ public class PullActionIssuesRetriever {
 
     while (hasMoreIssues) {
       Set<String> page = paginate(issueKeysSnapshot, offset);
-      issueDtos.addAll(filterIssues(nextOpenIssues(dbSession, page)));
+      List<IssueDto> nextOpenIssues = nextOpenIssues(dbSession, page)
+        .stream()
+        .filter(filter)
+        .toList();
+      issueDtos.addAll(nextOpenIssues);
       offset += page.size();
       hasMoreIssues = offset < issueKeysSnapshot.size();
     }
 
     listConsumer.accept(issueDtos);
-  }
-
-  private List<IssueDto> filterIssues(List<IssueDto> issues) {
-    return issues
-      .stream()
-      .filter(i -> hasCorrectTypeAndStatus(i, issueQueryParams))
-      .toList();
-  }
-
-  private static boolean hasCorrectTypeAndStatus(IssueDto issueDto, IssueQueryParams queryParams) {
-    return issueDto.getType() != 4 &&
-      (queryParams.isResolvedOnly() ? issueDto.getStatus().equals("RESOLVED") : true);
   }
 
   public List<String> retrieveClosedIssues(DbSession dbSession) {

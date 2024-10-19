@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -59,6 +59,8 @@ public interface ActiveRuleMapper {
     @Param("ruleUuids") Collection<String> ruleUuids,
     @Param("ruleProfileUuids") Collection<String> ruleProfileUuids);
 
+  List<OrgActiveRuleDto> selectPrioritizedRules(@Param("ruleProfileUuids") Collection<String> ruleProfileUuids);
+
   void insertParameter(ActiveRuleParamDto dto);
 
   void updateParameter(ActiveRuleParamDto dto);
@@ -84,4 +86,5 @@ public interface ActiveRuleMapper {
 
   void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler<IndexedActiveRuleDto> handler);
 
+  int countMissingRules(@Param("rulesProfileUuid") String rulesProfileUuid, @Param("compareToRulesProfileUuid") String compareToRulesProfileUuid);
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,12 @@
 package org.sonar.server.app;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.Properties;
+import org.apache.catalina.connector.Connector;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +34,10 @@ import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class EmbeddedTomcatTest {
 
@@ -40,10 +45,65 @@ public class EmbeddedTomcatTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void start() throws Exception {
+  public void start_shouldStartTomcatAndAcceptConnections() throws Exception {
+    InetAddress address = InetAddress.getLoopbackAddress();
+    int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    Props props = getProps(address, httpPort);
+
+    EmbeddedTomcat tomcat = new EmbeddedTomcat(props, new TomcatHttpConnectorFactory());
+    assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.DOWN);
+    tomcat.start();
+    assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.UP);
+
+    URL url = new URL("http://" + address.getHostAddress() + ":" + httpPort);
+    assertThatCode(() -> url.openConnection().connect())
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  public void start_whenWrongScheme_shouldThrow() throws IOException {
+    InetAddress address = InetAddress.getLoopbackAddress();
+    int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    Props props = getProps(address, httpPort);
+
+    TomcatHttpConnectorFactory tomcatHttpConnectorFactory = mock();
+    when(tomcatHttpConnectorFactory.createConnector(props)).thenReturn(getAJPConnector(props));
+    EmbeddedTomcat tomcat = new EmbeddedTomcat(props, tomcatHttpConnectorFactory);
+
+    assertThatThrownBy(tomcat::start)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Unsupported connector: Connector[\"ajp-nio-127.0.0.1-%s\"]", httpPort));
+  }
+
+  private Connector getAJPConnector(Props props) {
+    Connector connector = new Connector("AJP/1.3");
+    connector.setScheme("ajp");
+    connector.setPort(props.valueAsInt("sonar.web.port"));
+    connector.setProperty("secretRequired", "false");
+    return connector;
+  }
+
+  @Test
+  public void terminate_shouldTerminateTomcatAndStopAcceptingConnections() throws IOException {
+    InetAddress address = InetAddress.getLoopbackAddress();
+    int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    Props props = getProps(address, httpPort);
+
+    EmbeddedTomcat tomcat = new EmbeddedTomcat(props, new TomcatHttpConnectorFactory());
+    tomcat.start();
+    URL url = new URL("http://" + address.getHostAddress() + ":" + httpPort);
+
+    tomcat.terminate();
+
+    assertThatThrownBy(() -> url.openConnection().connect())
+      .isInstanceOf(ConnectException.class)
+      .hasMessage("Connection refused");
+
+  }
+
+  private Props getProps(InetAddress address, int httpPort) throws IOException {
     Props props = new Props(new Properties());
 
-    // prepare file system
     File home = temp.newFolder();
     File data = temp.newFolder();
     File webDir = new File(home, "web");
@@ -54,27 +114,9 @@ public class EmbeddedTomcatTest {
     props.set("sonar.path.logs", temp.newFolder().getAbsolutePath());
 
     // start server on a random port
-    InetAddress address = InetAddress.getLoopbackAddress();
-    int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     props.set("sonar.web.host", address.getHostAddress());
     props.set("sonar.web.port", String.valueOf(httpPort));
-    EmbeddedTomcat tomcat = new EmbeddedTomcat(props);
-    assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.DOWN);
-    tomcat.start();
-    assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.UP);
-
-    // check that http connector accepts requests
-    URL url = new URL("http://" + address.getHostAddress() + ":" + httpPort);
-    url.openConnection().connect();
-
-    // stop server
-    tomcat.terminate();
-    // tomcat.isUp() must not be called. It is used to wait for server startup, not shutdown.
-    try {
-      url.openConnection().connect();
-      fail();
-    } catch (ConnectException e) {
-      // expected
-    }
+    return props;
   }
+
 }

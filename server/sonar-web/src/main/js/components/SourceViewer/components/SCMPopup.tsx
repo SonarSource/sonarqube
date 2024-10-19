@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,41 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
+import { SCMHighlight } from 'design-system';
+import React, { memo } from 'react';
 import { translate } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
 import DateFormatter from '../../intl/DateFormatter';
 
-export interface SCMPopupProps {
+interface Props {
   line: SourceLine;
 }
 
-export function SCMPopup({ line }: SCMPopupProps) {
+export function SCMPopup({ line }: Props) {
   const hasAuthor = line.scmAuthor !== undefined && line.scmAuthor !== '';
   const hasDate = line.scmDate !== undefined;
   return (
-    <div className="source-viewer-bubble-popup abs-width-400">
+    <div className="sw-select-text sw-text-left">
       {hasAuthor && (
-        <div>
-          <h4>{translate('author')}</h4>
-          {line.scmAuthor}
+        <div className="sw-flex sw-items-center">
+          <SCMHighlight>{translate('author')}</SCMHighlight>
+          <div className="sw-whitespace-nowrap sw-mr-2">{line.scmAuthor}</div>
         </div>
       )}
       {hasDate && (
-        <div className={classNames({ 'spacer-top': hasAuthor })}>
-          <h4>{translate('source_viewer.tooltip.scm.commited_on')}</h4>
-          <DateFormatter date={line.scmDate!} />
+        <div className="sw-flex sw-items-center">
+          <SCMHighlight>{translate('source_viewer.tooltip.scm.commited_on')}</SCMHighlight>
+          <div className="sw-whitespace-nowrap sw-mr-2">
+            <DateFormatter date={line.scmDate!} />
+          </div>
         </div>
       )}
       {line.scmRevision && (
-        <div className={classNames({ 'spacer-top': hasAuthor || hasDate })}>
-          <h4>{translate('source_viewer.tooltip.scm.revision')}</h4>
-          {line.scmRevision}
+        <div className="sw-flex sw-items-center">
+          <SCMHighlight>{translate('source_viewer.tooltip.scm.revision')}</SCMHighlight>
+          <div className="sw-whitespace-nowrap sw-mr-2">{line.scmRevision}</div>
         </div>
       )}
     </div>
   );
 }
 
-export default React.memo(SCMPopup);
+export default memo(SCMPopup);

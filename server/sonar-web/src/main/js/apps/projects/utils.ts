@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { invert } from 'lodash';
-import { Facet, searchProjects } from '../../api/components';
-import { getMeasuresForProjects } from '../../api/measures';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { Facet, getScannableProjects, searchProjects } from '../../api/components';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { isDiffMetric } from '../../helpers/measures';
 import { RequestData } from '../../helpers/request';
-import { MetricKey } from '../../types/metrics';
 import { Dict } from '../../types/types';
-import { convertToFilter, Query } from './query';
+import { Query, convertToFilter } from './query';
 
 interface SortingOption {
   class?: string;
@@ -39,6 +37,7 @@ export const PROJECTS_ALL = 'all';
 export const SORTING_METRICS: SortingOption[] = [
   { value: 'name' },
   { value: 'analysis_date' },
+  { value: 'creation_date' },
   { value: 'reliability' },
   { value: 'security' },
   { value: 'security_review' },
@@ -51,6 +50,7 @@ export const SORTING_METRICS: SortingOption[] = [
 export const SORTING_LEAK_METRICS: SortingOption[] = [
   { value: 'name' },
   { value: 'analysis_date' },
+  { value: 'creation_date' },
   { value: 'new_reliability', class: 'projects-leak-sorting-option' },
   { value: 'new_security', class: 'projects-leak-sorting-option' },
   { value: 'new_security_review', class: 'projects-leak-sorting-option' },
@@ -88,14 +88,20 @@ const PAGE_SIZE = 10;
 
 export const METRICS = [
   MetricKey.alert_status,
+  MetricKey.reliability_issues,
   MetricKey.bugs,
   MetricKey.reliability_rating,
+  MetricKey.software_quality_reliability_rating,
+  MetricKey.security_issues,
   MetricKey.vulnerabilities,
   MetricKey.security_rating,
-  MetricKey.security_hotspots_reviewed,
-  MetricKey.security_review_rating,
+  MetricKey.software_quality_security_rating,
+  MetricKey.maintainability_issues,
   MetricKey.code_smells,
   MetricKey.sqale_rating,
+  MetricKey.software_quality_maintainability_rating,
+  MetricKey.security_hotspots_reviewed,
+  MetricKey.security_review_rating,
   MetricKey.duplicated_lines_density,
   MetricKey.coverage,
   MetricKey.ncloc,
@@ -105,86 +111,126 @@ export const METRICS = [
 
 export const LEAK_METRICS = [
   MetricKey.alert_status,
-  MetricKey.new_bugs,
-  MetricKey.new_reliability_rating,
-  MetricKey.new_vulnerabilities,
-  MetricKey.new_security_rating,
+  MetricKey.new_violations,
   MetricKey.new_security_hotspots_reviewed,
   MetricKey.new_security_review_rating,
-  MetricKey.new_code_smells,
-  MetricKey.new_maintainability_rating,
   MetricKey.new_coverage,
   MetricKey.new_duplicated_lines_density,
   MetricKey.new_lines,
   MetricKey.projects,
 ];
 
+export const LEGACY_FACETS = [
+  MetricKey.reliability_rating,
+  MetricKey.security_rating,
+  MetricKey.security_review_rating,
+  MetricKey.sqale_rating,
+  MetricKey.coverage,
+  MetricKey.duplicated_lines_density,
+  MetricKey.ncloc,
+  MetricKey.alert_status,
+  'languages',
+  'tags',
+  'qualifier',
+];
+
 export const FACETS = [
-  'reliability_rating',
-  'security_rating',
-  'security_review_rating',
-  'sqale_rating',
-  'coverage',
-  'duplicated_lines_density',
-  'ncloc',
-  'alert_status',
+  MetricKey.software_quality_reliability_rating,
+  MetricKey.software_quality_security_rating,
+  MetricKey.software_quality_maintainability_rating,
+  MetricKey.security_review_rating,
+  MetricKey.coverage,
+  MetricKey.duplicated_lines_density,
+  MetricKey.ncloc,
+  MetricKey.alert_status,
+  'languages',
+  'tags',
+  'qualifier',
+];
+
+export const LEGACY_LEAK_FACETS = [
+  MetricKey.new_reliability_rating,
+  MetricKey.new_security_rating,
+  MetricKey.new_security_review_rating,
+  MetricKey.new_maintainability_rating,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density,
+  MetricKey.new_lines,
+  MetricKey.alert_status,
   'languages',
   'tags',
   'qualifier',
 ];
 
 export const LEAK_FACETS = [
-  'new_reliability_rating',
-  'new_security_rating',
-  'new_security_review_rating',
-  'new_maintainability_rating',
-  'new_coverage',
-  'new_duplicated_lines_density',
-  'new_lines',
-  'alert_status',
+  MetricKey.new_software_quality_reliability_rating,
+  MetricKey.new_software_quality_security_rating,
+  MetricKey.new_software_quality_maintainability_rating,
+  MetricKey.new_security_review_rating,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density,
+  MetricKey.new_lines,
+  MetricKey.alert_status,
   'languages',
   'tags',
   'qualifier',
 ];
 
 const REVERSED_FACETS = ['coverage', 'new_coverage'];
+let scannableProjectsCached: { key: string; name: string }[] | null = null;
 
 export function localizeSorting(sort?: string): string {
-  return translate('projects.sort', sort || 'name');
+  return translate('projects.sort', sort ?? 'name');
 }
 
-export function parseSorting(sort: string): { sortValue: string; sortDesc: boolean } {
-  const desc = sort[0] === '-';
-  return { sortValue: desc ? sort.substr(1) : sort, sortDesc: desc };
+export function parseSorting(sort: string): { sortDesc: boolean; sortValue: string } {
+  const desc = sort.startsWith('-');
+
+  return { sortValue: desc ? sort.substring(1) : sort, sortDesc: desc };
 }
 
-export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) {
+export async function fetchScannableProjects() {
+  if (scannableProjectsCached) {
+    return Promise.resolve({ scannableProjects: scannableProjectsCached });
+  }
+
+  const response = await getScannableProjects().then(({ projects }) => {
+    scannableProjectsCached = projects;
+    return projects;
+  });
+
+  return { scannableProjects: response };
+}
+
+export function fetchProjects({
+  isFavorite,
+  query,
+  pageIndex = 1,
+  isLegacy,
+}: {
+  isFavorite: boolean;
+  isLegacy: boolean;
+  pageIndex?: number;
+  query: Query;
+}) {
   const ps = PAGE_SIZE;
-  const data = convertToQueryData(query, isFavorite, {
+
+  const data = convertToQueryData(query, isFavorite, isLegacy, {
     p: pageIndex > 1 ? pageIndex : undefined,
     ps,
-    facets: defineFacets(query).join(),
+    facets: defineFacets(query, isLegacy).join(),
     f: 'analysisDate,leakPeriodDate',
   });
+
   return searchProjects(data)
-    .then((response) =>
-      Promise.all([fetchProjectMeasures(response.components, query), Promise.resolve(response)])
-    )
-    .then(([measures, { components, facets, paging }]) => {
+    .then((response) => Promise.all([Promise.resolve(response), fetchScannableProjects()]))
+    .then(([{ components, facets, paging }, { scannableProjects }]) => {
       return {
-        facets: getFacetsMap(facets),
-        projects: components.map((component) => {
-          const componentMeasures: Dict<string> = {};
-          measures
-            .filter((measure) => measure.component === component.key)
-            .forEach((measure) => {
-              const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
-              if (value !== undefined) {
-                componentMeasures[measure.metric] = value;
-              }
-            });
-          return { ...component, measures: componentMeasures };
-        }),
+        facets: getFacetsMap(facets, isLegacy),
+        projects: components.map((component) => ({
+          ...component,
+          isScannable: scannableProjects.find((p) => p.key === component.key) !== undefined,
+        })),
         total: paging.total,
       };
     });
@@ -226,52 +272,54 @@ export function defineMetrics(query: Query): string[] {
   if (query.view === 'leak') {
     return LEAK_METRICS;
   }
+
   return METRICS;
 }
 
-function defineFacets(query: Query): string[] {
+function defineFacets(query: Query, isLegacy: boolean): string[] {
   if (query.view === 'leak') {
-    return LEAK_FACETS;
+    return isLegacy ? LEGACY_LEAK_FACETS : LEAK_FACETS;
   }
-  return FACETS;
+
+  return isLegacy ? LEGACY_FACETS : FACETS;
 }
 
-function convertToQueryData(query: Query, isFavorite: boolean, defaultData = {}) {
+export function convertToQueryData(
+  query: Query,
+  isFavorite: boolean,
+  isLegacy: boolean,
+  defaultData = {},
+) {
   const data: RequestData = { ...defaultData };
-  const filter = convertToFilter(query, isFavorite);
-  const sort = convertToSorting(query);
+  const filter = convertToFilter(query, isFavorite, isLegacy);
+  const sort = convertToSorting(query, isLegacy);
 
   if (filter) {
     data.filter = filter;
   }
+
   if (sort.s) {
     data.s = sort.s;
   }
+
   if (sort.asc !== undefined) {
     data.asc = sort.asc;
   }
+
   return data;
 }
 
-export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Query) {
-  if (!projects.length) {
-    return Promise.resolve([]);
-  }
-
-  const projectKeys = projects.map((project) => project.key);
-  const metrics = defineMetrics(query);
-  return getMeasuresForProjects(projectKeys, metrics);
-}
-
-function mapFacetValues(values: Array<{ val: string; count: number }>) {
+function mapFacetValues(values: Array<{ count: number; val: string }>) {
   const map: Dict<number> = {};
+
   values.forEach((value) => {
     map[value.val] = value.count;
   });
+
   return map;
 }
 
-const propertyToMetricMap: Dict<string | undefined> = {
+export const propertyToMetricMapLegacy: Dict<string | undefined> = {
   analysis_date: 'analysisDate',
   reliability: 'reliability_rating',
   new_reliability: 'new_reliability_rating',
@@ -292,28 +340,50 @@ const propertyToMetricMap: Dict<string | undefined> = {
   tags: 'tags',
   search: 'query',
   qualifier: 'qualifier',
+  creation_date: 'creationDate',
 };
 
-const metricToPropertyMap = invert(propertyToMetricMap);
+export const propertyToMetricMap: Dict<string | undefined> = {
+  ...propertyToMetricMapLegacy,
+  reliability: 'software_quality_reliability_rating',
+  new_reliability: 'new_software_quality_reliability_rating',
+  security: 'software_quality_security_rating',
+  new_security: 'new_software_quality_security_rating',
+  maintainability: 'software_quality_maintainability_rating',
+  new_maintainability: 'new_software_quality_maintainability_rating',
+};
 
-function getFacetsMap(facets: Facet[]) {
+function getFacetsMap(facets: Facet[], isLegacy: boolean) {
   const map: Dict<Dict<number>> = {};
+
   facets.forEach((facet) => {
-    const property = metricToPropertyMap[facet.property];
+    const property = invert(isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[
+      facet.property
+    ];
     const { values } = facet;
+
     if (REVERSED_FACETS.includes(property)) {
       values.reverse();
     }
+
     map[property] = mapFacetValues(values);
   });
+
   return map;
 }
 
-function convertToSorting({ sort }: Query): { s?: string; asc?: boolean } {
-  if (sort && sort[0] === '-') {
-    return { s: propertyToMetricMap[sort.substr(1)], asc: false };
+export function convertToSorting(
+  { sort }: Query,
+  isLegacy: boolean,
+): { asc?: boolean; s?: string } {
+  if (sort?.startsWith('-')) {
+    return {
+      s: (isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[sort.substring(1)],
+      asc: false,
+    };
   }
-  return { s: propertyToMetricMap[sort || ''] };
+
+  return { s: (isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[sort ?? ''] };
 }
 
 const ONE_MINUTE = 60000;
@@ -322,19 +392,22 @@ const ONE_DAY = 24 * ONE_HOUR;
 const ONE_MONTH = 30 * ONE_DAY;
 const ONE_YEAR = 12 * ONE_MONTH;
 
-function format(periods: Array<{ value: number; label: string }>) {
+function format(periods: Array<{ label: string; value: number }>) {
   let result = '';
   let count = 0;
   let lastId = -1;
+
   for (let i = 0; i < periods.length && count < 2; i++) {
     if (periods[i].value > 0) {
       count++;
+
       if (lastId < 0 || lastId + 1 === i) {
         lastId = i;
         result += translateWithParameters(periods[i].label, periods[i].value) + ' ';
       }
     }
   }
+
   return result;
 }
 
@@ -342,15 +415,21 @@ export function formatDuration(ms: number) {
   if (ms < ONE_MINUTE) {
     return translate('duration.seconds');
   }
+
   const years = Math.floor(ms / ONE_YEAR);
   ms -= years * ONE_YEAR;
+
   const months = Math.floor(ms / ONE_MONTH);
   ms -= months * ONE_MONTH;
+
   const days = Math.floor(ms / ONE_DAY);
   ms -= days * ONE_DAY;
+
   const hours = Math.floor(ms / ONE_HOUR);
   ms -= hours * ONE_HOUR;
+
   const minutes = Math.floor(ms / ONE_MINUTE);
+
   return format([
     { value: years, label: 'duration.years' },
     { value: months, label: 'duration.months' },

@@ -102,6 +102,7 @@ message InheritanceWsResponse {
     optional int64 activeRuleCount = 4;
     optional int64 overridingRuleCount = 5;
     optional bool isBuiltIn = 6;
+    optional int64 inactiveRuleCount = 7;
   }
 }
 

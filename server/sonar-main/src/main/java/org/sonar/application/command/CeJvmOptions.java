@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -46,9 +46,6 @@ public class CeJvmOptions extends JvmOptions<CeJvmOptions> {
     res.put("--add-opens=java.management/sun.management=ALL-UNNAMED", "");
     res.put("--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED", "");
 
-    // disable FIPS mode for the JVM so SonarQube can use certain algorithms
-    res.put("-Dcom.redhat.fips=", "false");
-    
     return res;
   }
 }

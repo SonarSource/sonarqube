@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,12 +32,13 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.DatabaseUtils.closeQuietly;
@@ -96,12 +97,13 @@ public class StatusAction implements ProjectDumpAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = getProject(dbSession, uuid, key);
-      userSession.checkProjectPermission(UserRole.ADMIN, project);
+      BranchDto mainBranch = componentFinder.getMainBranch(dbSession, project);
+      userSession.checkEntityPermission(UserRole.ADMIN, project);
 
       WsResponse wsResponse = new WsResponse();
       checkDumps(project, wsResponse);
 
-      SnapshotsStatus snapshots = checkSnapshots(dbSession, project);
+      SnapshotsStatus snapshots = checkSnapshots(dbSession, mainBranch);
       if (snapshots.hasLast) {
         wsResponse.setCanBeExported();
       } else if (!snapshots.hasAny) {
@@ -111,7 +113,7 @@ public class StatusAction implements ProjectDumpAction {
     }
   }
 
-  private SnapshotsStatus checkSnapshots(DbSession dbSession, ProjectDto project) throws SQLException {
+  private SnapshotsStatus checkSnapshots(DbSession dbSession, BranchDto mainBranch) throws SQLException {
     PreparedStatement stmt = null;
     ResultSet rs = null;
     try {
@@ -119,11 +121,11 @@ public class StatusAction implements ProjectDumpAction {
         " count(*), islast" +
         " from snapshots" +
         " where" +
-        " component_uuid = ?" +
+        " root_component_uuid = ?" +
         " group by" +
         " islast";
       stmt = dbClient.getMyBatis().newScrollingSelectStatement(dbSession, sql);
-      stmt.setString(1, project.getUuid());
+      stmt.setString(1, mainBranch.getUuid());
       rs = stmt.executeQuery();
       SnapshotsStatus res = new SnapshotsStatus();
       while (rs.next()) {

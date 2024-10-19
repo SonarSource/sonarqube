@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SecurityServletFilter implements Filter {
 
-  private static final Set<String> ALLOWED_HTTP_METHODS = Set.of("DELETE", "GET", "HEAD", "POST", "PUT");
+  private static final Set<String> ALLOWED_HTTP_METHODS = Set.of("DELETE", "GET", "HEAD", "POST", "PUT", "PATCH");
 
   @Override
   public void init(FilterConfig filterConfig) {
@@ -64,6 +64,11 @@ public class SecurityServletFilter implements Filter {
    * Adds security HTTP headers in the response. The headers are added using {@code setHeader()}, which overwrites existing headers.
    */
   public static void addSecurityHeaders(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    if (httpRequest.getRequestURI() == null) {
+      httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
+
     // Clickjacking protection
     // See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
     // The protection is disabled on purpose for integration in external systems like Github (/integration/github).
@@ -78,11 +83,11 @@ public class SecurityServletFilter implements Filter {
     }
 
     // Cross-site scripting
-    // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
-    httpResponse.setHeader("X-XSS-Protection", "1; mode=block");
+    // See https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html#x-xss-protection
+    httpResponse.setHeader("X-XSS-Protection", "0");
 
     // MIME-sniffing
-    // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+    // See https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html#x-content-type-options
     httpResponse.setHeader("X-Content-Type-Options", "nosniff");
 
     // Man-in-the-middle attacks

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,21 +19,24 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserId;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.permission.Operation;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
@@ -47,22 +50,25 @@ public class RemoveUserAction implements PermissionsWsAction {
 
   public static final String ACTION = "remove_user";
 
+  private static final Logger logger = LoggerFactory.getLogger(RemoveUserAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionUpdater permissionUpdater;
+  private final PermissionUpdater<UserPermissionChange> permissionUpdater;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
-  private static final Logger logger = Loggers.get(RemoveUserAction.class);
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public RemoveUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-    WsParameters wsParameters, PermissionService permissionService) {
+  public RemoveUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionWsSupport wsSupport,
+    WsParameters wsParameters, PermissionService permissionService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
     this.permissionService = permissionService;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -88,21 +94,27 @@ public class RemoveUserAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = wsSupport.findOrganization(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
-      UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
+      UserId userIdDto = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
+      wsSupport.checkRemovingOwnAdminRight(userSession, userIdDto, permission);
 
-      wsSupport.checkPermissionManagementAccess(userSession, org.getUuid(), project.orElse(null));
-
-      PermissionChange change = new UserPermissionChange(
-        PermissionChange.Operation.REMOVE,
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
+      EntityDto entityDto = wsSupport.findEntity(dbSession, request);
+      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(userSession, entityDto, permission, userIdDto);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
+      if (entityDto != null && entityDto.isProject()) {
+        managedInstanceChecker.throwIfUserAndProjectAreManaged(dbSession, userIdDto.getUuid(), entityDto.getUuid());
+      }
+      UserPermissionChange change = new UserPermissionChange(
+        Operation.REMOVE,
         org.getUuid(),
         permission,
-        project.orElse(null),
-        user, permissionService);
+        entityDto,
+        userIdDto,
+        permissionService);
       logger.info("Removing permissions for user: {} and permission type: {}, organization: {}, orgId: {}", user,
-              change.getPermission(), org.getKey(), org.getUuid());
+          change.getPermission(), org.getKey(), org.getUuid());
       permissionUpdater.apply(dbSession, singletonList(change));
       response.noContent();
     }

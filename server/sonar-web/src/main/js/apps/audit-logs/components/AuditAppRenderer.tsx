@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link, RadioButtonGroup } from '@sonarsource/echoes-react';
 import { subDays } from 'date-fns';
+import {
+  DateRangePicker,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  PopupZLevel,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import DateRangeInput from '../../../components/controls/DateRangeInput';
-import Radio from '../../../components/controls/Radio';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import '../style.css';
 import { HousekeepingPolicy, RangeOption } from '../utils';
 import DownloadButton from './DownloadButton';
@@ -35,8 +40,8 @@ import DownloadButton from './DownloadButton';
 export interface AuditAppRendererProps {
   dateRange?: { from?: Date; to?: Date };
   downloadStarted: boolean;
-  handleOptionSelection: (option: RangeOption) => void;
   handleDateSelection: (dateRange: { from?: Date; to?: Date }) => void;
+  handleOptionSelection: (option: RangeOption) => void;
   handleStartDownload: () => void;
   housekeepingPolicy: HousekeepingPolicy;
   selection: RangeOption;
@@ -68,72 +73,77 @@ const getRangeOptions = (housekeepingPolicy: HousekeepingPolicy) => {
   return rangeOptions;
 };
 
-export default function AuditAppRenderer(props: AuditAppRendererProps) {
+export default function AuditAppRenderer(props: Readonly<AuditAppRendererProps>) {
   const { dateRange, downloadStarted, housekeepingPolicy, selection } = props;
 
   return (
-    <div className="page page-limited" id="marketplace-page">
-      <Suggestions suggestions="audit-logs" />
-      <Helmet title={translate('audit_logs.page')} />
+    <LargeCenteredLayout as="main" id="audit-logs-page">
+      <PageContentFontWrapper className="sw-typo-default sw-my-8">
+        <Helmet title={translate('audit_logs.page')} />
 
-      <header className="page-header">
-        <h1 className="page-title">{translate('audit_logs.page')}</h1>
-      </header>
+        <Title>{translate('audit_logs.page')}</Title>
 
-      <p className="big-spacer-bottom">
-        {translate('audit_logs.page.description.1')}
-        <br />
-        <FormattedMessage
-          id="audit_logs.page.description.2"
-          defaultMessage={translate('audit_logs.page.description.2')}
-          values={{
-            housekeeping: translate('audit_logs.housekeeping_policy', housekeepingPolicy),
-            link: (
-              <Link
-                to={{
-                  pathname: '/admin/settings',
-                  search: queryToSearch({ category: 'housekeeping' }),
-                  hash: '#auditLogs',
-                }}
-              >
-                {translate('audit_logs.page.description.link')}
-              </Link>
-            ),
-          }}
+        <p className="sw-mb-4">
+          {translate('audit_logs.page.description.1')}
+          <br />
+          <FormattedMessage
+            id="audit_logs.page.description.2"
+            defaultMessage={translate('audit_logs.page.description.2')}
+            values={{
+              housekeeping: translate('audit_logs.housekeeping_policy', housekeepingPolicy),
+              link: (
+                <Link
+                  to={{
+                    pathname: '/admin/settings',
+                    search: queryToSearchString({ category: 'housekeeping' }),
+                    hash: '#auditLogs',
+                  }}
+                >
+                  {translate('audit_logs.page.description.link')}
+                </Link>
+              ),
+            }}
+          />
+        </p>
+
+        <div className="sw-mb-6">
+          <h3 className="sw-mb-4" id="audit-logs-housekeeping-radio-label">
+            {translate('audit_logs.download')}
+          </h3>
+
+          <RadioButtonGroup
+            ariaLabelledBy="audit-logs-housekeeping-radio-label"
+            id="audit-logs-housekeeping-radio"
+            options={getRangeOptions(housekeepingPolicy).map((option) => ({
+              label: translate('audit_logs.range_option', option),
+              value: option,
+            }))}
+            value={selection}
+            onChange={props.handleOptionSelection}
+          />
+
+          <DateRangePicker
+            className="sw-w-abs-350 sw-mt-4"
+            startClearButtonLabel={translate('clear.start')}
+            endClearButtonLabel={translate('clear.end')}
+            fromLabel={translate('start_date')}
+            onChange={props.handleDateSelection}
+            separatorText={translate('to_')}
+            toLabel={translate('end_date')}
+            value={dateRange}
+            minDate={subDays(now(), HOUSEKEEPING_POLICY_VALUES[housekeepingPolicy])}
+            maxDate={now()}
+            zLevel={PopupZLevel.Content}
+          />
+        </div>
+
+        <DownloadButton
+          dateRange={dateRange}
+          downloadStarted={downloadStarted}
+          onStartDownload={props.handleStartDownload}
+          selection={selection}
         />
-      </p>
-
-      <div className="huge-spacer-bottom">
-        <h2 className="big-spacer-bottom">{translate('audit_logs.download')}</h2>
-
-        <ul>
-          {getRangeOptions(housekeepingPolicy).map((option) => (
-            <li key={option} className="spacer-bottom">
-              <Radio
-                checked={selection === option}
-                onCheck={props.handleOptionSelection}
-                value={option}
-              >
-                {translate('audit_logs.range_option', option)}
-              </Radio>
-            </li>
-          ))}
-        </ul>
-
-        <DateRangeInput
-          onChange={props.handleDateSelection}
-          minDate={subDays(now(), HOUSEKEEPING_POLICY_VALUES[housekeepingPolicy])}
-          maxDate={now()}
-          value={dateRange}
-        />
-      </div>
-
-      <DownloadButton
-        dateRange={dateRange}
-        downloadStarted={downloadStarted}
-        onStartDownload={props.handleStartDownload}
-        selection={selection}
-      />
-    </div>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }

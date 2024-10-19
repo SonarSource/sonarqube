@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,8 +29,8 @@ import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,7 +131,7 @@ public class PluginClassLoaderTest {
       ImmutableMap.of("foo", createExplodedPlugin(info)));
     assertThat(defs).extracting(PluginClassLoaderDef::getBasePluginKey).containsExactly("foo");
 
-    List<String> warnings = logTester.logs(LoggerLevel.WARN);
+    List<String> warnings = logTester.logs(Level.WARN);
     assertThat(warnings).contains("Plugin foo [foo] uses a child first classloader which is deprecated");
   }
 
@@ -147,7 +147,7 @@ public class PluginClassLoaderTest {
       ImmutableMap.of("foo", createExplodedPlugin(info)));
     assertThat(defs).extracting(PluginClassLoaderDef::getBasePluginKey).containsExactly("foo");
 
-    List<String> warnings = logTester.logs(LoggerLevel.WARN);
+    List<String> warnings = logTester.logs(Level.WARN);
     assertThat(warnings).contains("API compatibility mode is no longer supported. In case of error, plugin foo [foo] should package its dependencies.");
   }
 

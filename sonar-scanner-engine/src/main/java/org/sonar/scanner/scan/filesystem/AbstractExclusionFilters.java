@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,14 +24,14 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.PROJECT_TESTS_EXCLUSIONS_PROPERTY;
@@ -41,12 +41,11 @@ import static org.sonar.api.CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY;
 
 public abstract class AbstractExclusionFilters {
 
-  private static final Logger LOG = Loggers.get(AbstractExclusionFilters.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractExclusionFilters.class);
   private static final String WARNING_ALIAS_PROPERTY_USAGE = "Use of %s detected. While being taken into account, the only supported property is %s." +
     " Consider updating your configuration.";
 
-  private static final String WARNING_LEGACY_AND_ALIAS_PROPERTIES_USAGE =
-    "Use of %s and %s at the same time. %s is taken into account. Consider updating your configuration";
+  private static final String WARNING_LEGACY_AND_ALIAS_PROPERTIES_USAGE = "Use of %s and %s at the same time. %s is taken into account. Consider updating your configuration";
 
   private final AnalysisWarnings analysisWarnings;
   private final String[] sourceInclusions;
@@ -61,20 +60,41 @@ public abstract class AbstractExclusionFilters {
 
   protected AbstractExclusionFilters(AnalysisWarnings analysisWarnings, Function<String, String[]> configProvider) {
     this.analysisWarnings = analysisWarnings;
+
     this.sourceInclusions = inclusions(configProvider, CoreProperties.PROJECT_INCLUSIONS_PROPERTY);
-    this.sourceExclusions = exclusions(configProvider, CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
+    this.sourceExclusions = initSourceExclusions(configProvider);
+    this.testInclusions = initTestInclusions(configProvider);
+    this.testExclusions = initTestExclusions(configProvider);
 
-    String[] testInclusionsFromLegacy = inclusions(configProvider, PROJECT_TEST_INCLUSIONS_PROPERTY);
-    String[] testInclusionsFromAlias = inclusions(configProvider, PROJECT_TESTS_INCLUSIONS_PROPERTY);
-    this.testInclusions = keepInclusionTestBetweenLegacyAndAliasProperties(testInclusionsFromLegacy, testInclusionsFromAlias);
-    String[] testExclusionsFromLegacy = exclusions(configProvider, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, PROJECT_TEST_EXCLUSIONS_PROPERTY);
-    String[] testExclusionsFromAlias = exclusions(configProvider, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, PROJECT_TESTS_EXCLUSIONS_PROPERTY);
-    this.testExclusions = keepExclusionTestBetweenLegacyAndAliasProperties(testExclusionsFromLegacy, testExclusionsFromAlias);
-
-    this.mainInclusionsPattern = prepareMainInclusions(sourceInclusions);
-    this.mainExclusionsPattern = prepareMainExclusions(sourceExclusions, this.testInclusions);
+    this.mainInclusionsPattern = prepareMainInclusions(this.sourceInclusions);
+    this.mainExclusionsPattern = prepareMainExclusions(this.sourceExclusions, this.testInclusions);
     this.testInclusionsPattern = prepareTestInclusions(this.testInclusions);
     this.testExclusionsPattern = prepareTestExclusions(this.testExclusions);
+  }
+
+  private String[] initSourceExclusions(Function<String, String[]> configProvider) {
+    String[] projectSourceExclusion = exclusions(configProvider, CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
+    String[] globalSourceExclusion = exclusions(configProvider, CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY);
+    return Stream.concat(Arrays.stream(projectSourceExclusion), Arrays.stream(globalSourceExclusion))
+      .map(String::trim)
+      .toArray(String[]::new);
+  }
+
+  private String[] initTestInclusions(Function<String, String[]> configProvider) {
+    String[] testInclusionsFromLegacy = inclusions(configProvider, PROJECT_TEST_INCLUSIONS_PROPERTY);
+    String[] testInclusionsFromAlias = inclusions(configProvider, PROJECT_TESTS_INCLUSIONS_PROPERTY);
+    return keepInclusionTestBetweenLegacyAndAliasProperties(testInclusionsFromLegacy, testInclusionsFromAlias);
+  }
+
+  private String[] initTestExclusions(Function<String, String[]> configProvider) {
+    String[] testExclusionsFromLegacy = exclusions(configProvider, CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY);
+    String[] testExclusionsFromAlias = exclusions(configProvider, CoreProperties.PROJECT_TESTS_EXCLUSIONS_PROPERTY);
+    String[] testExclusionsKept = keepExclusionTestBetweenLegacyAndAliasProperties(testExclusionsFromLegacy, testExclusionsFromAlias);
+
+    String[] testExclusionsFromGlobal = exclusions(configProvider, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY);
+    return Stream.concat(Arrays.stream(testExclusionsKept), Arrays.stream(testExclusionsFromGlobal))
+      .map(String::trim)
+      .toArray(String[]::new);
   }
 
   private String[] keepExclusionTestBetweenLegacyAndAliasProperties(String[] fromLegacyProperty, String[] fromAliasProperty) {
@@ -101,7 +121,7 @@ public abstract class AbstractExclusionFilters {
     return fromLegacyProperty;
   }
 
-  private  void logWarningForAliasUsage(String legacyProperty, String aliasProperty) {
+  private void logWarningForAliasUsage(String legacyProperty, String aliasProperty) {
     logWarning(format(WARNING_ALIAS_PROPERTY_USAGE, aliasProperty, legacyProperty));
   }
 
@@ -129,10 +149,9 @@ public abstract class AbstractExclusionFilters {
       .toArray(String[]::new);
   }
 
-  private String[] exclusions(Function<String, String[]> configProvider, String globalExclusionsProperty, String exclusionsProperty) {
-    String[] globalExclusions = configProvider.apply(globalExclusionsProperty);
-    String[] exclusions = configProvider.apply(exclusionsProperty);
-    return Stream.concat(Arrays.stream(globalExclusions), Arrays.stream(exclusions))
+  private String[] exclusions(Function<String, String[]> configProvider, String property) {
+    String[] exclusions = configProvider.apply(property);
+    return Arrays.stream(exclusions)
       .map(StringUtils::trim)
       .toArray(String[]::new);
   }
@@ -160,7 +179,7 @@ public abstract class AbstractExclusionFilters {
   }
 
   static PathPattern[] prepareMainExclusions(String[] sourceExclusions, String[] testInclusions) {
-    String[] patterns = (String[]) ArrayUtils.addAll(
+    String[] patterns = ArrayUtils.addAll(
       sourceExclusions, testInclusions);
     return PathPattern.create(patterns);
   }

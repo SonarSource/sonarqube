@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,52 +19,151 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
-import org.junit.Test;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
-public class DatabaseMigrationStateImplTest {
-  private DatabaseMigrationStateImpl underTest = new DatabaseMigrationStateImpl();
+class DatabaseMigrationStateImplTest {
+  private final DatabaseMigrationStateImpl underTest = new DatabaseMigrationStateImpl();
 
   @Test
-  public void getStatus_returns_NONE_when_component_is_created() {
+  void getStatus_whenComponentIsCreated_shouldReturnNONE() {
     assertThat(underTest.getStatus()).isEqualTo(DatabaseMigrationState.Status.NONE);
   }
 
   @Test
-  public void getStatus_returns_argument_of_setStatus() {
+  void getStatus_shouldReturnArgumentOfSetStatus() {
     for (DatabaseMigrationState.Status status : DatabaseMigrationState.Status.values()) {
       underTest.setStatus(status);
 
       assertThat(underTest.getStatus()).isEqualTo(status);
     }
-
   }
 
   @Test
-  public void getStartedAt_returns_null_when_component_is_created() {
-    assertThat(underTest.getStartedAt()).isNull();
+  void getStartedAt_whenComponentIsCreated_shouldNotBePresent() {
+    assertThat(underTest.getStartedAt()).isEmpty();
   }
 
   @Test
-  public void getStartedAt_returns_argument_of_setStartedAt() {
-    Date expected = new Date();
+  void getStartedAt_shouldReturnArgumentOfSetStartedAt() {
+    Instant expected = Instant.now();
     underTest.setStartedAt(expected);
 
-    assertThat(underTest.getStartedAt()).isSameAs(expected);
+    assertThat(underTest.getStartedAt()).get().isSameAs(expected);
   }
 
   @Test
-  public void getError_returns_null_when_component_is_created() {
-    assertThat(underTest.getError()).isNull();
+  void getError_whenComponentIsCreated_shouldNotBePresent() {
+    assertThat(underTest.getError()).isEmpty();
   }
 
   @Test
-  public void getError_returns_argument_of_setError() {
+  void getError_shouldReturnArgumentOfSetError() {
     RuntimeException expected = new RuntimeException();
     underTest.setError(expected);
 
-    assertThat(underTest.getError()).isSameAs(expected);
+    assertThat(underTest.getError()).get().isSameAs(expected);
   }
+
+  @Test
+  void incrementCompletedMigrations_shouldIncrementCompletedMigrations() {
+    assertThat(underTest.getCompletedMigrations()).isZero();
+
+    underTest.incrementCompletedMigrations();
+
+    assertThat(underTest.getCompletedMigrations()).isEqualTo(1);
+  }
+
+  @Test
+  void getTotalMigrations_shouldReturnArgumentOfSetTotalMigrations() {
+    underTest.setTotalMigrations(10);
+
+    assertThat(underTest.getTotalMigrations()).isEqualTo(10);
+  }
+
+  @Test
+  void when_noStartedMigration_expectedFinishDateShouldBeAbsent() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setTotalMigrations(2);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void when_noStepCompleted_expectedFinishDateShouldBeAbsent() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(2);
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void when_StepCompleted_expectedFinishDateShouldBePresent() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+    Instant expectedEnd = startDate.plus(2, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(2);
+    underTest.incrementCompletedMigrations();
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
+
+    assertThat(underTest.getExpectedFinishDate(later)).get(InstanceOfAssertFactories.INSTANT)
+      .isCloseTo(expectedEnd, within(1, ChronoUnit.SECONDS));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DatabaseMigrationStateImpl.Status.class,
+    names = {"SUCCEEDED", "FAILED", "MIGRATION_REQUIRED", "NONE", "STATUS_NOT_SUPPORTED"})
+  void getExpectedFinishDate_whenStatusIsNotRunning_shouldReturnEmptyOptional(DatabaseMigrationState.Status status) {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(1);
+    underTest.incrementCompletedMigrations();
+    underTest.setStatus(status);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void getExpectedFinishDate_whenTotalMigrationsAreZero_shouldReturnEmptyOptional() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(0);
+    underTest.incrementCompletedMigrations();
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void getExpectedFinishDate_whenStartedAtIsNull_shouldReturnEmptyOptional() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(null);
+    underTest.setTotalMigrations(1);
+    underTest.incrementCompletedMigrations();
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
 }

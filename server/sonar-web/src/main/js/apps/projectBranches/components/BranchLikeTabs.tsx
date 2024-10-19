@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,35 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { IconGitBranch, IconPullrequest } from '@sonarsource/echoes-react';
+import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
-import BoxedTabs, { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
-import BranchIcon from '../../../components/icons/BranchIcon';
-import PullRequestIcon from '../../../components/icons/PullRequestIcon';
-import {
-  isBranch,
-  isMainBranch,
-  isPullRequest,
-  sortBranches,
-  sortPullRequests,
-} from '../../../helpers/branch-like';
+import { useState } from 'react';
+import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { sortBranches, sortPullRequests } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { BranchLike } from '../../../types/branch-like';
+import { useBranchesQuery } from '../../../queries/branch';
+import { Branch, BranchLike, PullRequest } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 import BranchLikeTable from './BranchLikeTable';
 import DeleteBranchModal from './DeleteBranchModal';
 import RenameBranchModal from './RenameBranchModal';
+import SetAsMainBranchModal from './SetAsMainBranchModal';
 
 interface Props {
-  branchLikes: BranchLike[];
-  component: Component;
-  onBranchesChange: () => void;
   comparisonBranchesEnabled: boolean;
-}
-
-interface State {
-  currentTab: Tabs;
-  deleting?: BranchLike;
-  renaming?: BranchLike;
+  component: Component;
+  fetchComponent: () => Promise<void>;
 }
 
 export enum Tabs {
@@ -56,21 +47,21 @@ export enum Tabs {
 const TABS = [
   {
     key: Tabs.Branch,
+    value: Tabs.Branch,
     label: (
       <>
-        <BranchIcon />
-        <span className="spacer-left">
-          {translate('project_branch_pull_request.tabs.branches')}
-        </span>
+        <IconGitBranch />
+        <span className="sw-ml-2">{translate('project_branch_pull_request.tabs.branches')}</span>
       </>
     ),
   },
   {
     key: Tabs.PullRequest,
+    value: Tabs.PullRequest,
     label: (
       <>
-        <PullRequestIcon />
-        <span className="spacer-left">
+        <IconPullrequest />
+        <span className="sw-ml-2">
           {translate('project_branch_pull_request.tabs.pull_requests')}
         </span>
       </>
@@ -103,90 +94,82 @@ const TABS_SF = [
   }
 ];
 
-export default class BranchLikeTabs extends React.PureComponent<Props, State> {
-  state: State = { currentTab: Tabs.Branch };
+export default function BranchLikeTabs(props: Props) {
+  const { component, fetchComponent } = props;
+  const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Branch);
+  const [renaming, setRenaming] = useState<BranchLike>();
+  const [settingAsMain, setSettingAsMain] = useState<Branch>();
+  const [deleting, setDeleting] = useState<BranchLike>();
 
-  handleTabSelect = (currentTab: Tabs) => {
-    this.setState({ currentTab });
+  const handleClose = () => {
+    setRenaming(undefined);
+    setDeleting(undefined);
+    setSettingAsMain(undefined);
   };
 
-  handleDeleteBranchLike = (branchLike: BranchLike) => {
-    this.setState({ deleting: {...branchLike, isComparisonBranch: this.props.comparisonBranchesEnabled} });
+  const handleSetAsMainBranch = () => {
+    handleClose();
+    fetchComponent();
   };
 
-  handleRenameBranchLike = (branchLike: BranchLike) => {
-    this.setState({ renaming: branchLike });
+  const handleSetAsMainBranchOption = (branchLike: BranchLike) => {
+    if (isBranch(branchLike)) {
+      setSettingAsMain(branchLike);
+    }
   };
 
-  handleUpdatePurgeSetting = () => {
-    this.props.onBranchesChange();
-  };
+  const { data: branchLikes = [] } = useBranchesQuery(component);
 
-  handleClose = () => {
-    this.setState({ deleting: undefined, renaming: undefined });
-  };
+  const isBranchMode = currentTab === Tabs.Branch;
+  const branchLikesToDisplay: BranchLike[] = isBranchMode
+    ? sortBranches(branchLikes.filter(isBranch) as Branch[])
+    : sortPullRequests(branchLikes.filter(isPullRequest) as PullRequest[]);
+  const title = translate(
+    isBranchMode
+      ? 'project_branch_pull_request.table.branch'
+      : (this.props.comparisonBranchesEnabled
+        ? 'project_branch_pull_request.table.comparison_branch'
+        : 'project_branch_pull_request.table.pull_request'),
+  );
 
-  handleModalActionFulfilled = () => {
-    this.handleClose();
-    this.props.onBranchesChange();
-  };
+  return (
+    <>
+      <ToggleButton
+        onChange={(currentTabKey: Tabs) => setCurrentTab(currentTabKey)}
+        value={currentTab}
+        options={this.props.comparisonBranchesEnabled ? TABS_SF : TABS}
+        role="tablist"
+      />
 
-  render() {
-    const { branchLikes, component } = this.props;
-    const { currentTab, deleting, renaming } = this.state;
-
-    const isBranchMode = currentTab === Tabs.Branch;
-    const branchLikesToDisplay: BranchLike[] = isBranchMode
-      ? sortBranches(branchLikes.filter(isBranch))
-      : sortPullRequests(branchLikes.filter(isPullRequest));
-    const title = translate(
-      isBranchMode
-        ? 'project_branch_pull_request.table.branch'
-        : (this.props.comparisonBranchesEnabled
-                  ? 'project_branch_pull_request.table.comparison_branch'
-                  : 'project_branch_pull_request.table.pull_request')
-    );
-
-    return (
-      <>
-        <BoxedTabs
-          className="branch-like-tabs"
-          onSelect={this.handleTabSelect}
-          selected={currentTab}
-          tabs={this.props.comparisonBranchesEnabled ? TABS_SF : TABS}
+      <div role="tabpanel" id={getTabPanelId(currentTab)} aria-labelledby={getTabId(currentTab)}>
+        <BranchLikeTable
+          branchLikes={branchLikesToDisplay}
+          component={component}
+          displayPurgeSetting={isBranchMode}
+          onDelete={setDeleting}
+          onRename={setRenaming}
+          onSetAsMain={handleSetAsMainBranchOption}
+          title={title}
+          comparisonBranchesEnabled={this.props.comparisonBranchesEnabled}
         />
+      </div>
 
-        <div role="tabpanel" id={getTabPanelId(currentTab)} aria-labelledby={getTabId(currentTab)}>
-          <BranchLikeTable
-            branchLikes={branchLikesToDisplay}
-            component={component}
-            displayPurgeSetting={isBranchMode}
-            onDelete={this.handleDeleteBranchLike}
-            onRename={this.handleRenameBranchLike}
-            onUpdatePurgeSetting={this.handleUpdatePurgeSetting}
-            title={title}
-            comparisonBranchesEnabled={this.props.comparisonBranchesEnabled}
-          />
-        </div>
+      {deleting && (
+        <DeleteBranchModal branchLike={deleting} component={component} onClose={handleClose} />
+      )}
 
-        {deleting && (
-          <DeleteBranchModal
-            branchLike={deleting}
-            component={component}
-            onClose={this.handleClose}
-            onDelete={this.handleModalActionFulfilled}
-          />
-        )}
+      {renaming && isMainBranch(renaming) && (
+        <RenameBranchModal branch={renaming} component={component} onClose={handleClose} />
+      )}
 
-        {renaming && isMainBranch(renaming) && (
-          <RenameBranchModal
-            branch={renaming}
-            component={component}
-            onClose={this.handleClose}
-            onRename={this.handleModalActionFulfilled}
-          />
-        )}
-      </>
-    );
-  }
+      {settingAsMain && !isMainBranch(settingAsMain) && (
+        <SetAsMainBranchModal
+          component={component}
+          branch={settingAsMain}
+          onClose={handleClose}
+          onSetAsMain={handleSetAsMainBranch}
+        />
+      )}
+    </>
+  );
 }

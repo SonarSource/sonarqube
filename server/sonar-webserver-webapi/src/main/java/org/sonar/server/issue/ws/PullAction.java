@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,21 +23,26 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueQueryParams;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common.RuleType;
 
+import static java.lang.Boolean.parseBoolean;
 import static java.util.Optional.ofNullable;
 import static org.sonarqube.ws.WsUtils.checkArgument;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_PULL;
 
-public class PullAction extends BasePullAction {
+public class PullAction extends BasePullAction implements IssuesWsAction {
   private static final String ISSUE_TYPE = "issues";
   private static final String REPOSITORY_EXAMPLE = "java";
   private static final String RESOURCE_EXAMPLE = "pull-example.proto";
@@ -52,6 +57,31 @@ public class PullAction extends BasePullAction {
       ISSUE_TYPE, REPOSITORY_EXAMPLE, SINCE_VERSION, RESOURCE_EXAMPLE);
     this.dbClient = dbClient;
     this.taintChecker = taintChecker;
+  }
+
+  @Override
+  protected void additionalParams(WebService.NewAction action) {
+    action.createParam(RULE_REPOSITORIES_PARAM)
+      .setDescription("Comma separated list of rule repositories. If not present all issues regardless of" +
+        " their rule repository are returned.")
+      .setExampleValue(repositoryExample);
+
+    action.createParam(RESOLVED_ONLY_PARAM)
+      .setDescription("If true only issues with resolved status are returned")
+      .setExampleValue("true");
+  }
+
+  @Override
+  protected void processAdditionalParams(Request request, BasePullRequest wsRequest) {
+    boolean resolvedOnly = parseBoolean(request.param(RESOLVED_ONLY_PARAM));
+
+    List<String> ruleRepositories = request.paramAsStrings(RULE_REPOSITORIES_PARAM);
+    if (ruleRepositories != null && !ruleRepositories.isEmpty()) {
+      validateRuleRepositories(ruleRepositories);
+    }
+    wsRequest
+      .repositories(ruleRepositories)
+      .resolvedOnly(resolvedOnly);
   }
 
   @Override
@@ -78,10 +108,15 @@ public class PullAction extends BasePullAction {
   }
 
   @Override
-  protected void validateRuleRepositories(List<String> ruleRepositories) {
+  protected boolean filterNonClosedIssues(IssueDto issueDto, IssueQueryParams queryParams) {
+    return issueDto.getType() != RuleType.SECURITY_HOTSPOT_VALUE &&
+      (!queryParams.isResolvedOnly() || issueDto.getStatus().equals("RESOLVED"));
+  }
+
+  private void validateRuleRepositories(List<String> ruleRepositories) {
     checkArgument(ruleRepositories
       .stream()
-      .filter(taintChecker.getTaintRepositories()::contains)
-      .count() == 0, "Incorrect rule repositories list: it should only include repositories that define Issues, and no Taint Vulnerabilities");
+      .noneMatch(taintChecker.getTaintRepositories()::contains),
+      "Incorrect rule repositories list: it should only include repositories that define Issues, and no Taint Vulnerabilities");
   }
 }

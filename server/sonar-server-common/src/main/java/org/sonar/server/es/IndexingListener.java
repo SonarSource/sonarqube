@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ public interface IndexingListener {
     public void onFinish(IndexingResult result) {
       if (result.getFailures() > 0) {
         throw new IllegalStateException(
-          format("Unrecoverable indexation failures: %d errors among %d requests. Check Elasticsearch logs for further details.",
+          format("Unrecoverable indexing failures: %d errors among %d requests. Check Elasticsearch logs for further details.",
             result.getFailures(),
             result.getTotal()));
       }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
  */
 package org.sonar.server.measure.live;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,20 +30,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueGroupDto;
+import org.sonar.db.issue.IssueImpactGroupDto;
 import org.sonar.server.measure.DebtRatingGrid;
 import org.sonar.server.measure.Rating;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.INFO;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
@@ -50,13 +70,21 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING;
+import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT;
+import static org.sonar.server.metric.IssueCountMetrics.PRIORITIZED_RULE_ISSUES;
+import static org.sonar.test.JsonAssert.assertJson;
 
-public class MeasureUpdateFormulaFactoryImplTest {
+class MeasureUpdateFormulaFactoryImplTest {
 
+  private static final Gson GSON = new GsonBuilder().create();
   private final MeasureUpdateFormulaFactoryImpl underTest = new MeasureUpdateFormulaFactoryImpl();
 
   @Test
-  public void getFormulaMetrics_include_the_dependent_metrics() {
+  void getFormulaMetrics_include_the_dependent_metrics() {
     for (MeasureUpdateFormula formula : underTest.getFormulas()) {
       assertThat(underTest.getFormulaMetrics()).contains(formula.getMetric());
       for (Metric<?> dependentMetric : formula.getDependentMetrics()) {
@@ -66,7 +94,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void hierarchy_adding_numbers() {
+  void hierarchy_adding_numbers() {
     new HierarchyTester(CoreMetrics.VIOLATIONS)
       .withValue(1d)
       .withChildrenValues(2d, 3d)
@@ -83,7 +111,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void hierarchy_highest_rating() {
+  void hierarchy_highest_rating() {
     new HierarchyTester(CoreMetrics.RELIABILITY_RATING)
       .withValue(1d)
       .withChildrenValues(2d, 3d)
@@ -101,7 +129,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void hierarchy_combining_other_metrics() {
+  void hierarchy_combining_other_metrics() {
     new HierarchyTester(SECURITY_HOTSPOTS_TO_REVIEW_STATUS)
       .withValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 1d)
       .withChildrenHotspotsCounts(10, 10, 2, 10)
@@ -140,7 +168,85 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_violations() {
+  void computeHierarchy_shouldRecomputeSoftwareQualityMetricsCombiningOtherMetrics() {
+    new HierarchyTester(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO)
+      .withValue(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 10d)
+      .withValue(CoreMetrics.DEVELOPMENT_COST, "40")
+      .expectedResult(25d);
+    new HierarchyTester(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO)
+      .withValue(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 10d)
+      .withValue(CoreMetrics.NEW_DEVELOPMENT_COST, 40d)
+      .expectedResult(25d);
+
+    new HierarchyTester(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING)
+      .withValue(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 10d)
+      .withValue(CoreMetrics.DEVELOPMENT_COST, "40")
+      .expectedRating(Rating.D);
+
+    new HierarchyTester(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING)
+      .withValue(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 21d)
+      .withValue(CoreMetrics.DEVELOPMENT_COST, "40")
+      .expectedRating(Rating.E);
+
+    new HierarchyTester(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING)
+      .withValue(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 1d)
+      .withValue(CoreMetrics.NEW_DEVELOPMENT_COST, 40d)
+      .expectedRating(Rating.A);
+
+    new HierarchyTester(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING)
+      .withValue(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 10d)
+      .withValue(CoreMetrics.NEW_DEVELOPMENT_COST, 40d)
+      .expectedRating(Rating.D);
+
+    new HierarchyTester(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING)
+      .withValue(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 21d)
+      .withValue(CoreMetrics.NEW_DEVELOPMENT_COST, 40d)
+      .expectedRating(Rating.E);
+
+    new HierarchyTester(SoftwareQualitiesMetrics.EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A)
+      .withValue(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 10d)
+      .withValue(CoreMetrics.DEVELOPMENT_COST, "40")
+      .expectedResult(8d);
+  }
+
+  static List<Metric<?>> softwareQualityRatingMetric() {
+    return List.of(
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING);
+  }
+
+  @MethodSource("softwareQualityRatingMetric")
+  @ParameterizedTest
+  void computeHierarchy_shoudRecomputeSoftwareQualityMetricsBasedOnRating(Metric<?> ratingMetric) {
+    new HierarchyTester(ratingMetric)
+      .withValue(1d)
+      .withChildrenValues(2d, 3d)
+      .expectedRating(Rating.C);
+  }
+
+  static List<Metric<?>> softwareQualitySummingMetric() {
+    return List.of(
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT);
+  }
+
+  @MethodSource("softwareQualitySummingMetric")
+  @ParameterizedTest
+  void computeHierarchy_shoudRecomputeSoftwareQualityMetricsBasedOnSumming(Metric<?> summingMetric) {
+    new HierarchyTester(summingMetric)
+      .withValue(1d)
+      .withChildrenValues(2d, 3d)
+      .expectedResult(6d);
+  }
+
+  @Test
+  void test_violations() {
     withNoIssues().assertThatValueIs(CoreMetrics.VIOLATIONS, 0);
     with(newGroup(), newGroup().setCount(4)).assertThatValueIs(CoreMetrics.VIOLATIONS, 5);
 
@@ -154,7 +260,13 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_bugs() {
+  void test_prioritized_rules() {
+    withNoIssues().assertThatValueIs(PRIORITIZED_RULE_ISSUES, 0);
+    with(newGroup().setPrioritizedRule(1), newGroup().setPrioritizedRule(4)).assertThatValueIs(PRIORITIZED_RULE_ISSUES, 5);
+  }
+
+  @Test
+  void test_bugs() {
     withNoIssues().assertThatValueIs(CoreMetrics.BUGS, 0);
     with(
       newGroup(RuleType.BUG).setSeverity(Severity.MAJOR).setCount(3),
@@ -167,7 +279,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_code_smells() {
+  void test_code_smells() {
     withNoIssues().assertThatValueIs(CoreMetrics.CODE_SMELLS, 0);
     with(
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.MAJOR).setCount(3),
@@ -180,7 +292,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_vulnerabilities() {
+  void test_vulnerabilities() {
     withNoIssues().assertThatValueIs(CoreMetrics.VULNERABILITIES, 0);
     with(
       newGroup(RuleType.VULNERABILITY).setSeverity(Severity.MAJOR).setCount(3),
@@ -193,7 +305,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_security_hotspots() {
+  void test_security_hotspots() {
     withNoIssues().assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS, 0);
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.MAJOR).setCount(3),
@@ -206,7 +318,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_security_review_rating() {
+  void test_security_review_ratings() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
@@ -214,10 +326,15 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
     withNoIssues()
       .assertThatValueIs(SECURITY_REVIEW_RATING, Rating.A);
+
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(3).setInLeak(true),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true))
+      .assertThatValueIs(SECURITY_REVIEW_RATING, Rating.E);
   }
 
   @Test
-  public void test_security_hotspots_reviewed() {
+  void test_security_hotspots_reviewed() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
@@ -228,7 +345,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_security_hotspots_reviewed_status() {
+  void test_security_hotspots_reviewed_status() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
@@ -239,7 +356,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_security_hotspots_to_review_status() {
+  void test_security_hotspots_to_review_status() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
@@ -250,7 +367,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void count_unresolved_by_severity() {
+  void count_unresolved_by_severity() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.BLOCKER_VIOLATIONS, 0)
       .assertThatValueIs(CoreMetrics.CRITICAL_VIOLATIONS, 0)
@@ -279,10 +396,10 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void count_resolved() {
+  void count_resolved() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.FALSE_POSITIVE_ISSUES, 0)
-      .assertThatValueIs(CoreMetrics.WONT_FIX_ISSUES, 0);
+      .assertThatValueIs(CoreMetrics.ACCEPTED_ISSUES, 0);
 
     with(
       newResolvedGroup(Issue.RESOLUTION_FIXED, Issue.STATUS_RESOLVED).setCount(3),
@@ -296,11 +413,11 @@ public class MeasureUpdateFormulaFactoryImplTest {
       newGroup(RuleType.VULNERABILITY).setCount(17),
       newGroup(RuleType.BUG).setCount(19))
       .assertThatValueIs(CoreMetrics.FALSE_POSITIVE_ISSUES, 5)
-      .assertThatValueIs(CoreMetrics.WONT_FIX_ISSUES, 7 + 11);
+      .assertThatValueIs(CoreMetrics.ACCEPTED_ISSUES, 7 + 11);
   }
 
   @Test
-  public void count_by_status() {
+  void count_by_status() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.CONFIRMED_ISSUES, 0)
       .assertThatValueIs(CoreMetrics.OPEN_ISSUES, 0)
@@ -321,7 +438,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_technical_debt() {
+  void test_technical_debt() {
     withNoIssues().assertThatValueIs(CoreMetrics.TECHNICAL_DEBT, 0);
 
     with(
@@ -338,7 +455,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_reliability_remediation_effort() {
+  void test_reliability_remediation_effort() {
     withNoIssues().assertThatValueIs(CoreMetrics.RELIABILITY_REMEDIATION_EFFORT, 0);
 
     with(
@@ -352,7 +469,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_security_remediation_effort() {
+  void test_security_remediation_effort() {
     withNoIssues().assertThatValueIs(CoreMetrics.SECURITY_REMEDIATION_EFFORT, 0);
 
     with(
@@ -365,123 +482,145 @@ public class MeasureUpdateFormulaFactoryImplTest {
       .assertThatValueIs(CoreMetrics.SECURITY_REMEDIATION_EFFORT, 3.0 + 5.0);
   }
 
-  @Test
-  public void test_sqale_debt_ratio_and_sqale_rating() {
+  private static Stream<Arguments> maintainabilityMetrics() {
+    return Stream.of(
+      arguments(TECHNICAL_DEBT, SQALE_DEBT_RATIO, SQALE_RATING),
+      arguments(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING));
+  }
+
+  @ParameterizedTest
+  @MethodSource("maintainabilityMetrics")
+  void test_sqale_debt_ratio_and_sqale_rating(Metric<?> maintainabilityRemediationEffortMetric, Metric<?> maintainabilityDebtRatioMetric,
+    Metric<?> maintainabilityRatingMetric) {
     withNoIssues()
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
     // technical_debt not computed
     with(CoreMetrics.DEVELOPMENT_COST, "0")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
     with(CoreMetrics.DEVELOPMENT_COST, "20")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
     // development_cost not computed
-    with(CoreMetrics.TECHNICAL_DEBT, 0)
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
-    with(CoreMetrics.TECHNICAL_DEBT, 20)
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+    with(maintainabilityRemediationEffortMetric, 0)
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
+    with(maintainabilityRemediationEffortMetric, 20)
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
     // input measures are available
-    with(CoreMetrics.TECHNICAL_DEBT, 20.0)
+    with(maintainabilityRemediationEffortMetric, 20.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "0")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0.0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
-    with(CoreMetrics.TECHNICAL_DEBT, 20.0)
+    with(maintainabilityRemediationEffortMetric, 20.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "160")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 12.5)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.C);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 12.5)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.C);
 
-    with(CoreMetrics.TECHNICAL_DEBT, 20.0)
+    Verifier verifier = with(maintainabilityRemediationEffortMetric, 20.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "10")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 200.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.E);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 200.0);
+    switch (maintainabilityRatingMetric.key()) {
+      case SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY, SQALE_RATING_KEY ->
+        verifier.assertThatValueIs(maintainabilityRatingMetric, Rating.E);
+      default -> throw new IllegalArgumentException("Unexpected metric: " + maintainabilityRatingMetric.key());
+    }
 
     // A is 5% --> min debt is exactly 200*0.05=10
     with(CoreMetrics.DEVELOPMENT_COST, "200")
-      .and(CoreMetrics.TECHNICAL_DEBT, 10.0)
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 5.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .and(maintainabilityRemediationEffortMetric, 10.0)
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 5.0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
-    with(CoreMetrics.TECHNICAL_DEBT, 0.0)
+    with(maintainabilityRemediationEffortMetric, 0.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "0")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0.0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
-    with(CoreMetrics.TECHNICAL_DEBT, 0.0)
+    with(maintainabilityRemediationEffortMetric, 0.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "80")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0.0);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0.0);
 
-    with(CoreMetrics.TECHNICAL_DEBT, -20.0)
+    with(maintainabilityRemediationEffortMetric, -20.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "0")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0.0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
     // bug, debt can't be negative
-    with(CoreMetrics.TECHNICAL_DEBT, -20.0)
+    with(maintainabilityRemediationEffortMetric, -20.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "80")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0.0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
 
     // bug, cost can't be negative
-    with(CoreMetrics.TECHNICAL_DEBT, 20.0)
+    with(maintainabilityRemediationEffortMetric, 20.0)
       .andText(CoreMetrics.DEVELOPMENT_COST, "-80")
-      .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 0.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
+      .assertThatValueIs(maintainabilityDebtRatioMetric, 0.0)
+      .assertThatValueIs(maintainabilityRatingMetric, Rating.A);
   }
 
-  @Test
-  public void test_effort_to_reach_maintainability_rating_A() {
+  private static Stream<Arguments> effortToReachAMetrics() {
+    return Stream.of(
+      arguments(TECHNICAL_DEBT, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A),
+      arguments(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
+        SoftwareQualitiesMetrics.EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A));
+  }
+
+  @ParameterizedTest
+  @MethodSource("effortToReachAMetrics")
+  void test_effort_to_reach_maintainability_rating_A(Metric<?> maintainabilityRemediationEffortMetric, Metric<?> effortToReachAMetric) {
     withNoIssues()
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 0.0);
+      .assertThatValueIs(effortToReachAMetric, 0.0);
 
     // technical_debt not computed
     with(CoreMetrics.DEVELOPMENT_COST, 0.0)
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 0.0);
+      .assertThatValueIs(effortToReachAMetric, 0.0);
     with(CoreMetrics.DEVELOPMENT_COST, 20.0)
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 0.0);
+      .assertThatValueIs(effortToReachAMetric, 0.0);
 
     // development_cost not computed
-    with(CoreMetrics.TECHNICAL_DEBT, 0.0)
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 0.0);
-    with(CoreMetrics.TECHNICAL_DEBT, 20.0)
+    with(maintainabilityRemediationEffortMetric, 0.0)
+      .assertThatValueIs(effortToReachAMetric, 0.0);
+    with(maintainabilityRemediationEffortMetric, 20.0)
       // development cost is considered as zero, so the effort is to reach... zero
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 20.0);
+      .assertThatValueIs(effortToReachAMetric, 20.0);
 
     // B to A
     with(CoreMetrics.DEVELOPMENT_COST, "200")
-      .and(CoreMetrics.TECHNICAL_DEBT, 40.0)
+      .and(maintainabilityRemediationEffortMetric, 40.0)
       // B is 5% --> goal is to reach 200*0.05=10 --> effort is 40-10=30
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 40.0 - (200.0 * 0.05));
+      .assertThatValueIs(effortToReachAMetric, 40.0 - (200.0 * 0.05));
 
     // E to A
     with(CoreMetrics.DEVELOPMENT_COST, "200")
-      .and(CoreMetrics.TECHNICAL_DEBT, 180.0)
+      .and(maintainabilityRemediationEffortMetric, 180.0)
       // B is 5% --> goal is to reach 200*0.05=10 --> effort is 180-10=170
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 180.0 - (200.0 * 0.05));
+      .assertThatValueIs(effortToReachAMetric, 180.0 - (200.0 * 0.05));
 
     // already A
     with(CoreMetrics.DEVELOPMENT_COST, "200")
-      .and(CoreMetrics.TECHNICAL_DEBT, 8.0)
+      .and(maintainabilityRemediationEffortMetric, 8.0)
       // B is 5% --> goal is to reach 200*0.05=10 --> debt is already at 8 --> effort to reach A is zero
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 0.0);
+      .assertThatValueIs(effortToReachAMetric, 0.0);
 
     // exactly lower range of B
     with(CoreMetrics.DEVELOPMENT_COST, "200")
-      .and(CoreMetrics.TECHNICAL_DEBT, 10.0)
+      .and(maintainabilityRemediationEffortMetric, 10.0)
       // B is 5% --> goal is to reach 200*0.05=10 --> debt is 10 --> effort to reach A is zero
       // FIXME need zero to reach A but effective rating is B !
-      .assertThatValueIs(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, 0.0);
+      .assertThatValueIs(effortToReachAMetric, 0.0);
   }
 
   @Test
-  public void test_reliability_rating() {
+  void test_reliability_rating() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.RELIABILITY_RATING, Rating.A);
 
@@ -501,7 +640,69 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_security_rating() {
+  void test_software_quality_reliability_rating() {
+    withNoIssues()
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.A);
+
+    with(
+      newImpactGroup(RELIABILITY, BLOCKER, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.E);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.D);
+
+    with(
+      newImpactGroup(MAINTAINABILITY, HIGH, 1),
+      newImpactGroup(RELIABILITY, MEDIUM, 1),
+      newImpactGroup(RELIABILITY, LOW, 1),
+      newImpactGroup(SECURITY, MEDIUM, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.C);
+
+    with(
+      newImpactGroup(RELIABILITY, LOW, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.B);
+
+    with(
+      newImpactGroup(RELIABILITY, INFO, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.A);
+  }
+
+  @Test
+  void test_software_quality_new_reliability_rating() {
+    withNoIssues()
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.A);
+
+    with(
+      newImpactGroup(RELIABILITY, BLOCKER, 1, true))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.E);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 1, true),
+      newImpactGroup(RELIABILITY, BLOCKER, 1, false))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.D);
+
+    with(
+      newImpactGroup(MAINTAINABILITY, HIGH, 1, true),
+      newImpactGroup(RELIABILITY, MEDIUM, 1, true),
+      newImpactGroup(RELIABILITY, LOW, 1, true),
+      newImpactGroup(RELIABILITY, HIGH, 1, false),
+      newImpactGroup(SECURITY, HIGH, 1, true))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.C);
+
+    with(
+      newImpactGroup(RELIABILITY, LOW, 1, true),
+      newImpactGroup(RELIABILITY, MEDIUM, 1, false))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.B);
+
+    with(
+      newImpactGroup(RELIABILITY, INFO, 1, true),
+      newImpactGroup(RELIABILITY, MEDIUM, 1, false))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING, Rating.A);
+  }
+
+  @Test
+  void test_security_rating() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.SECURITY_RATING, Rating.A);
 
@@ -521,7 +722,69 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_bugs() {
+  void test_software_quality_security_rating() {
+    withNoIssues()
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING, Rating.A);
+
+    with(
+      newImpactGroup(SECURITY, BLOCKER, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING, Rating.E);
+
+    with(
+      newImpactGroup(SECURITY, HIGH, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING, Rating.D);
+
+    with(
+      newImpactGroup(MAINTAINABILITY, HIGH, 1),
+      newImpactGroup(SECURITY, MEDIUM, 1),
+      newImpactGroup(SECURITY, LOW, 1),
+      newImpactGroup(RELIABILITY, MEDIUM, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING, Rating.C);
+
+    with(
+      newImpactGroup(SECURITY, LOW, 1))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING, Rating.B);
+
+    with(
+      newImpactGroup(SECURITY, INFO, 2))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING, Rating.A);
+  }
+
+  @Test
+  void test_software_quality_new_security_rating() {
+    withNoIssues()
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING, Rating.A);
+
+    with(
+      newImpactGroup(SECURITY, BLOCKER, 1, true))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING, Rating.E);
+
+    with(
+      newImpactGroup(SECURITY, HIGH, 1, true),
+      newImpactGroup(SECURITY, BLOCKER, 1, false))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING, Rating.D);
+
+    with(
+      newImpactGroup(MAINTAINABILITY, HIGH, 1, true),
+      newImpactGroup(SECURITY, MEDIUM, 1, true),
+      newImpactGroup(SECURITY, LOW, 1, true),
+      newImpactGroup(SECURITY, HIGH, 1, false),
+      newImpactGroup(RELIABILITY, HIGH, 1, true))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING, Rating.C);
+
+    with(
+      newImpactGroup(SECURITY, LOW, 1, true),
+      newImpactGroup(SECURITY, MEDIUM, 1, false))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING, Rating.B);
+
+    with(
+      newImpactGroup(SECURITY, INFO, 1, true),
+      newImpactGroup(SECURITY, MEDIUM, 1, false))
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING, Rating.A);
+  }
+
+  @Test
+  void test_new_bugs() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_BUGS, 0.0);
 
     with(
@@ -536,7 +799,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_code_smells() {
+  void test_new_code_smells() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_CODE_SMELLS, 0.0);
 
     with(
@@ -550,7 +813,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_vulnerabilities() {
+  void test_new_vulnerabilities() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_VULNERABILITIES, 0.0);
 
     with(
@@ -564,7 +827,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_security_hotspots() {
+  void test_new_security_hotspots() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS, 0);
 
     with(
@@ -578,7 +841,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_violations() {
+  void test_new_violations() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_VIOLATIONS, 0.0);
 
     with(
@@ -593,7 +856,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_blocker_violations() {
+  void test_new_blocker_violations() {
     withNoIssues()
       .assertThatLeakValueIs(CoreMetrics.NEW_BLOCKER_VIOLATIONS, 0.0);
 
@@ -610,7 +873,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_critical_violations() {
+  void test_new_critical_violations() {
     withNoIssues()
       .assertThatLeakValueIs(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 0.0);
 
@@ -627,7 +890,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_major_violations() {
+  void test_new_major_violations() {
     withNoIssues()
       .assertThatLeakValueIs(CoreMetrics.NEW_MAJOR_VIOLATIONS, 0.0);
 
@@ -644,7 +907,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_minor_violations() {
+  void test_new_minor_violations() {
     withNoIssues()
       .assertThatLeakValueIs(CoreMetrics.NEW_MINOR_VIOLATIONS, 0.0);
 
@@ -661,7 +924,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_info_violations() {
+  void test_new_info_violations() {
     withNoIssues()
       .assertThatLeakValueIs(CoreMetrics.NEW_INFO_VIOLATIONS, 0.0);
 
@@ -678,7 +941,23 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_technical_debt() {
+  void test_new_accepted_issues() {
+    withNoIssues()
+      .assertThatLeakValueIs(CoreMetrics.NEW_ACCEPTED_ISSUES, 0);
+
+    with(
+      newGroup(RuleType.CODE_SMELL).setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setInLeak(true).setCount(3),
+      newGroup(RuleType.CODE_SMELL).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(true).setCount(4),
+      newGroup(RuleType.BUG).setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setInLeak(true).setCount(30),
+      newGroup(RuleType.BUG).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(true).setCount(40),
+      // not in leak
+      newGroup(RuleType.CODE_SMELL).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(false).setCount(5),
+      newGroup(RuleType.BUG).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(false).setCount(50))
+      .assertThatLeakValueIs(CoreMetrics.NEW_ACCEPTED_ISSUES, 4 + 40);
+  }
+
+  @Test
+  void test_new_technical_debt() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0);
 
     with(
@@ -694,7 +973,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_reliability_remediation_effort() {
+  void test_new_reliability_remediation_effort() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT, 0.0);
 
     with(
@@ -709,7 +988,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_security_remediation_effort() {
+  void test_new_security_remediation_effort() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT, 0.0);
 
     with(
@@ -724,7 +1003,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_reliability_rating() {
+  void test_new_reliability_rating() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_RELIABILITY_RATING, Rating.A);
 
     with(
@@ -741,7 +1020,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_security_rating() {
+  void test_new_security_rating() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_RATING, Rating.A);
 
     with(
@@ -758,7 +1037,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_security_review_rating() {
+  void test_new_security_review_rating() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
@@ -768,10 +1047,17 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
     withNoIssues()
       .assertThatLeakValueIs(NEW_SECURITY_REVIEW_RATING, Rating.A);
+
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(3).setInLeak(true),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
+      // not in leak
+      newGroup(RuleType.SECURITY_HOTSPOT).setSeverity(Issue.STATUS_TO_REVIEW).setInLeak(false))
+      .assertThatLeakValueIs(NEW_SECURITY_REVIEW_RATING, Rating.E);
   }
 
   @Test
-  public void test_new_security_hotspots_reviewed() {
+  void test_new_security_hotspots_reviewed() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
@@ -784,7 +1070,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_security_hotspots_reviewed_status() {
+  void test_new_security_hotspots_reviewed_status() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
@@ -797,7 +1083,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_new_security_hotspots_to_review_status() {
+  void test_new_security_hotspots_to_review_status() {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
@@ -809,78 +1095,184 @@ public class MeasureUpdateFormulaFactoryImplTest {
       .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0.0);
   }
 
-  @Test
-  public void test_new_sqale_debt_ratio_and_new_maintainability_rating() {
+  private static Stream<Arguments> newMaintainabilityMetrics() {
+    return Stream.of(
+      arguments(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_SQALE_DEBT_RATIO, CoreMetrics.NEW_MAINTAINABILITY_RATING),
+      arguments(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING));
+  }
+
+  @ParameterizedTest
+  @MethodSource("newMaintainabilityMetrics")
+  void test_new_sqale_debt_ratio_and_new_maintainability_rating(Metric<?> newMaintainabilityRemediationEffortMetric,
+    Metric<?> newMaintainabilityDebtRatioMetric,
+    Metric<?> newMaintainabilityRatingMetric) {
     withNoIssues()
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
     // technical_debt not computed
     with(CoreMetrics.NEW_DEVELOPMENT_COST, 0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
     with(CoreMetrics.NEW_DEVELOPMENT_COST, 20)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
     // development_cost not computed
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+    with(newMaintainabilityRemediationEffortMetric, 0)
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
+    with(newMaintainabilityRemediationEffortMetric, 20)
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
     // input measures are available
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+    with(newMaintainabilityRemediationEffortMetric, 20.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0.0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+    with(newMaintainabilityRemediationEffortMetric, 20.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, 160.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 12.5)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.C);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 12.5)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.C);
 
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+    Verifier verifier = with(newMaintainabilityRemediationEffortMetric, 20.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, 10.0D)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 200.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.E);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 200.0);
+    switch (newMaintainabilityRatingMetric.key()) {
+      case NEW_MAINTAINABILITY_RATING_KEY, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY ->
+        verifier.assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.E);
+      default -> throw new IllegalArgumentException("Unexpected metric: " + newMaintainabilityRatingMetric.key());
+    }
 
     // A is 5% --> min debt is exactly 200*0.05=10
     with(CoreMetrics.NEW_DEVELOPMENT_COST, 200.0)
-      .and(CoreMetrics.NEW_TECHNICAL_DEBT, 10.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 5.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .and(newMaintainabilityRemediationEffortMetric, 10.0)
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 5.0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
+    with(newMaintainabilityRemediationEffortMetric, 0.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0.0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
+    with(newMaintainabilityRemediationEffortMetric, 0.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0.0);
 
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
+    with(newMaintainabilityRemediationEffortMetric, -20.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0.0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
     // bug, debt can't be negative
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
+    with(newMaintainabilityRemediationEffortMetric, -20.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0.0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
 
     // bug, cost can't be negative
-    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+    with(newMaintainabilityRemediationEffortMetric, 20.0)
       .and(CoreMetrics.NEW_DEVELOPMENT_COST, -80.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+      .assertThatLeakValueIs(newMaintainabilityDebtRatioMetric, 0.0)
+      .assertThatLeakValueIs(newMaintainabilityRatingMetric, Rating.A);
+  }
+
+  @Test
+  void compute_shouldComputeHighImpactAcceptedIssues() {
+    withNoIssues()
+      .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 0);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 3),
+      newImpactGroup(RELIABILITY, MEDIUM, 4),
+      newImpactGroup(RELIABILITY, LOW, 1),
+      newImpactGroup(SECURITY, HIGH, 3),
+      newImpactGroup(SECURITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 4),
+      newImpactGroup(SECURITY, MEDIUM, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 5),
+      newImpactGroup(SECURITY, LOW, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 6),
+      newImpactGroup(SECURITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE, 7),
+      newImpactGroup(RELIABILITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8),
+      newImpactGroup(RELIABILITY, BLOCKER, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 2))
+        .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 4 + 8 + 2);
+  }
+
+  @Test
+  void compute_shouldComputeRemediationEffortBasedOnSoftwareQuality() {
+    withNoIssues()
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT, 0)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 0d)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT, 0d)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT, 0d);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 3, 1d),
+      newImpactGroup(RELIABILITY, MEDIUM, 1, 2d, true),
+      newImpactGroup(SECURITY, MEDIUM, 1, 1d),
+      newImpactGroup(MAINTAINABILITY, MEDIUM, 1, 1d),
+      newImpactGroup(MAINTAINABILITY, HIGH, 1, 2d, true),
+      newImpactGroup(SECURITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 4, 1d, false),
+      newImpactGroup(RELIABILITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false),
+      newImpactGroup(MAINTAINABILITY, MEDIUM, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false))
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 1d + 2d)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT, 1d + 2d)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT, 1d)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 2d)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT, 2d)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT, 0d);
+  }
+
+  @Test
+  void computeHierarchy_shouldComputeImpactMeasures() {
+    new HierarchyTester(CoreMetrics.RELIABILITY_ISSUES)
+      .withValue(impactMeasureToJson(6, 1, 2, 3))
+      .withChildrenValues(impactMeasureToJson(6, 1, 2, 3), impactMeasureToJson(10, 5, 3, 2))
+      .expectedJsonResult(impactMeasureToJson(22, 7, 7, 8));
+
+    new HierarchyTester(CoreMetrics.RELIABILITY_ISSUES)
+      .withValue(impactMeasureToJson(6, 1, 2, 3))
+      .expectedJsonResult(impactMeasureToJson(6, 1, 2, 3));
+  }
+
+  @Test
+  void compute_shouldComputeImpactMeasures() {
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 3),
+      newImpactGroup(RELIABILITY, MEDIUM, 4),
+      newImpactGroup(RELIABILITY, LOW, 1),
+      newImpactGroup(MAINTAINABILITY, MEDIUM, 10),
+      newImpactGroup(MAINTAINABILITY, LOW, 11),
+      newImpactGroup(SECURITY, HIGH, 3))
+      .assertThatJsonValueIs(CoreMetrics.RELIABILITY_ISSUES, impactMeasureToJson(8, 3, 4, 1))
+      .assertThatJsonValueIs(CoreMetrics.MAINTAINABILITY_ISSUES, impactMeasureToJson(21, 0, 10, 11))
+      .assertThatJsonValueIs(CoreMetrics.SECURITY_ISSUES, impactMeasureToJson(3, 3, 0, 0));
+  }
+
+  @Test
+  void compute_whenNoIssues_shouldComputeImpactMeasures() {
+    withNoIssues()
+      .assertThatJsonValueIs(CoreMetrics.RELIABILITY_ISSUES, impactMeasureToJson(0, 0, 0, 0))
+      .assertThatJsonValueIs(CoreMetrics.MAINTAINABILITY_ISSUES, impactMeasureToJson(0, 0, 0, 0))
+      .assertThatJsonValueIs(CoreMetrics.SECURITY_ISSUES, impactMeasureToJson(0, 0, 0, 0))
+      .assertThatLeakValueIs(CoreMetrics.NEW_RELIABILITY_ISSUES, impactMeasureToJson(0, 0, 0, 0))
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_ISSUES, impactMeasureToJson(0, 0, 0, 0))
+      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_ISSUES, impactMeasureToJson(0, 0, 0, 0));
+  }
+
+  private static String impactMeasureToJson(long total, long high, long medium, long low) {
+    return GSON.toJson(Map.of("total", total, "HIGH", high, "MEDIUM", medium, "LOW", low));
   }
 
   private Verifier with(IssueGroupDto... groups) {
+    return new Verifier(groups);
+  }
+
+  private Verifier with(IssueImpactGroupDto... groups) {
     return new Verifier(groups);
   }
 
@@ -897,11 +1289,16 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   private class Verifier {
-    private final IssueGroupDto[] groups;
+    private IssueGroupDto[] groups = {};
+    private IssueImpactGroupDto[] impactGroups = {};
     private final InitialValues initialValues = new InitialValues();
 
     private Verifier(IssueGroupDto[] groups) {
       this.groups = groups;
+    }
+
+    private Verifier(IssueImpactGroupDto[] impactGroups) {
+      this.impactGroups = impactGroups;
     }
 
     Verifier and(Metric metric, double value) {
@@ -910,13 +1307,19 @@ public class MeasureUpdateFormulaFactoryImplTest {
     }
 
     Verifier andText(Metric metric, String value) {
-      this.initialValues.text.put(metric, value);
+      this.initialValues.textValues.put(metric, value);
       return this;
     }
 
     Verifier assertThatValueIs(Metric metric, double expectedValue) {
       TestContext context = run(metric, false);
       assertThat(context.doubleValue).isNotNull().isEqualTo(expectedValue);
+      return this;
+    }
+
+    Verifier assertThatJsonValueIs(Metric metric, String expectedValue) {
+      TestContext context = run(metric, false);
+      assertJson(context.stringValue).isSimilarTo(expectedValue);
       return this;
     }
 
@@ -929,6 +1332,12 @@ public class MeasureUpdateFormulaFactoryImplTest {
     Verifier assertThatLeakValueIs(Metric metric, Rating expectedRating) {
       TestContext context = run(metric, true);
       assertThat(context.ratingValue).isNotNull().isEqualTo(expectedRating);
+      return this;
+    }
+
+    Verifier assertThatLeakValueIs(Metric metric, String expectedValue) {
+      TestContext context = run(metric, true);
+      assertJson(context.stringValue).isSimilarTo(expectedValue);
       return this;
     }
 
@@ -957,13 +1366,13 @@ public class MeasureUpdateFormulaFactoryImplTest {
         .get();
       assertThat(formula.isOnLeak()).isEqualTo(expectLeakFormula);
       TestContext context = new TestContext(formula.getDependentMetrics(), initialValues);
-      formula.compute(context, newIssueCounter(groups));
+      formula.compute(context, newIssueCounter(groups, impactGroups));
       return context;
     }
   }
 
-  private static IssueCounter newIssueCounter(IssueGroupDto... issues) {
-    return new IssueCounter(asList(issues));
+  private static IssueCounter newIssueCounter(IssueGroupDto[] groups, IssueImpactGroupDto[] impactGroups) {
+    return new IssueCounter(asList(groups), asList(impactGroups));
   }
 
   private static IssueGroupDto newGroup() {
@@ -982,6 +1391,44 @@ public class MeasureUpdateFormulaFactoryImplTest {
     return dto;
   }
 
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
+    String status, @Nullable String resolution, long count, double effort, boolean inLeak) {
+    IssueImpactGroupDto dto = new IssueImpactGroupDto();
+    dto.setSoftwareQuality(softwareQuality);
+    dto.setSeverity(severity);
+    dto.setStatus(status);
+    dto.setResolution(resolution);
+    dto.setCount(count);
+    dto.setEffort(effort);
+    dto.setInLeak(inLeak);
+    return dto;
+  }
+
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
+    String status, @Nullable String resolution, long count) {
+    return newImpactGroup(softwareQuality, severity, status, resolution, count, 0, false);
+  }
+
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
+    long count) {
+    return newImpactGroup(softwareQuality, severity, Issue.STATUS_OPEN, null, count, 0, false);
+  }
+
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
+    long count, boolean inLeak) {
+    return newImpactGroup(softwareQuality, severity, Issue.STATUS_OPEN, null, count, 0, inLeak);
+  }
+
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
+    long count, double effort) {
+    return newImpactGroup(softwareQuality, severity, Issue.STATUS_OPEN, null, count, effort, false);
+  }
+
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
+    long count, double effort, boolean inLeak) {
+    return newImpactGroup(softwareQuality, severity, Issue.STATUS_OPEN, null, count, effort, inLeak);
+  }
+
   private static IssueGroupDto newResolvedGroup(RuleType ruleType) {
     return newGroup(ruleType).setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setStatus(Issue.STATUS_CLOSED);
   }
@@ -995,6 +1442,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
     private final InitialValues initialValues;
     private Double doubleValue;
     private Rating ratingValue;
+    private String stringValue;
 
     private TestContext(Collection<Metric> dependentMetrics, InitialValues initialValues) {
       this.dependentMetrics = new HashSet<>(dependentMetrics);
@@ -1004,6 +1452,11 @@ public class MeasureUpdateFormulaFactoryImplTest {
     @Override
     public List<Double> getChildrenValues() {
       return initialValues.childrenValues;
+    }
+
+    @Override
+    public List<String> getChildrenTextValues() {
+      return initialValues.childrenTextValues;
     }
 
     @Override
@@ -1033,7 +1486,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
     @Override
     public DebtRatingGrid getDebtRatingGrid() {
-      return new DebtRatingGrid(new double[] {0.05, 0.1, 0.2, 0.5});
+      return new DebtRatingGrid(new double[]{0.05, 0.1, 0.2, 0.5});
     }
 
     @Override
@@ -1049,8 +1502,8 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
     @Override
     public Optional<String> getText(Metric metric) {
-      if (initialValues.text.containsKey(metric)) {
-        return Optional.of(initialValues.text.get(metric));
+      if (initialValues.textValues.containsKey(metric)) {
+        return Optional.of(initialValues.textValues.get(metric));
       }
       return Optional.empty();
     }
@@ -1064,12 +1517,18 @@ public class MeasureUpdateFormulaFactoryImplTest {
     public void setValue(Rating value) {
       this.ratingValue = value;
     }
+
+    @Override
+    public void setValue(String value) {
+      this.stringValue = value;
+    }
   }
 
   private class InitialValues {
     private final Map<Metric, Double> values = new HashMap<>();
     private final List<Double> childrenValues = new ArrayList<>();
-    private final Map<Metric, String> text = new HashMap<>();
+    private final Map<Metric, String> textValues = new HashMap<>();
+    private final List<String> childrenTextValues = new ArrayList<>();
     private long childrenHotspotsReviewed = 0;
     private long childrenNewHotspotsReviewed = 0;
     private long childrenHotspotsToReview = 0;
@@ -1093,7 +1552,13 @@ public class MeasureUpdateFormulaFactoryImplTest {
       return this;
     }
 
-    public HierarchyTester withChildrenHotspotsCounts(long childrenHotspotsReviewed, long childrenNewHotspotsReviewed, long childrenHotspotsToReview,
+    public HierarchyTester withValue(Metric metric, String value) {
+      this.initialValues.textValues.put(metric, value);
+      return this;
+    }
+
+    public HierarchyTester withChildrenHotspotsCounts(long childrenHotspotsReviewed, long childrenNewHotspotsReviewed,
+      long childrenHotspotsToReview,
       long childrenNewHotspotsToReview) {
       this.initialValues.childrenHotspotsReviewed = childrenHotspotsReviewed;
       this.initialValues.childrenNewHotspotsReviewed = childrenNewHotspotsReviewed;
@@ -1106,14 +1571,29 @@ public class MeasureUpdateFormulaFactoryImplTest {
       return withValue(metric, value);
     }
 
+    public HierarchyTester withValue(String value) {
+      return withValue(metric, value);
+    }
+
     public HierarchyTester withChildrenValues(Double... values) {
       this.initialValues.childrenValues.addAll(asList(values));
+      return this;
+    }
+
+    public HierarchyTester withChildrenValues(String... values) {
+      this.initialValues.childrenTextValues.addAll(asList(values));
       return this;
     }
 
     public HierarchyTester expectedResult(@Nullable Double expected) {
       TestContext ctx = run();
       assertThat(ctx.doubleValue).isEqualTo(expected);
+      return this;
+    }
+
+    public HierarchyTester expectedJsonResult(@Nullable String expected) {
+      TestContext ctx = run();
+      assertJson(ctx.stringValue).isSimilarTo(expected);
       return this;
     }
 
@@ -1127,7 +1607,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
       List<Metric> deps = new LinkedList<>(formula.getDependentMetrics());
       deps.add(formula.getMetric());
       deps.addAll(initialValues.values.keySet());
-      deps.addAll(initialValues.text.keySet());
+      deps.addAll(initialValues.textValues.keySet());
       TestContext context = new TestContext(deps, initialValues);
       formula.computeHierarchy(context);
       return context;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { searchProjects } from '../../../../api/components';
-import { useLocation } from '../../../../components/hoc/withRouter';
 import { get } from '../../../../helpers/storage';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { hasGlobalPermission } from '../../../../helpers/users';
@@ -34,7 +34,7 @@ jest.mock(
     // eslint-disable-next-line
     function AllProjects() {
       return <div>All Projects</div>;
-    }
+    },
 );
 
 jest.mock('../../../../helpers/storage', () => ({
@@ -117,17 +117,17 @@ function renderDefaultPageSelector({
   path = '/projects',
   currentUser = mockLoggedInUser(),
 }: {
-  path?: string;
   currentUser?: CurrentUser;
+  path?: string;
 } = {}) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route path="projects">
-          <Route index={true} element={<DefaultPageSelector currentUser={currentUser} />} />
+          <Route index element={<DefaultPageSelector currentUser={currentUser} />} />
           <Route path="*" element={<RouteDisplayer />} />
         </Route>
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }

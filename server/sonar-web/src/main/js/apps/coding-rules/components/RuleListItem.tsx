@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,63 +17,117 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import styled from '@emotion/styled';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import {
+  Badge,
+  InheritanceIcon,
+  Link,
+  OverridenIcon,
+  SeparatorCircleIcon,
+  TextSubdued,
+  themeBorder,
+} from 'design-system';
 import * as React from 'react';
-import { deactivateRule, Profile } from '../../../api/quality-profiles';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
+import { Profile } from '../../../api/quality-profiles';
 import Tooltip from '../../../components/controls/Tooltip';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
-import SeverityIcon from '../../../components/icons/SeverityIcon';
+import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
+import TypeHelper from '../../../components/shared/TypeHelper';
 import TagsList from '../../../components/tags/TagsList';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
-import { Rule } from '../../../types/types';
-import { Activation, Query } from '../query';
+import {
+  useActivateRuleMutation,
+  useDeactivateRuleMutation,
+} from '../../../queries/quality-profiles';
+import { useRuleDetailsQuery } from '../../../queries/rules';
+import { Rule, RuleActivation } from '../../../types/types';
+import ActivatedRuleActions from './ActivatedRuleActions';
 import ActivationButton from './ActivationButton';
-import RuleInheritanceIcon from './RuleInheritanceIcon';
-import SimilarRulesFilter from './SimilarRulesFilter';
 
 interface Props {
-  activation?: Activation;
+  activation?: RuleActivation;
+  canDeactivateInherited?: boolean;
   isLoggedIn: boolean;
-  onActivate: (profile: string, rule: string, activation: Activation) => void;
+  onActivate: (profile: string, rule: string, activation: RuleActivation) => void;
   onDeactivate: (profile: string, rule: string) => void;
-  onFilterChange: (changes: Partial<Query>) => void;
   onOpen: (ruleKey: string) => void;
   rule: Rule;
+  selectRule: (key: string) => void;
   selected: boolean;
   selectedProfile?: Profile;
   organization: string;
 }
 
-export default class RuleListItem extends React.PureComponent<Props> {
-  handleDeactivate = () => {
-    if (this.props.selectedProfile) {
-      const data = {
-        key: this.props.selectedProfile.key,
-        organization: this.props.organization,
-        rule: this.props.rule.key,
-      };
-      deactivateRule(data).then(
-        () => this.props.onDeactivate(data.key, data.rule),
-        () => {}
-      );
+export default function RuleListItem(props: Readonly<Props>) {
+  const {
+    activation: initialActivation,
+    rule,
+    selectedProfile,
+    isLoggedIn,
+    selected,
+    selectRule,
+    canDeactivateInherited,
+    onDeactivate,
+    onActivate,
+    onOpen,
+  } = props;
+  const [ruleIsChanged, setRuleIsChanged] = React.useState(false);
+  const { data } = useRuleDetailsQuery(
+    { key: rule.key, actives: true },
+    { enabled: ruleIsChanged },
+  );
+  const { mutate: activateRule } = useActivateRuleMutation(() => {
+    setRuleIsChanged(true);
+  });
+  const { mutate: deactivateRule } = useDeactivateRuleMutation((data) =>
+    onDeactivate(data.key, data.rule),
+  );
+
+  const activation =
+    data && ruleIsChanged
+      ? data.actives?.find((item) => item.qProfile === selectedProfile?.key)
+      : initialActivation;
+
+  React.useEffect(() => {
+    if (data && selectedProfile) {
+      const newActivation = data.actives?.find((item) => item.qProfile === selectedProfile?.key);
+      if (newActivation) {
+        onActivate(selectedProfile?.key, rule.key, newActivation);
+        setRuleIsChanged(false);
+      }
+    }
+  }, [data, rule.key, selectedProfile, onActivate]);
+
+  const handleDeactivate = () => {
+    if (selectedProfile) {
+      deactivateRule({
+        key: selectedProfile.key,
+        rule: rule.key,
+      });
     }
   };
 
-  handleActivate = (severity: string) => {
-    if (this.props.selectedProfile) {
-      this.props.onActivate(this.props.selectedProfile.key, this.props.rule.key, {
-        severity,
-        inherit: 'NONE',
-      });
-    }
+  const handleActivate = () => {
+    setRuleIsChanged(true);
     return Promise.resolve();
   };
 
-  handleNameClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleRevert = (key?: string) => {
+    if (key !== undefined) {
+      activateRule({
+        key,
+        rule: rule.key,
+        reset: true,
+      });
+    }
+  };
+
+  const handleNameClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // cmd(ctrl) + click should open a rule permalink in a new tab
     const isLeftClickEvent = event.button === 0;
     const isModifiedEvent = !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
@@ -82,190 +136,210 @@ export default class RuleListItem extends React.PureComponent<Props> {
     }
 
     event.preventDefault();
-    this.props.onOpen(this.props.rule.key);
+    event.stopPropagation();
+    onOpen(rule.key);
   };
 
-  renderActivation = () => {
-    const { activation, selectedProfile } = this.props;
-    if (!activation) {
+  const renderActivation = () => {
+    if (!activation || selectedProfile?.parentName === undefined) {
+      return null;
+    }
+
+    if (!['OVERRIDES', 'INHERITED'].includes(activation.inherit)) {
       return null;
     }
 
     return (
-      <td className="coding-rule-table-meta-cell coding-rule-activation">
-        <SeverityIcon severity={activation.severity} />
-        {selectedProfile && selectedProfile.parentName && (
-          <>
-            {activation.inherit === 'OVERRIDES' && (
-              <Tooltip
-                overlay={translateWithParameters(
-                  'coding_rules.overrides',
-                  selectedProfile.name,
-                  selectedProfile.parentName
-                )}
-              >
-                <RuleInheritanceIcon
-                  className="little-spacer-left"
-                  inheritance={activation.inherit}
-                />
-              </Tooltip>
+      <div className="sw-mr-2 sw-shrink-0">
+        {activation.inherit === 'OVERRIDES' && (
+          <Tooltip
+            content={translateWithParameters(
+              'coding_rules.overrides',
+              selectedProfile.name,
+              selectedProfile.parentName,
             )}
-            {activation.inherit === 'INHERITED' && (
-              <Tooltip
-                overlay={translateWithParameters(
-                  'coding_rules.inherits',
-                  selectedProfile.name,
-                  selectedProfile.parentName
-                )}
-              >
-                <RuleInheritanceIcon
-                  className="little-spacer-left"
-                  inheritance={activation.inherit}
-                />
-              </Tooltip>
-            )}
-          </>
+          >
+            <OverridenIcon className="sw-ml-1" />
+          </Tooltip>
         )}
-      </td>
+        {activation.inherit === 'INHERITED' && (
+          <Tooltip
+            content={translateWithParameters(
+              'coding_rules.inherits',
+              selectedProfile.name,
+              selectedProfile.parentName,
+            )}
+          >
+            <InheritanceIcon className="sw-ml-1" />
+          </Tooltip>
+        )}
+      </div>
     );
   };
 
-  renderActions = () => {
-    const { activation, isLoggedIn, rule, selectedProfile } = this.props;
+  const renderActions = () => {
     if (!selectedProfile || !isLoggedIn) {
       return null;
     }
 
-    const canCopy = selectedProfile.actions && selectedProfile.actions.copy;
+    const canCopy = selectedProfile.actions?.copy;
     if (selectedProfile.isBuiltIn && canCopy) {
       return (
-        <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
-          <Tooltip overlay={translate('coding_rules.need_extend_or_copy')}>
-            <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
+        <div className="sw-ml-4">
+          <Tooltip content={translate('coding_rules.need_extend_or_copy')}>
+            <Button isDisabled variety={ButtonVariety.DangerOutline}>
               {translate('coding_rules', activation ? 'deactivate' : 'activate')}
             </Button>
           </Tooltip>
-        </td>
+        </div>
       );
     }
 
-    const canEdit = selectedProfile.actions && selectedProfile.actions.edit;
+    const canEdit = selectedProfile.actions?.edit;
     if (!canEdit) {
       return null;
     }
 
     if (activation) {
       return (
-        <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
-          {activation.inherit === 'NONE' ? (
-            <ConfirmButton
-              confirmButtonText={translate('yes')}
-              modalBody={translate('coding_rules.deactivate.confirm')}
-              modalHeader={translate('coding_rules.deactivate')}
-              onConfirm={this.handleDeactivate}
-            >
-              {({ onClick }) => (
-                <Button
-                  className="coding-rules-detail-quality-profile-deactivate button-red"
-                  onClick={onClick}
-                >
-                  {translate('coding_rules.deactivate')}
-                </Button>
-              )}
-            </ConfirmButton>
-          ) : (
-            <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
-              <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
-                {translate('coding_rules.deactivate')}
-              </Button>
-            </Tooltip>
-          )}
-        </td>
+        <ActivatedRuleActions
+          activation={activation}
+          profile={selectedProfile}
+          ruleDetails={rule}
+          onActivate={handleActivate}
+          handleDeactivate={handleDeactivate}
+          handleRevert={handleRevert}
+          showDeactivated
+          canDeactivateInherited={canDeactivateInherited}
+        />
       );
     }
 
     return (
-      <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
+      <div className="sw-ml-4">
         {!rule.isTemplate && (
           <ActivationButton
             buttonText={translate('coding_rules.activate')}
-            className="coding-rules-detail-quality-profile-activate"
             modalHeader={translate('coding_rules.activate_in_quality_profile')}
-            onDone={this.handleActivate}
+            onDone={handleActivate}
             profiles={[selectedProfile]}
             organization={this.props.organization}
             rule={rule}
           />
         )}
-      </td>
+      </div>
     );
   };
 
-  render() {
-    const { rule, selected } = this.props;
-    const allTags = [...(rule.tags || []), ...(rule.sysTags || [])];
-    return (
-      <li
-        className={classNames('coding-rule', { selected })}
-        aria-current={selected}
-        data-rule={rule.key}
-      >
-        <table className="coding-rule-table">
-          <tbody>
-            <tr>
-              {this.renderActivation()}
-              <td>
-                <div className="coding-rule-title">
-                  <Link
-                    className="link-no-underline"
-                    onClick={this.handleNameClick}
-                    to={getRuleUrl(rule.key, this.props.organization)}>
-                    {rule.name}
-                  </Link>
-                  {rule.isTemplate && (
-                    <Tooltip overlay={translate('coding_rules.rule_template.title')}>
-                      <span className="badge spacer-left">
-                        {translate('coding_rules.rule_template')}
-                      </span>
-                    </Tooltip>
-                  )}
-                </div>
-              </td>
+  const allTags = [...(rule.tags ?? []), ...(rule.sysTags ?? [])];
+  return (
+    <ListItemStyled
+      selected={selected}
+      className="it__coding-rule sw-p-3 sw-mb-4 sw-rounded-1 sw-bg-white"
+      aria-current={selected}
+      data-rule={rule.key}
+      onClick={() => selectRule(rule.key)}
+    >
+      <div className="sw-flex sw-flex-col sw-gap-3">
+        <div className="sw-flex sw-justify-between sw-items-center">
+          <div className="sw-flex sw-items-center">
+            {renderActivation()}
 
-              <td className="coding-rule-table-meta-cell">
-                <div className="display-flex-center coding-rule-meta">
-                  {rule.status !== 'READY' && (
-                    <span className="spacer-left badge badge-error">
-                      {translate('rules.status', rule.status)}
-                    </span>
-                  )}
-                  <span className="display-inline-flex-center spacer-left note">
-                    {rule.langName}
-                  </span>
-                  <Tooltip overlay={translate('coding_rules.type.tooltip', rule.type)}>
-                    <span className="display-inline-flex-center spacer-left note">
-                      <IssueTypeIcon query={rule.type} />
-                      <span className="little-spacer-left text-middle">
-                        {translate('issue.type', rule.type)}
-                      </span>
+            <Link className="sw-typo-semibold" onClick={handleNameClick} to={getRuleUrl(rule.key)}>
+              {rule.name}
+            </Link>
+          </div>
+
+          <div>
+            {rule.cleanCodeAttributeCategory !== undefined && (
+              <CleanCodeAttributePill
+                cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
+                type="rule"
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="sw-flex sw-items-center">
+          <div className="sw-grow sw-flex sw-gap-2 sw-items-center sw-typo-sm">
+            {rule.impacts.length > 0 && (
+              <SoftwareImpactPillList softwareImpacts={rule.impacts} type="rule" />
+            )}
+          </div>
+
+          <TextSubdued as="ul" className="sw-flex sw-gap-1 sw-items-center sw-typo-sm">
+            <li>{rule.langName}</li>
+
+            <SeparatorCircleIcon aria-hidden as="li" />
+            <li>
+              <DocHelpTooltip
+                content={
+                  <div>
+                    <p className="sw-mb-2">{translate('coding_rules.type.deprecation.title')}</p>
+                    <p>{translate('coding_rules.type.deprecation.filter_by')}</p>
+                  </div>
+                }
+                links={[
+                  {
+                    href: DocLink.CleanCodeIntroduction,
+                    label: translate('learn_more'),
+                  },
+                ]}
+              >
+                <TypeHelper
+                  className="sw-flex sw-items-center"
+                  iconFill="iconTypeDisabled"
+                  type={rule.type}
+                />
+              </DocHelpTooltip>
+            </li>
+
+            {rule.isTemplate && (
+              <>
+                <SeparatorCircleIcon aria-hidden as="li" />
+                <li>
+                  <Tooltip content={translate('coding_rules.rule_template.title')}>
+                    <span>
+                      <Badge>{translate('coding_rules.rule_template')}</Badge>
                     </span>
                   </Tooltip>
-                  {allTags.length > 0 && (
-                    <TagsList
-                      allowUpdate={false}
-                      className="display-inline-flex-center note spacer-left"
-                      tags={allTags}
-                    />
-                  )}
-                  <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={rule} />
-                </div>
-              </td>
+                </li>
+              </>
+            )}
 
-              {this.renderActions()}
-            </tr>
-          </tbody>
-        </table>
-      </li>
-    );
-  }
+            {rule.status !== 'READY' && (
+              <>
+                <SeparatorCircleIcon aria-hidden as="li" />
+                <li>
+                  <Badge variant="deleted">{translate('rules.status', rule.status)}</Badge>
+                </li>
+              </>
+            )}
+
+            {allTags.length > 0 && (
+              <>
+                <SeparatorCircleIcon aria-hidden as="li" />
+                <li>
+                  <TagsList
+                    allowUpdate={false}
+                    className="sw-typo-sm"
+                    tagsClassName="sw-typo-sm"
+                    tags={allTags}
+                  />
+                </li>
+              </>
+            )}
+          </TextSubdued>
+
+          <div className="sw-flex sw-items-center">{renderActions()}</div>
+        </div>
+      </div>
+    </ListItemStyled>
+  );
 }
+
+const ListItemStyled = styled.li<{ selected: boolean }>`
+  outline: ${(props) =>
+    props.selected ? themeBorder('heavy', 'primary') : themeBorder('default', 'almCardBorder')};
+  outline-offset: ${(props) => (props.selected ? '-2px' : '-1px')};
+`;

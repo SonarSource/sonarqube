@@ -39,18 +39,27 @@ dependencies {
   api project(':server:sonar-server-common')
   api project(':sonar-core')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
-  testImplementation 'commons-lang:commons-lang'
+  testImplementation 'org.apache.commons:commons-lang3'
   testImplementation 'junit:junit'
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
-  testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation 'org.hamcrest:hamcrest'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation project(':sonar-plugin-api-impl')
   testImplementation testFixtures(project(':server:sonar-server-common'))
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

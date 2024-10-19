@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,13 @@
  */
 package org.sonar.core.sarif;
 
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import org.sonar.sarif.pojo.SarifSchema210;
 
 public interface SarifSerializer {
 
-  String serialize(Sarif210 sarif210);
+  String serialize(SarifSchema210 sarif210);
 
-  Sarif210 deserialize(Path sarifPath);
+  SarifSchema210 deserialize(Path sarifPath) throws NoSuchFileException;
 }

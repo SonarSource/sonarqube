@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,14 +20,13 @@
 package org.sonar.server.saml.ws;
 
 import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.FilterChain;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.authentication.OAuthCsrfVerifier;
@@ -68,10 +67,10 @@ public class ValidationInitActionTest {
   }
 
   @Test
-  public void do_filter_as_admin() throws IOException, ServletException {
+  public void do_filter_as_admin() throws IOException {
     userSession.logIn().setSystemAdministrator();
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
     String callbackUrl = "http://localhost:9000/api/validation_test";
 
@@ -86,10 +85,10 @@ public class ValidationInitActionTest {
   }
 
   @Test
-  public void do_filter_as_admin_with_init_issues() throws IOException, ServletException {
+  public void do_filter_as_admin_with_init_issues() throws IOException {
     userSession.logIn().setSystemAdministrator();
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
     String callbackUrl = "http://localhost:9000/api/validation_test";
     when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
@@ -100,14 +99,14 @@ public class ValidationInitActionTest {
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
-    verify(servletResponse).sendRedirect("/saml/validation");
+    verify(servletResponse).sendRedirect("/saml/validation?CSRFToken=CSRF_TOKEN");
   }
 
   @Test
-  public void do_filter_as_not_admin() throws IOException, ServletException {
+  public void do_filter_as_not_admin() throws IOException {
     userSession.logIn();
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
     String callbackUrl = "http://localhost:9000/api/validation_test";
     when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
@@ -120,10 +119,10 @@ public class ValidationInitActionTest {
   }
 
   @Test
-  public void do_filter_as_anonymous() throws IOException, ServletException {
+  public void do_filter_as_anonymous() throws IOException {
     userSession.anonymous();
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
     String callbackUrl = "http://localhost:9000/api/validation_test";
     when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
@@ -149,7 +148,7 @@ public class ValidationInitActionTest {
     assertThat(validationInitAction.handler()).isNotNull();
   }
 
-  private void mockCsrfTokenGeneration(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+  private void mockCsrfTokenGeneration(HttpRequest servletRequest, HttpResponse servletResponse) {
     when(oAuthCsrfVerifier.generateState(servletRequest, servletResponse)).thenReturn("CSRF_TOKEN");
   }
 }

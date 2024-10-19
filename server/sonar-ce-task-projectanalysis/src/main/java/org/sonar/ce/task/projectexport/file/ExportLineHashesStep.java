@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
@@ -81,7 +81,7 @@ public class ExportLineHashesStep implements ComputationStep {
           closeQuietly(rs);
           closeQuietly(stmt);
         }
-        Loggers.get(getClass()).debug("Lines hashes of {} files exported", count);
+        LoggerFactory.getLogger(getClass()).debug("Lines hashes of {} files exported", count);
       } catch (Exception e) {
         throw new IllegalStateException(format("Lines hashes export failed after processing %d files successfully", count), e);
       } finally {

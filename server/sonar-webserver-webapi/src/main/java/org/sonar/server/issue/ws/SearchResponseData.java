@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.workflow.Transition;
@@ -58,6 +59,11 @@ public class SearchResponseData {
   private final Set<String> updatableComments = new HashSet<>();
   private final Set<String> userOrganizationUuids = new HashSet<>();
   private final Map<String, BranchDto> branchesByUuid = new HashMap<>();
+  private final Map<String, ProjectDto> projectsByUuid = new HashMap<>();
+
+  public SearchResponseData() {
+    this.issues = List.of();
+  }
 
   public SearchResponseData(IssueDto issue) {
     checkNotNull(issue);
@@ -158,6 +164,16 @@ public class SearchResponseData {
 
   public BranchDto getBranch(String branchUuid) {
     return branchesByUuid.get(branchUuid);
+  }
+
+  public void addProjects(List<ProjectDto> projectDtos) {
+    for (ProjectDto projectDto : projectDtos) {
+      projectsByUuid.put(projectDto.getUuid(), projectDto);
+    }
+  }
+
+  public ProjectDto getProject(String projectUuid) {
+    return projectsByUuid.get(projectUuid);
   }
 
   void addActions(String issueKey, Iterable<String> actions) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@ public class UsersWsParameters {
   public static final String ACTION_UPDATE = "update";
   public static final String ACTION_CURRENT = "current";
   public static final String ACTION_UPDATE_IDENTITY_PROVIDER = "update_identity_provider";
-  public static final String ACTION_DISMISS_SONARLINT_AD = "dismiss_sonarlint_ad";
 
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LOGIN = "login";

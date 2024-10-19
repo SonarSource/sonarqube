@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,16 @@ package org.sonar.server.authentication;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import org.slf4j.MDC;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.impl.ws.StaticResources;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.ServletFilter.UrlPattern;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -32,11 +39,6 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
-import java.util.Set;
-
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -44,7 +46,6 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
@@ -58,6 +59,8 @@ public class UserSessionInitializer {
    */
   private static final String ACCESS_LOG_LOGIN = "LOGIN";
 
+  public static final String USER_LOGIN_MDC_KEY = "LOGIN";
+
   private static final String SQ_AUTHENTICATION_TOKEN_EXPIRATION = "SonarQube-Authentication-Token-Expiration";
 
   // SONAR-6546 these urls should be get from WebService
@@ -69,7 +72,7 @@ public class UserSessionInitializer {
     "/api/server/version",
     "/api/users/identity_providers", "/api/l10n/index",
     "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate",
-    "/api/project_badges/measure", "/api/project_badges/quality_gate",
+    "/api/project_badges/measure", "/api/project_badges/quality_gate", "/api/project_badges/ai_code_assurance",
     "/api/settings/login_message");
 
   private static final Set<String> URL_USING_PASSCODE = Set.of(
@@ -81,14 +84,13 @@ public class UserSessionInitializer {
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")
-    .excludes(staticResourcePatterns())
+    .excludes(StaticResources.patterns())
     .excludes(SKIPPED_URLS)
     .build();
 
   private static final UrlPattern PASSCODE_URLS = UrlPattern.builder()
     .includes(URL_USING_PASSCODE)
     .build();
-
 
   private final Configuration config;
   private final ThreadLocalUserSession threadLocalSession;
@@ -103,7 +105,8 @@ public class UserSessionInitializer {
     this.requestAuthenticator = requestAuthenticator;
   }
 
-  public boolean initUserSession(HttpServletRequest request, HttpServletResponse response) {
+  public boolean initUserSession(HttpRequest request, HttpResponse response) {
+    MDC.put(USER_LOGIN_MDC_KEY, "-");
     String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
     try {
       // Do not set user session when url is excluded
@@ -140,7 +143,7 @@ public class UserSessionInitializer {
     return provider != AuthenticationEvent.Provider.LOCAL && provider != AuthenticationEvent.Provider.JWT;
   }
 
-  private void loadUserSession(HttpServletRequest request, HttpServletResponse response, boolean urlSupportsSystemPasscode) {
+  private void loadUserSession(HttpRequest request, HttpResponse response, boolean urlSupportsSystemPasscode) {
     UserSession session = requestAuthenticator.authenticate(request, response);
     if (!session.isLoggedIn() && !urlSupportsSystemPasscode && config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE)) {
       // authentication is required
@@ -152,10 +155,11 @@ public class UserSessionInitializer {
     threadLocalSession.set(session);
     MDC.put("userId", session.getLogin());
     checkTokenUserSession(response, session);
-    request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
+    request.setAttribute(ACCESS_LOG_LOGIN, Objects.toString(session.getLogin(), "-"));
+    MDC.put(USER_LOGIN_MDC_KEY, Objects.toString(session.getLogin(), "-"));
   }
 
-  private static void checkTokenUserSession(HttpServletResponse response, UserSession session) {
+  private static void checkTokenUserSession(HttpResponse response, UserSession session) {
     if (session instanceof TokenUserSession tokenUserSession) {
       UserTokenDto userTokenDto = tokenUserSession.getUserToken();
       Optional.ofNullable(userTokenDto.getExpirationDate()).ifPresent(expirationDate -> response.addHeader(SQ_AUTHENTICATION_TOKEN_EXPIRATION, formatDateTime(expirationDate)));
@@ -163,6 +167,7 @@ public class UserSessionInitializer {
   }
 
   public void removeUserSession() {
+    MDC.remove(USER_LOGIN_MDC_KEY);
     threadLocalSession.unload();
   }
 

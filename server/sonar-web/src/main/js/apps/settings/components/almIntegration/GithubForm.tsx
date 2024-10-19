@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import { Alert } from '../../../../components/ui/Alert';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys, GithubBindingDefinition } from '../../../../types/alm-settings';
+import { GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface GithubFormProps {
@@ -33,11 +34,22 @@ export interface GithubFormProps {
 
 export default function GithubForm(props: GithubFormProps) {
   const { formData, onFieldChange } = props;
-
+  const toStatic = useDocUrl(DocLink.AlmGitHubIntegration);
   return (
     <>
+      <FlagMessage variant="info" className="sw-mb-8">
+        <span>
+          <FormattedMessage
+            defaultMessage={translate(`settings.almintegration.github.info`)}
+            id="settings.almintegration.github.info"
+            values={{
+              link: <Link to={toStatic}>{translate('learn_more')}</Link>,
+            }}
+          />
+        </span>
+      </FlagMessage>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.github.help')}
         id="name.github"
         onFieldChange={onFieldChange}
@@ -56,6 +68,9 @@ export default function GithubForm(props: GithubFormProps) {
             {translate('settings.almintegration.form.url.github.help2')}
             <br />
             <em>https://api.github.com/</em>
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.github.private_key_warning')}
           </>
         }
         id="url.github"
@@ -64,19 +79,7 @@ export default function GithubForm(props: GithubFormProps) {
         propKey="url"
         value={formData.url}
       />
-      <Alert className="big-spacer-top" variant="info">
-        <FormattedMessage
-          defaultMessage={translate(`settings.almintegration.github.info`)}
-          id="settings.almintegration.github.info"
-          values={{
-            link: (
-              <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
-                {translate('learn_more')}
-              </DocLink>
-            ),
-          }}
-        />
-      </Alert>
+
       <AlmBindingDefinitionFormField
         id="app_id"
         help={translate('settings.almintegration.form.app_id.github.help')}
@@ -101,18 +104,18 @@ export default function GithubForm(props: GithubFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="clientSecret"
         value={formData.clientSecret}
-        isSecret={true}
+        isSecret
       />
       <AlmBindingDefinitionFormField
         id="private_key"
         help={translate('settings.almintegration.form.private_key.github.help')}
-        isTextArea={true}
+        isTextArea
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="privateKey"
         value={formData.privateKey}
         maxLength={2500}
-        isSecret={true}
+        isSecret
       />
       <AlmBindingDefinitionFormField
         id="webhook_secret.github"
@@ -122,8 +125,8 @@ export default function GithubForm(props: GithubFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="webhookSecret"
         value={formData.webhookSecret}
-        isSecret={true}
-        optional={true}
+        isSecret
+        optional
       />
     </>
   );

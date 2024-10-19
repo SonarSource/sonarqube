@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
-import DocLink from '../../common/DocLink';
-import Link from '../../common/Link';
-import { Alert } from '../../ui/Alert';
 
 export interface ProjectTokenScopeInfoProps {
   className?: string;
 }
 
 export default function ProjectTokenScopeInfo({ className }: ProjectTokenScopeInfoProps) {
+  const docUrl = useDocUrl(DocLink.AccountTokens);
+
   return (
-    <Alert variant="info" className={classNames('spacer-top', className)}>
+    <FlagMessage variant="info" className={classNames('sw-mt-2', className)}>
       <FormattedMessage
+        tagName="span"
         defaultMessage={translate('onboarding.token.warning_project_token_scope')}
         id="onboarding.token.warning_project_token_scope"
         values={{
@@ -41,13 +45,9 @@ export default function ProjectTokenScopeInfo({ className }: ProjectTokenScopeIn
               {translate('onboarding.token.text.user_account')}
             </Link>
           ),
-          doc_link: (
-            <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-              {translate('documentation')}
-            </DocLink>
-          ),
+          doc_link: <Link to={docUrl}>{translate('documentation')}</Link>,
         }}
       />
-    </Alert>
+    </FlagMessage>
   );
 }

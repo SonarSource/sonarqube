@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.setting;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 
 public class TestProjectConfigurationLoader implements ProjectConfigurationLoader {
 
@@ -32,7 +32,12 @@ public class TestProjectConfigurationLoader implements ProjectConfigurationLoade
   }
 
   @Override
-  public Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto project) {
+  public Configuration loadBranchConfiguration(DbSession dbSession, BranchDto branch) {
+    return config;
+  }
+
+  @Override
+  public Configuration loadProjectConfiguration(DbSession dbSession, String projectUuid) {
     return config;
   }
 }

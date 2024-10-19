@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import com.google.common.io.Resources;
 import com.google.common.net.HttpHeaders;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Gauge;
@@ -50,7 +51,14 @@ public class SafeModeMonitoringMetricAction implements MonitoringWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    context.createAction("metrics").setHandler(this);
+    context.createAction("metrics")
+      .setSince("9.3")
+      .setDescription("""
+         Return monitoring metrics in Prometheus format. \s
+         Support content type 'text/plain' (default) and 'application/openmetrics-text'.
+         This endpoint can be accessed using a Bearer token, which needs to be defined in sonar.properties with the 'sonar.web.systemPasscode' key.""")
+      .setResponseExample(Resources.getResource(this.getClass(), "monitoring-metrics.txt"))
+      .setHandler(this);
     isWebUpGauge.set(1D);
   }
 

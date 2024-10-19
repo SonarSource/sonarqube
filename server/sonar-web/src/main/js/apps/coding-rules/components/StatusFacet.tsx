@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Facet, { BasicProps } from '../../../components/facets/Facet';
 import { RULE_STATUSES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 
 export default class StatusFacet extends React.PureComponent<BasicProps> {
   renderName = (status: string) => translate('rules.status', status.toLowerCase());

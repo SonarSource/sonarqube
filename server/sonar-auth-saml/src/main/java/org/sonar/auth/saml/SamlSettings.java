@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -106,7 +106,7 @@ public class SamlSettings {
     return configuration.get(GROUP_NAME_ATTRIBUTE);
   }
 
-  boolean isEnabled() {
+  public boolean isEnabled() {
     return configuration.getBoolean(ENABLED).orElse(false) &&
       configuration.get(PROVIDER_ID).isPresent() &&
       configuration.get(APPLICATION_ID).isPresent() &&
@@ -188,8 +188,8 @@ public class SamlSettings {
         .build(),
       PropertyDefinition.builder(GROUP_NAME_ATTRIBUTE)
         .name("SAML group attribute")
-        .description("Attribute defining the user groups in SAML. " +
-          "Users are associated to the default group only if no attribute is defined.")
+        .description("Attribute defining the user groups in SAML, used to synchronize group memberships. If you leave this field empty, " +
+          "group memberships will not be synced when users log in.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .index(10)

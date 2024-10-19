@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ import { ParsableDate } from '../../types/dates';
 interface Props {
   children?: (formattedDate: string) => React.ReactNode;
   date: ParsableDate;
+  timeZone?: string;
   short?: boolean;
 }
 
@@ -45,10 +46,10 @@ export const longFormatterOption: FormatDateOptions = {
   minute: 'numeric',
 };
 
-export default function DateTimeFormatter({ children, date, short }: Props) {
+export default function DateTimeFormatter({ children, date, short, ...rest }: Props) {
   return (
-    <FormattedDate value={parseDate(date)} {...(short ? formatterOption : longFormatterOption)}>
-      {children}
+    <FormattedDate {...rest} value={parseDate(date)} {...(short ? formatterOption : longFormatterOption)}>
+      {children ? (d) => <>{children(d)}</> : undefined}
     </FormattedDate>
   );
 }

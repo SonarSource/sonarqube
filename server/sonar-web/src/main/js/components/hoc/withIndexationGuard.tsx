@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,28 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexationContext } from '../../app/components/indexation/IndexationContext';
-import PageUnavailableDueToIndexation, {
-  PageContext,
-} from '../../app/components/indexation/PageUnavailableDueToIndexation';
+import PageUnavailableDueToIndexation from '../../app/components/indexation/PageUnavailableDueToIndexation';
 
-export default function withIndexationGuard<P>(
-  WrappedComponent: React.ComponentType<P>,
-  pageContext: PageContext
-) {
-  return class WithIndexationGuard extends React.PureComponent<P> {
-    render() {
-      return (
-        <IndexationContext.Consumer>
-          {(context) =>
-            context?.status.isCompleted && !context?.status.hasFailures ? (
-              <WrappedComponent {...this.props} />
-            ) : (
-              <PageUnavailableDueToIndexation pageContext={pageContext} />
-            )
-          }
-        </IndexationContext.Consumer>
-      );
-    }
+export default function withIndexationGuard<P>({
+  Component,
+  showIndexationMessage,
+}: {
+  Component: React.ComponentType<React.PropsWithChildren<P>>;
+  showIndexationMessage: (props: P) => boolean;
+}) {
+  return function WithIndexationGuard(props: React.PropsWithChildren<P>) {
+    return showIndexationMessage(props) ? (
+      <PageUnavailableDueToIndexation />
+    ) : (
+      <Component {...props} />
+    );
   };
 }

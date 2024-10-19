@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -75,7 +75,12 @@ public class AssignAction implements IssuesWsAction {
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
+        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
+        new Change("10.4", "Add 'issueStatus' field to the response."),
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
+        new Change("8.8", "The response field components.uuid is removed"),
         new Change("6.5", "the database ids of the components are removed from the response"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
@@ -107,7 +112,7 @@ public class AssignAction implements IssuesWsAction {
       UserDto user = getUser(dbSession, login);
       IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).build();
       if (issueFieldsSetter.assign(issue, user, context)) {
-        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issueDto, issue, context);
       }
       return new SearchResponseData(issueDto);
     }

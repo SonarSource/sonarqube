@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,22 +23,19 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.profiles.XMLProfileParser;
-import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.server.profile.BuiltInQualityProfileAnnotationLoader;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.CeConfigurationModule;
 import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.CeHttpModule;
@@ -90,10 +87,11 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.config.ConfigurationProvider;
+import org.sonar.server.email.EmailSmtpConfiguration;
 import org.sonar.server.es.EsModule;
-import org.sonar.server.es.ProjectIndexersImpl;
+import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -111,12 +109,14 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
-import org.sonar.server.metric.MetricFinder;
+import org.sonar.server.metric.IssueCountMetrics;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.platform.DefaultNodeInformation;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -134,6 +134,7 @@ import org.sonar.server.platform.serverid.ServerIdChecksum;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.project.DefaultBranchNameResolver;
+import org.sonar.server.project.VisibilityService;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualitygate.QualityGateEvaluatorImpl;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -147,8 +148,6 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.OkHttpClientProvider;
 import org.sonar.server.util.Paths2Impl;
 import org.sonar.server.view.index.ViewIndex;
@@ -229,7 +228,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     level4.startComponents();
 
     PlatformEditionProvider editionProvider = level4.getComponentByType(PlatformEditionProvider.class);
-    Loggers.get(ComputeEngineContainerImpl.class)
+    LoggerFactory.getLogger(ComputeEngineContainerImpl.class)
       .info("Running {} edition", editionProvider.get().map(EditionProvider.Edition::getLabel).orElse(""));
   }
 
@@ -364,13 +363,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       WorkerCountProviderImpl.class,
       // quality profile
       ActiveRuleIndexer.class,
-      XMLProfileParser.class,
-      XMLProfileSerializer.class,
       BuiltInQualityProfileAnnotationLoader.class,
       Rules.QProfiles.class,
 
       // rule
-      AnnotationRuleParser.class,
       DefaultRuleFinder.class,
       RulesDefinitionXmlLoader.class,
       AdHocRuleCreator.class,
@@ -381,19 +377,18 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       LanguagesProvider.class,
 
       // measure
-      MetricFinder.class,
       UnanalyzedLanguageMetrics.class,
-
-      UserIndexer.class,
-      UserIndex.class,
+      IssueCountMetrics.class,
+      SoftwareQualitiesMetrics.class,
 
       // components,
       FavoriteUpdater.class,
-      ProjectIndexersImpl.class,
+      IndexersImpl.class,
       QGChangeNotificationHandler.class,
       QGChangeNotificationHandler.newMetadata(),
       ProjectMeasuresIndexer.class,
-      ComponentIndexer.class,
+      EntityDefinitionIndexer.class,
+      PermissionIndexer.class,
 
       // views
       ViewIndexer.class,
@@ -418,6 +413,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // Notifications
       QGChangeEmailTemplate.class,
       EmailSettings.class,
+      EmailSmtpConfiguration.class,
       NotificationService.class,
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,
@@ -449,6 +445,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ProjectConfigurationFactory.class,
 
       DefaultBranchNameResolver.class,
+      VisibilityService.class,
       // webhooks
       new WebhookModule(),
 

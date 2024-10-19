@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,12 +32,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.apachecommons.io.IOUtils;
-import org.sonar.api.internal.apachecommons.lang.StringUtils;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.apache.commons.lang3.StringUtils;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.response.NodeStatsResponse;
 
@@ -97,7 +97,7 @@ public class ElasticSearchMetricTaskTest {
 
     // elasticsearch health status is not mocked in this test, so this part raise an exception
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnly("Failed to query ES status");
+    assertThat(logTester.logs(Level.ERROR)).containsOnly("Failed to query ES status");
   }
 
   @Test
@@ -146,7 +146,7 @@ public class ElasticSearchMetricTaskTest {
     verifyNoMoreInteractions(serverMonitoringMetrics);
 
     assertThat(logTester.logs()).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnly("Failed to query ES status");
+    assertThat(logTester.logs(Level.ERROR)).containsOnly("Failed to query ES status");
   }
 
   @Test

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ public class OperationResponseWriter {
 
   public void write(String issueKey, SearchResponseData preloadedResponseData, Request request, Response response) {
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(singletonList(issueKey));
-    SearchResponseData data = loader.load(preloadedResponseData, collector, ALL_ADDITIONAL_FIELDS,null);
+    SearchResponseData data = loader.load(preloadedResponseData, collector, ALL_ADDITIONAL_FIELDS, null);
 
     Issues.Operation responseBody = format.formatOperation(data);
 

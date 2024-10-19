@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,67 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omit } from 'lodash';
+
+import { InputSize, Select } from '@sonarsource/echoes-react';
+import { StyledPageTitle } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps } from 'react-select';
-import Select from '../../../components/controls/Select';
-import ListIcon from '../../../components/icons/ListIcon';
 import { translate } from '../../../helpers/l10n';
 import { VIEWS } from '../utils';
 
 interface Props {
-  className?: string;
   onChange: (x: { view: string }) => void;
   view: string;
 }
 
-export interface PerspectiveOption {
-  value: string;
-  label: string;
-}
+export default function PerspectiveSelect(props: Readonly<Props>) {
+  const { onChange, view } = props;
 
-export default class PerspectiveSelect extends React.PureComponent<Props> {
-  handleChange = (option: PerspectiveOption) => {
-    this.props.onChange({ view: option.value });
-  };
+  const handleChange = React.useCallback(
+    (value: string) => {
+      onChange({ view: value });
+    },
+    [onChange],
+  );
 
-  perspectiveOptionRender = (props: OptionProps<PerspectiveOption, false>) => {
-    const { data, className } = props;
-    return (
-      <components.Option
-        {...omit(props, ['children', 'className'])}
-        className={`it__projects-perspective-option-${data.value} ${className}`}
+  const options = React.useMemo(
+    () => VIEWS.map((opt) => ({ value: opt.value, label: translate('projects.view', opt.label) })),
+    [],
+  );
+
+  return (
+    <div className="sw-flex sw-items-center">
+      <StyledPageTitle
+        id="aria-projects-perspective"
+        as="label"
+        className="sw-typo-semibold sw-mr-2"
       >
-        <ListIcon className="little-spacer-right" />
-        {props.children}
-      </components.Option>
-    );
-  };
-
-  render() {
-    const { view } = this.props;
-    const options: PerspectiveOption[] = [
-      ...VIEWS.map((opt) => ({
-        value: opt.value,
-        label: translate('projects.view', opt.label),
-      })),
-    ];
-    return (
-      <div className={this.props.className}>
-        <label id="aria-projects-perspective">{translate('projects.perspective')}:</label>
-        <Select
-          aria-labelledby="aria-projects-perspective"
-          className="little-spacer-left input-medium it__projects-perspective-select"
-          isClearable={false}
-          onChange={this.handleChange}
-          components={{
-            Option: this.perspectiveOptionRender,
-          }}
-          options={options}
-          isSearchable={false}
-          value={options.find((option) => option.value === view)}
-        />
-      </div>
-    );
-  }
+        {translate('projects.perspective')}
+      </StyledPageTitle>
+      <Select
+        ariaLabelledBy="aria-projects-perspective"
+        className="sw-mr-4 sw-typo-default"
+        hasDropdownAutoWidth
+        isNotClearable
+        onChange={handleChange}
+        data={options}
+        placeholder={translate('project_activity.filter_events')}
+        value={view}
+        size={InputSize.Small}
+      />
+    </div>
+  );
 }

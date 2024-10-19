@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, ListItem, NumberedListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
-import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 
@@ -31,7 +31,7 @@ export interface WebhookStepGitLabProps {
 export default function WebhookStepGitLab({ branchesEnabled }: WebhookStepGitLabProps) {
   return (
     <>
-      <li>
+      <NumberedListItem>
         <FormattedMessage
           defaultMessage={translate('onboarding.tutorial.with.jenkins.webhook.step1.sentence')}
           id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
@@ -39,55 +39,56 @@ export default function WebhookStepGitLab({ branchesEnabled }: WebhookStepGitLab
             link: translate('onboarding.tutorial.with.jenkins.webhook.gitlab.step1.link'),
           }}
         />
-        <ul className="list-styled">
+        <UnorderedList ticks className="sw-ml-12">
           {branchesEnabled ? (
-            <li className="abs-width-600">
+            <ListItem>
               <p>
                 <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.url_with_branches" />
               </p>
               <CodeSnippet
-                isOneLine={true}
+                className="sw-p-4"
+                isOneLine
                 snippet="***JENKINS_SERVER_URL***/gitlab-webhook/post"
               />
-            </li>
+            </ListItem>
           ) : (
             <>
-              <li>
+              <ListItem>
                 <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.url_no_branches" />
-              </li>
-              <li>
+              </ListItem>
+              <ListItem>
                 <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.secret_token" />
-              </li>
+              </ListItem>
             </>
           )}
-        </ul>
-      </li>
-      <li>
+        </UnorderedList>
+      </NumberedListItem>
+      <NumberedListItem>
         <SentenceWithHighlights
           highlightKeys={['trigger']}
           translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step2"
         />
-        <ul className="list-styled">
-          <li>
-            <strong>
+        <UnorderedList ticks className="sw-ml-12">
+          <ListItem>
+            <strong className="sw-font-semibold">
               {translate('onboarding.tutorial.with.jenkins.webhook.gitlab.step2.repo')}
             </strong>
-          </li>
+          </ListItem>
           {branchesEnabled && (
-            <li>
-              <strong>
+            <ListItem>
+              <strong className="sw-font-semibold">
                 {translate('onboarding.tutorial.with.jenkins.webhook.gitlab.step2.mr')}
               </strong>
-            </li>
+            </ListItem>
           )}
-        </ul>
-      </li>
-      <li>
+        </UnorderedList>
+      </NumberedListItem>
+      <NumberedListItem>
         <SentenceWithHighlights
           highlightKeys={['add_webhook']}
           translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step3"
         />
-      </li>
+      </NumberedListItem>
     </>
   );
 }

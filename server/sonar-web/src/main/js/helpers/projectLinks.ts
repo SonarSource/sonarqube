@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ export function orderLinks<T extends NameAndType>(links: T[]) {
   const [provided, unknown] = partition<T>(links, isProvided);
   return [
     ...sortBy(provided, (link) => PROVIDED_TYPES.indexOf(link.type)),
-    ...sortBy(unknown, (link) => link.name && link.name.toLowerCase()),
+    ...sortBy(unknown, (link) => link.name?.toLowerCase()),
   ];
 }
 

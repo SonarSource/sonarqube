@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,10 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.ComponentFinder.ProjectAndBranch;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -51,9 +53,9 @@ public class HotspotWsSupport {
     return userSession.checkLoggedIn().getUuid();
   }
 
-  ComponentDto loadAndCheckProject(DbSession dbSession, String hotspotKey) {
+  ProjectAndBranch loadAndCheckBranch(DbSession dbSession, String hotspotKey) {
     IssueDto hotspot = loadHotspot(dbSession, hotspotKey);
-    return loadAndCheckProject(dbSession, hotspot, UserRole.USER);
+    return loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
   }
 
   IssueDto loadHotspot(DbSession dbSession, String hotspotKey) {
@@ -63,19 +65,21 @@ public class HotspotWsSupport {
       .orElseThrow(() -> new NotFoundException(format("Hotspot '%s' does not exist", hotspotKey)));
   }
 
-  ComponentDto loadAndCheckProject(DbSession dbSession, IssueDto hotspot, String userRole) {
-    String projectUuid = hotspot.getProjectUuid();
-    checkArgument(projectUuid != null, "Hotspot '%s' has no project", hotspot.getKee());
+  ProjectAndBranch loadAndCheckBranch(DbSession dbSession, IssueDto hotspot, String userRole) {
+    String branchUuid = hotspot.getProjectUuid();
+    checkArgument(branchUuid != null, "Hotspot '%s' has no branch", hotspot.getKee());
 
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, projectUuid)
-      .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", projectUuid)));
-    userSession.checkComponentPermission(userRole, project);
+    BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, branchUuid)
+      .orElseThrow(() -> new NotFoundException(format("Branch with uuid '%s' does not exist", branchUuid)));
+    ProjectDto project = dbClient.projectDao().selectByUuid(dbSession, branch.getProjectUuid())
+      .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", branch.getProjectUuid())));
 
-    return project;
+    userSession.checkEntityPermission(userRole, project);
+    return new ProjectAndBranch(project, branch);
   }
 
-  boolean canChangeStatus(ComponentDto project) {
-    return userSession.hasComponentPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+  boolean canChangeStatus(ProjectDto project) {
+    return userSession.hasEntityPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
   }
 
   IssueChangeContext newIssueChangeContextWithoutMeasureRefresh() {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,17 +35,17 @@ import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.issue.DefaultFilterableIssue;
 
 public class IgnoreIssuesFilter implements IssueFilter {
 
+  private static final Logger LOG = LoggerFactory.getLogger(IgnoreIssuesFilter.class);
   private final DefaultActiveRules activeRules;
   private final AnalysisWarnings analysisWarnings;
   private final Map<InputComponent, List<WildcardPattern>> rulePatternByComponent = new HashMap<>();
   private final Set<RuleKey> warnedDeprecatedRuleKeys = new LinkedHashSet<>();
-  private static final Logger LOG = Loggers.get(IgnoreIssuesFilter.class);
 
   public IgnoreIssuesFilter(DefaultActiveRules activeRules, AnalysisWarnings analysisWarnings) {
     this.activeRules = activeRules;

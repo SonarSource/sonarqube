@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.index.RuleQuery;
 
 /**
- * Operations related to activation and deactivation of rules on user profiles.
+ * Operations related to activation and deactivation of rules on Quality profiles.
  */
 @ServerSide
 public interface QProfileRules {
@@ -50,7 +50,8 @@ public interface QProfileRules {
    * - rules are activated with default parameters
    * - an activation failure does not break others. No exception is thrown.
    */
-  BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity);
+  BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity,
+    @Nullable Boolean prioritizedRule);
 
   List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<String> ruleUuids);
 

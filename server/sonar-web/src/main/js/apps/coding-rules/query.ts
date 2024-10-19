@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RawQuery } from '~sonar-aligned/types/router';
 import {
   cleanQuery,
   parseAsArray,
@@ -30,22 +31,29 @@ import {
   serializeString,
   serializeStringArray,
 } from '../../helpers/query';
-import { Dict, RawQuery, RuleInheritance } from '../../types/types';
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
+import { Dict, RuleActivation, RuleInheritance } from '../../types/types';
 
 export interface Query {
   activation: boolean | undefined;
-  activationSeverities: string[];
   availableSince: Date | undefined;
+  cleanCodeAttributeCategories: CleanCodeAttributeCategory[];
   compareToProfile: string | undefined;
   cwe: string[];
+  impactSeverities: SoftwareImpactSeverity[];
+  impactSoftwareQualities: SoftwareQuality[];
   inheritance: RuleInheritance | undefined;
   languages: string[];
   owaspTop10: string[];
   'owaspTop10-2021': string[];
+  prioritizedRule: boolean | undefined;
   profile: string | undefined;
   repositories: string[];
   ruleKey: string | undefined;
-  sansTop25: string[];
   searchQuery: string | undefined;
   severities: string[];
   sonarsourceSecurity: string[];
@@ -65,24 +73,27 @@ export type Facets = { [F in FacetKey]?: Facet };
 
 export type OpenFacets = Dict<boolean>;
 
-export interface Activation {
-  inherit: RuleInheritance;
-  severity: string;
-}
-
 export interface Actives {
   [rule: string]: {
-    [profile: string]: Activation;
+    [profile: string]: RuleActivation;
   };
 }
 
 export function parseQuery(query: RawQuery): Query {
   return {
     activation: parseAsOptionalBoolean(query.activation),
-    activationSeverities: parseAsArray(query.active_severities, parseAsString),
     availableSince: parseAsDate(query.available_since),
+    cleanCodeAttributeCategories: parseAsArray<CleanCodeAttributeCategory>(
+      query.cleanCodeAttributeCategories,
+      parseAsString,
+    ),
     compareToProfile: parseAsOptionalString(query.compareToProfile),
     cwe: parseAsArray(query.cwe, parseAsString),
+    impactSeverities: parseAsArray<SoftwareImpactSeverity>(query.impactSeverities, parseAsString),
+    impactSoftwareQualities: parseAsArray<SoftwareQuality>(
+      query.impactSoftwareQualities,
+      parseAsString,
+    ),
     inheritance: parseAsInheritance(query.inheritance),
     languages: parseAsArray(query.languages, parseAsString),
     owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
@@ -90,7 +101,6 @@ export function parseQuery(query: RawQuery): Query {
     profile: parseAsOptionalString(query.qprofile),
     repositories: parseAsArray(query.repositories, parseAsString),
     ruleKey: parseAsOptionalString(query.rule_key),
-    sansTop25: parseAsArray(query.sansTop25, parseAsString),
     searchQuery: parseAsOptionalString(query.q),
     severities: parseAsArray(query.severities, parseAsString),
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
@@ -98,17 +108,20 @@ export function parseQuery(query: RawQuery): Query {
     tags: parseAsArray(query.tags, parseAsString),
     template: parseAsOptionalBoolean(query.is_template),
     types: parseAsArray(query.types, parseAsString),
+    prioritizedRule: parseAsOptionalBoolean(query.prioritizedRule),
   };
 }
 
 export function serializeQuery(query: Query): RawQuery {
   return cleanQuery({
     activation: serializeOptionalBoolean(query.activation),
-    active_severities: serializeStringArray(query.activationSeverities),
     available_since: serializeDateShort(query.availableSince),
+    cleanCodeAttributeCategories: serializeStringArray(query.cleanCodeAttributeCategories),
     compareToProfile: serializeString(query.compareToProfile),
     cwe: serializeStringArray(query.cwe),
     inheritance: serializeInheritance(query.inheritance),
+    impactSeverities: serializeStringArray(query.impactSeverities),
+    impactSoftwareQualities: serializeStringArray(query.impactSoftwareQualities),
     is_template: serializeOptionalBoolean(query.template),
     languages: serializeStringArray(query.languages),
     owaspTop10: serializeStringArray(query.owaspTop10),
@@ -117,12 +130,12 @@ export function serializeQuery(query: Query): RawQuery {
     qprofile: serializeString(query.profile),
     repositories: serializeStringArray(query.repositories),
     rule_key: serializeString(query.ruleKey),
-    sansTop25: serializeStringArray(query.sansTop25),
     severities: serializeStringArray(query.severities),
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types),
+    prioritizedRule: serializeOptionalBoolean(query.prioritizedRule),
   });
 }
 
@@ -138,23 +151,17 @@ export function shouldRequestFacet(facet: string): facet is FacetKey {
     'owaspTop10',
     'owaspTop10-2021',
     'repositories',
-    'sansTop25',
     'severities',
     'sonarsourceSecurity',
     'standard',
     'statuses',
     'tags',
     'types',
+    'cleanCodeAttributeCategories',
+    'impactSoftwareQualities',
+    'impactSeverities',
   ];
   return facetsToRequest.includes(facet);
-}
-
-export function getServerFacet(facet: FacetKey) {
-  return facet === 'activationSeverities' ? 'active_severities' : facet;
-}
-
-export function getAppFacet(serverFacet: string): FacetKey {
-  return serverFacet === 'active_severities' ? 'activationSeverities' : (serverFacet as FacetKey);
 }
 
 export function getOpen(query: RawQuery) {

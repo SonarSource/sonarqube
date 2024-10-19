@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -131,7 +131,7 @@ public class QualityGatesWsSupport {
 
   void checkCanAdminProject(OrganizationDto organization, ProjectDto project) {
     if (userSession.hasPermission(ADMINISTER_QUALITY_GATES, organization.getUuid())
-      || userSession.hasProjectPermission(ADMIN, project)) {
+      || userSession.hasEntityPermission(ADMIN, project)) {
       return;
     }
     throw insufficientPrivilegesException();

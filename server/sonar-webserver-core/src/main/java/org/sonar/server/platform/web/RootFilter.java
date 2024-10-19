@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
@@ -49,7 +50,7 @@ import static java.util.stream.Collectors.joining;
  */
 public class RootFilter implements Filter {
 
-  private static final org.sonar.api.utils.log.Logger LOGGER = Loggers.get(RootFilter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RootFilter.class);
 
   @Override
   public void init(FilterConfig filterConfig) {

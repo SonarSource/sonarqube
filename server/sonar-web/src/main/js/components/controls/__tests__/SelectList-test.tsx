@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,57 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import SelectList, { SelectListFilter } from '../SelectList';
 
 const elements = ['foo', 'bar', 'baz'];
 const selectedElements = [elements[0]];
 const disabledElements = [elements[1]];
 
-it('should display properly with basics features', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.instance().mounted).toBe(true);
+it('should render with extra', () => {
+  renderSelectList({ renderElement: (element) => [element, 'with extra'] });
 
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.instance().componentWillUnmount();
-  expect(wrapper.instance().mounted).toBe(false);
-});
-
-it('should display properly with advanced features', async () => {
-  const wrapper = shallowRender({
-    allowBulkSelection: true,
-    elementsTotalCount: 125,
-    pageSize: 10,
-    readOnly: true,
-    withPaging: true,
-  });
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should display a loader when searching', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().loading).toBe(false);
-
-  wrapper.instance().search({});
-  expect(wrapper.state().loading).toBe(true);
-  expect(wrapper).toMatchSnapshot();
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().loading).toBe(false);
+  expect(byText('with extra').getAll()).toHaveLength(3);
 });
 
 it('should cancel filter selection when search is active', async () => {
+  const user = userEvent.setup();
+
   const spy = jest.fn().mockResolvedValue({});
-  const wrapper = shallowRender({ onSearch: spy });
-  wrapper.instance().changeFilter(SelectListFilter.Unselected);
-  await waitAndUpdate(wrapper);
+  renderSelectList({ onSearch: spy });
+
+  await user.click(ui.filterToggle(SelectListFilter.Unselected).get());
 
   expect(spy).toHaveBeenCalledWith({
     query: '',
@@ -75,10 +47,11 @@ it('should cancel filter selection when search is active', async () => {
     page: undefined,
     pageSize: undefined,
   });
-  expect(wrapper).toMatchSnapshot();
 
   const query = 'test';
-  wrapper.instance().handleQueryChange(query);
+
+  await user.type(ui.searchInput.get(), query);
+
   expect(spy).toHaveBeenCalledWith({
     query,
     filter: SelectListFilter.All,
@@ -86,25 +59,24 @@ it('should cancel filter selection when search is active', async () => {
     pageSize: undefined,
   });
 
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  await user.clear(ui.searchInput.get());
 
-  wrapper.instance().handleQueryChange('');
   expect(spy).toHaveBeenCalledWith({
     query: '',
     filter: SelectListFilter.Unselected,
     page: undefined,
     pageSize: undefined,
   });
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
 });
 
-it('should display pagination element properly and call search method with correct parameters', () => {
+it('should display pagination element properly and call search method with correct parameters', async () => {
+  const user = userEvent.setup();
   const spy = jest.fn().mockResolvedValue({});
-  const wrapper = shallowRender({ elementsTotalCount: 100, onSearch: spy, withPaging: true });
-  expect(wrapper).toMatchSnapshot();
+  renderSelectList({
+    elementsTotalCount: 100,
+    onSearch: spy,
+    withPaging: true,
+  });
   expect(spy).toHaveBeenCalledWith({
     query: '',
     filter: SelectListFilter.Selected,
@@ -112,37 +84,66 @@ it('should display pagination element properly and call search method with corre
     pageSize: 100,
   }); // Basic default call
 
-  wrapper.instance().onLoadMore();
+  await user.click(ui.footerLoadMore.get());
+
   expect(spy).toHaveBeenCalledWith({
     query: '',
     filter: SelectListFilter.Selected,
     page: 2,
     pageSize: 100,
   }); // Load more call
+});
 
-  wrapper.instance().onReload();
+it('should allow to reload when needed', async () => {
+  const user = userEvent.setup();
+  const spy = jest.fn().mockResolvedValue({});
+
+  renderSelectList({
+    elementsTotalCount: 100,
+    onSearch: spy,
+    needToReload: true,
+    withPaging: true,
+  });
+
+  expect(spy).toHaveBeenCalledWith({
+    query: '',
+    filter: SelectListFilter.Selected,
+    page: 1,
+    pageSize: 100,
+  }); // Basic default call
+
+  await user.click(await ui.footerReload.find());
+
   expect(spy).toHaveBeenCalledWith({
     query: '',
     filter: SelectListFilter.Selected,
     page: 1,
     pageSize: 100,
   }); // Reload call
-
-  wrapper.setProps({ needToReload: true });
-  expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<SelectList['props']> = {}) {
-  return shallow<SelectList>(
+function renderSelectList(props: Partial<SelectList['props']> = {}) {
+  return renderComponent(
     <SelectList
       disabledElements={disabledElements}
       elements={elements}
-      onSearch={jest.fn(() => Promise.resolve())}
+      onSearch={jest.fn()}
       onSelect={jest.fn(() => Promise.resolve())}
       onUnselect={jest.fn(() => Promise.resolve())}
       renderElement={(foo: string) => foo}
       selectedElements={selectedElements}
+      loading={false}
       {...props}
-    />
+    />,
   );
 }
+
+const ui = {
+  filterToggle: (filter: SelectListFilter) =>
+    byRole('radio', { name: filter === SelectListFilter.Unselected ? 'unselected' : filter }),
+
+  searchInput: byRole('searchbox', { name: 'search_verb' }),
+
+  footerLoadMore: byRole('button', { name: 'show_more' }),
+  footerReload: byRole('button', { name: 'reload' }),
+};

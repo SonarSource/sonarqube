@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import {
   Analysis,
   AnalysisEvent,
   HistoryItem,
   MeasureHistory,
   ParsedAnalysis,
+  ProjectAnalysisEventCategory,
+  Serie,
 } from '../../types/project-activity';
 import { parseDate } from '../dates';
 
@@ -38,7 +41,7 @@ export function mockAnalysis(overrides: Partial<Analysis> = {}): Analysis {
 
 export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): ParsedAnalysis {
   return {
-    date: new Date('2017-03-01T09:37:01+0100'),
+    date: parseDate('2017-03-01T09:37:01+0100'),
     events: [],
     key: 'foo',
     projectVersion: '1.0',
@@ -48,7 +51,7 @@ export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): Par
 
 export function mockAnalysisEvent(overrides: Partial<AnalysisEvent> = {}): AnalysisEvent {
   return {
-    category: 'QUALITY_GATE',
+    category: ProjectAnalysisEventCategory.QualityGate,
     key: 'E11',
     description: 'Lorem ipsum dolor sit amet',
     name: 'Lorem ipsum',
@@ -74,7 +77,7 @@ export function mockAnalysisEvent(overrides: Partial<AnalysisEvent> = {}): Analy
 
 export function mockMeasureHistory(overrides: Partial<MeasureHistory> = {}): MeasureHistory {
   return {
-    metric: 'code_smells',
+    metric: MetricKey.code_smells,
     history: [
       mockHistoryItem(),
       mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '1749' }),
@@ -88,6 +91,19 @@ export function mockHistoryItem(overrides: Partial<HistoryItem> = {}): HistoryIt
   return {
     date: parseDate('2016-10-26T12:17:29+0200'),
     value: '2286',
+    ...overrides,
+  };
+}
+
+export function mockSerie(overrides: Partial<Serie> = {}): Serie {
+  return {
+    data: [
+      { x: parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
+      { x: parseDate('2017-04-30T23:06:24.000Z'), y: 2 },
+    ],
+    name: 'foo',
+    translatedName: 'foo',
+    type: MetricType.Integer,
     ...overrides,
   };
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,13 @@
  */
 package org.sonar.scanner.ci.vendors;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Support https://cirrus-ci.org/
@@ -55,7 +55,7 @@ public class CirrusCi implements CiVendor {
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable(PROPERTY_COMMIT);
     if (isEmpty(revision)) {
-      Loggers.get(getClass()).warn("Missing environment variable " + PROPERTY_COMMIT);
+      LoggerFactory.getLogger(getClass()).warn("Missing environment variable " + PROPERTY_COMMIT);
     }
     return new CiConfigurationImpl(revision, getName());
   }

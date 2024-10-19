@@ -7,7 +7,7 @@
     udm.uuid,
     udm.user_uuid as userUuid,
     udm.project_uuid as projectUuid,
-    udm.message_type as ceMessageType,
+    udm.message_type as messageType,
     udm.created_at as createdAt
   </sql>
 
@@ -24,7 +24,7 @@
       #{dto.uuid,jdbcType=VARCHAR},
       #{dto.userUuid,jdbcType=VARCHAR},
       #{dto.projectUuid,jdbcType=VARCHAR},
-      #{dto.ceMessageType,jdbcType=VARCHAR},
+      #{dto.messageType,jdbcType=VARCHAR},
       #{dto.createdAt,jdbcType=BIGINT}
     )
   </insert>
@@ -37,10 +37,20 @@
     where
       udm.user_uuid=#{userUuid,jdbcType=VARCHAR} and
       udm.project_uuid=#{projectUuid,jdbcType=VARCHAR} and
-      udm.message_type=#{ceMessageType,jdbcType=VARCHAR}
+      udm.message_type=#{messageType,jdbcType=VARCHAR}
   </select>
 
-    <select id="selectByUserUuid" resultType="org.sonar.db.user.UserDismissedMessageDto" parameterType="String">
+  <select id="selectByUserUuidAndMessageType" resultType="org.sonar.db.user.UserDismissedMessageDto">
+    select
+      <include refid="columns"/>
+    from
+      user_dismissed_messages udm
+    where
+      udm.user_uuid=#{userUuid,jdbcType=VARCHAR} and
+      udm.message_type=#{messageType,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByUserUuid" resultType="org.sonar.db.user.UserDismissedMessageDto" parameterType="String">
     select
       <include refid="columns"/>
     from
@@ -54,7 +64,7 @@
   </delete>
 
   <delete id="deleteByType" parameterType="String">
-    delete from user_dismissed_messages where message_type = #{ceMessageType, jdbcType=VARCHAR}
+    delete from user_dismissed_messages where message_type = #{messageType, jdbcType=VARCHAR}
   </delete>
 
 </mapper>

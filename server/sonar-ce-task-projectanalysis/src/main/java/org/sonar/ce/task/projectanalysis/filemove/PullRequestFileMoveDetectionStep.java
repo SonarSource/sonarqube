@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -47,7 +47,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class PullRequestFileMoveDetectionStep implements ComputationStep {
-  private static final Logger LOG = Loggers.get(PullRequestFileMoveDetectionStep.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PullRequestFileMoveDetectionStep.class);
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder rootHolder;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,6 +32,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentFinder;
@@ -66,6 +68,7 @@ public class GetAction implements AnalysisCacheWsAction {
         + "Data is returned gzipped if the corresponding 'Accept-Encoding' header is set in the request.")
       .setChangelog(new Change("9.9", "The web service is no longer internal"))
       .setSince("9.4")
+      .setContentType(Response.ContentType.BINARY)
       .setHandler(this);
 
     action.createParam(PROJECT)
@@ -85,10 +88,11 @@ public class GetAction implements AnalysisCacheWsAction {
     String branchKey = request.param(BRANCH);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchKey, null);
-      checkPermission(component);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+      checkPermission(project);
+      BranchDto branchDto = componentFinder.getBranchOrPullRequest(dbSession, project, branchKey, null);
 
-      try (DbInputStream dbInputStream = cache.get(component.uuid())) {
+      try (DbInputStream dbInputStream = cache.get(branchDto.getUuid())) {
         if (dbInputStream == null) {
           throw new NotFoundException("No cache for given branch or pull request");
         }
@@ -117,9 +121,9 @@ public class GetAction implements AnalysisCacheWsAction {
       .orElse(false);
   }
 
-  private void checkPermission(ComponentDto project) {
-    if (userSession.hasComponentPermission(UserRole.SCAN, project) ||
-      userSession.hasComponentPermission(UserRole.ADMIN, project) ||
+  private void checkPermission(ProjectDto project) {
+    if (userSession.hasEntityPermission(UserRole.SCAN, project) ||
+      userSession.hasEntityPermission(UserRole.ADMIN, project) ||
       userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       return;
     }

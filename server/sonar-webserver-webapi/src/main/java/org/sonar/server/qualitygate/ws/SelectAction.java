@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
+import org.sonar.server.exceptions.ForbiddenException;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -41,10 +40,12 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 public class SelectAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final QualityGatesWsSupport wsSupport;
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
 
-  public SelectAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
+  public SelectAction(DbClient dbClient, QualityGatesWsSupport wsSupport, AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
+    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   @Override
@@ -60,18 +61,14 @@ public class SelectAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setHandler(this)
       .setChangelog(
+        new Change("10.7", "It is not possible anymore to change the Quality Gate of a project flagged as containing AI code."),
+        new Change("10.0", "Parameter 'gateId' is removed. Use 'gateName' instead."),
         new Change("8.4", "Parameter 'gateName' added"),
         new Change("8.4", "Parameter 'gateId' is deprecated. Format changes from integer to string. Use 'gateName' instead."),
         new Change("8.3", "The parameter 'projectId' was removed"));
 
-    action.createParam(PARAM_GATE_ID)
-      .setDescription("Quality gate ID. This parameter is deprecated. Use 'gateName' instead.")
-      .setRequired(false)
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_GATE_NAME)
-      .setRequired(false)
+      .setRequired(true)
       .setDescription("Name of the quality gate")
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
@@ -88,20 +85,14 @@ public class SelectAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String gateUuid = request.param(PARAM_GATE_ID);
-    String gateName = request.param(PARAM_GATE_NAME);
+    String gateName = request.mandatoryParam(PARAM_GATE_NAME);
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
 
-    checkArgument(gateName != null ^ gateUuid != null, "Either 'gateId' or 'gateName' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateDto qualityGate;
-      if (gateUuid != null) {
-        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
-      } else {
-        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
-      }
+      qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
       ProjectDto project = wsSupport.getProject(dbSession, projectKey);
       wsSupport.checkCanAdminProject(organization, project);
 
@@ -118,5 +109,12 @@ public class SelectAction implements QualityGatesWsAction {
       }
     }
     response.noContent();
+  }
+
+  private void checkProjectQGCanChange(ProjectDto project) {
+    wsSupport.checkCanAdminProject(project);
+    if (aiCodeAssuranceVerifier.isAiCodeAssured(project)) {
+      throw new ForbiddenException("Quality gate cannot be changed for project with AI Code Assurance enabled.");
+    }
   }
 }

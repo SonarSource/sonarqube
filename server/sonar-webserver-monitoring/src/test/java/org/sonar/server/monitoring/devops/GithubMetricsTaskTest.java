@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
-import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;

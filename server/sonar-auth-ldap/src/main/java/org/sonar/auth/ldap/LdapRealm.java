@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.auth.ldap.LdapSettingsManager.DEFAULT_LDAP_SERVER_KEY;
 import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
@@ -38,7 +38,7 @@ public class LdapRealm {
 
   public static final String LDAP_SECURITY_REALM = "LDAP";
   public static final String DEFAULT_LDAP_IDENTITY_PROVIDER_ID = LDAP_SECURITY_REALM + "_" + DEFAULT_LDAP_SERVER_KEY;
-  private static final Logger LOG = Loggers.get(LdapRealm.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapRealm.class);
 
   private final boolean isLdapAuthActivated;
   private final LdapUsersProvider usersProvider;

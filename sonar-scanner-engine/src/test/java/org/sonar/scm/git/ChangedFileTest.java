@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,15 +26,14 @@ import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 
-import static org.apache.commons.lang.RandomStringUtils.random;
-import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.random;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class ChangedFileTest {
 
   @Test
-  public void test_unMovedFile(){
+  public void test_unMovedFile() {
     Path absolutePath = Path.of("/absolutePath");
     ChangedFile changedFile = ChangedFile.of(absolutePath);
 
@@ -44,7 +43,7 @@ public class ChangedFileTest {
   }
 
   @Test
-  public void test_movedFile(){
+  public void test_movedFile() {
     Path absolutePath = Path.of("/absolutePath");
     ChangedFile changedFile = ChangedFile.of(absolutePath, "/oldRelativePath");
 
@@ -54,7 +53,7 @@ public class ChangedFileTest {
   }
 
   @Test
-  public void test_equalsAndHashCode(){
+  public void test_equalsAndHashCode() {
     Path absolutePath = Path.of("/absolutePath");
     ChangedFile changedFile1 = ChangedFile.of(absolutePath, "/oldRelativePath");
     ChangedFile changedFile2 = ChangedFile.of(absolutePath, "/oldRelativePath");
@@ -76,7 +75,8 @@ public class ChangedFileTest {
 
   private DefaultInputFile composeDefaultInputFile(Path path, String oldRelativeReference) {
     DefaultIndexedFile indexedFile = composeDefaultIndexFile(path, oldRelativeReference);
-    return new DefaultInputFile(indexedFile, f -> f.setPublished(true));
+    return new DefaultInputFile(indexedFile, f -> f.setPublished(true), f -> {
+    });
   }
 
   private DefaultIndexedFile composeDefaultIndexFile(Path path, String oldRelativePath) {

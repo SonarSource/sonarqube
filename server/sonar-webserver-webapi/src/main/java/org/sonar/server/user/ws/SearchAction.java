@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Optional;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
@@ -31,52 +32,52 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.common.PaginationInformation;
+import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.user.service.UserInformation;
+import org.sonar.server.common.user.service.UserService;
+import org.sonar.server.common.user.service.UsersSearchRequest;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserQuery;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.Users.SearchWsResponse;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.emptyToNull;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.server.common.PaginationInformation.forPageIndex;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Users.SearchWsResponse.Groups;
-import static org.sonarqube.ws.Users.SearchWsResponse.ScmAccounts;
-import static org.sonarqube.ws.Users.SearchWsResponse.User;
-import static org.sonarqube.ws.Users.SearchWsResponse.newBuilder;
 
 public class SearchAction implements UsersWsAction {
-  private static final String DEACTIVATED_PARAM = "deactivated";
   private static final int MAX_PAGE_SIZE = 500;
 
-  private final UserSession userSession;
-  private final UserIndex userIndex;
-  private final DbClient dbClient;
-  private final AvatarResolver avatarResolver;
+  private static final String DEACTIVATED_PARAM = "deactivated";
+  private static final String MANAGED_PARAM = "managed";
+  static final String LAST_CONNECTION_DATE_FROM = "lastConnectedAfter";
+  static final String LAST_CONNECTION_DATE_TO = "lastConnectedBefore";
+  static final String SONAR_LINT_LAST_CONNECTION_DATE_FROM = "slLastConnectedAfter";
+  static final String SONAR_LINT_LAST_CONNECTION_DATE_TO = "slLastConnectedBefore";
+  static final String EXTERNAL_IDENTITY = "externalIdentity";
 
-  public SearchAction(UserSession userSession, UserIndex userIndex, DbClient dbClient, AvatarResolver avatarResolver) {
+  private final UserSession userSession;
+  private final UserService userService;
+  private final SearchWsReponseGenerator searchWsReponseGenerator;
+
+  public SearchAction(UserSession userSession,
+    UserService userService, SearchWsReponseGenerator searchWsReponseGenerator) {
     this.userSession = userSession;
-    this.userIndex = userIndex;
-    this.dbClient = dbClient;
-    this.avatarResolver = avatarResolver;
+    this.userService = userService;
+    this.searchWsReponseGenerator = searchWsReponseGenerator;
   }
 
   @Override
@@ -87,8 +88,18 @@ public class SearchAction implements UsersWsAction {
         " For Organization Admins, list of users part of the organization(s) are returned")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use GET api/v2/users-management/users instead"),
+        new Change("10.3", "New optional parameters " + EXTERNAL_IDENTITY + " to find a user by its IdP login"),
+        new Change("10.1", "New optional parameters " + SONAR_LINT_LAST_CONNECTION_DATE_FROM +
+          " and " + SONAR_LINT_LAST_CONNECTION_DATE_TO + " to filter users by SonarLint last connection date. Only available with Administer System permission."),
+        new Change("10.1", "New optional parameters " + LAST_CONNECTION_DATE_FROM +
+          " and " + LAST_CONNECTION_DATE_TO + " to filter users by SonarQube last connection date. Only available with Administer System permission."),
+        new Change("10.1", "New field 'sonarLintLastConnectionDate' is added to response"),
+        new Change("10.0", "'q' parameter values is now always performing a case insensitive match"),
+        new Change("10.0", "New parameter 'managed' to optionally search by managed status"),
+        new Change("10.0", "Response includes 'managed' field."),
         new Change("9.9", "Organization Admin can access Email and Last Connection Info of all members of the "
-          + "organization. API is accessible only for System Administrators or Organization Administrators"),
+            + "organization. API is accessible only for System Administrators or Organization Administrators"),
         new Change("9.7", "New parameter 'deactivated' to optionally search for deactivated users"),
         new Change("7.7", "New field 'lastConnectionDate' is added to response"),
         new Change("7.4", "External identity is only returned to system administrators"),
@@ -96,192 +107,119 @@ public class SearchAction implements UsersWsAction {
         new Change("6.4", "Avatar has been added to the response"),
         new Change("6.4", "Email is only returned when user has Administer System permission"))
       .setHandler(this)
-      .setResponseExample(getClass().getResource("search-example.json"));
+      .setResponseExample(getClass().getResource("search-example.json"))
+      .setDeprecatedSince("10.4");
 
     action.addPagingParams(50, SearchOptions.MAX_PAGE_SIZE);
 
+    final String dateExample = "2020-01-01T00:00:00+0100";
     action.createParam(TEXT_QUERY)
       .setMinimumLength(2)
       .setDescription("Filter on login, name and email.<br />" +
-        "This parameter can either be case sensitive and perform an exact match, or case insensitive and perform a partial match (contains), depending on the scenario:<br />" +
-        "<ul>" +
-        "  <li>" +
-        "    If the search query is <em>less or equal to 15 characters</em>, then the query is <em>case insensitive</em>, and will match any login, name, or email, that " +
-        "    <em>contains</em> the search query." +
-        "  </li>" +
-        "  <li>" +
-        "    If the search query is <em>greater than 15 characters</em>, then the query becomes <em>case sensitive</em>, and will match any login, name, or email, that " +
-        "    <em>exactly matches</em> the search query." +
-        "  </li>" +
-        "</ul>");
+        "This parameter performs a partial match (contains), it is case insensitive.");
     action.createParam(DEACTIVATED_PARAM)
       .setSince("9.7")
       .setDescription("Return deactivated users instead of active users")
       .setRequired(false)
       .setDefaultValue(false)
       .setBooleanPossibleValues();
+    action.createParam(MANAGED_PARAM)
+      .setSince("10.0")
+      .setDescription("Return managed or non-managed users. Only available for managed instances, throws for non-managed instances.")
+      .setRequired(false)
+      .setDefaultValue(null)
+      .setBooleanPossibleValues();
+    action.createParam(LAST_CONNECTION_DATE_FROM)
+      .setSince("10.1")
+      .setDescription("""
+        Filter the users based on the last connection date field.
+        Only users who interacted with this instance at or after the date will be returned.
+        The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
+      .setRequired(false)
+      .setDefaultValue(null)
+      .setExampleValue(dateExample);
+    action.createParam(LAST_CONNECTION_DATE_TO)
+      .setSince("10.1")
+      .setDescription("""
+        Filter the users based on the last connection date field.
+        Only users that never connected or who interacted with this instance at or before the date will be returned.
+        The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
+      .setRequired(false)
+      .setDefaultValue(null)
+      .setExampleValue(dateExample);
+    action.createParam(SONAR_LINT_LAST_CONNECTION_DATE_FROM)
+      .setSince("10.1")
+      .setDescription("""
+        Filter the users based on the sonar lint last connection date field
+        Only users who interacted with this instance using SonarLint at or after the date will be returned.
+        The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
+      .setRequired(false)
+      .setDefaultValue(null)
+      .setExampleValue(dateExample);
+    action.createParam(SONAR_LINT_LAST_CONNECTION_DATE_TO)
+      .setSince("10.1")
+      .setDescription("""
+        Filter the users based on the sonar lint last connection date field.
+        Only users that never connected or who interacted with this instance using SonarLint at or before the date will be returned.
+        The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
+      .setRequired(false)
+      .setDefaultValue(null)
+      .setExampleValue(dateExample);
+    action.createParam(EXTERNAL_IDENTITY)
+      .setSince("10.3")
+      .setDescription("""
+        Find a user by its external identity (ie. its login in the Identity Provider).
+        This is case sensitive and only available with Administer System permission.
+        """);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    throwIfAdminOnlyParametersAreUsed(request);
     Users.SearchWsResponse wsResponse = doHandle(toSearchRequest(request));
     writeProtobuf(wsResponse, request, response);
   }
 
-  private Users.SearchWsResponse doHandle(SearchRequest request) {
-    boolean isSystemAdmin = userSession.checkLoggedIn().isSystemAdministrator();
-    boolean showEmailAndLastConnectionInfo = false;
-    var userQuery = UserQuery.builder();
-    SearchOptions options = new SearchOptions().setPage(request.getPage(), request.getPageSize());
-    if (!isSystemAdmin) {
-      List<String> userOrganizations =
-        userIndex.search(UserQuery.builder().setActive(true).setTextQuery(userSession.getLogin()).build(),
-          options).getDocs().get(0).organizationUuids();
-      var orgsWithUserAsAdmin =
-        userOrganizations.stream().filter(o -> userSession.hasPermission(OrganizationPermission.ADMINISTER, o))
-          .collect(
-            Collectors.toList());
-      if (!orgsWithUserAsAdmin.isEmpty()) {
-        userQuery.addOrganizationUuids(orgsWithUserAsAdmin);
-        showEmailAndLastConnectionInfo = true;
-      } else {
-        throw insufficientPrivilegesException();
-      }
-    }
-    SearchResult<UserDoc> result = userIndex.search(
-      userQuery.setActive(!request.isDeactivated()).setTextQuery(request.getQuery()).build(), options);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<String> logins = result.getDocs().stream().map(UserDoc::login).collect(toList());
-      Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
-      List<UserDto> users = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
-      Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
-      Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize())
-        .andTotal((int) result.getTotal());
-      return buildResponse(users, groupsByLogin, tokenCountsByLogin, paging, showEmailAndLastConnectionInfo);
+  private void throwIfAdminOnlyParametersAreUsed(Request request) {
+    if (!userSession.isSystemAdministrator()) {
+      throwIfParameterValuePresent(request, LAST_CONNECTION_DATE_FROM);
+      throwIfParameterValuePresent(request, LAST_CONNECTION_DATE_TO);
+      throwIfParameterValuePresent(request, SONAR_LINT_LAST_CONNECTION_DATE_FROM);
+      throwIfParameterValuePresent(request, SONAR_LINT_LAST_CONNECTION_DATE_TO);
+      throwIfParameterValuePresent(request, EXTERNAL_IDENTITY);
     }
   }
 
-  private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin,
-    Map<String, Integer> tokenCountsByLogin, Paging paging,
-    boolean showEmailAndLastConnectionInfo) {
-    SearchWsResponse.Builder responseBuilder = newBuilder();
-    users.forEach(user -> responseBuilder.addUsers(
-      towsUser(user, firstNonNull(tokenCountsByLogin.get(user.getUuid()), 0),
-        groupsByLogin.get(user.getLogin()), showEmailAndLastConnectionInfo)));
-    responseBuilder.getPagingBuilder()
-      .setPageIndex(paging.pageIndex())
-      .setPageSize(paging.pageSize())
-      .setTotal(paging.total())
-      .build();
-    return responseBuilder.build();
+  private Users.SearchWsResponse doHandle(UsersSearchRequest request) {
+    SearchResults<UserInformation> userSearchResults = userService.findUsers(request);
+    PaginationInformation paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(userSearchResults.total());
+
+    return searchWsReponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
   }
 
-  private User towsUser(UserDto user, @Nullable Integer tokensCount, Collection<String> groups,
-    boolean showEmailAndLastConnectionInfo) {
-    User.Builder userBuilder = User.newBuilder().setLogin(user.getLogin());
-    ofNullable(user.getName()).ifPresent(userBuilder::setName);
-    if (userSession.isLoggedIn()) {
-      ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> userBuilder.setAvatar(avatarResolver.create(user)));
-      userBuilder.setActive(user.isActive());
-      userBuilder.setLocal(user.isLocal());
-      ofNullable(user.getExternalIdentityProvider()).ifPresent(userBuilder::setExternalProvider);
-      if (!user.getScmAccountsAsList().isEmpty()) {
-        userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(user.getScmAccountsAsList()));
-      }
-    }
-    if (userSession.isSystemAdministrator() || showEmailAndLastConnectionInfo) {
-      ofNullable(user.getEmail()).ifPresent(userBuilder::setEmail);
-      if (!groups.isEmpty()) {
-        userBuilder.setGroups(Groups.newBuilder().addAllGroups(groups));
-      }
-      ofNullable(user.getExternalLogin()).ifPresent(userBuilder::setExternalIdentity);
-      ofNullable(tokensCount).ifPresent(userBuilder::setTokensCount);
-      ofNullable(user.getLastConnectionDate()).ifPresent(
-        date -> userBuilder.setLastConnectionDate(formatDateTime(date)));
-    }
-    return userBuilder.build();
-  }
-
-  private static SearchRequest toSearchRequest(Request request) {
+  private static UsersSearchRequest toSearchRequest(Request request) {
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
-    return SearchRequest.builder()
+    return UsersSearchRequest.builder()
       .setQuery(request.param(TEXT_QUERY))
       .setDeactivated(request.mandatoryParamAsBoolean(DEACTIVATED_PARAM))
+      .setManaged(request.paramAsBoolean(MANAGED_PARAM))
+      .setLastConnectionDateFrom(request.param(LAST_CONNECTION_DATE_FROM))
+      .setLastConnectionDateTo(request.param(LAST_CONNECTION_DATE_TO))
+      .setSonarLintLastConnectionDateFrom(request.param(SONAR_LINT_LAST_CONNECTION_DATE_FROM))
+      .setSonarLintLastConnectionDateTo(request.param(SONAR_LINT_LAST_CONNECTION_DATE_TO))
+      .setExternalLogin(request.param(EXTERNAL_IDENTITY))
       .setPage(request.mandatoryParamAsInt(PAGE))
       .setPageSize(pageSize)
       .build();
   }
 
-  private static class SearchRequest {
-    private final Integer page;
-    private final Integer pageSize;
-    private final String query;
-    private final boolean deactivated;
-
-    private SearchRequest(Builder builder) {
-      this.page = builder.page;
-      this.pageSize = builder.pageSize;
-      this.query = builder.query;
-      this.deactivated = builder.deactivated;
-    }
-
-    @CheckForNull
-    public Integer getPage() {
-      return page;
-    }
-
-    @CheckForNull
-    public Integer getPageSize() {
-      return pageSize;
-    }
-
-    @CheckForNull
-    public String getQuery() {
-      return query;
-    }
-
-    public boolean isDeactivated() {
-      return deactivated;
-    }
-
-    public static Builder builder() {
-      return new Builder();
-    }
+  private static void throwIfParameterValuePresent(Request request, String parameter) {
+    Optional.ofNullable(request.param(parameter)).ifPresent(v -> throwForbiddenFor(parameter));
   }
 
-  private static class Builder {
-    private Integer page;
-    private Integer pageSize;
-    private String query;
-    private boolean deactivated;
-
-    private Builder() {
-      // enforce factory method use
-    }
-
-    public Builder setPage(@Nullable Integer page) {
-      this.page = page;
-      return this;
-    }
-
-    public Builder setPageSize(@Nullable Integer pageSize) {
-      this.pageSize = pageSize;
-      return this;
-    }
-
-    public Builder setQuery(@Nullable String query) {
-      this.query = query;
-      return this;
-    }
-
-    public Builder setDeactivated(boolean deactivated) {
-      this.deactivated = deactivated;
-      return this;
-    }
-
-    public SearchRequest build() {
-      return new SearchRequest(this);
-    }
+  private static void throwForbiddenFor(String parameterName) {
+    throw new ServerException(403, "parameter " + parameterName + " requires Administer System permission.");
   }
+
 }

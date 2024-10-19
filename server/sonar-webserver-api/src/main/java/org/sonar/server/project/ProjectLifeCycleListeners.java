@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,17 +30,17 @@ public interface ProjectLifeCycleListeners {
    * This method ensures all {@link ProjectLifeCycleListener} implementations are called, even if one or more of
    * them fail with an exception.
    */
-  void onProjectsDeleted(Set<Project> projects);
+  void onProjectsDeleted(Set<DeletedProject> projects);
 
   /**
-   * This method is called after the specified project branches have been deleted and will call method
-   * {@link ProjectLifeCycleListener#onProjectBranchesDeleted(Set)} of all known
+   * This method is called after the specified project have any king of change (branch deleted, change of main branch, ...)
+   *  This method will call method {@link ProjectLifeCycleListener#onProjectBranchesChanged(Set,Set)} of all known
    * {@link ProjectLifeCycleListener} implementations.
    * <p>
    * This method ensures all {@link ProjectLifeCycleListener} implementations are called, even if one or more of
    * them fail with an exception.
    */
-  void onProjectBranchesDeleted(Set<Project> projects);
+  void onProjectBranchesChanged(Set<Project> projects, Set<String> impactedBranches);
 
   /**
    * This method is called after the specified project's key has been changed and will call method

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -34,6 +34,7 @@ import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -43,10 +44,11 @@ public class AutoDbMigrationTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  private DefaultServerUpgradeStatus serverUpgradeStatus = mock(DefaultServerUpgradeStatus.class);
-  private MigrationEngine migrationEngine = mock(MigrationEngine.class);
-  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, migrationEngine);
+  private final DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private final DefaultServerUpgradeStatus serverUpgradeStatus = mock(DefaultServerUpgradeStatus.class);
+  private final MigrationEngine migrationEngine = mock(MigrationEngine.class);
+  private final MutableDatabaseMigrationState mutableDatabaseMigrationState = mock(MutableDatabaseMigrationState.class);
+  private final AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, migrationEngine, mutableDatabaseMigrationState);
 
   @Test
   public void start_runs_MigrationEngine_on_h2_if_fresh_install() {
@@ -74,7 +76,7 @@ public class AutoDbMigrationTest {
 
     underTest.start();
 
-    verify(migrationEngine).execute();
+    verify(migrationEngine).execute(any());
     verifyInfoLog();
   }
 
@@ -85,31 +87,7 @@ public class AutoDbMigrationTest {
     underTest.start();
 
     verifyNoInteractions(migrationEngine);
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
-  }
-
-  @Test
-  public void start_runs_MigrationEngine_if_blue_green_upgrade() {
-    mockFreshInstall(false);
-    when(serverUpgradeStatus.isUpgraded()).thenReturn(true);
-    when(serverUpgradeStatus.isBlueGreen()).thenReturn(true);
-
-    underTest.start();
-
-    verify(migrationEngine).execute();
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Automatically perform DB migration on blue/green deployment");
-  }
-
-  @Test
-  public void start_does_nothing_if_blue_green_but_no_upgrade() {
-    mockFreshInstall(false);
-    when(serverUpgradeStatus.isUpgraded()).thenReturn(false);
-    when(serverUpgradeStatus.isBlueGreen()).thenReturn(true);
-
-    underTest.start();
-
-    verifyNoInteractions(migrationEngine);
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).isEmpty();
   }
 
   @Test
@@ -120,8 +98,8 @@ public class AutoDbMigrationTest {
 
     underTest.start();
 
-    verify(migrationEngine).execute();
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Automatically perform DB migration, as automatic database upgrade is enabled");
+    verify(migrationEngine).execute(any());
+    assertThat(logTester.logs(Level.INFO)).contains("Automatically perform DB migration, as automatic database upgrade is enabled");
   }
 
   @Test
@@ -133,7 +111,7 @@ public class AutoDbMigrationTest {
     underTest.start();
 
     verifyNoInteractions(migrationEngine);
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).isEmpty();
   }
 
   @Test
@@ -151,7 +129,7 @@ public class AutoDbMigrationTest {
 
   private void verifyInfoLog() {
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly("Automatically perform DB migration on fresh install");
+    assertThat(logTester.logs(Level.INFO)).containsExactly("Automatically perform DB migration on fresh install");
   }
 
 }

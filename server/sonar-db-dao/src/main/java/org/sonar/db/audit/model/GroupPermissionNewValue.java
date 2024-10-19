@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,10 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 
 public class GroupPermissionNewValue extends PermissionNewValue {
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String groupUuid;
 
@@ -42,9 +46,13 @@ public class GroupPermissionNewValue extends PermissionNewValue {
   }
 
   public GroupPermissionNewValue(GroupPermissionDto dto, @Nullable String componentKey, @Nullable String qualifier, @Nullable PermissionTemplateDto permissionTemplate) {
-    this(dto.getUuid(), dto.getComponentUuid(), componentKey, dto.getComponentName(), dto.getRole(), dto.getGroupUuid(), dto.getGroupName(), qualifier, permissionTemplate);
+    this(dto.getUuid(), dto.getEntityUuid(), componentKey, dto.getEntityName(), dto.getRole(), dto.getGroupUuid(), dto.getGroupName(), qualifier, permissionTemplate);
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   public String getGroupUuid() {
     return groupUuid;

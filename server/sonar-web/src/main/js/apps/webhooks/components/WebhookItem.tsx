@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,30 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, ContentCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
 import WebhookActions from './WebhookActions';
 import WebhookItemLatestDelivery from './WebhookItemLatestDelivery';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
-  onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhook: Webhook;
+  onUpdate: (data: WebhookUpdatePayload) => Promise<void>;
+  webhook: WebhookResponse;
 }
 
 export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {
   return (
-    <tr>
-      <td>{webhook.name}</td>
-      <td>{webhook.url}</td>
-      <td>{webhook.secret ? translate('yes') : translate('no')}</td>
-      <td>
+    <TableRowInteractive>
+      <ContentCell>{webhook.name}</ContentCell>
+      <ContentCell>{webhook.url}</ContentCell>
+      <ContentCell>{webhook.hasSecret ? translate('yes') : translate('no')}</ContentCell>
+      <ContentCell>
         <WebhookItemLatestDelivery webhook={webhook} />
-      </td>
-      <td className="thin nowrap text-right">
+      </ContentCell>
+      <ActionCell className="sw-text-right">
         <WebhookActions onDelete={onDelete} onUpdate={onUpdate} webhook={webhook} />
-      </td>
-    </tr>
+      </ActionCell>
+    </TableRowInteractive>
   );
 }

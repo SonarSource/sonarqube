@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,47 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
-import { throwGlobalError } from '../helpers/error';
-import {
-  get,
-  getJSON,
-  HttpStatus,
-  parseJSON,
-  post,
-  postJSON,
-  RequestData,
-} from '../helpers/request';
-import { IssueResponse, RawIssuesResponse } from '../types/issues';
+import { get, HttpStatus, parseJSON, post, postJSON, RequestData } from '../helpers/request';
+import { FacetName, IssueResponse, ListIssuesResponse, RawIssuesResponse } from '../types/issues';
 import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
-
-type FacetName =
-  | 'assigned_to_me'
-  | 'assignees'
-  | 'author'
-  | 'createdAt'
-  | 'cwe'
-  | 'directories'
-  | 'files'
-  | 'languages'
-  | 'owaspTop10'
-  | 'projects'
-  | 'reporters'
-  | 'resolutions'
-  | 'rules'
-  | 'sansTop25'
-  | 'severities'
-  | 'statuses'
-  | 'tags'
-  | 'types';
 
 export function searchIssues(query: RequestData): Promise<RawIssuesResponse> {
   return getJSON('/api/issues/search', query).catch(throwGlobalError);
 }
 
+export function listIssues(query: RequestData): Promise<ListIssuesResponse> {
+  return getJSON('/api/issues/list', query).catch(throwGlobalError);
+}
+
 export function getFacets(
   query: RequestData,
-  facets: FacetName[]
+  facets: FacetName[],
 ): Promise<{
   facets: Array<{ property: string; values: FacetValue[] }>;
   response: RawIssuesResponse;
@@ -75,7 +52,7 @@ export function getFacets(
 
 export function getFacet(
   query: RequestData,
-  facet: FacetName
+  facet: FacetName,
 ): Promise<{ facet: { count: number; val: string }[]; response: RawIssuesResponse }> {
   return getFacets(query, [facet]).then((r) => {
     return { facet: r.facets[0].values, response: r.response };
@@ -84,9 +61,9 @@ export function getFacet(
 
 export function searchIssueTags(data: {
   organization?: string;
-  project?: string;
-  branch?: string;
   all?: boolean;
+  branch?: string;
+  project?: string;
   ps?: number;
   q?: string;
 }): Promise<string[]> {
@@ -116,8 +93,8 @@ export function editIssueComment(data: { comment: string; text: string }): Promi
 }
 
 export function setIssueAssignee(data: {
-  issue: string;
   assignee?: string;
+  issue: string;
 }): Promise<IssueResponse> {
   return postJSON('/api/issues/assign', data);
 }
@@ -170,7 +147,7 @@ export function getIssueFlowSnippets(issueKey: string): Promise<Dict<SnippetsByC
               lineMap[line.line] = line;
               return lineMap;
             },
-            {}
+            {},
           );
         }
       });

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { DateRangePicker } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
-import DateRangeInput from '../../../components/controls/DateRangeInput';
-import { translate } from '../../../helpers/l10n';
+import { useIntl } from 'react-intl';
 
 interface ChangelogSearchProps {
   dateRange: { from?: Date; to?: Date } | undefined;
@@ -30,11 +30,23 @@ interface ChangelogSearchProps {
 
 export default function ChangelogSearch(props: ChangelogSearchProps) {
   const { dateRange } = props;
+
+  const intl = useIntl();
+
   return (
-    <div className="display-flex-end" id="quality-profile-changelog-form">
-      <DateRangeInput onChange={props.onDateRangeChange} value={dateRange} />
-      <Button className="spacer-left text-top" onClick={props.onReset}>
-        {translate('reset_verb')}
+    <div className="sw-flex sw-gap-2">
+      <DateRangePicker
+        startClearButtonLabel={intl.formatMessage({ id: 'clear.start' })}
+        endClearButtonLabel={intl.formatMessage({ id: 'clear.end' })}
+        fromLabel={intl.formatMessage({ id: 'start_date' })}
+        inputSize="small"
+        separatorText={intl.formatMessage({ id: 'to_' })}
+        toLabel={intl.formatMessage({ id: 'end_date' })}
+        onChange={props.onDateRangeChange}
+        value={dateRange}
+      />
+      <Button className="sw-ml-2 sw-align-top" onClick={props.onReset}>
+        {intl.formatMessage({ id: 'reset_verb' })}
       </Button>
     </div>
   );

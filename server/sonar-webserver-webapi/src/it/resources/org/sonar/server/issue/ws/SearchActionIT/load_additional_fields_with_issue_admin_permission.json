@@ -1,0 +1,30 @@
+{
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "assignee": "simon",
+      "actions": [
+        "comment",
+        "assign",
+        "set_tags",
+        "set_type",
+        "set_severity"
+      ],
+      "transitions": [
+        "accept",
+        "falsepositive",
+        "confirm",
+        "resolve",
+        "wontfix"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "login": "simon",
+      "name": "Simon",
+      "avatar": "ab0ec6adc38ad44a15105f207394946f",
+      "active": true
+    }
+  ]
+}

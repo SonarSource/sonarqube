@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,12 @@ package org.sonar.server.platform.web;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -35,9 +35,10 @@ import org.sonar.server.ws.ServletRequest;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 
-public class SonarLintConnectionFilter extends ServletFilter {
+public class SonarLintConnectionFilter extends HttpFilter {
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/api/*")
+    .excludes("/api/v2/*")
     .build();
   private final DbClient dbClient;
   private final ThreadLocalUserSession userSession;
@@ -55,25 +56,14 @@ public class SonarLintConnectionFilter extends ServletFilter {
   }
 
   @Override
-  public void doFilter(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException {
     ServletRequest wsRequest = new ServletRequest(request);
 
     Optional<String> agent = wsRequest.header("User-Agent");
     if (agent.isPresent() && agent.get().toLowerCase(Locale.ENGLISH).contains("sonarlint")) {
       update();
     }
-    chain.doFilter(servletRequest, servletResponse);
-  }
-
-  @Override
-  public void init(FilterConfig filterConfig) {
-    // Nothing to do
-  }
-
-  @Override
-  public void destroy() {
-    // Nothing to do
+    chain.doFilter(request, response);
   }
 
   public void update() {

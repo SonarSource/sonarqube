@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,10 +27,10 @@ public class WebhookTest {
 
   @Test
   public void webhook_with_only_required_fields() {
-    Webhook underTest = new Webhook("a_uuid", "a_component_uuid", null, null, "a_name", "an_url", null);
+    Webhook underTest = new Webhook("a_uuid", "a_project_uuid", null, null, "a_name", "an_url", null);
 
     assertThat(underTest.getUuid()).isEqualTo("a_uuid");
-    assertThat(underTest.getComponentUuid()).isEqualTo("a_component_uuid");
+    assertThat(underTest.getProjectUuid()).isEqualTo("a_project_uuid");
     assertThat(underTest.getCeTaskUuid()).isEmpty();
     assertThat(underTest.getAnalysisUuid()).isEmpty();
     assertThat(underTest.getName()).isEqualTo("a_name");
@@ -43,7 +43,7 @@ public class WebhookTest {
     Webhook underTest = new Webhook("a_uuid", "a_component_uuid", "a_task_uuid", "an_analysis", "a_name", "an_url", "a_secret");
 
     assertThat(underTest.getUuid()).isEqualTo("a_uuid");
-    assertThat(underTest.getComponentUuid()).isEqualTo("a_component_uuid");
+    assertThat(underTest.getProjectUuid()).isEqualTo("a_component_uuid");
     assertThat(underTest.getCeTaskUuid()).hasValue("a_task_uuid");
     assertThat(underTest.getAnalysisUuid()).hasValue("an_analysis");
     assertThat(underTest.getName()).isEqualTo("a_name");

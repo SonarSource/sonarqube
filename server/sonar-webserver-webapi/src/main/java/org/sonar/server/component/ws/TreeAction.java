@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -43,7 +42,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.i18n.I18n;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -64,9 +62,7 @@ import org.sonarqube.ws.Components.TreeWsResponse;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Paging.offset;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
@@ -74,8 +70,8 @@ import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrA
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
@@ -126,6 +122,8 @@ public class TreeAction implements ComponentsWsAction {
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
+        new Change("10.1", String.format("The use of 'BRC' as value for parameter '%s' is removed", PARAM_QUALIFIERS)),
         new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this)
@@ -222,13 +220,13 @@ public class TreeAction implements ComponentsWsAction {
     List<String> referenceComponentIds = components.stream()
       .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
-      .collect(toList());
+      .toList();
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
     }
 
     return dbClient.componentDao().selectByUuids(dbSession, referenceComponentIds).stream()
-      .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
+      .collect(Collectors.toMap(ComponentDto::uuid, java.util.function.Function.identity()));
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
@@ -260,34 +258,34 @@ public class TreeAction implements ComponentsWsAction {
       .filter(b -> !b.isMain())
       .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
 
-    response.setBaseComponent(toWsComponent(dbSession, baseComponent, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
+    boolean isMainBranch = dbClient.branchDao().selectByUuid(dbSession, baseComponent.branchUuid()).map(BranchDto::isMain).orElse(true);
+    response.setBaseComponent(toWsComponent(dbSession, baseComponent, isMainBranch, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
     for (ComponentDto dto : components) {
-      response.addComponents(toWsComponent(dbSession, dto, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
+      response.addComponents(toWsComponent(dbSession, dto, isMainBranch, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
     }
 
     return response.build();
   }
 
-  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component,
+  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, boolean isMainBranch,
     Map<String, ComponentDto> referenceComponentsByUuid, Map<String, String> branchKeyByReferenceUuid, Request request) {
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
 
     Components.Component.Builder wsComponent;
-    if (component.getMainBranchProjectUuid() == null && component.isRootProject() && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
+    if (isMainBranch && component.isRootProject() && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
       ProjectDto projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, component.getKey());
       wsComponent = projectOrAppToWsComponent(projectDto, organizationDto, null);
     } else {
-      Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
-        ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
+      ProjectDto parentProject = dbClient.projectDao().selectByBranchUuid(dbSession, component.branchUuid()).orElse(null);
 
       if (referenceComponent != null) {
-        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), null, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
-      } else if (component.getMainBranchProjectUuid() != null) {
-        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), null, request.branch, request.pullRequest);
+        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject, null, false, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
+      } else if (!isMainBranch) {
+        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject, null, false, request.branch, request.pullRequest);
       } else {
-        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), null, null, null);
+        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject, null, true, null, null);
       }
     }
 
@@ -352,7 +350,7 @@ public class TreeAction implements ComponentsWsAction {
 
   private static List<ComponentDto> paginateComponents(List<ComponentDto> components, Request wsRequest) {
     return components.stream().skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
-      .limit(wsRequest.getPageSize()).collect(toList());
+      .limit(wsRequest.getPageSize()).toList();
   }
 
   private static List<ComponentDto> sortComponents(List<ComponentDto> components, Request wsRequest) {

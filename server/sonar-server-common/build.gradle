@@ -8,28 +8,34 @@ sonar {
 
 dependencies {
   // please keep the list grouped by configuration and ordered by name
+  implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-  api 'org.apache.commons:commons-email'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'com.github.scribejava:scribejava-apis'
+  api 'com.github.scribejava:scribejava-core'
   api 'com.google.guava:guava'
-  api 'org.slf4j:slf4j-api'
   api 'com.squareup.okhttp3:okhttp'
+  api 'org.apache.commons:commons-email'
+  api 'org.apache.commons:commons-lang3'
+  api 'org.bouncycastle:bcprov-jdk18on'
   api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+  api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api project(':server:sonar-db-dao')
   api project(':server:sonar-db-migration')
   api project(':server:sonar-process')
+  api project(':server:sonar-telemetry-core')
   api project(':sonar-core')
   api project(':sonar-markdown')
   api project(':sonar-ws')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
-
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'org.elasticsearch.plugin:transport-netty4-client'
   testImplementation 'ch.qos.logback:logback-core'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
+  testImplementation 'org.subethamail:subethasmtp'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'com.squareup.okhttp3:okhttp-tls'
   testImplementation 'com.squareup.okio:okio'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
@@ -37,18 +43,33 @@ dependencies {
   testImplementation 'org.apache.logging.log4j:log4j-core'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation testFixtures(project(':server:sonar-db-dao'))
+  testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+  testImplementation testFixtures(project(':server:sonar-webserver-es'))
   testImplementation project(':sonar-plugin-api-impl')
   testImplementation project(':sonar-testing-harness')
-    
+
   testFixturesApi 'junit:junit'
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
   testFixturesImplementation 'org.elasticsearch.plugin:transport-netty4-client'
-
   testFixturesImplementation 'org.codelibs.elasticsearch.module:analysis-common'
   testFixturesImplementation 'org.codelibs.elasticsearch.module:reindex'
   testFixturesImplementation 'org.elasticsearch:mocksocket'
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

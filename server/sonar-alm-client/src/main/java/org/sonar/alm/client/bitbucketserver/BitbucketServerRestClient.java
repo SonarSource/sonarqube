@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,8 +38,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -47,12 +47,12 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.Locale.ENGLISH;
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
 
 @ServerSide
 public class BitbucketServerRestClient {
 
-  private static final Logger LOG = Loggers.get(BitbucketServerRestClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BitbucketServerRestClient.class);
   private static final String GET = "GET";
   protected static final String UNABLE_TO_CONTACT_BITBUCKET_SERVER = "Unable to contact Bitbucket server";
 

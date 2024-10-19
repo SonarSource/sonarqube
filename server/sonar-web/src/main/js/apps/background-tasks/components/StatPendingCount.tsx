@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, TrashIcon } from 'design-system';
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { colors } from '../../../app/theme';
-import { ClearButton } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
@@ -32,34 +31,37 @@ export interface Props {
   pendingCount?: number;
 }
 
-export function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Props) {
+function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Readonly<Props>) {
   if (pendingCount === undefined) {
     return null;
   }
 
   return (
-    <span>
-      <span className="emphasised-measure">{pendingCount}</span>
-      <span className="little-spacer-left display-inline-flex-center">
-        {translate('background_tasks.pending')}
-        {appState.canAdmin && pendingCount > 0 && (
-          <ConfirmButton
-            cancelButtonText={translate('close')}
-            confirmButtonText={translate('background_tasks.cancel_all_tasks.submit')}
-            isDestructive={true}
-            modalBody={translate('background_tasks.cancel_all_tasks.text')}
-            modalHeader={translate('background_tasks.cancel_all_tasks')}
-            onConfirm={onCancelAllPending}
-          >
-            {({ onClick }) => (
-              <Tooltip overlay={translate('background_tasks.cancel_all_tasks')}>
-                <ClearButton className="little-spacer-left" color={colors.red} onClick={onClick} />
-              </Tooltip>
-            )}
-          </ConfirmButton>
-        )}
-      </span>
-    </span>
+    <div className="sw-flex sw-items-center">
+      <span className="sw-typo-lg-semibold sw-mr-1">{pendingCount}</span>
+      {translate('background_tasks.pending')}
+      {appState.canAdmin && pendingCount > 0 && (
+        <ConfirmButton
+          cancelButtonText={translate('close')}
+          confirmButtonText={translate('background_tasks.cancel_all_tasks.submit')}
+          isDestructive
+          modalBody={translate('background_tasks.cancel_all_tasks.text')}
+          modalHeader={translate('background_tasks.cancel_all_tasks')}
+          onConfirm={onCancelAllPending}
+        >
+          {({ onClick }) => (
+            <Tooltip content={translate('background_tasks.cancel_all_tasks')}>
+              <DestructiveIcon
+                aria-label={translate('background_tasks.cancel_all_tasks')}
+                className="sw-ml-1"
+                Icon={TrashIcon}
+                onClick={onClick}
+              />
+            </Tooltip>
+          )}
+        </ConfirmButton>
+      )}
+    </div>
   );
 }
 

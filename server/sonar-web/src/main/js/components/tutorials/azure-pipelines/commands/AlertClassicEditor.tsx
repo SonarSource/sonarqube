@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from '../../../../components/ui/Alert';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys } from '../../../../types/alm-settings';
-import DocLink from '../../../common/DocLink';
 
 export default function AlertClassicEditor() {
+  const docUrl = useDocUrl(DocLink.AlmAzureIntegration);
+
   return (
-    <Alert variant="info" className="big-spacer-top">
-      <FormattedMessage
-        id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
-        defaultMessage={translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info')}
-        values={{
-          doc_link: (
-            <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
-              {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link')}
-            </DocLink>
-          ),
-        }}
-      />
-    </Alert>
+    <FlagMessage variant="info" className="sw-mt-4">
+      <span>
+        <FormattedMessage
+          id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+          defaultMessage={translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info')}
+          values={{
+            doc_link: (
+              <Link to={docUrl}>
+                {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link')}
+              </Link>
+            ),
+          }}
+        />
+      </span>
+    </FlagMessage>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -45,7 +45,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.SnapshotDto.STATUS_LIVE_MEASURE_COMPUTED;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
@@ -84,7 +83,8 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setSince("6.3")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setChangelog(
-        new Change("9.0", "Add field response 'detectedCI'"),
+        new Change("10.3", "Add response field 'qualityProfile' for events related to quality profile changes"),
+        new Change("9.0", "Add response field 'detectedCI'"),
         new Change("7.5", "Add QualityGate information on Applications"))
       .setHandler(this);
 
@@ -170,7 +170,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void addAnalyses(SearchData.Builder data) {
     SnapshotQuery dbQuery = new SnapshotQuery()
-      .setComponentUuid(data.getProject().uuid())
+      .setRootComponentUuid(data.getProject().uuid())
       .setStatuses(data.getRequest().getStatuses())
       .setSort(BY_DATE, DESC);
     ofNullable(data.getRequest().getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
@@ -185,7 +185,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
   }
 
   private void addEvents(SearchData.Builder data) {
-    List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).collect(toList());
+    List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).toList();
     data.setEvents(dbClient.eventDao().selectByAnalysisUuids(data.getDbSession(), analyses));
     data.setComponentChanges(dbClient.eventComponentChangeDao().selectByAnalysisUuids(data.getDbSession(), analyses));
   }

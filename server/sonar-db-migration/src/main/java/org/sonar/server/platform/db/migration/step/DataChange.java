@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -87,6 +87,9 @@ public abstract class DataChange implements MigrationStep {
 
     public MassUpdate prepareMassUpdate() {
       return new MassUpdate(db, readConnection, writeConnection);
+    }
+    public <T> MassRowSplitter<T> prepareMassRowSplitter() {
+      return new MassRowSplitter<>(db, readConnection, writeConnection);
     }
   }
 

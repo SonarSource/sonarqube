@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -58,6 +58,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private final DefaultIndexedFile indexedFile;
   private final String contents;
   private final Consumer<DefaultInputFile> metadataGenerator;
+  private final Consumer<DefaultInputFile> scmStatusGenerator;
 
   private boolean published;
   private boolean excludedForCoverage;
@@ -73,15 +74,17 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private boolean markedAsUnchanged;
 
 
-  public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
-    this(indexedFile, metadataGenerator, null);
+  public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator, Consumer<DefaultInputFile> scmStatusGenerator) {
+    this(indexedFile, metadataGenerator, null, scmStatusGenerator);
   }
 
   // For testing
-  public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator, @Nullable String contents) {
+  public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator, @Nullable String contents,
+    Consumer<DefaultInputFile> scmStatusGenerator) {
     super(indexedFile.scannerId());
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
+    this.scmStatusGenerator = scmStatusGenerator;
     this.metadata = null;
     this.markedAsUnchanged = false;
     this.published = false;
@@ -92,6 +95,12 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   public void checkMetadata() {
     if (metadata == null) {
       metadataGenerator.accept(this);
+    }
+  }
+
+  private void checkScmStatus() {
+    if(status == null) {
+      scmStatusGenerator.accept(this);
     }
   }
 
@@ -232,8 +241,16 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
    */
   @Override
   public Status status() {
-    checkMetadata();
+    checkScmStatus();
+    if(status == null) {
+      // scm might not be available, fallback to using hashes in the metadata
+      checkMetadata();
+    }
     return status;
+  }
+
+  public boolean isStatusSet() {
+    return status != null;
   }
 
   @Override
@@ -262,7 +279,8 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   /**
    * Digest hash of the file.
    */
-  public String hash() {
+  @Override
+  public String md5Hash() {
     checkMetadata();
     return metadata.hash();
   }

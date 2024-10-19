@@ -4,8 +4,11 @@ exports[`getCodeMetrics should return the right metrics for apps 1`] = `
 [
   "alert_status",
   "ncloc",
-  "bugs",
+  "security_issues",
+  "reliability_issues",
+  "maintainability_issues",
   "vulnerabilities",
+  "bugs",
   "code_smells",
   "security_hotspots",
   "coverage",
@@ -16,16 +19,22 @@ exports[`getCodeMetrics should return the right metrics for apps 1`] = `
 exports[`getCodeMetrics should return the right metrics for portfolios 1`] = `
 [
   "releasability_rating",
-  "new_reliability_rating",
   "new_security_rating",
-  "new_security_review_rating",
+  "new_software_quality_security_rating",
+  "new_reliability_rating",
+  "new_software_quality_reliability_rating",
   "new_maintainability_rating",
+  "new_software_quality_maintainability_rating",
+  "new_security_review_rating",
   "new_lines",
   "releasability_rating",
-  "reliability_rating",
   "security_rating",
-  "security_review_rating",
+  "software_quality_security_rating",
+  "reliability_rating",
+  "software_quality_reliability_rating",
   "sqale_rating",
+  "software_quality_maintainability_rating",
+  "security_review_rating",
   "ncloc",
 ]
 `;
@@ -33,16 +42,22 @@ exports[`getCodeMetrics should return the right metrics for portfolios 1`] = `
 exports[`getCodeMetrics should return the right metrics for portfolios 2`] = `
 [
   "releasability_rating",
-  "new_reliability_rating",
   "new_security_rating",
-  "new_security_review_rating",
+  "new_software_quality_security_rating",
+  "new_reliability_rating",
+  "new_software_quality_reliability_rating",
   "new_maintainability_rating",
+  "new_software_quality_maintainability_rating",
+  "new_security_review_rating",
   "new_lines",
   "releasability_rating",
-  "reliability_rating",
   "security_rating",
-  "security_review_rating",
+  "software_quality_security_rating",
+  "reliability_rating",
+  "software_quality_reliability_rating",
   "sqale_rating",
+  "software_quality_maintainability_rating",
+  "security_review_rating",
   "ncloc",
   "alert_status",
 ]
@@ -51,10 +66,13 @@ exports[`getCodeMetrics should return the right metrics for portfolios 2`] = `
 exports[`getCodeMetrics should return the right metrics for portfolios 3`] = `
 [
   "releasability_rating",
-  "new_reliability_rating",
   "new_security_rating",
-  "new_security_review_rating",
+  "new_software_quality_security_rating",
+  "new_reliability_rating",
+  "new_software_quality_reliability_rating",
   "new_maintainability_rating",
+  "new_software_quality_maintainability_rating",
+  "new_security_review_rating",
   "new_lines",
   "alert_status",
 ]
@@ -63,10 +81,13 @@ exports[`getCodeMetrics should return the right metrics for portfolios 3`] = `
 exports[`getCodeMetrics should return the right metrics for portfolios 4`] = `
 [
   "releasability_rating",
-  "reliability_rating",
   "security_rating",
-  "security_review_rating",
+  "software_quality_security_rating",
+  "reliability_rating",
+  "software_quality_reliability_rating",
   "sqale_rating",
+  "software_quality_maintainability_rating",
+  "security_review_rating",
   "ncloc",
   "alert_status",
 ]
@@ -75,8 +96,11 @@ exports[`getCodeMetrics should return the right metrics for portfolios 4`] = `
 exports[`getCodeMetrics should return the right metrics for projects 1`] = `
 [
   "ncloc",
-  "bugs",
+  "security_issues",
+  "reliability_issues",
+  "maintainability_issues",
   "vulnerabilities",
+  "bugs",
   "code_smells",
   "security_hotspots",
   "coverage",
@@ -87,8 +111,11 @@ exports[`getCodeMetrics should return the right metrics for projects 1`] = `
 exports[`getCodeMetrics should return the right metrics for projects 2`] = `
 [
   "new_lines",
-  "bugs",
+  "security_issues",
+  "reliability_issues",
+  "maintainability_issues",
   "vulnerabilities",
+  "bugs",
   "code_smells",
   "security_hotspots",
   "new_coverage",

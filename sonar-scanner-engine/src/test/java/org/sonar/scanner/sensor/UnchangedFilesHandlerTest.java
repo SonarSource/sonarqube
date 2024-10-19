@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,11 +22,12 @@ package org.sonar.scanner.sensor;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.DefaultBranchConfiguration;
 
@@ -54,6 +55,7 @@ public class UnchangedFilesHandlerTest {
 
   @Test
   public void not_active_if_its_pr() {
+    logTester.setLevel(Level.DEBUG);
     BranchConfiguration prConfig = branchConfiguration(null, null, true);
     UnchangedFilesHandler handler = new UnchangedFilesHandler(enabledConfig, prConfig, executingSensorContext);
     assertThat(logTester.logs()).contains("Optimization for unchanged files not enabled because it's not an analysis of a branch with a previous analysis");
@@ -64,6 +66,7 @@ public class UnchangedFilesHandlerTest {
 
   @Test
   public void not_active_if_using_different_reference() {
+    logTester.setLevel(Level.DEBUG);
     BranchConfiguration differentRefConfig = branchConfiguration("a", "b", false);
     UnchangedFilesHandler handler = new UnchangedFilesHandler(enabledConfig, differentRefConfig, executingSensorContext);
     assertThat(logTester.logs()).contains("Optimization for unchanged files not enabled because it's not an analysis of a branch with a previous analysis");

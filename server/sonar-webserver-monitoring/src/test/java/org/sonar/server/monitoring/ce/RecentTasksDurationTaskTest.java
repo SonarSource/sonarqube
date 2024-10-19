@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,8 +29,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDao;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +46,7 @@ public class RecentTasksDurationTaskTest {
 
   private final DbClient dbClient = mock(DbClient.class);
   private final CeActivityDao ceActivityDao = mock(CeActivityDao.class);
-  private final ComponentDao componentDao = mock(ComponentDao.class);
+  private final EntityDao entityDao = mock(EntityDao.class);
   private final ServerMonitoringMetrics metrics = mock(ServerMonitoringMetrics.class);
   private final Configuration config = mock(Configuration.class);
   private final System2 system = mock(System2.class);
@@ -52,7 +54,7 @@ public class RecentTasksDurationTaskTest {
   @Before
   public void before() {
     when(dbClient.ceActivityDao()).thenReturn(ceActivityDao);
-    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.entityDao()).thenReturn(entityDao);
     ComponentDto componentDto = new ComponentDto();
     componentDto.setKey("key");
   }
@@ -62,7 +64,7 @@ public class RecentTasksDurationTaskTest {
     RecentTasksDurationTask task = new RecentTasksDurationTask(dbClient, metrics, config, system);
     List<CeActivityDto> recentTasks = createTasks(5, 0);
 
-    when(componentDao.selectByUuids(any(), any())).thenReturn(createComponentDtos(5));
+    when(entityDao.selectByUuids(any(), any())).thenReturn(createEntityDtos(5));
     when(ceActivityDao.selectNewerThan(any(), anyLong())).thenReturn(recentTasks);
 
     task.run();
@@ -75,7 +77,7 @@ public class RecentTasksDurationTaskTest {
     RecentTasksDurationTask task = new RecentTasksDurationTask(dbClient, metrics, config, system);
     List<CeActivityDto> recentTasks = createTasks(1, 1);
 
-    when(componentDao.selectByUuids(any(), any())).thenReturn(createComponentDtos(1));
+    when(entityDao.selectByUuids(any(), any())).thenReturn(createEntityDtos(1));
     when(ceActivityDao.selectNewerThan(any(), anyLong())).thenReturn(recentTasks);
 
     task.run();
@@ -89,7 +91,7 @@ public class RecentTasksDurationTaskTest {
     List<CeActivityDto> recentTasks = createTasks(1, 0);
     recentTasks.get(0).setExecutionTimeMs(null);
 
-    when(componentDao.selectByUuids(any(), any())).thenReturn(createComponentDtos(1));
+    when(entityDao.selectByUuids(any(), any())).thenReturn(createEntityDtos(1));
     when(ceActivityDao.selectNewerThan(any(), anyLong())).thenReturn(recentTasks);
 
     task.run();
@@ -111,21 +113,21 @@ public class RecentTasksDurationTaskTest {
     return dtos;
   }
 
-  private List<ComponentDto> createComponentDtos(int number) {
-    List<ComponentDto> componentDtos = new ArrayList<>();
+  private List<EntityDto> createEntityDtos(int number) {
+    List<EntityDto> entityDtos = new ArrayList<>();
     for(int i=0; i<5; i++) {
-      ComponentDto component = new ComponentDto();
-      component.setUuid(i + "");
-      component.setKey(i + "");
-      componentDtos.add(component);
+      ProjectDto entity = new ProjectDto();
+      entity.setUuid(i + "");
+      entity.setKey(i + "");
+      entityDtos.add(entity);
     }
-    return componentDtos;
+    return entityDtos;
   }
 
   private CeActivityDto newCeActivityTask(CeActivityDto.Status status) {
     CeActivityDto dto = new CeActivityDto(new CeQueueDto());
     dto.setStatus(status);
-    dto.setMainComponentUuid("0");
+    dto.setEntityUuid("0");
     dto.setExecutionTimeMs(1000L);
     return dto;
   }

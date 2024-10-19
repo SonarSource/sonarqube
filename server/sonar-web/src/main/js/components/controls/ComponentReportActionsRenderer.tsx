@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,86 +17,96 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  ChevronDownIcon,
+  Dropdown,
+  ItemButton,
+  ItemDownload,
+  PopupPlacement,
+  PopupZLevel,
+} from 'design-system';
 import * as React from 'react';
 import { getReportUrl } from '../../api/component-report';
-import { Button } from '../../components/controls/buttons';
-import Dropdown from '../../components/controls/Dropdown';
-import DropdownIcon from '../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Branch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 
 export interface ComponentReportActionsRendererProps {
-  component: Component;
   branch?: Branch;
-  frequency: string;
-  subscribed: boolean;
   canSubscribe: boolean;
+  component: Component;
   currentUserHasEmail: boolean;
+  frequency: string;
   handleSubscription: () => void;
   handleUnsubscription: () => void;
+  subscribed: boolean;
 }
+
+const getSubscriptionText = ({
+  currentUserHasEmail,
+  frequency,
+  subscribed,
+}: Pick<
+  ComponentReportActionsRendererProps,
+  'currentUserHasEmail' | 'frequency' | 'subscribed'
+>) => {
+  if (!currentUserHasEmail) {
+    return translate('component_report.no_email_to_subscribe');
+  }
+
+  const translationKey = subscribed
+    ? 'component_report.unsubscribe_x'
+    : 'component_report.subscribe_x';
+  const frequencyTranslation = translate('report.frequency', frequency).toLowerCase();
+
+  return translateWithParameters(translationKey, frequencyTranslation);
+};
 
 export default function ComponentReportActionsRenderer(props: ComponentReportActionsRendererProps) {
   const { branch, component, frequency, subscribed, canSubscribe, currentUserHasEmail } = props;
 
-  const renderDownloadButton = (simple = false) => {
-    return (
-      <a
-        download={[component.name, branch?.name, 'PDF Report.pdf'].filter((s) => !!s).join(' - ')}
-        href={getReportUrl(component.key, branch?.name)}
-        target="_blank"
-        data-test="overview__download-pdf-report-button"
-        rel="noopener noreferrer"
-      >
-        {simple
-          ? translate('download_verb')
-          : translateWithParameters(
-              'component_report.download',
-              translate('qualifier', component.qualifier).toLowerCase()
-            )}
-      </a>
-    );
-  };
-
-  const renderSubscriptionButton = () => {
-    if (!currentUserHasEmail) {
-      return (
-        <span className="text-muted-2">{translate('component_report.no_email_to_subscribe')}</span>
-      );
-    }
-
-    const translationKey = subscribed
-      ? 'component_report.unsubscribe_x'
-      : 'component_report.subscribe_x';
-    const onClickHandler = subscribed ? props.handleUnsubscription : props.handleSubscription;
-    const frequencyTranslation = translate('report.frequency', frequency).toLowerCase();
-
-    return (
-      <a href="#" onClick={onClickHandler} data-test="overview__subscribe-to-report-button">
-        {translateWithParameters(translationKey, frequencyTranslation)}
-      </a>
-    );
-  };
+  const downloadName = [component.name, branch?.name, 'PDF Report.pdf']
+    .filter((s) => !!s)
+    .join(' - ');
+  const reportUrl = getReportUrl(component.key, branch?.name);
 
   return canSubscribe ? (
     <Dropdown
+      id="component-report"
+      size="auto"
+      allowResizing
+      placement={PopupPlacement.BottomRight}
+      zLevel={PopupZLevel.Default}
       overlay={
-        <ul className="menu">
-          <li>{renderDownloadButton(true)}</li>
-          <li>{renderSubscriptionButton()}</li>
-        </ul>
+        <>
+          <ItemDownload download={downloadName} href={reportUrl}>
+            {translate('download_verb')}
+          </ItemDownload>
+          <ItemButton
+            disabled={!currentUserHasEmail}
+            data-test="overview__subscribe-to-report-button"
+            onClick={subscribed ? props.handleUnsubscription : props.handleSubscription}
+          >
+            {getSubscriptionText({ currentUserHasEmail, frequency, subscribed })}
+          </ItemButton>
+        </>
       }
     >
-      <Button className="dropdown-toggle">
+      <ButtonSecondary>
         {translateWithParameters(
           'component_report.report',
-          translate('qualifier', component.qualifier)
+          translate('qualifier', component.qualifier),
         )}
-        <DropdownIcon className="spacer-left" />
-      </Button>
+        <ChevronDownIcon className="sw-ml-1" />
+      </ButtonSecondary>
     </Dropdown>
   ) : (
-    renderDownloadButton()
+    <a download={downloadName} href={reportUrl} target="_blank" rel="noopener noreferrer">
+      {translateWithParameters(
+        'component_report.download',
+        translate('qualifier', component.qualifier).toLowerCase(),
+      )}
+    </a>
   );
 }

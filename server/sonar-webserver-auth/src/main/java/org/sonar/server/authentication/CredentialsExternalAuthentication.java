@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.security.Authenticator;
@@ -34,17 +36,17 @@ import org.sonar.api.security.UserDetails;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 /**
@@ -52,7 +54,7 @@ import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
  */
 public class CredentialsExternalAuthentication implements Startable {
 
-  private static final Logger LOG = Loggers.get(CredentialsExternalAuthentication.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CredentialsExternalAuthentication.class);
 
   private final Configuration config;
   private final SecurityRealmFactory securityRealmFactory;
@@ -82,16 +84,17 @@ public class CredentialsExternalAuthentication implements Startable {
     }
   }
 
-  public Optional<UserDto> authenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
+  public Optional<UserDto> authenticate(Credentials credentials, HttpRequest request, AuthenticationEvent.Method method) {
     if (realm == null) {
       return Optional.empty();
     }
     return Optional.of(doAuthenticate(fixCase(credentials), request, method));
   }
 
-  private UserDto doAuthenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
+  private UserDto doAuthenticate(Credentials credentials, HttpRequest request, AuthenticationEvent.Method method) {
     try {
-      ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(credentials.getLogin(), request);
+      HttpServletRequest httpServletRequest = ((JavaxHttpRequest) request).getDelegate();
+      ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(credentials.getLogin(), request, httpServletRequest);
       UserDetails details = externalUsersProvider.doGetUserDetails(externalUsersProviderContext);
       if (details == null) {
         throw AuthenticationException.newBuilder()
@@ -100,7 +103,8 @@ public class CredentialsExternalAuthentication implements Startable {
           .setMessage("No user details")
           .build();
       }
-      Authenticator.Context authenticatorContext = new Authenticator.Context(credentials.getLogin(), credentials.getPassword().orElse(null), request);
+
+      Authenticator.Context authenticatorContext = new Authenticator.Context(credentials.getLogin(), credentials.getPassword().orElse(null), request, httpServletRequest);
       boolean status = authenticator.doAuthenticate(authenticatorContext);
       if (!status) {
         throw AuthenticationException.newBuilder()
@@ -129,14 +133,15 @@ public class CredentialsExternalAuthentication implements Startable {
     return Source.realm(method, realm.getName());
   }
 
-  private UserDto synchronize(String userLogin, UserDetails details, HttpServletRequest request, AuthenticationEvent.Method method) {
+  private UserDto synchronize(String userLogin, UserDetails details, HttpRequest request, AuthenticationEvent.Method method) {
     String name = details.getName();
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
       .setName(isEmpty(name) ? userLogin : name)
       .setEmail(trimToNull(details.getEmail()))
       .setProviderLogin(userLogin);
     if (externalGroupsProvider != null) {
-      ExternalGroupsProvider.Context context = new ExternalGroupsProvider.Context(userLogin, request);
+      HttpServletRequest httpServletRequest = ((JavaxHttpRequest) request).getDelegate();
+      ExternalGroupsProvider.Context context = new ExternalGroupsProvider.Context(userLogin, request, httpServletRequest);
       Collection<String> groups = externalGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }

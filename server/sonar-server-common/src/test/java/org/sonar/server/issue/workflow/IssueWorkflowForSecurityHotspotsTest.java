@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.Issue;
@@ -36,10 +36,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;
@@ -293,7 +292,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
   }
 
   private Collection<String> keys(List<Transition> transitions) {
-    return transitions.stream().map(Transition::key).collect(MoreCollectors.toList());
+    return transitions.stream().map(Transition::key).toList();
   }
 
   private static void setStatusPreviousToClosed(DefaultIssue hotspot, String previousStatus, @Nullable String previousResolution, @Nullable String newResolution) {

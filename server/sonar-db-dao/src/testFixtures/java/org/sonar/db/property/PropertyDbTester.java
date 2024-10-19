@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,28 +28,25 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
 public class PropertyDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public PropertyDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public PropertyDto insertProperty(PropertyDto property, @Nullable String componentKey,
     @Nullable String componentName, @Nullable String qualifier, @Nullable String userLogin) {
-    dbClient.propertiesDao().saveProperty(dbSession, property, userLogin, componentKey, componentName, qualifier);
+    dbClient.propertiesDao().saveProperty(db.getSession(), property, userLogin, componentKey, componentName, qualifier);
     db.commit();
 
     return property;
@@ -63,28 +60,28 @@ public class PropertyDbTester {
   public void insertProperties(List<PropertyDto> properties, @Nullable String userLogin, @Nullable String projectKey,
     @Nullable String projectName, @Nullable String qualifier) {
     for (PropertyDto propertyDto : properties) {
-      dbClient.propertiesDao().saveProperty(dbSession, propertyDto, userLogin, projectKey, projectName, qualifier);
+      dbClient.propertiesDao().saveProperty(db.getSession(), propertyDto, userLogin, projectKey, projectName, qualifier);
     }
-    dbSession.commit();
+    db.commit();
   }
 
   public void insertProperty(String propKey, String propValue, @Nullable String componentUuid) {
     insertProperties(singletonList(new PropertyDto()
         .setKey(propKey)
         .setValue(propValue)
-        .setComponentUuid(componentUuid)),
+        .setEntityUuid(componentUuid)),
       null, null, null, null);
   }
 
-  public void insertPropertySet(String settingBaseKey, @Nullable ComponentDto componentDto, Map<String, String>... fieldValues) {
+  public void insertPropertySet(String settingBaseKey, @Nullable EntityDto entity, Map<String, String>... fieldValues) {
     int index = 1;
     List<PropertyDto> propertyDtos = new ArrayList<>();
     List<String> ids = new ArrayList<>();
     for (Map<String, String> fieldValue : fieldValues) {
       for (Map.Entry<String, String> entry : fieldValue.entrySet()) {
         String key = settingBaseKey + "." + index + "." + entry.getKey();
-        if (componentDto != null) {
-          propertyDtos.add(newComponentPropertyDto(componentDto).setKey(key).setValue(entry.getValue()));
+        if (entity != null) {
+          propertyDtos.add(newComponentPropertyDto(entity).setKey(key).setValue(entry.getValue()));
         } else {
           propertyDtos.add(newGlobalPropertyDto().setKey(key).setValue(entry.getValue()));
         }
@@ -93,14 +90,14 @@ public class PropertyDbTester {
       index++;
     }
     String idsValue = Joiner.on(",").join(ids);
-    if (componentDto != null) {
-      propertyDtos.add(newComponentPropertyDto(componentDto).setKey(settingBaseKey).setValue(idsValue));
+    if (entity != null) {
+      propertyDtos.add(newComponentPropertyDto(entity).setKey(settingBaseKey).setValue(idsValue));
     } else {
       propertyDtos.add(newGlobalPropertyDto().setKey(settingBaseKey).setValue(idsValue));
     }
-    String componentKey = componentDto == null ? null : componentDto.getKey();
-    String componentName = componentDto == null ? null : componentDto.name();
-    String qualififer = componentDto == null ? null : componentDto.qualifier();
+    String componentKey = entity == null ? null : entity.getKey();
+    String componentName = entity == null ? null : entity.getName();
+    String qualififer = entity == null ? null : entity.getQualifier();
     insertProperties(propertyDtos, null, componentKey, componentName, qualififer);
   }
 
@@ -110,6 +107,6 @@ public class PropertyDbTester {
       .setKey(key)
       .build();
 
-    return dbClient.propertiesDao().selectByQuery(query, dbSession).stream().findFirst();
+    return dbClient.propertiesDao().selectByQuery(query, db.getSession()).stream().findFirst();
   }
 }

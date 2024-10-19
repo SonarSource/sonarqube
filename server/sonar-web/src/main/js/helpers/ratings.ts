@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 const RATING_GRID_SIZE = 4;
 export const PERCENT_MULTIPLIER = 100;
 export const DIFF_METRIC_PREFIX_LENGTH = 4;
@@ -47,12 +46,6 @@ export function getDuplicationsRatingLabel(rating: number): string {
   return mapping[rating - 1];
 }
 
-export function getDuplicationsRatingAverageValue(rating: number): number {
-  checkNumberRating(rating);
-  const mapping = [1.5, 4, 7.5, 15, 30];
-  return mapping[rating - 1];
-}
-
 export function getSizeRatingLabel(rating: number): string {
   checkNumberRating(rating);
   const mapping = ['< 1k', '1k - 10k', '10k - 100k', '100k - 500k', '> 500k'];
@@ -73,3 +66,8 @@ export const getMaintainabilityGrid = (ratingGridSetting: string) => {
 
   return numbers.length === RATING_GRID_SIZE ? numbers : [0, 0, 0, 0];
 };
+
+const DUPLICATION_RATINGS: ['A', 'B', 'C', 'D', 'E', 'F'] = ['A', 'B', 'C', 'D', 'E', 'F'];
+export function duplicationValueToRating(val: number) {
+  return DUPLICATION_RATINGS[val - 1];
+}

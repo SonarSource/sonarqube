@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,26 +18,54 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Profile as BaseProfile } from '../../api/quality-profiles';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
+import { IssueSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
 
 export interface Profile extends BaseProfile {
-  depth: number;
   childrenCount: number;
+  depth: number;
 }
 
 export interface Exporter {
   key: string;
-  name: string;
   languages: string[];
+  name: string;
+}
+
+export interface ProfileChangelogEventImpactChange {
+  newSeverity?: SoftwareImpactSeverity;
+  newSoftwareQuality?: SoftwareQuality;
+  oldSeverity?: SoftwareImpactSeverity;
+  oldSoftwareQuality?: SoftwareQuality;
 }
 
 export interface ProfileChangelogEvent {
   action: string;
-  authorName: string;
+  authorName?: string;
+  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   date: string;
-  params?: Dict<string | null>;
+  // impacts should be always set in the wild. But Next currently has a specific database state for which this field is undefined. May be possible to make this field required in the future.
+  impacts?: {
+    severity: SoftwareImpactSeverity;
+    softwareQuality: SoftwareQuality;
+  }[];
+  params?: {
+    impactChanges?: ProfileChangelogEventImpactChange[];
+    newCleanCodeAttribute?: CleanCodeAttribute;
+    newCleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+    oldCleanCodeAttribute?: CleanCodeAttribute;
+    oldCleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+    severity?: IssueSeverity;
+  } & Dict<string | ProfileChangelogEventImpactChange[] | null>;
   ruleKey: string;
   ruleName: string;
+  sonarQubeVersion: string;
 }
 
 export enum ProfileActionModals {

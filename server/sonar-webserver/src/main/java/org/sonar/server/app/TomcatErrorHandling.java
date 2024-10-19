@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,9 @@ import org.apache.catalina.valves.ErrorReportValve;
 
 public class TomcatErrorHandling {
   void configure(Tomcat tomcat) {
-    ErrorReportValve valve = new SecureErrorReportValve();
+    // This needs to be an instance of ErrrorReportValue, otherwise
+    // Tomcat 9's StandardHost will add another ErrorReportValve with the default values
+    ErrorReportValve valve = new ErrorReportValve();
     valve.setShowServerInfo(false);
     valve.setShowReport(false);
     tomcat.getHost().getPipeline().addValve(valve);

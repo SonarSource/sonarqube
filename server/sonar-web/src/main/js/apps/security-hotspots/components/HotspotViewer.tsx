@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getCve } from '../../../api/cves';
 import { getRuleDetails } from '../../../api/rules';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
-import { scrollToElement } from '../../../helpers/scrolling';
+import { get } from '../../../helpers/storage';
+import { Cve } from '../../../types/cves';
+import { Standards } from '../../../types/security';
 import {
   Hotspot,
   HotspotStatusFilter,
@@ -28,37 +31,38 @@ import {
 } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
+import { SHOW_STATUS_DIALOG_STORAGE_KEY } from '../constants';
 import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
   component: Component;
+  cveId?: string;
   hotspotKey: string;
   hotspotsReviewedMeasure?: string;
+  onLocationClick: (index: number) => void;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
-  onLocationClick: (index: number) => void;
   selectedHotspotLocation?: number;
+  standards?: Standards;
 }
 
 interface State {
+  cve?: Cve;
   hotspot?: Hotspot;
-  ruleDescriptionSections?: RuleDescriptionSection[];
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
+  ruleDescriptionSections?: RuleDescriptionSection[];
+  ruleLanguage?: string;
   showStatusUpdateSuccessModal: boolean;
 }
-
-const SCROLL_TO_COMMENT_BOTTOM_OFFSET = 300;
 
 export default class HotspotViewer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
-  commentTextRef: React.RefObject<HTMLTextAreaElement>;
 
   constructor(props: Props) {
     super(props);
-    this.commentTextRef = React.createRef<HTMLTextAreaElement>();
     this.state = { loading: false, showStatusUpdateSuccessModal: false };
   }
 
@@ -79,16 +83,22 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
 
   fetchHotspot = async () => {
     this.setState({ loading: true });
+
     try {
-      const { hotspotKey, component } = this.props;
-      const hotspot = await getSecurityHotspotDetails(hotspotKey);
-      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key, organization: component.organization }).then((r) => r.rule);
+      const hotspot = await getSecurityHotspotDetails(this.props.hotspotKey);
+      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then((r) => r.rule);
+      let cve;
+      if (typeof this.props.cveId === 'string') {
+        cve = await getCve(this.props.cveId);
+      }
 
       if (this.mounted) {
         this.setState({
           hotspot,
           loading: false,
+          ruleLanguage: ruleDetails.lang,
           ruleDescriptionSections: ruleDetails.descriptionSections,
+          cve,
         });
       }
     } catch (error) {
@@ -102,24 +112,19 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     const { hotspotKey } = this.props;
 
     if (statusUpdate) {
-      this.setState({ lastStatusChangedTo: statusOption, showStatusUpdateSuccessModal: true });
+      this.setState({
+        lastStatusChangedTo: statusOption,
+        showStatusUpdateSuccessModal: get(SHOW_STATUS_DIALOG_STORAGE_KEY) !== 'false',
+      });
       await this.props.onUpdateHotspot(hotspotKey);
     } else {
       await this.fetchHotspot();
     }
   };
 
-  handleScrollToCommentForm = () => {
-    if (this.commentTextRef.current) {
-      this.commentTextRef.current.focus({ preventScroll: true });
-      scrollToElement(this.commentTextRef.current, {
-        bottomOffset: SCROLL_TO_COMMENT_BOTTOM_OFFSET,
-      });
-    }
-  };
-
   handleSwitchFilterToStatusOfUpdatedHotspot = () => {
     const { lastStatusChangedTo } = this.state;
+
     if (lastStatusChangedTo) {
       this.props.onSwitchStatusFilter(getStatusFilterFromStatusOption(lastStatusChangedTo));
     }
@@ -130,31 +135,35 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, hotspotsReviewedMeasure, selectedHotspotLocation } = this.props;
+    const { component, hotspotsReviewedMeasure, selectedHotspotLocation, standards } = this.props;
+
     const {
       hotspot,
       ruleDescriptionSections,
-      lastStatusChangedTo,
+      ruleLanguage,
+      cve,
       loading,
       showStatusUpdateSuccessModal,
+      lastStatusChangedTo,
     } = this.state;
 
     return (
       <HotspotViewerRenderer
         component={component}
-        commentTextRef={this.commentTextRef}
         hotspot={hotspot}
-        ruleDescriptionSections={ruleDescriptionSections}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         lastStatusChangedTo={lastStatusChangedTo}
         loading={loading}
         onCloseStatusUpdateSuccessModal={this.handleCloseStatusUpdateSuccessModal}
-        onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
-        onShowCommentForm={this.handleScrollToCommentForm}
-        onUpdateHotspot={this.handleHotspotUpdate}
         onLocationClick={this.props.onLocationClick}
-        showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
+        onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
+        onUpdateHotspot={this.handleHotspotUpdate}
+        ruleDescriptionSections={ruleDescriptionSections}
+        ruleLanguage={ruleLanguage}
+        cve={cve}
         selectedHotspotLocation={selectedHotspotLocation}
+        showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
+        standards={standards}
       />
     );
   }

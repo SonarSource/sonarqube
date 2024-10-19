@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,22 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DropdownMenu, InputSearch, ItemDivider, Link } from 'design-system';
 import * as React from 'react';
-import Link from '../../../../../components/common/Link';
-import { DropdownOverlay } from '../../../../../components/controls/Dropdown';
-import SearchBox from '../../../../../components/controls/SearchBox';
-import { Router, withRouter } from '../../../../../components/hoc/withRouter';
-import {
-  getBrancheLikesAsTree,
-  isBranch,
-  isPullRequest,
-  isSameBranchLike,
-} from '../../../../../helpers/branch-like';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { Router } from '~sonar-aligned/types/router';
+import { getBrancheLikesAsTree, isSameBranchLike } from '../../../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../../../helpers/keycodes';
 import { translate } from '../../../../../helpers/l10n';
-import { getBranchLikeUrl, queryToSearch } from '../../../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../../../helpers/urls';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
-import { ComponentQualifier } from '../../../../../types/component';
 import { Component } from '../../../../../types/types';
 import MenuItemList from './MenuItemList';
 
@@ -41,8 +37,8 @@ interface Props {
   canAdminComponent?: boolean;
   component: Component;
   currentBranchLike: BranchLike;
-  onClose: () => void;
   comparisonBranchesEnabled: boolean;
+  onClose: () => void;
   router: Router;
 }
 
@@ -95,7 +91,7 @@ export class Menu extends React.PureComponent<Props, State> {
 
   highlightSiblingBranchlike = (indexDelta: number) => {
     const selectBranchLikeIndex = this.state.branchLikesToDisplay.findIndex((b) =>
-      isSameBranchLike(b, this.state.selectedBranchLike)
+      isSameBranchLike(b, this.state.selectedBranchLike),
     );
     const newIndex = selectBranchLikeIndex + indexDelta;
 
@@ -136,7 +132,7 @@ export class Menu extends React.PureComponent<Props, State> {
       isPullRequest(pr) && (pr.title.toLowerCase().includes(q) || pr.key.toLowerCase().includes(q));
 
     const filteredBranchLikes = this.props.branchLikes.filter(
-      (bl) => filterBranch(bl) || filterPullRequest(bl)
+      (bl) => filterBranch(bl) || filterPullRequest(bl),
     );
 
     this.setState({
@@ -154,51 +150,58 @@ export class Menu extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { canAdminComponent, component, onClose } = this.props;
+    const { canAdminComponent, component, comparisonBranchesEnabled, onClose } = this.props;
     const { branchLikesToDisplay, branchLikesToDisplayTree, query, selectedBranchLike } =
       this.state;
-
     const showManageLink = component.qualifier === ComponentQualifier.Project && canAdminComponent;
     const hasResults = branchLikesToDisplay.length > 0;
 
     return (
-      <DropdownOverlay className="branch-like-navigation-menu" noPadding={true}>
-        <div className="search-box-container">
-          <SearchBox
-            autoFocus={true}
-            onChange={this.handleSearchChange}
-            onKeyDown={this.handleKeyDown}
-            placeholder={translate('branch_like_navigation.search_for_branch_like')}
-            value={query}
-          />
-        </div>
-
-        <div className="item-list-container">
-          <MenuItemList
-            branchLikeTree={branchLikesToDisplayTree}
-            component={component}
-            hasResults={hasResults}
-            onSelect={this.handleOnSelect}
-            selectedBranchLike={selectedBranchLike}
-            comparisonBranchesEnabled={this.props.comparisonBranchesEnabled}
-          />
-        </div>
-
+      <DropdownMenu
+        className="sw-overflow-y-auto sw-overflow-x-hidden sw-min-w-abs-350 it__branch-like-navigation-menu"
+        maxHeight="38rem"
+        size="auto"
+      >
+        <InputSearch
+          className="sw-mx-3 sw-my-2"
+          autoFocus
+          onChange={this.handleSearchChange}
+          onKeyDown={this.handleKeyDown}
+          placeholder={translate('branch_like_navigation.search_for_branch_like')}
+          size="auto"
+          value={query}
+          searchInputAriaLabel={translate('search_verb')}
+        />
+        <MenuItemList
+          branchLikeTree={branchLikesToDisplayTree}
+          hasResults={hasResults}
+          onSelect={this.handleOnSelect}
+          selectedBranchLike={selectedBranchLike}
+          comparisonBranchesEnabled={comparisonBranchesEnabled}
+        />
         {showManageLink && (
-          <div className="hint-container text-right">
-            <Link
-              onClick={() => onClose()}
-              to={{ pathname: '/project/branches', search: queryToSearch({ id: component.key }) }}
-            >
-              {
-                this.props.comparisonBranchesEnabled
+          <>
+            <ItemDivider />
+            <li className="sw-px-3 sw-py-2">
+              <Link
+                onClick={() => {
+                  onClose();
+                }}
+                to={{
+                  pathname: '/project/branches',
+                  search: queryToSearchString({ id: component.key }),
+                }}
+              >
+                {
+                  this.props.comparisonBranchesEnabled
                     ? translate('branch_like_navigation.manage.sf')
                     : translate('branch_like_navigation.manage')
-              }
-            </Link>
-          </div>
+                }
+              </Link>
+            </li>
+          </>
         )}
-      </DropdownOverlay>
+      </DropdownMenu>
     );
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,79 +18,64 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { ClipboardIconButton } from '../../../../components/controls/clipboard';
-import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
 import CreateYmlFile from '../../components/CreateYmlFile';
-import FinishButton from '../../components/FinishButton';
-import { buildGradleSnippet } from '../../utils';
+import GradleBuild from '../../components/GradleBuild';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface GradleProps {
   branchesEnabled?: boolean;
-  mainBranchName: string;
   component: Component;
-  onDone: () => void;
+  mainBranchName: string;
+  monorepo?: boolean;
 }
 
 const GRADLE_YAML_STEPS = `
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version: 11
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
       - name: Cache SonarQube packages
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: \${{ runner.os }}-sonar
           restore-keys: \${{ runner.os }}-sonar
       - name: Cache Gradle packages
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: \${{ runner.os }}-gradle-\${{ hashFiles('**/*.gradle') }}
           restore-keys: \${{ runner.os }}-gradle
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonar --info`;
 
 export default function Gradle(props: GradleProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
 
   return (
     <>
-      <li className="abs-width-600">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.tutorial.with.yaml.gradle')}
-          id="onboarding.tutorial.with.yaml.gradle"
-          values={{
-            gradle: (
-              <>
-                <code className="rule">build.gradle</code>
-                <ClipboardIconButton copyValue="build.gradle" />
-              </>
-            ),
-            sq: <code className="rule">org.sonarqube</code>,
-          }}
+      <GradleBuild component={component} />
+
+      {monorepo ? (
+        <MonorepoDocLinkFallback />
+      ) : (
+        <CreateYmlFile
+          yamlFileName=".github/workflows/build.yml"
+          yamlTemplate={generateGitHubActionsYaml(
+            mainBranchName,
+            !!branchesEnabled,
+            GITHUB_ACTIONS_RUNS_ON_LINUX,
+            GRADLE_YAML_STEPS,
+          )}
         />
-        <CodeSnippet snippet={buildGradleSnippet(component.key)} />
-      </li>
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_LINUX,
-          GRADLE_YAML_STEPS
-        )}
-      />
-      <FinishButton onClick={props.onDone} />
+      )}
     </>
   );
 }

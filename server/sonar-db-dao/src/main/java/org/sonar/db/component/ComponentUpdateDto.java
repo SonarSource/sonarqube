@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,8 +40,6 @@ public class ComponentUpdateDto {
   private String bUuidPath;
   private String bLanguage;
   private String bLongName;
-  private String bModuleUuid;
-  private String bModuleUuidPath;
   private String bName;
   private String bPath;
   private String bQualifier;
@@ -89,16 +87,6 @@ public class ComponentUpdateDto {
   @CheckForNull
   public String getBLongName() {
     return bLongName;
-  }
-
-  @CheckForNull
-  public String getBModuleUuid() {
-    return bModuleUuid;
-  }
-
-  @CheckForNull
-  public String getBModuleUuidPath() {
-    return bModuleUuidPath;
   }
 
   @CheckForNull
@@ -156,16 +144,6 @@ public class ComponentUpdateDto {
     return this;
   }
 
-  public ComponentUpdateDto setBModuleUuid(@Nullable String s) {
-    this.bModuleUuid = s;
-    return this;
-  }
-
-  public ComponentUpdateDto setBModuleUuidPath(@Nullable String s) {
-    this.bModuleUuidPath = s;
-    return this;
-  }
-
   public ComponentUpdateDto setBPath(@Nullable String s) {
     this.bPath = s;
     return this;
@@ -195,8 +173,6 @@ public class ComponentUpdateDto {
       .setBUuidPath(from.getUuidPath())
       .setBLanguage(from.language())
       .setBLongName(from.longName())
-      .setBModuleUuid(from.moduleUuid())
-      .setBModuleUuidPath(from.moduleUuidPath())
       .setBName(from.name())
       .setBPath(from.path())
       // We don't have a b_scope. The applyBChangesForRootComponentUuid query is using a case ... when to infer scope from the qualifier

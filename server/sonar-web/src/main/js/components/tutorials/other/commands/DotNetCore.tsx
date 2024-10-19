@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, FlagMessage, SubHeading } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
-import { Alert } from '../../../ui/Alert';
 import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
 
@@ -28,24 +27,26 @@ export default function DotNetCore(props: DotNetProps) {
   const { baseUrl, component, token } = props;
 
   const commands = [
-    `dotnet sonarscanner begin /k:"${component.key}" /d:sonar.host.url="${baseUrl}"  /d:sonar.login="${token}"`,
+    `dotnet sonarscanner begin /k:"${component.key}" /d:sonar.host.url="${baseUrl}"  /d:sonar.token="${token}"`,
     'dotnet build',
-    `dotnet sonarscanner end /d:sonar.login="${token}"`,
+    `dotnet sonarscanner end /d:sonar.token="${token}"`,
   ];
 
   return (
     <div>
-      <h4 className="huge-spacer-top spacer-bottom">
+      <SubHeading className="sw-mt-8 sw-mb-2">
         {translate('onboarding.analysis.dotnetcore.global')}
-      </h4>
-      <p className="big-spacer-top markdown">
-        {translate('onboarding.analysis.dotnetcore.global.text')}
-      </p>
-      <CodeSnippet snippet="dotnet tool install --global dotnet-sonarscanner" />
-      <Alert className="spacer-top" variant="info">
+      </SubHeading>
+      <p className="sw-mt-4">{translate('onboarding.analysis.dotnetcore.global.text')}</p>
+      <CodeSnippet
+        className="sw-px-4"
+        isOneLine
+        snippet="dotnet tool install --global dotnet-sonarscanner"
+      />
+      <FlagMessage className="sw-mt-2" variant="info">
         {translate('onboarding.analysis.dotnetcore.global.text.path')}
-      </Alert>
-      <DotNetExecute commands={commands} component={component} />
+      </FlagMessage>
+      <DotNetExecute commands={commands} />
     </div>
   );
 }

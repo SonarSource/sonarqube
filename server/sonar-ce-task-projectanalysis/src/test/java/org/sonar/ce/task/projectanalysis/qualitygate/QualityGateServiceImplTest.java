@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,15 +20,12 @@
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
-import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;

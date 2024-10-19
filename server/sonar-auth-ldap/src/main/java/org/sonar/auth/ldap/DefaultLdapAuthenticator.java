@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,10 +26,10 @@ import javax.naming.directory.SearchResult;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 /**
  * @author Evgeny Mandrikov
@@ -37,7 +37,7 @@ import org.sonar.api.utils.log.Loggers;
 @ServerSide
 public class DefaultLdapAuthenticator implements LdapAuthenticator {
 
-  private static final Logger LOG = Loggers.get(DefaultLdapAuthenticator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultLdapAuthenticator.class);
   private final Map<String, LdapContextFactory> contextFactories;
   private final Map<String, LdapUserMapping> userMappings;
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,13 +22,16 @@ package org.sonar.scanner.scan.filesystem;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.ThreadSafe;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.PathPattern;
@@ -52,6 +55,7 @@ public class LanguageDetection {
    */
   private final Map<Language, PathPattern[]> patternsByLanguage;
   private final List<Language> languagesToConsider;
+  private final Map<String, Language> languageCacheByPath;
 
   public LanguageDetection(Configuration settings, LanguagesRepository languages) {
     Map<Language, PathPattern[]> patternsByLanguageBuilder = new LinkedHashMap<>();
@@ -61,30 +65,44 @@ public class LanguageDetection {
       if (pathPatterns.length > 0) {
         patternsByLanguageBuilder.put(language, pathPatterns);
       } else {
-        // If no custom language pattern is defined then fallback to suffixes declared by language
-        String[] patterns = language.fileSuffixes().toArray(new String[0]);
-        for (int i = 0; i < patterns.length; i++) {
-          String suffix = patterns[i];
-          String extension = sanitizeExtension(suffix);
-          patterns[i] = "**/*" + extension;
-        }
-        PathPattern[] defaultLanguagePatterns = PathPattern.create(patterns);
-        patternsByLanguageBuilder.put(language, defaultLanguagePatterns);
-        LOG.debug("Declared extensions of language {} were converted to {}", language, getDetails(language, defaultLanguagePatterns));
+        PathPattern[] languagePatterns = getLanguagePatterns(language);
+        patternsByLanguageBuilder.put(language, languagePatterns);
       }
     }
 
     languagesToConsider = List.copyOf(patternsByLanguageBuilder.keySet());
     patternsByLanguage = unmodifiableMap(patternsByLanguageBuilder);
+    languageCacheByPath = new HashMap<>();
+  }
+
+  private static PathPattern[] getLanguagePatterns(Language language) {
+    Stream<PathPattern> fileSuffixes = language.fileSuffixes().stream()
+      .map(suffix -> "**/*." + sanitizeExtension(suffix))
+      .map(PathPattern::create);
+    Stream<PathPattern> filenamePatterns = language.filenamePatterns()
+      .stream()
+      .map(filenamePattern -> "**/*" + filenamePattern)
+      .map(PathPattern::create);
+
+    PathPattern[] defaultLanguagePatterns = Stream.concat(fileSuffixes, filenamePatterns)
+      .distinct()
+      .toArray(PathPattern[]::new);
+    LOG.debug("Declared patterns of language {} were converted to {}", language, getDetails(language, defaultLanguagePatterns));
+    return defaultLanguagePatterns;
   }
 
   @CheckForNull
   Language language(Path absolutePath, Path relativePath) {
-    Language detectedLanguage = null;
+    Language detectedLanguage = languageCacheByPath.get(absolutePath.toString());
+    if (detectedLanguage != null) {
+      return detectedLanguage;
+    }
+
     for (Language language : languagesToConsider) {
       if (isCandidateForLanguage(absolutePath, relativePath, language)) {
         if (detectedLanguage == null) {
           detectedLanguage = language;
+          languageCacheByPath.put(absolutePath.toString(), language);
         } else {
           // Language was already forced by another pattern
           throw MessageException.of(MessageFormat.format("Language of file ''{0}'' can not be decided as the file matches patterns of both {1} and {2}",
@@ -96,16 +114,13 @@ public class LanguageDetection {
     return detectedLanguage;
   }
 
+  public Set<String> getDetectedLanguages() {
+    return languageCacheByPath.values().stream().map(Language::key).collect(Collectors.toSet());
+  }
+
   private boolean isCandidateForLanguage(Path absolutePath, Path relativePath, Language language) {
     PathPattern[] patterns = patternsByLanguage.get(language);
-    if (patterns != null) {
-      for (PathPattern pathPattern : patterns) {
-        if (pathPattern.match(absolutePath, relativePath, false)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return patterns != null && Arrays.stream(patterns).anyMatch(pattern -> pattern.match(absolutePath, relativePath, false));
   }
 
   private static String getFileLangPatternPropKey(String languageKey) {

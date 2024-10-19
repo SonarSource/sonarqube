@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -43,7 +42,7 @@ import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.copyFileToDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.FileUtils.toFile;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -53,7 +52,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
  */
 public class PluginDownloader implements Startable {
 
-  private static final Logger LOG = Loggers.get(PluginDownloader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
   private static final String TMP_SUFFIX = "tmp";
   private static final String PLUGIN_EXTENSION = "jar";
 
@@ -105,7 +104,7 @@ public class PluginDownloader implements Startable {
     return listPlugins(this.downloadDir)
       .stream()
       .map(PluginInfo::create)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   public void download(String pluginKey, Version version) {

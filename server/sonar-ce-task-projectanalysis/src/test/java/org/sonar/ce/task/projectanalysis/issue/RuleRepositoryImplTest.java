@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,14 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -37,6 +41,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.rule.index.RuleIndexer;
 
@@ -52,6 +57,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+@RunWith(DataProviderRunner.class)
 public class RuleRepositoryImplTest {
   private static final RuleDto AB_RULE = createABRuleDto().setUuid("rule-uuid");
   private static final RuleKey AB_RULE_DEPRECATED_KEY_1 = RuleKey.of("old_a", "old_b");
@@ -286,6 +292,34 @@ public class RuleRepositoryImplTest {
 
     assertThat(underTest.getByUuid(ruleDefinitionDto.get().getUuid())).isNotNull();
     verify(ruleIndexer).commitAndIndex(db.getSession(), ruleDefinitionDto.get().getUuid());
+  }
+
+  @DataProvider
+  public static Object[][] typesMapping() {
+    return new Object[][]{
+      {ScannerReport.IssueType.CODE_SMELL, RuleType.CODE_SMELL},
+      {ScannerReport.IssueType.BUG, RuleType.BUG},
+      {ScannerReport.IssueType.VULNERABILITY, RuleType.VULNERABILITY},
+      {ScannerReport.IssueType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT}
+    };
+  }
+
+  @Test
+  @UseDataProvider("typesMapping")
+  public void addOrUpdateAddHocRuleIfNeeded_whenAdHocRule_shouldReturnRuleWithSameType(ScannerReport.IssueType type, RuleType expectedType) {
+    RuleKey ruleKey = RuleKey.of("any_repo", "any_rule");
+    ScannerReport.AdHocRule adHocRule = ScannerReport.AdHocRule.newBuilder()
+      .setEngineId("ANY_ENGINE")
+      .setRuleId("any_rule")
+      .setName("ANY_NAME")
+      .setSeverity(Constants.Severity.MAJOR)
+      .setType(type)
+      .build();
+
+    underTest.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> new NewAdHocRule(adHocRule));
+
+    Rule rule = underTest.getByKey(ruleKey);
+    assertThat(rule.getType()).isEqualTo(expectedType);
   }
 
   private void expectNullRuleKeyNPE(ThrowingCallable callback) {

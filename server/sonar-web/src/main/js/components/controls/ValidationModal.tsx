@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import { FormikValues } from 'formik';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import DeferredSpinner from '../ui/DeferredSpinner';
-import { ResetButtonLink, SubmitButton } from './buttons';
-import Modal, { ModalProps } from './Modal';
 import ValidationForm, { ChildrenProps } from './ValidationForm';
 
-interface Props<V> extends ModalProps {
+interface Props<V> {
   children: (props: ChildrenProps<V>) => React.ReactNode;
   confirmButtonText: string;
   header: string;
   initialValues: V;
-  isDestructive?: boolean;
   onClose: () => void;
   onSubmit: (data: V) => Promise<void>;
   validate: (data: V) => { [P in keyof V]?: string };
@@ -45,37 +43,37 @@ export default class ValidationModal<V extends FormikValues> extends React.PureC
 
   render() {
     return (
-      <Modal
-        contentLabel={this.props.header}
-        noBackdrop={this.props.noBackdrop}
-        onRequestClose={this.props.onClose}
-        size={this.props.size}
-      >
+      <Modal onClose={this.props.onClose}>
         <ValidationForm
           initialValues={this.props.initialValues}
           onSubmit={this.handleSubmit}
           validate={this.props.validate}
         >
-          {(props) => (
+          {(formState) => (
             <>
-              <header className="modal-head">
-                <h2>{this.props.header}</h2>
-              </header>
-
-              <div className="modal-body">{this.props.children(props)}</div>
-
-              <footer className="modal-foot">
-                <DeferredSpinner className="spacer-right" loading={props.isSubmitting} />
-                <SubmitButton
-                  className={this.props.isDestructive ? 'button-red' : undefined}
-                  disabled={props.isSubmitting || !props.isValid || !props.dirty}
-                >
-                  {this.props.confirmButtonText}
-                </SubmitButton>
-                <ResetButtonLink disabled={props.isSubmitting} onClick={this.props.onClose}>
-                  {translate('cancel')}
-                </ResetButtonLink>
-              </footer>
+              <Modal.Header title={this.props.header} />
+              <div className="sw-py-4">{this.props.children(formState)}</div>
+              <Modal.Footer
+                loading={formState.isSubmitting}
+                primaryButton={
+                  <Button
+                    type="submit"
+                    isDisabled={formState.isSubmitting || !formState.isValid || !formState.dirty}
+                    variety={ButtonVariety.Primary}
+                  >
+                    {this.props.confirmButtonText}
+                  </Button>
+                }
+                secondaryButton={
+                  <Button
+                    className="sw-ml-2"
+                    isDisabled={formState.isSubmitting}
+                    onClick={this.props.onClose}
+                  >
+                    {translate('cancel')}
+                  </Button>
+                }
+              />
             </>
           )}
         </ValidationForm>

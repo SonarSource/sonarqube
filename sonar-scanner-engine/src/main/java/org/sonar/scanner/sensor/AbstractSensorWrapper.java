@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,14 @@ package org.sonar.scanner.sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.scanner.sensor.ProjectSensor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 
 public abstract class AbstractSensorWrapper<G extends ProjectSensor> {
-  private static final Logger LOGGER = Loggers.get(AbstractSensorWrapper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSensorWrapper.class);
 
   private final G wrappedSensor;
   private final SensorContext context;

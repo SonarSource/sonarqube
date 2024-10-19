@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { CodeSnippet } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
 import { getFormattingHelpUrl } from '../../helpers/urls';
 
@@ -29,20 +32,39 @@ interface Props {
 export default class FormattingTipsWithLink extends React.PureComponent<Props> {
   handleClick(evt: React.SyntheticEvent<HTMLAnchorElement>) {
     evt.preventDefault();
+
     window.open(
       getFormattingHelpUrl(),
       'Formatting',
-      'height=300,width=600,scrollbars=1,resizable=1'
+      'height=300,width=600,scrollbars=1,resizable=1',
     );
   }
 
   render() {
     return (
-      <div className={classNames('markdown-tips', this.props.className)}>
-        <a href="#" onClick={this.handleClick}>
+      <div className={this.props.className}>
+        <LinkStandalone onClick={this.handleClick} to="#">
           {translate('formatting.helplink')}
-        </a>
-        <p className="spacer-top">{translate('formatting.example.link')}</p>
+        </LinkStandalone>
+
+        <p className="sw-mt-2">
+          <FormattedMessage
+            id="formatting.example.link"
+            values={{
+              example: (
+                <>
+                  <br />
+
+                  <CodeSnippet
+                    isOneLine
+                    noCopy
+                    snippet={translate('formatting.example.link.example')}
+                  />
+                </>
+              ),
+            }}
+          />
+        </p>
       </div>
     );
   }

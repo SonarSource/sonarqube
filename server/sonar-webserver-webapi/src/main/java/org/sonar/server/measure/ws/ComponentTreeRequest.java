@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ class ComponentTreeRequest {
   private String metricSort;
   private Integer metricPeriodSort;
   private String metricSortFilter;
-  private List<String> metricKeys;
+  private List<String> metricKeys = List.of();
   private Integer page;
   private Integer pageSize;
 
@@ -139,7 +139,6 @@ class ComponentTreeRequest {
     return this;
   }
 
-  @CheckForNull
   public List<String> getMetricKeys() {
     return metricKeys;
   }

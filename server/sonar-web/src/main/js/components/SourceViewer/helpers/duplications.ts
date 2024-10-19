@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ export function filterDuplicationBlocksByLine(blocks: DuplicationBlock[], line: 
 
 export function getDuplicationBlocksForIndex(
   duplications: Duplication[] | undefined,
-  index: number
+  index: number,
 ) {
   return (duplications && duplications[index] && duplications[index].blocks) || [];
 }

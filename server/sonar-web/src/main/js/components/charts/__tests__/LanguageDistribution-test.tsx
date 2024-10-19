@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { LanguageDistribution } from '../LanguageDistribution';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import LanguageDistribution, { LanguageDistributionProps } from '../LanguageDistribution';
 
-it('renders', () => {
-  expect(
-    shallow(
-      <LanguageDistribution
-        distribution="java=1734;js=845;cpp=73;<null>=15"
-        languages={{ java: { key: 'java', name: 'Java' }, js: { key: 'js', name: 'JavaScript' } }}
-      />
-    )
-  ).toMatchSnapshot();
+it('should render correctly', () => {
+  const { container } = renderLanguageDistribution();
+  expect(container).toMatchSnapshot();
 });
+
+function renderLanguageDistribution(props: Partial<LanguageDistributionProps> = {}) {
+  return renderComponent(
+    <LanguageDistribution
+      distribution="java=1734;js=845;cpp=73;<null>=15"
+      languages={{ java: { key: 'java', name: 'Java' }, js: { key: 'js', name: 'JavaScript' } }}
+      {...props}
+    />,
+  );
+}

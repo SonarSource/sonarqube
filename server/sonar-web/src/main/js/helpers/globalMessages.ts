@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,37 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { uniqueId } from 'lodash';
-import { Message, MessageLevel } from '../types/globalMessages';
+
+import { addGlobalErrorMessage } from 'design-system';
 import { parseError } from './request';
-
-const listeners: Array<(message: Message) => void> = [];
-
-export function registerListener(callback: (message: Message) => void) {
-  listeners.push(callback);
-}
-
-export function unregisterListener(callback: (message: Message) => void) {
-  const index = listeners.indexOf(callback);
-
-  if (index > -1) {
-    listeners.splice(index, 1);
-  }
-}
-
-function addMessage(text: string, level: MessageLevel) {
-  listeners.forEach((listener) =>
-    listener({
-      id: uniqueId('global-message-'),
-      level,
-      text,
-    })
-  );
-}
-
-export function addGlobalErrorMessage(text: string) {
-  addMessage(text, MessageLevel.Error);
-}
 
 export function addGlobalErrorMessageFromAPI(param: Response | string) {
   if (param instanceof Response) {
@@ -55,13 +27,10 @@ export function addGlobalErrorMessageFromAPI(param: Response | string) {
       /* ignore parsing errors */
     });
   }
+
   if (typeof param === 'string') {
     return Promise.resolve(param).then(addGlobalErrorMessage);
   }
 
   return Promise.resolve();
-}
-
-export function addGlobalSuccessMessage(text: string) {
-  addMessage(text, MessageLevel.Success);
 }

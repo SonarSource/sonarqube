@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,19 +22,18 @@ package org.sonar.server.projecttag;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class TagsWsSupport {
@@ -47,14 +46,14 @@ public class TagsWsSupport {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
-  private final ProjectIndexers projectIndexers;
+  private final Indexers indexers;
   private final System2 system2;
 
-  public TagsWsSupport(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, ProjectIndexers projectIndexers, System2 system2) {
+  public TagsWsSupport(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, Indexers indexers, System2 system2) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.projectIndexers = projectIndexers;
+    this.indexers = indexers;
     this.system2 = system2;
   }
 
@@ -71,12 +70,12 @@ public class TagsWsSupport {
   }
 
   private void updateTagsForProjectsOrApplication(DbSession dbSession, List<String> tags, ProjectDto projectOrApplication) {
-    userSession.checkProjectPermission(UserRole.ADMIN, projectOrApplication);
+    userSession.checkEntityPermission(UserRole.ADMIN, projectOrApplication);
     projectOrApplication.setTags(tags);
     projectOrApplication.setUpdatedAt(system2.now());
     dbClient.projectDao().updateTags(dbSession, projectOrApplication);
 
-    projectIndexers.commitAndIndexProjects(dbSession, singletonList(projectOrApplication), PROJECT_TAGS_UPDATE);
+    indexers.commitAndIndexEntities(dbSession, singletonList(projectOrApplication), PROJECT_TAGS_UPDATE);
   }
 
   public static List<String> checkAndUnifyTags(List<String> tags) {
@@ -85,7 +84,7 @@ public class TagsWsSupport {
       .map(t -> t.toLowerCase(Locale.ENGLISH))
       .map(TagsWsSupport::checkTag)
       .distinct()
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   private static String checkTag(String tag) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,8 @@ public class EventDto {
   public static final String CATEGORY_ALERT = "Alert";
   public static final String CATEGORY_PROFILE = "Profile";
   public static final String CATEGORY_DEFINITION_CHANGE = "Definition change";
-
+  public static final String CATEGORY_ISSUE_DETECTION = "Issue Detection";
+  public static final String CATEGORY_SQ_UPGRADE = "SQ Upgrade";
   private String uuid;
   private String analysisUuid;
   private String componentUuid;

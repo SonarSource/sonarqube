@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserOrganizationGroup;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
@@ -53,11 +53,9 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.user.ws.DismissNoticeAction.EDUCATION_PRINCIPLES;
-import static org.sonar.server.user.ws.DismissNoticeAction.SONARLINT_AD;
+import static org.sonar.server.user.ws.DismissNoticeAction.AVAILABLE_NOTICE_KEYS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
@@ -132,13 +130,14 @@ public class CurrentAction implements UsersWsAction {
       .setLocal(user.isLocal())
       .addAllGroups(groups)
       .addAllOrgGroups(toWsOrganizationGroups(orgGroups))
-      .addAllScmAccounts(user.getScmAccountsAsList())
-      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions(dbSession)).build())
+      .setOnboarded(user.isOnboarded())
+      .addAllScmAccounts(user.getSortedScmAccounts())
+      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
-      .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
-      .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES))
-      .putDismissedNotices(SONARLINT_AD, isNoticeDismissed(user, SONARLINT_AD))
-      .setOnboarded(user.isOnboarded());
+      .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null);
+
+    AVAILABLE_NOTICE_KEYS.forEach(key -> builder.putDismissedNotices(key, isNoticeDismissed(user, key)));
+
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);
@@ -243,7 +242,7 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private boolean shouldCleanProjectHomepage(Optional<ProjectDto> projectOptional, Optional<BranchDto> branchOptional) {
-    return !projectOptional.isPresent() || !branchOptional.isPresent() || !userSession.hasProjectPermission(USER, projectOptional.get());
+    return !projectOptional.isPresent() || !branchOptional.isPresent() || !userSession.hasEntityPermission(USER, projectOptional.get());
   }
 
   private Optional<CurrentWsResponse.Homepage> applicationAndPortfolioHomepage(DbSession dbSession, UserDto user) {

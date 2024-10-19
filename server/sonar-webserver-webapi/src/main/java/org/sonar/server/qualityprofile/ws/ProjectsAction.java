@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,7 +33,6 @@ import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -65,11 +65,13 @@ public class ProjectsAction implements QProfileWsAction {
     NewAction action = controller.createAction("projects")
       .setSince("5.2")
       .setHandler(this)
-      .setDescription("List projects with their association status regarding a quality profile <br/>" +
-        "See api/qualityprofiles/search in order to get the Quality Profile Key")
+      .setDescription("List projects with their association status regarding a quality profile. <br/>" +
+        "Only projects explicitly bound to the profile are returned, those associated with the profile because it is the default one are not. <br/>" +
+        "See api/qualityprofiles/search in order to get the Quality Profile Key. ")
       .setResponseExample(getClass().getResource("projects-example.json"));
 
     action.setChangelog(
+      new Change("10.0", "deprecated 'more' response field has been removed"),
       new Change("8.8", "deprecated 'id' response field has been removed"),
       new Change("8.8", "deprecated 'uuid' response field has been removed"),
       new Change("7.2", "'more' response field is deprecated"),
@@ -103,20 +105,20 @@ public class ProjectsAction implements QProfileWsAction {
       List<ProjectQprofileAssociationDto> projects = loadAllProjects(profileKey, session, selected, query).stream()
         .sorted(comparing(ProjectQprofileAssociationDto::getProjectName)
           .thenComparing(ProjectQprofileAssociationDto::getProjectUuid))
-        .collect(MoreCollectors.toList());
+        .toList();
 
       Collection<String> projectUuids = projects.stream()
         .map(ProjectQprofileAssociationDto::getProjectUuid)
-        .collect(MoreCollectors.toSet());
+        .collect(Collectors.toSet());
 
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(session, projectUuids, userSession.getUuid(), UserRole.USER);
+      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(session, projectUuids, userSession.getUuid(), UserRole.USER);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(authorizedProjectUuids.size());
 
       List<ProjectQprofileAssociationDto> authorizedProjects = projects.stream()
         .filter(input -> authorizedProjectUuids.contains(input.getProjectUuid()))
         .skip(paging.offset())
         .limit(paging.pageSize())
-        .collect(MoreCollectors.toList());
+        .toList();
 
       writeProjects(response, authorizedProjects, paging);
     }
@@ -160,8 +162,6 @@ public class ProjectsAction implements QProfileWsAction {
       .prop("pageSize", paging.pageSize())
       .prop("total", paging.total())
       .endObject();
-    // more is deprecated since 7.2
-    json.prop("more", paging.hasNextPage());
     json.endObject();
     json.close();
   }

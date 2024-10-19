@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,15 +22,15 @@ package org.sonar.server.monitoring;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.response.NodeStats;
 import org.sonar.server.es.response.NodeStatsResponse;
 
 public class ElasticSearchMetricTask implements MonitoringTask {
 
-  private static final Logger LOG = Loggers.get(ElasticSearchMetricTask.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchMetricTask.class);
 
   private static final String DELAY_IN_MILISECONDS_PROPERTY = "sonar.server.monitoring.es.initial.delay";
   private static final String PERIOD_IN_MILISECONDS_PROPERTY = "sonar.server.monitoring.es.period";

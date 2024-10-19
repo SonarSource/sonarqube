@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,6 @@ public class SearchRequest {
   private List<String> author;
   private String branch;
   private List<String> componentKeys;
-  private List<String> componentUuids;
   private String createdAfter;
   private String createdAt;
   private String createdBefore;
@@ -62,7 +61,7 @@ public class SearchRequest {
   private String s;
   private List<String> sansTop25;
   private List<String> severities;
-  private String sinceLeakPeriod;
+  private String inNewCodePeriod;
   private List<String> sonarsourceSecurity;
   private List<String> statuses;
   private List<String> tags;
@@ -185,20 +184,6 @@ public class SearchRequest {
   }
 
   /**
-   * Example value: "584a89f2-8037-4f7b-b82c-8b45d2d63fb2"
-   * @deprecated since 6.5
-   */
-  @Deprecated
-  public SearchRequest setComponentUuids(List<String> componentUuids) {
-    this.componentUuids = componentUuids;
-    return this;
-  }
-
-  public List<String> getComponentUuids() {
-    return componentUuids;
-  }
-
-  /**
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public SearchRequest setCreatedAfter(String createdAfter) {
@@ -275,7 +260,6 @@ public class SearchRequest {
    * Possible values:
    * <ul>
    *   <li>"projects"</li>
-   *   <li>"moduleUuids"</li>
    *   <li>"fileUuids"</li>
    *   <li>"assigned_to_me"</li>
    *   <li>"severities"</li>
@@ -553,13 +537,13 @@ public class SearchRequest {
    *   <li>"no"</li>
    * </ul>
    */
-  public SearchRequest setSinceLeakPeriod(String sinceLeakPeriod) {
-    this.sinceLeakPeriod = sinceLeakPeriod;
+  public SearchRequest setInNewCodePeriod(String inNewCodePeriod) {
+    this.inNewCodePeriod = inNewCodePeriod;
     return this;
   }
 
-  public String getSinceLeakPeriod() {
-    return sinceLeakPeriod;
+  public String isInNewCodePeriod() {
+    return inNewCodePeriod;
   }
 
   /**

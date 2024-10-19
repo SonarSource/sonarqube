@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from 'design-system';
 import * as React from 'react';
-import { compareProfiles, CompareResponse } from '../../../api/quality-profiles';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { useProfilesCompareQuery } from '../../../queries/quality-profiles';
+import { useGetValueQuery } from '../../../queries/settings';
+import { SettingsKey } from '../../../types/settings';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Profile } from '../types';
 import { getProfileComparePath } from '../utils';
@@ -30,101 +33,62 @@ interface Props {
   organization: string;
   profile: Profile;
   profiles: Profile[];
-  location: Location;
-  router: Router;
 }
 
-type State = { loading: boolean } & Partial<CompareResponse>;
-type StateWithResults = { loading: boolean } & CompareResponse;
+export function ComparisonContainer(props: Readonly<Props>) {
+  const { profile, profiles } = props;
+  const location = useLocation();
+  const router = useRouter();
+  const { data: inheritRulesSetting } = useGetValueQuery({
+    key: SettingsKey.QPAdminCanDisableInheritedRules,
+  });
+  const canDeactivateInheritedRules = inheritRulesSetting?.value === 'true';
 
-class ComparisonContainer extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false };
+  const { withKey } = location.query;
+  const {
+    data: compareResults,
+    isLoading,
+    refetch,
+  } = useProfilesCompareQuery(profile.key, withKey);
 
-  componentDidMount() {
-    this.mounted = true;
-    this.loadResults();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.profile !== this.props.profile || prevProps.location !== this.props.location) {
-      this.loadResults();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  loadResults = () => {
-    const { withKey } = this.props.location.query;
-    if (!withKey) {
-      this.setState({ left: undefined, loading: false });
-      return Promise.resolve();
-    }
-
-    this.setState({ loading: true });
-    return compareProfiles(this.props.profile.key, withKey).then(
-      ({ left, right, inLeft, inRight, modified }) => {
-        if (this.mounted) {
-          this.setState({ left, right, inLeft, inRight, modified, loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
+  const handleCompare = (withKey: string) => {
+    const path = getProfileComparePath(profile.name, profile.language, withKey);
+    router.push(path);
   };
 
-  handleCompare = (withKey: string) => {
-    const path = getProfileComparePath(
-      this.props.profile.name,
-      this.props.profile.language,
-      this.props.organization,
-      withKey
-    );
-    this.props.router.push(path);
+  const refresh = async () => {
+    await refetch();
   };
 
-  hasResults(state: State): state is StateWithResults {
-    return state.left !== undefined;
-  }
-
-  render() {
-    const { profile, profiles, location } = this.props;
-    const { withKey } = location.query;
-
-    return (
-      <div className="boxed-group boxed-group-inner js-profile-comparison">
+  return (
+    <div className="sw-typo-default">
+      <div className="sw-flex sw-items-center">
         <ComparisonForm
-          onCompare={this.handleCompare}
+          onCompare={handleCompare}
           profile={profile}
           profiles={profiles}
           withKey={withKey}
         />
 
-        {this.state.loading && <i className="spinner spacer-left" />}
-
-        {this.hasResults(this.state) && (
-          <div className="spacer-top">
-            <ComparisonResults
-              inLeft={this.state.inLeft}
-              inRight={this.state.inRight}
-              left={this.state.left}
-              leftProfile={profile}
-              modified={this.state.modified}
-              refresh={this.loadResults}
-              right={this.state.right}
-              rightProfile={profiles.find((p) => p.key === withKey)}
-              organization={this.props.organization}
-            />
-          </div>
-        )}
+        <Spinner className="sw-ml-2" loading={isLoading} />
       </div>
-    );
-  }
+
+      {compareResults && (
+        <ComparisonResults
+          organization={props.organization}
+          inLeft={compareResults.inLeft}
+          inRight={compareResults.inRight}
+          left={compareResults.left}
+          leftProfile={profile}
+          modified={compareResults.modified}
+          refresh={refresh}
+          right={compareResults.right}
+          rightProfile={profiles.find((p) => p.key === withKey)}
+          canDeactivateInheritedRules={canDeactivateInheritedRules}
+        />
+      )}
+    </div>
+  );
 }
 
-export default withQualityProfilesContext(withRouter(ComparisonContainer));
+export default withQualityProfilesContext(ComparisonContainer);

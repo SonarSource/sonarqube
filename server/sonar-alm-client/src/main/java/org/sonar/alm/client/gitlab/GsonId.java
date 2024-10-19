@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +21,12 @@ package org.sonar.alm.client.gitlab;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
+import java.util.Collection;
 
 public class GsonId {
+  private static final TypeToken<Collection<GsonId>> COLLECTION_TYPE_TOKEN = new TypeToken<>() {
+  };
 
   @SerializedName("id")
   private final long id;
@@ -43,6 +47,11 @@ public class GsonId {
   public static GsonId parseOne(String json) {
     Gson gson = new Gson();
     return gson.fromJson(json, GsonId.class);
+  }
+
+  public static Collection<GsonId> parseCollection(String json) {
+    Gson gson = new Gson();
+    return gson.fromJson(json, COLLECTION_TYPE_TOKEN);
   }
 
 }

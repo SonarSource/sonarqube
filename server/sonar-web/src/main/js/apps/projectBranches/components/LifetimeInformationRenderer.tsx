@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 
 export interface LifetimeInformationRendererProps {
   comparisonBranchesEnabled: boolean;
@@ -31,13 +30,13 @@ export interface LifetimeInformationRendererProps {
   loading: boolean;
 }
 
-export function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
+function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
   const { branchAndPullRequestLifeTimeInDays, canAdmin, loading } = props;
 
   return (
-    <DeferredSpinner loading={loading}>
+    <Spinner loading={loading}>
       {branchAndPullRequestLifeTimeInDays && (
-        <p className="page-description">
+        <p>
           <FormattedMessage
             defaultMessage={
               props.comparisonBranchesEnabled
@@ -52,13 +51,17 @@ export function LifetimeInformationRenderer(props: LifetimeInformationRendererPr
               defaultMessage={translate('project_branch_pull_request.lifetime_information.admin')}
               id="project_branch_pull_request.lifetime_information.admin"
               values={{
-                settings: <Link to="/admin/settings">{translate('settings.page')}</Link>,
+                settings: (
+                  <Link to="/admin/settings?category=housekeeping#sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs">
+                    {translate('settings.page')}
+                  </Link>
+                ),
               }}
             />
           )}
         </p>
       )}
-    </DeferredSpinner>
+    </Spinner>
   );
 }
 

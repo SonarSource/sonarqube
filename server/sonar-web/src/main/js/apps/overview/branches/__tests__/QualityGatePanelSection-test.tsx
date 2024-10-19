@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,49 +17,112 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/mocks/component';
-import {
-  mockQualityGateStatus,
-  mockQualityGateStatusConditionEnhanced,
-} from '../../../../helpers/mocks/quality-gates';
-import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey } from '../../../../types/metrics';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
+import { Status } from '~sonar-aligned/types/common';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
+import { mockQualityGate, mockQualityGateStatus } from '../../../../helpers/mocks/quality-gates';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { CaycStatus } from '../../../../types/types';
-import { QualityGatePanelSection, QualityGatePanelSectionProps } from '../QualityGatePanelSection';
+import { CurrentUser, NoticeType } from '../../../../types/users';
+import QualityGatePanelSection, { QualityGatePanelSectionProps } from '../QualityGatePanelSection';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(
-    shallowRender({
-      qgStatus: mockQualityGateStatus({
-        failedConditions: [],
-        status: 'OK',
-        caycStatus: CaycStatus.Compliant,
-      }),
-    }).type()
-  ).toBeNull();
-  expect(
-    shallowRender({ component: mockComponent({ qualifier: ComponentQualifier.Application }) })
-  ).toMatchSnapshot();
+const failedConditions = [
+  {
+    level: 'ERROR' as Status,
+    measure: {
+      metric: {
+        id: 'metricId1',
+        key: MetricKey.new_coverage,
+        name: 'metricName1',
+        type: 'metricType1',
+      },
+    },
+    metric: MetricKey.new_coverage,
+    op: 'op1',
+  },
+  {
+    level: 'ERROR' as Status,
+    measure: {
+      metric: {
+        id: 'metricId2',
+        key: MetricKey.security_hotspots,
+        name: 'metricName2',
+        type: 'metricType2',
+      },
+    },
+    metric: MetricKey.security_hotspots,
+    op: 'op2',
+  },
+  {
+    level: 'ERROR' as Status,
+    measure: {
+      metric: {
+        id: 'metricId2',
+        key: MetricKey.new_violations,
+        name: 'metricName2',
+        type: 'metricType2',
+      },
+    },
+    metric: MetricKey.new_violations,
+    op: 'op2',
+  },
+];
+
+const qgStatus = mockQualityGateStatus({
+  caycStatus: CaycStatus.Compliant,
+  failedConditions,
+  key: 'qgStatusKey',
+  name: 'qgStatusName',
+  status: 'ERROR' as Status,
 });
 
-function shallowRender(props: Partial<QualityGatePanelSectionProps> = {}) {
-  return shallow(
-    <QualityGatePanelSection
-      branchLike={mockMainBranch()}
-      component={mockComponent()}
-      qgStatus={mockQualityGateStatus({
-        failedConditions: [
-          mockQualityGateStatusConditionEnhanced({ metric: MetricKey.bugs }),
-          mockQualityGateStatusConditionEnhanced({ metric: MetricKey.new_bugs }),
-        ],
-        status: 'ERROR',
-        caycStatus: CaycStatus.NonCompliant,
-      })}
-      {...props}
-    />
+it('should render correctly for a project with 1 new code condition', () => {
+  renderQualityGatePanelSection({
+    isApplication: false,
+    qgStatus: { ...qgStatus, failedConditions: [failedConditions[0]] },
+  });
+
+  expect(screen.queryByText('quality_gates.conditions.new_code_1')).not.toBeInTheDocument();
+  expect(screen.queryByText('quality_gates.conditions.overall_code_1')).not.toBeInTheDocument();
+});
+
+it('should render correctly 0 New issues onboarding', async () => {
+  renderQualityGatePanelSection({
+    isApplication: false,
+    qgStatus: { ...qgStatus, failedConditions: [failedConditions[2]] },
+    qualityGate: mockQualityGate({ isBuiltIn: true }),
+  });
+
+  expect(await byRole('alertdialog').find()).toBeInTheDocument();
+});
+
+it('should not render 0 New issues onboarding for user who dismissed it', async () => {
+  renderQualityGatePanelSection(
+    {
+      isApplication: false,
+      qgStatus: { ...qgStatus, failedConditions: [failedConditions[2]] },
+      qualityGate: mockQualityGate({ isBuiltIn: true }),
+    },
+    mockLoggedInUser({
+      dismissedNotices: { [NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION]: true },
+    }),
+  );
+
+  expect(screen.queryByText('quality_gates.conditions.new_code_1')).not.toBeInTheDocument();
+  expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
+});
+
+function renderQualityGatePanelSection(
+  props: Partial<QualityGatePanelSectionProps> = {},
+  currentUser: CurrentUser = mockLoggedInUser(),
+) {
+  return renderComponent(
+    <CurrentUserContextProvider currentUser={currentUser}>
+      <QualityGatePanelSection isApplication qgStatus={qgStatus} isNewCode {...props} />
+    </CurrentUserContextProvider>,
   );
 }

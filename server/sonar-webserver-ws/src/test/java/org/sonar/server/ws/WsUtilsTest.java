@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.MediaTypes;
@@ -81,6 +81,12 @@ public class WsUtilsTest {
   public void checkRequest_ok() {
     BadRequestException.checkRequest(true, "Missing param: %s", "foo");
     // do not fail
+  }
+
+  @Test
+  public void create_safe_external_link_tag() {
+    assertThat(WsUtils.createHtmlExternalLink("http://google.com", "Google"))
+      .isEqualTo("<a href=\"http://google.com\" target=\"_blank\" rel=\"noopener noreferrer\">Google</a>");
   }
 
   @Test

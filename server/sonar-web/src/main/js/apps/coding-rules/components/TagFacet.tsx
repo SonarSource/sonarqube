@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,10 @@
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { getRuleTags } from '../../../api/rules';
-import { colors } from '../../../app/theme';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import TagsIcon from '../../../components/icons/TagsIcon';
+import { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { BasicProps } from './Facet';
+import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 
 interface Props extends BasicProps {
   organization: string | undefined;
@@ -47,19 +45,9 @@ export default class TagFacet extends React.PureComponent<Props> {
     return tag;
   };
 
-  renderTag = (tag: string) => (
-    <>
-      <TagsIcon className="little-spacer-right" fill={colors.gray60} />
-      {tag}
-    </>
-  );
+  renderTag = (tag: string) => <>{tag}</>;
 
-  renderSearchResult = (tag: string, term: string) => (
-    <>
-      <TagsIcon className="little-spacer-right" fill={colors.gray60} />
-      {highlightTerm(tag, term)}
-    </>
-  );
+  renderSearchResult = (tag: string, term: string) => <>{highlightTerm(tag, term)}</>;
 
   render() {
     return (
@@ -69,6 +57,8 @@ export default class TagFacet extends React.PureComponent<Props> {
         getFacetItemText={this.getTagName}
         getSearchResultKey={(tag) => tag}
         getSearchResultText={(tag) => tag}
+        showMoreAriaLabel={translate('coding_rules.facet.tag.show_more')}
+        showLessAriaLabel={translate('coding_rules.facet.tag.show_less')}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
@@ -77,6 +67,7 @@ export default class TagFacet extends React.PureComponent<Props> {
         renderFacetItem={this.renderTag}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_tags')}
+        searchInputAriaLabel={translate('search.search_for_tags')}
         stats={this.props.stats}
         values={this.props.values}
       />

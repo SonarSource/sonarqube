@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,204 +17,117 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import {
+  Button,
+  ButtonIcon,
+  ButtonSize,
+  ButtonVariety,
+  IconDelete,
+  ModalAlert,
+} from '@sonarsource/echoes-react';
+import { ActionCell, ContentCell, NumericalCell, TableRow, TextError } from 'design-system';
 import * as React from 'react';
-import { deleteCondition } from '../../../api/quality-gates';
-import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import { colors } from '../../../app/theme';
-import { DeleteButton, EditButton } from '../../../components/controls/buttons';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
-import Tooltip from '../../../components/controls/Tooltip';
-import InfoIcon from '../../../components/icons/InfoIcon';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
+import { getOperatorLabel } from '../../../helpers/qualityGates';
+import { useDeleteConditionMutation } from '../../../queries/quality-gates';
+import { MetricKey } from '../../../sonar-aligned/types/metrics';
+import { CaycStatus, Condition as ConditionType, Metric, QualityGate } from '../../../types/types';
 import {
-  CaycStatus,
-  Condition as ConditionType,
-  Dict,
-  Metric,
-  QualityGate,
-} from '../../../types/types';
-import {
-  CAYC_CONDITIONS_WITH_FIXED_VALUE,
   getLocalizedMetricNameNoDiffMetric,
-  isCaycCondition,
+  isConditionWithFixedValue,
+  isNonEditableMetric,
 } from '../utils';
-import CaycOverCompliantBadgeTooltip from './CaycOverCompliantBadgeTooltip';
-import ConditionModal from './ConditionModal';
 import ConditionValue from './ConditionValue';
+import EditConditionModal from './EditConditionModal';
+
+export enum ConditionChange {
+  Added = 'added',
+  Updated = 'updated',
+  Deleted = 'deleted',
+}
 
 interface Props {
-  condition: ConditionType;
   canEdit: boolean;
-  metric: Metric;
-  organization: string;
-  onRemoveCondition: (Condition: ConditionType) => void;
-  onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
-  qualityGate: QualityGate;
-  updated?: boolean;
-  metrics: Dict<Metric>;
-  showEdit?: boolean;
+  condition: ConditionType;
   isCaycModal?: boolean;
+  metric: Metric;
+  qualityGate: QualityGate;
+  showEdit?: boolean;
 }
 
-interface State {
-  deleteFormOpen: boolean;
-  modal: boolean;
-}
+export default function ConditionComponent({
+  condition,
+  canEdit,
+  metric,
+  qualityGate,
+  showEdit,
+  isCaycModal,
+}: Readonly<Props>) {
+  const { mutateAsync: deleteCondition } = useDeleteConditionMutation(qualityGate.name);
+  const metrics = useMetrics();
+  const { op = 'GT' } = condition;
 
-const TOOLTIP_MOUSE_LEAVE_DELAY = 0.3;
-export class ConditionComponent extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      deleteFormOpen: false,
-      modal: false,
-    };
-  }
+  const isCaycCompliantAndOverCompliant = qualityGate.caycStatus !== CaycStatus.NonCompliant;
 
-  handleUpdateCondition = (newCondition: ConditionType) => {
-    this.props.onSaveCondition(newCondition, this.props.condition);
-  };
+  return (
+    <TableRow>
+      <ContentCell>
+        {getLocalizedMetricNameNoDiffMetric(metric, metrics)}
+        {metric.hidden && <TextError className="sw-ml-1" text={translate('deprecated')} />}
+      </ContentCell>
 
-  handleOpenUpdate = () => {
-    this.setState({ modal: true });
-  };
+      <ContentCell className="sw-whitespace-nowrap">{getOperatorLabel(op, metric)}</ContentCell>
 
-  handleUpdateClose = () => {
-    this.setState({ modal: false });
-  };
-
-  handleDeleteClick = () => {
-    this.setState({ deleteFormOpen: true });
-  };
-
-  closeDeleteForm = () => {
-    this.setState({ deleteFormOpen: false });
-  };
-
-  removeCondition = (condition: ConditionType) => {
-    deleteCondition({ id: condition.id, organization: this.props.organization }).then(
-      () => this.props.onRemoveCondition(condition),
-      () => {}
-    );
-  };
-
-  renderOperator() {
-    // TODO can operator be missing?
-    const { op = 'GT' } = this.props.condition;
-    return this.props.metric.type === 'RATING'
-      ? translate('quality_gates.operator', op, 'rating')
-      : translate('quality_gates.operator', op);
-  }
-
-  render() {
-    const {
-      condition,
-      canEdit,
-      metric,
-      organization,
-      qualityGate,
-      updated,
-      metrics,
-      showEdit = true,
-      isCaycModal = false,
-    } = this.props;
-
-    const isCaycCompliantAndOverCompliant = qualityGate.caycStatus !== CaycStatus.NonCompliant;
-
-    return (
-      <tr className={classNames({ highlighted: updated })}>
-        <td className="text-middle">
-          {getLocalizedMetricNameNoDiffMetric(metric, metrics)}
-          {metric.hidden && (
-            <span className="text-danger little-spacer-left">{translate('deprecated')}</span>
-          )}
-        </td>
-
-        <td className="text-middle nowrap">{this.renderOperator()}</td>
-
-        <td className="text-middle nowrap">
-          <ConditionValue
-            metric={metric}
-            isCaycModal={isCaycModal}
-            condition={condition}
-            isCaycCompliantAndOverCompliant={isCaycCompliantAndOverCompliant}
-          />
-        </td>
-        <td className="text-middle nowrap display-flex-justify-end">
-          {!isCaycCondition(condition) && isCaycCompliantAndOverCompliant && (
-            <span className="display-flex-center spacer-right">
-              <Tooltip
-                overlay={<CaycOverCompliantBadgeTooltip />}
-                mouseLeaveDelay={TOOLTIP_MOUSE_LEAVE_DELAY}
+      <NumericalCell className="sw-whitespace-nowrap">
+        <ConditionValue
+          metric={metric}
+          isCaycModal={isCaycModal}
+          condition={condition}
+          isCaycCompliantAndOverCompliant={isCaycCompliantAndOverCompliant}
+        />
+      </NumericalCell>
+      <ActionCell>
+        {!isCaycModal && canEdit && (
+          <>
+            {(!isCaycCompliantAndOverCompliant ||
+              !isConditionWithFixedValue(condition) ||
+              (isCaycCompliantAndOverCompliant && showEdit)) &&
+              !isNonEditableMetric(condition.metric as MetricKey) && (
+                <EditConditionModal
+                  condition={condition}
+                  header={translate('quality_gates.update_condition')}
+                  metric={metric}
+                  qualityGate={qualityGate}
+                />
+              )}
+            {(!isCaycCompliantAndOverCompliant ||
+              !condition.isCaycCondition ||
+              (isCaycCompliantAndOverCompliant && showEdit)) && (
+              <ModalAlert
+                title={translate('quality_gates.delete_condition')}
+                description={translateWithParameters(
+                  'quality_gates.delete_condition.confirm.message',
+                  getLocalizedMetricName(metric),
+                )}
+                primaryButton={
+                  <Button variety={ButtonVariety.Danger} onClick={() => deleteCondition(condition)}>
+                    {translate('delete')}
+                  </Button>
+                }
+                secondaryButtonLabel={translate('close')}
               >
-                <InfoIcon fill={colors.alertIconInfo} />
-              </Tooltip>
-            </span>
-          )}
-          {!isCaycModal && canEdit && (
-            <>
-              {(!isCaycCompliantAndOverCompliant ||
-                !CAYC_CONDITIONS_WITH_FIXED_VALUE.includes(condition.metric) ||
-                (isCaycCompliantAndOverCompliant && showEdit)) && (
-                <>
-                  <EditButton
-                    aria-label={translateWithParameters(
-                      'quality_gates.condition.edit',
-                      metric.name
-                    )}
-                    data-test="quality-gates__condition-update"
-                    onClick={this.handleOpenUpdate}
-                    className="spacer-right"
-                  />
-                  {this.state.modal && (
-                    <ConditionModal
-                      condition={condition}
-                      header={translate('quality_gates.update_condition')}
-                      metric={metric}
-                      onAddCondition={this.handleUpdateCondition}
-                      onClose={this.handleUpdateClose}
-                      qualityGate={qualityGate}
-                      organization={organization}
-                    />
-                  )}
-                </>
-              )}
-              {(!isCaycCompliantAndOverCompliant ||
-                !isCaycCondition(condition) ||
-                (isCaycCompliantAndOverCompliant && showEdit)) && (
-                <>
-                  <DeleteButton
-                    aria-label={translateWithParameters(
-                      'quality_gates.condition.delete',
-                      metric.name
-                    )}
-                    data-test="quality-gates__condition-delete"
-                    onClick={this.handleDeleteClick}
-                  />
-                  {this.state.deleteFormOpen && (
-                    <ConfirmModal
-                      confirmButtonText={translate('delete')}
-                      confirmData={condition}
-                      header={translate('quality_gates.delete_condition')}
-                      isDestructive={true}
-                      onClose={this.closeDeleteForm}
-                      onConfirm={this.removeCondition}
-                    >
-                      {translateWithParameters(
-                        'quality_gates.delete_condition.confirm.message',
-                        getLocalizedMetricName(this.props.metric)
-                      )}
-                    </ConfirmModal>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </td>
-      </tr>
-    );
-  }
+                <ButtonIcon
+                  Icon={IconDelete}
+                  ariaLabel={translateWithParameters('quality_gates.condition.delete', metric.name)}
+                  size={ButtonSize.Medium}
+                  variety={ButtonVariety.DangerGhost}
+                />
+              </ModalAlert>
+            )}
+          </>
+        )}
+      </ActionCell>
+    </TableRow>
+  );
 }
-
-export default withMetricsContext(ConditionComponent);

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,36 +19,40 @@
  */
 package org.sonar.server.authentication.event;
 
-import com.google.common.base.Joiner;
 import java.util.Collections;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.server.http.HttpRequest;
 
 import static java.util.Objects.requireNonNull;
 
 public class AuthenticationEventImpl implements AuthenticationEvent {
-  private static final Logger LOGGER = Loggers.get("auth.event");
+  private static final Logger LOGGER = LoggerFactory.getLogger("auth.event");
   private static final int FLOOD_THRESHOLD = 128;
+  private static final Pattern PATTERN_LINE_BREAK = Pattern.compile("[\n\r]");
 
   @Override
-  public void loginSuccess(HttpServletRequest request, @Nullable String login, Source source) {
+  public void loginSuccess(HttpRequest request, @Nullable String login, Source source) {
     checkRequest(request);
     requireNonNull(source, "source can't be null");
-    LOGGER.info("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
-      source.getMethod(), source.getProvider(), source.getProviderName(),
-      request.getRemoteAddr(), getAllIps(request),
-      preventLogFlood(emptyIfNull(login)));
+    LOGGER.atInfo().setMessage("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]")
+      .addArgument(source::getMethod)
+      .addArgument(source::getProvider)
+      .addArgument(source::getProviderName)
+      .addArgument(request::getRemoteAddr)
+      .addArgument(() -> getAllIps(request))
+      .addArgument(() -> preventLogFlood(sanitizeLog(emptyIfNull(login))))
+      .log();
   }
 
-  private static String getAllIps(HttpServletRequest request) {
-    return Collections.list(request.getHeaders("X-Forwarded-For")).stream().collect(MoreCollectors.join(Joiner.on(",")));
+  private static String getAllIps(HttpRequest request) {
+    return String.join(",", Collections.list(request.getHeaders("X-Forwarded-For")));
   }
 
   @Override
-  public void loginFailure(HttpServletRequest request, AuthenticationException e) {
+  public void loginFailure(HttpRequest request, AuthenticationException e) {
     checkRequest(request);
     requireNonNull(e, "AuthenticationException can't be null");
     Source source = e.getSource();
@@ -60,7 +64,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   }
 
   @Override
-  public void logoutSuccess(HttpServletRequest request, @Nullable String login) {
+  public void logoutSuccess(HttpRequest request, @Nullable String login) {
     checkRequest(request);
     if (!LOGGER.isDebugEnabled()) {
       return;
@@ -71,7 +75,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   }
 
   @Override
-  public void logoutFailure(HttpServletRequest request, String errorMessage) {
+  public void logoutFailure(HttpRequest request, String errorMessage) {
     checkRequest(request);
     requireNonNull(errorMessage, "error message can't be null");
     if (!LOGGER.isDebugEnabled()) {
@@ -82,7 +86,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
       request.getRemoteAddr(), getAllIps(request));
   }
 
-  private static void checkRequest(HttpServletRequest request) {
+  private static void checkRequest(HttpRequest request) {
     requireNonNull(request, "request can't be null");
   }
 
@@ -95,6 +99,10 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
       return str.substring(0, FLOOD_THRESHOLD) + "...(" + str.length() + ")";
     }
     return str;
+  }
+
+  private static String sanitizeLog(String message) {
+    return PATTERN_LINE_BREAK.matcher(message).replaceAll("_");
   }
 
 }

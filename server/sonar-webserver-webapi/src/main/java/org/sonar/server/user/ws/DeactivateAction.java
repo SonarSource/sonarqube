@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,6 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
@@ -48,14 +50,13 @@ public class DeactivateAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
-  private final UserDeactivator userDeactivator;
+  private final UserService userService;
 
-  public DeactivateAction(DbClient dbClient, UserSession userSession, UserJsonWriter userWriter,
-    UserDeactivator userDeactivator) {
+  public DeactivateAction(DbClient dbClient, UserSession userSession, UserJsonWriter userWriter, UserService userService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userWriter = userWriter;
-    this.userDeactivator = userDeactivator;
+    this.userService = userService;
   }
 
   @Override
@@ -65,7 +66,9 @@ public class DeactivateAction implements UsersWsAction {
       .setSince("3.7")
       .setPost(true)
       .setResponseExample(getClass().getResource("deactivate-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use DELETE api/v2/users-management/users/{id} instead"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")
@@ -84,44 +87,32 @@ public class DeactivateAction implements UsersWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     String login = request.mandatoryParam(PARAM_LOGIN);
+    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
+    boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
     String remoteAddress = request.header("X-Forwarded-For").orElse("n/a");
-
-    try {
-      checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
-
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
-        UserDto userDto = shouldAnonymize
-                ? userDeactivator.deactivateUserWithAnonymization(dbSession, login)
-                : userDeactivator.deactivateUser(dbSession, login);
-        writeResponse(response, userDto.getLogin());
-      }
-
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
+      checkFound(userDto, "User '%s' doesn't exist", login);
+      UserDto deactivatedUser = userService.deactivate(userDto.getUuid(), shouldAnonymize);
+      writeResponse(response, deactivatedUser);
       logger.info("User \"{}\" was deactivated. The action was executed by {} from {} remote address.", login, userSession.getLogin(), remoteAddress);
     } catch (BadRequestException ex) {
       logger.info("User \"{}\" was not deactivated. The action was executed by {} from {} remote address. Error: {}",
-              login, userSession.getLogin(), remoteAddress, ex.getMessage());
+          login, userSession.getLogin(), remoteAddress, ex.getMessage());
       throw ex;
     }
   }
 
-  private void writeResponse(Response response, String login) {
+  private void writeResponse(Response response, UserDto userDto) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-      // safeguard. It exists as the check has already been done earlier
-      // when deactivating user
-      checkFound(user, "User '%s' doesn't exist", login);
-
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         json.name("user");
-        Set<String> groups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
-        userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
+        Set<String> groups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userDto.getLogin())).get(userDto.getLogin()));
+        userWriter.write(json, userDto, groups, UserJsonWriter.FIELDS);
         json.endObject();
       }
     }
   }
-
-
 
 }

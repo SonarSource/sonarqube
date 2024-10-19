@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,9 +27,18 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
 public class UserTokenNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String tokenUuid;
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String userUuid;
 
@@ -73,11 +82,19 @@ public class UserTokenNewValue extends NewValue {
     this.type = TokenType.PROJECT_ANALYSIS_TOKEN.name();
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getTokenUuid() {
     return this.tokenUuid;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   public String getUserUuid() {
     return this.userUuid;
   }

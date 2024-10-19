@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,21 +26,27 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.component.ProjectLinkDto.PROVIDED_TYPES;
+import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_DELETE;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_ID;
 
 public class DeleteAction implements ProjectLinksWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession) {
+  public DeleteAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -70,7 +76,9 @@ public class DeleteAction implements ProjectLinksWsAction {
       ProjectLinkDto link = dbClient.projectLinkDao().selectByUuid(dbSession, id);
 
       link = NotFoundException.checkFound(link, "Link with id '%s' not found", id);
-      checkProjectAdminPermission(link);
+      componentFinder.getProjectByUuidOrKey(dbSession, link.getProjectUuid(), null, PROJECT_ID_AND_KEY);
+      ProjectDto projectDto = componentFinder.getProjectByUuidOrKey(dbSession, link.getProjectUuid(), null, PROJECT_ID_AND_KEY);
+      checkProjectAdminPermission(projectDto);
       checkNotProvided(link);
 
       dbClient.projectLinkDao().delete(dbSession, link.getUuid());
@@ -78,13 +86,16 @@ public class DeleteAction implements ProjectLinksWsAction {
     }
   }
 
+  private void checkProjectAdminPermission(ProjectDto projectDto) {
+    if (userSession.hasPermission(GlobalPermission.ADMINISTER)) {
+      return;
+    }
+    userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
+  }
+
   private static void checkNotProvided(ProjectLinkDto link) {
     String type = link.getType();
     boolean isProvided = type != null && PROVIDED_TYPES.contains(type);
     BadRequestException.checkRequest(!isProvided, "Provided link cannot be deleted.");
-  }
-
-  private void checkProjectAdminPermission(ProjectLinkDto link) {
-    userSession.checkComponentUuidPermission(UserRole.ADMIN, link.getProjectUuid());
   }
 }

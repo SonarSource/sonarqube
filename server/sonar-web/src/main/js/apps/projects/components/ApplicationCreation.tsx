@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { Router } from '~sonar-aligned/types/router';
 import { getComponentNavigation } from '../../../api/navigation';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';
-import { Button } from '../../../components/controls/buttons';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AppState } from '../../../types/appstate';
-import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';
 import { LoggedInUser } from '../../../types/users';
 
@@ -59,21 +61,23 @@ export function ApplicationCreation(props: ApplicationCreationProps) {
     key: string;
     qualifier: ComponentQualifier;
   }) => {
-    return getComponentNavigation({ component: key }).then(({ configuration }) => {
-      if (configuration && configuration.showSettings) {
-        router.push(getComponentAdminUrl(key, qualifier));
-      } else {
-        router.push(getComponentOverviewUrl(key, qualifier));
-      }
-      setShowForm(false);
-    });
+    return getComponentNavigation({ component: key })
+      .then(({ configuration }) => {
+        if (configuration?.showSettings) {
+          router.push(getComponentAdminUrl(key, qualifier));
+        } else {
+          router.push(getComponentOverviewUrl(key, qualifier));
+        }
+        setShowForm(false);
+      })
+      .catch(throwGlobalError);
   };
 
   return (
-    <div className={className}>
-      <Button className="button-primary" onClick={() => setShowForm(true)}>
+    <>
+      <ButtonSecondary onClick={() => setShowForm(true)} className={className}>
         {translate('projects.create_application')}
-      </Button>
+      </ButtonSecondary>
 
       {showForm && (
         <CreateApplicationForm
@@ -81,7 +85,7 @@ export function ApplicationCreation(props: ApplicationCreationProps) {
           onCreate={handleComponentCreate}
         />
       )}
-    </div>
+    </>
   );
 }
 

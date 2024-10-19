@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -47,8 +49,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
@@ -73,7 +73,9 @@ public class ListAction implements BranchWsAction {
       .setDescription("List the branches of a project or application.<br/>" +
         "Requires 'Browse' or 'Execute analysis' rights on the specified project or application.")
       .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
-      .setChangelog(new Change("7.2", "Application can be used on this web service"))
+      .setChangelog(
+        new Change("7.2", "Application can be used on this web service"),
+        new Change("10.6", "Field 'branchId' added to the response"))
       .setHandler(this);
 
     addProjectParam(action);
@@ -89,15 +91,15 @@ public class ListAction implements BranchWsAction {
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, projectOrApp).stream()
         .filter(b -> b.getBranchType() == BRANCH)
-        .collect(toList());
-      List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(toList());
+        .toList();
+      List<String> branchUuids = branches.stream().map(BranchDto::getUuid).toList();
 
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, singletonList(ALERT_STATUS_KEY)).stream()
-        .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
+        .collect(Collectors.toMap(LiveMeasureDto::getComponentUuid, Function.identity()));
       Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, branchUuids).stream()
-        .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
+        .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
       ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
       branches.forEach(b -> addBranch(protobufResponse, b, qualityGateMeasuresByComponentUuids.get(b.getUuid()),
@@ -123,6 +125,7 @@ public class ListAction implements BranchWsAction {
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
     builder.setExcludedFromPurge(branch.isExcludeFromPurge());
+    builder.setBranchId(branch.getUuid());
     return builder;
   }
 
@@ -136,9 +139,9 @@ public class ListAction implements BranchWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    if (!userSession.hasProjectPermission(USER, project) &&
-      !userSession.hasProjectPermission(UserRole.SCAN, project) &&
-      !userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
+    if (!userSession.hasEntityPermission(USER, project) &&
+        !userSession.hasEntityPermission(UserRole.SCAN, project) &&
+        !userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }
   }

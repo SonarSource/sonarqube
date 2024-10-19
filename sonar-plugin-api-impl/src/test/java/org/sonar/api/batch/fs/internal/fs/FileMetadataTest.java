@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,13 +29,13 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -306,9 +306,9 @@ public class FileMetadataTest {
     assertThat(metadata.nonBlankLines()).isEqualTo(133);
     assertThat(metadata.hash()).isNotEmpty();
 
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0)).contains("Invalid character encountered in file");
+    assertThat(logTester.logs(Level.WARN).get(0)).contains("Invalid character encountered in file");
     verify(analysisWarnings).addUnique("There are problems with file encoding in the source code. Please check the scanner logs for more details.");
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0)).contains(
+    assertThat(logTester.logs(Level.WARN).get(0)).contains(
       "glyphicons-halflings-regular.woff at line 1 for encoding UTF-8. Please fix file content or configure the encoding to be used using property 'sonar.sourceEncoding'.");
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 import { Dict } from './types';
 
 export interface AzureProject {
-  name: string;
   description: string;
+  name: string;
 }
 
 export interface AzureRepository {
@@ -41,16 +41,16 @@ export interface BitbucketRepository {
   id: number;
   name: string;
   projectKey: string;
-  sqProjectKey?: string;
   slug: string;
+  sqProjectKey?: string;
 }
 
 export interface BitbucketCloudRepository {
-  uuid: number;
   name: string;
   projectKey: string;
-  sqProjectKey?: string;
   slug: string;
+  sqProjectKey?: string;
+  uuid: number;
   workspace: string;
 }
 
@@ -68,8 +68,8 @@ export interface GithubRepository {
   id: string;
   key: string;
   name: string;
+  sqProjectKey?: string;
   url: string;
-  sqProjectKey: string;
 }
 
 export interface GitlabProject {
@@ -77,8 +77,8 @@ export interface GitlabProject {
   name: string;
   pathName: string;
   pathSlug: string;
+  slug: string;
   sqProjectKey?: string;
   sqProjectName?: string;
-  slug: string;
   url: string;
 }

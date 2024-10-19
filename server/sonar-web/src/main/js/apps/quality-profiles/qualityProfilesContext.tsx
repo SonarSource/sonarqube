@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,10 +19,10 @@
  */
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { Actions } from '../../api/quality-profiles';
-import { Exporter, Profile } from '../../apps/quality-profiles/types';
-import { getWrappedDisplayName } from '../../components/hoc/utils';
 import { Language } from '../../types/languages';
+import { Exporter, Profile } from './types';
 
 export interface QualityProfilesContextProps {
   actions: Actions;
@@ -35,17 +35,15 @@ export interface QualityProfilesContextProps {
 }
 
 export function withQualityProfilesContext<P extends Partial<QualityProfilesContextProps>>(
-  WrappedComponent: React.ComponentType<P>
-): React.ComponentType<Omit<P, keyof QualityProfilesContextProps>> {
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P>>,
+): React.ComponentType<React.PropsWithChildren<Omit<P, keyof QualityProfilesContextProps>>> {
   function ComponentWithQualityProfilesProps(props: P) {
     const context = useOutletContext<QualityProfilesContextProps>();
     return <WrappedComponent {...props} {...context} />;
   }
 
-  (ComponentWithQualityProfilesProps as React.FC<P>).displayName = getWrappedDisplayName(
-    WrappedComponent,
-    'withQualityProfilesContext'
-  );
+  (ComponentWithQualityProfilesProps as React.FC<React.PropsWithChildren<P>>).displayName =
+    getWrappedDisplayName(WrappedComponent, 'withQualityProfilesContext');
 
   return ComponentWithQualityProfilesProps;
 }

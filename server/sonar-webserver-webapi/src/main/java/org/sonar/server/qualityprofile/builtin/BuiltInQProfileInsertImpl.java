@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,14 +29,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -44,6 +45,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.OrgQProfileDto;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -65,15 +67,17 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   private final TypeValidations typeValidations;
   private final ActiveRuleIndexer activeRuleIndexer;
   private RuleRepository ruleRepository;
+  private final SonarQubeVersion sonarQubeVersion;
 
   public BuiltInQProfileInsertImpl(DbClient dbClient, ServerRuleFinder ruleFinder, System2 system2, UuidFactory uuidFactory,
-    TypeValidations typeValidations, ActiveRuleIndexer activeRuleIndexer) {
+    TypeValidations typeValidations, ActiveRuleIndexer activeRuleIndexer, SonarQubeVersion sonarQubeVersion) {
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.typeValidations = typeValidations;
     this.activeRuleIndexer = activeRuleIndexer;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
@@ -85,9 +89,13 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
     List<ActiveRuleChange> changes = builtInQProfile.getActiveRules().stream()
       .map(activeRule -> insertActiveRule(batchDbSession, ruleProfile, activeRule, now.getTime()))
-      .collect(MoreCollectors.toList());
+      .toList();
 
-    changes.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
+    List<QProfileChangeDto> changeDtos = changes.stream()
+      .map(ActiveRuleChange::toSystemChangedDto)
+      .peek(dto -> dto.setSqVersion(sonarQubeVersion.toString()))
+      .toList();
+    dbClient.qProfileChangeDao().bulkInsert(batchDbSession, changeDtos);
 
     associateToOrganizations(dbSession, batchDbSession, builtInQProfile, ruleProfile);
 
@@ -162,7 +170,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
   private List<ActiveRuleParamDto> insertActiveRuleParams(DbSession session, BuiltInQProfile.ActiveRule activeRule, ActiveRuleDto activeRuleDto) {
     Map<String, String> valuesByParamKey = activeRule.getParams().stream()
-      .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
+      .collect(Collectors.toMap(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
     List<ActiveRuleParamDto> rules = ruleRepository.getRuleParams(activeRule.getRuleKey()).stream()
       .map(param -> createParamDto(param, Optional.ofNullable(valuesByParamKey.get(param.getName())).orElse(param.getDefaultValue())))
       .filter(Objects::nonNull)

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,34 +17,101 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
+import { ComponentContext } from '../../../../app/components/componentContext/ComponentContext';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockSourceViewerFile } from '../../../../helpers/mocks/sources';
-import { ComponentQualifier } from '../../../../types/component';
-import IssueSourceViewerHeader, { Props } from '../IssueSourceViewerHeader';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../../types/features';
+import { IssueSourceViewerHeader, Props } from '../IssueSourceViewerHeader';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ linkToProject: false })).toMatchSnapshot('no link to project');
-  expect(shallowRender({ displayProjectName: false })).toMatchSnapshot('no project name');
-  expect(
-    shallowRender({
-      sourceViewerFile: mockSourceViewerFile('foo/bar.ts', 'my-project', {
-        q: ComponentQualifier.Project,
-      }),
-    })
-  ).toMatchSnapshot('project root');
+const ui = {
+  expandAllLines: byRole('button', { name: 'source_viewer.expand_all_lines' }),
+  projectLink: byRole('link', { name: 'MyProject' }),
+  projectName: byText('MyProject'),
+  viewAllIssues: byRole('link', { name: 'source_viewer.view_all_issues' }),
+};
+
+const branchHandler = new BranchesServiceMock();
+
+afterEach(() => {
+  branchHandler.reset();
 });
 
-function shallowRender(props: Partial<Props> = {}) {
-  return shallow(
-    <IssueSourceViewerHeader
-      branchLike={mockMainBranch()}
-      expandable={true}
-      onExpand={jest.fn()}
-      sourceViewerFile={mockSourceViewerFile('foo/bar.ts', 'my-project')}
-      {...props}
-    />
+it('should render correctly', async () => {
+  branchHandler.emptyBranchesAndPullRequest();
+
+  renderIssueSourceViewerHeader();
+
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
+
+  expect(ui.expandAllLines.get()).toBeInTheDocument();
+  expect(ui.projectLink.get()).toBeInTheDocument();
+  expect(ui.projectName.get()).toBeInTheDocument();
+  expect(ui.viewAllIssues.get()).toBeInTheDocument();
+});
+
+it('should not render expandable link', async () => {
+  renderIssueSourceViewerHeader({ expandable: false });
+
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
+
+  expect(ui.expandAllLines.query()).not.toBeInTheDocument();
+});
+
+it('should not render link to project', async () => {
+  renderIssueSourceViewerHeader({ linkToProject: false }, '?id=my-project&branch=normal-branch');
+
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
+
+  expect(ui.projectLink.query()).not.toBeInTheDocument();
+  expect(ui.projectName.get()).toBeInTheDocument();
+});
+
+it('should not render project name', async () => {
+  renderIssueSourceViewerHeader({ displayProjectName: false }, '?id=my-project&pullRequest=01');
+
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
+
+  expect(ui.projectLink.query()).not.toBeInTheDocument();
+  expect(ui.projectName.query()).not.toBeInTheDocument();
+});
+
+it('should render without issue expand all when no issue', async () => {
+  renderIssueSourceViewerHeader({
+    sourceViewerFile: mockSourceViewerFile('foo/bar.ts', 'my-project', {
+      measures: {},
+    }),
+  });
+
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
+
+  expect(ui.viewAllIssues.query()).not.toBeInTheDocument();
+});
+
+function renderIssueSourceViewerHeader(props: Partial<Props> = {}, path = '?id=my-project') {
+  return renderComponent(
+    <AvailableFeaturesContext.Provider value={[Feature.BranchSupport]}>
+      <ComponentContext.Provider
+        value={{
+          component: mockComponent(),
+          onComponentChange: jest.fn(),
+          fetchComponent: jest.fn(),
+        }}
+      >
+        <IssueSourceViewerHeader
+          expandable
+          issueKey="issue-key"
+          onExpand={jest.fn()}
+          sourceViewerFile={mockSourceViewerFile('foo/bar.ts', 'my-project')}
+          {...props}
+        />
+      </ComponentContext.Provider>
+    </AvailableFeaturesContext.Provider>,
+    path,
   );
 }

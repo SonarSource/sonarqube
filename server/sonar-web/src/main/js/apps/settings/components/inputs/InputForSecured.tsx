@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { LockIcon } from 'design-system';
 import * as React from 'react';
-import { colors } from '../../../../app/theme';
-import { Button } from '../../../../components/controls/buttons';
-import LockIcon from '../../../../components/icons/LockIcon';
 import { translate } from '../../../../helpers/l10n';
 import {
   DefaultInputProps,
   DefaultSpecializedInputProps,
+  getPropertyName,
   getUniqueName,
   isDefaultOrInherited,
 } from '../../utils';
@@ -34,10 +34,13 @@ interface State {
 }
 
 interface Props extends DefaultInputProps {
-  input: React.ComponentType<DefaultSpecializedInputProps>;
+  innerRef: React.ForwardedRef<HTMLElement>;
+  input: React.ComponentType<
+    React.PropsWithChildren<DefaultSpecializedInputProps> & React.RefAttributes<HTMLElement>
+  >;
 }
 
-export default class InputForSecured extends React.PureComponent<Props, State> {
+class InputForSecured extends React.PureComponent<Props, State> {
   state: State = {
     changing: !this.props.setting.hasValue,
   };
@@ -66,19 +69,23 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
   };
 
   renderInput() {
-    const { input: Input, setting, value } = this.props;
+    const { input: Input, innerRef, setting, value } = this.props;
     const name = getUniqueName(setting.definition);
     return (
       // The input hidden will prevent browser asking for saving login information
       <>
-        <input className="hidden" type="password" />
+        <input aria-hidden className="sw-hidden" tabIndex={-1} type="password" />
         <Input
+          aria-label={getPropertyName(setting.definition)}
           autoComplete="off"
-          className="js-setting-input settings-large-input"
+          className="js-setting-input"
+          id={`input-${name}`}
           isDefault={isDefaultOrInherited(setting)}
           name={name}
           onChange={this.handleInputChange}
+          ref={innerRef}
           setting={setting}
+          size="large"
           type="password"
           value={value}
         />
@@ -92,12 +99,16 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
     }
 
     return (
-      <>
-        <LockIcon className="text-middle big-spacer-right" fill={colors.gray60} />
-        <Button className="text-middle" onClick={this.handleChangeClick}>
-          {translate('change_verb')}
-        </Button>
-      </>
+      <div className="sw-flex sw-items-center">
+        <LockIcon className="sw-mr-4" />
+        <Button onClick={this.handleChangeClick}>{translate('change_verb')}</Button>
+      </div>
     );
   }
 }
+
+export default React.forwardRef(
+  (props: Omit<Props, 'innerRef'>, ref: React.ForwardedRef<HTMLElement>) => (
+    <InputForSecured innerRef={ref} {...props} />
+  ),
+);

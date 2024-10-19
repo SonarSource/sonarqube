@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,12 +34,20 @@ public class QualityGateConditionDao implements Dao {
     return mapper(session).selectForQualityGate(qGateUuid);
   }
 
+  public Collection<QualityGateConditionDto> selectAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
+
   public QualityGateConditionDto selectByUuid(String uuid, DbSession session) {
     return mapper(session).selectByUuid(uuid);
   }
 
   public void delete(QualityGateConditionDto qGate, DbSession session) {
     mapper(session).delete(qGate.getUuid());
+  }
+
+  public void deleteForQualityGate(String qGateUuid, DbSession session) {
+    mapper(session).deleteForQualityGate(qGateUuid);
   }
 
   public void update(QualityGateConditionDto qGate, DbSession session) {

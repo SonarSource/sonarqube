@@ -29,9 +29,21 @@
     lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator=","
                                close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
     and component_uuid in (SELECT
-      p.uuid as uuid
+    p.uuid as uuid
     FROM projects p
     where p.qualifier = 'TRK')
+  </select>
+
+  <select id="selectForProjectMainBranchesByMetricUuids" parameterType="map" resultType="org.sonar.db.measure.ProjectMainBranchLiveMeasureDto">
+    select p.uuid as projectUuid, lm.metric_uuid as metricUuid, lm.value as value, lm.text_value as textValue
+    from live_measures lm
+    inner join project_branches pb on pb.uuid = lm.component_uuid
+    inner join projects p on p.uuid = pb.project_uuid
+    where
+    lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator=","
+                               close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
+    and p.qualifier = 'TRK'
+    and pb.is_main = ${_true}
   </select>
 
   <select id="selectByComponentUuidsAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
@@ -61,63 +73,69 @@
     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="sumNclocOfBiggestBranch" parameterType="map" resultType="long">
-    select sum(sumncloc.maxncloc) from (
-      select b.project_uuid as projectUuid, max(lm.value) as maxncloc
-      from live_measures lm
-      inner join metrics m on m.uuid = lm.metric_uuid
-      inner join project_branches b on b.uuid = lm.component_uuid
-      inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
-      <where>
-        m.name = #{ncloc, jdbcType=VARCHAR}
-        <if test="private">
-          and p.private=${_true}
-        </if>
-        <if test="projectUuidToExclude != null">
-          and b.project_uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
-        </if>
-      </where>
-      group by b.project_uuid
-    ) sumncloc
+  <select id="findNclocOfBiggestBranchForProject" parameterType="map" resultType="long">
+    select max(lm.value)
+    from live_measures lm
+    inner join metrics m on m.uuid = lm.metric_uuid
+    inner join project_branches b on b.uuid = lm.component_uuid
+    inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
+    <where>
+      m.name = #{ncloc, jdbcType=VARCHAR}
+      and b.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+    </where>
   </select>
 
   <select id="getLargestBranchNclocPerProject" parameterType="map" resultType="LargestBranchNclocDto">
-    select tie_breaker.projectUuid,
-    tie_breaker.projectName,
-    tie_breaker.projectKey,
-    ncloc as loc,
-    pb.kee as branchName,
-    pb.branch_type as branchType
-      from
-        (select counter.projectUuid as projectUuid,
-          counter.maxncloc ncloc,
-          min(br.uuid) as branchUuid,
-          counter.projectName,
-          counter.projectKey
-          from
-            (select b.project_uuid as projectUuid,
-              p.name as projectName,
-              p.kee as projectKey,
-              max(lm.value) as maxncloc
-                from live_measures lm
-                inner join metrics m on m.uuid = lm.metric_uuid
-                inner join project_branches b on b.uuid = lm.component_uuid
-                inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
-                where m.name = 'ncloc'
-                group by b.project_uuid, p.name, p.kee) counter
-          inner join live_measures lmo on lmo.value = counter.maxncloc
-          inner join project_branches br on br.project_uuid = counter.projectUuid and br.uuid = lmo.component_uuid
-          group by counter.projectUuid, counter.maxncloc, counter.projectName, counter.projectKey) tie_breaker
-      inner join project_branches pb on tie_breaker.branchUuid = pb.uuid
-      order by ncloc desc
+    select loc_grouped_branches.projectUuid,
+        loc_grouped_branches.projectName,
+        loc_grouped_branches.projectKey,
+        loc_grouped_branches.ncloc as loc,
+        loc_grouped_branches.branchName,
+        loc_grouped_branches.branchType
+    from (
+       select pb.project_uuid as projectUuid,
+       p.name as projectName,
+       p.kee as projectKey,
+       pb.kee as branchName,
+       pb.branch_type as branchType,
+       lm.value as ncloc,
+       row_number() over (partition by pb.project_uuid order by lm.value desc, pb.is_main desc, pb.uuid asc) row_number
+       from live_measures lm
+          inner join project_branches pb on pb.uuid = lm.component_uuid
+          inner join projects p on p.uuid = pb.project_uuid
+          where lm.metric_uuid = #{nclocUuid, jdbcType=VARCHAR}
+          and p.qualifier ='TRK'
+      ) loc_grouped_branches
+    where loc_grouped_branches.row_number = 1
+    order by ncloc desc
   </select>
 
+  <select id="selectLargestBranchesLocDistribution" parameterType="map" resultType="ProjectLocDistribution">
+    select top_branches.project_uuid as projectUuid,
+    top_branches.uuid as branchUuid,
+    lm2.text_value as locDistribution from (
+    SELECT loc_grouped_branches.uuid, loc_grouped_branches.project_uuid
+      FROM (
+       SELECT b.uuid, b.project_uuid, ROW_NUMBER() OVER (PARTITION BY
+       b.project_uuid ORDER BY lm.value desc, b.is_main desc, b.uuid asc) row_number
+       from live_measures lm
+          inner join project_branches b on b.uuid = lm.component_uuid
+          inner join projects p on p.uuid = b.project_uuid
+          where lm.metric_uuid = #{nclocUuid, jdbcType=VARCHAR}
+          and p.qualifier ='TRK'
+      ) loc_grouped_branches
+    WHERE loc_grouped_branches.row_number = 1) top_branches
+    inner join live_measures lm2 on lm2.component_uuid = top_branches.uuid
+    where lm2.metric_uuid = #{nclocDistributionUuid, jdbcType=VARCHAR}
+  </select>
 
   <select id="countProjectsHavingMeasure" parameterType="map" resultType="long">
     select count(1)
       from live_measures lm
       inner join metrics m on m.uuid = lm.metric_uuid AND m.name = #{metric, jdbcType=VARCHAR}
-      inner join projects p on p.uuid = lm.component_uuid and p.qualifier = 'TRK'
+      inner join project_branches pb on pb.uuid = lm.project_uuid
+      inner join projects p on p.uuid = pb.project_uuid and p.qualifier = 'TRK'
+
   </select>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import FinishButton from '../../components/FinishButton';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import DotNetCore from './DotNetCore';
 import DotNetFramework from './DotNetFramework';
 
@@ -43,25 +44,24 @@ const DotOS: { [key in keyof typeof DotNetFlavor]: OSDotNet } = {
 
 export default function DotNet(props: LanguageProps) {
   const { component } = props;
-  const [flavorComponent, setFlavorComponet] = React.useState<keyof typeof DotNetFlavor>();
+  const [flavorComponent, setFlavorComponent] =
+    React.useState<keyof typeof DotNetFlavor>('win_core');
   const DotNetTutorial = flavorComponent && DotNetFlavor[flavorComponent];
+
   return (
     <>
-      <li>
+      <NumberedListItem>
         {translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
         <RenderOptions
           label={translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
           checked={flavorComponent}
           optionLabelKey="onboarding.build.dotnet"
-          onCheck={(value) => setFlavorComponet(value as keyof typeof DotNetFlavor)}
+          onCheck={(value) => setFlavorComponent(value as keyof typeof DotNetFlavor)}
           options={Object.keys(DotNetFlavor)}
         />
-      </li>
+      </NumberedListItem>
       {DotNetTutorial && flavorComponent && (
-        <>
-          <DotNetTutorial component={component} os={DotOS[flavorComponent]} />
-          <FinishButton onClick={props.onDone} />
-        </>
+        <DotNetTutorial component={component} os={DotOS[flavorComponent]} />
       )}
     </>
   );

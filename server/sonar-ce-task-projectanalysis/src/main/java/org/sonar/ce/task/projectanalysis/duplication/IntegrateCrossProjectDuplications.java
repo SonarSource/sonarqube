@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,11 +26,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.duplications.block.Block;
@@ -45,7 +44,7 @@ import org.sonar.duplications.index.PackedMemoryCloneIndex;
  */
 public class IntegrateCrossProjectDuplications {
 
-  private static final Logger LOGGER = Loggers.get(IntegrateCrossProjectDuplications.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IntegrateCrossProjectDuplications.class);
   private static final String JAVA_KEY = "java";
   private static final String DEPRECATED_WARNING = "This analysis uses the deprecated cross-project duplication feature.";
   private static final String DEPRECATED_WARNING_DASHBOARD = "This project uses the deprecated cross-project duplication feature.";
@@ -56,12 +55,13 @@ public class IntegrateCrossProjectDuplications {
   private final Configuration config;
   private final DuplicationRepository duplicationRepository;
 
-  private Map<String, NumberOfUnitsNotLessThan> numberOfUnitsByLanguage = new HashMap<>();
+  private final Map<String, NumberOfUnitsNotLessThan> numberOfUnitsByLanguage = new HashMap<>();
 
-  public IntegrateCrossProjectDuplications(Configuration config, DuplicationRepository duplicationRepository, CeTaskMessages ceTaskMessages, System2 system) {
+  public IntegrateCrossProjectDuplications(CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder, Configuration config,
+    DuplicationRepository duplicationRepository, CeTaskMessages ceTaskMessages, System2 system) {
     this.config = config;
     this.duplicationRepository = duplicationRepository;
-    if (config.getBoolean(CoreProperties.CPD_CROSS_PROJECT).orElse(false)) {
+    if (crossProjectDuplicationStatusHolder.isEnabled()) {
       LOGGER.warn(DEPRECATED_WARNING);
       ceTaskMessages.add(new CeTaskMessages.Message(DEPRECATED_WARNING_DASHBOARD, system.now()));
     }

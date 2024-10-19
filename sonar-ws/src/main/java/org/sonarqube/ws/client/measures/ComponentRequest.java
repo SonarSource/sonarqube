@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,9 +34,6 @@ public class ComponentRequest {
   private List<String> additionalFields;
   private String branch;
   private String component;
-  private String componentId;
-  private String developerId;
-  private String developerKey;
   private List<String> metricKeys;
   private String pullRequest;
 
@@ -80,46 +77,6 @@ public class ComponentRequest {
 
   public String getComponent() {
     return component;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ComponentRequest setComponentId(String componentId) {
-    this.componentId = componentId;
-    return this;
-  }
-
-  public String getComponentId() {
-    return componentId;
-  }
-
-  /**
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public ComponentRequest setDeveloperId(String developerId) {
-    this.developerId = developerId;
-    return this;
-  }
-
-  public String getDeveloperId() {
-    return developerId;
-  }
-
-  /**
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public ComponentRequest setDeveloperKey(String developerKey) {
-    this.developerKey = developerKey;
-    return this;
-  }
-
-  public String getDeveloperKey() {
-    return developerKey;
   }
 
   /**

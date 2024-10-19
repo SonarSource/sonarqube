@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,34 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSize, Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import Select from '../../../../components/controls/Select';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 type Props = DefaultSpecializedInputProps & Pick<ExtendedSettingDefinition, 'options'>;
 
-export default class InputForSingleSelectList extends React.PureComponent<Props> {
-  handleInputChange = ({ value }: { value: string }) => {
-    this.props.onChange(value);
-  };
+function InputForSingleSelectList(
+  props: Readonly<Props>,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  const { name, options: opts, value, setting } = props;
 
-  render() {
-    const { options: opts, name, value } = this.props;
+  const options = React.useMemo(
+    () => opts.map((option) => ({ label: option, value: option })),
+    [opts],
+  );
 
-    const options = opts.map((option) => ({
-      label: option,
-      value: option,
-    }));
-
-    return (
-      <Select
-        className="settings-large-input"
-        name={name}
-        onChange={this.handleInputChange}
-        options={options}
-        value={options.find((option) => option.value === value)}
-      />
-    );
-  }
+  return (
+    <Select
+      ariaLabel={getPropertyName(setting.definition)}
+      data={options}
+      isNotClearable
+      name={name}
+      onChange={props.onChange}
+      ref={ref}
+      size={InputSize.Large}
+      value={value}
+    />
+  );
 }
+
+export default React.forwardRef(InputForSingleSelectList);

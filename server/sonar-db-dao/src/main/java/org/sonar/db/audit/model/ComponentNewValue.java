@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +19,20 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Objects.requireNonNull;
 
 public class ComponentNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   private final String componentUuid;
   private final String componentKey;
   private final String componentName;
@@ -72,6 +77,10 @@ public class ComponentNewValue extends NewValue {
     this.qualifier = qualifier;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   public String getComponentUuid() {
     return componentUuid;
   }
@@ -107,8 +116,8 @@ public class ComponentNewValue extends NewValue {
     addField(sb, "\"qualifier\": ", getQualifier(qualifier), true);
     addField(sb, "\"description\": ", this.description, true);
     addField(sb, "\"path\": ", this.path, true);
-    addField(sb, "\"isPrivate\": ", ObjectUtils.toString(this.isPrivate), false);
-    addField(sb, "\"isEnabled\": ", ObjectUtils.toString(this.isEnabled), false);
+    addField(sb, "\"isPrivate\": ", Objects.toString(this.isPrivate, ""), false);
+    addField(sb, "\"isEnabled\": ", Objects.toString(this.isEnabled, ""), false);
     endString(sb);
     return sb.toString();
   }

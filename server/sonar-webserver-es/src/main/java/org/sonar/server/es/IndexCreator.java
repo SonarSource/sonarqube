@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,29 +24,26 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.newindex.BuiltIndex;
 import org.sonar.server.es.newindex.NewIndex;
-import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.DESCRIPTOR;
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
@@ -57,25 +54,21 @@ import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA
 @ServerSide
 public class IndexCreator implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(IndexCreator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IndexCreator.class);
 
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;
   private final EsClient client;
-  private final MigrationEsClient migrationEsClient;
   private final IndexDefinitions definitions;
   private final EsDbCompatibility esDbCompatibility;
-  private final Configuration configuration;
 
   public IndexCreator(EsClient client, IndexDefinitions definitions, MetadataIndexDefinition metadataIndexDefinition,
-    MetadataIndex metadataIndex, MigrationEsClient migrationEsClient, EsDbCompatibility esDbCompatibility, Configuration configuration) {
+    MetadataIndex metadataIndex, EsDbCompatibility esDbCompatibility) {
     this.client = client;
     this.definitions = definitions;
     this.metadataIndexDefinition = metadataIndexDefinition;
     this.metadataIndex = metadataIndex;
-    this.migrationEsClient = migrationEsClient;
     this.esDbCompatibility = esDbCompatibility;
-    this.configuration = configuration;
   }
 
   @Override
@@ -153,14 +146,12 @@ public class IndexCreator implements Startable {
     }
     client.waitForStatus(ClusterHealthStatus.YELLOW);
 
-    // create types
-    LOGGER.info("Create type {}", builtIndex.getMainType().format());
+    LOGGER.info("Create mapping {}", builtIndex.getMainType().getIndex().getName());
     AcknowledgedResponse mappingResponse = client.putMapping(new PutMappingRequest(builtIndex.getMainType().getIndex().getName())
-      .type(builtIndex.getMainType().getType())
       .source(builtIndex.getAttributes()));
 
     if (!mappingResponse.isAcknowledged()) {
-      throw new IllegalStateException("Failed to create type " + builtIndex.getMainType().getType());
+      throw new IllegalStateException("Failed to create mapping " + builtIndex.getMainType().getIndex().getName());
     }
     client.waitForStatus(ClusterHealthStatus.YELLOW);
   }
@@ -170,23 +161,11 @@ public class IndexCreator implements Startable {
   }
 
   private void updateIndex(BuiltIndex<?> index) {
-    boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
     String indexName = index.getMainType().getIndex().getName();
 
-    if (blueGreen) {
-      // SonarCloud
-      if (migrationEsClient.getUpdatedIndices().contains(indexName)) {
-        LOGGER.info("Resetting definition hash of Elasticsearch index [{}]", indexName);
-        metadataIndex.setHash(index.getMainType().getIndex(), IndexDefinitionHash.of(index));
-      } else {
-        throw new IllegalStateException("Blue/green deployment is not supported. Elasticsearch index [" + indexName + "] changed and needs to be dropped.");
-      }
-    } else {
-      // SonarQube
-      LOGGER.info("Delete Elasticsearch index {} (structure changed)", indexName);
-      deleteIndex(indexName);
-      createIndex(index, true);
-    }
+    LOGGER.info("Delete Elasticsearch index {} (structure changed)", indexName);
+    deleteIndex(indexName);
+    createIndex(index, true);
   }
 
   private boolean hasDefinitionChange(BuiltIndex<?> index) {

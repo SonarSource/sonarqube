@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,8 +35,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,11 +90,12 @@ public class RootFilterTest {
 
   @Test
   public void throwable_in_doFilter_is_logged_in_debug_if_response_is_already_committed() throws Exception {
+    logTester.setLevel(Level.DEBUG);
     doThrow(new RuntimeException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
     HttpServletResponse response = mockHttpResponse(true);
     underTest.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
 
-    List<String> debugLogs = logTester.logs(LoggerLevel.DEBUG);
+    List<String> debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs.size()).isOne();
     assertThat(debugLogs.get(0)).contains("Processing of request", "failed");
   }

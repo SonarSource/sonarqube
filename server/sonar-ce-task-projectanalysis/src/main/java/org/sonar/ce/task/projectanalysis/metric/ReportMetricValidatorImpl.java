@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,20 +22,21 @@ package org.sonar.ce.task.projectanalysis.metric;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class ReportMetricValidatorImpl implements ReportMetricValidator {
-  private static final Logger LOG = Loggers.get(ReportMetricValidatorImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ReportMetricValidatorImpl.class);
 
   private final Map<String, Metric> metricByKey;
   private final Set<String> alreadyLoggedMetricKeys = new HashSet<>();
 
   public ReportMetricValidatorImpl(ScannerMetrics scannerMetrics) {
-    this.metricByKey = scannerMetrics.getMetrics().stream().collect(MoreCollectors.uniqueIndex(Metric::getKey));
+    this.metricByKey = scannerMetrics.getMetrics().stream().collect(Collectors.toMap(Metric::getKey, Function.identity()));
   }
 
   @Override

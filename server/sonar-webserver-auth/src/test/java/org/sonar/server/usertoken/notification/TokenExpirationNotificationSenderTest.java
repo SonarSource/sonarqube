@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,9 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
@@ -49,11 +49,12 @@ public class TokenExpirationNotificationSenderTest {
 
   @Test
   public void no_notification_when_email_setting_is_not_set() {
+    logTester.setLevel(Level.DEBUG);
     when(emailComposer.areEmailSettingsSet()).thenReturn(false);
     underTest.sendNotifications();
-    assertThat(logTester.getLogs(LoggerLevel.DEBUG))
+    assertThat(logTester.getLogs(Level.DEBUG))
       .extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly("Emails for token expiration notification have not been sent because email settings are not configured.");
+      .contains("Emails for token expiration notification have not been sent because email settings are not configured.");
   }
 
   @Test

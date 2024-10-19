@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { startOfDay } from 'date-fns';
-import { isEqual } from 'lodash';
+import { isEqual, uniq } from 'lodash';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
+import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../helpers/constants';
 import { parseDate } from '../../helpers/dates';
+import { MEASURES_REDIRECTION } from '../../helpers/measures';
 import {
   cleanQuery,
   parseAsArray,
@@ -31,7 +35,7 @@ import {
   serializeStringArray,
 } from '../../helpers/query';
 import { GraphType, ParsedAnalysis } from '../../types/project-activity';
-import { Dict, RawQuery } from '../../types/types';
+import { Dict } from '../../types/types';
 
 export interface Query {
   category: string;
@@ -42,9 +46,6 @@ export interface Query {
   selectedDate?: Date;
   to?: Date;
 }
-
-export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
-export const APPLICATION_EVENT_TYPES = ['QUALITY_GATE', 'DEFINITION_CHANGE', 'OTHER'];
 
 export function activityQueryChanged(prevQuery: Query, nextQuery: Query) {
   return prevQuery.category !== nextQuery.category || datesQueryChanged(prevQuery, nextQuery);
@@ -62,19 +63,15 @@ export function historyQueryChanged(prevQuery: Query, nextQuery: Query) {
   return prevQuery.graph !== nextQuery.graph;
 }
 
-export function selectedDateQueryChanged(prevQuery: Query, nextQuery: Query) {
-  return !isEqual(prevQuery.selectedDate, nextQuery.selectedDate);
-}
-
-interface AnalysesByDay {
+export interface AnalysesByDay {
   byDay: Dict<ParsedAnalysis[]>;
-  version: string | null;
   key: string | null;
+  version: string | null;
 }
 
 export function getAnalysesByVersionByDay(
   analyses: ParsedAnalysis[],
-  query: Pick<Query, 'category' | 'from' | 'to'>
+  query: Pick<Query, 'category' | 'from' | 'to'>,
 ) {
   return analyses.reduce<AnalysesByDay[]>((acc, analysis) => {
     let currentVersion = acc[acc.length - 1];
@@ -116,9 +113,26 @@ export function getAnalysesByVersionByDay(
 }
 
 export function parseQuery(urlQuery: RawQuery): Query {
+  const parsedMetrics = parseAsArray(urlQuery['custom_metrics'], parseAsString<MetricKey>);
+  let customMetrics = uniq(parsedMetrics.map((metric) => MEASURES_REDIRECTION[metric] ?? metric));
+
+  const reversedMetricMap = Object.fromEntries(
+    Object.entries(SOFTWARE_QUALITY_RATING_METRICS_MAP).map(
+      ([k, v]) => [v, k] as [MetricKey, MetricKey],
+    ),
+  );
+
+  customMetrics = uniq(customMetrics.map((metric) => reversedMetricMap[metric] ?? metric))
+    .map((metric) =>
+      SOFTWARE_QUALITY_RATING_METRICS_MAP[metric]
+        ? [metric, SOFTWARE_QUALITY_RATING_METRICS_MAP[metric]]
+        : metric,
+    )
+    .flat();
+
   return {
     category: parseAsString(urlQuery['category']),
-    customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
+    customMetrics,
     from: parseAsDate(urlQuery['from']),
     graph: parseGraph(urlQuery['graph']),
     project: parseAsString(urlQuery['id']),
@@ -130,16 +144,19 @@ export function parseQuery(urlQuery: RawQuery): Query {
 export function serializeQuery(query: Query): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
-    from: serializeDate(query.from),
     project: serializeString(query.project),
-    to: serializeDate(query.to),
   });
 }
 
 export function serializeUrlQuery(query: Query): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
-    custom_metrics: serializeStringArray(query.customMetrics),
+    custom_metrics: serializeStringArray(
+      query.customMetrics.filter(
+        (metric) =>
+          !Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric as MetricKey),
+      ),
+    ),
     from: serializeDate(query.from),
     graph: serializeGraph(query.graph),
     id: serializeString(query.project),

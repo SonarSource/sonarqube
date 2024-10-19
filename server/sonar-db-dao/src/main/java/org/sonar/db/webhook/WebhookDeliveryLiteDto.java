@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,15 +21,15 @@ package org.sonar.db.webhook;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
   /** Technical unique identifier, can't be null */
   protected String uuid;
   /** Technical unique identifier, can be null for migration */
   protected String webhookUuid;
-  /** Component UUID, can't be null */
-  protected String componentUuid;
+  /** Project UUID, can't be null */
+  protected String projectUuid;
   /** Compute Engine task UUID, can be null */
   protected String ceTaskUuid;
   /** analysis UUID, can be null */
@@ -64,12 +64,12 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
     return (T) this;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  public T setComponentUuid(String s) {
-    this.componentUuid = s;
+  public T setProjectUuid(String s) {
+    this.projectUuid = s;
     return (T) this;
   }
 
@@ -153,7 +153,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
   public String toString() {
     return new ToStringBuilder(this)
       .append("uuid", uuid)
-      .append("componentUuid", componentUuid)
+      .append("componentUuid", projectUuid)
       .append("ceTaskUuid", ceTaskUuid)
       .append("name", name)
       .append("success", success)

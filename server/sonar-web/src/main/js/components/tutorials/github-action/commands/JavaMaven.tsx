@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,57 +20,59 @@
 import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
-import FinishButton from '../../components/FinishButton';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
-  mainBranchName: string;
   component: Component;
-  onDone: () => void;
+  mainBranchName: string;
+  monorepo?: boolean;
 }
 
-function mavenYamlSteps(projectKey: string) {
+function mavenYamlSteps(projectKey: string, projectName: string) {
   return `
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version: 11
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
       - name: Cache SonarQube packages
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: \${{ runner.os }}-sonar
           restore-keys: \${{ runner.os }}-sonar
       - name: Cache Maven packages
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: \${{ runner.os }}-m2-\${{ hashFiles('**/pom.xml') }}
           restore-keys: \${{ runner.os }}-m2
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey}`;
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'`;
 }
 
 export default function JavaMaven(props: JavaMavenProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
+
+  if (monorepo) {
+    return <MonorepoDocLinkFallback />;
+  }
+
   return (
-    <>
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_LINUX,
-          mavenYamlSteps(component.key)
-        )}
-      />
-      <FinishButton onClick={props.onDone} />
-    </>
+    <CreateYmlFile
+      yamlFileName=".github/workflows/build.yml"
+      yamlTemplate={generateGitHubActionsYaml(
+        mainBranchName,
+        !!branchesEnabled,
+        GITHUB_ACTIONS_RUNS_ON_LINUX,
+        mavenYamlSteps(component.key, component.name),
+      )}
+    />
   );
 }

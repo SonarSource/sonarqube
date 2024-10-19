@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -37,10 +36,9 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NewIssuesStatisticsTest {
 
@@ -49,21 +47,11 @@ public class NewIssuesStatisticsTest {
   private NewIssuesStatistics underTest = new NewIssuesStatistics(Issue::isNew);
 
   @Test
-  public void add_fails_with_NPE_if_RuleType_is_null() {
-    String assignee = randomAlphanumeric(10);
-    DefaultIssue issue = new DefaultIssue().setType(null).setAssigneeUuid(assignee).setNew(new Random().nextBoolean());
-
-    assertThatThrownBy(() -> underTest.add(issue))
-      .isInstanceOf(NullPointerException.class);
-  }
-
-  @Test
   public void add_issues_with_correct_global_statistics() {
     DefaultIssue issue = new DefaultIssue()
       .setAssigneeUuid("maynard")
       .setComponentUuid("file-uuid")
       .setNew(true)
-      .setType(RuleType.BUG)
       .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
       .setTags(Lists.newArrayList("bug", "owasp"))
       .setEffort(Duration.create(5L));
@@ -78,42 +66,44 @@ public class NewIssuesStatisticsTest {
     assertThat(countDistributionTotal(Metric.ASSIGNEE, "wrong.login")).isNull();
     assertThat(countDistributionTotal(Metric.COMPONENT, "file-uuid")).isEqualTo(3);
     assertThat(countDistributionTotal(Metric.COMPONENT, "wrong-uuid")).isNull();
-    assertThat(countDistributionTotal(Metric.RULE_TYPE, RuleType.BUG.name())).isEqualTo(3);
-    assertThat(countDistributionTotal(Metric.RULE_TYPE, RuleType.CODE_SMELL.name())).isNull();
     assertThat(countDistributionTotal(Metric.TAG, "owasp")).isEqualTo(3);
     assertThat(countDistributionTotal(Metric.TAG, "wrong-tag")).isNull();
     assertThat(countDistributionTotal(Metric.RULE, "SonarQube:rule-the-world")).isEqualTo(3);
     assertThat(countDistributionTotal(Metric.RULE, "SonarQube:has-a-fake-rule")).isNull();
-    assertThat(underTest.globalStatistics().effort().getTotal()).isEqualTo(15L);
+    assertThat(underTest.globalStatistics().getIssueCount().getTotal()).isEqualTo(3);
     assertThat(underTest.globalStatistics().hasIssues()).isTrue();
     assertThat(underTest.hasIssues()).isTrue();
     assertThat(underTest.getAssigneesStatistics().get("maynard").hasIssues()).isTrue();
   }
 
   @Test
-  public void add_counts_issue_per_RuleType_on_current_analysis_globally_and_per_assignee() {
+  public void add_counts_issues_on_current_analysis_globally_and_per_assignee() {
     String assignee = randomAlphanumeric(10);
-    Arrays.stream(RuleType.values())
-      .map(ruleType -> new DefaultIssue().setType(ruleType).setAssigneeUuid(assignee).setNew(true))
+    IntStream.range(0, 10)
+      .mapToObj(i -> new DefaultIssue().setAssigneeUuid(assignee).setNew(true))
       .forEach(underTest::add);
 
-    DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.RULE_TYPE);
-    DistributedMetricStatsInt assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).getDistributedMetricStats(Metric.RULE_TYPE);
-    Stream.of(globalDistribution, assigneeDistribution)
-      .forEach(distribution -> Arrays.stream(RuleType.values()).forEach(ruleType -> assertStats(distribution, ruleType.name(), 1, 1)));
+    MetricStatsInt globalIssueCount = underTest.globalStatistics().getIssueCount();
+    MetricStatsInt assigneeIssueCount = underTest.getAssigneesStatistics().get(assignee).getIssueCount();
+    assertThat(globalIssueCount.getOnCurrentAnalysis()).isEqualTo(10);
+    assertThat(globalIssueCount.getTotal()).isEqualTo(10);
+    assertThat(assigneeIssueCount.getOnCurrentAnalysis()).isEqualTo(10);
+    assertThat(assigneeIssueCount.getTotal()).isEqualTo(10);
   }
 
   @Test
-  public void add_counts_issue_per_RuleType_off_current_analysis_globally_and_per_assignee() {
+  public void add_counts_issues_off_current_analysis_globally_and_per_assignee() {
     String assignee = randomAlphanumeric(10);
-    Arrays.stream(RuleType.values())
-      .map(ruleType -> new DefaultIssue().setType(ruleType).setAssigneeUuid(assignee).setNew(false))
+    IntStream.range(0, 10)
+      .mapToObj(i -> new DefaultIssue().setAssigneeUuid(assignee).setNew(false))
       .forEach(underTest::add);
 
-    DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.RULE_TYPE);
-    DistributedMetricStatsInt assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).getDistributedMetricStats(Metric.RULE_TYPE);
-    Stream.of(globalDistribution, assigneeDistribution)
-      .forEach(distribution -> Arrays.stream(RuleType.values()).forEach(ruleType -> assertStats(distribution, ruleType.name(), 0, 1)));
+    MetricStatsInt globalIssueCount = underTest.globalStatistics().getIssueCount();
+    MetricStatsInt assigneeIssueCount = underTest.getAssigneesStatistics().get(assignee).getIssueCount();
+    assertThat(globalIssueCount.getOnCurrentAnalysis()).isZero();
+    assertThat(globalIssueCount.getTotal()).isEqualTo(10);
+    assertThat(assigneeIssueCount.getOnCurrentAnalysis()).isZero();
+    assertThat(assigneeIssueCount.getTotal()).isEqualTo(10);
   }
 
   @Test
@@ -309,57 +299,6 @@ public class NewIssuesStatisticsTest {
   }
 
   @Test
-  public void add_sums_effort_on_current_analysis_globally_and_per_assignee() {
-    Random random = new Random();
-    List<Integer> efforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10_000 * i).toList();
-    int expected = efforts.stream().mapToInt(s -> s).sum();
-    String assignee = randomAlphanumeric(10);
-    efforts.stream()
-      .map(effort -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setEffort(Duration.create(effort)).setAssigneeUuid(assignee).setNew(true))
-      .forEach(underTest::add);
-
-    MetricStatsLong globalDistribution = underTest.globalStatistics().effort();
-    MetricStatsLong assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).effort();
-    Stream.of(globalDistribution, assigneeDistribution)
-      .forEach(distribution -> {
-        assertThat(distribution.getOnCurrentAnalysis()).isEqualTo(expected);
-        assertThat(distribution.getOffCurrentAnalysis()).isZero();
-        assertThat(distribution.getTotal()).isEqualTo(expected);
-      });
-  }
-
-  @Test
-  public void add_sums_effort_off_current_analysis_globally_and_per_assignee() {
-    Random random = new Random();
-    List<Integer> efforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10_000 * i).toList();
-    int expected = efforts.stream().mapToInt(s -> s).sum();
-    String assignee = randomAlphanumeric(10);
-    efforts.stream()
-      .map(effort -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setEffort(Duration.create(effort)).setAssigneeUuid(assignee).setNew(false))
-      .forEach(underTest::add);
-
-    MetricStatsLong globalDistribution = underTest.globalStatistics().effort();
-    MetricStatsLong assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).effort();
-    Stream.of(globalDistribution, assigneeDistribution)
-      .forEach(distribution -> {
-        assertThat(distribution.getOnCurrentAnalysis()).isZero();
-        assertThat(distribution.getOffCurrentAnalysis()).isEqualTo(expected);
-        assertThat(distribution.getTotal()).isEqualTo(expected);
-      });
-  }
-
-  @Test
-  public void add_does_not_sum_effort_if_null_neither_globally_nor_per_assignee() {
-    String assignee = randomAlphanumeric(10);
-    underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setEffort(null).setAssigneeUuid(assignee).setNew(new Random().nextBoolean()));
-
-    MetricStatsLong globalDistribution = underTest.globalStatistics().effort();
-    MetricStatsLong assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).effort();
-    Stream.of(globalDistribution, assigneeDistribution)
-      .forEach(distribution -> assertThat(distribution.getTotal()).isZero());
-  }
-
-  @Test
   public void do_not_have_issues_when_no_issue_added() {
     assertThat(underTest.globalStatistics().hasIssues()).isFalse();
   }
@@ -379,12 +318,10 @@ public class NewIssuesStatisticsTest {
       .setRuleKey(ruleKey)
       .setEffort(Duration.create(effort)));
 
-    assertThat(underTest.toString())
-      .isEqualTo("NewIssuesStatistics{" +
+    assertThat(underTest)
+      .hasToString("NewIssuesStatistics{" +
         "assigneesStatistics={" + assignee + "=" +
         "Stats{distributions={" +
-        "RULE_TYPE=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
-        "statsPerLabel={" + randomRuleTypeExceptHotspot.name() + "=MetricStatsInt{on=1, off=0}}}, " +
         "TAG=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
         "statsPerLabel={" + tag + "=MetricStatsInt{on=1, off=0}}}, " +
         "COMPONENT=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
@@ -393,10 +330,8 @@ public class NewIssuesStatisticsTest {
         "statsPerLabel={" + assignee + "=MetricStatsInt{on=1, off=0}}}, " +
         "RULE=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
         "statsPerLabel={" + ruleKey.toString() + "=MetricStatsInt{on=1, off=0}}}}, " +
-        "effortStats=MetricStatsLong{on=" + effort + ", off=0}}}, " +
+        "issueCount=MetricStatsInt{on=1, off=0}}}, " +
         "globalStatistics=Stats{distributions={" +
-        "RULE_TYPE=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
-        "statsPerLabel={" + randomRuleTypeExceptHotspot.name() + "=MetricStatsInt{on=1, off=0}}}, " +
         "TAG=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
         "statsPerLabel={" + tag + "=MetricStatsInt{on=1, off=0}}}, " +
         "COMPONENT=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
@@ -405,7 +340,7 @@ public class NewIssuesStatisticsTest {
         "statsPerLabel={" + assignee + "=MetricStatsInt{on=1, off=0}}}, " +
         "RULE=DistributedMetricStatsInt{globalStats=MetricStatsInt{on=1, off=0}, " +
         "statsPerLabel={" + ruleKey.toString() + "=MetricStatsInt{on=1, off=0}}}}, " +
-        "effortStats=MetricStatsLong{on=" + effort + ", off=0}}}");
+        "issueCount=MetricStatsInt{on=1, off=0}}}");
   }
 
   @CheckForNull

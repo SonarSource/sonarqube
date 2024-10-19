@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,43 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ResetButtonLink } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
-import { User } from '../../../types/users';
+import { RestUserDetailed } from '../../../types/users';
 import TokensForm from './TokensForm';
 
 interface Props {
-  user: User;
   onClose: () => void;
-  updateTokensCount: (login: string, tokensCount: number) => void;
+  user: RestUserDetailed;
 }
 
-export default function TokensFormModal(props: Props) {
+export default function TokensFormModal(props: Readonly<Props>) {
+  const { user } = props;
+
   return (
-    <Modal size="large" contentLabel={translate('users.tokens')} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>
-          <FormattedMessage
-            defaultMessage={translate('users.user_X_tokens')}
-            id="users.user_X_tokens"
-            values={{ user: <em>{props.user.name}</em> }}
-          />
-        </h2>
-      </header>
-      <div className="modal-body modal-container">
-        <TokensForm
-          deleteConfirmation="inline"
-          login={props.user.login}
-          updateTokensCount={props.updateTokensCount}
-          displayTokenTypeInput={false}
+    <Modal
+      body={
+        <TokensForm deleteConfirmation="inline" displayTokenTypeInput={false} login={user.login} />
+      }
+      headerTitle={
+        <FormattedMessage
+          defaultMessage={translate('users.user_X_tokens')}
+          id="users.user_X_tokens"
+          values={{ user: <em>{user.name}</em> }}
         />
-      </div>
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={props.onClose}>{translate('Done')}</ResetButtonLink>
-      </footer>
-    </Modal>
+      }
+      isLarge
+      onClose={props.onClose}
+    />
   );
 }

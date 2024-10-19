@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,34 +19,30 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Set;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.impl.ws.StaticResources;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.server.user.ThreadLocalUserSession;
 
-import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
-public class DefaultAdminCredentialsVerifierFilter extends ServletFilter {
+public class DefaultAdminCredentialsVerifierFilter extends HttpFilter {
   private static final String RESET_PASSWORD_PATH = "/account/reset_password";
   private static final String CHANGE_ADMIN_PASSWORD_PATH = "/admin/change_admin_password";
-  // This property is used by Orchestrator to disable this force redirect. It should never be used in production, which
+  // This property is used by OrchestratorRule to disable this force redirect. It should never be used in production, which
   // is why this is not defined in org.sonar.process.ProcessProperties.
   private static final String SONAR_FORCE_REDIRECT_DEFAULT_ADMIN_CREDENTIALS = "sonar.forceRedirectOnDefaultAdminCredentials";
 
-  private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
+  private static final Set<String> SKIPPED_URLS = Set.of(
     RESET_PASSWORD_PATH,
     CHANGE_ADMIN_PASSWORD_PATH,
-    "/batch/*", "/api/*");
+    "/batch/*", "/api/*", "/api/v2/*");
 
   private final Configuration config;
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
@@ -62,20 +58,18 @@ public class DefaultAdminCredentialsVerifierFilter extends ServletFilter {
   public UrlPattern doGetPattern() {
     return UrlPattern.builder()
       .includes("/*")
-      .excludes(staticResourcePatterns())
+      .excludes(StaticResources.patterns())
       .excludes(SKIPPED_URLS)
       .build();
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // nothing to do
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException {
     boolean forceRedirect = config
       .getBoolean(SONAR_FORCE_REDIRECT_DEFAULT_ADMIN_CREDENTIALS)
       .orElse(true);

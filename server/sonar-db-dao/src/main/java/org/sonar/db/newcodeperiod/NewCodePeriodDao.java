@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -74,6 +75,15 @@ public class NewCodePeriodDao implements Dao {
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
   }
 
+  public void updateBranchReferenceValues(DbSession dbSession, BranchDto branchDto, String newBranchName) {
+    requireNonNull(branchDto, "Original referenced branch must be specified.");
+    requireNonNull(branchDto.getProjectUuid(), MSG_PROJECT_UUID_NOT_SPECIFIED);
+    requireNonNull(newBranchName, "New branch name must be specified.");
+    selectAllByProject(dbSession, branchDto.getProjectUuid()).stream()
+      .filter(newCP -> NewCodePeriodType.REFERENCE_BRANCH.equals(newCP.getType()) && branchDto.getBranchKey().equals(newCP.getValue()))
+      .forEach(newCodePeriodDto -> update(dbSession, newCodePeriodDto.setValue(newBranchName)));
+  }
+
   public Optional<NewCodePeriodDto> selectByProject(DbSession dbSession, String projectUuid) {
     requireNonNull(projectUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
     return ofNullable(mapper(dbSession).selectByProject(projectUuid));
@@ -112,4 +122,7 @@ public class NewCodePeriodDao implements Dao {
     return session.getMapper(NewCodePeriodMapper.class);
   }
 
+  public List<NewCodePeriodDto> selectAll(DbSession dbSession) {
+    return mapper(dbSession).selectAll();
+  }
 }

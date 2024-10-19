@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +19,17 @@
  */
 package org.sonar.db.audit.model;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WebhookNewValueTest {
+class WebhookNewValueTest {
 
   @Test
-  public void sanitize_url_replace_url() {
-    var webhookNewValue = new WebhookNewValue("uuid", "name", "projectUuid", "projectKey", "projectName", "http://admin:admin@localhost.com");
+  void sanitize_url_replace_url() {
+    var webhookNewValue = new WebhookNewValue("uuid", "name", "projectUuid", "projectKey", "projectName", "http://admin:admin@localhost" +
+      ".com");
     webhookNewValue.sanitizeUrl(s -> s.replace("admin", "*****"));
     assertThat(webhookNewValue).hasToString("{"
       + "\"webhookUuid\": \"uuid\","
@@ -39,7 +41,7 @@ public class WebhookNewValueTest {
   }
 
   @Test
-  public void sanitize_url_do_nothing_when_url_is_null() {
+  void sanitize_url_do_nothing_when_url_is_null() {
     var webhookNewValue = new WebhookNewValue("uuid", "name", "projectUuid", "projectKey", "projectName", null);
     webhookNewValue.sanitizeUrl(s -> s.replace("admin", "*****"));
     assertThat(webhookNewValue).hasToString("{"

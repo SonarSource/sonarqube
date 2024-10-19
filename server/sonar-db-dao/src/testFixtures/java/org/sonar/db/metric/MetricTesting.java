@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,15 @@
  */
 package org.sonar.db.metric;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import java.security.SecureRandom;
+import java.util.Random;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.sonar.api.measures.Metric;
 
 public class MetricTesting {
+
+  private static final Random RANDOM = new SecureRandom();
+
   private MetricTesting() {
     // static stuff only
   }
@@ -34,16 +38,16 @@ public class MetricTesting {
       .setUuid(RandomStringUtils.randomAlphanumeric(40))
       .setKey(RandomStringUtils.randomAlphanumeric(64))
       .setShortName(RandomStringUtils.randomAlphanumeric(64))
-      .setValueType(metricTypes[RandomUtils.nextInt(metricTypes.length - 1)].name())
+      .setValueType(metricTypes[RANDOM.nextInt(metricTypes.length - 1)].name())
       .setDomain(RandomStringUtils.randomAlphanumeric(64))
       .setDescription(RandomStringUtils.randomAlphanumeric(250))
-      .setBestValue(RandomUtils.nextDouble())
-      .setDeleteHistoricalData(RandomUtils.nextBoolean())
-      .setDirection(RandomUtils.nextInt())
-      .setHidden(RandomUtils.nextBoolean())
+      .setBestValue(RANDOM.nextDouble())
+      .setDeleteHistoricalData(RANDOM.nextBoolean())
+      .setDirection(RANDOM.nextInt(Integer.MAX_VALUE))
+      .setHidden(RANDOM.nextBoolean())
       .setEnabled(true)
-      .setOptimizedBestValue(RandomUtils.nextBoolean())
-      .setQualitative(RandomUtils.nextBoolean())
-      .setWorstValue(RandomUtils.nextDouble());
+      .setOptimizedBestValue(RANDOM.nextBoolean())
+      .setQualitative(RANDOM.nextBoolean())
+      .setWorstValue(RANDOM.nextDouble());
   }
 }

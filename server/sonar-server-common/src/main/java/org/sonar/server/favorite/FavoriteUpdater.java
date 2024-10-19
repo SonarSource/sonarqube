@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 
@@ -41,7 +41,7 @@ public class FavoriteUpdater {
   /**
    * Set favorite to the logged in user. If no user, no action is done
    */
-  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid, @Nullable String userLogin, boolean failIfTooManyFavorites) {
+  public void add(DbSession dbSession, EntityDto entity, @Nullable String userUuid, @Nullable String userLogin, boolean failIfTooManyFavorites) {
     if (userUuid == null) {
       return;
     }
@@ -49,21 +49,21 @@ public class FavoriteUpdater {
     List<PropertyDto> existingFavoriteOnComponent = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
       .setUserUuid(userUuid)
-      .setComponentUuid(componentDto.uuid())
+      .setEntityUuid(entity.getUuid())
       .build(), dbSession);
-    checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' (uuid: %s) is already a favorite", componentDto.getKey(), componentDto.uuid());
+    checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' (uuid: %s) is already a favorite", entity.getKey(), entity.getUuid());
 
-    List<PropertyDto> existingFavorites = dbClient.propertiesDao().selectByKeyAndUserUuidAndComponentQualifier(dbSession, PROP_FAVORITE_KEY, userUuid, componentDto.qualifier());
+    List<PropertyDto> existingFavorites = dbClient.propertiesDao().selectEntityPropertyByKeyAndUserUuid(dbSession, PROP_FAVORITE_KEY, userUuid);
     if (existingFavorites.size() >= 100) {
-      checkArgument(!failIfTooManyFavorites, "You cannot have more than 100 favorites on components with qualifier '%s'", componentDto.qualifier());
+      checkArgument(!failIfTooManyFavorites, "You cannot have more than 100 favorites on components with qualifier '%s'", entity.getQualifier());
       return;
     }
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
-        .setComponentUuid(componentDto.uuid())
+        .setEntityUuid(entity.getUuid())
         .setUserUuid(userUuid),
       userLogin,
-      componentDto.getKey(), componentDto.name(), componentDto.qualifier());
+      entity.getKey(), entity.getName(), entity.getQualifier());
   }
 
   /**
@@ -71,16 +71,16 @@ public class FavoriteUpdater {
    *
    * @throws IllegalArgumentException if the component is not a favorite
    */
-  public void remove(DbSession dbSession, ComponentDto component, @Nullable String userUuid, @Nullable String userLogin) {
+  public void remove(DbSession dbSession, EntityDto entity, @Nullable String userUuid, @Nullable String userLogin) {
     if (userUuid == null) {
       return;
     }
 
     int result = dbClient.propertiesDao().delete(dbSession, new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
-        .setComponentUuid(component.uuid())
+        .setEntityUuid(entity.getUuid())
         .setUserUuid(userUuid),
-      userLogin, component.getKey(), component.name(), component.qualifier());
-    checkArgument(result == 1, "Component '%s' (uuid: %s) is not a favorite", component.getKey(), component.uuid());
+      userLogin, entity.getKey(), entity.getName(), entity.getQualifier());
+    checkArgument(result == 1, "Component '%s' (uuid: %s) is not a favorite", entity.getKey(), entity.getUuid());
   }
 }

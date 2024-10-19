@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -41,7 +41,6 @@ import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
 
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
 public class ViewIndexer implements ResilientIndexer {
@@ -70,27 +69,27 @@ public class ViewIndexer implements ResilientIndexer {
 
   private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
+      Map<String, String> rootViewUuidByViewUuid = new HashMap<>();
       for (UuidWithBranchUuidDto uuidWithBranchUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
-        viewAndProjectViewUuidMap.put(uuidWithBranchUuidDto.getUuid(), uuidWithBranchUuidDto.getBranchUuid());
+        rootViewUuidByViewUuid.put(uuidWithBranchUuidDto.getUuid(), uuidWithBranchUuidDto.getBranchUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap, false, bulkSize);
+      index(dbSession, rootViewUuidByViewUuid, false, bulkSize);
     }
   }
 
   /**
-   * Index a root view : it will load projects on each sub views and index it.
+   * Index a root view : it will fetch a view and its subviews from the DB and index them.
    * Used by the compute engine to reindex a root view.
    * <p/>
    * The views lookup cache will be cleared
    */
   public void index(String rootViewUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
-      for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledDescendantModules(dbSession, rootViewUuid)) {
-        viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.branchUuid());
+      Map<String, String> viewAndRootViewUuidMap = new HashMap<>();
+      for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledViewsFromRootView(dbSession, rootViewUuid)) {
+        viewAndRootViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.branchUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap, true, Size.REGULAR);
+      index(dbSession, viewAndRootViewUuidMap, true, Size.REGULAR);
     }
   }
 
@@ -106,15 +105,16 @@ public class ViewIndexer implements ResilientIndexer {
     bulk.stop();
   }
 
-  private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache, Size bulkSize) {
+  private void index(DbSession dbSession, Map<String, String> rootViewUuidByViewUuid, boolean needClearCache, Size bulkSize) {
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_VIEW, bulkSize);
     bulk.start();
-    for (Map.Entry<String, String> entry : viewAndProjectViewUuidMap.entrySet()) {
+    for (Map.Entry<String, String> entry : rootViewUuidByViewUuid.entrySet()) {
       String viewUuid = entry.getKey();
-      List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, viewUuid, entry.getValue());
+      String rootViewUuid = entry.getValue();
+      List<String> projectBranchUuids = dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, viewUuid, rootViewUuid);
       doIndex(bulk, new ViewDoc()
         .setUuid(viewUuid)
-        .setProjects(projects), needClearCache);
+        .setProjectBranchUuids(projectBranchUuids), needClearCache);
     }
     bulk.stop();
   }
@@ -127,8 +127,7 @@ public class ViewIndexer implements ResilientIndexer {
   }
 
   private static IndexRequest newIndexRequest(ViewDoc doc) {
-    IndexType.IndexMainType mainType = TYPE_VIEW;
-    return new IndexRequest(mainType.getIndex().getName(), mainType.getType())
+    return new IndexRequest(TYPE_VIEW.getIndex().getName())
       .id(doc.getId())
       .routing(doc.getRouting().orElse(null))
       .source(doc.getFields());
@@ -146,7 +145,6 @@ public class ViewIndexer implements ResilientIndexer {
    * This is based on the fact that a WebService is only calling {@link ViewIndexer#delete(DbSession, Collection)}
    * So the resiliency is only taking in account a deletion of view component
    * A safety check is done by not deleting any component that still exist in database.
-   *
    * This should not occur but prevent any misuse on this resiliency
    */
   @Override
@@ -155,24 +153,24 @@ public class ViewIndexer implements ResilientIndexer {
       return new IndexingResult();
     }
 
-    Set<String> views = items
+    Set<String> viewUuids = items
       .stream()
       .map(EsQueueDto::getDocId)
-      .collect(toHashSet(items.size()));
+      .collect(Collectors.toSet());
 
     BulkIndexer bulkIndexer = newBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
 
     // Safety check to remove all views that may not have been deleted
-    views.removeAll(dbClient.componentDao().selectExistingUuids(dbSession, views));
-    views.forEach(v -> bulkIndexer.addDeletion(TYPE_VIEW, v));
+    viewUuids.removeAll(dbClient.componentDao().selectExistingUuids(dbSession, viewUuids));
+    viewUuids.forEach(v -> bulkIndexer.addDeletion(TYPE_VIEW, v));
     return bulkIndexer.stop();
   }
 
   public void delete(DbSession dbSession, Collection<String> viewUuids) {
     List<EsQueueDto> items = viewUuids.stream()
       .map(l -> EsQueueDto.create(TYPE_VIEW.format(), l))
-      .collect(MoreCollectors.toArrayList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();

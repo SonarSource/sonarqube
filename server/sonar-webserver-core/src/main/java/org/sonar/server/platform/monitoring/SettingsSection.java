@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,11 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -30,28 +32,46 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.process.ProcessProperties.Property;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section.Builder;
+import org.sonar.server.platform.NodeInformation;
 
-import static org.apache.commons.lang.StringUtils.abbreviate;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
+import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OPTS;
+import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_JAVA_ADDITIONAL_OPTS;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_JAVA_OPTS;
+import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_ADDITIONAL_OPTS;
+import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_OPTS;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
 public class SettingsSection implements SystemInfoSection, Global {
-  private static final int MAX_VALUE_LENGTH = 500;
   private static final String PASSWORD_VALUE = "xxxxxxxx";
+  private static final Collection<String> IGNORED_SETTINGS_IN_CLUSTER = Stream.of(
+      WEB_JAVA_OPTS,
+      WEB_JAVA_ADDITIONAL_OPTS,
+      CE_JAVA_OPTS,
+      CE_JAVA_ADDITIONAL_OPTS,
+      SEARCH_JAVA_OPTS,
+      SEARCH_JAVA_ADDITIONAL_OPTS)
+    .map(Property::getKey)
+    .collect(toUnmodifiableSet());
 
   private final DbClient dbClient;
   private final Settings settings;
+  private final NodeInformation nodeInformation;
 
-  public SettingsSection(DbClient dbClient, Settings settings) {
+  public SettingsSection(DbClient dbClient, Settings settings, NodeInformation nodeInformation) {
     this.dbClient = dbClient;
     this.settings = settings;
+    this.nodeInformation = nodeInformation;
   }
 
   @Override
@@ -61,9 +81,10 @@ public class SettingsSection implements SystemInfoSection, Global {
 
     PropertyDefinitions definitions = settings.getDefinitions();
     TreeMap<String, String> orderedProps = new TreeMap<>(settings.getProperties());
-    for (Entry<String, String> prop : orderedProps.entrySet()) {
-      includeSetting(protobuf, definitions, prop);
-    }
+    orderedProps.entrySet()
+      .stream()
+      .filter(prop -> nodeInformation.isStandalone() || !IGNORED_SETTINGS_IN_CLUSTER.contains(prop.getKey()))
+      .forEach(prop -> includeSetting(protobuf, definitions, prop));
     addDefaultNewCodeDefinition(protobuf);
     return protobuf.build();
   }
@@ -92,7 +113,7 @@ public class SettingsSection implements SystemInfoSection, Global {
       AUTH_JWT_SECRET.getKey().equals(key)) {
       return PASSWORD_VALUE;
     }
-    return abbreviate(value, MAX_VALUE_LENGTH);
+    return value;
   }
 
   private static String parseDefaultNewCodeDefinition(NewCodePeriodDto period) {

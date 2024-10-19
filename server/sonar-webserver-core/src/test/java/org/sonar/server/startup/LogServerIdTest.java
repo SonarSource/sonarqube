@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ package org.sonar.server.startup;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.platform.Server;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,7 +42,7 @@ public class LogServerIdTest {
     LogServerId underTest = new LogServerId(server);
 
     underTest.start();
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Server ID: foo");
+    assertThat(logTester.logs(Level.INFO)).contains("Server ID: foo");
 
     // do not fail
     underTest.stop();

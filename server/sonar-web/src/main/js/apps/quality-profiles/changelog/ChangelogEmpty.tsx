@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { useIntl } from 'react-intl';
 
 export default function ChangelogEmpty() {
-  return <div className="big-spacer-top">{translate('no_results')}</div>;
+  const intl = useIntl();
+
+  return <div className="sw-mt-6">{intl.formatMessage({ id: 'no_results' })}</div>;
 }

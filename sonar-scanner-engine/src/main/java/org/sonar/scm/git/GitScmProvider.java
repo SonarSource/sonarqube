@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,8 +68,8 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 
 import static java.lang.String.format;
@@ -83,7 +83,7 @@ import static org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME;
 
 public class GitScmProvider extends ScmProvider {
 
-  private static final Logger LOG = Loggers.get(GitScmProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GitScmProvider.class);
   private static final String COULD_NOT_FIND_REF = "Could not find ref '%s' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin";
   private static final String NO_MERGE_BASE_FOUND_MESSAGE = "No merge base found between HEAD and %s";
   @VisibleForTesting
@@ -134,7 +134,7 @@ public class GitScmProvider extends ScmProvider {
   }
 
   @CheckForNull
-  public Collection<ChangedFile> branchChangedFilesWithFileMovementDetection(String targetBranchName, Path rootBaseDir) {
+  public Set<ChangedFile> branchChangedFilesWithFileMovementDetection(String targetBranchName, Path rootBaseDir) {
     try (Repository repo = buildRepo(rootBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
@@ -171,7 +171,7 @@ public class GitScmProvider extends ScmProvider {
     return null;
   }
 
-  private static List<ChangedFile> computeChangedFiles(Repository repository, List<DiffEntry> diffEntries) throws IOException {
+  private static Set<ChangedFile> computeChangedFiles(Repository repository, List<DiffEntry> diffEntries) throws IOException {
     Path workingDirectory = repository.getWorkTree().toPath();
 
     Map<String, String> renamedFilePaths = computeRenamedFilePaths(repository, diffEntries);
@@ -180,8 +180,8 @@ public class GitScmProvider extends ScmProvider {
     return collectChangedFiles(workingDirectory, renamedFilePaths, changedFilePaths);
   }
 
-  private static List<ChangedFile> collectChangedFiles(Path workingDirectory, Map<String, String> renamedFilePaths, Set<String> changedFilePaths) {
-    List<ChangedFile> changedFiles = new LinkedList<>();
+  private static Set<ChangedFile> collectChangedFiles(Path workingDirectory, Map<String, String> renamedFilePaths, Set<String> changedFilePaths) {
+    Set<ChangedFile> changedFiles = new HashSet<>();
     changedFilePaths.forEach(filePath -> changedFiles.add(ChangedFile.of(workingDirectory.resolve(filePath), renamedFilePaths.get(filePath))));
     return changedFiles;
   }

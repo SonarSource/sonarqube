@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.project.ApplicationProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -90,13 +91,23 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectByUuids(uuids);
   }
 
+  public List<KeyWithUuidDto> selectUuidsByKey(DbSession dbSession, String rootKey) {
+    return mapper(dbSession).selectUuidsByKey(rootKey);
+  }
+
   /*
    * Modify portfolios
    */
-  public void insert(DbSession dbSession, PortfolioDto portfolio) {
+  public void insertWithAudit(DbSession dbSession, PortfolioDto portfolio) {
+    insert(dbSession, portfolio, true);
+  }
+
+  public void insert(DbSession dbSession, PortfolioDto portfolio, boolean shouldPersistAudit) {
     checkArgument(portfolio.isRoot() == (portfolio.getUuid().equals(portfolio.getRootUuid())));
     mapper(dbSession).insert(portfolio);
-    auditPersister.addComponent(dbSession, toComponentNewValue(portfolio));
+    if(shouldPersistAudit) {
+      auditPersister.addComponent(dbSession, toComponentNewValue(portfolio));
+    }
   }
 
   public void delete(DbSession dbSession, PortfolioDto portfolio) {
@@ -120,6 +131,10 @@ public class PortfolioDao implements Dao {
     auditPersister.updateComponent(dbSession, toComponentNewValue(portfolio));
   }
 
+  public void updateVisibilityByPortfolioUuid(DbSession dbSession, String uuid, boolean newIsPrivate) {
+    mapper(dbSession).updateVisibilityByPortfolioUuid(uuid, newIsPrivate);
+  }
+
   /*
    * Portfolio references
    */
@@ -130,7 +145,7 @@ public class PortfolioDao implements Dao {
   public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {
     PortfolioDto portfolio = mapper(dbSession).selectByUuid(referenceUuid);
     if (portfolio == null) {
-      mapper(dbSession).insertReference(uuidFactory.create(), portfolioUuid, referenceUuid, referenceUuid, system2.now());
+      throw new IllegalArgumentException("Reference must be a portfolio");
     } else {
       mapper(dbSession).insertReference(uuidFactory.create(), portfolioUuid, referenceUuid, null, system2.now());
     }
@@ -223,8 +238,8 @@ public class PortfolioDao implements Dao {
   }
 
   public PortfolioProjectDto selectPortfolioProjectOrFail(DbSession dbSession, String portfolioUuid, String projectUuid) {
-    return Optional.ofNullable(mapper(dbSession).selectPortfolioProject(portfolioUuid, projectUuid)).orElseThrow(() ->
-      new IllegalArgumentException(format("Project '%s' not selected in portfolio '%s'", projectUuid, portfolioUuid)));
+    return Optional.ofNullable(mapper(dbSession).selectPortfolioProject(portfolioUuid, projectUuid))
+      .orElseThrow(() -> new IllegalArgumentException(format("Project '%s' not selected in portfolio '%s'", projectUuid, portfolioUuid)));
   }
 
   public String addProject(DbSession dbSession, String portfolioUuid, String projectUuid) {
@@ -267,5 +282,4 @@ public class PortfolioDao implements Dao {
   private static String qualifier(PortfolioDto portfolioDto) {
     return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
   }
-
 }

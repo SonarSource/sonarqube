@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,8 @@ package org.sonar.scanner.protocol.output;
 
 import com.google.common.collect.Iterators;
 import java.io.File;
-import org.apache.commons.io.FileUtils;
+import java.time.Instant;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,21 +34,17 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScannerReportWriterTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  File dir;
-  private FileStructure fileStructure;
   private ScannerReportWriter underTest;
 
   @Before
   public void setUp() throws Exception {
-    fileStructure = new FileStructure(temp.newFolder());
-    underTest = new ScannerReportWriter(fileStructure);
+    underTest = new ScannerReportWriter(new FileStructure(temp.newFolder()));
   }
 
   @Test
@@ -100,7 +97,7 @@ public class ScannerReportWriterTest {
       .setMsg("the message")
       .build();
 
-    underTest.writeComponentIssues(1, asList(issue));
+    underTest.writeComponentIssues(1, List.of(issue));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.ISSUES, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.ISSUES, 1);
@@ -147,6 +144,29 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().adHocRules();
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.AdHocRule> read = Protobuf.readStream(file, ScannerReport.AdHocRule.parser())) {
+      assertThat(Iterators.size(read)).isOne();
+    }
+  }
+
+  @Test
+  public void write_cve() {
+
+    // write data
+    ScannerReport.Cve cve = ScannerReport.Cve.newBuilder()
+      .setCveId("CVE-2023-20863")
+      .setDescription("In spring framework versions prior to 5.2.24 release+ ,5.3.27+ and 6.0.8+ , it is possible for a user to provide a specially crafted SpEL expression that may cause a denial-of-service (DoS) condition.")
+      .setCvssScore(6.5f)
+      .setEpssScore(0.00306f)
+      .setEpssPercentile(0.70277f)
+      .setPublishedDate(Instant.parse("2023-04-13T20:15:00Z").toEpochMilli())
+      .setLastModifiedDate(Instant.parse("2024-02-04T02:22:24.474Z").toEpochMilli())
+      .addCwe("CWE-400")
+      .build();
+    underTest.appendCve(cve);
+
+    File file = underTest.getFileStructure().cves();
+    assertThat(file).exists().isFile();
+    try (CloseableIterator<ScannerReport.Cve> read = Protobuf.readStream(file, ScannerReport.Cve.parser())) {
       assertThat(Iterators.size(read)).isOne();
     }
   }
@@ -228,7 +248,7 @@ public class ScannerReportWriterTest {
           .build())
         .build())
       .build();
-    underTest.writeComponentDuplications(1, asList(duplication));
+    underTest.writeComponentDuplications(1, List.of(duplication));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.DUPLICATIONS, 1);
@@ -251,7 +271,7 @@ public class ScannerReportWriterTest {
       .setStartTokenIndex(10)
       .setEndTokenIndex(15)
       .build();
-    underTest.writeCpdTextBlocks(1, asList(duplicationBlock));
+    underTest.writeCpdTextBlocks(1, List.of(duplicationBlock));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.CPD_TEXT_BLOCKS, 1);
@@ -287,7 +307,7 @@ public class ScannerReportWriterTest {
         .build())
       .build();
 
-    underTest.writeComponentSymbols(1, asList(symbol));
+    underTest.writeComponentSymbols(1, List.of(symbol));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isTrue();
 
@@ -303,7 +323,7 @@ public class ScannerReportWriterTest {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isFalse();
 
-    underTest.writeComponentSyntaxHighlighting(1, asList(
+    underTest.writeComponentSyntaxHighlighting(1, List.of(
       ScannerReport.SyntaxHighlightingRule.newBuilder()
         .setRange(ScannerReport.TextRange.newBuilder()
           .setStartLine(1)
@@ -320,7 +340,7 @@ public class ScannerReportWriterTest {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, 1)).isFalse();
 
-    underTest.writeComponentSignificantCode(1, asList(
+    underTest.writeComponentSignificantCode(1, List.of(
       ScannerReport.LineSgnificantCode.newBuilder()
         .setLine(1)
         .setStartOffset(2)
@@ -335,7 +355,7 @@ public class ScannerReportWriterTest {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isFalse();
 
-    underTest.writeComponentCoverage(1, asList(
+    underTest.writeComponentCoverage(1, List.of(
       ScannerReport.LineCoverage.newBuilder()
         .setLine(1)
         .setConditions(1)

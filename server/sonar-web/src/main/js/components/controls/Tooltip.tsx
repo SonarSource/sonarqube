@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,8 @@ import { throttle, uniqueId } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import { rawSizes } from '../../app/theme';
+import { ONE_SECOND } from '../../helpers/constants';
+import { translate } from '../../helpers/l10n';
 import EscKeydownHandler from './EscKeydownHandler';
 import FocusOutHandler from './FocusOutHandler';
 import ScreenPositionFixer from './ScreenPositionFixer';
@@ -29,21 +31,21 @@ import './Tooltip.css';
 
 export type Placement = 'bottom' | 'right' | 'left' | 'top';
 
-export interface TooltipProps {
-  accessible?: boolean;
+interface TooltipProps {
+  children: React.ReactElement;
+  classNameInner?: string;
   classNameSpace?: string;
-  children: React.ReactElement<{}>;
-  mouseEnterDelay?: number;
-  mouseLeaveDelay?: number;
-  onShow?: () => void;
-  onHide?: () => void;
-  overlay: React.ReactNode;
-  placement?: Placement;
-  visible?: boolean;
+  content: React.ReactNode;
   // If tooltip overlay has interactive content (links for instance) we may set this to true to stop
   // default behavior of tabbing (other changes should be done outside of this component to make it work)
-  // See example DocumentationTooltip
+  // See example DocHelpTooltip
   isInteractive?: boolean;
+  isOpen?: boolean;
+  mouseEnterDelay?: number;
+  mouseLeaveDelay?: number;
+  onHide?: () => void;
+  onShow?: () => void;
+  side?: Placement;
 }
 
 interface Measurements {
@@ -72,10 +74,26 @@ function isMeasured(state: State): state is OwnState & Measurements {
   return state.height !== undefined;
 }
 
+/** @deprecated Use {@link Echoes.Tooltip | Tooltip} from Echoes instead.
+ *
+ * Echoes Tooltip component should mainly be used on interactive element and contain very simple text based content.
+ * If the content is more complex use a Popover component instead (not available yet).
+ *
+ * Some of the props have changed or been renamed:
+ * - `children` is the trigger for the tooltip, should be an interactive Element. If not an Echoes component, make sure the component forwards the props and the ref to an interactive DOM node, it's needed by the tooltip to position itself.
+ * - `overlay` is now `content`, that's the tooltip content. It's a ReactNode for convenience but should render only text based content, no interactivity is allowed inside the tooltip.
+ * - ~`classNameSpace`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`mouseEnterDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`mouseLeaveDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`onHide`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`onShow`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
+ * - `visible` is now `isOpen`
+ */
 export default function Tooltip(props: TooltipProps) {
   // `overlay` is a ReactNode, so it can be `undefined` or `null`. This allows to easily
   // render a tooltip conditionally. More generally, we avoid rendering empty tooltips.
-  return props.overlay != null && props.overlay !== '' ? (
+  return props.content != null && props.content !== '' ? (
     <TooltipInner {...props} />
   ) : (
     props.children
@@ -99,8 +117,8 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     super(props);
     this.state = {
       flipped: false,
-      placement: props.placement,
-      visible: props.visible !== undefined ? props.visible : false,
+      placement: props.side,
+      visible: props.isOpen ?? false,
     };
     this.id = uniqueId('tooltip-');
     this.throttledPositionTooltip = throttle(this.positionTooltip, 10);
@@ -108,15 +126,15 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.visible === true) {
+    if (this.props.isOpen === true) {
       this.positionTooltip();
       this.addEventListeners();
     }
   }
 
   componentDidUpdate(prevProps: TooltipProps, prevState: State) {
-    if (this.props.placement !== prevProps.placement) {
-      this.setState({ placement: this.props.placement });
+    if (this.props.side !== prevProps.side) {
+      this.setState({ placement: this.props.side });
       // Break. This will trigger a new componentDidUpdate() call, so the below
       // positionTooltip() call will be correct. Otherwise, it might not use
       // the new state.placement value.
@@ -125,19 +143,15 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
     if (
       // opens
-      (this.props.visible === true && !prevProps.visible) ||
-      (this.props.visible === undefined &&
-        this.state.visible === true &&
-        prevState.visible === false)
+      (this.props.isOpen === true && !prevProps.isOpen) ||
+      (this.props.isOpen === undefined && this.state.visible && !prevState.visible)
     ) {
       this.positionTooltip();
       this.addEventListeners();
     } else if (
       // closes
-      (!this.props.visible && prevProps.visible === true) ||
-      (this.props.visible === undefined &&
-        this.state.visible === false &&
-        prevState.visible === true)
+      (!this.props.isOpen && prevProps.isOpen === true) ||
+      (this.props.isOpen === undefined && !this.state.visible && prevState.visible)
     ) {
       this.clearPosition();
       this.removeEventListeners();
@@ -166,11 +180,11 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   };
 
   isVisible = () => {
-    return this.props.visible !== undefined ? this.props.visible : this.state.visible;
+    return this.props.isOpen ?? this.state.visible;
   };
 
   getPlacement = (): Placement => {
-    return this.state.placement || 'bottom';
+    return this.state.placement ?? 'bottom';
   };
 
   tooltipNodeRef = (node: HTMLElement | null) => {
@@ -179,7 +193,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   adjustArrowPosition = (
     placement: Placement,
-    { leftFix, topFix }: { leftFix: number; topFix: number }
+    { leftFix, topFix }: { leftFix: number; topFix: number },
   ) => {
     switch (placement) {
       case 'left':
@@ -244,23 +258,26 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       top: undefined,
       width: undefined,
       height: undefined,
-      placement: this.props.placement,
+      placement: this.props.side,
     });
   };
 
   handleMouseEnter = () => {
-    this.mouseEnterTimeout = window.setTimeout(() => {
-      // For some reason, even after the `this.mouseEnterTimeout` is cleared, it still
-      // triggers. To workaround this issue, check that its value is not `undefined`
-      // (if it's `undefined`, it means the timer has been reset).
-      if (
-        this.mounted &&
-        this.props.visible === undefined &&
-        this.mouseEnterTimeout !== undefined
-      ) {
-        this.setState({ visible: true });
-      }
-    }, (this.props.mouseEnterDelay || 0) * 1000);
+    this.mouseEnterTimeout = window.setTimeout(
+      () => {
+        // For some reason, even after the `this.mouseEnterTimeout` is cleared, it still
+        // triggers. To workaround this issue, check that its value is not `undefined`
+        // (if it's `undefined`, it means the timer has been reset).
+        if (
+          this.mounted &&
+          this.props.isOpen === undefined &&
+          this.mouseEnterTimeout !== undefined
+        ) {
+          this.setState({ visible: true });
+        }
+      },
+      (this.props.mouseEnterDelay ?? 0) * ONE_SECOND,
+    );
 
     if (this.props.onShow) {
       this.props.onShow();
@@ -274,14 +291,17 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     }
 
     if (!this.mouseIn) {
-      this.mouseLeaveTimeout = window.setTimeout(() => {
-        if (this.mounted && this.props.visible === undefined && !this.mouseIn) {
-          this.setState({ visible: false });
-        }
-        if (this.props.onHide && !this.mouseIn) {
-          this.props.onHide();
-        }
-      }, (this.props.mouseLeaveDelay || 0) * 1000);
+      this.mouseLeaveTimeout = window.setTimeout(
+        () => {
+          if (this.mounted && this.props.isOpen === undefined && !this.mouseIn) {
+            this.setState({ visible: false });
+          }
+          if (this.props.onHide && !this.mouseIn) {
+            this.props.onHide();
+          }
+        },
+        (this.props.mouseLeaveDelay ?? 0) * ONE_SECOND,
+      );
     }
   };
 
@@ -357,7 +377,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
               // position (which is no longer correct).
               this.positionTooltip();
             }
-          }
+          },
         );
       }, 1);
       return null;
@@ -398,23 +418,30 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   renderOverlay() {
     const isVisible = this.isVisible();
-    const { classNameSpace = 'tooltip', accessible = true } = this.props;
-
+    const {
+      classNameSpace = 'tooltip',
+      isInteractive,
+      content: overlay,
+      classNameInner,
+    } = this.props;
     return (
       <div
-        className={classNames(`${classNameSpace}-inner`, { hidden: !isVisible })}
+        className={classNames(`${classNameSpace}-inner sw-font-sans`, classNameInner, {
+          'sw-hidden': !isVisible,
+        })}
         id={this.id}
         role="tooltip"
-        aria-hidden={!accessible || !isVisible}
+        aria-hidden={!isVisible}
       >
-        {this.props.overlay}
+        {isInteractive && <span className="sw-sr-only">{translate('tooltip_is_interactive')}</span>}
+        {overlay}
       </div>
     );
   }
 
   render() {
     const isVisible = this.isVisible();
-    const { accessible = true } = this.props;
+    const { isInteractive } = this.props;
     return (
       <>
         {React.cloneElement(this.props.children, {
@@ -422,14 +449,16 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           onPointerLeave: this.handleMouseLeave,
           onFocus: this.handleFocus,
           onBlur: this.handleBlur,
-          tabIndex: accessible ? 0 : undefined,
+          tabIndex: isInteractive ? 0 : undefined,
           // aria-describedby is the semantically correct property to use, but it's not
-          // always well supported. As a fallback, we use aria-labelledby as well.
-          // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
-          // See https://css-tricks.com/accessible-svgs/
-          'aria-describedby': accessible ? this.id : undefined,
+          // always well supported. We sometimes need to handle this differently, depending
+          // on the triggering element. For example, we can add a child <description> element
+          // if the triggering element is an SVG. See HelpTooltip for an example.
+          // We should NOT use aria-labelledby, as this can have unintended effects (e.g., this
+          // can mess up buttons that need a tooltip).
+          'aria-describedby': this.id,
         })}
-        {!isVisible && this.renderOverlay()}
+        {!isVisible && <TooltipPortal>{this.renderOverlay()}</TooltipPortal>}
         {isVisible && (
           <EscKeydownHandler onKeydown={this.closeTooltip}>
             <TooltipPortal>
@@ -444,7 +473,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   }
 }
 
-class TooltipPortal extends React.Component {
+class TooltipPortal extends React.Component<React.PropsWithChildren<{}>> {
   el: HTMLElement;
 
   constructor(props: {}) {

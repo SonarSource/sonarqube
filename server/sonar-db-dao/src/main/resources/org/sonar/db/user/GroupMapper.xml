@@ -93,42 +93,30 @@
     WHERE uuid=#{uuid}
   </update>
 
-  <select id="selectByQuery" parameterType="map" resultType="Group">
+  <select id="selectByQuery" resultType="Group">
     select
     <include refid="groupColumns"/>
     from groups g
-    where
-    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    <if test="query!=null">
-      and upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
-    </if>
+    <include refid="searchByQueryWhereClause"/>
     order by upper(g.name)
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
     select count(1)
     from groups g
-    where
-    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    <if test="query!=null">
-      and upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
-    </if>
+    <include refid="searchByQueryWhereClause"/>
   </select>
 
-  <select id="countGroupByOrganizationAndUuid" parameterType="map" resultType="int">
-    select
-    count(1)
-    from groups g
-    where
-    g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    and g.uuid = #{groupUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectByOrganizationUuid" parameterType="map" resultType="Group">
-    select
-    <include refid="groupColumns"/>
-    from groups g
-    where g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    order by upper(g.name)
-  </select>
+  <sql id="searchByQueryWhereClause">
+         <where>
+            g.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
+            <if test="query.searchText != null">
+                AND upper(g.name) like #{query.searchText,jdbcType=VARCHAR} escape '/'
+            </if>
+            <if test="query.isManagedSqlClause != null">
+                AND ${query.isManagedSqlClause}
+            </if>
+        </where>
+    </sql>
 </mapper>

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -49,7 +49,6 @@ public class AddGroupAction extends AbstractGroupAction {
         "</ul>")
       .setHandler(this)
       .setPost(true)
-      .setInternal(true)
       .setSince("9.2");
 
     super.defineGateAndGroupParameters(action);

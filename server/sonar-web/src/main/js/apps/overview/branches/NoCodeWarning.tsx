@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../../components/ui/Alert';
-import { getBranchLikeDisplayName, isMainBranch } from '../../../helpers/branch-like';
+import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';
 
 interface Props {
@@ -65,7 +66,7 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
       } else if (branchLike !== undefined) {
         title = translateWithParameters(
           'overview.project.branch_X_empty',
-          getBranchLikeDisplayName(branchLike)
+          getBranchLikeDisplayName(branchLike),
         );
       } else {
         title = translate('overview.project.empty');
@@ -76,18 +77,14 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
       } else if (branchLike !== undefined) {
         title = translateWithParameters(
           'overview.project.branch_X_no_lines_of_code',
-          getBranchLikeDisplayName(branchLike)
+          getBranchLikeDisplayName(branchLike),
         );
       }
     }
   }
   /* eslint-enable no-lonely-if */
 
-  return (
-    <Alert display="banner" variant="warning">
-      {title}
-    </Alert>
-  );
+  return <FlagMessage variant="warning">{title}</FlagMessage>;
 }
 
 export default React.memo(NoCodeWarning);

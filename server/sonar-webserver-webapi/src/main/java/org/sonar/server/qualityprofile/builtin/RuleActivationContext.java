@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -40,8 +42,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.index;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
@@ -104,9 +104,13 @@ public class RuleActivationContext {
   private void register(Collection<ActiveRuleDto> activeRules, Collection<ActiveRuleParamDto> activeRuleParams) {
     ListMultimap<String, ActiveRuleParamDto> paramsByActiveRuleUuid = activeRuleParams.stream().collect(index(ActiveRuleParamDto::getActiveRuleUuid));
     for (ActiveRuleDto activeRule : activeRules) {
-      ActiveRuleWrapper wrapper = new ActiveRuleWrapper(activeRule, paramsByActiveRuleUuid.get(activeRule.getUuid()));
-      this.activeRulesByKey.put(activeRule.getKey(), wrapper);
+      register(activeRule, paramsByActiveRuleUuid.get(activeRule.getUuid()));
     }
+  }
+
+  void register(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> activeRuleParams) {
+    ActiveRuleWrapper wrapper = new ActiveRuleWrapper(activeRule, activeRuleParams);
+    this.activeRulesByKey.put(activeRule.getKey(), wrapper);
   }
 
   long getDate() {
@@ -194,7 +198,7 @@ public class RuleActivationContext {
     }
     Collection<QProfileDto> baseProfiles = profilesByUuid.values().stream()
       .filter(p -> p.getRulesProfileUuid().equals(baseRulesProfile.getUuid()))
-      .collect(toArrayList(profilesByUuid.size()));
+      .toList();
     DescendantProfilesSupplier.Result result = descendantProfilesSupplier.get(baseProfiles, rulesByUuid.keySet());
     register(result.profiles());
     register(result.activeRules(), result.activeRuleParams());
@@ -312,7 +316,7 @@ public class RuleActivationContext {
 
     private RuleWrapper(RuleDto rule, Collection<RuleParamDto> params) {
       this.rule = rule;
-      this.paramsByKey = params.stream().collect(uniqueIndex(RuleParamDto::getName));
+      this.paramsByKey = params.stream().collect(Collectors.toMap(RuleParamDto::getName, Function.identity()));
     }
 
     public RuleDto get() {
@@ -341,7 +345,7 @@ public class RuleActivationContext {
 
     private ActiveRuleWrapper(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> params) {
       this.activeRule = activeRule;
-      this.paramsByKey = params.stream().collect(uniqueIndex(ActiveRuleParamDto::getKey));
+      this.paramsByKey = params.stream().collect(Collectors.toMap(ActiveRuleParamDto::getKey, Function.identity()));
     }
 
     ActiveRuleDto get() {

@@ -29,21 +29,21 @@ option optimize_for = SPEED;
 // WS api/rules/list for internal use only
 message ListResponse {
 
-  message Rule {
-    optional string repository = 1;
-    optional string key = 2;
-    optional string internal_key = 3;
-    optional string name = 4;
-  }
-
   repeated Rule rules = 1;
+
+  optional Actives actives = 2;
+
+  optional QProfiles qProfiles = 3;
+
+  optional sonarqube.ws.commons.Paging paging = 4;
+
 }
 
 // WS api/rules/search
 message SearchResponse {
-  optional int64 total = 1 [deprecated=true];
-  optional int32 p = 2 [deprecated=true];
-  optional int64 ps = 3 [deprecated=true];
+  optional int64 total = 1 [deprecated = true];
+  optional int32 p = 2 [deprecated = true];
+  optional int64 ps = 3 [deprecated = true];
 
   repeated Rule rules = 4;
   optional Actives actives = 5;
@@ -73,12 +73,13 @@ message Rule {
   optional string repo = 2;
   optional string name = 3;
   optional string createdAt = 4;
-  optional string htmlDesc = 5 [deprecated=true];
+  optional string htmlDesc = 5 [deprecated = true];
   optional string htmlNote = 6;
   optional string mdDesc = 7;
   optional string mdNote = 8;
   optional string noteLogin = 9;
-  optional string severity = 10;
+  // Deprecated since 10.2, replace by impacts
+  optional string severity = 10 [deprecated = true];
   optional sonarqube.ws.commons.RuleStatus status = 11;
   optional string internalKey = 12;
   optional bool isTemplate = 13;
@@ -96,23 +97,18 @@ message Rule {
   optional string unusedDebtCharName = 27;
   optional string unusedDebtSubCharName = 28;
 
-  // Deprecated since 5.5, replaced by defaultRemFnType
-  optional string defaultDebtRemFnType = 29;
-  // Deprecated since 5.5, replaced by defaultRemFnGapMultiplier
-  optional string defaultDebtRemFnCoeff = 30;
-  // Deprecated since 5.5, replaced by defaultRemFnBaseEffort
-  optional string defaultDebtRemFnOffset = 31;
-  // Deprecated since 5.5, replaced by gapDescription
-  optional string effortToFixDescription = 32;
-  // Deprecated since 5.5, replaced by remFnOverloaded
-  optional bool debtOverloaded = 33;
-  // Deprecated since 5.5, replaced by remFnType
-  optional string debtRemFnType = 34;
-  // Deprecated since 5.5, replaced by remFnGapMultiplier
-  optional string debtRemFnCoeff = 35;
-  // Deprecated since 5.5, replaced by remFnBaseEffort
-  optional string debtRemFnOffset = 36;
-  optional sonarqube.ws.commons.RuleType type = 37;
+  // Deprecated since 10.0, replaced by defaultRemFnType
+  optional string defaultDebtRemFnType = 29 [deprecated = true];
+  reserved 30;
+  reserved 31;
+  reserved 32;
+  reserved 33;
+  // Deprecated since 10.0, replaced by remFnType
+  optional string debtRemFnType = 34 [deprecated = true];
+  reserved 35;
+  reserved 36;
+  // Deprecated since 10.2, replace by impacts
+  optional sonarqube.ws.commons.RuleType type = 37 [deprecated = true];
   optional string defaultRemFnType = 38;
   optional string defaultRemFnGapMultiplier = 39;
   optional string defaultRemFnBaseEffort = 40;
@@ -126,6 +122,10 @@ message Rule {
   optional DeprecatedKeys deprecatedKeys = 48;
   optional DescriptionSections descriptionSections = 49;
   optional EducationPrinciples educationPrinciples = 50;
+  optional string updatedAt = 51;
+  optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 52;
+  optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 53;
+  optional Impacts impacts = 54;
 
   message DescriptionSections {
     repeated DescriptionSection descriptionSections = 1;
@@ -152,6 +152,10 @@ message Rule {
     optional string defaultValue = 3;
     optional string type = 4;
   }
+}
+
+message Impacts{
+  repeated sonarqube.ws.commons.Impact impacts = 1;
 }
 
 message DeprecatedKeys {
@@ -187,6 +191,7 @@ message Active {
   repeated Param params = 5;
   optional string createdAt = 6;
   optional string updatedAt = 7;
+  optional bool prioritizedRule = 8;
 
   message Param {
     optional string key = 1;

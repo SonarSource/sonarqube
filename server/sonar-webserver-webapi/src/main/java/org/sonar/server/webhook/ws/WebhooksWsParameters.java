@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,6 +40,7 @@ class WebhooksWsParameters {
   static final int KEY_PARAM_MAXIMUM_LENGTH = 40;
   static final String SECRET_PARAM = "secret";
   static final int SECRET_PARAM_MAXIMUM_LENGTH = 200;
+  static final int SECRET_PARAM_MINIMUM_LENGTH = 16;
 
   private WebhooksWsParameters() {
     // prevent instantiation

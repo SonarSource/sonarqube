@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,11 @@ package org.sonar.db.component;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
@@ -44,19 +45,15 @@ public class ComponentKeyUpdaterDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  public void updateKey(DbSession dbSession, String projectUuid, String newKey) {
+  public void updateKey(DbSession dbSession, String projectUuid, String projectOldKey, String newKey) {
     ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
     checkExistentKey(mapper, newKey);
 
     // must SELECT first everything
-    ResourceDto project = mapper.selectComponentByUuid(projectUuid);
-    String projectOldKey = project.getKey();
-    List<ResourceDto> resources = mapper.selectBranchResources(projectUuid);
-    resources.add(project);
+    List<ResourceDto> resources = new LinkedList<>();
 
-    // add branch components
-    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid).stream()
-      .filter(branch -> !projectUuid.equals(branch.getUuid()))
+    // add all branch components
+    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid)
       .forEach(branch -> {
         resources.addAll(mapper.selectBranchResources(branch.getUuid()));
         resources.add(mapper.selectComponentByUuid(branch.getUuid()));

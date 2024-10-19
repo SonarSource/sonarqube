@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,14 +25,14 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.ListContainer;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.cluster.health.SharedHealthStateImpl;
 import org.sonar.process.cluster.hz.HazelcastMember;
-import org.sonar.core.platform.ListContainer;
 
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

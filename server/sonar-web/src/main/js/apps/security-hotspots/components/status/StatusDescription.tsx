@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,35 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import classNames from 'classnames';
+import { LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
 
 export interface StatusDescriptionProps {
   statusOption: HotspotStatusOption;
-  showTitle?: boolean;
-  statusInBadge?: boolean;
 }
 
 export default function StatusDescription(props: StatusDescriptionProps) {
-  const { statusOption, showTitle, statusInBadge = true } = props;
+  const { statusOption } = props;
 
   return (
-    <Container>
-      <h3>
-        {showTitle && `${translate('status')}: `}
-        <div className={classNames({ badge: statusInBadge })}>
+    <div>
+      <h2>
+        <LightPrimary className="sw-typo-semibold">
+          {`${translate('status')}: `}
           {translate('hotspots.status_option', statusOption)}
-        </div>
-      </h3>
-      <div className="little-spacer-top">
-        {translate('hotspots.status_option', statusOption, 'description')}
-      </div>
-    </Container>
+        </LightPrimary>
+      </h2>
+      <Description className="sw-mt-1">
+        <LightLabel className="sw-typo-default">
+          {translate('hotspots.status_option', statusOption, 'description')}
+        </LightLabel>
+      </Description>
+    </div>
   );
 }
 
-const Container = styled.div`
-  width: 350px;
+const Description = styled.div`
+  max-width: 360px;
 `;

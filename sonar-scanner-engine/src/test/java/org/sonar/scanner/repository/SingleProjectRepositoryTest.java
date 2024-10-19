@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.repository;
 
-import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +32,6 @@ public class SingleProjectRepositoryTest {
 
   @Before
   public void setUp() {
-    Date lastAnalysisDate = new Date();
     repository = new SingleProjectRepository(singletonMap("/Abc.java", new FileData("123", "456")));
   }
 

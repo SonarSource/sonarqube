@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,19 +31,18 @@ import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.http.ScannerWsClient;
+import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.Active.Param;
 import org.sonarqube.ws.Rules.ActiveList;
+import org.sonarqube.ws.Rules.ListResponse;
 import org.sonarqube.ws.Rules.Rule;
-import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?" +
-    "f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt,deprecatedKeys&activation=true";
+  private static final String RULES_SEARCH_URL = "/api/rules/list.protobuf?";
 
   private final ScannerWsClient wsClient;
 
@@ -60,12 +59,14 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
 
     while (true) {
       GetRequest getRequest = new GetRequest(getUrl(qualityProfileKey, page, pageSize));
-      SearchResponse response = loadFromStream(wsClient.call(getRequest).contentStream());
+      ListResponse response = loadFromStream(wsClient.call(getRequest).contentStream());
       List<LoadedActiveRule> pageRules = readPage(response);
       ruleList.addAll(pageRules);
-      loaded += response.getPs();
 
-      if (response.getTotal() <= loaded) {
+      Paging paging = response.getPaging();
+      loaded += paging.getPageSize();
+
+      if (paging.getTotal() <= loaded) {
         break;
       }
       page++;
@@ -77,15 +78,15 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static String getUrl(String qualityProfileKey, int page, int pageSize) {
     StringBuilder builder = new StringBuilder(1024);
     builder.append(RULES_SEARCH_URL);
-    builder.append("&qprofile=").append(ScannerUtils.encodeForUrl(qualityProfileKey));
+    builder.append("qprofile=").append(ScannerUtils.encodeForUrl(qualityProfileKey));
     builder.append("&ps=").append(pageSize);
     builder.append("&p=").append(page);
     return builder.toString();
   }
 
-  private static SearchResponse loadFromStream(InputStream is) {
+  private static ListResponse loadFromStream(InputStream is) {
     try {
-      return SearchResponse.parseFrom(is);
+      return ListResponse.parseFrom(is);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to load quality profiles", e);
     } finally {
@@ -93,7 +94,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
     }
   }
 
-  private static List<LoadedActiveRule> readPage(SearchResponse response) {
+  private static List<LoadedActiveRule> readPage(ListResponse response) {
     List<LoadedActiveRule> loadedRules = new LinkedList<>();
 
     List<Rule> rulesList = response.getRulesList();
@@ -101,10 +102,6 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
 
     for (Rule r : rulesList) {
       ActiveList activeList = actives.get(r.getKey());
-      if (activeList == null) {
-        throw MessageException.of("Elasticsearch indices have become inconsistent. Consider re-indexing. " +
-          "Check documentation for more information https://docs.sonarqube.org/latest/setup/troubleshooting");
-      }
       Active active = activeList.getActiveList(0);
 
       LoadedActiveRule loadedRule = new LoadedActiveRule();

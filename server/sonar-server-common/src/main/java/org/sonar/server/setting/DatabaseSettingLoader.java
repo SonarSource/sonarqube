@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,12 @@
 package org.sonar.server.setting;
 
 import java.util.Map;
-import org.sonar.core.util.stream.MoreCollectors;
+import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 public class DatabaseSettingLoader implements SettingLoader {
 
@@ -49,7 +49,7 @@ public class DatabaseSettingLoader implements SettingLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.propertiesDao().selectGlobalProperties(dbSession)
         .stream()
-        .collect(MoreCollectors.uniqueIndex(PropertyDto::getKey, p -> defaultString(p.getValue())));
+        .collect(Collectors.toMap(PropertyDto::getKey, p -> defaultString(p.getValue())));
     }
   }
 

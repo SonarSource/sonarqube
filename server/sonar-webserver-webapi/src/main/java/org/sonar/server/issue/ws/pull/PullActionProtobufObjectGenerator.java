@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws.pull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDto;
 import org.sonarqube.ws.Common;
 
 import static org.sonarqube.ws.Issues.IssueLite;
@@ -40,7 +41,7 @@ public class PullActionProtobufObjectGenerator implements ProtobufObjectGenerato
   }
 
   @Override
-  public IssueLite generateIssueMessage(IssueDto issueDto) {
+  public IssueLite generateIssueMessage(IssueDto issueDto, RuleDto ruleDto) {
     IssueLite.Builder issueBuilder = IssueLite.newBuilder();
     DbIssues.Locations mainLocation = issueDto.parseLocations();
 
@@ -58,7 +59,9 @@ public class PullActionProtobufObjectGenerator implements ProtobufObjectGenerato
     Location location = locationBuilder.build();
 
     issueBuilder.setKey(issueDto.getKey());
-    issueBuilder.setCreationDate(issueDto.getCreatedAt());
+    if (issueDto.getIssueCreationTime() != null) {
+      issueBuilder.setCreationDate(issueDto.getIssueCreationTime());
+    }
     issueBuilder.setResolved(issueDto.getStatus().equals(org.sonar.api.issue.Issue.STATUS_RESOLVED));
     issueBuilder.setRuleKey(issueDto.getRuleKey().toString());
     if (issueDto.isManualSeverity() && issueDto.getSeverity() != null) {

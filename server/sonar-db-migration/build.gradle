@@ -8,7 +8,7 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   api 'com.google.guava:guava'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'commons-codec:commons-codec'
   api 'com.fasterxml.staxmate:staxmate'
 
@@ -16,28 +16,41 @@ dependencies {
   api project(':server:sonar-process')
   api project(':sonar-core')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  implementation project(':server:sonar-telemetry-core')
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'commons-dbutils:commons-dbutils'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mindrot:jbcrypt'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.xmlunit:xmlunit-core'
   testImplementation 'org.xmlunit:xmlunit-matchers'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-scanner-protocol')
   testImplementation project(':sonar-testing-harness')
   testImplementation testFixtures(project(':server:sonar-db-core'))
 
+  testFixturesImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testFixturesImplementation testFixtures(project(':server:sonar-db-core'))
+
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
   testRuntimeOnly 'org.postgresql:postgresql'
 }
 
 test {
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

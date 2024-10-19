@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.db.DatabaseUtils.getString;
 
 public class ExportComponentsStep implements ComputationStep {
@@ -45,7 +45,7 @@ public class ExportComponentsStep implements ComputationStep {
   private static final String QUERY = "select" +
     " p.uuid, p.qualifier, p.uuid_path, p.kee, p.name," +
     " p.description, p.scope, p.language, p.long_name, p.path," +
-    " p.module_uuid, p.module_uuid_path, p.deprecated_kee, p.branch_uuid, p.main_branch_project_uuid" +
+    " p.deprecated_kee, p.branch_uuid" +
     " from components p" +
     " join components pp on pp.uuid = p.branch_uuid" +
     " join project_branches pb on pb.uuid = pp.uuid" +
@@ -90,17 +90,14 @@ public class ExportComponentsStep implements ComputationStep {
           .setLanguage(defaultString(getString(rs, 8)))
           .setLongName(defaultString(getString(rs, 9)))
           .setPath(defaultString(getString(rs, 10)))
-          .setModuleUuid(defaultString(getString(rs, 11)))
-          .setModuleUuidPath(defaultString(getString(rs, 12)))
-          .setDeprecatedKey(defaultString(getString(rs, 13)))
-          .setProjectUuid(getString(rs, 14))
-          .setMainBranchProjectUuid(defaultString(getString(rs, 15)))
+          .setDeprecatedKey(defaultString(getString(rs, 11)))
+          .setProjectUuid(getString(rs, 12))
           .build();
         output.write(component);
         ref++;
         count++;
       }
-      Loggers.get(getClass()).debug("{} components exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} components exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Component Export failed after processing %d components successfully", count), e);
     }

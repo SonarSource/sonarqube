@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.server.platform.web;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +30,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.FilterChain;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.WebServiceEngine;
 
@@ -43,21 +45,19 @@ import static org.sonar.server.platform.web.WebServiceFilterTest.WsUrl.newWsUrl;
 
 public class WebServiceFilterTest {
 
-  private static final String RUNTIME_VERSION = "7.1.0.1234";
+  private final WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
 
-
-  private WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
-
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private FilterChain chain = mock(FilterChain.class);
-  private ServletOutputStream responseOutput = mock(ServletOutputStream.class);
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final FilterChain chain = mock(FilterChain.class);
+  private final ServletOutputStream responseOutput = mock(ServletOutputStream.class);
   private WebServiceFilter underTest;
 
   @Before
   public void setUp() throws Exception {
     when(request.getContextPath()).thenReturn("");
-    when(response.getOutputStream()).thenReturn(responseOutput);
+    HttpServletResponse mockResponse = mock(HttpServletResponse.class);
+    when(mockResponse.getOutputStream()).thenReturn(responseOutput);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class WebServiceFilterTest {
   public void execute_ws() {
     underTest = new WebServiceFilter(webServiceEngine);
 
-    underTest.doFilter(request, response, chain);
+    underTest.doFilter(new JavaxHttpRequest(request), new JavaxHttpResponse(response), chain);
 
     verify(webServiceEngine).execute(any(), any());
   }
@@ -132,8 +132,8 @@ public class WebServiceFilterTest {
   }
 
   static final class WsUrl {
-    private String controller;
-    private String[] actions;
+    private final String controller;
+    private final String[] actions;
     private RequestHandler requestHandler = EmptyRequestHandler.INSTANCE;
 
     WsUrl(String controller, String... actions) {

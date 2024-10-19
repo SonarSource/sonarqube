@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,8 +54,8 @@ public class CeServerTest {
 
   private CeServer underTest = null;
   private Thread waitingThread = null;
-  private MinimumViableSystem minimumViableSystem = mock(MinimumViableSystem.class, Mockito.RETURNS_MOCKS);
-  private CeSecurityManager ceSecurityManager = mock(CeSecurityManager.class);
+  private final MinimumViableSystem minimumViableSystem = mock(MinimumViableSystem.class, Mockito.RETURNS_MOCKS);
+  private final CeSecurityManager ceSecurityManager = mock(CeSecurityManager.class);
 
   @After
   public void tearDown() throws Exception {
@@ -71,9 +71,9 @@ public class CeServerTest {
 
   @Test
   public void constructor_does_not_start_a_new_Thread() {
-    int activeCount = Thread.activeCount();
+    assertThat(ceThreadExists()).isFalse();
     newCeServer();
-    assertThat(Thread.activeCount()).isSameAs(activeCount);
+    assertThat(ceThreadExists()).isFalse();
   }
 
   @Test
@@ -93,11 +93,9 @@ public class CeServerTest {
 
   @Test
   public void start_starts_a_new_Thread() {
-    int activeCount = Thread.activeCount();
-
+    assertThat(ceThreadExists()).isFalse();
     newCeServer().start();
-
-    assertThat(Thread.activeCount()).isSameAs(activeCount + 1);
+    assertThat(ceThreadExists()).isTrue();
   }
 
   @Test
@@ -122,7 +120,10 @@ public class CeServerTest {
   }
 
   private static boolean ceThreadExists() {
-    return Thread.getAllStackTraces().keySet().stream().anyMatch(t -> t.getName().equals("ce-main"));
+    return Thread.getAllStackTraces().keySet()
+      .stream()
+      .map(Thread::getName)
+      .anyMatch("ce-main"::equals);
   }
 
   @Test

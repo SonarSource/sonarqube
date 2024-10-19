@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,110 +17,91 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link, Modal } from 'design-system';
 import { filter, flatMap, isEmpty, negate } from 'lodash';
 import * as React from 'react';
-import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import { useAppState } from '../../app/components/app-state/withAppStateContext';
+import { BANNER_VARIANT } from '../../app/components/update-notification/helpers';
 import { translate } from '../../helpers/l10n';
-import { AppState } from '../../types/appstate';
-import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
-import Link from '../common/Link';
-import { ResetButtonLink } from '../controls/buttons';
-import Modal from '../controls/Modal';
-import { Alert, AlertVariant } from '../ui/Alert';
 import SystemUpgradeItem from './SystemUpgradeItem';
-import { UpdateUseCase } from './utils';
+import { SYSTEM_VERSION_REGEXP, UpdateUseCase } from './utils';
 
 interface Props {
-  appState: AppState;
+  latestLTA?: string;
   onClose: () => void;
   systemUpgrades: SystemUpgrade[][];
-  latestLTS: string;
-  updateUseCase?: UpdateUseCase;
+  updateUseCase: UpdateUseCase;
 }
 
-const MAP_ALERT: { [key in UpdateUseCase]?: AlertVariant } = {
-  [UpdateUseCase.NewPatch]: 'warning',
-  [UpdateUseCase.PreLTS]: 'warning',
-  [UpdateUseCase.PreviousLTS]: 'error',
-};
+export default function SystemUpgradeForm(props: Readonly<Props>) {
+  const appState = useAppState();
+  const { latestLTA, onClose, updateUseCase, systemUpgrades } = props;
 
-interface State {
-  upgrading: boolean;
-}
+  let systemUpgradesWithPatch: SystemUpgrade[][] = [];
+  const alertVariant =
+    updateUseCase !== UpdateUseCase.NewVersion ? BANNER_VARIANT[updateUseCase] : undefined;
+  const header = translate('system.system_upgrade');
+  const parsedVersion = SYSTEM_VERSION_REGEXP.exec(appState.version);
+  let patches: SystemUpgrade[] = [];
 
-export class SystemUpgradeForm extends React.PureComponent<Props, State> {
-  versionParser = /^(\d+)\.(\d+)(\.(\d+))?/;
-  state: State = { upgrading: false };
+  if (updateUseCase === UpdateUseCase.NewPatch && parsedVersion !== null) {
+    const [, major, minor] = parsedVersion;
+    const majoMinorVersion = `${major}.${minor}`;
 
-  render() {
-    const { upgrading } = this.state;
-    const { appState, systemUpgrades, latestLTS, updateUseCase } = this.props;
-    let systemUpgradesWithPatch: SystemUpgrade[][] = [];
-    const alertVariant = updateUseCase ? MAP_ALERT[updateUseCase] : undefined;
-    const header = translate('system.system_upgrade');
-    const parsedVersion = this.versionParser.exec(appState.version);
-    let patches: SystemUpgrade[] = [];
-    if (updateUseCase === UpdateUseCase.NewPatch && parsedVersion !== null) {
-      const [, major, minor] = parsedVersion;
-      const majoMinorVersion = `${major}.${minor}`;
-      patches = flatMap(systemUpgrades, (upgrades) =>
-        filter(upgrades, (upgrade) => upgrade.version.startsWith(majoMinorVersion))
-      );
-      systemUpgradesWithPatch = systemUpgrades
-        .map((upgrades) =>
-          upgrades.filter((upgrade) => !upgrade.version.startsWith(majoMinorVersion))
-        )
-        .filter(negate(isEmpty));
-      systemUpgradesWithPatch.push(patches);
-    } else {
-      let untilLTS = false;
-      for (const upgrades of systemUpgrades) {
-        if (untilLTS === false) {
-          systemUpgradesWithPatch.push(upgrades);
-          untilLTS = upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS));
-        }
+    patches = flatMap(systemUpgrades, (upgrades) =>
+      filter(upgrades, (upgrade) => upgrade.version.startsWith(majoMinorVersion)),
+    );
+    systemUpgradesWithPatch = systemUpgrades
+      .map((upgrades) =>
+        upgrades.filter((upgrade) => !upgrade.version.startsWith(majoMinorVersion)),
+      )
+      .filter(negate(isEmpty));
+
+    systemUpgradesWithPatch.push(patches);
+  } else {
+    let untilLTA = false;
+
+    for (const upgrades of systemUpgrades) {
+      if (untilLTA === false) {
+        systemUpgradesWithPatch.push(upgrades);
+        untilLTA = upgrades.some(
+          (upgrade) => latestLTA !== undefined && upgrade.version.startsWith(latestLTA),
+        );
       }
     }
+  }
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <div className="modal-head">
-          <h2>{header}</h2>
-        </div>
-
-        <div className="modal-body">
-          {alertVariant && updateUseCase && (
-            <Alert variant={alertVariant} className={`it__upgrade-alert-${updateUseCase}`}>
+  return (
+    <Modal
+      headerTitle={header}
+      onClose={onClose}
+      body={
+        <>
+          {alertVariant && (
+            <FlagMessage variant={alertVariant} className={`it__upgrade-alert-${updateUseCase}`}>
               {translate('admin_notification.update', updateUseCase)}
-            </Alert>
+            </FlagMessage>
           )}
           {systemUpgradesWithPatch.map((upgrades) => (
             <SystemUpgradeItem
-              edition={
-                appState.edition as EditionKey /* TODO: Fix once AppState is no longer ambiant. */
-              }
+              edition={appState.edition}
               key={upgrades[upgrades.length - 1].version}
               systemUpgrades={upgrades}
               isPatch={upgrades === patches}
-              isLTSVersion={upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS))}
+              isLTAVersion={upgrades.some(
+                (upgrade) => latestLTA !== undefined && upgrade.version.startsWith(latestLTA),
+              )}
             />
           ))}
-        </div>
-        <div className="modal-foot">
-          {upgrading && <i className="spinner spacer-right" />}
-          <Link
-            className="pull-left link-no-underline display-flex-center"
-            to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-            target="_blank"
-          >
-            {translate('system.see_sonarqube_downloads')}
-          </Link>
-          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </div>
-      </Modal>
-    );
-  }
+        </>
+      }
+      primaryButton={
+        <Link to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube">
+          {translate('system.see_sonarqube_downloads')}
+        </Link>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }
-
-export default withAppStateContext(SystemUpgradeForm);

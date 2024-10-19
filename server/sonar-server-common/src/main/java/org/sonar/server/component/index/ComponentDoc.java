@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@ import org.sonar.server.permission.index.AuthorizationDoc;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_ORGANIZATION_UUID;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_PROJECT_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
@@ -38,6 +37,9 @@ public class ComponentDoc extends BaseDoc {
     super(TYPE_COMPONENT, new HashMap<>(6));
   }
 
+  /**
+   * Needed for reflection. Do not remove.
+   */
   public ComponentDoc(Map<String, Object> fields) {
     super(TYPE_COMPONENT, fields);
   }
@@ -49,15 +51,6 @@ public class ComponentDoc extends BaseDoc {
 
   public ComponentDoc setId(String s) {
     setField(FIELD_UUID, s);
-    return this;
-  }
-
-  public String getProjectUuid() {
-    return getField(FIELD_PROJECT_UUID);
-  }
-
-  public ComponentDoc setProjectUuid(String s) {
-    setField(FIELD_PROJECT_UUID, s);
     setParent(AuthorizationDoc.idOf(s));
     return this;
   }
@@ -95,6 +88,11 @@ public class ComponentDoc extends BaseDoc {
 
   public ComponentDoc setOrganization(String s) {
     setField(FIELD_ORGANIZATION_UUID, s);
+    return this;
+  }
+
+  public ComponentDoc setAuthUuid(String s) {
+    setParent(AuthorizationDoc.idOf(s));
     return this;
   }
 }

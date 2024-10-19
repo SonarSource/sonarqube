@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,19 +27,19 @@ interface Props {
 
 export default function TemplateDetails({ template }: Props) {
   return (
-    <div className="big-spacer-bottom">
+    <div className="sw-mb-4">
       {template.defaultFor.length > 0 && (
-        <div className="spacer-top js-defaults">
+        <div className="sw-mt-2 js-defaults">
           <Defaults template={template} />
         </div>
       )}
 
       {!!template.description && (
-        <div className="spacer-top js-description">{template.description}</div>
+        <div className="sw-mt-2 js-description">{template.description}</div>
       )}
 
       {!!template.projectKeyPattern && (
-        <div className="spacer-top js-project-key-pattern">
+        <div className="sw-mt-2 js-project-key-pattern">
           Project Key Pattern: <code>{template.projectKeyPattern}</code>
         </div>
       )}

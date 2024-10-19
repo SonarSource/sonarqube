@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
@@ -120,6 +121,32 @@ public class WsParameterBuilderTest {
       .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes), Sets.newHashSet(Q1.getQualifier()));
 
     assertThat(newParam).isNotNull();
+  }
+
+
+  @Test
+  public void createQualifiersParameter_whenIgnoreIsSetToTrue_shouldNotReturnQualifier(){
+    when(resourceTypes.getAll()).thenReturn(asList(Q1, Q2,ResourceType.builder("Q3").setProperty("ignored", true).build()));
+    when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
+    when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
+    when(newParam.setDescription(any())).thenReturn(newParam);
+    NewParam newParam = WsParameterBuilder
+      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+
+    verify(newParam).setPossibleValues(Sets.newHashSet(Q1.getQualifier(), Q2.getQualifier()));
+  }
+
+  @Test
+  public void createQualifiersParameter_whenIgnoreIsSetToFalse_shouldReturnQualifier(){
+    ResourceType q3Qualifier = ResourceType.builder("Q3").setProperty("ignored", false).build();
+    when(resourceTypes.getAll()).thenReturn(asList(Q1, Q2, q3Qualifier));
+    when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
+    when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
+    when(newParam.setDescription(any())).thenReturn(newParam);
+    NewParam newParam = WsParameterBuilder
+      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+
+    verify(newParam).setPossibleValues(Sets.newHashSet(Q1.getQualifier(), Q2.getQualifier(), q3Qualifier.getQualifier()));
   }
 
 }

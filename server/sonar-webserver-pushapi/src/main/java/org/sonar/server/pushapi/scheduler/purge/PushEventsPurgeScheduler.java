@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,8 @@ import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.util.GlobalLockManager;
@@ -37,7 +37,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 @ServerSide
 public class PushEventsPurgeScheduler implements Startable {
-  private static final Logger LOG = Loggers.get(PushEventsPurgeScheduler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PushEventsPurgeScheduler.class);
   private static final String LOCK_NAME = "PushPurgeCheck";
 
   @VisibleForTesting

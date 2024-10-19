@@ -11,7 +11,7 @@ dependencies {
   api 'ch.qos.logback:logback-core'
   api 'com.google.guava:guava'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'com.zaxxer:HikariCP'
   api 'org.mybatis:mybatis'
   api 'org.slf4j:slf4j-api'
@@ -20,19 +20,22 @@ dependencies {
   api project(':server:sonar-process')
   api project(':sonar-plugin-api-impl')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.h2database:h2'
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
   testImplementation 'com.oracle.database.jdbc:ojdbc11'
   testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
-  testImplementation 'org.mockito:mockito-inline'
   testImplementation 'org.postgresql:postgresql'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
 
   testImplementation project(':sonar-testing-harness')
 
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
@@ -41,11 +44,16 @@ dependencies {
   testFixturesApi 'commons-dbutils:commons-dbutils'
   testFixturesApi 'junit:junit'
   testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi 'org.apache.commons:commons-collections4'
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesImplementation 'com.oracle.database.jdbc:ojdbc11'
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 }
 
 test {
+  useJUnitPlatform()
   if (System.hasProperty('orchestrator.configUrl'))
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
 }

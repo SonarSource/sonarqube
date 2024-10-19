@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,11 +28,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 
-import static org.apache.commons.lang.StringUtils.removeStart;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -57,6 +57,13 @@ public class DefaultDatabaseTest {
     assertThat(db).hasToString("Database[jdbc:h2:tcp://localhost/sonar;NON_KEYWORDS=VALUE]");
   }
 
+  @Test
+  public void getSettings_shouldReturnExpectedSettings() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("test", "test");
+    DefaultDatabase db = new DefaultDatabase(logbackHelper, settings);
+    assertThat(db.getSettings()).isEqualTo(settings);
+  }
   @Test
   public void shouldExtractHikariProperties() {
     Properties props = new Properties();

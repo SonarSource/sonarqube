@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { BuildTools } from '../../types';
+import { BuildTools, TutorialConfig } from '../../types';
 import ClangGCC from './ClangGCC';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
@@ -26,38 +26,34 @@ import JavaMaven from './JavaMaven';
 import Other from './Other';
 
 export interface AnalysisCommandProps {
+  config: TutorialConfig;
   projectKey: string;
-  buildTool?: BuildTools;
-  onStepValidationChange: (isValid: boolean) => void;
+  projectName: string;
 }
 
 export default function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, projectKey } = props;
-
-  React.useEffect(() => {
-    if (buildTool && buildTool !== BuildTools.CFamily) {
-      props.onStepValidationChange(true);
-    }
-  }, [buildTool, props.onStepValidationChange]);
+  const { config, projectKey, projectName } = props;
+  const { buildTool } = config;
 
   if (!buildTool) {
     return null;
   }
+
   switch (buildTool) {
     case BuildTools.Maven:
-      return <JavaMaven projectKey={projectKey} />;
+      return <JavaMaven projectKey={projectKey} projectName={projectName} />;
 
     case BuildTools.Gradle:
-      return <JavaGradle projectKey={projectKey} />;
+      return <JavaGradle projectKey={projectKey} projectName={projectName} />;
 
     case BuildTools.DotNet:
       return <DotNet projectKey={projectKey} />;
 
-    case BuildTools.CFamily:
-      return (
-        <ClangGCC onStepValidationChange={props.onStepValidationChange} projectKey={projectKey} />
-      );
+    case BuildTools.Cpp:
+    case BuildTools.ObjectiveC:
+      return <ClangGCC config={config} projectKey={projectKey} />;
 
+    case BuildTools.Dart:
     case BuildTools.Other:
       return <Other projectKey={projectKey} />;
 

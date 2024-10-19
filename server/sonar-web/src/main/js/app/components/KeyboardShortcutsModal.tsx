@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,116 +17,143 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { ContentCell, Key, KeyboardHint, Modal, SubTitle, Table, TableRow } from 'design-system';
 import * as React from 'react';
-import Link from '../../components/common/Link';
-import { Button } from '../../components/controls/buttons';
-import Modal from '../../components/controls/Modal';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate } from '../../helpers/l10n';
 import { getKeyboardShortcutEnabled } from '../../helpers/preferences';
 
-type Shortcuts = Array<{
-  category: string;
-  shortcuts: Array<{
-    keys: string[];
-    action: string;
-  }>;
-}>;
-
-const CATEGORIES: { left: Shortcuts; right: Shortcuts } = {
-  left: [
-    {
-      category: 'global',
-      shortcuts: [
-        { keys: ['s'], action: 'search' },
-        { keys: ['?'], action: 'open_shortcuts' },
-      ],
-    },
-    {
-      category: 'issues_page',
-      shortcuts: [
-        { keys: ['↑', '↓'], action: 'navigate' },
-        { keys: ['→'], action: 'source_code' },
-        { keys: ['←'], action: 'back' },
-        { keys: ['alt', '+', '↑', '↓'], action: 'navigate_locations' },
-        { keys: ['alt', '+', '←', '→'], action: 'switch_flows' },
-        { keys: ['f'], action: 'transition' },
-        { keys: ['a'], action: 'assign' },
-        { keys: ['m'], action: 'assign_to_me' },
-        { keys: ['i'], action: 'severity' },
-        { keys: ['c'], action: 'comment' },
-        { keys: ['ctrl', '+', 'enter'], action: 'submit_comment' },
-        { keys: ['t'], action: 'tags' },
-      ],
-    },
-  ],
-  right: [
-    {
-      category: 'code_page',
-      shortcuts: [
-        { keys: ['↑', '↓'], action: 'select_files' },
-        { keys: ['→'], action: 'open_file' },
-        { keys: ['←'], action: 'back' },
-      ],
-    },
-    {
-      category: 'measures_page',
-      shortcuts: [
-        { keys: ['↑', '↓'], action: 'select_files' },
-        { keys: ['→'], action: 'open_file' },
-        { keys: ['←'], action: 'back' },
-      ],
-    },
-    {
-      category: 'rules_page',
-      shortcuts: [
-        { keys: ['↑', '↓'], action: 'navigate' },
-        { keys: ['→'], action: 'rule_details' },
-        { keys: ['←'], action: 'back' },
-      ],
-    },
-  ],
+type Section = {
+  rows: Array<{ command: string; description: string }>;
+  subTitle: string;
 };
 
-function renderShortcuts(list: Shortcuts) {
-  return (
-    <>
-      {list.map(({ category, shortcuts }) => (
-        <div key={category} className="spacer-bottom">
-          <h3 className="null-spacer-top">{translate('keyboard_shortcuts', category, 'title')}</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>{translate('keyboard_shortcuts.shortcut')}</th>
-                <th>{translate('keyboard_shortcuts.action')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shortcuts.map(({ action, keys }) => (
-                <tr key={action}>
-                  <td>
-                    {keys.map((k) =>
-                      k === '+' ? (
-                        <span key={k} className="little-spacer-right">
-                          {k}
-                        </span>
-                      ) : (
-                        <code key={k} className="little-spacer-right">
-                          {k}
-                        </code>
-                      )
-                    )}
-                  </td>
-                  <td>{translate('keyboard_shortcuts', category, action)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
-    </>
-  );
+const FILE_ROWS = [
+  {
+    command: `${Key.ArrowUp} ${Key.ArrowDown}`,
+    description: 'keyboard_shortcuts_modal.code_page.select_files',
+  },
+  {
+    command: `${Key.ArrowRight}`,
+    description: 'keyboard_shortcuts_modal.code_page.open_file',
+  },
+  {
+    command: `${Key.ArrowLeft}`,
+    description: 'keyboard_shortcuts_modal.return_back_to_the_list',
+  },
+];
+
+export const SECTIONS: Array<Section> = [
+  {
+    rows: [
+      {
+        command: 's',
+        description: 'keyboard_shortcuts_modal.global.open_search_bar',
+      },
+      {
+        command: '?',
+        description: 'keyboard_shortcuts_modal.global.open_keyboard_shortcuts_modal',
+      },
+    ],
+    subTitle: 'keyboard_shortcuts_modal.global',
+  },
+
+  {
+    rows: [
+      {
+        command: `${Key.ArrowUp} ${Key.ArrowDown}`,
+        description: 'keyboard_shortcuts_modal.navigate_between_issues',
+      },
+      {
+        command: `${Key.ArrowRight}`,
+        description: 'keyboard_shortcuts_modal.open_issue',
+      },
+      {
+        command: `${Key.ArrowLeft}`,
+        description: 'keyboard_shortcuts_modal.return_back_to_the_list',
+      },
+      {
+        command: `${Key.Alt} + ${Key.ArrowUp} ${Key.ArrowDown}`,
+        description: 'keyboard_shortcuts_modal.issue_details_page.navigate_issue_locations',
+      },
+      {
+        command: `${Key.Alt} + ${Key.ArrowLeft} ${Key.ArrowRight}`,
+        description: 'keyboard_shortcuts_modal.issue_details_page.switch_flows',
+      },
+      {
+        command: 'f',
+        description: 'keyboard_shortcuts_modal.do_issue_transition',
+      },
+      {
+        command: 'a',
+        description: 'keyboard_shortcuts_modal.assign_issue',
+      },
+      {
+        command: 'm',
+        description: 'keyboard_shortcuts_modal.assign_issue_to_me',
+      },
+      {
+        command: 't',
+        description: 'keyboard_shortcuts_modal.change_tags_of_issue',
+      },
+      {
+        command: `${Key.Control} + ${Key.Enter}`,
+        description: 'keyboard_shortcuts_modal.issue_details_page.submit_comment',
+      },
+    ],
+    subTitle: 'keyboard_shortcuts_modal.issues_page',
+  },
+
+  {
+    rows: FILE_ROWS,
+    subTitle: 'keyboard_shortcuts_modal.code_page',
+  },
+
+  {
+    rows: FILE_ROWS,
+    subTitle: 'keyboard_shortcuts_modal.measures_page',
+  },
+
+  {
+    rows: [
+      {
+        command: `${Key.ArrowUp} ${Key.ArrowDown}`,
+        description: 'keyboard_shortcuts_modal.rules_page.navigate_between_rule',
+      },
+      {
+        command: `${Key.ArrowRight}`,
+        description: 'keyboard_shortcuts_modal.rules_page.open_rule',
+      },
+      {
+        command: `${Key.ArrowLeft}`,
+        description: 'keyboard_shortcuts_modal.return_back_to_the_list',
+      },
+    ],
+    subTitle: 'keyboard_shortcuts_modal.rules_page',
+  },
+];
+
+function renderSection() {
+  return SECTIONS.map((section) => (
+    <div key={section.subTitle} className="sw-mb-4">
+      <SubTitle>{translate(section.subTitle)}</SubTitle>
+
+      <Table columnCount={2} columnWidths={['30%', '70%']}>
+        {section.rows.map((row) => (
+          <TableRow key={row.command}>
+            <ContentCell className="sw-justify-center">
+              <KeyboardHint command={row.command} title="" />
+            </ContentCell>
+
+            <ContentCell>{translate(row.description)}</ContentCell>
+          </TableRow>
+        ))}
+      </Table>
+    </div>
+  ));
 }
 
 export default function KeyboardShortcutsModal() {
@@ -158,31 +185,30 @@ export default function KeyboardShortcutsModal() {
     return null;
   }
 
-  const title = translate('keyboard_shortcuts.title');
+  const title = translate('keyboard_shortcuts_modal.title');
+
+  const body = (
+    <>
+      <LinkStandalone
+        onClick={() => {
+          setDisplay(false);
+          return true;
+        }}
+        to="/account"
+      >
+        {translate('keyboard_shortcuts_modal.disable_link')}
+      </LinkStandalone>
+
+      <div className="sw-mt-4">{renderSection()}</div>
+    </>
+  );
 
   return (
-    <Modal contentLabel={title} onRequestClose={() => setDisplay(false)} size="medium">
-      <div className="modal-head display-flex-space-between">
-        <h2>{title}</h2>
-        <Link
-          to="/account"
-          onClick={() => {
-            setDisplay(false);
-            return true;
-          }}
-        >
-          {translate('keyboard_shortcuts.disable_link')}
-        </Link>
-      </div>
-
-      <div className="modal-body modal-container markdown display-flex-start shortcuts-modal">
-        <div className="flex-1">{renderShortcuts(CATEGORIES.left)}</div>
-        <div className="flex-1 huge-spacer-left">{renderShortcuts(CATEGORIES.right)}</div>
-      </div>
-
-      <div className="modal-foot">
-        <Button onClick={() => setDisplay(false)}>{translate('close')}</Button>
-      </div>
-    </Modal>
+    <Modal
+      body={body}
+      headerTitle={title}
+      onClose={() => setDisplay(false)}
+      secondaryButtonLabel={translate('close')}
+    />
   );
 }

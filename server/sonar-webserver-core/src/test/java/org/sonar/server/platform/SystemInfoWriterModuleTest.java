@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ public class SystemInfoWriterModuleTest {
     when(nodeInformation.isStandalone()).thenReturn(false);
     ListContainer container = new ListContainer();
     underTest.configure(container);
-    assertThat(container.getAddedObjects()).hasSize(21);
+    assertThat(container.getAddedObjects()).hasSize(22);
   }
 
   @Test
@@ -44,6 +44,6 @@ public class SystemInfoWriterModuleTest {
 
     ListContainer container = new ListContainer();
     underTest.configure(container);
-    assertThat(container.getAddedObjects()).hasSize(15);
+    assertThat(container.getAddedObjects()).hasSize(16);
   }
 }

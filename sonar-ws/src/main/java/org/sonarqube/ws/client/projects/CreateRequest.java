@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,22 +30,22 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class CreateRequest {
 
-  private String branch;
+  private String mainBranch;
   private String name;
   private String organization;
   private String project;
   private String visibility;
 
   /**
-   * Example value: "branch-5.0"
+   * Example value: "master"
    */
-  public CreateRequest setBranch(String branch) {
-    this.branch = branch;
+  public CreateRequest setMainBranch(String mainBranch) {
+    this.mainBranch = mainBranch;
     return this;
   }
 
-  public String getBranch() {
-    return branch;
+  public String getMainBranch() {
+    return mainBranch;
   }
 
   /**

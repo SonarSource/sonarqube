@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -106,7 +106,7 @@ class SearchData {
           .limit(request.getPageSize());
       }
 
-      this.analyses = stream.collect(MoreCollectors.toList());
+      this.analyses = stream.toList();
       this.countAnalyses = analyses.size();
       return this;
     }
@@ -165,7 +165,7 @@ class SearchData {
         .filter(byCategory)
         .skip(Paging.offset(request.getPage(), request.getPageSize()))
         .limit(request.getPageSize())
-        .collect(MoreCollectors.toList());
+        .toList();
     }
 
     SearchData build() {

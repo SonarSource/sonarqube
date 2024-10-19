@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function gradleExample(branchesEnabled: boolean, mainBranchName: string) {
-  return `image: openjdk:8
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+
+const gradleExample: BuildToolExampleBuilder = ({ branchesEnabled, mainBranchName }) => {
+  return `image: eclipse-temurin:17
 
 definitions:
   steps:
@@ -47,4 +49,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default gradleExample;

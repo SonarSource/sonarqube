@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,36 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { IndexationNotificationType } from '../../../../types/indexation';
-import IndexationNotificationRenderer, {
-  IndexationNotificationRendererProps,
-} from '../IndexationNotificationRenderer';
+import IndexationNotificationRenderer from '../IndexationNotificationRenderer';
 
-it.each([
-  [IndexationNotificationType.InProgress, false],
-  [IndexationNotificationType.InProgress, true],
-  [IndexationNotificationType.InProgressWithFailure, false],
-  [IndexationNotificationType.InProgressWithFailure, true],
-  [IndexationNotificationType.Completed, false],
-  [IndexationNotificationType.Completed, true],
-  [IndexationNotificationType.CompletedWithFailure, false],
-  [IndexationNotificationType.CompletedWithFailure, true],
-])(
-  'should render correctly for type=%p & isSystemAdmin=%p',
-  (type: IndexationNotificationType, isSystemAdmin: boolean) => {
-    expect(shallowRender({ type, isSystemAdmin })).toMatchSnapshot();
-  }
-);
+describe('Indexation notification renderer', () => {
+  const ui = {
+    inProgressText: byText(/indexation.in_progress\s*indexation.features_partly_available/),
+    completedText: byText('indexation.completed'),
+    completedWithFailures: byText('indexation.completed_with_error'),
+    docLink: byRole('link', { name: /indexation.features_partly_available.link/ }),
+  };
 
-function shallowRender(props: Partial<IndexationNotificationRendererProps> = {}) {
-  return shallow<IndexationNotificationRendererProps>(
-    <IndexationNotificationRenderer
-      type={IndexationNotificationType.InProgress}
-      percentCompleted={25}
-      isSystemAdmin={false}
-      {...props}
-    />
-  );
+  it('should display "In progress" status', () => {
+    renderIndexationNotificationRenderer(IndexationNotificationType.InProgress);
+
+    expect(ui.inProgressText.get()).toBeInTheDocument();
+    expect(ui.docLink.get()).toBeInTheDocument();
+  });
+
+  it('should display "In progress with failures" status', () => {
+    renderIndexationNotificationRenderer(IndexationNotificationType.InProgressWithFailure);
+
+    expect(ui.inProgressText.get()).toBeInTheDocument();
+    expect(ui.docLink.get()).toBeInTheDocument();
+  });
+
+  it('should display "Completed" status', () => {
+    renderIndexationNotificationRenderer(IndexationNotificationType.Completed);
+
+    expect(ui.completedText.get()).toBeInTheDocument();
+  });
+
+  it('should display "Completed with failures" status', () => {
+    renderIndexationNotificationRenderer(IndexationNotificationType.CompletedWithFailure);
+
+    expect(ui.completedWithFailures.get()).toBeInTheDocument();
+  });
+});
+
+function renderIndexationNotificationRenderer(status: IndexationNotificationType) {
+  renderComponent(<IndexationNotificationRenderer completedCount={23} total={42} type={status} />);
 }

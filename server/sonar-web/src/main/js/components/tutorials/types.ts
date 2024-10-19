@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,9 +30,16 @@ export enum TutorialModes {
 export enum BuildTools {
   Maven = 'maven',
   Gradle = 'gradle',
-  CFamily = 'cfamily',
+  Cpp = 'cpp',
+  ObjectiveC = 'objectivec',
   DotNet = 'dotnet',
+  Dart = 'dart',
   Other = 'other',
+}
+
+export enum GradleBuildDSL {
+  Groovy = 'build.gradle',
+  Kotlin = 'build.gradle.kts',
 }
 
 export enum OSs {
@@ -41,6 +48,17 @@ export enum OSs {
   MacOS = 'mac',
 }
 
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };
+export enum Arch {
+  X86_64 = 'x86_64',
+  Arm64 = 'arm64',
+}
+
+export enum AutoConfig {
+  Automatic = 'automatic',
+  Manual = 'manual',
+}
+
+export type TutorialConfig = {
+  autoConfig?: AutoConfig;
+  buildTool?: BuildTools;
+};

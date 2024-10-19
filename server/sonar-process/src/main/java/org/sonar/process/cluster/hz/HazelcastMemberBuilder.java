@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -126,7 +126,9 @@ public class HazelcastMemberBuilder {
       // Don't phone home
       .setProperty("hazelcast.phone.home.enabled", "false")
       // Use slf4j for logging
-      .setProperty("hazelcast.logging.type", "slf4j");
+      .setProperty("hazelcast.logging.type", "slf4j")
+      .setProperty("hazelcast.partial.member.disconnection.resolution.heartbeat.count", "5")
+    ;
 
     MemberAttributeConfig attributes = config.getMemberAttributeConfig();
     attributes.setAttribute(Attribute.NODE_NAME.getKey(), requireNonNull(nodeName, "Node name is missing"));

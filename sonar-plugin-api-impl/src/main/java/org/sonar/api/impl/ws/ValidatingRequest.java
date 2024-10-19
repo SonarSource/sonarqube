@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ package org.sonar.api.impl.ws;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.LocalConnector;
@@ -34,7 +34,6 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
@@ -69,7 +68,7 @@ public abstract class ValidatingRequest extends Request {
   public String param(String key) {
     WebService.Param definition = action.param(key);
     String rawValue = readParam(key, definition);
-    String rawValueOrDefault = defaultString(rawValue, definition.defaultValue());
+    String rawValueOrDefault = Objects.toString(rawValue, definition.defaultValue());
     String value = rawValueOrDefault == null ? null : trim(rawValueOrDefault);
     validateRequiredValue(key, definition, rawValue);
     if (value == null) {
@@ -125,14 +124,14 @@ public abstract class ValidatingRequest extends Request {
   @Override
   public List<String> paramAsStrings(String key) {
     WebService.Param definition = action.param(key);
-    String value = defaultString(readParam(key, definition), definition.defaultValue());
+    String value = Objects.toString(readParam(key, definition), definition.defaultValue());
     if (value == null) {
       return null;
     }
     List<String> values = Arrays.stream(value.split(COMMA_SPLITTER))
       .map(String::trim)
       .filter(s -> !s.isEmpty())
-      .collect(Collectors.toList());
+      .toList();
     return validateValues(values, definition);
   }
 
@@ -146,14 +145,14 @@ public abstract class ValidatingRequest extends Request {
     return values.stream()
       .filter(s -> !s.isEmpty())
       .map(value -> Enum.valueOf(enumClass, value))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CheckForNull
   private String readParam(String key, @Nullable WebService.Param definition) {
     checkArgument(definition != null, "BUG - parameter '%s' is undefined for action '%s'", key, action.key());
     String deprecatedKey = definition.deprecatedKey();
-    String param = deprecatedKey != null ? defaultString(readParam(deprecatedKey), readParam(key)) : readParam(key);
+    String param = deprecatedKey != null ? Objects.toString(readParam(deprecatedKey), readParam(key)) : readParam(key);
     if (param != null && param.contains("\0")) {
       throw new IllegalArgumentException("Request parameters are not allowed to contain NUL character");
     }

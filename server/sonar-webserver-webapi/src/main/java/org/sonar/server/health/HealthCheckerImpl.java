@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.SharedHealthState;
+import org.sonar.server.common.health.ClusterHealthCheck;
+import org.sonar.server.common.health.HealthReducer;
+import org.sonar.server.common.health.NodeHealthCheck;
 import org.sonar.server.platform.NodeInformation;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  ButtonSecondary,
+  FlagMessage,
+  FormField,
+  InputField,
+  Note,
+} from 'design-system';
 import * as React from 'react';
-import ProjectKeyInput from '../../components/common/ProjectKeyInput';
-import { Button, SubmitButton } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
-import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { validateProjectKey } from '../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../types/component';
@@ -34,15 +39,21 @@ export interface UpdateFormProps {
 
 export default function UpdateForm(props: UpdateFormProps) {
   const { component } = props;
-  const [newKey, setNewKey] = React.useState<string | undefined>(undefined);
-  const value = newKey !== undefined ? newKey : component.key;
-  const hasChanged = value !== component.key;
+  const [newKey, setNewKey] = React.useState(component.key);
+  const hasChanged = newKey !== component.key;
 
-  const validationResult = validateProjectKey(value);
+  const validationResult = validateProjectKey(newKey);
   const error =
     validationResult === ProjectKeyValidationResult.Valid
       ? undefined
       : translate('onboarding.create_project.project_key.error', validationResult);
+
+  const onInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setNewKey(e.currentTarget.value);
+    },
+    [setNewKey],
+  );
 
   return (
     <ConfirmButton
@@ -51,15 +62,15 @@ export default function UpdateForm(props: UpdateFormProps) {
       modalBody={
         <>
           {translateWithParameters('update_key.are_you_sure_to_change_key', component.name)}
-          <div className="spacer-top">
+          <div className="sw-mt-2">
             {translate('update_key.old_key')}
             {': '}
-            <strong>{component.key}</strong>
+            <strong className="sw-typo-lg-semibold">{component.key}</strong>
           </div>
-          <div className="spacer-top">
+          <div className="sw-mt-2">
             {translate('update_key.new_key')}
             {': '}
-            <strong>{newKey}</strong>
+            <strong className="sw-typo-lg-semibold">{newKey}</strong>
           </div>
         </>
       }
@@ -68,36 +79,50 @@ export default function UpdateForm(props: UpdateFormProps) {
     >
       {({ onFormSubmit }) => (
         <form onSubmit={onFormSubmit}>
-          <MandatoryFieldsExplanation className="spacer-bottom" />
+          <FormField label={translate('update_key.new_key')} required>
+            <InputField
+              id="project-key"
+              name="update_key.new_key"
+              required
+              isInvalid={hasChanged && error !== undefined}
+              isValid={hasChanged && error === undefined}
+              autoFocus
+              onChange={onInputChange}
+              value={newKey}
+              type="text"
+            />
 
-          <ProjectKeyInput
-            error={error}
-            label={translate('update_key.new_key')}
-            onProjectKeyChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setNewKey(e.currentTarget.value);
-            }}
-            touched={hasChanged}
-            placeholder={translate('update_key.new_key')}
-            projectKey={value}
-            autofocus={true}
-          />
+            {error && (
+              <FlagMessage className="sw-mt-2 sw-w-abs-400" variant="error">
+                {error}
+              </FlagMessage>
+            )}
 
-          <div className="spacer-top">
-            <SubmitButton disabled={!hasChanged || error !== undefined} id="update-key-submit">
+            <Note className="sw-mt-2 sw-max-w-1/2">
+              {translate('onboarding.create_project.project_key.description')}
+            </Note>
+          </FormField>
+
+          <div className="sw-mt-2">
+            <ButtonPrimary
+              disabled={!hasChanged || error !== undefined}
+              id="update-key-submit"
+              type="submit"
+            >
               {translate('update_verb')}
-            </SubmitButton>
+            </ButtonPrimary>
 
-            <Button
-              className="spacer-left"
+            <ButtonSecondary
+              className="sw-ml-2"
               disabled={!hasChanged}
               id="update-key-reset"
               onClick={() => {
-                setNewKey(undefined);
+                setNewKey(component.key);
               }}
               type="reset"
             >
               {translate('reset_verb')}
-            </Button>
+            </ButtonSecondary>
           </div>
         </form>
       )}

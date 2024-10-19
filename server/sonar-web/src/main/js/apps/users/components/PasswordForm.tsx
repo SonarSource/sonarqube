@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,163 +17,124 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, FormField, InputField, Modal, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import { Alert } from '../../../components/ui/Alert';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { throwGlobalError } from '../../../helpers/error';
-import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
+import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
+import UserPasswordInput, {
+  PasswordChangeHandlerParams,
+} from '../../../components/common/UserPasswordInput';
 import { translate } from '../../../helpers/l10n';
-import { parseError } from '../../../helpers/request';
-import { User } from '../../../types/users';
+import { ChangePasswordResults, RestUserDetailed, isLoggedIn } from '../../../types/users';
 
 interface Props {
-  isCurrentUser: boolean;
   onClose: () => void;
-  user: User;
+  user: RestUserDetailed;
 }
 
-interface State {
-  confirmPassword: string;
-  error?: string;
-  newPassword: string;
-  oldPassword: string;
-  submitting: boolean;
-}
+const PASSWORD_FORM_ID = 'user-password-form';
 
-export default class PasswordForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {
-    confirmPassword: '',
-    newPassword: '',
-    oldPassword: '',
-    submitting: false,
-  };
+export default function PasswordForm(props: Readonly<Props>) {
+  const { user } = props;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const [errorTranslationKey, setErrorTranslationKey] = React.useState<string | undefined>(
+    undefined,
+  );
+  const [newPassword, setNewPassword] = React.useState<PasswordChangeHandlerParams>({
+    value: '',
+    isValid: false,
+  });
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const [oldPassword, setOldPassword] = React.useState('');
+  const [submitting, setSubmitting] = React.useState(false);
 
-  handleError = (response: Response) => {
-    if (!this.mounted || response.status !== 400) {
-      return throwGlobalError(response);
-    } else {
-      return parseError(response).then(
-        (errorMsg) => this.setState({ error: errorMsg, submitting: false }),
-        throwGlobalError
-      );
+  const userContext = React.useContext(CurrentUserContext);
+  const currentUser = userContext?.currentUser;
+  const isCurrentUser = isLoggedIn(currentUser) && currentUser.login === user.login;
+
+  const handleError = (result: ChangePasswordResults) => {
+    if (result === ChangePasswordResults.OldPasswordIncorrect) {
+      setErrorTranslationKey('user.old_password_incorrect');
+      setSubmitting(false);
+    } else if (result === ChangePasswordResults.NewPasswordSameAsOld) {
+      setErrorTranslationKey('user.new_password_same_as_old');
+      setSubmitting(false);
     }
   };
 
-  handleConfirmPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ confirmPassword: event.currentTarget.value });
-
-  handleNewPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ newPassword: event.currentTarget.value });
-
-  handleOldPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ oldPassword: event.currentTarget.value });
-
-  handleChangePassword = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleChangePassword = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (
-      this.state.newPassword.length > 0 &&
-      this.state.newPassword === this.state.confirmPassword
-    ) {
-      this.setState({ submitting: true });
+
+    if (newPassword.isValid) {
+      setSubmitting(true);
+
       changePassword({
-        login: this.props.user.login,
-        password: this.state.newPassword,
-        previousPassword: this.state.oldPassword,
+        login: user.login,
+        password: newPassword.value,
+        previousPassword: oldPassword,
       }).then(() => {
         addGlobalSuccessMessage(translate('my_profile.password.changed'));
-        this.props.onClose();
-      }, this.handleError);
+        props.onClose();
+      }, handleError);
     }
   };
 
-  render() {
-    const { error, submitting, newPassword, confirmPassword } = this.state;
+  const header = translate('my_profile.password.title');
 
-    const header = translate('my_profile.password.title');
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
-        <form autoComplete="off" id="user-password-form" onSubmit={this.handleChangePassword}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-          <div className="modal-body">
-            {error && <Alert variant="error">{error}</Alert>}
+  return (
+    <Modal
+      headerTitle={header}
+      body={
+        <form
+          autoComplete="off"
+          id={PASSWORD_FORM_ID}
+          className="sw-mb-2"
+          onSubmit={handleChangePassword}
+        >
+          {errorTranslationKey && (
+            <FlagMessage variant="error" className="sw-mb-4">
+              {translate(errorTranslationKey)}
+            </FlagMessage>
+          )}
 
-            <MandatoryFieldsExplanation className="modal-field" />
-
-            {this.props.isCurrentUser && (
-              <div className="modal-field">
-                <label htmlFor="old-user-password">
-                  {translate('my_profile.password.old')}
-                  <MandatoryFieldMarker />
-                </label>
-                {/* keep this fake field to hack browser autofill */}
-                <input className="hidden" name="old-password-fake" type="password" />
-                <input
-                  id="old-user-password"
-                  name="old-password"
-                  onChange={this.handleOldPasswordChange}
-                  required={true}
-                  type="password"
-                  value={this.state.oldPassword}
-                />
-              </div>
-            )}
-            <div className="modal-field">
-              <label htmlFor="user-password">
-                {translate('my_profile.password.new')}
-                <MandatoryFieldMarker />
-              </label>
-              {/* keep this fake field to hack browser autofill */}
-              <input className="hidden" name="password-fake" type="password" />
-              <input
-                id="user-password"
-                name="password"
-                onChange={this.handleNewPasswordChange}
-                required={true}
+          {isCurrentUser && (
+            <FormField
+              htmlFor="old-user-password"
+              label={translate('my_profile.password.old')}
+              required
+            >
+              <InputField
+                autoFocus
+                id="old-user-password"
+                name="old-password"
+                onChange={(event) => setOldPassword(event.currentTarget.value)}
+                required
+                size="full"
                 type="password"
-                value={this.state.newPassword}
+                value={oldPassword}
               />
-            </div>
-            <div className="modal-field">
-              <label htmlFor="confirm-user-password">
-                {translate('my_profile.password.confirm')}
-                <MandatoryFieldMarker />
-              </label>
-              {/* keep this fake field to hack browser autofill */}
-              <input className="hidden" name="confirm-password-fake" type="password" />
-              <input
-                id="confirm-user-password"
-                name="confirm-password"
-                onChange={this.handleConfirmPasswordChange}
-                required={true}
-                type="password"
-                value={this.state.confirmPassword}
-              />
-            </div>
-          </div>
-          <footer className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitting || !newPassword || newPassword !== confirmPassword}>
-              {translate('change_verb')}
-            </SubmitButton>
-            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
+              <input className="sw-hidden" aria-hidden name="old-password-fake" type="password" />
+            </FormField>
+          )}
+
+          <UserPasswordInput onChange={setNewPassword} value={newPassword.value} />
         </form>
-      </Modal>
-    );
-  }
+      }
+      onClose={props.onClose}
+      loading={submitting}
+      primaryButton={
+        <Button
+          form={PASSWORD_FORM_ID}
+          isDisabled={submitting || !newPassword.isValid}
+          type="submit"
+          variety={ButtonVariety.Primary}
+        >
+          {translate('change_verb')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }

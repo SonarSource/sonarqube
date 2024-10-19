@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
-import org.apache.commons.lang.reflect.ConstructorUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -85,9 +85,11 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.Netty4Plugin;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
 import org.sonar.server.es.IndexType.IndexRelationType;
@@ -96,7 +98,6 @@ import org.sonar.server.es.newindex.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -104,17 +105,18 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.server.es.Index.ALL_INDICES;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
-public class EsTester extends ExternalResource {
+public class EsTester extends ExternalResource implements AfterEachCallback {
 
   private static final int MIN_PORT = 1;
   private static final int MAX_PORT = 49151;
   private static final int MIN_NON_ROOT_PORT = 1025;
-  private static final Logger LOG = Loggers.get(EsTester.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EsTester.class);
 
   static {
     System.setProperty("log4j.shutdownHookEnabled", "false");
@@ -152,7 +154,6 @@ public class EsTester extends ExternalResource {
         IssueIndexDefinition.createForTest(),
         ProjectMeasuresIndexDefinition.createForTest(),
         RuleIndexDefinition.createForTest(),
-        UserIndexDefinition.createForTest(),
         ViewIndexDefinition.createForTest());
 
       CORE_INDICES_CREATED.set(true);
@@ -174,6 +175,11 @@ public class EsTester extends ExternalResource {
     deleteIndexIfExists(ALL_INDICES.getName());
     CORE_INDICES_CREATED.set(false);
     create();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
   }
 
   @Override
@@ -232,18 +238,14 @@ public class EsTester extends ExternalResource {
   }
 
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
-    try {
-      BulkRequest bulk = new BulkRequest()
-        .setRefreshPolicy(REFRESH_IMMEDIATE);
-      for (BaseDoc doc : docs) {
-        bulk.add(doc.toIndexRequest());
-      }
-      BulkResponse bulkResponse = ES_REST_CLIENT.bulk(bulk);
-      if (bulkResponse.hasFailures()) {
-        throw new IllegalStateException(bulkResponse.buildFailureMessage());
-      }
-    } catch (Exception e) {
-      throw Throwables.propagate(e);
+    BulkRequest bulk = new BulkRequest()
+      .setRefreshPolicy(REFRESH_IMMEDIATE);
+    for (BaseDoc doc : docs) {
+      bulk.add(doc.toIndexRequest());
+    }
+    BulkResponse bulkResponse = ES_REST_CLIENT.bulk(bulk);
+    if (bulkResponse.hasFailures()) {
+      fail("Bulk indexing of documents failed: " + bulkResponse.buildFailureMessage());
     }
   }
 
@@ -253,7 +255,7 @@ public class EsTester extends ExternalResource {
         .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (Map<String, Object> doc : docs) {
         IndexType.IndexMainType mainType = indexType.getMainType();
-        bulk.add(new IndexRequest(mainType.getIndex().getName(), mainType.getType())
+        bulk.add(new IndexRequest(mainType.getIndex().getName())
           .source(doc));
       }
       BulkResponse bulkResponse = ES_REST_CLIENT.bulk(bulk);

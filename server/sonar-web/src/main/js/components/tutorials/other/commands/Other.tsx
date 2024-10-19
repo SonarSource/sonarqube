@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,24 +19,25 @@
  */
 import * as React from 'react';
 import { Component } from '../../../../types/types';
-import { OSs } from '../../types';
+import { Arch, OSs } from '../../types';
 import DownloadScanner from './DownloadScanner';
 import ExecScanner from './ExecScanner';
 
 export interface OtherProps {
+  arch: Arch;
+  baseUrl: string;
   component: Component;
   isLocal: boolean;
-  baseUrl: string;
   os: OSs;
   token: string;
 }
 
-export default function Other(props: OtherProps) {
-  const { baseUrl, os, component, isLocal, token } = props;
+export default function Other(props: Readonly<OtherProps>) {
+  const { arch, baseUrl, os, component, isLocal, token } = props;
 
   return (
     <div>
-      <DownloadScanner isLocal={isLocal} os={os} token={token} />
+      <DownloadScanner arch={arch} isLocal={isLocal} os={os} token={token} />
       <ExecScanner
         baseUrl={baseUrl}
         isLocal={isLocal}

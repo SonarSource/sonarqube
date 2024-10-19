@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.process.systeminfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
@@ -44,7 +43,7 @@ public class JvmPropertiesSectionTest {
     List<String> keys = section.getAttributesList()
       .stream()
       .map(ProtobufSystemInfo.Attribute::getKey)
-      .collect(Collectors.toList());
+      .toList();
     assertThat(keys).contains("java.vm.vendor", "os.name");
 
     List<String> sortedKeys = new ArrayList<>(keys);

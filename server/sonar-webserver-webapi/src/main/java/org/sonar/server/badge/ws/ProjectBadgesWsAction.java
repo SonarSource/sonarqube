@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,6 @@ package org.sonar.server.badge.ws;
 
 import org.sonar.server.ws.WsAction;
 
-interface ProjectBadgesWsAction extends WsAction {
+public interface ProjectBadgesWsAction extends WsAction {
   // Marker interface
 }

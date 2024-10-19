@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,10 @@
  */
 package org.sonar.core.util.stream;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,14 +35,7 @@ import org.junit.Test;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.core.util.stream.MoreCollectors.index;
-import static org.sonar.core.util.stream.MoreCollectors.join;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
 
@@ -71,301 +58,6 @@ public class MoreCollectorsTest {
   private static final List<MyObj> LIST = Arrays.asList(MY_OBJ_1_A, MY_OBJ_2_B, MY_OBJ_3_C);
   private static final List<MyObj2> LIST2 = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_3_C);
 
-
-  @Test
-  public void toList_builds_an_ImmutableList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toList());
-    assertThat(res).isInstanceOf(ImmutableList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toList_parallel_stream() {
-    assertThat(HUGE_LIST.parallelStream().collect(toList())).isEqualTo(HUGE_LIST);
-  }
-
-  @Test
-  public void toList_with_size_builds_an_ImmutableList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toList(30));
-    assertThat(res).isInstanceOf(ImmutableList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toList_with_size_parallel_stream() {
-    assertThat(HUGE_LIST.parallelStream().collect(toList(HUGE_LIST.size()))).isEqualTo(HUGE_LIST);
-  }
-
-  @Test
-  public void toSet_builds_an_ImmutableSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toSet());
-    assertThat(res).isInstanceOf(ImmutableSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toSet_parallel_stream() {
-    assertThat(HUGE_SET.parallelStream().collect(toSet())).isEqualTo(HUGE_SET);
-  }
-
-  @Test
-  public void toSet_with_size_builds_an_ImmutableSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toSet(30));
-    assertThat(res).isInstanceOf(ImmutableSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toSet_with_size_parallel_stream() {
-    assertThat(HUGE_SET.parallelStream().collect(toSet(HUGE_SET.size()))).isEqualTo(HUGE_SET);
-  }
-
-  @Test
-  public void toEnumSet() {
-    Set<MyEnum> res = Stream.of(MyEnum.ONE, MyEnum.ONE, MyEnum.TWO).collect(MoreCollectors.toEnumSet(MyEnum.class));
-    assertThat(res).isInstanceOf(EnumSet.class)
-      .containsExactly(MyEnum.ONE, MyEnum.TWO);
-  }
-
-  @Test
-  public void toEnumSet_with_empty_stream() {
-    Set<MyEnum> res = Stream.<MyEnum>empty().collect(MoreCollectors.toEnumSet(MyEnum.class));
-    assertThat(res).isInstanceOf(EnumSet.class)
-      .isEmpty();
-  }
-
-  @Test
-  public void toArrayList_builds_an_ArrayList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toArrayList());
-    assertThat(res).isInstanceOf(ArrayList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toArrayList_parallel_stream() {
-    assertThat(HUGE_LIST.parallelStream().collect(toArrayList())).isEqualTo(HUGE_LIST);
-  }
-
-  @Test
-  public void toArrayList_with_size_builds_an_ArrayList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toArrayList(30));
-    assertThat(res).isInstanceOf(ArrayList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toArrayList_with_size_parallel_stream() {
-    assertThat(HUGE_LIST.parallelStream().collect(toArrayList(HUGE_LIST.size()))).isEqualTo(HUGE_LIST);
-  }
-
-  @Test
-  public void toHashSet_builds_an_HashSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toHashSet());
-    assertThat(res).isInstanceOf(HashSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toHashSet_parallel_stream() {
-    assertThat(HUGE_SET.parallelStream().collect(toHashSet())).isEqualTo(HUGE_SET);
-  }
-
-  @Test
-  public void toHashSet_with_size_builds_an_ArrayList() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toHashSet(30));
-    assertThat(res).isInstanceOf(HashSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toHashSet_with_size_parallel_stream() {
-    assertThat(HUGE_SET.parallelStream().collect(toHashSet(HUGE_SET.size()))).isEqualTo(HUGE_SET);
-  }
-
-  @Test
-  public void uniqueIndex_empty_stream_returns_empty_map() {
-    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId))).isEmpty();
-    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId, 6))).isEmpty();
-    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId, MyObj::getText))).isEmpty();
-    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId, MyObj::getText, 10))).isEmpty();
-  }
-
-  @Test
-  public void uniqueIndex_fails_when_there_is_duplicate_keys() {
-    Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
-
-    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId)))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Duplicate key 1");
-  }
-
-  @Test
-  public void uniqueIndex_with_expected_size_fails_when_there_is_duplicate_keys() {
-    Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
-
-    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId, 1)))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Duplicate key 1");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_fails_when_there_is_duplicate_keys() {
-    Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
-
-    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId, MyObj::getText)))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Duplicate key 1");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_and_expected_size_fails_when_there_is_duplicate_keys() {
-    Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
-
-    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId, MyObj::getText, 10)))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Duplicate key 1");
-  }
-
-  @Test
-  public void uniqueIndex_fails_if_key_function_is_null() {
-    assertThatThrownBy(() -> uniqueIndex(null))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't be null");
-  }
-
-  @Test
-  public void uniqueIndex_with_expected_size_fails_if_key_function_is_null() {
-    assertThatThrownBy(() -> uniqueIndex(null, 2))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't be null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_fails_if_key_function_is_null() {
-    assertThatThrownBy(() -> uniqueIndex(null, MyObj::getText))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't be null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_key_function_is_null() {
-    assertThatThrownBy(() ->  uniqueIndex(null, MyObj::getText, 9))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't be null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_fails_if_value_function_is_null() {
-    assertThatThrownBy(() ->  uniqueIndex(MyObj::getId, null))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Value function can't be null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_value_function_is_null() {
-    assertThatThrownBy(() ->  uniqueIndex(MyObj::getId, null, 9))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Value function can't be null");
-  }
-
-  @Test
-  public void uniqueIndex_fails_if_key_function_returns_null() {
-    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null)))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't return null");
-  }
-
-  @Test
-  public void uniqueIndex_with_expected_size_fails_if_key_function_returns_null() {
-    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, 90)))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't return null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_fails_if_key_function_returns_null() {
-    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, MyObj::getText)))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't return null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_key_function_returns_null() {
-    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, MyObj::getText, 9)))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Key function can't return null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_fails_if_value_function_returns_null() {
-    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(MyObj::getId, s -> null)))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Value function can't return null");
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_value_function_returns_null() {
-    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(MyObj::getId, s -> null, 9)))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Value function can't return null");
-  }
-
-  @Test
-  public void uniqueIndex_returns_map() {
-    assertThat(LIST.stream().collect(uniqueIndex(MyObj::getId))).containsOnly(entry(1, MY_OBJ_1_A), entry(2, MY_OBJ_2_B), entry(3, MY_OBJ_3_C));
-  }
-
-  @Test
-  public void uniqueIndex_with_expected_size_returns_map() {
-    assertThat(LIST.stream().collect(uniqueIndex(MyObj::getId, 3))).containsOnly(entry(1, MY_OBJ_1_A), entry(2, MY_OBJ_2_B), entry(3, MY_OBJ_3_C));
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_returns_map() {
-    assertThat(LIST.stream().collect(uniqueIndex(MyObj::getId, MyObj::getText))).containsOnly(entry(1, "A"), entry(2, "B"), entry(3, "C"));
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_and_expected_size_returns_map() {
-    assertThat(LIST.stream().collect(uniqueIndex(MyObj::getId, MyObj::getText, 9))).containsOnly(entry(1, "A"), entry(2, "B"), entry(3, "C"));
-  }
-
-  @Test
-  public void uniqueIndex_parallel_stream() {
-    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity()));
-    assertThat(map.keySet()).isEqualTo(HUGE_SET);
-    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
-  }
-
-  @Test
-  public void uniqueIndex_with_expected_size_parallel_stream() {
-    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity(), HUGE_LIST.size()));
-    assertThat(map.keySet()).isEqualTo(HUGE_SET);
-    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_parallel_stream() {
-    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity(), identity()));
-    assertThat(map.keySet()).isEqualTo(HUGE_SET);
-    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
-  }
-
-  @Test
-  public void uniqueIndex_with_valueFunction_and_expected_size_parallel_stream() {
-    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity(), identity(), HUGE_LIST.size()));
-    assertThat(map.keySet()).isEqualTo(HUGE_SET);
-    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
-  }
-
-  @Test
-  public void uniqueIndex_supports_duplicate_keys() {
-    ListMultimap<Integer, String> multimap = LIST_WITH_DUPLICATE_ID.stream().collect(index(MyObj::getId, MyObj::getText));
-
-    assertThat(multimap.keySet()).containsOnly(1, 2);
-    assertThat(multimap.get(1)).containsOnly("A", "C");
-    assertThat(multimap.get(2)).containsOnly("B");
-  }
 
   @Test
   public void index_empty_stream_returns_empty_map() {
@@ -615,41 +307,6 @@ public class MoreCollectorsTest {
     SetMultimap<String, String> multimap = HUGE_LIST.parallelStream().collect(unorderedFlattenIndex(identity(), Stream::of));
 
     assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
-  }
-
-  @Test
-  public void join_on_empty_stream_returns_empty_string() {
-    assertThat(Stream.empty().collect(join(Joiner.on(",")))).isEmpty();
-  }
-
-  @Test
-  public void join_fails_with_NPE_if_joiner_is_null() {
-    assertThatThrownBy(() -> join(null))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Joiner can't be null");
-  }
-
-  @Test
-  public void join_applies_joiner_to_stream() {
-    assertThat(Stream.of("1", "2", "3", "4").collect(join(Joiner.on(","))))
-      .isEqualTo("1,2,3,4");
-  }
-
-  @Test
-  public void join_does_not_support_parallel_stream_and_fails_with_ISE() {
-    Stream<String> hugeStream = HUGE_LIST.parallelStream();
-
-    assertThatThrownBy(() -> hugeStream.collect(join(Joiner.on(" "))))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Parallel processing is not supported");
-  }
-
-  @Test
-  public void join_supports_null_if_joiner_does() {
-    Stream<String> stream = Stream.of("1", null);
-
-    assertThatThrownBy(() -> stream.collect(join(Joiner.on(","))))
-      .isInstanceOf(NullPointerException.class);
   }
 
   private static final class MyObj {

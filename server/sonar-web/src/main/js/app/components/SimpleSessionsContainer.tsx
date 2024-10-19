@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,11 +27,11 @@ export default function SimpleSessionsContainer() {
     <>
       <PageTracker />
 
-      <div className="global-container">
-        <div className="page-wrapper" id="container">
+      <div className="sw-flex sw-flex-col sw-h-full sw-min-h-[100vh]">
+        <div className="sw-box-border sw-flex-auto" id="container">
           <Outlet />
         </div>
-        <GlobalFooterCodescan/>
+        <GlobalFooterCodescan />
       </div>
     </>
   );

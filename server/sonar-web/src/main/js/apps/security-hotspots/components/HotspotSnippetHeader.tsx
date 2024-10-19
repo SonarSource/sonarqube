@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,32 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { ClipboardIconButton, Note, QualifierIcon, themeBorder, themeColor } from 'design-system';
 import React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { colors, sizes } from '../../../app/theme';
-import { ClipboardButton, ClipboardIconButton } from '../../../components/controls/clipboard';
-import LinkIcon from '../../../components/icons/LinkIcon';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
-import { getComponentSecurityHotspotsUrl, getPathUrlAsString } from '../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { Hotspot } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import HotspotOpenInIdeButton from './HotspotOpenInIdeButton';
 
 export interface HotspotSnippetHeaderProps {
-  hotspot: Hotspot;
-  currentUser: CurrentUser;
-  component: Component;
   branchLike?: BranchLike;
+  component: Component;
+  currentUser: CurrentUser;
+  hotspot: Hotspot;
 }
 
-export function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
+function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
   const { hotspot, currentUser, component, branchLike } = props;
   const {
     project,
@@ -51,76 +50,46 @@ export function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
 
   const displayProjectName = component.qualifier === ComponentQualifier.Application;
 
-  const permalink = getPathUrlAsString(
-    getComponentSecurityHotspotsUrl(component.key, {
-      ...getBranchLikeQuery(branchLike),
-      hotspots: hotspot?.key,
-    }),
-    false
-  );
-
   return (
-    <Container>
-      <FilePath>
+    <StyledHeader
+      className={`sw-box-border sw-flex sw-gap-2 sw-justify-between sw-mt-6 sw-px-4
+                  sw-py-3`}
+    >
+      <Note className="sw-flex sw-flex-1 sw-flex-wrap sw-gap-2 sw-items-center sw-my-1/2">
         {displayProjectName && (
-          <>
-            <QualifierIcon className="little-spacer-right" qualifier={ComponentQualifier.Project} />
-            <ProjectName className="little-spacer-right" title={project.name}>
+          <span>
+            <LinkStandalone
+              highlight={LinkHighlight.CurrentColor}
+              iconLeft={<QualifierIcon qualifier={qualifier} className="sw-mr-2" />}
+              to={getBranchLikeUrl(project.key, branchLike)}
+            >
               {project.name}
-            </ProjectName>
-          </>
+            </LinkStandalone>
+          </span>
         )}
-        <QualifierIcon qualifier={qualifier} />
+
         <span>
           {collapsedDirFromPath(path)}
           {fileFromPath(path)}
         </span>
+
         <ClipboardIconButton
-          className="button-link link-no-underline little-spacer-left"
+          copyLabel={translate('component_viewer.copy_path_to_clipboard')}
+          copiedLabel={translate('copied_action')}
           copyValue={path}
         />
-      </FilePath>
+      </Note>
 
       {isLoggedIn(currentUser) && (
-        <div className="dropdown spacer-right flex-0">
-          <HotspotOpenInIdeButton hotspotKey={hotspot.key} projectKey={project.key} />
-        </div>
+        <HotspotOpenInIdeButton hotspotKey={hotspot.key} projectKey={project.key} />
       )}
-
-      <ClipboardButton className="flex-0" copyValue={permalink}>
-        <span>{translate('hotspots.get_permalink')}</span>
-        <LinkIcon className="spacer-left" />
-      </ClipboardButton>
-    </Container>
+    </StyledHeader>
   );
 }
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  padding: 0 ${sizes.gridSize};
-  border: 1px solid ${colors.barBorderColor};
-  background-color: ${colors.barBackgroundColor};
-`;
-
-const FilePath = styled.div`
-  display: flex;
-  align-items: center;
-  margin-right: 40px;
-  color: ${colors.secondFontColor};
-  svg {
-    margin: 0 ${sizes.gridSize};
-  }
-`;
-
-const ProjectName = styled.span`
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  direction: rtl;
-  white-space: nowrap;
-`;
+const StyledHeader = withTheme(styled.div`
+  background-color: ${themeColor('codeLine')};
+  border: ${themeBorder('default', 'codeLineBorder')};
+`);
 
 export default withCurrentUserContext(HotspotSnippetHeader);

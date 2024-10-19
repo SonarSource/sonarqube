@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,10 +23,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;
@@ -34,13 +34,12 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import org.sonar.scanner.cpd.CpdSettings;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
 
 public class SonarCpdBlockIndex extends AbstractCloneIndex {
-  private static final Logger LOG = Loggers.get(SonarCpdBlockIndex.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SonarCpdBlockIndex.class);
   private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final ReportPublisher publisher;
   // Files already tokenized
@@ -67,7 +66,7 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
         builder.setEndTokenIndex(block.getEndUnit());
         builder.setHash(block.getBlockHash().toHexString());
         return builder.build();
-      }).collect(Collectors.toList()));
+      }).toList());
     }
     for (Block block : blocks) {
       mem.insert(block);

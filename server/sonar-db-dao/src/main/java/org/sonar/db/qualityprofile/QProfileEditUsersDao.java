@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class QProfileEditUsersDao implements Dao {
@@ -79,7 +78,7 @@ public class QProfileEditUsersDao implements Dao {
         int deletedRows = mapper(dbSession).deleteByQProfiles(partitionedProfiles
           .stream()
           .map(QProfileDto::getKee)
-          .collect(toList()));
+          .toList());
 
         if (deletedRows > 0) {
           partitionedProfiles.forEach(p -> auditPersister.deleteQualityProfileEditor(dbSession, new UserEditorNewValue(p)));

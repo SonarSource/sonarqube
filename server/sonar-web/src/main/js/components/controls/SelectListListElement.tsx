@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { Checkbox, ListItem } from 'design-system';
 import * as React from 'react';
-import Checkbox from './Checkbox';
 
 interface Props {
-  active?: boolean;
   disabled?: boolean;
   element: string;
   onSelect: (element: string) => Promise<void>;
@@ -31,60 +29,34 @@ interface Props {
   selected: boolean;
 }
 
-interface State {
-  loading: boolean;
-}
+export default function SelectListListElement(props: Readonly<Props>) {
+  const { disabled, element, onSelect, onUnselect, renderElement, selected } = props;
 
-export default class SelectListListElement extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false };
+  const [loading, setLoading] = React.useState(false);
 
-  componentDidMount() {
-    this.mounted = true;
+  const handleCheck = React.useCallback(
+    (checked: boolean) => {
+      setLoading(true);
+      const request = checked ? onSelect : onUnselect;
+      request(element)
+        .then(() => setLoading(false))
+        .catch(() => setLoading(false));
+    },
+    [element, setLoading, onSelect, onUnselect],
+  );
+
+  let item = renderElement(element);
+  let extra;
+  if (Array.isArray(item)) {
+    extra = item[1];
+    item = item[0];
   }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
-
-  handleCheck = (checked: boolean) => {
-    this.setState({ loading: true });
-    const request = checked ? this.props.onSelect : this.props.onUnselect;
-    request(this.props.element).then(this.stopLoading, this.stopLoading);
-  };
-
-  render() {
-    let item = this.props.renderElement(this.props.element);
-    let extra;
-    if (Array.isArray(item)) {
-      extra = item[1];
-      item = item[0];
-    }
-    return (
-      <li
-        className={classNames('display-flex-center', {
-          'select-list-list-disabled': this.props.disabled,
-        })}
-      >
-        <Checkbox
-          checked={this.props.selected}
-          className={classNames('select-list-list-checkbox flex-1', {
-            active: this.props.active,
-          })}
-          disabled={this.props.disabled}
-          loading={this.state.loading}
-          onCheck={this.handleCheck}
-        >
-          <span className="little-spacer-left">{item}</span>
-        </Checkbox>
-        {extra && <span className="select-list-list-extra">{extra}</span>}
-      </li>
-    );
-  }
+  return (
+    <ListItem className="sw-flex sw-justify-between">
+      <Checkbox checked={selected} disabled={disabled} loading={loading} onCheck={handleCheck}>
+        <span className="sw-ml-4">{item}</span>
+      </Checkbox>
+      {extra && <span>{extra}</span>}
+    </ListItem>
+  );
 }

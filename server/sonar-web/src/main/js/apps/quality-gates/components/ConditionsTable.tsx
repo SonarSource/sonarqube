@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,72 +17,77 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, NumericalCell, Table, TableRow, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
 import Condition from './Condition';
 
 interface Props {
-  canEdit: boolean;
-  metrics: Dict<Metric>;
-  onRemoveCondition: (Condition: ConditionType) => void;
-  onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
-  qualityGate: QualityGate;
-  updatedConditionId?: string;
-  conditions: ConditionType[];
   organization: string;
-  scope: 'new' | 'overall' | 'new-cayc';
+  canEdit: boolean;
+  conditions: ConditionType[];
   isCaycModal?: boolean;
+  metrics: Dict<Metric>;
+  qualityGate: QualityGate;
+  scope: 'new' | 'overall' | 'new-cayc';
   showEdit?: boolean;
 }
 
-export default class ConditionsTable extends React.PureComponent<Props> {
-  render() {
-    const {
-      qualityGate,
-      metrics,
-      canEdit,
-      onRemoveCondition,
-      onSaveCondition,
-      updatedConditionId,
-      scope,
-      conditions,
-      isCaycModal,
-      showEdit,
-    } = this.props;
+function Header() {
+  return (
+    <TableRow>
+      <ContentCell>
+        <Title className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
+          {translate('quality_gates.conditions.metric')}
+        </Title>
+      </ContentCell>
+      <ContentCell>
+        <Title className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
+          {translate('quality_gates.conditions.operator')}
+        </Title>
+      </ContentCell>
+      <NumericalCell>
+        <Title className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
+          {translate('quality_gates.conditions.value')}
+        </Title>
+      </NumericalCell>
+      <ContentCell />
+    </TableRow>
+  );
+}
 
-    return (
-      <table
-        className="data zebra"
-        data-test={`quality-gates__conditions-${scope}`}
-        data-testid={`quality-gates__conditions-${scope}`}
-      >
-        <thead>
-          <tr>
-            <th className="nowrap abs-width-300">{translate('quality_gates.conditions.metric')}</th>
-            <th className="nowrap">{translate('quality_gates.conditions.operator')}</th>
-            <th className="nowrap">{translate('quality_gates.conditions.value')}</th>
-            <th className="thin">&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          {conditions.map((condition) => (
-            <Condition
-              canEdit={canEdit}
-              condition={condition}
-              key={condition.id}
-              metric={metrics[condition.metric]}
-              onRemoveCondition={onRemoveCondition}
-              onSaveCondition={onSaveCondition}
-              qualityGate={qualityGate}
-              organization={this.props.organization}
-              updated={condition.id === updatedConditionId}
-              isCaycModal={isCaycModal}
-              showEdit={showEdit}
-            />
-          ))}
-        </tbody>
-      </table>
-    );
-  }
+export default function ConditionsTable({
+  organization,
+  qualityGate,
+  metrics,
+  canEdit,
+  scope,
+  conditions,
+  isCaycModal,
+  showEdit,
+}: Readonly<Props>) {
+  return (
+    <Table
+      columnCount={4}
+      columnWidths={['300px', 'auto', 'auto', 'auto']}
+      className="sw-my-2"
+      header={<Header />}
+      data-test={`quality-gates__conditions-${scope}`}
+      data-testid={`quality-gates__conditions-${scope}`}
+    >
+      {conditions.map((condition) => (
+        <Condition
+          organization={organization}
+          canEdit={canEdit}
+          condition={condition}
+          key={condition.id}
+          metric={metrics[condition.metric]}
+          qualityGate={qualityGate}
+          isCaycModal={isCaycModal}
+          showEdit={showEdit}
+        />
+      ))}
+    </Table>
+  );
 }

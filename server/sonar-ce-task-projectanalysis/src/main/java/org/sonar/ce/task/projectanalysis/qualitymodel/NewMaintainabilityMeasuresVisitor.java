@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,10 +22,10 @@ package org.sonar.ce.task.projectanalysis.qualitymodel;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DEVELOPMENT_COST_KEY;
@@ -45,6 +46,8 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
 
 /**
  * This visitor depends on {@link IntegrateIssuesVisitor} for the computation of
@@ -52,9 +55,11 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
  * Compute following measure :
  * {@link CoreMetrics#NEW_SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#NEW_MAINTAINABILITY_RATING_KEY}
+ * {@link SoftwareQualitiesMetrics#NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY}
+ * {@link SoftwareQualitiesMetrics#NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY}
  */
 public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<NewMaintainabilityMeasuresVisitor.Counter> {
-  private static final Logger LOG = Loggers.get(NewMaintainabilityMeasuresVisitor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NewMaintainabilityMeasuresVisitor.class);
 
   private final MeasureRepository measureRepository;
   private final NewLinesRepository newLinesRepository;
@@ -67,6 +72,10 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private final Metric newDebtRatioMetric;
   private final Metric newMaintainabilityRatingMetric;
 
+  private final Metric newSoftwareQualityMaintainabilityDebtRatioMetric;
+  private final Metric newSoftwareQualityMaintainabilityRatingMetric;
+  private final Metric newSoftwareQualityRemediationEffortKey;
+
   public NewMaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, NewLinesRepository newLinesRepository,
     RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.FILE, POST_ORDER, CounterFactory.INSTANCE);
@@ -76,6 +85,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
 
     // computed by NewDebtAggregator which is executed by IntegrateIssuesVisitor
     this.newDebtMetric = metricRepository.getByKey(NEW_TECHNICAL_DEBT_KEY);
+    this.newSoftwareQualityRemediationEffortKey = metricRepository.getByKey(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY);
     // which line is ncloc and which isn't
     this.nclocDataMetric = metricRepository.getByKey(NCLOC_DATA_KEY);
 
@@ -83,6 +93,8 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     this.newDevelopmentCostMetric = metricRepository.getByKey(NEW_DEVELOPMENT_COST_KEY);
     this.newDebtRatioMetric = metricRepository.getByKey(NEW_SQALE_DEBT_RATIO_KEY);
     this.newMaintainabilityRatingMetric = metricRepository.getByKey(NEW_MAINTAINABILITY_RATING_KEY);
+    this.newSoftwareQualityMaintainabilityDebtRatioMetric = metricRepository.getByKey(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY);
+    this.newSoftwareQualityMaintainabilityRatingMetric = metricRepository.getByKey(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
   }
 
   @Override
@@ -107,19 +119,26 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     if (!newLinesRepository.newLinesAvailable()) {
       return;
     }
-    double density = computeDensity(path.current());
-    double newDebtRatio = 100.0 * density;
-    int newMaintainability = ratingSettings.getDebtRatingGrid().getRatingForDensity(density).getIndex();
+
     float newDevelopmentCost = path.current().getDevCost().getValue();
     measureRepository.add(component, this.newDevelopmentCostMetric, newMeasureBuilder().create(newDevelopmentCost));
+
+    double density = computeDensity(path.current().getNewDebt(), path.current().getDevCost());
+    double newDebtRatio = 100.0 * density;
+    int newMaintainabilityRating = ratingSettings.getDebtRatingGrid().getRatingForDensity(density).getIndex();
     measureRepository.add(component, this.newDebtRatioMetric, newMeasureBuilder().create(newDebtRatio));
-    measureRepository.add(component, this.newMaintainabilityRatingMetric, newMeasureBuilder().create(newMaintainability));
+    measureRepository.add(component, this.newMaintainabilityRatingMetric, newMeasureBuilder().create(newMaintainabilityRating));
+
+    double densityBasedOnSoftwareQuality = computeDensity(path.current().getNewSoftwareQualityDebt(), path.current().getDevCost());
+    double newSoftwareQualityDebtRatio = 100.0 * densityBasedOnSoftwareQuality;
+    int newSoftwareQualityMaintainabilityRating = ratingSettings.getDebtRatingGrid().getRatingForDensity(densityBasedOnSoftwareQuality).getIndex();
+    measureRepository.add(component, this.newSoftwareQualityMaintainabilityDebtRatioMetric, newMeasureBuilder().create(newSoftwareQualityDebtRatio));
+    measureRepository.add(component, this.newSoftwareQualityMaintainabilityRatingMetric, newMeasureBuilder().create(newSoftwareQualityMaintainabilityRating));
   }
 
-  private static double computeDensity(Counter counter) {
-    LongValue newDebt = counter.getNewDebt();
+  private static double computeDensity(LongValue newDebt, LongValue devCost) {
     if (newDebt.isSet()) {
-      long developmentCost = counter.getDevCost().getValue();
+      long developmentCost = devCost.getValue();
       if (developmentCost != 0L) {
         return newDebt.getValue() / (double) developmentCost;
       }
@@ -159,7 +178,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private void initNewDebtRatioCounter(Counter devCostCounter, Component file, Measure nclocDataMeasure, Set<Integer> changedLines) {
     boolean hasDevCost = false;
 
-    long lineDevCost = ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
+    long lineDevCost = ratingSettings.getDevCost();
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
       if (changedLines.contains(nclocLineIndex)) {
         devCostCounter.incrementDevCost(lineDevCost);
@@ -169,6 +188,9 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     if (hasDevCost) {
       long newDebt = getLongValue(measureRepository.getRawMeasure(file, this.newDebtMetric));
       devCostCounter.incrementNewDebt(newDebt);
+
+      long newSoftwareQualityDebt = getLongValue(measureRepository.getRawMeasure(file, this.newSoftwareQualityRemediationEffortKey));
+      devCostCounter.incrementNewSoftwareQualityDebt(newSoftwareQualityDebt);
     }
   }
 
@@ -192,23 +214,33 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
 
   public static final class Counter {
     private final LongValue newDebt = new LongValue();
+    private final LongValue newSoftwareQualityDebt = new LongValue();
     private final LongValue devCost = new LongValue();
 
     public void add(Counter counter) {
       this.newDebt.increment(counter.newDebt);
+      this.newSoftwareQualityDebt.increment(counter.newSoftwareQualityDebt);
       this.devCost.increment(counter.devCost);
     }
 
-    LongValue incrementNewDebt(long value) {
-      return newDebt.increment(value);
+    void incrementNewDebt(long value) {
+      newDebt.increment(value);
     }
 
-    LongValue incrementDevCost(long value) {
-      return devCost.increment(value);
+    void incrementNewSoftwareQualityDebt(long value) {
+      newSoftwareQualityDebt.increment(value);
+    }
+
+    void incrementDevCost(long value) {
+      devCost.increment(value);
     }
 
     LongValue getNewDebt() {
       return this.newDebt;
+    }
+
+    LongValue getNewSoftwareQualityDebt() {
+      return this.newSoftwareQualityDebt;
     }
 
     LongValue getDevCost() {

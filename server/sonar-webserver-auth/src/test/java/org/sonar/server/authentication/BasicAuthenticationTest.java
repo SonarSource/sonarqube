@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,10 @@ package org.sonar.server.authentication;
 
 import java.util.Base64;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
@@ -44,9 +43,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class BasicAuthenticationTest {
 
@@ -62,12 +61,12 @@ public class BasicAuthenticationTest {
   private static final String AUTHORIZATION_HEADER = "Authorization";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
 
   private final CredentialsAuthentication credentialsAuthentication = mock(CredentialsAuthentication.class);
   private final UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);
 
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpRequest request = mock(HttpRequest.class);
 
   private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
@@ -161,7 +160,7 @@ public class BasicAuthenticationTest {
     assertThatThrownBy(() -> underTest.authenticate(request))
       .hasMessage("User doesn't exist")
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
+      .hasFieldOrPropertyWithValue("source", Source.local(SONARQUBE_TOKEN));
 
     verifyNoInteractions(authenticationEvent);
     verify(request, times(0)).setAttribute(anyString(), anyString());
@@ -170,7 +169,7 @@ public class BasicAuthenticationTest {
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_existing_user() {
     when(userTokenAuthentication.authenticate(request)).thenThrow(AuthenticationException.newBuilder()
-      .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN))
+      .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.SONARQUBE_TOKEN))
       .setMessage("User doesn't exist")
       .build());
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("token:"));
@@ -178,7 +177,7 @@ public class BasicAuthenticationTest {
     assertThatThrownBy(() -> underTest.authenticate(request))
       .hasMessageContaining("User doesn't exist")
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
+      .hasFieldOrPropertyWithValue("source", Source.local(SONARQUBE_TOKEN));
 
     verifyNoInteractions(authenticationEvent);
   }

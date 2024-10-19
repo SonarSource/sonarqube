@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,8 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.core.util.stream.MoreCollectors;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public class NodeStatsResponse {
@@ -37,7 +38,7 @@ public class NodeStatsResponse {
       .map(Map.Entry::getValue)
       .map(JsonElement::getAsJsonObject)
       .map(NodeStats::toNodeStats)
-      .collect(MoreCollectors.toList());
+      .collect(toImmutableList());
   }
 
   public static NodeStatsResponse toNodeStatsResponse(JsonObject jsonObject) {

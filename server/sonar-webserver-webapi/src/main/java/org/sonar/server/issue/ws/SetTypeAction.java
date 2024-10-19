@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -83,10 +83,16 @@ public class SetTypeAction implements IssuesWsAction {
         "</ul>")
       .setSince("5.5")
       .setChangelog(
+        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
+        new Change("10.4", "Add 'issueStatus' field to the response."),
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
+        new Change("10.2", "This endpoint is now deprecated."),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
+        new Change("8.8", "The response field components.uuid is removed"),
         new Change("6.5", "the database ids of the components are removed from the response"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
+      .setDeprecatedSince("10.2")
       .setResponseExample(Resources.getResource(this.getClass(), "set_type-example.json"))
       .setPost(true);
 
@@ -119,8 +125,8 @@ public class SetTypeAction implements IssuesWsAction {
 
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
-      BranchDto branch = issueUpdater.getBranch(session, issue, issue.projectUuid());
-      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, branch);
+      BranchDto branch = issueUpdater.getBranch(session, issue);
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(issue, null, ruleType.name(), null, branch,
           response.getComponentByUuid(issue.projectUuid()).getKey());

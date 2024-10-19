@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,20 +20,20 @@
 package org.sonar.scanner.externalissue.sarif;
 
 import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.sarif.Run;
-import org.sonar.core.sarif.Sarif210;
+import org.sonar.sarif.pojo.Run;
+import org.sonar.sarif.pojo.SarifSchema210;
+import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 
 import static java.util.Objects.requireNonNull;
 
 @ScannerSide
 public class DefaultSarif210Importer implements Sarif210Importer {
-  private static final Logger LOG = Loggers.get(DefaultSarif210Importer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultSarif210Importer.class);
 
   private final RunMapper runMapper;
 
@@ -42,20 +42,24 @@ public class DefaultSarif210Importer implements Sarif210Importer {
   }
 
   @Override
-  public SarifImportResults importSarif(Sarif210 sarif210) {
+  public SarifImportResults importSarif(SarifSchema210 sarif210) {
     int successFullyImportedIssues = 0;
     int successFullyImportedRuns = 0;
     int failedRuns = 0;
 
-    Set<Run> runs = requireNonNull(sarif210.getRuns(), "The runs section of the Sarif report is null");
+    List<Run> runs = requireNonNull(sarif210.getRuns(), "The runs section of the Sarif report is null");
     for (Run run : runs) {
-      List<NewExternalIssue> newExternalIssues = toNewExternalIssues(run);
-      if (newExternalIssues == null) {
-        failedRuns += 1;
-      } else {
+      RunMapperResult runMapperResult = tryMapRun(run);
+      if (runMapperResult.isSuccess()) {
+        List<NewAdHocRule> newAdHocRules = runMapperResult.getNewAdHocRules();
+        newAdHocRules.forEach(NewAdHocRule::save);
+
+        List<NewExternalIssue> newExternalIssues = runMapperResult.getNewExternalIssues();
         successFullyImportedRuns += 1;
         successFullyImportedIssues += newExternalIssues.size();
         newExternalIssues.forEach(NewExternalIssue::save);
+      } else {
+        failedRuns += 1;
       }
     }
     return SarifImportResults.builder()
@@ -65,13 +69,13 @@ public class DefaultSarif210Importer implements Sarif210Importer {
       .build();
   }
 
-  @CheckForNull
-  private List<NewExternalIssue> toNewExternalIssues(Run run) {
+  private RunMapperResult tryMapRun(Run run) {
     try {
       return runMapper.mapRun(run);
     } catch (Exception exception) {
       LOG.warn("Failed to import a sarif run, error: {}", exception.getMessage());
-      return null;
+      return new RunMapperResult().success(false);
+
     }
   }
 

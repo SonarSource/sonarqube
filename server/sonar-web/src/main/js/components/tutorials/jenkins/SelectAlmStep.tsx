@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton, TutorialStep } from 'design-system';
 import * as React from 'react';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { hasMessage, translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
-import ButtonToggle from '../../controls/ButtonToggle';
-import Step from '../components/Step';
 
 export interface SelectAlmStepProps {
   alm?: AlmKeys;
-  open: boolean;
-  onCheck: (value: AlmKeys) => void;
-  onOpen: () => void;
+  onChange: (value: AlmKeys) => void;
 }
 
 function getAlmLongName(alm: AlmKeys) {
@@ -36,39 +32,23 @@ function getAlmLongName(alm: AlmKeys) {
 }
 
 export default function SelectAlmStep(props: SelectAlmStepProps) {
-  const { alm, open } = props;
+  const { alm } = props;
   return (
-    <Step
-      finished={true}
-      open={open}
-      onOpen={props.onOpen}
-      renderForm={() => (
-        <div className="boxed-group-inner">
-          <ButtonToggle
-            label={translate('onboarding.tutorial.with.jenkins.alm_selection.title')}
-            onCheck={props.onCheck}
-            options={[
-              AlmKeys.BitbucketCloud,
-              AlmKeys.BitbucketServer,
-              AlmKeys.GitHub,
-              AlmKeys.GitLab,
-            ].map((almKey) => ({
-              label: getAlmLongName(almKey),
-              value: almKey,
-            }))}
-            value={alm}
-          />
-        </div>
-      )}
-      renderResult={() =>
-        alm && (
-          <div className="boxed-group-actions display-flex-center">
-            <AlertSuccessIcon className="spacer-right" />
-            {getAlmLongName(alm)}
-          </div>
-        )
-      }
-      stepTitle={translate('onboarding.tutorial.with.jenkins.alm_selection.title')}
-    />
+    <TutorialStep title={translate('onboarding.tutorial.with.jenkins.alm_selection.title')}>
+      <ToggleButton
+        label={translate('onboarding.tutorial.with.jenkins.alm_selection.title')}
+        onChange={props.onChange}
+        options={[
+          AlmKeys.BitbucketCloud,
+          AlmKeys.BitbucketServer,
+          AlmKeys.GitHub,
+          AlmKeys.GitLab,
+        ].map((almKey) => ({
+          label: getAlmLongName(almKey),
+          value: almKey,
+        }))}
+        value={alm}
+      />
+    </TutorialStep>
   );
 }

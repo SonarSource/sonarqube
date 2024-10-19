@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.core.util;
 
-import org.apache.commons.codec.binary.Base64;
+import java.util.UUID;
 
 /**
  */
@@ -31,11 +31,9 @@ public enum UuidFactoryImpl implements UuidFactory {
    */
   INSTANCE;
 
-  private final UuidGenerator uuidGenerator = new UuidGeneratorImpl();
-
   @Override
   public String create() {
-    return Base64.encodeBase64URLSafeString(uuidGenerator.generate());
+    return UUID.randomUUID().toString();
   }
 
 }

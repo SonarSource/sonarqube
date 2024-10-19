@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.qualitygate.QualityGateCaycStatus;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.NewCodePeriod;
-import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Period;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -81,7 +80,6 @@ public class QualityGateDetailsFormatter {
       return;
     }
 
-    Period.Builder periodsBuilder = Period.newBuilder();
     NewCodePeriod.Builder periodBuilder = NewCodePeriod.newBuilder();
 
     SnapshotDto snapshot = this.optionalSnapshot.get();
@@ -89,21 +87,19 @@ public class QualityGateDetailsFormatter {
     if (isNullOrEmpty(snapshot.getPeriodMode())) {
       return;
     }
-    periodsBuilder.setIndex(1);
-    periodsBuilder.setMode(snapshot.getPeriodMode());
+
     periodBuilder.setMode(snapshot.getPeriodMode());
     Long periodDate = snapshot.getPeriodDate();
     if (periodDate != null) {
       String formattedDateTime = formatDateTime(periodDate);
-      periodsBuilder.setDate(formattedDateTime);
       periodBuilder.setDate(formattedDateTime);
     }
     String periodModeParameter = snapshot.getPeriodModeParameter();
     if (!isNullOrEmpty(periodModeParameter)) {
-      periodsBuilder.setParameter(periodModeParameter);
+
       periodBuilder.setParameter(periodModeParameter);
     }
-    projectStatusBuilder.addPeriods(periodsBuilder);
+
     projectStatusBuilder.setPeriod(periodBuilder);
   }
 
@@ -124,7 +120,6 @@ public class QualityGateDetailsFormatter {
     formatConditionLevel(conditionBuilder, jsonCondition);
     formatConditionMetric(conditionBuilder, jsonCondition);
     formatConditionOperation(conditionBuilder, jsonCondition);
-    formatConditionPeriod(conditionBuilder, jsonCondition);
     formatConditionWarningThreshold(conditionBuilder, jsonCondition);
     formatConditionErrorThreshold(conditionBuilder, jsonCondition);
     formatConditionActual(conditionBuilder, jsonCondition);
@@ -151,14 +146,6 @@ public class QualityGateDetailsFormatter {
     if (warning != null && !isNullOrEmpty(warning.getAsString())) {
       conditionBuilder.setWarningThreshold(warning.getAsString());
     }
-  }
-
-  private static void formatConditionPeriod(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
-    JsonElement periodIndex = jsonCondition.get("period");
-    if (periodIndex == null) {
-      return;
-    }
-    conditionBuilder.setPeriodIndex(periodIndex.getAsInt());
   }
 
   private static void formatConditionOperation(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {

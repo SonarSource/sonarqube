@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,10 +19,10 @@
  */
 package org.sonar.server.authentication;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
@@ -33,7 +33,7 @@ public final class AuthenticationError {
 
   private static final String UNAUTHORIZED_PATH = "/sessions/unauthorized";
 
-  private static final Logger LOGGER = Loggers.get(AuthenticationError.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationError.class);
   private static final String AUTHENTICATION_ERROR_COOKIE = "AUTHENTICATION-ERROR";
   private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60;
 
@@ -41,17 +41,17 @@ public final class AuthenticationError {
     // Utility class
   }
 
-  static void handleError(Exception e, HttpServletRequest request, HttpServletResponse response, String message) {
+  static void handleError(Exception e, HttpRequest request, HttpResponse response, String message) {
     LOGGER.warn(message, e);
     redirectToUnauthorized(request, response);
   }
 
-  public static void handleError(HttpServletRequest request, HttpServletResponse response, String message) {
+  public static void handleError(HttpRequest request, HttpResponse response, String message) {
     LOGGER.warn(message);
     redirectToUnauthorized(request, response);
   }
 
-  static void handleAuthenticationError(AuthenticationException e, HttpServletRequest request, HttpServletResponse response) {
+  static void handleAuthenticationError(AuthenticationException e, HttpRequest request, HttpResponse response) {
     String publicMessage = e.getPublicMessage();
     if (publicMessage != null && !publicMessage.isEmpty()) {
       addErrorCookie(request, response, publicMessage);
@@ -59,7 +59,7 @@ public final class AuthenticationError {
     redirectToUnauthorized(request, response);
   }
 
-  public static void addErrorCookie(HttpServletRequest request, HttpServletResponse response, String value) {
+  public static void addErrorCookie(HttpRequest request, HttpResponse response, String value) {
     response.addCookie(newCookieBuilder(request)
       .setName(AUTHENTICATION_ERROR_COOKIE)
       .setValue(encodeMessage(value))
@@ -68,7 +68,7 @@ public final class AuthenticationError {
       .build());
   }
 
-  private static void redirectToUnauthorized(HttpServletRequest request, HttpServletResponse response) {
+  private static void redirectToUnauthorized(HttpRequest request, HttpResponse response) {
     redirectTo(response, request.getContextPath() + UNAUTHORIZED_PATH);
   }
 }

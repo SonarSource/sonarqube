@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import javax.annotation.CheckForNull;
 public class FilePathWithHashDto {
 
   private String uuid;
-  private String moduleUuid;
   private String path;
   private String srcHash;
   private String revision;
@@ -35,14 +34,6 @@ public class FilePathWithHashDto {
 
   public void setSrcHash(String srcHash) {
     this.srcHash = srcHash;
-  }
-
-  public String getModuleUuid() {
-    return moduleUuid;
-  }
-
-  public void setModuleUuid(String moduleUuid) {
-    this.moduleUuid = moduleUuid;
   }
 
   @CheckForNull

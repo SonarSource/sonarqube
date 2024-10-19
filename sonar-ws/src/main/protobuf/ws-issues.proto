@@ -160,6 +160,14 @@ message Issue {
   optional string ruleDescriptionContextKey = 37;
 
   repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 38;
+
+  repeated string codeVariants = 39;
+  optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 40;
+  optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 41;
+  repeated sonarqube.ws.commons.Impact impacts = 42;
+  optional string issueStatus = 43;
+  optional bool prioritizedRule = 44;
+  optional string cveId = 45;
 }
 
 message Sort {
@@ -291,10 +299,20 @@ message TaintVulnerabilityLite {
   repeated Flow flows = 9;
   optional bool assignedToSubscribedUser = 10;
   optional string ruleDescriptionContextKey = 11;
+  optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 12;
+  optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 13;
+  repeated sonarqube.ws.commons.Impact impacts = 14;
 }
 
 message Flow {
   repeated Location locations = 1;
   optional string description = 2;
   optional sonarqube.ws.commons.FlowType type = 3;
+}
+
+// Response of GET api/issues/list
+message ListWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Issue issues = 2;
+  repeated Component components = 3;
 }

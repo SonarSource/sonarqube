@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, Label } from '@sonarsource/echoes-react';
+import { InputSearch } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
-import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
 import { DEFAULT_FILTERS } from '../constants';
 import { Query } from '../utils';
@@ -32,13 +33,13 @@ interface Props {
   component?: unknown;
   currents: string;
   loading: boolean;
+  maxExecutedAt: Date | undefined;
+  minSubmittedAt: Date | undefined;
   onFilterUpdate: (changes: Partial<Query>) => void;
   onReload: () => void;
   query: string;
   status: string;
   taskType: string;
-  maxExecutedAt: Date | undefined;
-  minSubmittedAt: Date | undefined;
   types: string[];
 }
 
@@ -63,82 +64,74 @@ export default class Search extends React.PureComponent<Props> {
     this.props.onFilterUpdate({ query });
   };
 
+  handleReload = () => {
+    this.props.onReload();
+  };
+
   handleReset = () => {
     this.props.onFilterUpdate(DEFAULT_FILTERS);
   };
 
-  renderSearchBox() {
-    const { component, query } = this.props;
-
-    if (component) {
-      // do not render search form on the project-level page
-      return null;
-    }
-
-    return (
-      <li className="bt-search-form-large">
-        <SearchBox
-          onChange={this.handleQueryChange}
-          placeholder={translate('background_tasks.search_by_task_or_component')}
-          value={query}
-        />
-      </li>
-    );
-  }
-
   render() {
-    const { loading, component, types, status, taskType, currents, minSubmittedAt, maxExecutedAt } =
-      this.props;
+    const {
+      loading,
+      component,
+      query,
+      types,
+      status,
+      taskType,
+      currents,
+      minSubmittedAt,
+      maxExecutedAt,
+    } = this.props;
 
     return (
-      <section className="big-spacer-top big-spacer-bottom">
-        <ul className="bt-search-form">
+      <section className="sw-my-4">
+        <ul className="sw-flex sw-items-center sw-flex-wrap sw-gap-4">
           <li>
-            <div className="display-flex-column">
-              <label
-                id="background-task-status-filter-label"
-                className="text-bold little-spacer-bottom"
-                htmlFor="status-filter"
-              >
-                {translate('status')}
-              </label>
-              <StatusFilter id="status-filter" onChange={this.handleStatusChange} value={status} />
-            </div>
+            <Label
+              id="background-task-status-filter-label"
+              className="sw-mr-2"
+              htmlFor="status-filter"
+            >
+              {translate('status')}
+            </Label>
+
+            <StatusFilter id="status-filter" onChange={this.handleStatusChange} value={status} />
           </li>
+
           {types.length > 1 && (
             <li>
-              <div className="display-flex-column">
-                <label
-                  id="background-task-type-filter-label"
-                  className="text-bold little-spacer-bottom"
-                  htmlFor="types-filter"
-                >
-                  {translate('type')}
-                </label>
-                <TypesFilter
-                  id="types-filter"
-                  onChange={this.handleTypeChange}
-                  types={types}
-                  value={taskType}
-                />
-              </div>
+              <Label
+                id="background-task-type-filter-label"
+                className="sw-mr-2"
+                htmlFor="types-filter"
+              >
+                {translate('type')}
+              </Label>
+
+              <TypesFilter
+                id="types-filter"
+                onChange={this.handleTypeChange}
+                types={types}
+                value={taskType}
+              />
             </li>
           )}
+
           {!component && (
-            <li>
-              <div className="display-flex-column">
-                <label className="text-bold little-spacer-bottom" htmlFor="currents-filter">
-                  {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
-                </label>
-                <CurrentsFilter
-                  id="currents-filter"
-                  onChange={this.handleCurrentsChange}
-                  value={currents}
-                />
-              </div>
+            <li className="sw-flex sw-items-center">
+              <Label className="sw-mr-2">
+                {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
+              </Label>
+
+              <CurrentsFilter onChange={this.handleCurrentsChange} value={currents} />
             </li>
           )}
-          <li>
+
+          <li className="sw-flex sw-items-center">
+            <Label className="sw-mr-2">{translate('background_tasks.date_filter')}</Label>
+
             <DateFilter
               maxExecutedAt={maxExecutedAt}
               minSubmittedAt={minSubmittedAt}
@@ -146,13 +139,22 @@ export default class Search extends React.PureComponent<Props> {
             />
           </li>
 
-          {this.renderSearchBox()}
+          {!component && (
+            <li>
+              <InputSearch
+                onChange={this.handleQueryChange}
+                placeholder={translate('background_tasks.search_by_task_or_component')}
+                value={query}
+              />
+            </li>
+          )}
 
-          <li className="nowrap">
-            <Button className="js-reload" disabled={loading} onClick={this.props.onReload}>
+          <li>
+            <Button className="js-reload sw-mr-2" isDisabled={loading} onClick={this.handleReload}>
               {translate('reload')}
-            </Button>{' '}
-            <Button disabled={loading} onClick={this.handleReset}>
+            </Button>
+
+            <Button isDisabled={loading} onClick={this.handleReset}>
               {translate('reset_verb')}
             </Button>
           </li>

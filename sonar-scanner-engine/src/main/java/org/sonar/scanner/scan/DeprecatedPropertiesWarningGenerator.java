@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,33 +21,62 @@ package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.scanner.http.ScannerWsClientProvider;
 
 public class DeprecatedPropertiesWarningGenerator {
-  private static final Logger LOG = Loggers.get(DeprecatedPropertiesWarningGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedPropertiesWarningGenerator.class);
 
   @VisibleForTesting
-  public static final String PASSWORD_WARN_MESSAGE = "Property '" + CoreProperties.PASSWORD + "' is deprecated. It will not be supported " +
-    "in the future. Please instead use the 'sonar.login' parameter with a token.";
+  static final String PASSWORD_WARN_MESSAGE = String.format("The properties '%s' and '%s' are deprecated and will be removed in the " +
+      "future. Please pass a token with the '%s' property instead.", CoreProperties.LOGIN, CoreProperties.PASSWORD,
+    ScannerWsClientProvider.TOKEN_PROPERTY);
+  @VisibleForTesting
+  static final String LOGIN_WARN_MESSAGE = String.format("The property '%s' is deprecated and will be removed in the future. " +
+    "Please use the '%s' property instead when passing a token.", CoreProperties.LOGIN, ScannerWsClientProvider.TOKEN_PROPERTY);
+  @VisibleForTesting
+  static final String SCANNER_DOTNET_WARN_MESSAGE = String.format(" The '%s' property is available from SonarScanner " +
+    "for .NET version 5.13.", ScannerWsClientProvider.TOKEN_PROPERTY);
+  private static final String ENV_KEY_SCANNER_DOTNET = "ScannerMSBuild";
 
   private final Configuration configuration;
   private final AnalysisWarnings analysisWarnings;
+  private final EnvironmentInformation environmentInformation;
 
-  public DeprecatedPropertiesWarningGenerator(Configuration configuration, AnalysisWarnings analysisWarnings) {
+  public DeprecatedPropertiesWarningGenerator(Configuration configuration, AnalysisWarnings analysisWarnings,
+                                              EnvironmentInformation environmentInformation) {
     this.configuration = configuration;
     this.analysisWarnings = analysisWarnings;
+    this.environmentInformation = environmentInformation;
   }
 
   public void execute() {
+    Optional<String> login = configuration.get(CoreProperties.LOGIN);
     Optional<String> password = configuration.get(CoreProperties.PASSWORD);
+
+    String warningMessage = null;
     if (password.isPresent()) {
-      LOG.warn(PASSWORD_WARN_MESSAGE);
-      analysisWarnings.addUnique(PASSWORD_WARN_MESSAGE);
+      warningMessage = PASSWORD_WARN_MESSAGE;
+    } else if (login.isPresent()) {
+      warningMessage = LOGIN_WARN_MESSAGE;
+    }
+
+    if (warningMessage != null) {
+      if (isScannerDotNet()) {
+        warningMessage += SCANNER_DOTNET_WARN_MESSAGE;
+      }
+      LOG.warn(warningMessage);
+      analysisWarnings.addUnique(warningMessage);
     }
   }
 
+  private boolean isScannerDotNet() {
+    return StringUtils.containsIgnoreCase(environmentInformation.getKey(), ENV_KEY_SCANNER_DOTNET);
+  }
 }

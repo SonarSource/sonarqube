@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ export function renderCWECategory(standards: Standards, category: string): strin
 export function renderOwaspTop10Category(
   standards: Standards,
   category: string,
-  withPrefix = false
+  withPrefix = false,
 ): string {
   return renderOwaspCategory('owaspTop10', standards, category, withPrefix);
 }
@@ -44,7 +44,7 @@ export function renderOwaspTop10Category(
 export function renderOwaspTop102021Category(
   standards: Standards,
   category: string,
-  withPrefix = false
+  withPrefix = false,
 ): string {
   return renderOwaspCategory('owaspTop10-2021', standards, category, withPrefix);
 }
@@ -53,7 +53,7 @@ function renderOwaspCategory(
   type: 'owaspTop10' | 'owaspTop10-2021',
   standards: Standards,
   category: string,
-  withPrefix: boolean
+  withPrefix: boolean,
 ) {
   const record = standards[type][category];
   if (!record) {
@@ -62,19 +62,10 @@ function renderOwaspCategory(
   return addPrefix(`${category.toUpperCase()} - ${record.title}`, 'OWASP', withPrefix);
 }
 
-export function renderSansTop25Category(
-  standards: Standards,
-  category: string,
-  withPrefix = false
-): string {
-  const record = standards.sansTop25[category];
-  return addPrefix(record ? record.title : category, 'SANS', withPrefix);
-}
-
 export function renderSonarSourceSecurityCategory(
   standards: Standards,
   category: string,
-  withPrefix = false
+  withPrefix = false,
 ): string {
   const record = standards.sonarsourceSecurity[category];
   if (!record) {
@@ -112,4 +103,17 @@ export function renderOwaspAsvs40Category(standards: Standards, category: string
 
 function addPrefix(title: string, prefix: string, withPrefix: boolean) {
   return withPrefix ? `${prefix} ${title}` : title;
+}
+
+export function renderCASACategory(standards: Standards, category: string): string {
+  const record = standards['casa'][category];
+  if (!record) {
+    return category;
+  }
+  return `${category} - ${record.title}`;
+}
+
+export function renderStigCategory(standards: Standards, category: string) {
+  const record = standards['stig-ASD_V5R3'][category];
+  return record ? `${category} - ${record.title}` : category;
 }

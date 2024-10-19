@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
@@ -52,23 +52,22 @@ public class AddAction implements FavoritesWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final FavoriteUpdater favoriteUpdater;
-  private final ComponentFinder componentFinder;
 
-  public AddAction(UserSession userSession, DbClient dbClient, FavoriteUpdater favoriteUpdater, ComponentFinder componentFinder) {
+  public AddAction(UserSession userSession, DbClient dbClient, FavoriteUpdater favoriteUpdater) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.favoriteUpdater = favoriteUpdater;
-    this.componentFinder = componentFinder;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("add")
-      .setDescription("Add a component (project, file etc.) as favorite for the authenticated user.<br>" +
+      .setDescription("Add a component (project, portfolio, etc.) as favorite for the authenticated user.<br>" +
         "Only 100 components by qualifier can be added as favorite.<br>" +
-        "Requires authentication and the following permission: 'Browse' on the project of the specified component.")
+        "Requires authentication and the following permission: 'Browse' on the component.")
       .setSince("6.3")
       .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("8.4", "It's no longer possible to set a file as favorite"),
         new Change("7.7", "It's no longer possible to have more than 100 favorites by qualifier"),
         new Change("7.7", "It's no longer possible to set a directory as favorite"),
@@ -91,14 +90,16 @@ public class AddAction implements FavoritesWsAction {
   private Consumer<Request> addFavorite() {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        ComponentDto componentDto = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT));
-        checkArgument(SUPPORTED_QUALIFIERS.contains(componentDto.qualifier()), "Only components with qualifiers %s are supported", SUPPORTED_QUALIFIERS_AS_STRING);
+        EntityDto entity = dbClient.entityDao().selectByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT))
+          .orElseThrow(() -> new NotFoundException(format("Entity with key '%s' not found", request.mandatoryParam(PARAM_COMPONENT))));
+
+        checkArgument(SUPPORTED_QUALIFIERS.contains(entity.getQualifier()), "Only components with qualifiers %s are supported", SUPPORTED_QUALIFIERS_AS_STRING);
         userSession
           .checkLoggedIn()
-          .checkComponentPermission(USER, componentDto);
+          .checkEntityPermission(USER, entity);
         String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
         String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
-        favoriteUpdater.add(dbSession, componentDto, userUuid, userLogin, true);
+        favoriteUpdater.add(dbSession, entity, userUuid, userLogin, true);
         dbSession.commit();
       }
     };

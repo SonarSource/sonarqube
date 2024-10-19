@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,16 +22,15 @@ package org.sonar.scanner.ci;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.springframework.context.annotation.Bean;
 
 public class CiConfigurationProvider {
 
-  private static final Logger LOG = Loggers.get(CiConfigurationProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CiConfigurationProvider.class);
   private static final String PROP_DISABLED = "sonar.ci.autoconfig.disabled";
 
   @Bean("CiConfiguration")
@@ -43,10 +42,10 @@ public class CiConfigurationProvider {
 
     List<CiVendor> detectedVendors = Arrays.stream(ciVendors)
       .filter(CiVendor::isDetected)
-      .collect(Collectors.toList());
+      .toList();
 
     if (detectedVendors.size() > 1) {
-      List<String> names = detectedVendors.stream().map(CiVendor::getName).collect(Collectors.toList());
+      List<String> names = detectedVendors.stream().map(CiVendor::getName).toList();
       throw MessageException.of("Multiple CI environments are detected: " + names + ". Please check environment variables or set property " + PROP_DISABLED + " to true.");
     }
 
@@ -61,6 +60,11 @@ public class CiConfigurationProvider {
   static class EmptyCiConfiguration implements CiConfiguration {
     @Override
     public Optional<String> getScmRevision() {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<DevOpsPlatformInfo> getDevOpsPlatformInfo() {
       return Optional.empty();
     }
 

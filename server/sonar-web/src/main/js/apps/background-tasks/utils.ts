@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { toShortNotSoISOString } from '../../helpers/dates';
+import { ONE_SECOND } from '../../helpers/constants';
+import { toShortISO8601String } from '../../helpers/dates';
 import { ActivityRequestParameters, Task, TaskStatuses } from '../../types/tasks';
 import { ALL_TYPES, CURRENTS, STATUSES } from './constants';
 
@@ -65,11 +66,11 @@ export function mapFiltersToParameters(filters: Partial<Query> = {}) {
   }
 
   if (filters.minSubmittedAt) {
-    parameters.minSubmittedAt = toShortNotSoISOString(filters.minSubmittedAt);
+    parameters.minSubmittedAt = toShortISO8601String(filters.minSubmittedAt);
   }
 
   if (filters.maxExecutedAt) {
-    parameters.maxExecutedAt = toShortNotSoISOString(filters.maxExecutedAt);
+    parameters.maxExecutedAt = toShortISO8601String(filters.maxExecutedAt);
   }
 
   if (filters.query) {
@@ -79,7 +80,6 @@ export function mapFiltersToParameters(filters: Partial<Query> = {}) {
   return parameters;
 }
 
-const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
 const ONE_HOUR = 60 * ONE_MINUTE;
 

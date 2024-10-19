@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.scanner.cache;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 import org.sonar.api.scanner.fs.InputProject;
@@ -31,7 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.Protobuf;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
 import org.sonar.scanner.protocol.internal.SensorCacheData;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -103,7 +102,7 @@ public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
 
   public SensorCacheData read(InputStream is) {
     Iterable<SensorCacheEntry> it = () -> Protobuf.readStream(is, SensorCacheEntry.parser());
-    return new SensorCacheData(StreamSupport.stream(it.spliterator(), false).collect(Collectors.toList()));
+    return new SensorCacheData(StreamSupport.stream(it.spliterator(), false).toList());
   }
 }
 

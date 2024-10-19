@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -123,11 +123,7 @@ public class SetHomepageAction implements UsersWsAction {
       case PROJECT:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
         ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, componentParameter);
-        if (branchParameter != null) {
-          return componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchParameter, null).getUuid();
-        } else {
-          return projectDto.getUuid();
-        }
+        return componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchParameter, null).getUuid();
       case PORTFOLIO, APPLICATION:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
         return componentFinder.getByKey(dbSession, componentParameter).uuid();

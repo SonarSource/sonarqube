@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,11 @@ import org.junit.Test;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.SharedHealthState;
+import org.sonar.server.common.health.ClusterHealthCheck;
+import org.sonar.server.common.health.NodeHealthCheck;
 import org.sonar.server.platform.NodeInformation;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.same;
@@ -62,7 +64,7 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkNode_returns_GREEN_status_if_only_GREEN_statuses_returned_by_NodeHealthCheck() {
-    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).collect(Collectors.toList());
+    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).toList();
     HealthCheckerImpl underTest = newNodeHealthCheckerImpl(statuses.stream());
 
     assertThat(underTest.checkNode().getStatus())
@@ -145,7 +147,7 @@ public class HealthCheckerImplTest {
   @Test
   public void checkCluster_returns_GREEN_status_if_only_GREEN_statuses_returned_by_ClusterHealthChecks() {
     when(nodeInformation.isStandalone()).thenReturn(false);
-    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).collect(Collectors.toList());
+    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).toList();
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());
 
     assertThat(underTest.checkCluster().getHealth().getStatus())

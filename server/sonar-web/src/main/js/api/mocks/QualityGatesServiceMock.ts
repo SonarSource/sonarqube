@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,11 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep, flatten, omit, remove } from 'lodash';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Project } from '../../apps/quality-gates/components/Projects';
-import { mockQualityGate } from '../../helpers/mocks/quality-gates';
+import {
+  mockQualityGate,
+  mockQualityGateApplicationStatus,
+  mockQualityGateProjectStatus,
+} from '../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../helpers/mocks/users';
 import { mockCondition, mockGroup } from '../../helpers/testMocks';
-import { MetricKey } from '../../types/metrics';
+import {
+  QualityGateApplicationStatus,
+  QualityGateProjectStatus,
+  SearchPermissionsParameters,
+} from '../../types/quality-gates';
 import { CaycStatus, Condition, QualityGate } from '../../types/types';
 import {
   addGroup,
@@ -36,6 +45,9 @@ import {
   dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
+  getApplicationQualityGate,
+  getGateForProject,
+  getQualityGateProjectStatus,
   renameQualityGate,
   searchGroups,
   searchProjects,
@@ -44,19 +56,37 @@ import {
   updateCondition,
 } from '../quality-gates';
 
+jest.mock('../quality-gates');
+
 export class QualityGatesServiceMock {
   isAdmin = false;
   readOnlyList: QualityGate[];
   list: QualityGate[];
   projects: Project[];
+  getGateForProjectGateName: string;
+  throwOnGetGateForProject: boolean;
+  qualityGateProjectStatus: QualityGateProjectStatus;
+  applicationQualityGate: QualityGateApplicationStatus;
 
-  constructor(list?: QualityGate[], defaultId = 'AWBWEMe2qGAMGEYPjJlm') {
+  constructor(list?: QualityGate[]) {
     this.readOnlyList = list || [
       mockQualityGate({
-        id: defaultId,
         name: 'SonarSource way',
         conditions: [
-          { id: 'AXJMbIUGPAOIsUIE3eNC', metric: 'new_coverage', op: 'LT', error: '85' },
+          {
+            id: 'AXJMbIUGPAOIsUIE3eNC',
+            metric: 'new_coverage',
+            op: 'LT',
+            error: '85',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUGPAOIsUIE3eNF',
+            metric: 'new_violations',
+            op: 'GT',
+            error: '0',
+            isCaycCondition: true,
+          },
           { id: 'AXJMbIUGPAOIsUIE3eNE', metric: 'reliability_rating', op: 'GT', error: '4' },
           { id: 'AXJMbIUGPAOIsUIE3eND', metric: 'security_rating', op: 'GT', error: '4' },
           {
@@ -72,12 +102,20 @@ export class QualityGatesServiceMock {
             metric: 'new_duplicated_lines_density',
             op: 'GT',
             error: '3',
+            isCaycCondition: true,
           },
           {
             id: 'AXJMbIUHPAOIsUIE3eOi',
             metric: 'new_security_hotspots_reviewed',
             op: 'LT',
             error: '100',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eNfc',
+            metric: MetricKey.new_line_coverage,
+            op: 'GT',
+            error: '3',
           },
         ],
         isDefault: true,
@@ -85,11 +123,24 @@ export class QualityGatesServiceMock {
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
-        id: 'AXGYZrDqC-YjVCvvbRDY',
         name: 'SonarSource way - CFamily',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eOu', metric: 'new_coverage', op: 'LT', error: '0' },
-          { id: 'AXJMbIUHPAOIsUIE3eOubis', metric: 'new_coverage', op: 'LT', error: '1' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOi',
+            metric: 'new_security_hotspots_reviewed',
+            op: 'LT',
+            error: '100',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOu',
+            metric: 'new_coverage',
+            op: 'LT',
+            error: '0',
+            isCaycCondition: true,
+          },
+          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eNy', metric: 'new_security_rating', op: 'GT', error: '0' },
           { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' },
         ],
         isDefault: false,
@@ -97,29 +148,35 @@ export class QualityGatesServiceMock {
         caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
-        id: 'AWBWEMe4qGAMGEYPjJlr',
         name: 'Sonar way',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
           {
-            id: 'AXJMbIUHPAOIsUIE3eOE',
-            metric: 'new_maintainability_rating',
+            id: 'AXJMbIUHPAOIsUIE3eNs',
+            metric: 'new_violations',
             op: 'GT',
-            error: '1',
+            error: '0',
+            isCaycCondition: true,
           },
-          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOF',
+            metric: 'new_coverage',
+            op: 'LT',
+            error: '80',
+            isCaycCondition: true,
+          },
           {
             id: 'AXJMbIUHPAOIsUIE3eOG',
             metric: 'new_duplicated_lines_density',
             op: 'GT',
             error: '3',
+            isCaycCondition: true,
           },
           {
             id: 'AXJMbIUHPAOIsUIE3eOk',
             metric: 'new_security_hotspots_reviewed',
             op: 'LT',
             error: '100',
+            isCaycCondition: true,
           },
         ],
         isDefault: false,
@@ -127,7 +184,6 @@ export class QualityGatesServiceMock {
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
-        id: 'AWBWEMe4qGAMGEYPjJlruit',
         name: 'Non Cayc QG',
         conditions: [
           { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
@@ -139,8 +195,18 @@ export class QualityGatesServiceMock {
         caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
-        id: 'AWBWEMe4qGAMGEYPjJlruitoc',
-        name: 'Over Compliant CAYC QG',
+        name: 'Non Cayc Compliant QG',
+        conditions: [
+          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+        ],
+        isDefault: false,
+        isBuiltIn: false,
+        caycStatus: CaycStatus.Compliant,
+      }),
+      mockQualityGate({
+        name: 'Over Compliant CaYC QG',
         conditions: [
           { id: 'deprecatedoc', metric: 'function_complexity', op: 'LT', error: '1' },
           { id: 'AXJMbIUHPAOIsUIE3eOFoc', metric: 'new_coverage', op: 'LT', error: '80' },
@@ -170,32 +236,59 @@ export class QualityGatesServiceMock {
         isBuiltIn: false,
         caycStatus: CaycStatus.OverCompliant,
       }),
+      mockQualityGate({
+        name: 'QG without conditions',
+        conditions: [],
+        isDefault: false,
+        isBuiltIn: false,
+        caycStatus: CaycStatus.NonCompliant,
+      }),
+      mockQualityGate({
+        name: 'QG without new code conditions',
+        conditions: [
+          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'security_rating', op: 'GT', error: '1' },
+        ],
+        isDefault: false,
+        isBuiltIn: false,
+        caycStatus: CaycStatus.NonCompliant,
+      }),
     ];
 
     this.list = cloneDeep(this.readOnlyList);
 
     this.projects = [
-      { key: 'test1', name: 'test1', selected: false },
-      { key: 'test2', name: 'test2', selected: false },
-      { key: 'test3', name: 'test3', selected: true },
-      { key: 'test4', name: 'test4', selected: true },
+      { key: 'test1', name: 'test1', selected: false, isAiCodeAssured: false },
+      { key: 'test2', name: 'test2', selected: false, isAiCodeAssured: false },
+      { key: 'test3', name: 'test3', selected: true, isAiCodeAssured: false },
+      { key: 'test4', name: 'test4', selected: true, isAiCodeAssured: false },
+      { key: 'test5', name: 'test5', selected: true, isAiCodeAssured: true },
+      { key: 'test6', name: 'test6', selected: false, isAiCodeAssured: true },
     ];
 
-    (fetchQualityGate as jest.Mock).mockImplementation(this.showHandler);
-    (fetchQualityGates as jest.Mock).mockImplementation(this.listHandler);
-    (createQualityGate as jest.Mock).mockImplementation(this.createHandler);
-    (deleteQualityGate as jest.Mock).mockImplementation(this.destroyHandler);
-    (copyQualityGate as jest.Mock).mockImplementation(this.copyHandler);
+    this.getGateForProjectGateName = 'SonarSource way';
+    this.throwOnGetGateForProject = false;
+
+    jest.mocked(fetchQualityGate).mockImplementation(this.showHandler);
+    jest.mocked(fetchQualityGates).mockImplementation(this.listHandler);
+    jest.mocked(createQualityGate).mockImplementation(this.createHandler);
+    jest.mocked(deleteQualityGate).mockImplementation(this.destroyHandler);
+    jest.mocked(copyQualityGate).mockImplementation(this.copyHandler);
     (renameQualityGate as jest.Mock).mockImplementation(this.renameHandler);
-    (createCondition as jest.Mock).mockImplementation(this.createConditionHandler);
-    (updateCondition as jest.Mock).mockImplementation(this.updateConditionHandler);
-    (deleteCondition as jest.Mock).mockImplementation(this.deleteConditionHandler);
-    (searchProjects as jest.Mock).mockImplementation(this.searchProjectsHandler);
-    (searchUsers as jest.Mock).mockImplementation(this.searchUsersHandler);
-    (searchGroups as jest.Mock).mockImplementation(this.searchGroupsHandler);
-    (associateGateWithProject as jest.Mock).mockImplementation(this.selectHandler);
-    (dissociateGateWithProject as jest.Mock).mockImplementation(this.deSelectHandler);
-    (setQualityGateAsDefault as jest.Mock).mockImplementation(this.setDefaultHandler);
+    jest.mocked(createCondition).mockImplementation(this.createConditionHandler);
+    jest.mocked(updateCondition).mockImplementation(this.updateConditionHandler);
+    jest.mocked(deleteCondition).mockImplementation(this.deleteConditionHandler);
+    jest.mocked(searchProjects).mockImplementation(this.searchProjectsHandler);
+    jest.mocked(searchUsers).mockImplementation(this.searchUsersHandler);
+    jest.mocked(searchGroups).mockImplementation(this.searchGroupsHandler);
+    jest.mocked(associateGateWithProject).mockImplementation(this.selectHandler);
+    jest.mocked(dissociateGateWithProject).mockImplementation(this.deSelectHandler);
+    jest.mocked(setQualityGateAsDefault).mockImplementation(this.setDefaultHandler);
+    jest.mocked(getGateForProject).mockImplementation(this.projectGateHandler);
+    jest.mocked(getQualityGateProjectStatus).mockImplementation(this.handleQualityGetProjectStatus);
+    jest.mocked(getApplicationQualityGate).mockImplementation(this.handleGetApplicationQualityGate);
+
+    this.qualityGateProjectStatus = mockQualityGateProjectStatus({});
+    this.applicationQualityGate = mockQualityGateApplicationStatus({});
 
     // To be implemented.
     (addUser as jest.Mock).mockResolvedValue({});
@@ -209,6 +302,7 @@ export class QualityGatesServiceMock {
   reset() {
     this.setIsAdmin(false);
     this.list = cloneDeep(this.readOnlyList);
+    this.getGateForProjectGateName = 'SonarSource way';
   }
 
   getDefaultQualityGate() {
@@ -221,6 +315,14 @@ export class QualityGatesServiceMock {
 
   setIsAdmin(isAdmin: boolean) {
     this.isAdmin = isAdmin;
+  }
+
+  setGetGateForProjectName(name: string) {
+    this.getGateForProjectGateName = name;
+  }
+
+  setThrowOnGetGateForProject(value: boolean) {
+    this.throwOnGetGateForProject = value;
   }
 
   computeActions(q: QualityGate) {
@@ -243,24 +345,22 @@ export class QualityGatesServiceMock {
           ...q,
           actions: this.computeActions(q),
         })),
-      default: this.getDefaultQualityGate().id,
+      default: this.getDefaultQualityGate().name,
       actions: { create: this.isAdmin },
     });
   };
 
-  showHandler = ({ id }: { id: string }) => {
+  showHandler = ({ name }: { name: string }) => {
     const qualityGate = omit(
-      this.list.find((q) => q.id === id),
-      'isDefault'
+      this.list.find((q) => q.name === name),
+      'isDefault',
     );
     return this.reply({ ...qualityGate, actions: this.computeActions(qualityGate) });
   };
 
   createHandler = ({ name }: { name: string }) => {
-    const newId = `newId${this.list.length}`;
     this.list.push(
       mockQualityGate({
-        id: newId,
         name,
         conditions: [
           mockCondition({
@@ -287,26 +387,26 @@ export class QualityGatesServiceMock {
         isDefault: false,
         isBuiltIn: false,
         caycStatus: CaycStatus.Compliant,
-      })
+      }),
     );
     return this.reply({
-      id: newId,
       name,
     });
   };
 
-  destroyHandler = ({ id }: { id: string }) => {
-    this.list = this.list.filter((q) => q.id !== id);
+  destroyHandler = ({ name }: { name: string }) => {
+    this.list = this.list.filter((q) => q.name !== name);
     return Promise.resolve();
   };
 
-  copyHandler = ({ id, name }: { id: string; name: string }) => {
-    const newQG = cloneDeep(this.list.find((q) => q.id === id));
+  copyHandler = ({ sourceName, name }: { name: string; sourceName: string }) => {
+    const newQG = cloneDeep(this.list.find((q) => q.name === sourceName));
     if (newQG === undefined) {
-      return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
+      return Promise.reject({
+        errors: [{ msg: `No quality gate has been found for name ${sourceName}` }],
+      });
     }
     newQG.name = name;
-    newQG.id = `newId${this.list.length}`;
 
     newQG.isDefault = false;
     newQG.isBuiltIn = false;
@@ -314,30 +414,32 @@ export class QualityGatesServiceMock {
     this.list.push(newQG);
 
     return this.reply({
-      id: newQG.id,
       name,
     });
   };
 
-  renameHandler = ({ id, name }: { id: string; name: string }) => {
-    const renameQG = this.list.find((q) => q.id === id);
+  renameHandler = ({ currentName, name }: { currentName: string; name: string }) => {
+    const renameQG = this.list.find((q) => q.name === currentName);
     if (renameQG === undefined) {
-      return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
+      return Promise.reject({
+        errors: [{ msg: `No quality gate has been found for name ${currentName}` }],
+      });
     }
     renameQG.name = name;
     return this.reply({
-      id: renameQG.id,
       name,
     });
   };
 
-  setDefaultHandler = ({ id }: { id: string }) => {
+  setDefaultHandler = ({ name }: { name: string }) => {
     this.list.forEach((q) => {
       q.isDefault = false;
     });
-    const selectedQG = this.list.find((q) => q.id === id);
+    const selectedQG = this.list.find((q) => q.name === name);
     if (selectedQG === undefined) {
-      return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
+      return Promise.reject({
+        errors: [{ msg: `No quality gate has been found for name ${name}` }],
+      });
     }
     selectedQG.isDefault = true;
     return Promise.resolve();
@@ -345,26 +447,27 @@ export class QualityGatesServiceMock {
 
   createConditionHandler = (
     data: {
-      gateId: string;
-    } & Omit<Condition, 'id'>
+      gateName: string;
+    } & Omit<Condition, 'id'>,
   ) => {
-    const { metric, gateId, op, error } = data;
-    const qg = this.list.find((q) => q.id === gateId);
+    const { metric, gateName, op, error, isCaycCondition } = data;
+    const qg = this.list.find((q) => q.name === gateName);
     if (qg === undefined) {
       return Promise.reject({
-        errors: [{ msg: `No quality gate has been found for id ${gateId}` }],
+        errors: [{ msg: `No quality gate has been found for name ${gateName}` }],
       });
     }
 
     const conditions = qg.conditions || [];
-    const id = `condId${qg.id}${conditions.length}`;
-    const newCondition = { id, metric, op, error };
+    const id = `condId${qg.name}${conditions.length}`;
+    const newCondition = { metric, op, error, id, isCaycCondition };
+
     conditions.push(newCondition);
     qg.conditions = conditions;
     return this.reply(newCondition);
   };
 
-  updateConditionHandler = ({ id, metric, op, error }: Condition) => {
+  updateConditionHandler = ({ id, metric, op, error, isCaycCondition }: Condition) => {
     const condition = flatten(this.list.map((q) => q.conditions || [])).find((q) => q.id === id);
     if (condition === undefined) {
       return Promise.reject({ errors: [{ msg: `No condition has been found for id ${id}` }] });
@@ -373,6 +476,7 @@ export class QualityGatesServiceMock {
     condition.metric = metric;
     condition.op = op;
     condition.error = error;
+    condition.isCaycCondition = isCaycCondition;
 
     return this.reply(condition);
   };
@@ -388,8 +492,9 @@ export class QualityGatesServiceMock {
     selected,
     query,
   }: {
-    selected: string;
+    gateName: string;
     query: string | undefined;
+    selected: string;
   }) => {
     let filteredProjects = this.projects;
     if (selected === 'selected') {
@@ -409,7 +514,7 @@ export class QualityGatesServiceMock {
     return this.reply(response);
   };
 
-  searchUsersHandler = ({ selected }: { selected: string }) => {
+  searchUsersHandler = ({ selected }: SearchPermissionsParameters) => {
     if (selected === 'selected') {
       return this.reply({ users: [] });
     }
@@ -417,7 +522,7 @@ export class QualityGatesServiceMock {
     return this.reply({ users: [mockUserBase()] });
   };
 
-  searchGroupsHandler = ({ selected }: { selected: string }) => {
+  searchGroupsHandler = ({ selected }: SearchPermissionsParameters) => {
     if (selected === 'selected') {
       return this.reply({ groups: [] });
     }
@@ -439,6 +544,46 @@ export class QualityGatesServiceMock {
       changedProject.selected = false;
     }
     return Promise.resolve();
+  };
+
+  projectGateHandler = () => {
+    if (this.throwOnGetGateForProject) {
+      return Promise.reject('unknown');
+    }
+
+    const qualityGate = this.list.find((qg) => qg.name === this.getGateForProjectGateName);
+
+    if (!qualityGate) {
+      return Promise.reject('Unable to find quality gate');
+    }
+
+    return this.reply({
+      name: qualityGate.name,
+      isDefault: qualityGate.isDefault,
+    });
+  };
+
+  handleGetApplicationQualityGate = () => {
+    return this.reply(this.applicationQualityGate);
+  };
+
+  setApplicationQualityGateStatus = (status: Partial<QualityGateApplicationStatus>) => {
+    this.applicationQualityGate = mockQualityGateApplicationStatus(status);
+  };
+
+  handleQualityGetProjectStatus = () => {
+    return this.reply(this.qualityGateProjectStatus);
+  };
+
+  setQualityGateProjectStatus = (status: Partial<QualityGateProjectStatus>) => {
+    this.qualityGateProjectStatus = mockQualityGateProjectStatus(status);
+  };
+
+  setCaycStatusForQualityGate = (name: string, caycStatus: CaycStatus) => {
+    const qg = this.list.find((q) => q.name === name);
+    if (qg) {
+      qg.caycStatus = caycStatus;
+    }
   };
 
   reply<T>(response: T): Promise<T> {

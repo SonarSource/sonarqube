@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,36 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, SubHeading, Table, TableRow } from 'design-system';
 import { map } from 'lodash';
 import * as React from 'react';
 import { SysInfoValueObject } from '../../../../types/types';
 import SysInfoItem from './SysInfoItem';
 
 interface Props {
-  name?: string;
   items: SysInfoValueObject;
+  name?: string;
 }
 
-export default function Section({ name, items }: Props) {
+const COLUMNS = ['0', 'auto'];
+
+export default function Section({ name, items }: Readonly<Props>) {
   return (
-    <div className="system-info-section">
-      {name && <h4 className="spacer-bottom">{name}</h4>}
-      <table className="data zebra" id={name}>
-        <tbody>
-          {map(items, (value, name) => {
-            return (
-              <tr key={name}>
-                <td className="thin">
-                  <div className="system-info-section-item-name">{name}</div>
-                </td>
-                <td style={{ wordBreak: 'break-all' }}>
+    <div className="it__system-info-section">
+      {name !== undefined && <SubHeading>{name}</SubHeading>}
+      <Table id={name} columnCount={COLUMNS.length} columnWidths={COLUMNS}>
+        {map(items, (value, name) => {
+          return (
+            <TableRow key={name}>
+              <ContentCell className="it__system-info-section-item-name">{name}</ContentCell>
+              <ContentCell>
+                <span className="sw-break-all">
                   <SysInfoItem name={name} value={value} />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                </span>
+              </ContentCell>
+            </TableRow>
+          );
+        })}
+      </Table>
     </div>
   );
 }

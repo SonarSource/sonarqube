@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,11 @@ public class ProjectQgateAssociationDto {
   private String key;
   private String name;
   private String gateUuid;
+  private boolean aiCodeAssurance;
+
+  public ProjectQgateAssociationDto() {
+    // do nothing
+  }
 
   public String getUuid() {
     return uuid;
@@ -69,4 +74,12 @@ public class ProjectQgateAssociationDto {
     return this;
   }
 
+  public boolean getAiCodeAssurance() {
+    return aiCodeAssurance;
+  }
+
+  public ProjectQgateAssociationDto setAiCodeAssurance(boolean aiCodeAssurance) {
+    this.aiCodeAssurance = aiCodeAssurance;
+    return this;
+  }
 }

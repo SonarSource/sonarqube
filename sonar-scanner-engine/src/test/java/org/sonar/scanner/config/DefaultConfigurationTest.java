@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,14 +23,14 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,14 +50,14 @@ public class DefaultConfigurationTest {
     };
 
     assertThat(config.get("multiA")).hasValue("a,b");
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Access to the multi-values/property set property 'multiA' should be made using 'getStringArray' method. The SonarQube plugin using this property should be updated.");
 
     logTester.clear();
 
     assertThat(config.getStringArray("single")).containsExactly("foo");
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Property 'single' is not declared as multi-values/property set but was read using 'getStringArray' method. The SonarQube plugin declaring this property should be updated.");
 
@@ -65,7 +65,7 @@ public class DefaultConfigurationTest {
 
     assertThat(config.get("notDeclared")).hasValue("c,d");
     assertThat(config.getStringArray("notDeclared")).containsExactly("c", "d");
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test
@@ -77,14 +77,14 @@ public class DefaultConfigurationTest {
     };
 
     assertThat(config.get("props")).hasValue("1,2");
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Access to the multi-values/property set property 'props' should be made using 'getStringArray' method. The SonarQube plugin using this property should be updated.");
 
     logTester.clear();
 
     assertThat(config.getStringArray("props")).containsExactly("1", "2");
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,11 +25,12 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 
@@ -48,7 +49,7 @@ public class PermissionQuery {
   // filter: return only the users or groups who have this permission
   private final String permission;
   // filter on project, else filter org permissions
-  private final String componentUuid;
+  private final String entityUuid;
 
   // filter on login, email or name of users or groups
   private final String searchQuery;
@@ -60,17 +61,19 @@ public class PermissionQuery {
   private final boolean withAtLeastOnePermission;
 
   private final int pageSize;
+  private final int pageIndex;
   private final int pageOffset;
 
   private PermissionQuery(Builder builder) {
     this.organizationUuid = builder.organizationUuid;
     this.permission = builder.permission;
     this.withAtLeastOnePermission = builder.withAtLeastOnePermission;
-    this.componentUuid = builder.componentUuid;
+    this.entityUuid = builder.entityUuid;
     this.searchQuery = builder.searchQuery;
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER);
     this.searchQueryToSqlLowercase = searchQueryToSql == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
+    this.pageIndex = builder.pageIndex;
     this.pageOffset = offset(builder.pageIndex, builder.pageSize);
   }
 
@@ -88,8 +91,8 @@ public class PermissionQuery {
   }
 
   @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   @CheckForNull
@@ -111,6 +114,10 @@ public class PermissionQuery {
     return pageSize;
   }
 
+  public int getPageIndex() {
+    return pageIndex;
+  }
+
   public int getPageOffset() {
     return pageOffset;
   }
@@ -122,7 +129,7 @@ public class PermissionQuery {
   public static class Builder {
     private String permission;
     private String organizationUuid;
-    private String componentUuid;
+    private String entityUuid;
     private String searchQuery;
     private boolean withAtLeastOnePermission;
 
@@ -139,12 +146,16 @@ public class PermissionQuery {
       return this;
     }
 
-    public Builder setComponent(ComponentDto component) {
-      return setComponent(component.uuid());
+    public Builder setEntity(ComponentDto component) {
+      return setEntityUuid(component.uuid());
     }
 
-    public Builder setComponent(String componentUuid) {
-      this.componentUuid = componentUuid;
+    public Builder setEntity(EntityDto entity) {
+      return setEntityUuid(entity.getUuid());
+    }
+
+    public Builder setEntityUuid(String entityUuid) {
+      this.entityUuid = entityUuid;
       return this;
     }
 

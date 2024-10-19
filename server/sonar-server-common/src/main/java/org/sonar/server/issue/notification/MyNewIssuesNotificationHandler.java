@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
@@ -81,7 +81,7 @@ public class MyNewIssuesNotificationHandler extends EmailNotificationHandler<MyN
     return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
-      .collect(MoreCollectors.toSet(notifications.size()));
+      .collect(Collectors.toSet());
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<MyNewIssuesNotification> notifications) {
@@ -91,7 +91,7 @@ public class MyNewIssuesNotificationHandler extends EmailNotificationHandler<MyN
     Map<String, NotificationManager.EmailRecipient> recipientsByLogin = notificationManager
       .findSubscribedEmailRecipients(KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER)
       .stream()
-      .collect(MoreCollectors.uniqueIndex(NotificationManager.EmailRecipient::login));
+      .collect(Collectors.toMap(NotificationManager.EmailRecipient::login, Function.identity()));
     return notifications.stream()
       .map(notification -> toEmailDeliveryRequest(recipientsByLogin, notification))
       .filter(Objects::nonNull);

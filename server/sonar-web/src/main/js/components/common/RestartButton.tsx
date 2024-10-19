@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { restart } from '../../api/system';
-import { Button } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate } from '../../helpers/l10n';
 import { SysStatus } from '../../types/types';
@@ -41,10 +41,8 @@ export default class RestartButton extends React.PureComponent<Props> {
         confirmButtonText={translate('restart')}
         modalBody={
           <>
-            <p className="spacer-top spacer-bottom">
-              {translate('system.are_you_sure_to_restart')}
-            </p>
-            <p className="spacer-bottom">{translate('system.forcing_shutdown_not_recommended')}</p>
+            <p className="sw-my-2">{translate('system.are_you_sure_to_restart')}</p>
+            <p className="sw-mb-2">{translate('system.forcing_shutdown_not_recommended')}</p>
             <p>{translate('system.restart_does_not_reload_sonar_properties')}</p>
           </>
         }
@@ -53,9 +51,10 @@ export default class RestartButton extends React.PureComponent<Props> {
       >
         {({ onClick }) => (
           <Button
-            className={classNames('button-red', className)}
-            disabled={systemStatus !== 'UP'}
+            className={className}
+            isDisabled={systemStatus !== 'UP'}
             onClick={onClick}
+            variety={ButtonVariety.DangerOutline}
           >
             {systemStatus === 'RESTARTING'
               ? translate('system.restart_in_progress')

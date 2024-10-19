@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@ public class IssueStorage {
         changeDto.setProjectUuid(issue.projectUuid());
         mapper.insert(changeDto);
       }
-    } else if (!issue.isNew() && diffs != null) {
+    } else if ((!issue.isNew() || issue.getAnticipatedTransitionUuid().isPresent()) && diffs != null) {
       IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs, issue.projectUuid());
       changeDto.setUuid(uuidFactory.create());
       changeDto.setProjectUuid(issue.projectUuid());

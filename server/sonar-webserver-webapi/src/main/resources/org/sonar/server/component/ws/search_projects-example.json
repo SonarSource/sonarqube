@@ -15,7 +15,7 @@
         "java"
       ],
       "visibility": "public",
-      "needIssueSync": true
+      "isAiCodeAssured": false
     },
     {
       "key": "another_project",
@@ -24,7 +24,7 @@
       "isFavorite": false,
       "tags": [],
       "visibility": "public",
-      "needIssueSync": false
+      "isAiCodeAssured": false
     },
     {
       "key": "third_project",
@@ -37,7 +37,7 @@
         "java"
       ],
       "visibility": "public",
-      "needIssueSync": false
+      "isAiCodeAssured": false
     }
   ],
   "facets": [

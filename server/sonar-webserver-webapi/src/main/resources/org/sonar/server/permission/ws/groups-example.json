@@ -13,13 +13,15 @@
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "sonar-administrators",
       "description": "System administrators",
-      "permissions": []
+      "permissions": [],
+      "managed": false
     },
     {
       "id": "AU-Tpxb--iU5OvuD2FLz",
       "name": "sonar-users",
       "description": "Every authenticated user automatically belongs to this group",
-      "permissions": []
+      "permissions": [],
+      "managed": true
     }
   ]
 }

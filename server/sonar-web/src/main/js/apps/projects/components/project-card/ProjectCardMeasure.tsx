@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,37 +19,26 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import IssueTypeIcon from '../../../../components/icons/IssueTypeIcon';
 
 export interface ProjectCardMeasureProps {
-  iconKey?: string;
+  className?: string;
   label: string;
   metricKey: string;
-  className?: string;
 }
 
 export default function ProjectCardMeasure(
-  props: React.PropsWithChildren<ProjectCardMeasureProps>
+  props: React.PropsWithChildren<ProjectCardMeasureProps>,
 ) {
-  const { iconKey, label, metricKey, children, className } = props;
-
-  const icon = <IssueTypeIcon className="spacer-right" query={iconKey || metricKey} />;
+  const { label, metricKey, children, className } = props;
 
   return (
     <div
       data-key={metricKey}
-      className={classNames(
-        'display-flex-column overflow-hidden it__project_card_measure',
-        className
-      )}
+      className={classNames('it__project_card_measure sw-text-center', className)}
     >
-      <div className="spacer-bottom display-flex-center" title={label}>
-        {icon}
-        <span className="text-ellipsis">{label}</span>
-      </div>
-      <div className="flex-grow display-flex-center project-card-measure-value-line overflow-hidden">
-        <span className="invisible">{icon}</span>
-        <span className="text-ellipsis">{children}</span>
+      <div className="sw-flex sw-justify-center">{children}</div>
+      <div className="sw-typo-default sw-mt-1 sw-whitespace-nowrap" title={label}>
+        {label}
       </div>
     </div>
   );

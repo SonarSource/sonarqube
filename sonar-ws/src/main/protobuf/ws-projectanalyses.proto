@@ -50,6 +50,7 @@ message Event {
   optional string description = 5;
   optional QualityGate qualityGate = 6;
   optional DefinitionChange definitionChange = 7;
+  optional QualityProfile qualityProfile = 8;
 }
 
 message Analysis {
@@ -67,6 +68,12 @@ message QualityGate {
   optional string status = 1;
   optional bool stillFailing = 2;
   repeated Failing failing = 3;
+}
+
+message QualityProfile {
+  optional string key = 1;
+  optional string name = 2;
+  optional string languageKey = 3;
 }
 
 message Failing {

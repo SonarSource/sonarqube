@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,113 +17,101 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import FinishButton from '../../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
-import { OSs, TutorialModes } from '../../types';
+import { Arch, AutoConfig, BuildTools, OSs, TutorialConfig, TutorialModes } from '../../types';
+import { getBuildWrapperExecutableLinux } from '../../utils';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
+import Others from './Others';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
-  mainBranchName: string;
   component: Component;
-  onDone: () => void;
+  config: TutorialConfig;
+  mainBranchName: string;
+  monorepo?: boolean;
 }
 
-const STEPS = {
-  [OSs.Linux]: `
-      - name: Download and install the build wrapper, build the project
-        run: |
-          mkdir $HOME/.sonar
-          curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-linux-x86.zip
-          unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-          $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+const STEPS = (os?: OSs, arch?: Arch) => {
+  if (OSs.Linux === os) {
+    return `
+      - name: Install sonar-scanner and build-wrapper
         env:
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-
-      - name: Download and install the SonarScanner
-        env:
-          SONAR_SCANNER_VERSION: 4.6.2.2472
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v2
+      - name: Run build-wrapper
         run: |
-          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${{ env.SONAR_SCANNER_VERSION }}-linux.zip
-          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          echo "$HOME/.sonar/sonar-scanner-\${{ env.SONAR_SCANNER_VERSION }}-linux/bin" >> $GITHUB_PATH
-
-      - name: SonarQube analysis
-        run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output=bw-output  
+          ${getBuildWrapperExecutableLinux(arch)} --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
         env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`,
-  [OSs.MacOS]: `
-      - name: Download and install the build wrapper
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          mkdir $HOME/.sonar
-          curl -sSLo $HOME/.sonar/build-wrapper-macosx-x86.zip \${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-macosx-x86.zip
-          unzip -o $HOME/.sonar/build-wrapper-macosx-x86.zip -d $HOME/.sonar/
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
+  } else if (OSs.MacOS === os) {
+    return `
+      - name: Install sonar-scanner and build-wrapper
         env:
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-
-      - name: Download and install the SonarScanner
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v2
+      - name: Run build-wrapper
         run: |
-          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-macosx.zip
-          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-
-      - name: Build and analyse the project
-        run: |
-          # Potential improvement : add these paths to the PATH env var.
-          $HOME/.sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
-          $HOME/.sonar/sonar-scanner-4.6.2.2472-macosx/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
+          build-wrapper-macosx-x86 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
         env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`,
-  [OSs.Windows]: `
-      - name: Download and install the build wrapper
-        shell: powershell
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
-          mkdir $HOME/.sonar
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          (New-Object System.Net.WebClient).DownloadFile("\${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-win-x86.zip", $path)
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
+  } else if (OSs.Windows === os) {
+    return `
+      - name: Install sonar-scanner and build-wrapper
         env:
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-
-      - name: Download and install the SonarScanner
-        shell: powershell
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v2
+      - name: Run build-wrapper
         run: |
-          $path = "$HOME/.sonar/sonar-scanner-cli-4.6.2.2472-windows.zip"
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          (New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip", $path)
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
-
-      - name: Build and analyse the project
-        shell: powershell
-        run: |
-          $env:Path += ";$HOME/.sonar/build-wrapper-win-x86;$HOME/.sonar/sonar-scanner-4.6.2.2472-windows/bin"
-          build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
-          sonar-scanner.bat "-Dsonar.cfamily.build-wrapper-output=bw-output"
+          build-wrapper-win-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
         env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`,
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        run: |
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
+  }
+
+  return '';
 };
 
-export default function CFamily(props: CFamilyProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
-  const [os, setOs] = React.useState<undefined | OSs>();
+export default function CFamily(props: Readonly<CFamilyProps>) {
+  const { config, component, branchesEnabled, mainBranchName, monorepo } = props;
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
+  if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+    return <Others {...props} />;
+  }
+
+  const runsOn = {
+    [OSs.Linux]: 'ubuntu-latest',
+    [OSs.MacOS]: 'macos-latest',
+    [OSs.Windows]: 'windows-latest',
+  };
   return (
     <>
-      <DefaultProjectKey component={component} />
-      <li className="abs-width-600">
+      <DefaultProjectKey component={component} monorepo={monorepo} />
+      <NumberedListItem>
         <span>{translate('onboarding.build.other.os')}</span>
         <RenderOptions
           label={translate('onboarding.build.other.os')}
@@ -132,27 +120,40 @@ export default function CFamily(props: CFamilyProps) {
           optionLabelKey="onboarding.build.other.os"
           options={Object.values(OSs)}
         />
-        {os && (
-          <GithubCFamilyExampleRepositories
-            className="big-spacer-top"
-            os={os}
-            ci={TutorialModes.GitHubActions}
-          />
+        {os === OSs.Linux && (
+          <>
+            <div className="sw-mt-4">{translate('onboarding.build.other.architecture')}</div>
+            <RenderOptions
+              label={translate('onboarding.build.other.architecture')}
+              checked={arch}
+              onCheck={(value: Arch) => setArch(value)}
+              optionLabelKey="onboarding.build.other.architecture"
+              options={[Arch.X86_64, Arch.Arm64]}
+            />
+          </>
         )}
-      </li>
-      {os && (
+        <GithubCFamilyExampleRepositories
+          className="sw-mt-4 sw-w-abs-600"
+          os={os}
+          ci={TutorialModes.GitHubActions}
+        />
+      </NumberedListItem>
+      {monorepo ? (
+        <MonorepoDocLinkFallback />
+      ) : (
         <>
           <CreateYmlFile
             yamlFileName=".github/workflows/build.yml"
             yamlTemplate={generateGitHubActionsYaml(
               mainBranchName,
               !!branchesEnabled,
-              '<image ready for your build toolchain>',
-              STEPS[os]
+              runsOn[os],
+              STEPS(os, arch),
+              `env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed`,
             )}
           />
-          <CompilationInfo className="abs-width-800" />
-          <FinishButton onClick={props.onDone} />
+          <CompilationInfo />
         </>
       )}
     </>

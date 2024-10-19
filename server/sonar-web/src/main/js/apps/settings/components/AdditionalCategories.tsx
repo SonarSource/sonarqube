@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,24 +24,29 @@ import { Component } from '../../../types/types';
 import {
   ANALYSIS_SCOPE_CATEGORY,
   AUTHENTICATION_CATEGORY,
+  CODE_FIX_CATEGORY,
+  EMAIL_NOTIFICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
 } from '../constants';
 import { AnalysisScope } from './AnalysisScope';
-import Authentication from './authentication/Authentication';
+import CodeFixAdmin from './CodeFixAdmin';
 import Languages from './Languages';
-import NewCodePeriod from './NewCodePeriod';
+import NewCodeDefinition from './NewCodeDefinition';
+import Authentication from './authentication/Authentication';
+import EmailNotification from './email-notification/EmailNotification';
+import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
   categories: string[];
-  definitions: ExtendedSettingDefinition[];
   component: Component | undefined;
+  definitions: ExtendedSettingDefinition[];
   selectedCategory: string;
 }
 
 export interface AdditionalCategory {
-  availableGlobally: boolean;
   availableForProject: boolean;
+  availableGlobally: boolean;
   displayTab: boolean;
   key: string;
   name: string;
@@ -75,12 +80,37 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: false,
   },
   {
+    key: CODE_FIX_CATEGORY,
+    name: translate('property.category.codefix'),
+    renderComponent: getCodeFixComponent,
+    availableGlobally: true,
+    availableForProject: false,
+    displayTab: true,
+  },
+  {
+    key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
+    name: translate('settings.pr_decoration.binding.category'),
+    renderComponent: getPullRequestDecorationBindingComponent,
+    availableGlobally: false,
+    availableForProject: true,
+    displayTab: true,
+    requiresBranchSupport: true,
+  },
+  {
     key: AUTHENTICATION_CATEGORY,
     name: translate('property.category.authentication'),
     renderComponent: getAuthenticationComponent,
     availableGlobally: true,
     availableForProject: false,
     displayTab: false,
+  },
+  {
+    key: EMAIL_NOTIFICATION_CATEGORY,
+    name: translate('email_notification.category'),
+    renderComponent: getEmailNotificationComponent,
+    availableGlobally: true,
+    availableForProject: false,
+    displayTab: true,
   },
 ];
 
@@ -89,13 +119,29 @@ function getLanguagesComponent(props: AdditionalCategoryComponentProps) {
 }
 
 function getNewCodePeriodComponent() {
-  return <NewCodePeriod />;
+  return <NewCodeDefinition />;
 }
 
 function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
   return <AnalysisScope {...props} />;
 }
 
+function getAlmIntegrationComponent(props: AdditionalCategoryComponentProps) {
+  return <AlmIntegration {...props} />;
+}
+
+function getCodeFixComponent(props: AdditionalCategoryComponentProps) {
+  return <CodeFixAdmin {...props} />;
+}
+
 function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {
   return <Authentication {...props} />;
+}
+
+function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {
+  return props.component && <PullRequestDecorationBinding component={props.component} />;
+}
+
+function getEmailNotificationComponent() {
+  return <EmailNotification />;
 }

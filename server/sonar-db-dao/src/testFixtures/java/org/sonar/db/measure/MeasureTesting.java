@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,9 @@
  */
 package org.sonar.db.measure;
 
-import org.apache.commons.lang.math.RandomUtils;
+import java.security.SecureRandom;
+import java.util.Random;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
@@ -28,25 +30,31 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MeasureTesting {
 
-  private static int cursor = RandomUtils.nextInt(100);
+  private static final Random RANDOM = new SecureRandom();
+
+  private static int cursor = RANDOM.nextInt(100);
 
   private MeasureTesting() {
     // static methods only
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto analysis) {
+  public static ProjectMeasureDto newProjectMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto analysis) {
+    return newProjectMeasureDto(metricDto, component.uuid(), analysis);
+  }
+
+  public static ProjectMeasureDto newProjectMeasureDto(MetricDto metricDto, String branchUuid, SnapshotDto analysis) {
     checkNotNull(metricDto.getUuid());
     checkNotNull(metricDto.getKey());
-    checkNotNull(component.uuid());
+    checkNotNull(branchUuid);
     checkNotNull(analysis.getUuid());
-    return new MeasureDto()
+    return new ProjectMeasureDto()
       .setMetricUuid(metricDto.getUuid())
-      .setComponentUuid(component.uuid())
+      .setComponentUuid(branchUuid)
       .setAnalysisUuid(analysis.getUuid());
   }
 
-  public static MeasureDto newMeasure() {
-    return new MeasureDto()
+  public static ProjectMeasureDto newProjectMeasure() {
+    return new ProjectMeasureDto()
       .setMetricUuid(String.valueOf(cursor++))
       .setComponentUuid(String.valueOf(cursor++))
       .setAnalysisUuid(String.valueOf(cursor++))
@@ -70,6 +78,15 @@ public class MeasureTesting {
       .setMetricUuid(metric.getUuid())
       .setComponentUuid(component.uuid())
       .setProjectUuid(component.branchUuid())
+      .setData(String.valueOf(cursor++))
+      .setValue((double) cursor++);
+  }
+
+  public static LiveMeasureDto newLiveMeasure(BranchDto branchDto, MetricDto metric) {
+    return new LiveMeasureDto()
+      .setMetricUuid(metric.getUuid())
+      .setComponentUuid(branchDto.getUuid())
+      .setProjectUuid(branchDto.getProjectUuid())
       .setData(String.valueOf(cursor++))
       .setValue((double) cursor++);
   }

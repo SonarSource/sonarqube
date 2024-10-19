@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -133,8 +133,8 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
 
   @CheckForNull
   private static Map<Path, Set<Integer>> getBranchChangedLinesByScm(ScmProvider scmProvider, String targetScmBranch, Path rootBaseDir, Map<Path, ChangedFile> changedFiles) {
-    if (scmProvider instanceof GitScmProvider) {
-      return ((GitScmProvider) scmProvider).branchChangedLinesWithFileMovementDetection(targetScmBranch, rootBaseDir, changedFiles);
+    if (scmProvider instanceof GitScmProvider gitScmProvider) {
+      return gitScmProvider.branchChangedLinesWithFileMovementDetection(targetScmBranch, rootBaseDir, changedFiles);
     }
 
     return scmProvider.branchChangedLines(targetScmBranch, rootBaseDir, changedFiles.keySet());

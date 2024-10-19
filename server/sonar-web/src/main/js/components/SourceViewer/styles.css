@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,76 +23,12 @@
   border: 1px solid var(--gray80);
   box-sizing: border-box;
   background-color: #fff;
-  overflow: hidden;
 }
 
 .source-table {
   width: 100%;
   border: none;
   border-collapse: collapse;
-}
-
-.source-viewer-header {
-  position: relative;
-  padding: 2px 10px 4px;
-  border-bottom: 1px solid var(--barBorderColor);
-  background-color: var(--barBackgroundColor);
-}
-
-.source-viewer-header-measure {
-  vertical-align: middle;
-  font-size: var(--baseFontSize);
-}
-
-.source-viewer-header-measure .rating {
-  font-size: 18px;
-}
-
-.source-viewer-header-measure-separator {
-  margin: 0 calc(3 * var(--gridSize));
-  height: 30px;
-  border-right: 1px solid var(--gray80);
-}
-
-.source-viewer-header-measure + .source-viewer-header-measure {
-  margin-left: calc(3 * var(--gridSize));
-}
-
-.source-viewer-header-measure-label {
-  display: block;
-  line-height: var(--smallFontSize);
-  color: var(--secondFontColor);
-  font-size: var(--smallFontSize);
-}
-
-.source-viewer-header-measure-value {
-  display: block;
-  margin-top: 2px;
-  line-height: 18px;
-  color: var(--baseFontColor);
-  font-size: var(--bigFontSize);
-}
-
-.source-viewer-header-actions {
-  display: block;
-  margin-left: calc(3 * var(--gridSize));
-  padding: var(--gridSize) calc(var(--gridSize) / 2);
-}
-
-.source-viewer-header-actions svg {
-  margin-top: 2px;
-}
-
-.source-viewer-header-more-actions {
-  position: absolute;
-  z-index: var(--dropdownMenuZIndex);
-  right: 0;
-  top: 100%;
-  padding: 10px;
-  border: 1px solid var(--barBorderColor);
-  border-right: none;
-  background-color: #fff;
-  line-height: 1.8;
 }
 
 .source-viewer-code {
@@ -104,10 +40,6 @@
   border-bottom: 1px solid var(--barBorderColor);
   background-color: var(--barBackgroundColor);
   text-align: center;
-}
-
-.source-viewer-more-code .spinner {
-  top: -1px;
 }
 
 .source-table + .source-viewer-more-code {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,16 +24,15 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Pagination;
 
 public interface CeQueueMapper {
 
-  List<CeQueueDto> selectByMainComponentUuid(@Param("mainComponentUuid") String mainComponentUuid);
+  List<CeQueueDto> selectByEntityUuid(@Param("entityUuid") String entityUuid);
 
   List<CeQueueDto> selectAllInAscOrder();
 
-  List<CeQueueDto> selectByQueryInDescOrder(@Param("query") CeTaskQuery query, RowBounds rowBounds);
+  List<CeQueueDto> selectByQueryInDescOrder(@Param("query") CeTaskQuery query, @Param("pagination") Pagination pagination);
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
@@ -71,16 +70,18 @@ public interface CeQueueMapper {
    */
   void resetAllInProgressTasks(@Param("updatedAt") long updatedAt);
 
-  int countByStatusAndMainComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
+  int countByStatusAndEntityUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("entityUuid") String entityUuid);
 
   @CheckForNull
-  Long selectCreationDateOfOldestPendingByMainComponentUuid(@Nullable @Param("mainComponentUuid") String mainComponentUuid);
+  Long selectCreationDateOfOldestPendingByEntityUuid(@Nullable @Param("entityUuid") String entityUuid);
 
-  List<QueueCount> countByStatusAndMainComponentUuids(@Param("status") CeQueueDto.Status status, @Param("mainComponentUuids") List<String> mainComponentUuids);
+  List<QueueCount> countByStatusAndEntityUuids(@Param("status") CeQueueDto.Status status, @Param("entityUuids") List<String> entityUuids);
 
   void insert(CeQueueDto dto);
 
-  int resetToPendingForWorker(@Param("workerUuid") String workerUuid, @Param("updatedAt") long updatedAt);
+  List<CeQueueDto> selectNotPendingForWorker(@Param("workerUuid") String workerUuid);
+
+  void resetToPendingByUuid(@Param("uuid") String uuid, @Param("updatedAt") long updatedAt);
 
   int updateIf(@Param("uuid") String uuid,
     @Param("new") UpdateIf.NewProperties newProperties,

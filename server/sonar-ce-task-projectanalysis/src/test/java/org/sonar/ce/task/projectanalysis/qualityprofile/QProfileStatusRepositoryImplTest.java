@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,12 +54,12 @@ public class QProfileStatusRepositoryImplTest {
   public void get_return_empty_for_qp_not_registered(QProfileStatusRepository.Status status) {
     underTest.register("key", status);
 
-    assertThat(underTest.get("other_key")).isEqualTo(Optional.empty());
+    assertThat(underTest.get("other_key")).isEmpty();
   }
 
   @Test
   public void get_return_empty_for_null_qp_key() {
-    assertThat(underTest.get(null)).isEqualTo(Optional.empty());
+    assertThat(underTest.get(null)).isEmpty();
   }
 
   @Test

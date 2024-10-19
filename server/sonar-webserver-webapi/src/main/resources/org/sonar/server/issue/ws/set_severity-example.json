@@ -3,6 +3,14 @@
     "key": "AVibidgv1LF0E-ru2DVv",
     "rule": "squid:S2301",
     "severity": "MAJOR",
+    "cleanCodeAttribute": "CLEAR",
+    "cleanCodeAttributeCategory": "INTENTIONAL",
+    "impacts": [
+      {
+        "softwareQuality": "SECURITY",
+        "severity": "HIGH"
+      }
+    ],
     "component": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
     "project": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
     "line": 78,
@@ -14,6 +22,7 @@
     },
     "flows": [],
     "status": "CONFIRMED",
+    "issueStatus": "CONFIRMED",
     "message": "Provide multiple methods instead of using \"modal\" to determine which action to take.",
     "effort": "15min",
     "debt": "15min",
@@ -53,7 +62,6 @@
   "components": [
     {
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
-      "uuid": "AVfTIlxMwczdZ2UaLhnt",
       "enabled": true,
       "qualifier": "FIL",
       "name": "ServerIssueUpdater.java",
@@ -62,7 +70,6 @@
     },
     {
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
-      "uuid": "8b745480-b598-4e34-af4a-cb2de1808e50",
       "enabled": true,
       "qualifier": "TRK",
       "name": "SonarLint for IntelliJ IDEA",

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@ public class SearchRequest {
   private String onProvisionedOnly;
   private String organization;
   private String p;
-  private List<String> projectIds;
   private List<String> projects;
   private String ps;
   private String q;
@@ -94,20 +93,6 @@ public class SearchRequest {
 
   public String getP() {
     return p;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy,AU-TpxcA-iU5OvuD2FLz"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public SearchRequest setProjectIds(List<String> projectIds) {
-    this.projectIds = projectIds;
-    return this;
-  }
-
-  public List<String> getProjectIds() {
-    return projectIds;
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,59 +17,62 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { flatMap } from 'lodash';
+import styled from '@emotion/styled';
+import { LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import { CardSeparator, InfoCard, TextError } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { ComponentQualifier, isApplication } from '../../../types/component';
+import { FormattedMessage } from 'react-intl';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
+import { translate } from '../../../helpers/l10n';
+import { isDiffMetric } from '../../../helpers/measures';
+import { isApplication } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { CaycStatus, Component } from '../../../types/types';
+import { CaycStatus, Component, QualityGate } from '../../../types/types';
+import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import ApplicationNonCaycProjectWarning from './ApplicationNonCaycProjectWarning';
+import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
 import QualityGatePanelSection from './QualityGatePanelSection';
+import SonarLintPromotion from './SonarLintPromotion';
 
 export interface QualityGatePanelProps {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
+  isNewCode?: boolean;
   loading?: boolean;
   qgStatuses?: QualityGateStatus[];
   grc:boolean;
+  qualityGate?: QualityGate;
+  showCaycWarningInApp?: boolean;
+  showCaycWarningInProject?: boolean;
+  totalFailedConditionLength: number;
 }
 
 export function QualityGatePanel(props: QualityGatePanelProps) {
-  const { component, loading, qgStatuses = [], grc } = props;
+  const {
+    component,
+    loading,
+    qgStatuses = [],
+    qualityGate,
+    isNewCode = false,
+    totalFailedConditionLength,
+    showCaycWarningInProject = false,
+    showCaycWarningInApp = false,
+  } = props;
+
+  const caycUrl = useDocUrl(DocLink.CaYC);
 
   if (qgStatuses === undefined) {
     return null;
   }
 
-  let title = translate('overview.quality_gate');
-    let helpMsg = translate('overview.quality_gate.help');
-    if(grc){
-      // title = translate('grc.overview.quality_gate');
-      // helpMsg = translate('grc.overview.quality_gate.help');
-      title = "Analysis Gate Status";
-      helpMsg = "Analysis Gate is a set of measure-based Boolean conditions. It helps you know immediately whether your project is production-ready. If your current status is not Passed, you'll see which measures caused the problem and the values required to pass.";
-    }
+  const failedQgStatuses = qgStatuses.filter((qgStatus) => qgStatus.failedConditions.length > 0);
 
-  const overallLevel = qgStatuses.map((s) => s.status).includes('ERROR') ? 'ERROR' : 'OK';
-  const success = overallLevel === 'OK';
+  const isApp = isApplication(component.qualifier);
 
-  const overallFailedConditionsCount = qgStatuses.reduce(
-    (acc, qgStatus) => acc + qgStatus.failedConditions.length,
-    0
-  );
-
-  const nonCaycProjectsInApp = isApplication(component.qualifier)
+  const nonCaycProjectsInApp = isApp
     ? qgStatuses
         .filter(({ caycStatus }) => caycStatus === CaycStatus.NonCompliant)
-        .sort(({ name: a }, { name: b }) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
-    : [];
-
-  const overCompliantCaycProjectsInApp = isApplication(component.qualifier)
-    ? qgStatuses
-        .filter(({ caycStatus }) => caycStatus === CaycStatus.OverCompliant)
         .sort(({ name: a }, { name: b }) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
     : [];
 
@@ -78,89 +81,94 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     qgStatuses.some((p) => Boolean(p.ignoredConditions));
 
   return (
-    <div className="overview-panel" data-test="overview__quality-gate-panel">
-      <div className="display-flex-center spacer-bottom">
-        <h2 className="overview-panel-title null-spacer-bottom">
-          {title}{' '}
-        </h2>
-        <HelpTooltip
-          className="little-spacer-left"
-          overlay={
-            <div className="big-padded-top big-padded-bottom">
-              {helpMsg}
-            </div>
-          }
-        />
-      </div>
-      {showIgnoredConditionWarning && (
-        <Alert className="big-spacer-bottom" display="inline" variant="info">
-          <span className="text-middle">
-            {translate('overview.quality_gate.ignored_conditions')}
-          </span>
-          <HelpTooltip
-            className="spacer-left"
-            overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}
-          />
-        </Alert>
-      )}
+    <Spinner isLoading={loading}>
+      <Column data-testid="overview__quality-gate-panel-conditions">
+        <Conditions>
+          {showIgnoredConditionWarning && isNewCode && <IgnoredConditionWarning />}
 
-      <div>
-        {loading ? (
-          <div className="overview-panel-big-padded">
-            <DeferredSpinner loading={loading} />
-          </div>
-        ) : (
-          <>
-            <div
-              className={classNames('overview-quality-gate-badge-large', {
-                failed: !success,
-                success,
-              })}
-            >
-              <h3 className="big-spacer-bottom huge">{translate('metric.level', overallLevel)}</h3>
-
-              <span className="small">
-                {overallFailedConditionsCount > 0
-                  ? translateWithParameters(
-                      'overview.X_conditions_failed',
-                      overallFailedConditionsCount
-                    )
-                  : translate('overview.quality_gate_all_conditions_passed')}
-              </span>
-            </div>
-
-            {(overallFailedConditionsCount > 0 ||
-              qgStatuses.some(({ caycStatus }) => caycStatus !== CaycStatus.Compliant)) && (
-              <div data-test="overview__quality-gate-conditions">
-                {qgStatuses.map((qgStatus) => (
-                  <QualityGatePanelSection
-                    component={component}
-                    key={qgStatus.key}
-                    qgStatus={qgStatus}
-                    grc={grc}
+          {isApp && (
+            <>
+              <TextError
+                className="sw-mb-3"
+                text={
+                  <FormattedMessage
+                    defaultMessage={translate('quality_gates.conditions.x_conditions_failed')}
+                    id="quality_gates.conditions.x_conditions_failed"
+                    values={{
+                      conditions: totalFailedConditionLength,
+                    }}
                   />
-                ))}
-              </div>
-            )}
-
-            {nonCaycProjectsInApp.length > 0 && (
-              <ApplicationNonCaycProjectWarning
-                projects={nonCaycProjectsInApp}
-                caycStatus={CaycStatus.NonCompliant}
+                }
               />
-            )}
+              <CardSeparator />
+            </>
+          )}
 
-            {overCompliantCaycProjectsInApp.length > 0 && (
-              <ApplicationNonCaycProjectWarning
-                projects={overCompliantCaycProjectsInApp}
-                caycStatus={CaycStatus.OverCompliant}
-              />
-            )}
-          </>
+          {totalFailedConditionLength > 0 && (
+            <div data-test="overview__quality-gate-conditions">
+              {failedQgStatuses.map((qgStatus, qgStatusIdx) => {
+                const failedConditionLength = qgStatus.failedConditions.filter((con) =>
+                  isNewCode ? isDiffMetric(con.metric) : !isDiffMetric(con.metric),
+                ).length;
+                if (failedConditionLength > 0) {
+                  return (
+                    <QualityGatePanelSection
+                      isApplication={isApp}
+                      isLastStatus={qgStatusIdx === failedQgStatuses.length - 1}
+                      key={qgStatus.key}
+                      qgStatus={qgStatus}
+                      qualityGate={qualityGate}
+                      isNewCode={isNewCode}
+                    />
+                  );
+                }
+                return null;
+              })}
+            </div>
+          )}
+        </Conditions>
+
+        {showCaycWarningInApp && (
+          <InfoCard
+            className="sw-typo-default"
+            footer={
+              <LinkStandalone to={caycUrl}>
+                <FormattedMessage id="overview.quality_gate.conditions.cayc.link" />
+              </LinkStandalone>
+            }
+          >
+            <ApplicationNonCaycProjectWarning projects={nonCaycProjectsInApp} />
+          </InfoCard>
         )}
-      </div>
-    </div>
+
+        {showCaycWarningInProject && (
+          <InfoCard
+            className="sw-typo-default"
+            footer={
+              <LinkStandalone to={caycUrl}>
+                <FormattedMessage id="overview.quality_gate.conditions.cayc.link" />
+              </LinkStandalone>
+            }
+          >
+            <CleanAsYouCodeWarning component={component} />
+          </InfoCard>
+        )}
+        <SonarLintPromotion qgConditions={qgStatuses?.flatMap((qg) => qg.failedConditions)} />
+      </Column>
+    </Spinner>
   );
 }
 
 export default React.memo(QualityGatePanel);
+
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--echoes-dimension-space-400);
+`;
+
+const Conditions = styled.div`
+  &:empty {
+    display: contents;
+  }
+`;

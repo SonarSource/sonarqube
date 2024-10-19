@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,13 +21,23 @@ package org.sonar.application.es;
 
 import com.google.common.collect.Sets;
 import com.google.common.net.HostAndPort;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.tls.HandshakeCertificates;
+import okhttp3.tls.HeldCertificate;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -76,8 +86,11 @@ public class EsConnectorImplTest {
 
   @Rule
   public MockWebServer mockWebServer = new MockWebServer();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-  EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())), null);
+  EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(),
+    mockWebServer.getPort())), null, null, null);
 
   @After
   public void after() {
@@ -105,11 +118,51 @@ public class EsConnectorImplTest {
     mockServerResponse(200, JSON_SUCCESS_RESPONSE);
     String password = "test-password";
 
-    EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())), password);
+    EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())),
+      password, null, null);
 
     assertThat(underTest.getClusterHealthStatus())
       .hasValue(ClusterHealthStatus.YELLOW);
     assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic ZWxhc3RpYzp0ZXN0LXBhc3N3b3Jk");
+  }
+
+  @Test
+  public void newInstance_whenKeyStorePassed_shouldCreateClient() throws GeneralSecurityException, IOException {
+    mockServerResponse(200, JSON_SUCCESS_RESPONSE);
+
+    Path keyStorePath = temp.newFile("keystore.p12").toPath();
+    String password = "password";
+
+    HandshakeCertificates certificate = createCertificate(mockWebServer.getHostName(), keyStorePath, password);
+    mockWebServer.useHttps(certificate.sslSocketFactory(), false);
+
+    EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(),
+      mockWebServer.getPort())), null, keyStorePath, password);
+
+    assertThat(underTest.getClusterHealthStatus()).hasValue(ClusterHealthStatus.YELLOW);
+  }
+
+  private HandshakeCertificates createCertificate(String hostName, Path keyStorePath, String password)
+    throws GeneralSecurityException, IOException {
+    HeldCertificate localhostCertificate = new HeldCertificate.Builder()
+      .addSubjectAlternativeName(hostName)
+      .build();
+
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      KeyStore ks = KeyStore.getInstance("PKCS12");
+      ks.load(null);
+      ks.setKeyEntry("alias", localhostCertificate.keyPair().getPrivate(), password.toCharArray(),
+        new java.security.cert.Certificate[]{localhostCertificate.certificate()});
+      ks.store(baos, password.toCharArray());
+
+      try (OutputStream outputStream = Files.newOutputStream(keyStorePath)) {
+        outputStream.write(baos.toByteArray());
+      }
+    }
+
+    return new HandshakeCertificates.Builder()
+      .heldCertificate(localhostCertificate)
+      .build();
   }
 
   private void mockServerResponse(int httpCode, String jsonResponse) {

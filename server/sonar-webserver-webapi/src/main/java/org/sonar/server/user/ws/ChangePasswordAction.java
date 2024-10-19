@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,21 @@
  */
 package org.sonar.server.user.ws;
 
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.Optional;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.ServletFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -46,13 +51,18 @@ import org.sonar.server.ws.ServletFilterHandler;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static org.sonarqube.ws.WsUtils.checkArgument;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.server.user.ws.ChangePasswordAction.PasswordMessage.NEW_PASSWORD_SAME_AS_OLD;
+import static org.sonar.server.user.ws.ChangePasswordAction.PasswordMessage.OLD_PASSWORD_INCORRECT;
+import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PREVIOUS_PASSWORD;
 
-public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAction {
+public class ChangePasswordAction extends HttpFilter implements BaseUsersWsAction {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ChangePasswordAction.class);
 
   private static final String CHANGE_PASSWORD = "change_password";
   private static final String CHANGE_PASSWORD_URL = "/" + UsersWs.API_USERS + "/" + CHANGE_PASSWORD;
@@ -106,7 +116,7 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       String login = getParamOrThrow(request, PARAM_LOGIN);
@@ -117,7 +127,7 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
         user = getUserOrThrow(dbSession, login);
         String previousPassword = getParamOrThrow(request, PARAM_PREVIOUS_PASSWORD);
         checkPreviousPassword(dbSession, user, previousPassword);
-        checkArgument(!previousPassword.equals(newPassword), "Password must be different from old password");
+        checkNewPasswordSameAsOld(newPassword, previousPassword);
         deleteTokensAndRefreshSession(request, response, dbSession, user);
       } else {
         userSession.checkIsSystemAdministrator();
@@ -128,20 +138,34 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
       setResponseStatus(response, HTTP_NO_CONTENT);
     } catch (BadRequestException badRequestException) {
       setResponseStatus(response, HTTP_BAD_REQUEST);
+      LOG.debug(badRequestException.getMessage(), badRequestException);
+    } catch (PasswordException passwordException) {
+      LOG.debug(passwordException.getMessage(), passwordException);
+      setResponseStatus(response, HTTP_BAD_REQUEST);
+      String message = passwordException.getPasswordMessage().map(pm -> pm.key).orElseGet(passwordException::getMessage);
+      writeJsonResponse(message, response);
     }
   }
 
-  private static String getParamOrThrow(ServletRequest request, String key) {
+  private static String getParamOrThrow(HttpRequest request, String key) throws PasswordException {
     String value = request.getParameter(key);
-    checkArgument(!isNullOrEmpty(value), MSG_PARAMETER_MISSING, key);
+    if (isNullOrEmpty(value)) {
+      throw new PasswordException(format(MSG_PARAMETER_MISSING, key));
+    }
     return value;
   }
 
-  private void checkPreviousPassword(DbSession dbSession, UserDto user, String password) {
+  private void checkPreviousPassword(DbSession dbSession, UserDto user, String password) throws PasswordException {
     try {
       localAuthentication.authenticate(dbSession, user, password, AuthenticationEvent.Method.BASIC);
     } catch (AuthenticationException ex) {
-      throw new IllegalArgumentException("Incorrect password");
+      throw new PasswordException(OLD_PASSWORD_INCORRECT, "Incorrect password");
+    }
+  }
+
+  private static void checkNewPasswordSameAsOld(String newPassword, String previousPassword) throws PasswordException {
+    if (previousPassword.equals(newPassword)) {
+      throw new PasswordException(NEW_PASSWORD_SAME_AS_OLD, "Password must be different from old password");
     }
   }
 
@@ -153,16 +177,14 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
     return user;
   }
 
-  private void deleteTokensAndRefreshSession(ServletRequest request, ServletResponse response, DbSession dbSession, UserDto user) {
+  private void deleteTokensAndRefreshSession(HttpRequest request, HttpResponse response, DbSession dbSession, UserDto user) {
     dbClient.sessionTokensDao().deleteByUser(dbSession, user);
     refreshJwtToken(request, response, user);
   }
 
-  private void refreshJwtToken(ServletRequest request, ServletResponse response, UserDto user) {
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    jwtHttpHandler.removeToken(httpRequest, httpResponse);
-    jwtHttpHandler.generateToken(user, httpRequest, httpResponse);
+  private void refreshJwtToken(HttpRequest request, HttpResponse response, UserDto user) {
+    jwtHttpHandler.removeToken(request, response);
+    jwtHttpHandler.generateToken(user, request, response);
   }
 
   private void updatePassword(DbSession dbSession, UserDto user, String newPassword) {
@@ -171,7 +193,52 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
     });
   }
 
-  private static void setResponseStatus(ServletResponse response, int newStatusCode) {
-    ((HttpServletResponse) response).setStatus(newStatusCode);
+  private static void setResponseStatus(HttpResponse response, int newStatusCode) {
+    response.setStatus(newStatusCode);
   }
+
+  private static void writeJsonResponse(String msg, HttpResponse response) {
+    Gson gson = new GsonBuilder()
+      .disableHtmlEscaping()
+      .create();
+
+    try (OutputStream output = response.getOutputStream();
+         JsonWriter writer = gson.newJsonWriter(new OutputStreamWriter(output, UTF_8))) {
+      response.setContentType(JSON);
+      writer.beginObject()
+        .name("result").value(msg);
+      writer.endObject();
+    } catch (Exception e) {
+      throw new IllegalStateException("Error while writing message", e);
+    }
+  }
+
+  enum PasswordMessage {
+    OLD_PASSWORD_INCORRECT("old_password_incorrect"),
+    NEW_PASSWORD_SAME_AS_OLD("new_password_same_as_old");
+
+    final String key;
+
+    PasswordMessage(String key) {
+      this.key = key;
+    }
+  }
+
+  private static class PasswordException extends Exception {
+    private final PasswordMessage passwordMessage;
+    public PasswordException(PasswordMessage passwordMessage, String message) {
+      super(message);
+      this.passwordMessage = passwordMessage;
+    }
+
+    public PasswordException(String message) {
+      super(message);
+      this.passwordMessage = null;
+    }
+
+    public Optional<PasswordMessage> getPasswordMessage() {
+      return Optional.ofNullable(passwordMessage);
+    }
+  }
+
 }

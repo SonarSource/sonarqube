@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ public class WebhookDeliveryDbTester {
 
   public WebhookDeliveryLiteDto insert(WebhookDeliveryDto dto) {
     dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
-    dbTester.getSession().commit();
+    dbTester.commit();
     return dto;
   }
 
@@ -45,7 +45,7 @@ public class WebhookDeliveryDbTester {
     WebhookDeliveryDto dto = newDto();
     stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));
     dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
-    dbTester.getSession().commit();
+    dbTester.commit();
     return dto;
   }
 
@@ -54,10 +54,10 @@ public class WebhookDeliveryDbTester {
     WebhookDeliveryDto dto = newDto();
     stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));
     String projectUuid = webhook.getProjectUuid();
-    dto.setComponentUuid(Objects.requireNonNull(projectUuid, "Project uuid of webhook cannot be null"));
+    dto.setProjectUuid(Objects.requireNonNull(projectUuid, "Project uuid of webhook cannot be null"));
     dto.setWebhookUuid(webhook.getUuid());
     dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
-    dbTester.getSession().commit();
+    dbTester.commit();
     return dto;
   }
 

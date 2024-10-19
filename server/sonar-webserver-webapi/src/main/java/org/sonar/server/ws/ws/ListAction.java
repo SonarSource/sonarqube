@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,8 +26,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
@@ -109,7 +109,7 @@ public class ListAction implements WebServicesWsAction {
   }
 
   private static void writeParameters(JsonWriter writer, WebService.Action action, boolean includeInternals) {
-    List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).collect(MoreCollectors.toList());
+    List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).toList();
     if (!params.isEmpty()) {
       // sort parameters by key
       Ordering<WebService.Param> ordering = Ordering.natural().onResultOf(WebService.Param::key);
@@ -144,7 +144,7 @@ public class ListAction implements WebServicesWsAction {
   private static void writeChangelog(JsonWriter writer, WebService.Action action) {
     writer.name("changelog").beginArray();
     action.changelog().stream()
-      .sorted(Comparator.comparing(Change::getVersion).reversed())
+      .sorted(Comparator.comparing((Change change) -> Version.parse(change.getVersion())).reversed())
       .forEach(changelog -> {
         writer.beginObject();
         writer.prop("description", changelog.getDescription());

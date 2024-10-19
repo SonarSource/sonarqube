@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
@@ -25,16 +26,16 @@ interface Props {
   currentEdition?: EditionKey;
 }
 
-export default function Header({ currentEdition }: Props) {
+export default function Header({ currentEdition }: Readonly<Props>) {
   return (
-    <header className="page-header" id="marketplace-header">
-      <h1 className="page-title">{translate('marketplace.page')}</h1>
+    <header id="marketplace-header">
+      <Title>{translate('marketplace.page')}</Title>
       {currentEdition && (
-        <h3 className="page-description">
+        <div className="sw-typo-semibold">
           {translate('marketplace.page.you_are_running', currentEdition)}
-        </h3>
+        </div>
       )}
-      <p className="page-description">
+      <p className="sw-mt-2">
         {currentEdition === 'datacenter'
           ? translate('marketplace.page.description_best_edition')
           : translate('marketplace.page.description')}

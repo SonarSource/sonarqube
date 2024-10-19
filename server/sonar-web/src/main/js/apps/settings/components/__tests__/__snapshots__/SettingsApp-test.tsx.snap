@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`should render default view correctly 1`] = `
-<withRouter(SettingsAppRenderer)
-  definitions={[]}
-  loading={false}
-/>
-`;

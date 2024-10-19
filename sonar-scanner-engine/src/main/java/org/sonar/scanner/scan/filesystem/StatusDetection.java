@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.repository.FileData;
@@ -41,11 +41,23 @@ public class StatusDetection {
     this.scmChangedFiles = scmChangedFiles;
   }
 
+  public boolean isScmStatusAvailable() {
+    return scmChangedFiles.isValid();
+  }
+
   InputFile.Status status(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {
-    if (scmChangedFiles.isValid()) {
-      return checkChangedWithScm(inputFile);
+    InputFile.Status statusFromScm = findStatusFromScm(inputFile);
+    if (statusFromScm != null) {
+      return statusFromScm;
     }
     return checkChangedWithProjectRepositories(moduleKeyWithBranch, inputFile, hash);
+  }
+
+  InputFile.Status findStatusFromScm(DefaultInputFile inputFile) {
+    if (isScmStatusAvailable()) {
+      return checkChangedWithScm(inputFile);
+    }
+    return null;
   }
 
   private InputFile.Status checkChangedWithProjectRepositories(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {

@@ -1,46 +1,46 @@
 {
   "tasks": [
     {
-      "organization": "my-org-1",
-      "id": "BU_dO1vsORa8_beWCwsP",
+      "id": "AYhSC2-LY0CHkWJxvNA9",
       "type": "REPORT",
-      "componentId": "AU-Tpxb--iU5OvuD2FLy",
-      "componentKey": "project_1",
-      "componentName": "Project One",
+      "componentId": "AYhNmk00XxCL_lBVBziT",
+      "componentKey": "sonarsource_test_AYhCAUXoEy1XQQcbVndf",
+      "componentName": "test-scanner-maven",
       "componentQualifier": "TRK",
-      "analysisId": "AU-TpxcB-iU5Ovu12345",
+      "analysisId": "AYhSC3WDE6ILQDIMAPIp",
       "status": "SUCCESS",
-      "submittedAt": "2015-08-13T23:34:59+0200",
-      "submitterLogin": "john",
-      "startedAt": "2015-08-13T23:35:00+0200",
-      "executedAt": "2015-08-13T23:35:10+0200",
-      "executionTimeMs": 10000,
-      "logs": false,
-      "hasErrorStacktrace": false,
-      "hasScannerContext": true
+      "submittedAt": "2023-05-25T10:34:21+0200",
+      "submitterLogin": "admin",
+      "startedAt": "2023-05-25T10:34:22+0200",
+      "executedAt": "2023-05-25T10:34:25+0200",
+      "executionTimeMs": 2840,
+      "hasScannerContext": true,
+      "warningCount": 2,
+      "warnings": [
+        "The properties \u0027sonar.login\u0027 and \u0027sonar.password\u0027 are deprecated and will be removed in the future. Please pass a token with the \u0027sonar.token\u0027 property instead.",
+        "Missing blame information for 2 files. This may lead to some features not working correctly. Please check the analysis logs and refer to \u003ca href\u003d\"https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/scm-integration/\" rel\u003d\"noopener noreferrer\" target\u003d\"_blank\"\u003ethe documentation\u003c/a\u003e."
+      ] ,
+      "infoMessages": [
+        "Successfully synchronized 5 users.",
+        "Other information message"
+      ]
     },
     {
-      "organization": "my-org-2",
-      "id": "AU_dO1vsORa8_beWCwmP",
-      "taskType": "REPORT",
-      "componentId": "AU_dO1vlORa8_beWCwmO",
-      "componentKey": "project_2",
-      "componentName": "Project Two",
-      "componentQualifier": "TRK",
-      "status": "FAILED",
-      "submittedAt": "2015-09-17T23:34:59+0200",
-      "startedAt": "2015-09-17T23:35:00+0200",
-      "executedAt": "2015-08-13T23:37:00+0200",
-      "executionTimeMs": 120000,
-      "logs": false,
-      "errorMessage": "Failed to unzip analysis report",
-      "hasErrorStacktrace": true,
-      "hasScannerContext": true
+      "id": "71",
+      "type": "GITHUB_AUTH_PROVISIONING",
+      "status": "SUCCESS",
+      "submittedAt": "1970-01-01T01:00:00+0100",
+      "startedAt": "2023-05-23T10:28:41+0200",
+      "executedAt": "2023-05-23T10:29:45+0200",
+      "executionTimeMs": 64861,
+      "hasScannerContext": false,
+      "warningCount": 0,
+      "warnings": []
     }
   ],
   "paging": {
     "pageIndex": 1,
-    "pageSize": 2,
-    "total": 10
+    "pageSize": 10,
+    "total": 2
   }
 }

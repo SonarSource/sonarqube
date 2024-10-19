@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.db.scim;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagineable;
 
 public interface ScimUserMapper {
 
@@ -36,9 +36,13 @@ public interface ScimUserMapper {
 
   void insert(@Param("scimUserDto") ScimUserDto scimUserDto);
 
-  List<ScimUserDto> findScimUsers(@Param("query") ScimUserQuery scimUserQuery, RowBounds rowBounds);
+  List<ScimUserWithUsernameDto> findScimUsers(@Param("query") ScimUserQuery scimUserQuery, @Param("pagination") Pagineable pagination);
 
   int countScimUsers(@Param("query") ScimUserQuery scimUserQuery);
 
   void deleteByUserUuid(@Param("userUuid") String userUuid);
+
+  void deleteByScimUuid(@Param("scimUuid") String scimUuid);
+
+  void deleteAll();
 }

@@ -17,7 +17,6 @@ target/
 out/
 
 # ---- VS Code
-.vscode/
 *.code-workspace
 
 # Directories generated on build on Windows

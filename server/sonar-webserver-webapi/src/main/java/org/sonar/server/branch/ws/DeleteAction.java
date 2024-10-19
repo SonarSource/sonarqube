@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,9 +30,11 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.sonar.server.branch.ws.BranchesWs.addBranchParam;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
@@ -40,7 +42,6 @@ import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_DELETE
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.project.Project.from;
 
 public class DeleteAction implements BranchWsAction {
   private final DbClient dbClient;
@@ -85,17 +86,14 @@ public class DeleteAction implements BranchWsAction {
         dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey),
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
-      if (branch.isMain()) {
-        throw new IllegalArgumentException("Only non-main branches can be deleted");
-      }
       componentCleanerService.deleteBranch(dbSession, branch);
-      projectLifeCycleListeners.onProjectBranchesDeleted(singleton(from(project)));
+      projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)), emptySet());
       response.noContent();
     }
   }
 
   private void checkPermission(ProjectDto project) {
-    userSession.checkProjectPermission(UserRole.ADMIN, project);
+    userSession.checkEntityPermission(UserRole.ADMIN, project);
   }
 
 }

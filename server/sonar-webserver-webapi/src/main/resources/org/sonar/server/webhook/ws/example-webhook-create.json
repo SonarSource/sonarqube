@@ -3,6 +3,6 @@
     "key": "uuid",
     "name": "My webhook",
     "url": "https://www.my-webhook-listener.com/sonar",
-    "secret": "your_secret"
+    "hasSecret": true
   }
 }

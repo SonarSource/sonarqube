@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,12 @@ package org.sonar.xoo.extensions;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.PostJobDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XooPostJob implements PostJob {
 
-  private static final Logger LOG = Loggers.get(XooPostJob.class);
+  private static final Logger LOG = LoggerFactory.getLogger(XooPostJob.class);
 
   @Override
   public void describe(PostJobDescriptor descriptor) {

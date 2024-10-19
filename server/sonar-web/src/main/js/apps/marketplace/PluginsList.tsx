@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Card, Table, TableRow } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { isAvailablePlugin, isInstalledPlugin, PendingPlugin, Plugin } from '../../types/plugins';
+import { translate } from '../../helpers/l10n';
+import { PendingPlugin, Plugin, isAvailablePlugin, isInstalledPlugin } from '../../types/plugins';
 import PluginAvailable from './components/PluginAvailable';
 import PluginInstalled from './components/PluginInstalled';
 
 export interface PluginsListProps {
-  plugins: Plugin[];
   pending: {
     installing: PendingPlugin[];
-    updating: PendingPlugin[];
     removing: PendingPlugin[];
+    updating: PendingPlugin[];
   };
+  plugins: Plugin[];
   readOnly: boolean;
   refreshPending: () => void;
 }
@@ -48,39 +50,42 @@ function getPluginStatus(plugin: Plugin, pending: PluginsListProps['pending']): 
   return undefined;
 }
 
-export default function PluginsList(props: PluginsListProps) {
+export default function PluginsList(props: Readonly<PluginsListProps>) {
   const { pending, plugins, readOnly } = props;
   const installedPlugins = plugins.filter(isInstalledPlugin);
-  return (
-    <div className="boxed-group boxed-group-inner" id="marketplace-plugins">
-      <ul>
-        {sortBy(plugins, ({ name }) => name).map((plugin) => (
-          <li className="panel panel-vertical" key={plugin.key}>
-            <table className="marketplace-plugin-table">
-              <tbody>
-                {isInstalledPlugin(plugin) && (
-                  <PluginInstalled
-                    plugin={plugin}
-                    readOnly={readOnly}
-                    refreshPending={props.refreshPending}
-                    status={getPluginStatus(plugin, pending)}
-                  />
-                )}
 
-                {isAvailablePlugin(plugin) && (
-                  <PluginAvailable
-                    installedPlugins={installedPlugins}
-                    plugin={plugin}
-                    readOnly={readOnly}
-                    refreshPending={props.refreshPending}
-                    status={getPluginStatus(plugin, pending)}
-                  />
-                )}
-              </tbody>
-            </table>
-          </li>
+  const columns = readOnly ? ['25%', 'auto', '20%'] : ['25%', 'auto', '20%', '20%'];
+
+  return (
+    <Card id="marketplace-plugins">
+      <Table
+        aria-label={translate('marketplace.page.plugins')}
+        columnCount={columns.length}
+        columnWidths={columns}
+      >
+        {sortBy(plugins, ({ name }) => name).map((plugin) => (
+          <TableRow key={plugin.key}>
+            {isInstalledPlugin(plugin) && (
+              <PluginInstalled
+                plugin={plugin}
+                readOnly={readOnly}
+                refreshPending={props.refreshPending}
+                status={getPluginStatus(plugin, pending)}
+              />
+            )}
+
+            {isAvailablePlugin(plugin) && (
+              <PluginAvailable
+                installedPlugins={installedPlugins}
+                plugin={plugin}
+                readOnly={readOnly}
+                refreshPending={props.refreshPending}
+                status={getPluginStatus(plugin, pending)}
+              />
+            )}
+          </TableRow>
         ))}
-      </ul>
-    </div>
+      </Table>
+    </Card>
   );
 }

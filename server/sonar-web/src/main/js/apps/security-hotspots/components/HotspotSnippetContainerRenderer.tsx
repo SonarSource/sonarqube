@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, themeColor } from 'design-system';
 import * as React from 'react';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
@@ -37,53 +39,30 @@ import HotspotSnippetHeader from './HotspotSnippetHeader';
 
 export interface HotspotSnippetContainerRendererProps {
   branchLike?: BranchLike;
+  component: Component;
   highlightedSymbols: string[];
   hotspot: Hotspot;
   loading: boolean;
   locations: { [line: number]: LinearIssueLocation[] };
-  selectedHotspotLocation?: number;
-  onCommentButtonClick: () => void;
   onExpandBlock: (direction: ExpandDirection) => Promise<void>;
-  onSymbolClick: (symbols: string[]) => void;
   onLocationSelect: (index: number) => void;
+  onSymbolClick: (symbols: string[]) => void;
+  secondaryLocations: FlowLocation[];
+  selectedHotspotLocation?: number;
   sourceLines: SourceLine[];
   sourceViewerFile: SourceViewerFile;
-  secondaryLocations: FlowLocation[];
-  component: Component;
 }
 
 const noop = () => undefined;
-const SCROLL_DELAY = 100;
 const EXPAND_ANIMATION_SPEED = 200;
-
-const TOP_OFFSET = 100; // 5 lines above
-const BOTTOM_OFFSET = 28; // 1 line below + margin
-
-/* Exported for testing */
-export function getScrollHandler(scrollableRef: React.RefObject<HTMLDivElement>) {
-  return (element: Element, offset?: number, smooth = true) => {
-    /* We need this delay to let the parent resize itself before scrolling */
-    setTimeout(() => {
-      const parent = scrollableRef.current;
-      if (parent) {
-        scrollToElement(element, {
-          parent,
-          topOffset: offset ?? TOP_OFFSET,
-          bottomOffset: offset ?? BOTTOM_OFFSET,
-          smooth,
-        });
-      }
-    }, SCROLL_DELAY);
-  };
-}
 
 /* Exported for testing */
 export async function animateExpansion(
   scrollableRef: React.RefObject<HTMLDivElement>,
   expandBlock: (direction: ExpandDirection) => Promise<void>,
-  direction: ExpandDirection
+  direction: ExpandDirection,
 ) {
-  const wrapper = scrollableRef.current?.querySelector<HTMLElement>('.snippet');
+  const wrapper = scrollableRef.current?.querySelector<HTMLElement>('.it__source-viewer-code');
   const table = wrapper?.firstChild as HTMLElement;
 
   if (!wrapper || !table) {
@@ -129,19 +108,19 @@ export async function animateExpansion(
 }
 
 export default function HotspotSnippetContainerRenderer(
-  props: HotspotSnippetContainerRendererProps
+  props: Readonly<HotspotSnippetContainerRendererProps>,
 ) {
   const {
-    branchLike,
     highlightedSymbols,
     hotspot,
     loading,
     locations: primaryLocations,
+    secondaryLocations,
+    selectedHotspotLocation,
     sourceLines,
     sourceViewerFile,
-    secondaryLocations,
     component,
-    selectedHotspotLocation,
+    branchLike,
   } = props;
 
   const scrollableRef = React.useRef<HTMLDivElement>(null);
@@ -153,12 +132,10 @@ export default function HotspotSnippetContainerRenderer(
     () => (
       <HotspotPrimaryLocationBox
         hotspot={hotspot}
-        onCommentClick={props.onCommentButtonClick}
-        scroll={getScrollHandler(scrollableRef)}
         secondaryLocationSelected={secondaryLocationSelected}
       />
     ),
-    [hotspot, secondaryLocationSelected, props.onCommentButtonClick]
+    [hotspot, secondaryLocationSelected],
   );
 
   const renderHotspotBoxInLine = (line: SourceLine) =>
@@ -170,14 +147,15 @@ export default function HotspotSnippetContainerRenderer(
       : undefined;
 
   return (
-    <>
-      {!loading && sourceLines.length === 0 && (
-        <p className="spacer-bottom">{translate('hotspots.no_associated_lines')}</p>
+    <Spinner isLoading={loading}>
+      {sourceLines.length === 0 && (
+        <FlagMessage variant="info">{translate('hotspots.no_associated_lines')}</FlagMessage>
       )}
-      <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
-      <div className="hotspot-snippet-container bordered" ref={scrollableRef}>
-        <DeferredSpinner className="big-spacer" loading={loading}>
-          {sourceLines.length > 0 && (
+
+      {sourceLines.length > 0 && (
+        <>
+          <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
+          <SourceFileWrapper className="sw-box-border sw-w-full sw-rounded-1" ref={scrollableRef}>
             <SnippetViewer
               component={sourceViewerFile}
               displayLineNumberOptions={false}
@@ -189,18 +167,21 @@ export default function HotspotSnippetContainerRenderer(
               highlightedLocationMessage={highlightedLocation}
               highlightedSymbols={highlightedSymbols}
               index={0}
-              issue={hotspot}
-              lastSnippetOfLastGroup={false}
               locations={secondaryLocations}
               locationsByLine={primaryLocations}
               onLocationSelect={props.onLocationSelect}
               renderAdditionalChildInLine={renderHotspotBoxInLine}
               renderDuplicationPopup={noop}
               snippet={sourceLines}
+              hideLocationIndex={secondaryLocations.length !== 0}
             />
-          )}
-        </DeferredSpinner>
-      </div>
-    </>
+          </SourceFileWrapper>
+        </>
+      )}
+    </Spinner>
   );
 }
+
+const SourceFileWrapper = withTheme(styled.div`
+  background-color: ${themeColor('codeLine')};
+`);

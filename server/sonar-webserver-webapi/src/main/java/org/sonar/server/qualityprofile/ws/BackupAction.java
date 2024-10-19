@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.io.OutputStreamWriter;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
@@ -54,7 +55,8 @@ public class BackupAction implements QProfileWsAction {
       .setSince("5.2")
       .setDescription("Backup a quality profile in XML form. The exported profile can be restored through api/qualityprofiles/restore.")
       .setResponseExample(getClass().getResource("backup-example.xml"))
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("10.3", "The 'priority' and 'type' fields of the rule XML object are deprecated."));
 
     QProfileReference.defineParams(action, languages);
     QProfileWsSupport.createOrganizationParam(action).setSince("6.4");

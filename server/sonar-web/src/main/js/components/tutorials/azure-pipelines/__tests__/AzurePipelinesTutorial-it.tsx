@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,13 +24,12 @@ import * as React from 'react';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
+import { getCopyToClipboardValue, getTutorialBuildButtons } from '../../test-utils';
 import { OSs } from '../../types';
 import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePipelinesTutorial';
-
-jest.mock('../../../../api/user-tokens');
 
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
@@ -46,21 +45,18 @@ afterEach(() => {
   tokenMock.reset();
 });
 
-it('should render correctly and allow navigating between the different steps', async () => {
+it('should render correctly and allow token generation', async () => {
   renderAzurePipelinesTutorial();
   const user = userEvent.setup();
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.tutorial.with.azure_pipelines.title' })
+    screen.getByRole('heading', { name: 'onboarding.tutorial.with.azure_pipelines.title' }),
   ).toBeInTheDocument();
 
-  //// Default step.
+  // Default step.
   assertDefaultStepIsCorrectlyRendered();
 
-  // Continue.
-  await goToNextStep(user);
-
-  //// Token step.
+  // Token step.
   assertServiceEndpointStepIsCorrectlyRendered();
 
   // Generate a token.
@@ -68,109 +64,83 @@ it('should render correctly and allow navigating between the different steps', a
   const modal = screen.getByRole('dialog');
   await clickButton(user, 'onboarding.token.generate', modal);
   const lastToken = tokenMock.getLastToken();
-  if (lastToken === undefined) {
-    throw new Error("Couldn't find the latest generated token.");
-  }
-  expect(lastToken.type).toBe(TokenType.Global);
-  expect(within(modal).getByRole('alert')).toHaveTextContent(
-    `users.tokens.new_token_created.${lastToken.token}`
-  );
+
+  expect(lastToken).toBeDefined();
+
+  expect(lastToken!.type).toBe(TokenType.Global);
+  expect(
+    within(modal).getByText(`users.tokens.new_token_created.${lastToken!.token}`),
+  ).toBeInTheDocument();
   await clickButton(user, 'continue', modal);
 
-  // Continue.
-  await goToNextStep(user);
-
-  //// Analysis step: .NET
-  await clickButton(user, 'onboarding.build.dotnet');
+  // Analysis step: .NET
+  await user.click(getTutorialBuildButtons().dotnetBuildButton.get());
   assertDotNetStepIsCorrectlyRendered();
 
-  //// Analysis step: Maven
-  await clickButton(user, 'onboarding.build.maven');
+  // Analysis step: Maven
+  await user.click(getTutorialBuildButtons().mavenBuildButton.get());
   assertMavenStepIsCorrectlyRendered();
 
-  //// Analysis step: Gradle
-  await clickButton(user, 'onboarding.build.gradle');
+  // Analysis step: Gradle
+  await user.click(getTutorialBuildButtons().gradleBuildButton.get());
   assertGradleStepIsCorrectlyRendered();
 
-  //// Analysis step: C Family
-  await clickButton(user, 'onboarding.build.cfamily');
+  // Analysis step: C Family
+  await user.click(getTutorialBuildButtons().cppBuildButton.get());
+  // Default: Automatic configuration
+  // expect linux/win/macos buttons not to be present
+  expect(getTutorialBuildButtons().linuxButton.query()).not.toBeInTheDocument();
+  expect(getTutorialBuildButtons().windowsButton.query()).not.toBeInTheDocument();
+  expect(getTutorialBuildButtons().macosButton.query()).not.toBeInTheDocument();
+  assertAutomaticCppStepIsCorrectlyRendered();
 
-  // OS's
-  await clickButton(user, `onboarding.build.other.os.${OSs.Linux}`);
-  assertCFamilyStepIsCorrectlyRendered(OSs.Linux);
+  // Switch to manual configuration
+  await user.click(getTutorialBuildButtons().autoConfigManual.get());
+  await user.click(getTutorialBuildButtons().linuxButton.get());
+  assertManualCppStepIsCorrectlyRendered(OSs.Linux);
+  await user.click(getTutorialBuildButtons().arm64Button.get());
+  assertManualCppStepIsCorrectlyRendered(OSs.Linux, 'arm64');
+  await user.click(getTutorialBuildButtons().windowsButton.get());
+  assertObjCStepIsCorrectlyRendered(OSs.Windows);
+  await user.click(getTutorialBuildButtons().macosButton.get());
+  assertObjCStepIsCorrectlyRendered(OSs.MacOS);
 
-  await clickButton(user, `onboarding.build.other.os.${OSs.Windows}`);
-  assertCFamilyStepIsCorrectlyRendered(OSs.Windows);
+  // Analysis step: C Family
+  await user.click(getTutorialBuildButtons().objCBuildButton.get());
+  await user.click(getTutorialBuildButtons().linuxButton.get());
+  await user.click(getTutorialBuildButtons().x86_64Button.get());
+  assertObjCStepIsCorrectlyRendered(OSs.Linux);
+  await user.click(getTutorialBuildButtons().arm64Button.get());
+  assertObjCStepIsCorrectlyRendered(OSs.Linux, 'arm64');
+  await user.click(getTutorialBuildButtons().windowsButton.get());
+  assertObjCStepIsCorrectlyRendered(OSs.Windows);
+  await user.click(getTutorialBuildButtons().macosButton.get());
+  assertObjCStepIsCorrectlyRendered(OSs.MacOS);
 
-  await clickButton(user, `onboarding.build.other.os.${OSs.MacOS}`);
-  assertCFamilyStepIsCorrectlyRendered(OSs.MacOS);
-
-  //// Analysis step: Other
-  await clickButton(user, 'onboarding.build.other');
+  // Analysis step: Dart
+  await user.click(getTutorialBuildButtons().dartBuildButton.get());
   assertOtherStepIsCorrectlyRendered();
 
-  //// Finish tutorial
-  await clickButton(user, 'tutorials.finish');
+  // Analysis step: Other
+  await user.click(getTutorialBuildButtons().otherBuildButton.get());
+  assertOtherStepIsCorrectlyRendered();
+
+  // Finish tutorial
   assertFinishStepIsCorrectlyRendered();
 });
 
-it('allows to navigate back to a previous step', async () => {
-  renderAzurePipelinesTutorial();
-  const user = userEvent.setup();
-
-  // No clickable steps.
-  expect(
-    screen.queryByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
-    })
-  ).not.toBeInTheDocument();
-
-  // Go to the next steps.
-  await goToNextStep(user);
-  await goToNextStep(user);
-
-  // The first 2 steps become clickable.
-  expect(
-    screen.getByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
-    })
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', {
-      name: '2 onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
-    })
-  ).toBeInTheDocument();
-
-  // Navigate back to the first step.
-  await clickButton(user, '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title');
-
-  // No more clickable steps.
-  expect(
-    screen.queryByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
-    })
-  ).not.toBeInTheDocument();
-});
-
-it('should not offer CFamily analysis if the language is not available', async () => {
+it('should not offer CFamily analysis if the language is not available', () => {
   renderAzurePipelinesTutorial(undefined, { languages: {} });
-  const user = userEvent.setup();
 
-  // Go to the analysis step.
-  await goToNextStep(user);
-  await goToNextStep(user);
-
-  expect(screen.getByRole('button', { name: 'onboarding.build.dotnet' })).toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'onboarding.build.cfamily' })
-  ).not.toBeInTheDocument();
+  expect(getTutorialBuildButtons().dotnetBuildButton.get()).toBeInTheDocument();
+  expect(getTutorialBuildButtons().cppBuildButton.query()).not.toBeInTheDocument();
 });
 
 function assertDefaultStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
       name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
-    })
+    }),
   ).toBeInTheDocument();
 }
 
@@ -178,11 +148,11 @@ function assertServiceEndpointStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
       name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
-    })
+    }),
   ).toBeInTheDocument();
-  expect(getCopyToClipboardValue()).toBe('https://sonarqube.example.com/');
+  expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toBe('https://sonarqube.example.com/');
   expect(
-    screen.getByRole('button', { name: 'onboarding.token.generate.long' })
+    screen.getByRole('button', { name: 'onboarding.token.generate.long' }),
   ).toBeInTheDocument();
 }
 
@@ -190,41 +160,65 @@ function assertDotNetStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
       name: 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title',
-    })
+    }),
   ).toBeInTheDocument();
-  expect(getCopyToClipboardValue()).toBe('foo');
+
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
 }
 
 function assertMavenStepIsCorrectlyRendered() {
-  expect(getCopyToClipboardValue()).toMatchSnapshot('maven, copy additional properties');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('maven, copy additional properties');
 }
 
 function assertGradleStepIsCorrectlyRendered() {
-  expect(getCopyToClipboardValue()).toMatchSnapshot('gradle, copy additional properties');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('gradle, copy additional properties');
 }
 
-function assertCFamilyStepIsCorrectlyRendered(os: string) {
-  expect(getCopyToClipboardValue(0)).toMatchSnapshot(`cfamily ${os}, copy shell script`);
-  expect(getCopyToClipboardValue(1)).toBe('foo');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot(`cfamily ${os}, copy additional properties`);
-  expect(getCopyToClipboardValue(3)).toMatchSnapshot(`cfamily ${os}, copy build-wrapper command`);
+function assertObjCStepIsCorrectlyRendered(os: string, arch: string = 'x86_64') {
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    `objectivec ${os} ${arch}, copy shell script`,
+  );
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
+  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
+    `objectivec ${os} ${arch}, copy additional properties`,
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    `objectivec ${os} ${arch}, copy build-wrapper command`,
+  );
+}
+
+function assertAutomaticCppStepIsCorrectlyRendered() {
+  assertOtherStepIsCorrectlyRendered();
+}
+
+function assertManualCppStepIsCorrectlyRendered(os: string, arch: string = 'x86_64') {
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    `manual-cpp ${os} ${arch}, copy shell script`,
+  );
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
+  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
+    `manual-cpp ${os} ${arch}, copy additional properties`,
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    `manual-cpp ${os} ${arch}, copy build-wrapper command`,
+  );
 }
 
 function assertOtherStepIsCorrectlyRendered() {
-  expect(getCopyToClipboardValue()).toBe('foo');
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
 }
 
 function assertFinishStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
-      name: 'onboarding.tutorial.ci_outro.all_set.title',
-    })
+      name: 'onboarding.tutorial.ci_outro.done',
+    }),
   ).toBeInTheDocument();
 }
 
 function renderAzurePipelinesTutorial(
   props: Partial<AzurePipelinesTutorialProps> = {},
-  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {}
+  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {},
 ) {
   return renderApp(
     '/',
@@ -232,10 +226,10 @@ function renderAzurePipelinesTutorial(
       baseUrl="https://sonarqube.example.com/"
       component={mockComponent({ key: 'foo' })}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}
-      willRefreshAutomatically={true}
+      willRefreshAutomatically
       {...props}
     />,
-    { languages }
+    { languages },
   );
 }
 
@@ -245,12 +239,4 @@ async function clickButton(user: UserEvent, name: string, context?: HTMLElement)
   } else {
     await user.click(screen.getByRole('button', { name }));
   }
-}
-
-async function goToNextStep(user: UserEvent) {
-  await clickButton(user, 'continue');
-}
-
-function getCopyToClipboardValue(i = 0, name = 'copy_to_clipboard') {
-  return screen.getAllByRole('button', { name })[i].getAttribute('data-clipboard-text');
 }

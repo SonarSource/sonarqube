@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,20 +27,17 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
 
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityStatusAction implements CeWsAction {
@@ -66,10 +63,6 @@ public class ActivityStatusAction implements CeWsAction {
       .setResponseExample(getClass().getResource("activity_status-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDeprecatedSince("8.8")
-      .setDescription("Id of the component (project) to filter on")
-      .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(PARAM_COMPONENT)
       .setDescription("Key of the component (project) to filter on")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
@@ -78,7 +71,8 @@ public class ActivityStatusAction implements CeWsAction {
       new Change("6.6", "New field 'inProgress' in response"),
       new Change("7.8", "New field 'pendingTime' in response, only included when there are pending tasks"),
       new Change("8.8", "Parameter 'componentId' is now deprecated."),
-      new Change("8.8", "Parameter 'componentKey' is now removed. Please use parameter 'component' instead."));
+      new Change("8.8", "Parameter 'componentKey' is now removed. Please use parameter 'component' instead."),
+      new Change("10.0", "Remove deprecated field 'componentId'"));
   }
 
   @Override
@@ -89,14 +83,14 @@ public class ActivityStatusAction implements CeWsAction {
 
   private ActivityStatusWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> component = searchComponent(dbSession, request);
-      String componentUuid = component.map(ComponentDto::uuid).orElse(null);
-      checkPermissions(component.orElse(null));
-      int pendingCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
-      int inProgressCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, componentUuid);
-      int failingCount = dbClient.ceActivityDao().countLastByStatusAndMainComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
+      Optional<EntityDto> entity = searchEntity(dbSession, request);
+      String entityUuid = entity.map(EntityDto::getUuid).orElse(null);
+      checkPermissions(entity.orElse(null));
+      int pendingCount = dbClient.ceQueueDao().countByStatusAndEntityUuid(dbSession, CeQueueDto.Status.PENDING, entityUuid);
+      int inProgressCount = dbClient.ceQueueDao().countByStatusAndEntityUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, entityUuid);
+      int failingCount = dbClient.ceActivityDao().countLastByStatusAndEntityUuid(dbSession, CeActivityDto.Status.FAILED, entityUuid);
 
-      Optional<Long> creationDate = dbClient.ceQueueDao().selectCreationDateOfOldestPendingByMainComponentUuid(dbSession, componentUuid);
+      Optional<Long> creationDate = dbClient.ceQueueDao().selectCreationDateOfOldestPendingByEntityUuid(dbSession, entityUuid);
 
       ActivityStatusWsResponse.Builder builder = ActivityStatusWsResponse.newBuilder()
         .setPending(pendingCount)
@@ -112,42 +106,31 @@ public class ActivityStatusAction implements CeWsAction {
     }
   }
 
-  private Optional<ComponentDto> searchComponent(DbSession dbSession, Request request) {
-    ComponentDto component = null;
-    if (hasComponentInRequest(request)) {
-      component = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), COMPONENT_ID_AND_KEY);
+  private Optional<EntityDto> searchEntity(DbSession dbSession, Request request) {
+    EntityDto entity = null;
+    if (request.getComponentKey() != null) {
+      entity = componentFinder.getEntityByKey(dbSession, request.getComponentKey());
     }
-    return Optional.ofNullable(component);
+    return Optional.ofNullable(entity);
   }
 
-  private void checkPermissions(@Nullable ComponentDto component) {
-    if (component != null) {
-      userSession.checkComponentPermission(UserRole.ADMIN, component);
+  private void checkPermissions(@Nullable EntityDto entity) {
+    if (entity != null) {
+      userSession.checkEntityPermission(UserRole.ADMIN, entity);
     } else {
       userSession.checkIsSystemAdministrator();
     }
   }
 
-  private static boolean hasComponentInRequest(Request request) {
-    return request.getComponentId() != null || request.getComponentKey() != null;
-  }
-
   private static Request toWsRequest(org.sonar.api.server.ws.Request request) {
-    return new Request(request.param(PARAM_COMPONENT_ID), request.param(PARAM_COMPONENT));
+    return new Request(request.param(PARAM_COMPONENT));
   }
 
   private static class Request {
-    private final String componentId;
     private final String componentKey;
 
-    Request(@Nullable String componentId, @Nullable String componentKey) {
-      this.componentId = componentId;
+    Request(@Nullable String componentKey) {
       this.componentKey = componentKey;
-    }
-
-    @CheckForNull
-    public String getComponentId() {
-      return componentId;
     }
 
     @CheckForNull

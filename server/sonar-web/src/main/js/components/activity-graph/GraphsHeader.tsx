@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,81 +17,79 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import { ButtonGroup, InputSize, Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
 import { Metric } from '../../types/types';
-import Select from '../controls/Select';
 import AddGraphMetric from './AddGraphMetric';
-import './styles.css';
 import { getGraphTypes, isCustomGraph } from './utils';
 
 interface Props {
-  addCustomMetric?: (metric: string) => void;
   className?: string;
-  removeCustomMetric?: (metric: string) => void;
   graph: GraphType;
   metrics: Metric[];
   metricsTypeFilter?: string[];
+  onAddCustomMetric?: (metric: string) => void;
+  onRemoveCustomMetric?: (metric: string) => void;
+  onUpdateGraph: (graphType: string) => void;
   selectedMetrics?: string[];
-  updateGraph: (graphType: string) => void;
 }
 
-export default class GraphsHeader extends React.PureComponent<Props> {
-  handleGraphChange = (option: { value: string }) => {
-    if (option.value !== this.props.graph) {
-      this.props.updateGraph(option.value);
-    }
-  };
+export default function GraphsHeader(props: Props) {
+  const {
+    className,
+    graph,
+    metrics,
+    metricsTypeFilter,
+    onUpdateGraph,
+    selectedMetrics = [],
+  } = props;
 
-  render() {
-    const {
-      addCustomMetric,
-      className,
-      graph,
-      metrics,
-      metricsTypeFilter,
-      removeCustomMetric,
-      selectedMetrics = [],
-    } = this.props;
+  const handleGraphChange = React.useCallback(
+    (value: GraphType) => {
+      if (value !== graph) {
+        onUpdateGraph(value);
+      }
+    },
+    [graph, onUpdateGraph],
+  );
 
-    const types = getGraphTypes(addCustomMetric === undefined || removeCustomMetric === undefined);
+  const noCustomGraph =
+    props.onAddCustomMetric === undefined || props.onRemoveCustomMetric === undefined;
 
-    const selectOptions = types.map((type) => ({
-      label: translate('project_activity.graphs', type),
-      value: type,
-    }));
+  return (
+    <div className={className}>
+      <ButtonGroup>
+        <label htmlFor="graph-type" className="sw-typo-semibold">
+          {translate('project_activity.graphs.choose_type')}
+        </label>
+        <Select
+          id="graph-type"
+          hasDropdownAutoWidth
+          onChange={handleGraphChange}
+          isNotClearable
+          value={graph}
+          size={InputSize.Small}
+          data={getGraphTypes(noCustomGraph).map((type) => ({
+            value: type,
+            label: translate('project_activity.graphs', type),
+          }))}
+        />
 
-    return (
-      <div className={classNames(className, 'position-relative')}>
-        <div className="display-flex-end">
-          <div className="display-flex-column">
-            <label className="text-bold little-spacer-bottom" id="graph-select-label">
-              {translate('project_activity.graphs.choose_type')}
-            </label>
-            <Select
-              aria-labelledby="graph-select-label"
-              className="input-medium"
-              isSearchable={false}
-              onChange={this.handleGraphChange}
-              options={selectOptions}
-              value={selectOptions.find((option) => option.value === graph)}
+        {isCustomGraph(graph) &&
+          props.onAddCustomMetric !== undefined &&
+          props.onRemoveCustomMetric !== undefined && (
+            <AddGraphMetric
+              onAddMetric={props.onAddCustomMetric}
+              metrics={metrics}
+              metricsTypeFilter={metricsTypeFilter}
+              onRemoveMetric={props.onRemoveCustomMetric}
+              selectedMetrics={selectedMetrics}
             />
-          </div>
-          {isCustomGraph(graph) &&
-            addCustomMetric !== undefined &&
-            removeCustomMetric !== undefined && (
-              <AddGraphMetric
-                addMetric={addCustomMetric}
-                metrics={metrics}
-                metricsTypeFilter={metricsTypeFilter}
-                removeMetric={removeCustomMetric}
-                selectedMetrics={selectedMetrics}
-              />
-            )}
-        </div>
-      </div>
-    );
-  }
+          )}
+      </ButtonGroup>
+    </div>
+  );
 }

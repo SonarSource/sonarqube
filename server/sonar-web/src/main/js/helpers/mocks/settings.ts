@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,14 @@
 import {
   ExtendedSettingDefinition,
   Setting,
+  SettingFieldDefinition,
   SettingType,
   SettingValue,
   SettingWithCategory,
 } from '../../types/settings';
 
 export function mockDefinition(
-  overrides: Partial<ExtendedSettingDefinition> = {}
+  overrides: Partial<ExtendedSettingDefinition> = {},
 ): ExtendedSettingDefinition {
   return {
     key: 'foo',
@@ -36,6 +37,12 @@ export function mockDefinition(
     subCategory: 'foo subCat',
     ...overrides,
   };
+}
+
+export function mockSettingFieldDefinition(
+  overrides: Partial<SettingFieldDefinition> = {},
+): SettingFieldDefinition {
+  return { key: 'name', name: 'Name', options: [], ...overrides };
 }
 
 export function mockSetting(overrides: Partial<Setting> = {}): Setting {
@@ -63,7 +70,7 @@ export function mockSettingValue(overrides: Partial<SettingValue> = {}) {
 }
 
 export function mockSettingWithCategory(
-  overrides: Partial<SettingWithCategory> = {}
+  overrides: Partial<SettingWithCategory> = {},
 ): SettingWithCategory {
   return {
     key: 'foo',

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,6 +41,7 @@ import org.sonar.db.pushevent.PushEventDto;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
+import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
 import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
 import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
 import static org.sonar.api.issue.DefaultTransitions.UNCONFIRM;
@@ -79,7 +80,7 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
     IssueChangedEvent event = new IssueChangedEvent(projectKey, new Issue[]{changedIssue},
       resolved, severity, type);
 
-    persistEvent(event, issue.projectUuid());
+    persistEvent(event, branch.getProjectUuid());
   }
 
   @Override
@@ -106,7 +107,8 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
       IssueChangedEvent event = getIssueChangedEvent(projectKey, issuesInProject, issueChanges);
 
       if (event != null) {
-        persistEvent(event, entry.getValue().branchUuid());
+        BranchDto branchDto = branchesByProjectUuid.get(entry.getKey());
+        persistEvent(event, branchDto.getProjectUuid());
       }
     }
   }
@@ -158,7 +160,7 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
       return null;
     }
 
-    return transitionOrStatus.equals(WONT_FIX) || transitionOrStatus.equals(FALSE_POSITIVE) ||
+    return transitionOrStatus.equals(ACCEPT) || transitionOrStatus.equals(WONT_FIX) || transitionOrStatus.equals(FALSE_POSITIVE) ||
       transitionOrStatus.equals(FALSE_POSITIVE_KEY) || transitionOrStatus.equals(WONT_FIX_KEY);
   }
 

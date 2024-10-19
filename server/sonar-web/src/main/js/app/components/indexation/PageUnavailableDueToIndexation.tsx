@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,26 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CenteredLayout, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withIndexationContext, {
   WithIndexationContextProps,
 } from '../../../components/hoc/withIndexationContext';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
-import { Component } from '../../../types/types';
 
-interface Props extends WithIndexationContextProps {
-  pageContext?: PageContext;
-  component?: Pick<Component, 'qualifier' | 'name'>;
-}
-
-export enum PageContext {
-  Issues = 'issues',
-  Portfolios = 'portfolios',
-}
-
-export class PageUnavailableDueToIndexation extends React.PureComponent<Props> {
+export class PageUnavailableDueToIndexation extends React.PureComponent<WithIndexationContextProps> {
   componentDidUpdate() {
     if (
       this.props.indexationContext.status.isCompleted &&
@@ -47,34 +36,29 @@ export class PageUnavailableDueToIndexation extends React.PureComponent<Props> {
   }
 
   render() {
-    const { pageContext, component } = this.props;
-    let messageKey = 'indexation.page_unavailable.title';
-
-    if (pageContext) {
-      messageKey = `${messageKey}.${pageContext}`;
-    }
-
     return (
-      <div className="page-wrapper-simple">
-        <div className="page-simple">
-          <h1 className="big-spacer-bottom">
-            <FormattedMessage
-              id={messageKey}
-              defaultMessage={translate(messageKey)}
-              values={{
-                componentQualifier: translate('qualifier', component?.qualifier ?? ''),
-                componentName: <em>{component?.name}</em>,
-              }}
-            />
-          </h1>
-          <Alert variant="info">
-            <p>{translate('indexation.page_unavailable.description')}</p>
-            <p className="spacer-top">
-              {translate('indexation.page_unavailable.description.additional_information')}
-            </p>
-          </Alert>
-        </div>
-      </div>
+      <CenteredLayout className="sw-flex sw-justify-around">
+        <FlagMessage className="sw-mt-32" variant="info">
+          <span className="sw-w-[290px]">
+            {translate('indexation.page_unavailable.description')}
+            <span className="sw-ml-1">
+              <FormattedMessage
+                defaultMessage={translate(
+                  'indexation.page_unavailable.description.additional_information',
+                )}
+                id="indexation.page_unavailable.description.additional_information"
+                values={{
+                  link: (
+                    <Link to="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/">
+                      {translate('learn_more')}
+                    </Link>
+                  ),
+                }}
+              />
+            </span>
+          </span>
+        </FlagMessage>
+      </CenteredLayout>
     );
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,12 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
@@ -34,16 +38,18 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.dependency.CveDto;
+import org.sonar.db.dependency.IssuesDependencyDto;
+import org.sonar.db.issue.AnticipatedTransitionMapper;
 import org.sonar.db.issue.IssueChangeMapper;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.issue.IssueStorage;
 
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.issue.IssueDto.toDtoForComputationInsert;
 
 public class PersistIssuesStep implements ComputationStep {
   // holding up to 1000 DefaultIssue (max size of addedIssues and updatedIssues at any given time) in memory should not
@@ -77,119 +83,144 @@ public class PersistIssuesStep implements ComputationStep {
     context.getStatistics().add("cacheSize", humanReadableByteCountSI(protoIssueCache.fileSize()));
     IssueStatistics statistics = new IssueStatistics();
     try (DbSession dbSession = dbClient.openSession(true);
-         CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
+      CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       List<DefaultIssue> addedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> updatedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> noLongerNewIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> newCodeIssuesToMigrate = new ArrayList<>(ISSUE_BATCHING_SIZE);
-
-      IssueMapper mapper = dbSession.getMapper(IssueMapper.class);
+      IssueDao issueDao = dbClient.issueDao();
       IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
+      AnticipatedTransitionMapper anticipatedTransitionMapper = dbSession.getMapper(AnticipatedTransitionMapper.class);
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
         if (issue.isNew() || issue.isCopied()) {
           addedIssues.add(issue);
           if (addedIssues.size() >= ISSUE_BATCHING_SIZE) {
-            persistNewIssues(statistics, addedIssues, mapper, changeMapper);
+            persistNewIssues(statistics, addedIssues, issueDao, changeMapper, anticipatedTransitionMapper, dbSession);
             addedIssues.clear();
           }
         } else if (issue.isChanged()) {
           updatedIssues.add(issue);
           if (updatedIssues.size() >= ISSUE_BATCHING_SIZE) {
-            persistUpdatedIssues(statistics, updatedIssues, mapper, changeMapper);
+            persistUpdatedIssues(statistics, updatedIssues, issueDao, changeMapper, dbSession);
             updatedIssues.clear();
           }
         } else if (isOnBranchUsingReferenceBranch() && issue.isNoLongerNewCodeReferenceIssue()) {
           noLongerNewIssues.add(issue);
           if (noLongerNewIssues.size() >= ISSUE_BATCHING_SIZE) {
-            persistNoLongerNewIssues(statistics, noLongerNewIssues, mapper);
+            persistNoLongerNewIssues(statistics, noLongerNewIssues, issueDao, dbSession);
             noLongerNewIssues.clear();
           }
         } else if (isOnBranchUsingReferenceBranch() && issue.isToBeMigratedAsNewCodeReferenceIssue()) {
           newCodeIssuesToMigrate.add(issue);
           if (newCodeIssuesToMigrate.size() >= ISSUE_BATCHING_SIZE) {
-            persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, mapper);
+            persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, issueDao, dbSession);
             newCodeIssuesToMigrate.clear();
           }
         }
       }
-      persistNewIssues(statistics, addedIssues, mapper, changeMapper);
-      persistUpdatedIssues(statistics, updatedIssues, mapper, changeMapper);
-      persistNoLongerNewIssues(statistics, noLongerNewIssues, mapper);
-      persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, mapper);
+
+      persistNewIssues(statistics, addedIssues, issueDao, changeMapper, anticipatedTransitionMapper, dbSession);
+      persistUpdatedIssues(statistics, updatedIssues, issueDao, changeMapper, dbSession);
+      persistNoLongerNewIssues(statistics, noLongerNewIssues, issueDao, dbSession);
+      persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, issueDao, dbSession);
       flushSession(dbSession);
     } finally {
       statistics.dumpTo(context);
     }
   }
 
-  private void persistNewIssues(IssueStatistics statistics, List<DefaultIssue> addedIssues, IssueMapper mapper, IssueChangeMapper changeMapper) {
-    if (addedIssues.isEmpty()) {
-      return;
-    }
+  private void persistNewIssues(IssueStatistics statistics, List<DefaultIssue> addedIssues,
+    IssueDao issueDao, IssueChangeMapper changeMapper, AnticipatedTransitionMapper anticipatedTransitionMapper, DbSession dbSession) {
 
-    long now = system2.now();
-    addedIssues.forEach(i -> {
-      String ruleUuid = ruleRepository.getByKey(i.ruleKey()).getUuid();
-      IssueDto dto = IssueDto.toDtoForComputationInsert(i, ruleUuid, now);
-      mapper.insert(dto);
-      if (isOnBranchUsingReferenceBranch() && i.isOnChangedLine()) {
-        mapper.insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
+    final long now = system2.now();
+
+    List<IssueDto> issueDtos = new LinkedList<>();
+    addedIssues.forEach(addedIssue -> {
+      String ruleUuid = ruleRepository.getByKey(addedIssue.ruleKey()).getUuid();
+      IssueDto dto = toDtoForComputationInsert(addedIssue, ruleUuid, now);
+      issueDao.insertWithoutImpacts(dbSession, dto);
+      issueDtos.add(dto);
+      if (isOnBranchUsingReferenceBranch() && addedIssue.isOnChangedLine()) {
+        issueDao.insertAsNewCodeOnReferenceBranch(dbSession, NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
       }
       statistics.inserts++;
+      issueStorage.insertChanges(changeMapper, addedIssue, uuidFactory);
+      addedIssue.getAnticipatedTransitionUuid().ifPresent(anticipatedTransitionMapper::delete);
     });
 
-    addedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));
+    issueDtos.forEach(issueDto -> insertAdditionalIssueData(issueDao, dbSession, issueDto));
   }
 
-  private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueMapper mapper, IssueChangeMapper changeMapper) {
+  private void insertAdditionalIssueData(IssueDao issueDao, DbSession dbSession, IssueDto issueDto) {
+    issueDao.insertIssueImpacts(dbSession, issueDto);
+    if (issueDto.getCveId() != null) {
+      Consumer<CveDto> insertIssueDependency = cveDto -> dbClient.issuesDependencyDao().insert(dbSession, new IssuesDependencyDto(issueDto.getKey(), cveDto.uuid()));
+      dbClient.cveDao().selectById(dbSession, issueDto.getCveId()).ifPresent(insertIssueDependency);
+    }
+  }
+
+  private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueDao issueDao,
+    IssueChangeMapper changeMapper, DbSession dbSession) {
     if (updatedIssues.isEmpty()) {
       return;
     }
 
     long now = system2.now();
+    LinkedList<IssueDto> updatedIssueDtos = new LinkedList<>();
     updatedIssues.forEach(i -> {
       IssueDto dto = IssueDto.toDtoForUpdate(i, now);
-      mapper.updateIfBeforeSelectedDate(dto);
+      boolean isUpdated = issueDao.updateIfBeforeSelectedDate(dbSession, dto);
+      if (isUpdated) {
+        updatedIssueDtos.add(dto);
+      }
       statistics.updates++;
     });
+    updatedIssueDtos.forEach(i -> issueDao.deleteIssueImpacts(dbSession, i));
+    updatedIssueDtos.forEach(i -> issueDao.insertIssueImpacts(dbSession, i));
 
     // retrieve those of the updatedIssues which have not been updated and apply conflictResolver on them
-    List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).collect(toList(updatedIssues.size()));
-    List<IssueDto> conflictIssueKeys = mapper.selectByKeysIfNotUpdatedAt(updatedIssueKeys, now);
+    List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).toList();
+    List<IssueDto> conflictIssueKeys = issueDao.selectByKeysIfNotUpdatedAt(dbSession, updatedIssueKeys, now);
     if (!conflictIssueKeys.isEmpty()) {
-      Map<String, DefaultIssue> issuesByKeys = updatedIssues.stream().collect(uniqueIndex(DefaultIssue::key, updatedIssues.size()));
+      updatedIssueDtos.clear();
+      Map<String, DefaultIssue> issuesByKeys = updatedIssues.stream().collect(Collectors.toMap(DefaultIssue::key, Function.identity()));
       conflictIssueKeys
         .forEach(dbIssue -> {
           DefaultIssue updatedIssue = issuesByKeys.get(dbIssue.getKey());
-          conflictResolver.resolve(updatedIssue, dbIssue, mapper);
+          IssueDto issueToBeUpdated = conflictResolver.resolve(updatedIssue, dbIssue);
+          issueDao.updateWithoutIssueImpacts(dbSession, issueToBeUpdated);
+          updatedIssueDtos.add(issueToBeUpdated);
           statistics.merged++;
         });
+
+      updatedIssueDtos.forEach(i -> issueDao.deleteIssueImpacts(dbSession, i));
+      updatedIssueDtos.forEach(i -> issueDao.insertIssueImpacts(dbSession, i));
     }
 
     updatedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));
   }
 
-  private static void persistNoLongerNewIssues(IssueStatistics statistics, List<DefaultIssue> noLongerNewIssues, IssueMapper mapper) {
+  private static void persistNoLongerNewIssues(IssueStatistics statistics, List<DefaultIssue> noLongerNewIssues, IssueDao issueDao, DbSession dbSession) {
     if (noLongerNewIssues.isEmpty()) {
       return;
     }
 
     noLongerNewIssues.forEach(i -> {
-      mapper.deleteAsNewCodeOnReferenceBranch(i.key());
+      issueDao.deleteAsNewCodeOnReferenceBranch(dbSession, i.key());
       statistics.updates++;
     });
 
   }
 
-  private void persistNewCodeIssuesToMigrate(IssueStatistics statistics, List<DefaultIssue> newCodeIssuesToMigrate, IssueMapper mapper) {
+  private void persistNewCodeIssuesToMigrate(IssueStatistics statistics, List<DefaultIssue> newCodeIssuesToMigrate, IssueDao issueDao, DbSession dbSession) {
     if (newCodeIssuesToMigrate.isEmpty()) {
       return;
     }
 
     long now = system2.now();
     newCodeIssuesToMigrate.forEach(i -> {
-      mapper.insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueKey(i.key(), now, uuidFactory));
+      issueDao.insertAsNewCodeOnReferenceBranch(dbSession, NewCodeReferenceIssueDto.fromIssueKey(i.key(), now, uuidFactory));
       statistics.updates++;
     });
   }

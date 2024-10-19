@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
@@ -41,6 +42,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.common.newcodeperiod.CaycUtils;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -49,6 +51,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
+import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
 
 public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -62,28 +65,35 @@ public class SetAction implements NewCodePeriodsWsAction {
 
   private static final Set<NewCodePeriodType> OVERALL_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
   private static final Set<NewCodePeriodType> PROJECT_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH);
-  private static final Set<NewCodePeriodType> BRANCH_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS, REFERENCE_BRANCH);
+  private static final Set<NewCodePeriodType> BRANCH_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS,
+    REFERENCE_BRANCH);
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final PlatformEditionProvider editionProvider;
   private final NewCodePeriodDao newCodePeriodDao;
+  private final String newCodeDefinitionDocumentationUrl;
 
-  public SetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, PlatformEditionProvider editionProvider, NewCodePeriodDao newCodePeriodDao) {
+  public SetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, PlatformEditionProvider editionProvider,
+    NewCodePeriodDao newCodePeriodDao, DocumentationLinkGenerator documentationLinkGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
+    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/");
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setPost(true)
-      .setDescription("Updates the setting for the New Code Period on different levels:<br>" +
+      .setDescription("Updates the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") +
+        " on different levels:<br>" +
         BEGIN_LIST +
+        BEGIN_ITEM_LIST + "Not providing a project key and a branch key will update the default value at global level. " +
+        "Existing projects or branches having a specific new code definition will not be impacted" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "Project key must be provided to update the value for a project" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "Both project and branch keys must be provided to update the value for a branch" + END_ITEM_LIST +
         END_LIST +
@@ -102,7 +112,7 @@ public class SetAction implements NewCodePeriodsWsAction {
     action.createParam(PARAM_TYPE)
       .setRequired(true)
       .setDescription("Type<br/>" +
-        "New code periods of the following types are allowed:" +
+        "New code definitions of the following types are allowed:" +
         BEGIN_LIST +
         BEGIN_ITEM_LIST + SPECIFIC_ANALYSIS.name() + " - can be set at branch level only" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + PREVIOUS_VERSION.name() + " - can be set at any level (global, project, branch)" + END_ITEM_LIST +
@@ -116,7 +126,7 @@ public class SetAction implements NewCodePeriodsWsAction {
         BEGIN_LIST +
         BEGIN_ITEM_LIST + "the uuid of an analysis, when type is " + SPECIFIC_ANALYSIS.name() + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "no value, when type is " + PREVIOUS_VERSION.name() + END_ITEM_LIST +
-        BEGIN_ITEM_LIST + "a number, when type is " + NUMBER_OF_DAYS.name() + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "a number between 1 and 90, when type is " + NUMBER_OF_DAYS.name() + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "a string, when type is " + REFERENCE_BRANCH.name() + END_ITEM_LIST +
         END_LIST
       );
@@ -146,7 +156,7 @@ public class SetAction implements NewCodePeriodsWsAction {
 
       if (projectKey != null) {
         project = getProject(dbSession, projectKey);
-        userSession.checkProjectPermission(UserRole.ADMIN, project);
+        userSession.checkEntityPermission(UserRole.ADMIN, project);
 
         if (branchKey != null) {
           branch = getBranch(dbSession, project, branchKey);
@@ -159,6 +169,11 @@ public class SetAction implements NewCodePeriodsWsAction {
 
       setValue(dbSession, dto, type, project, branch, valueStr);
 
+      if (!CaycUtils.isNewCodePeriodCompliant(dto.getType(), dto.getValue())) {
+        throw new IllegalArgumentException("Failed to set the New Code Definition. The given value is not compatible with the Clean as " +
+          "You Code methodology. Please refer to the documentation for compliant options.");
+      }
+
       newCodePeriodDao.upsert(dbSession, dto);
       dbSession.commit();
     }
@@ -167,26 +182,27 @@ public class SetAction implements NewCodePeriodsWsAction {
   private void setValue(DbSession dbSession, NewCodePeriodDto dto, NewCodePeriodType type, @Nullable ProjectDto project,
     @Nullable BranchDto branch, @Nullable String value) {
     switch (type) {
-      case PREVIOUS_VERSION:
-        Preconditions.checkArgument(value == null, "Unexpected value for type '%s'", type);
-        break;
-      case NUMBER_OF_DAYS:
+      case PREVIOUS_VERSION -> Preconditions.checkArgument(value == null, "Unexpected value for type '%s'", type);
+      case NUMBER_OF_DAYS -> {
         requireValue(type, value);
         dto.setValue(parseDays(value));
-        break;
-      case SPECIFIC_ANALYSIS:
-        requireValue(type, value);
-        requireBranch(type, branch);
-        SnapshotDto analysis = getAnalysis(dbSession, value, project, branch);
-        dto.setValue(analysis.getUuid());
-        break;
-      case REFERENCE_BRANCH:
+      }
+      case SPECIFIC_ANALYSIS -> {
+        checkValuesForSpecificBranch(type, value, project, branch);
+        dto.setValue(getAnalysis(dbSession, value, project, branch).getUuid());
+      }
+      case REFERENCE_BRANCH -> {
         requireValue(type, value);
         dto.setValue(value);
-        break;
-      default:
-        throw new IllegalStateException("Unexpected type: " + type);
+      }
+      default -> throw new IllegalStateException("Unexpected type: " + type);
     }
+  }
+
+  private static void checkValuesForSpecificBranch(NewCodePeriodType type, @Nullable String value, @Nullable ProjectDto project, @Nullable BranchDto branch) {
+    requireValue(type, value);
+    requireProject(type, project);
+    requireBranch(type, branch);
   }
 
   private static String parseDays(String value) {
@@ -198,11 +214,15 @@ public class SetAction implements NewCodePeriodsWsAction {
   }
 
   private static void requireValue(NewCodePeriodType type, @Nullable String value) {
-    Preconditions.checkArgument(value != null, "New Code Period type '%s' requires a value", type);
+    Preconditions.checkArgument(value != null, "New code definition type '%s' requires a value", type);
   }
 
   private static void requireBranch(NewCodePeriodType type, @Nullable BranchDto branch) {
-    Preconditions.checkArgument(branch != null, "New Code Period type '%s' requires a branch", type);
+    Preconditions.checkArgument(branch != null, "New code definition type '%s' requires a branch", type);
+  }
+
+  private static void requireProject(NewCodePeriodType type, @Nullable ProjectDto project) {
+    Preconditions.checkArgument(project != null, "New code definition type '%s' requires a project", type);
   }
 
   private BranchDto getBranch(DbSession dbSession, ProjectDto project, String branchKey) {
@@ -247,7 +267,7 @@ public class SetAction implements NewCodePeriodsWsAction {
   }
 
   private void checkAnalysis(DbSession dbSession, ProjectDto project, BranchDto branch, SnapshotDto analysis) {
-    BranchDto analysisBranch = dbClient.branchDao().selectByUuid(dbSession, analysis.getComponentUuid()).orElse(null);
+    BranchDto analysisBranch = dbClient.branchDao().selectByUuid(dbSession, analysis.getRootComponentUuid()).orElse(null);
     boolean analysisMatchesProjectBranch = analysisBranch != null && analysisBranch.getUuid().equals(branch.getUuid());
 
     checkArgument(analysisMatchesProjectBranch,

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,39 +20,24 @@
 package org.sonar.server.badge.ws;
 
 import com.google.common.io.Resources;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Optional;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.io.IOUtils.write;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.server.badge.ws.ETagUtils.RFC1123_DATE;
-import static org.sonar.server.badge.ws.ETagUtils.getETag;
-import static org.sonarqube.ws.MediaTypes.SVG;
 
-public class QualityGateAction implements ProjectBadgesWsAction {
+public class QualityGateAction extends AbstractProjectBadgesWsAction {
 
   private final DbClient dbClient;
-  private final ProjectBadgesSupport support;
-  private final SvgGenerator svgGenerator;
 
   public QualityGateAction(DbClient dbClient, ProjectBadgesSupport support, SvgGenerator svgGenerator) {
+    super(support, svgGenerator);
     this.dbClient = dbClient;
-    this.support = support;
-    this.svgGenerator = svgGenerator;
   }
 
   @Override
@@ -67,27 +52,11 @@ public class QualityGateAction implements ProjectBadgesWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-    response.setHeader("Cache-Control", "no-cache");
-    response.stream().setMediaType(SVG);
+  protected String getBadge(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      support.validateToken(request);
       BranchDto branch = support.getBranch(dbSession, request);
       Level qualityGateStatus = getQualityGate(dbSession, branch);
-      String result = svgGenerator.generateQualityGate(qualityGateStatus);
-      String eTag = getETag(result);
-      Optional<String> requestedETag = request.header("If-None-Match");
-      if (requestedETag.filter(eTag::equals).isPresent()) {
-        response.stream().setStatus(304);
-        return;
-      }
-      response.setHeader("ETag", eTag);
-      write(result, response.stream().output(), UTF_8);
-    } catch (ProjectBadgesException | ForbiddenException | NotFoundException e) {
-      // There is an issue, so do not return any ETag but make this response expire now
-      SimpleDateFormat sdf = new SimpleDateFormat(RFC1123_DATE, Locale.US);
-      response.setHeader("Expires", sdf.format(new Date()));
-      write(svgGenerator.generateError(e.getMessage()), response.stream().output(), UTF_8);
+      return svgGenerator.generateQualityGate(qualityGateStatus);
     }
   }
 

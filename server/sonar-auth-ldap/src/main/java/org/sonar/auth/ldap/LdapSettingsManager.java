@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,11 @@ package org.sonar.auth.ldap;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 /**
  * The LdapSettingsManager will parse the settings.
@@ -35,7 +35,7 @@ import org.sonar.api.utils.log.Loggers;
 public class LdapSettingsManager {
 
   public static final String DEFAULT_LDAP_SERVER_KEY = "default";
-  private static final Logger LOG = Loggers.get(LdapSettingsManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapSettingsManager.class);
 
   private static final String LDAP_SERVERS_PROPERTY = "ldap.servers";
   private static final String LDAP_PROPERTY_PREFIX = "ldap";

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,6 @@ class ConditionImpl implements QualityGate.Condition {
   private final String metricKey;
   private final QualityGate.Operator operator;
   private final String errorThreshold;
-  private final boolean onLeakPeriod;
   @CheckForNull
   private final String value;
 
@@ -49,7 +48,6 @@ class ConditionImpl implements QualityGate.Condition {
     this.metricKey = builder.metricKey;
     this.operator = builder.operator;
     this.errorThreshold = builder.errorThreshold;
-    this.onLeakPeriod = builder.metricKey.startsWith("new_");
     this.value = builder.value;
   }
 
@@ -92,22 +90,6 @@ class ConditionImpl implements QualityGate.Condition {
       return this;
     }
 
-    /**
-     * @deprecated in 7.6. This method has no longer any effect.
-     */
-    @Deprecated
-    public Builder setWarningThreshold(String warningThreshold) {
-      return this;
-    }
-
-    /**
-     * @deprecated in 7.6. This method has no longer any effect.
-     */
-    @Deprecated
-    public Builder setOnLeakPeriod(boolean onLeakPeriod) {
-      return this;
-    }
-
     public Builder setValue(String value) {
       this.value = value;
       return this;
@@ -141,21 +123,6 @@ class ConditionImpl implements QualityGate.Condition {
   @Override
   public String getErrorThreshold() {
     return errorThreshold;
-  }
-
-  @Deprecated
-  @Override
-  public String getWarningThreshold() {
-    return null;
-  }
-
-  /**
-   * @deprecated in 7.6. Conditions "on leak period" were removed. Use "New X" conditions instead.
-   */
-  @Deprecated
-  @Override
-  public boolean isOnLeakPeriod() {
-    return onLeakPeriod;
   }
 
   @Override

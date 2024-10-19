@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@ public class IssueExclusionPatternInitializerTest {
   public void testNoConfiguration() {
     patternsInitializer = new IssueExclusionPatternInitializer(settings.asConfig());
     assertThat(patternsInitializer.hasConfiguredPatterns()).isFalse();
-    assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isZero();
+    assertThat(patternsInitializer.getMulticriteriaPatterns()).isEmpty();
   }
 
   @Test(expected = MessageException.class)
@@ -75,9 +75,9 @@ public class IssueExclusionPatternInitializerTest {
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
     assertThat(patternsInitializer.hasFileContentPattern()).isTrue();
     assertThat(patternsInitializer.hasMulticriteriaPatterns()).isFalse();
-    assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isZero();
+    assertThat(patternsInitializer.getMulticriteriaPatterns()).isEmpty();
     assertThat(patternsInitializer.getBlockPatterns()).hasSize(3);
-    assertThat(patternsInitializer.getAllFilePatterns().size()).isZero();
+    assertThat(patternsInitializer.getAllFilePatterns()).isEmpty();
   }
 
   @Test(expected = MessageException.class)
@@ -98,8 +98,8 @@ public class IssueExclusionPatternInitializerTest {
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
     assertThat(patternsInitializer.hasFileContentPattern()).isTrue();
     assertThat(patternsInitializer.hasMulticriteriaPatterns()).isFalse();
-    assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isZero();
-    assertThat(patternsInitializer.getBlockPatterns().size()).isZero();
+    assertThat(patternsInitializer.getMulticriteriaPatterns()).isEmpty();
+    assertThat(patternsInitializer.getBlockPatterns()).isEmpty();
     assertThat(patternsInitializer.getAllFilePatterns()).hasSize(2);
   }
 

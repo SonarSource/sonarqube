@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,24 +19,22 @@
  */
 package org.sonar.ce.task.projectanalysis.event;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import org.sonar.ce.task.projectanalysis.component.Component;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class EventRepositoryImpl implements EventRepository {
-  private final Multimap<String, Event> events = HashMultimap.create();
+  private final List<Event> events = new LinkedList<>();
 
   @Override
-  public void add(Component component, Event event) {
-    checkArgument(component.getType() == Component.Type.PROJECT, "Component must be of type PROJECT");
-    events.put(component.getUuid(), requireNonNull(event));
+  public void add(Event event) {
+    events.add(requireNonNull(event));
   }
 
   @Override
-  public Iterable<Event> getEvents(Component component) {
-    return this.events.get(component.getUuid());
+  public Iterable<Event> getEvents() {
+    return Collections.unmodifiableList(this.events);
   }
 }

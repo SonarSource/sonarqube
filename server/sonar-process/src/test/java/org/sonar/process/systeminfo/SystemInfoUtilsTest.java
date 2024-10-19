@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.process.systeminfo;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 
@@ -53,7 +52,7 @@ public class SystemInfoUtilsTest {
 
     List<String> ordered = SystemInfoUtils.order(sections, "foo", "bar").stream()
       .map(Section::getName)
-      .collect(Collectors.toList());
+      .toList();
     assertThat(ordered).isEqualTo(asList("foo", "bar", "end1", "end2"));
   }
 

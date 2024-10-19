@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  FlagMessage,
+  FormField,
+  InputSelect,
+  LabelValueSelectOption,
+  Modal,
+} from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
 import { changeProfileParent } from '../../../api/quality-profiles';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -37,7 +41,7 @@ interface Props {
 
 interface State {
   loading: boolean;
-  selected: string | null;
+  selected: { value: string } | null;
 }
 
 export default class ChangeParentForm extends React.PureComponent<Props, State> {
@@ -56,13 +60,11 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
   }
 
   handleSelectChange = (option: { value: string }) => {
-    this.setState({ selected: option.value });
+    this.setState({ selected: option });
   };
 
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const parent = this.props.profiles.find((p) => p.key === this.state.selected);
+  handleFormSubmit = () => {
+    const parent = this.props.profiles.find((p) => p.key === this.state.selected?.value);
 
     this.setState({ loading: true });
     changeProfileParent(this.props.profile, parent)
@@ -75,7 +77,8 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
   };
 
   render() {
-    const { profiles } = this.props;
+    const { profiles, profile } = this.props;
+    const { loading, selected } = this.state;
 
     const options = [
       { label: translate('none'), value: '' },
@@ -85,57 +88,55 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
           : profile.name,
         value: profile.key,
       })),
-    ];
+    ].filter((o) => o.value !== profile.key);
 
-    const submitDisabled =
-      this.state.loading ||
-      this.state.selected == null ||
-      this.state.selected === this.props.profile.parentKey;
+    const submitDisabled = loading || selected == null || selected.value === profile.parentKey;
 
-    const selectedValue = this.state.selected ?? (this.props.profile.parentKey || '');
+    const selectedValue = selected
+      ? options.find((o) => o.value === selected?.value)
+      : options.find((o) => o.value === profile.parentKey);
 
     return (
       <Modal
-        contentLabel={translate('quality_profiles.change_parent')}
-        onRequestClose={this.props.onClose}
-        size="small"
-      >
-        <form id="change-profile-parent-form" onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{translate('quality_profiles.change_parent')}</h2>
-          </div>
-          <div className="modal-body">
-            <MandatoryFieldsExplanation className="modal-field" />
-            <div className="modal-field">
-              <label htmlFor="change-profile-parent-input">
-                {translate('quality_profiles.parent')}
-                <MandatoryFieldMarker />
-              </label>
-              <Select
-                className="width-100"
-                autoFocus={true}
-                name="parentKey"
-                isClearable={false}
-                id="change-profile-parent"
-                inputId="change-profile-parent-input"
-                onChange={this.handleSelectChange}
+        headerTitle={translate('quality_profiles.change_parent')}
+        onClose={this.props.onClose}
+        loading={loading}
+        isOverflowVisible
+        body={
+          <>
+            {profile.parentKey !== undefined && (
+              <FlagMessage variant="info" className="sw-mb-8">
+                {translate('quality_profiles.change_parent_warning')}
+              </FlagMessage>
+            )}
+
+            <MandatoryFieldsExplanation />
+
+            <FormField
+              className="sw-mt-2"
+              htmlFor="quality-profile-new-parent"
+              label={translate('quality_profiles.parent')}
+              required
+            >
+              <InputSelect
+                id="quality-profile-new-parent"
+                name="parent"
+                onChange={(data: LabelValueSelectOption<string>) => this.handleSelectChange(data)}
                 options={options}
-                isSearchable={true}
-                value={options.filter((o) => o.value === selectedValue)}
+                required
+                size="full"
+                value={selectedValue}
               />
-            </div>
-          </div>
-          <div className="modal-foot">
-            {this.state.loading && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitDisabled} id="change-profile-parent-submit">
-              {translate('change_verb')}
-            </SubmitButton>
-            <ResetButtonLink id="change-profile-parent-cancel" onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </div>
-        </form>
-      </Modal>
+            </FormField>
+          </>
+        }
+        primaryButton={
+          <ButtonPrimary onClick={this.handleFormSubmit} disabled={submitDisabled}>
+            {translate('change_verb')}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

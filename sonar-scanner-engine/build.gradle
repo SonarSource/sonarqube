@@ -1,3 +1,7 @@
+plugins {
+  id 'java-test-fixtures'
+}
+
 sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Scanner Engine"
@@ -20,12 +24,15 @@ dependencies {
   api 'ch.qos.logback:logback-core'
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
+  implementation 'org.apache.commons:commons-text'
   api 'com.google.code.gson:gson'
   api 'org.apache.commons:commons-csv'
   api 'com.google.protobuf:protobuf-java'
   api 'com.squareup.okhttp3:okhttp'
   api 'com.fasterxml.staxmate:staxmate'
+  implementation 'io.github.hakky54:sslcontext-kickstart'
+  implementation 'org.bouncycastle:bcprov-jdk18on'
   api 'javax.annotation:javax.annotation-api'
   api 'org.eclipse.jgit:org.eclipse.jgit'
   api 'org.tmatesoft.svnkit:svnkit'
@@ -34,17 +41,21 @@ dependencies {
   api 'org.slf4j:log4j-over-slf4j'
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api 'org.sonarsource.git.blame:git-files-blame'
   api 'org.sonarsource.update-center:sonar-update-center-common'
   api 'org.springframework:spring-context'
 
 
   api project(':sonar-core')
+  api project(':sonar-sarif')
   api project(':sonar-scanner-protocol')
   api project(':sonar-ws')
   api project(':sonar-duplications')
   api project(':sonar-plugin-api-impl')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
 
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.squareup.okhttp3:okhttp'
@@ -52,24 +63,27 @@ dependencies {
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'commons-io:commons-io'
   testImplementation 'junit:junit'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'com.fasterxml.staxmate:staxmate'
   testImplementation 'org.hamcrest:hamcrest-core'
   testImplementation 'org.mockito:mockito-core'
-  testImplementation 'org.mockito:mockito-inline'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':plugins:sonar-xoo-plugin')
+  testImplementation 'org.wiremock:wiremock-standalone'
+  testImplementation 'org.junit-pioneer:junit-pioneer'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 
 license {
-  excludes(["**/Fake.java", "**/Fake.groovy", "org/sonar/scanner/cpd/ManyStatements.java"])
+  excludes(["**/Fake.java", "**/Fake.groovy", "org/sonar/scanner/cpd/ManyStatements.java", "org/sonar/scm/git/expected-blame/**/*"])
 }
 
 artifactoryPublish.skip = false
-
-// Produce Java 11 bytecode while making sure the code does not use any APIs from Java 17
-tasks.withType(JavaCompile) {
-  options.release = 11
-}
 
 // Used by core plugins
 publishing {
@@ -82,4 +96,9 @@ publishing {
       }
     }
   }
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

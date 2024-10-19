@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,10 +26,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.assertj.core.data.Offset;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
@@ -44,6 +48,7 @@ import org.sonar.server.measure.DebtRatingGrid;
 import org.sonar.server.measure.Rating;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
@@ -63,27 +68,38 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 import static org.sonar.ce.task.projectanalysis.measure.MeasureAssert.assertThat;
 import static org.sonar.server.measure.Rating.A;
 import static org.sonar.server.measure.Rating.D;
+import static org.sonar.server.measure.Rating.E;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
 
-public class  NewMaintainabilityMeasuresVisitorTest {
+public class NewMaintainabilityMeasuresVisitorTest {
 
   private static final double[] RATING_GRID = new double[] {0.1, 0.2, 0.5, 1};
 
   private static final String LANGUAGE_1_KEY = "language 1 key";
-  private static final long LANGUAGE_1_DEV_COST = 30L;
+  private static final long DEV_COST = 30L;
   private static final int ROOT_REF = 1;
   private static final int LANGUAGE_1_FILE_REF = 11111;
   private static final Offset<Double> VALUE_COMPARISON_OFFSET = Offset.offset(0.01);
 
-  @Rule
+  @RegisterExtension
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
+  @RegisterExtension
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NEW_TECHNICAL_DEBT)
     .add(NCLOC_DATA)
     .add(NEW_SQALE_DEBT_RATIO)
     .add(NEW_MAINTAINABILITY_RATING)
-    .add(NEW_DEVELOPMENT_COST);
-  @Rule
+    .add(NEW_DEVELOPMENT_COST)
+    .add(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT)
+    .add(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO)
+    .add(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING);
+
+  @RegisterExtension
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
@@ -91,190 +107,202 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   private VisitorsCrawler underTest;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     when(ratingSettings.getDebtRatingGrid()).thenReturn(new DebtRatingGrid(RATING_GRID));
+    when(ratingSettings.getDevCost()).thenReturn(DEV_COST);
     underTest = new VisitorsCrawler(Arrays.asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, newLinesRepository, ratingSettings)));
   }
 
-  @Test
-  public void project_has_new_measures() {
+  private static Stream<Arguments> metrics() {
+    return Stream.of(
+      arguments(NEW_TECHNICAL_DEBT_KEY, NEW_SQALE_DEBT_RATIO_KEY, NEW_MAINTAINABILITY_RATING_KEY),
+      arguments(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY, NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY, NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY));
+  }
+
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void project_has_new_measures(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
     treeRootHolder.setRoot(builder(PROJECT, ROOT_REF).build());
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(ROOT_REF, 0);
-    assertNewMaintainability(ROOT_REF, A);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 0);
+    assertNewRating(ratingKey, ROOT_REF, A);
   }
 
-  @Test
-  public void project_has_no_measure_if_new_lines_not_available() {
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void project_has_no_measure_if_new_lines_not_available(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     when(newLinesRepository.newLinesAvailable()).thenReturn(false);
     treeRootHolder.setRoot(builder(PROJECT, ROOT_REF).build());
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNoNewDebtRatioMeasure(ROOT_REF);
-    assertNoNewMaintainability(ROOT_REF);
+    assertNoNewDebtRatioMeasure(debtRatioKey, ROOT_REF);
+    assertNoNewMaintainability(ratingKey, ROOT_REF);
   }
 
-  @Test
-  public void file_has_no_new_debt_ratio_variation_if_new_lines_not_available() {
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void file_has_no_new_debt_ratio_variation_if_new_lines_not_available(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     when(newLinesRepository.newLinesAvailable()).thenReturn(false);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+    setupOneFileAloneInAProject(remediationEffortKey,50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNoNewDebtRatioMeasure(LANGUAGE_1_FILE_REF);
-    assertNoNewDebtRatioMeasure(ROOT_REF);
+    assertNoNewDebtRatioMeasure(debtRatioKey, LANGUAGE_1_FILE_REF);
+    assertNoNewDebtRatioMeasure(debtRatioKey, ROOT_REF);
   }
 
-  @Test
-  public void file_has_0_new_debt_ratio_if_no_line_is_new() {
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void file_has_0_new_debt_ratio_if_no_line_is_new(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     ReportComponent file = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build();
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(file)
         .build());
-    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, remediationEffortKey, createNewDebtMeasure(50));
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
     setNewLines(file);
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 0);
   }
 
-  @Test
-  public void file_has_new_debt_ratio_if_some_lines_are_new() {
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void file_has_new_debt_ratio_if_some_lines_are_new(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+    setupOneFileAloneInAProject(remediationEffortKey,50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33);
-    assertNewDebtRatioValues(ROOT_REF, 83.33);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 83.33);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 83.33);
   }
 
-  @Test
-  public void new_debt_ratio_changes_with_language_cost() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST * 10);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_changes_with_language_cost(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    when(ratingSettings.getDevCost()).thenReturn(DEV_COST * 10);
+    setupOneFileAloneInAProject(remediationEffortKey,50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 8.33);
-    assertNewDebtRatioValues(ROOT_REF, 8.33);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 8.33);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 8.33);
   }
 
-  @Test
-  public void new_debt_ratio_changes_with_new_technical_debt() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(500));
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_changes_with_new_technical_debt(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    setupOneFileAloneInAProject(remediationEffortKey, 500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(500));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33);
-    assertNewDebtRatioValues(ROOT_REF, 833.33);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 833.33);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 833.33);
   }
 
-  @Test
-  public void new_debt_ratio_on_non_file_level_is_based_on_new_technical_debt_of_that_level() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200));
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_on_non_file_level_is_based_on_new_technical_debt_of_that_level(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    setupOneFileAloneInAProject(remediationEffortKey, 500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(1200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33);
-    assertNewDebtRatioValues(ROOT_REF, 833.33);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 833.33);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 833.33);
   }
 
-  @Test
-  public void new_debt_ratio_when_file_is_unit_test() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(500, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200));
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_when_file_is_unit_test(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    setupOneFileAloneInAProject(remediationEffortKey, 500, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(1200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33);
-    assertNewDebtRatioValues(ROOT_REF, 833.33);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 833.33);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 833.33);
   }
 
-  @Test
-  public void new_debt_ratio_is_0_when_file_has_no_new_lines() {
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_is_0_when_file_has_no_new_lines(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+    setupOneFileAloneInAProject(remediationEffortKey,50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 0);
   }
 
-  @Test
-  public void new_debt_ratio_is_0_on_non_file_level_when_no_file_has_new_lines() {
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_is_0_on_non_file_level_when_no_file_has_new_lines(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
+    setupOneFileAloneInAProject(remediationEffortKey,50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 0);
   }
 
-  @Test
-  public void new_debt_ratio_is_0_when_there_is_no_ncloc_in_file() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_is_0_when_there_is_no_ncloc_in_file(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    setupOneFileAloneInAProject(remediationEffortKey, 50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 0);
   }
 
-  @Test
-  public void new_debt_ratio_is_0_on_non_file_level_when_one_file_has_zero_new_debt_because_of_no_changeset() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_is_0_on_non_file_level_when_one_file_has_zero_new_debt_because_of_no_changeset(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    setupOneFileAloneInAProject(remediationEffortKey, 50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 0);
   }
 
-  @Test
-  public void new_debt_ratio_is_0_when_ncloc_measure_is_missing() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.MISSING_MEASURE_NCLOC, Flag.WITH_NEW_LINES);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void new_debt_ratio_is_0_when_ncloc_measure_is_missing(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    setupOneFileAloneInAProject(remediationEffortKey, 50, Flag.SRC_FILE, Flag.MISSING_MEASURE_NCLOC, Flag.WITH_NEW_LINES);
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 0);
   }
 
-  @Test
-  public void leaf_components_always_have_a_measure_when_at_least_one_period_exist_and_ratio_is_computed_from_current_level_new_debt() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void leaf_components_always_have_a_measure_when_at_least_one_period_exist_and_ratio_is_computed_from_current_level_new_debt(String remediationEffortKey, String debtRatioKey,
+    String ratingKey) {
     Component file = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build();
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -285,23 +313,23 @@ public class  NewMaintainabilityMeasuresVisitorTest {
         .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(50);
-    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
-    measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150));
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250));
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, remediationEffortKey, newDebtMeasure);
+    measureRepository.addRawMeasure(111, remediationEffortKey, createNewDebtMeasure(150));
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(250));
     // 4 lines file, only first one is not ncloc
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
     // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
     setNewLines(file, 3, 4);
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33);
-    assertNewDebtRatioValues(111, 83.33);
-    assertNewDebtRatioValues(ROOT_REF, 83.33);
+    assertNewDebtRatioValues(debtRatioKey, LANGUAGE_1_FILE_REF, 83.33);
+    assertNewDebtRatioValues(debtRatioKey, 111, 83.33);
+    assertNewDebtRatioValues(debtRatioKey, ROOT_REF, 83.33);
   }
 
-  @Test
-  public void compute_new_maintainability_rating() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void compute_new_maintainability_rating(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     ReportComponent file = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build();
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -312,9 +340,9 @@ public class  NewMaintainabilityMeasuresVisitorTest {
         .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(50);
-    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
-    measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150));
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250));
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, remediationEffortKey, newDebtMeasure);
+    measureRepository.addRawMeasure(111, remediationEffortKey, createNewDebtMeasure(150));
+    measureRepository.addRawMeasure(ROOT_REF, remediationEffortKey, createNewDebtMeasure(250));
     // 4 lines file, only first one is not ncloc
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
     // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
@@ -323,16 +351,37 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewMaintainability(LANGUAGE_1_FILE_REF, D);
-    assertNewMaintainability(111, D);
-    assertNewMaintainability(ROOT_REF, D);
+    assertNewRating(ratingKey, LANGUAGE_1_FILE_REF, D);
+    assertNewRating(ratingKey, 111, D);
+    assertNewRating(ratingKey, ROOT_REF, D);
+  }
+
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void compute_new_maintainability_rating_map_to_E(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+    ReportComponent file = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build();
+    treeRootHolder.setRoot(
+      builder(PROJECT, ROOT_REF)
+        .addChildren(
+          builder(DIRECTORY, 111)
+            .addChildren(file)
+            .build())
+        .build());
+
+    Measure newDebtMeasure = createNewDebtMeasure(400);
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, remediationEffortKey, newDebtMeasure);
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
+
+    setNewLines(file, 3, 4);
+
+    underTest.visit(treeRootHolder.getRoot());
+    assertNewRating(ratingKey, LANGUAGE_1_FILE_REF, E);
   }
 
   @Test
-  public void compute_new_development_cost() {
+  void compute_new_development_cost() {
     ReportComponent file1 = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 4)).build();
     ReportComponent file2 = builder(FILE, 22_222).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 6)).build();
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
@@ -353,15 +402,15 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDevelopmentCostValues(ROOT_REF, 5 * LANGUAGE_1_DEV_COST);
-    assertNewDevelopmentCostValues(LANGUAGE_1_FILE_REF, 2 * LANGUAGE_1_DEV_COST);
-    assertNewDevelopmentCostValues(22_222, 3 * LANGUAGE_1_DEV_COST);
+    assertNewDevelopmentCostValues(ROOT_REF, 5 * DEV_COST);
+    assertNewDevelopmentCostValues(LANGUAGE_1_FILE_REF, 2 * DEV_COST);
+    assertNewDevelopmentCostValues(22_222, 3 * DEV_COST);
   }
 
-  @Test
-  public void compute_new_maintainability_rating_to_A_when_no_debt() {
+  @ParameterizedTest
+  @MethodSource("metrics")
+  void compute_new_maintainability_rating_to_A_when_no_debt(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
@@ -373,12 +422,12 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewMaintainability(LANGUAGE_1_FILE_REF, A);
-    assertNewMaintainability(111, A);
-    assertNewMaintainability(ROOT_REF, A);
+    assertNewRating(ratingKey, LANGUAGE_1_FILE_REF, A);
+    assertNewRating(ratingKey, 111, A);
+    assertNewRating(ratingKey, ROOT_REF, A);
   }
 
-  private void setupOneFileAloneInAProject(int newDebt, Flag isUnitTest, Flag withNclocLines, Flag withNewLines) {
+  private void setupOneFileAloneInAProject(String remediationEffortKey, int newDebt, Flag isUnitTest, Flag withNclocLines, Flag withNewLines) {
     checkArgument(isUnitTest == Flag.UT_FILE || isUnitTest == Flag.SRC_FILE);
     checkArgument(withNclocLines == Flag.WITH_NCLOC || withNclocLines == Flag.NO_NCLOC || withNclocLines == Flag.MISSING_MEASURE_NCLOC);
     checkArgument(withNewLines == Flag.WITH_NEW_LINES || withNewLines == Flag.NO_NEW_LINES);
@@ -390,7 +439,7 @@ public class  NewMaintainabilityMeasuresVisitorTest {
         .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(newDebt);
-    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, remediationEffortKey, newDebtMeasure);
     if (withNclocLines == Flag.WITH_NCLOC) {
       // 4 lines file, only first one is not ncloc
       measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
@@ -444,25 +493,25 @@ public class  NewMaintainabilityMeasuresVisitorTest {
     return newMeasureBuilder().create(KeyValueFormat.format(builder.build(), KeyValueFormat.newIntegerConverter(), KeyValueFormat.newIntegerConverter()));
   }
 
-  private void assertNoNewDebtRatioMeasure(int componentRef) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SQALE_DEBT_RATIO_KEY))
+  private void assertNoNewDebtRatioMeasure(String debtRatioKey, int componentRef) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, debtRatioKey))
       .isAbsent();
   }
 
-  private void assertNewDebtRatioValues(int componentRef, double expectedValue) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SQALE_DEBT_RATIO_KEY)).hasValue(expectedValue, VALUE_COMPARISON_OFFSET);
+  private void assertNewDebtRatioValues(String debtRatioKey, int componentRef, double expectedValue) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, debtRatioKey)).hasValue(expectedValue, VALUE_COMPARISON_OFFSET);
   }
 
   private void assertNewDevelopmentCostValues(int componentRef, float expectedValue) {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_DEVELOPMENT_COST_KEY)).hasValue(expectedValue, VALUE_COMPARISON_OFFSET);
   }
 
-  private void assertNewMaintainability(int componentRef, Rating expectedValue) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY)).hasValue(expectedValue.getIndex());
+  private void assertNewRating(String ratingKey, int componentRef, Rating expectedValue) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, ratingKey)).hasValue(expectedValue.getIndex());
   }
 
-  private void assertNoNewMaintainability(int componentRef) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY))
+  private void assertNoNewMaintainability(String ratingKey, int componentRef) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, ratingKey))
       .isAbsent();
   }
 }

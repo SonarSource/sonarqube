@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
-import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsConnectorImpl;
@@ -54,8 +53,8 @@ import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.application.es.EsKeyStoreCli.BOOTSTRAP_PASSWORD_PROPERTY_KEY;
+import static org.sonar.application.es.EsKeyStoreCli.HTTP_KEYSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.application.es.EsKeyStoreCli.KEYSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.application.es.EsKeyStoreCli.TRUSTSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_GRACEFUL_STOP_TIMEOUT_MS;
@@ -93,10 +92,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
 
     Process process;
-    if (command instanceof EsScriptCommand esScriptCommand) {
-      process = launchExternal(esScriptCommand);
-    } else if (command instanceof JavaCommand) {
-      process = launchJava((JavaCommand<?>) command);
+    if (command instanceof JavaCommand<?> javaCommand) {
+      process = launchJava(javaCommand);
     } else {
       throw new IllegalStateException("Unexpected type of command: " + command.getClass());
     }
@@ -106,7 +103,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       if (processId == ProcessId.ELASTICSEARCH) {
         checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
         EsConnectorImpl esConnector = new EsConnectorImpl(singleton(HostAndPort.fromParts(esInstallation.getHost(),
-          esInstallation.getHttpPort())), esInstallation.getBootstrapPassword());
+          esInstallation.getHttpPort())), esInstallation.getBootstrapPassword(), esInstallation.getHttpKeyStoreLocation(),
+          esInstallation.getHttpKeyStorePassword().orElse(null));
         return new EsManagedProcess(process, processId, esConnector);
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
@@ -118,16 +116,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
         process.destroyForcibly();
       }
       throw new IllegalStateException(format("Fail to launch monitor of process [%s]", processId.getHumanReadableName()), e);
-    }
-  }
-
-  private Process launchExternal(EsScriptCommand esScriptCommand) {
-    try {
-      ProcessBuilder processBuilder = create(esScriptCommand);
-      logLaunchedCommand(esScriptCommand, processBuilder);
-      return processBuilder.start();
-    } catch (Exception e) {
-      throw new IllegalStateException(format("Fail to launch process [%s]", esScriptCommand.getProcessId().getHumanReadableName()), e);
     }
   }
 
@@ -154,7 +142,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
     pruneElasticsearchConfDirectory(confDir);
     createElasticsearchConfDirectory(confDir);
-    setupElasticsearchAuthentication(esInstallation);
+    setupElasticsearchSecurity(esInstallation);
 
     esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
     esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
@@ -177,26 +165,41 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private void setupElasticsearchAuthentication(EsInstallation esInstallation) {
+  private void setupElasticsearchSecurity(EsInstallation esInstallation) {
     if (esInstallation.isSecurityEnabled()) {
-      EsKeyStoreCli keyStoreCli = EsKeyStoreCli.getInstance(esInstallation)
-        .store(BOOTSTRAP_PASSWORD_PROPERTY_KEY, esInstallation.getBootstrapPassword());
+      EsKeyStoreCli keyStoreCli = EsKeyStoreCli.getInstance(esInstallation);
 
-      String esConfPath = esInstallation.getConfDirectory().getAbsolutePath();
-
-      Path trustStoreLocation = esInstallation.getTrustStoreLocation();
-      Path keyStoreLocation = esInstallation.getKeyStoreLocation();
-      if (trustStoreLocation.equals(keyStoreLocation)) {
-        copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
-      } else {
-        copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
-        copyFile(keyStoreLocation, Paths.get(esConfPath, keyStoreLocation.toFile().getName()));
-      }
-
-      esInstallation.getTrustStorePassword().ifPresent(s -> keyStoreCli.store(TRUSTSTORE_PASSWORD_PROPERTY_KEY, s));
-      esInstallation.getKeyStorePassword().ifPresent(s -> keyStoreCli.store(KEYSTORE_PASSWORD_PROPERTY_KEY, s));
+      setupElasticsearchAuthentication(esInstallation, keyStoreCli);
+      setupElasticsearchHttpEncryption(esInstallation, keyStoreCli);
 
       keyStoreCli.executeWith(this::launchJava);
+    }
+  }
+
+  private static void setupElasticsearchAuthentication(EsInstallation esInstallation, EsKeyStoreCli keyStoreCli) {
+    keyStoreCli.store(BOOTSTRAP_PASSWORD_PROPERTY_KEY, esInstallation.getBootstrapPassword());
+
+    String esConfPath = esInstallation.getConfDirectory().getAbsolutePath();
+
+    Path trustStoreLocation = esInstallation.getTrustStoreLocation();
+    Path keyStoreLocation = esInstallation.getKeyStoreLocation();
+    if (trustStoreLocation.equals(keyStoreLocation)) {
+      copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
+    } else {
+      copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
+      copyFile(keyStoreLocation, Paths.get(esConfPath, keyStoreLocation.toFile().getName()));
+    }
+
+    esInstallation.getTrustStorePassword().ifPresent(s -> keyStoreCli.store(TRUSTSTORE_PASSWORD_PROPERTY_KEY, s));
+    esInstallation.getKeyStorePassword().ifPresent(s -> keyStoreCli.store(KEYSTORE_PASSWORD_PROPERTY_KEY, s));
+  }
+
+  private static void setupElasticsearchHttpEncryption(EsInstallation esInstallation, EsKeyStoreCli keyStoreCli) {
+    if (esInstallation.isHttpEncryptionEnabled()) {
+      String esConfPath = esInstallation.getConfDirectory().getAbsolutePath();
+      Path httpKeyStoreLocation = esInstallation.getHttpKeyStoreLocation();
+      copyFile(httpKeyStoreLocation, Paths.get(esConfPath, httpKeyStoreLocation.toFile().getName()));
+      esInstallation.getHttpKeyStorePassword().ifPresent(s -> keyStoreCli.store(HTTP_KEYSTORE_PASSWORD_PROPERTY_KEY, s));
     }
   }
 
@@ -204,7 +207,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     try {
       Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      throw new IllegalStateException("Could not copy file: " + from.toString(), e);
+      throw new IllegalStateException("Could not copy file: " + from, e);
     }
   }
 
@@ -234,16 +237,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
         command.getWorkDir().getAbsolutePath(),
         String.join(" ", processBuilder.command()));
     }
-  }
-
-  private ProcessBuilder create(EsScriptCommand esScriptCommand) {
-    List<String> commands = new ArrayList<>();
-    EsInstallation esInstallation = esScriptCommand.getEsInstallation();
-    requireNonNull(esInstallation, () -> "No Elasticsearch installation configuration is available for the command of type " + esScriptCommand.getClass());
-    commands.add(esInstallation.getExecutable().getAbsolutePath());
-    commands.addAll(esScriptCommand.getOptions());
-
-    return create(esScriptCommand, commands);
   }
 
   private <T extends JvmOptions> ProcessBuilder create(JavaCommand<T> javaCommand) {

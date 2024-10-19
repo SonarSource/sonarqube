@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSelect, LabelValueSelectOption } from 'design-system';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier } from '../../../types/component';
+import {
+  ApplicationAnalysisEventCategory,
+  ProjectAnalysisEventCategory,
+} from '../../../types/project-activity';
 import { Component } from '../../../types/types';
-import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
+import { Query } from '../utils';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 
 interface ProjectActivityPageFiltersProps {
@@ -34,11 +39,13 @@ interface ProjectActivityPageFiltersProps {
 }
 
 export default function ProjectActivityPageFilters(props: ProjectActivityPageFiltersProps) {
-  const { project, category, from, to, updateQuery } = props;
+  const { category, project, from, to, updateQuery } = props;
 
   const isApp = project.qualifier === ComponentQualifier.Application;
-  const eventTypes = isApp ? APPLICATION_EVENT_TYPES : EVENT_TYPES;
-  const options = eventTypes.map((category) => ({
+  const eventTypes = isApp
+    ? Object.values(ApplicationAnalysisEventCategory)
+    : Object.values(ProjectAnalysisEventCategory);
+  const options: LabelValueSelectOption[] = eventTypes.map((category) => ({
     label: translate('event.category', category),
     value: category,
   }));
@@ -47,28 +54,25 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
     (option: { value: string } | null) => {
       updateQuery({ category: option ? option.value : '' });
     },
-    [updateQuery]
+    [updateQuery],
   );
 
   return (
-    <div className="page-header display-flex-start">
-      {!([ComponentQualifier.Portfolio, ComponentQualifier.SubPortfolio] as string[]).includes(
-        project.qualifier
-      ) && (
-        <div className="display-flex-column big-spacer-right">
-          <label className="text-bold little-spacer-bottom" htmlFor="filter-events">
-            {translate('project_activity.filter_events')}
-          </label>
-          <Select
-            className={isApp ? 'input-large' : 'input-medium'}
-            id="filter-events"
-            isClearable={true}
-            isSearchable={false}
-            onChange={handleCategoryChange}
-            options={options}
-            value={options.filter((o) => o.value === category)}
-          />
-        </div>
+    <div className="sw-flex sw-mb-5 sw-items-center">
+      {!isPortfolioLike(project.qualifier) && (
+        <InputSelect
+          aria-label={translate('project_activity.filter_events')}
+          className="sw-mr-8 sw-typo-default sw-w-abs-200"
+          isClearable
+          onChange={(data: LabelValueSelectOption) => handleCategoryChange(data)}
+          options={options}
+          placeholder={translate('project_activity.filter_events')}
+          size="full"
+          value={options.find((o) => o.value === category)}
+          classNames={{
+            menu: () => 'sw-z-dropdown-menu-page',
+          }}
+        />
       )}
       <ProjectActivityDateInput from={from} onChange={props.updateQuery} to={to} />
     </div>

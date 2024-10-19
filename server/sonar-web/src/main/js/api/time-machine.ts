@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,41 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON } from '../helpers/request';
-import { BranchParameters } from '../types/branch-like';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Paging } from '../types/types';
 
 export interface TimeMachineResponse {
   measures: {
-    metric: string;
     history: Array<{ date: string; value?: string }>;
+    metric: MetricKey;
   }[];
   paging: Paging;
 }
 
 export function getTimeMachineData(
   data: {
-    component: string;
+    component?: string;
     from?: string;
     metrics: string;
     p?: number;
     ps?: number;
     to?: string;
-  } & BranchParameters
+  } & BranchParameters,
 ): Promise<TimeMachineResponse> {
   return getJSON('/api/measures/search_history', data).catch(throwGlobalError);
 }
 
 export function getAllTimeMachineData(
   data: {
-    component: string;
-    metrics: string;
+    component?: string;
     from?: string;
+    metrics: string;
     p?: number;
     to?: string;
   } & BranchParameters,
-  prev?: TimeMachineResponse
+  prev?: TimeMachineResponse,
 ): Promise<TimeMachineResponse> {
   return getTimeMachineData({ ...data, ps: 100 }).then((r) => {
     const result = prev

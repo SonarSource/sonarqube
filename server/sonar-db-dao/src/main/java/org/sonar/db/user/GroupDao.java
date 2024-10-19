@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,16 +26,12 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Dao;
-import org.sonar.db.DaoUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.WildcardPosition;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserGroupNewValue;
 
@@ -85,12 +81,12 @@ public class GroupDao implements Dao {
     }
   }
 
-  public int countByQuery(DbSession session, String organizationUuid, @Nullable String query) {
-    return mapper(session).countByQuery(organizationUuid, groupSearchToSql(query));
+  public int countByQuery(DbSession session, GroupQuery query) {
+    return mapper(session).countByQuery(query);
   }
 
-  public List<GroupDto> selectByQuery(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectByQuery(organizationUuid, groupSearchToSql(query), new RowBounds(offset, limit));
+  public List<GroupDto> selectByQuery(DbSession session, GroupQuery query, int page, int pageSize) {
+    return mapper(session).selectByQuery(query, Pagination.forPage(page).andSize(pageSize));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {
@@ -114,16 +110,6 @@ public class GroupDao implements Dao {
 
   public List<GroupDto> selectByUserLogin(DbSession session, String login) {
     return mapper(session).selectByUserLogin(login);
-  }
-
-  @CheckForNull
-  private static String groupSearchToSql(@Nullable String query) {
-    if (query == null) {
-      return null;
-    }
-
-    String upperCasedNameQuery = StringUtils.upperCase(query, Locale.ENGLISH);
-    return DaoUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
   }
 
   private static GroupMapper mapper(DbSession session) {

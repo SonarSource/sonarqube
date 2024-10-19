@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,28 +30,12 @@
   pointer-events: all;
 }
 
-.chart-zoomed .line-chart-area {
-  clip-path: url(#chart-clip);
-}
-
 .chart-zoomed .line-chart-path {
   clip-path: url(#chart-clip);
 }
 
 .chart-zoomed .leak-chart-rect {
   clip-path: url(#chart-clip);
-}
-
-.line-chart-dot {
-  fill: var(--blue);
-}
-
-.line-chart-dot.line-chart-dot-1 {
-  fill: var(--darkBlue);
-}
-
-.line-chart-dot.line-chart-dot-2 {
-  fill: #24c6e0;
 }
 
 .line-chart-event {

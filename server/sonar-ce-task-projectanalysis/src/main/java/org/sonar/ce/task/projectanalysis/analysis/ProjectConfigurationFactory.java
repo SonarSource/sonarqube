@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.setting.ChildSettings;
 
 @ComputeEngineSide
@@ -37,18 +38,17 @@ public class ProjectConfigurationFactory {
     this.dbClient = dbClient;
   }
 
-  public Configuration newProjectConfiguration(String projectUuid, String branchUuid) {
+  public Configuration newProjectConfiguration(String projectUuid) {
     Settings projectSettings = new ChildSettings(globalSettings);
     addSettings(projectSettings, projectUuid);
-    if (!projectUuid.equals(branchUuid)) {
-      addSettings(projectSettings, branchUuid);
-    }
     return new ConfigurationBridge(projectSettings);
   }
 
   private void addSettings(Settings settings, String componentUuid) {
-    dbClient.propertiesDao()
-      .selectComponentProperties(componentUuid)
-      .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+    try (DbSession session = dbClient.openSession(false)) {
+      dbClient.propertiesDao()
+        .selectEntityProperties(session, componentUuid)
+        .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+    }
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Iterables.filter;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,9 +48,9 @@ public class StatusActionTest {
   private static final String STATUS_MIGRATION_NEEDED = "DB_MIGRATION_NEEDED";
   private static final String STATUS_MIGRATION_RUNNING = "DB_MIGRATION_RUNNING";
   private static final String STATUS_RESTARTING = "RESTARTING";
-  private static final Set<DatabaseMigrationState.Status> SUPPORTED_DATABASE_MIGRATION_STATUSES = of(DatabaseMigrationState.Status.FAILED, DatabaseMigrationState.Status.NONE,
-    DatabaseMigrationState.Status.SUCCEEDED, DatabaseMigrationState.Status.RUNNING);
-  private static final Set<Platform.Status> SUPPORTED_PLATFORM_STATUSES = of(Platform.Status.BOOTING, Platform.Status.SAFEMODE, Platform.Status.STARTING, Platform.Status.UP);
+  private static final Set<DatabaseMigrationState.Status> SUPPORTED_DATABASE_MIGRATION_STATUSES = Set.of(DatabaseMigrationState.Status.FAILED, DatabaseMigrationState.Status.NONE,
+    DatabaseMigrationState.Status.SUCCEEDED, DatabaseMigrationState.Status.RUNNING, DatabaseMigrationState.Status.STATUS_NOT_SUPPORTED, DatabaseMigrationState.Status.MIGRATION_REQUIRED);
+  private static final Set<Platform.Status> SUPPORTED_PLATFORM_STATUSES = Set.of(Platform.Status.BOOTING, Platform.Status.SAFEMODE, Platform.Status.STARTING, Platform.Status.UP);
 
   private static Server server = new Dummy51Server();
   private DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
@@ -192,16 +191,6 @@ public class StatusActionTest {
 
     @Override
     public String getPublicRootUrl() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSecured() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getPermanentServerId() {
       throw new UnsupportedOperationException();
     }
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,24 +19,25 @@
  */
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { ComponentContext } from '../componentContext/ComponentContext';
+import { useRefreshBranches } from '../../../queries/branch';
 import NotFound from '../NotFound';
+import { ComponentContext } from '../componentContext/ComponentContext';
 import Extension from './Extension';
 
 export default function ProjectAdminPageExtension() {
   const { extensionKey, pluginKey } = useParams();
-  const { organization, component, onBranchesChange } = React.useContext(ComponentContext);
+  const { organization, component, onComponentChange } = React.useContext(ComponentContext);
 
-  const extension =
-    component &&
-    component.configuration &&
-    (component.configuration.extensions || []).find(
-      (p) => p.key === `${pluginKey}/${extensionKey}`
-    );
+  // We keep that for compatibility but ideally should advocate to use tanstack query
+  const onBranchesChange = useRefreshBranches(component?.key);
+
+  const extension = component?.configuration?.extensions?.find(
+    (p) => p.key === `${pluginKey}/${extensionKey}`,
+  );
 
   return extension ? (
-    <Extension extension={extension} options={{ organization, component, onBranchesChange }} />
+    <Extension extension={extension} options={{ organization, component, onComponentChange, onBranchesChange }} />
   ) : (
-    <NotFound withContainer={false} />
+    <NotFound />
   );
 }

@@ -6,13 +6,27 @@
       "isUserActive": true,
       "avatar": "b0d8c6e5ea589e6fc3d3e08afb1873bb",
       "creationDate": "2014-03-04T23:03:44+0100",
-      "externalUser": "toto",
+      "externalUser": "ext-user",
       "webhookSource": "github",
       "diffs": [
         {
-          "key": "severity",
-          "newValue": "BLOCKER",
-          "oldValue": "MAJOR"
+          "key": "issueStatus",
+          "newValue": "ACCEPTED",
+          "oldValue": "OPEN"
+        }
+      ]
+    },
+    {
+      "creationDate": "2014-03-04T23:05:44+0100",
+      "diffs": [
+        {
+          "key": "from_branch",
+          "newValue": "main",
+          "oldValue": "branch-123"
+        },
+        {
+          "key": "assignee",
+          "newValue": "assignee123"
         }
       ]
     }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -95,7 +95,7 @@ public class RegisterQualityProfileStatusStep implements ComputationStep {
       QualityProfile baseProfile = baseProfiles.get(profile.getQpKey());
       if (baseProfile == null) {
         register(profile, ADDED);
-      } else if  (profile.getRulesUpdatedAt().after(baseProfile.getRulesUpdatedAt())) {
+      } else if (profile.getRulesUpdatedAt().after(baseProfile.getRulesUpdatedAt())) {
         register(baseProfile, UPDATED);
       } else {
         register(baseProfile, UNCHANGED);

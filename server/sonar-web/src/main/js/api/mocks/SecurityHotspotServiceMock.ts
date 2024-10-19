@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,74 +17,160 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, pick, range, times } from 'lodash';
-import { mockHotspot, mockRawHotspot } from '../../helpers/mocks/security-hotspots';
+import { cloneDeep, times } from 'lodash';
+import {
+  mockHotspot,
+  mockHotspotComment,
+  mockHotspotRule,
+  mockRawHotspot,
+  mockStandards,
+} from '../../helpers/mocks/security-hotspots';
 import { mockSourceLine } from '../../helpers/mocks/sources';
-import { mockRuleDetails } from '../../helpers/testMocks';
-import { BranchParameters } from '../../types/branch-like';
+import { getStandards } from '../../helpers/security-standard';
+import { mockPaging, mockRestUser } from '../../helpers/testMocks';
 import {
   Hotspot,
   HotspotAssignRequest,
+  HotspotComment,
   HotspotResolution,
   HotspotStatus,
 } from '../../types/security-hotspots';
+import { RestUser } from '../../types/users';
 import { getSources } from '../components';
 import { getMeasures } from '../measures';
-import { getRuleDetails } from '../rules';
 import {
   assignSecurityHotspot,
+  commentSecurityHotspot,
+  deleteSecurityHotspotComment,
+  editSecurityHotspotComment,
   getSecurityHotspotDetails,
+  getSecurityHotspotList,
   getSecurityHotspots,
+  setSecurityHotspotStatus,
 } from '../security-hotspots';
+import { getUsers } from '../users';
 
 const NUMBER_OF_LINES = 20;
-const MAX_END_RANGE = 10;
 
 export default class SecurityHotspotServiceMock {
   hotspots: Hotspot[] = [];
-  rawHotspotKey: string[] = [];
   nextAssignee: string | undefined;
+  canChangeStatus: boolean = true;
+  hotspotsComments: HotspotComment[] = [];
 
   constructor() {
     this.reset();
 
-    (getMeasures as jest.Mock).mockImplementation(this.handleGetMeasures);
-    (getSecurityHotspots as jest.Mock).mockImplementation(this.handleGetSecurityHotspots);
-    (getSecurityHotspotDetails as jest.Mock).mockImplementation(
-      this.handleGetSecurityHotspotDetails
-    );
-    (assignSecurityHotspot as jest.Mock).mockImplementation(this.handleAssignSecurityHotspot);
-    (getRuleDetails as jest.Mock).mockResolvedValue({ rule: mockRuleDetails() });
-    (getSources as jest.Mock).mockResolvedValue(
+    jest.mocked(getMeasures).mockImplementation(this.handleGetMeasures);
+    jest.mocked(getSecurityHotspots).mockImplementation(this.handleGetSecurityHotspots);
+    jest.mocked(getSecurityHotspotDetails).mockImplementation(this.handleGetSecurityHotspotDetails);
+    jest.mocked(getSecurityHotspotList).mockImplementation(this.handleGetSecurityHotspotList);
+    jest.mocked(assignSecurityHotspot).mockImplementation(this.handleAssignSecurityHotspot);
+    jest.mocked(setSecurityHotspotStatus).mockImplementation(this.handleSetSecurityHotspotStatus);
+    jest.mocked(getUsers).mockImplementation((p) => this.handleGetUsers(p));
+    jest.mocked(getSources).mockResolvedValue(
       times(NUMBER_OF_LINES, (n) =>
         mockSourceLine({
           line: n,
           code: '  <span class="sym-35 sym">symbole</span>',
-        })
-      )
+        }),
+      ),
     );
+    jest.mocked(commentSecurityHotspot).mockImplementation(this.handleCommentSecurityHotspot);
+    jest
+      .mocked(deleteSecurityHotspotComment)
+      .mockImplementation(this.handleDeleteSecurityHotspotComment);
+    jest
+      .mocked(editSecurityHotspotComment)
+      .mockImplementation(this.handleEditSecurityHotspotComment);
+    jest.mocked(getStandards).mockImplementation(this.handleGetStandards);
   }
 
-  handleGetSources = (data: { key: string; from?: number; to?: number } & BranchParameters) => {
-    return this.reply(
-      range(data.from || 1, data.to || MAX_END_RANGE).map((line) => mockSourceLine({ line }))
-    );
+  handleCommentSecurityHotspot = () => {
+    this.hotspotsComments = [
+      mockHotspotComment({
+        htmlText: 'This is a comment from john doe',
+        markdown: 'This is a comment from john doe',
+        updatable: true,
+      }),
+    ];
+    return Promise.resolve();
   };
 
-  handleGetSecurityHotspots = (
-    data: {
-      projectKey: string;
-      p: number;
-      ps: number;
-      status?: HotspotStatus;
-      resolution?: HotspotResolution;
-      onlyMine?: boolean;
-      inNewCodePeriod?: boolean;
-    } & BranchParameters
-  ) => {
+  handleDeleteSecurityHotspotComment = () => {
+    this.hotspotsComments = [];
+    return Promise.resolve();
+  };
+
+  handleEditSecurityHotspotComment = () => {
+    const response = mockHotspotComment({
+      htmlText: 'This is a comment from john doe test',
+      markdown: 'This is a comment from john doe test',
+      updatable: true,
+    });
+    this.hotspotsComments = [response];
+    return Promise.resolve(response);
+  };
+
+  handleGetStandards = () => {
+    return Promise.resolve(mockStandards());
+  };
+
+  handleSetSecurityHotspotStatus = () => {
+    return Promise.resolve();
+  };
+
+  handleGetUsers: typeof getUsers<RestUser> = () => {
     return this.reply({
-      paging: { pageIndex: 1, pageSize: data.ps, total: this.hotspots.length },
-      hotspots: this.hotspots.map((hotspot) => pick(hotspot, this.rawHotspotKey)),
+      users: [
+        mockRestUser({ name: 'User John', login: 'user.john' }),
+        mockRestUser({ name: 'User Doe', login: 'user.doe' }),
+        mockRestUser({ name: 'User Foo', login: 'user.foo' }),
+      ],
+      page: mockPaging(),
+    });
+  };
+
+  handleGetSecurityHotspotList = (
+    hotspotKeys: string[],
+    data: {
+      branch?: string;
+      project: string;
+    },
+  ) => {
+    if (data?.branch === 'normal-branch') {
+      return this.reply({
+        paging: mockPaging(),
+        hotspots: [
+          mockRawHotspot({
+            assignee: 'John Doe',
+            key: 'b1-test-1',
+            message: "'F' is a magic number.",
+          }),
+          mockRawHotspot({ assignee: 'John Doe', key: 'b1-test-2' }),
+        ].filter((h) => hotspotKeys.includes(h.key) || hotspotKeys.length === 0),
+        components: [
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
+            qualifier: 'FIL',
+            name: 'index.php',
+            longName: 'index.php',
+            path: 'index.php',
+          },
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+            qualifier: 'TRK',
+            name: 'benflix',
+            longName: 'benflix',
+          },
+        ],
+      });
+    }
+    return this.reply({
+      paging: mockPaging(),
+      hotspots: this.mockRawHotspots(false).filter(
+        (h) => hotspotKeys.includes(h.key) || hotspotKeys.length === 0,
+      ),
       components: [
         {
           key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
@@ -101,6 +187,77 @@ export default class SecurityHotspotServiceMock {
         },
       ],
     });
+  };
+
+  handleGetSecurityHotspots = (data: {
+    branch?: string;
+    inNewCodePeriod?: boolean;
+    onlyMine?: boolean;
+    p: number;
+    project: string;
+    ps: number;
+    resolution?: HotspotResolution;
+    status?: HotspotStatus;
+  }) => {
+    if (data?.branch === 'normal-branch') {
+      return this.reply({
+        paging: mockPaging({ pageIndex: 1, pageSize: data.ps, total: 2 }),
+        hotspots: [
+          mockRawHotspot({
+            assignee: 'John Doe',
+            key: 'b1-test-1',
+            message: "'F' is a magic number.",
+          }),
+          mockRawHotspot({ assignee: 'John Doe', key: 'b1-test-2' }),
+        ],
+        components: [
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
+            qualifier: 'FIL',
+            name: 'index.php',
+            longName: 'index.php',
+            path: 'index.php',
+          },
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+            qualifier: 'TRK',
+            name: 'benflix',
+            longName: 'benflix',
+          },
+        ],
+      });
+    }
+
+    return this.reply({
+      paging: mockPaging({ pageIndex: 1, pageSize: data.ps, total: this.hotspots.length }),
+      hotspots: this.mockRawHotspots(data.onlyMine),
+      components: [
+        {
+          key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
+          qualifier: 'FIL',
+          name: 'index.php',
+          longName: 'index.php',
+          path: 'index.php',
+        },
+        {
+          key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+          qualifier: 'TRK',
+          name: 'benflix',
+          longName: 'benflix',
+        },
+      ],
+    });
+  };
+
+  mockRawHotspots = (onlyMine: boolean | undefined) => {
+    if (onlyMine) {
+      return [];
+    }
+    return [
+      mockRawHotspot({ assignee: 'John Doe', key: 'test-1' }),
+      mockRawHotspot({ assignee: 'John Doe', key: 'test-2' }),
+      mockRawHotspot({ assignee: 'John Doe', key: 'test-cve', cveId: 'CVE-2021-12345' }),
+    ];
   };
 
   handleGetSecurityHotspotDetails = (securityHotspotKey: string) => {
@@ -121,36 +278,68 @@ export default class SecurityHotspotServiceMock {
       this.nextAssignee = undefined;
     }
 
+    hotspot.canChangeStatus = this.canChangeStatus;
+    hotspot.comment = this.hotspotsComments;
+
     return this.reply(hotspot);
   };
 
   handleGetMeasures = () => {
     return this.reply([
       {
-        component: {
-          key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
-          name: 'benflix',
-          qualifier: 'TRK',
-          measures: [{ metric: 'security_hotspots_reviewed', value: '0.0', bestValue: false }],
-        },
+        key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+        name: 'benflix',
+        qualifier: 'TRK',
+        metric: 'security_hotspots_reviewed',
+        measures: [{ metric: 'security_hotspots_reviewed', value: '0.0', bestValue: false }],
       },
     ]);
   };
 
   handleAssignSecurityHotspot = (_: string, data: HotspotAssignRequest) => {
     this.nextAssignee = data.assignee;
-    return this.reply({});
+    return Promise.resolve();
   };
+
+  setHotspotChangeStatusPermission = (value: boolean) => (this.canChangeStatus = value);
 
   reply<T>(response: T): Promise<T> {
     return Promise.resolve(cloneDeep(response));
   }
 
   reset = () => {
-    this.rawHotspotKey = Object.keys(mockRawHotspot());
     this.hotspots = [
-      mockHotspot({ key: '1', status: HotspotStatus.TO_REVIEW }),
-      mockHotspot({ key: '2', status: HotspotStatus.TO_REVIEW }),
+      mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
+        assignee: 'John Doe',
+        key: 'b1-test-1',
+        message: "'F' is a magic number.",
+      }),
+      mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
+        assignee: 'John Doe',
+        key: 'b1-test-2',
+      }),
+      mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
+        key: 'test-1',
+        status: HotspotStatus.TO_REVIEW,
+      }),
+      mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
+        key: 'test-2',
+        status: HotspotStatus.TO_REVIEW,
+        message: "'2' is a magic number.",
+        codeVariants: ['variant 1', 'variant 2'],
+      }),
+      mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
+        key: 'test-cve',
+        status: HotspotStatus.TO_REVIEW,
+        message: 'CVE on jackson',
+        cveId: 'CVE-2021-12345',
+      }),
     ];
+    this.canChangeStatus = true;
   };
 }

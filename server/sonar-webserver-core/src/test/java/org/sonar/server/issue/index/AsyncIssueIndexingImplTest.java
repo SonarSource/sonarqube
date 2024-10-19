@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,11 +30,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -42,7 +43,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
@@ -55,7 +55,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -86,7 +86,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branchName")
       .setUuid("branch_uuid")
-      .setProjectUuid("project_uuid");
+      .setProjectUuid("project_uuid")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
 
@@ -97,18 +98,19 @@ public class AsyncIssueIndexingImplTest {
     assertThat(branch.get().isNeedIssueSync()).isTrue();
     verify(ceQueue, times(1)).prepareSubmit();
     verify(ceQueue, times(1)).massSubmit(anyCollection());
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("1 branch found in need of issue sync.");
   }
 
   @Test
   public void triggerForProject() {
-    ProjectDto projectDto = dbTester.components().insertPrivateProjectDto();
+    ProjectDto projectDto = dbTester.components().insertPrivateProject().getProjectDto();
     BranchDto dto = new BranchDto()
       .setBranchType(BRANCH)
       .setKey("branchName")
       .setUuid("branch_uuid")
-      .setProjectUuid(projectDto.getUuid());
+      .setProjectUuid(projectDto.getUuid())
+      .setIsMain(true);
     dbTester.components().insertProjectBranch(projectDto, dto);
 
     underTest.triggerForProject(projectDto.getUuid());
@@ -118,7 +120,7 @@ public class AsyncIssueIndexingImplTest {
     assertThat(branch.get().isNeedIssueSync()).isTrue();
     verify(ceQueue, times(2)).prepareSubmit();
     verify(ceQueue, times(1)).massSubmit(anyCollection());
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("2 branch(es) found in need of issue sync for project.");
   }
 
@@ -126,13 +128,13 @@ public class AsyncIssueIndexingImplTest {
   public void triggerOnIndexCreation_no_branch() {
     underTest.triggerOnIndexCreation();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 branch found in need of issue sync.");
+    assertThat(logTester.logs(Level.INFO)).contains("0 branch found in need of issue sync.");
   }
 
   @Test
   public void triggerForProject_no_branch() {
     underTest.triggerForProject("some-random-uuid");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 branch(es) found in need of issue sync for project.");
+    assertThat(logTester.logs(Level.INFO)).contains("0 branch(es) found in need of issue sync for project.");
   }
 
   @Test
@@ -150,12 +152,16 @@ public class AsyncIssueIndexingImplTest {
 
     underTest.triggerOnIndexCreation();
 
-    assertCeTasks(reportTaskUuid);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(dbClient.ceQueueDao().selectAllInAscOrder(dbTester.getSession())).extracting("uuid").containsExactly(reportTaskUuid);
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC)).isEmpty();
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
+    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
+
+    assertThat(logTester.logs(Level.INFO))
       .contains(
-        "1 pending indexation task found to be deleted...",
-        "1 completed indexation task found to be deleted...",
-        "Indexation task deletion complete.",
+        "1 pending indexing task found to be deleted...",
+        "1 completed indexing task found to be deleted...",
+        "Indexing task deletion complete.",
         "Deleting tasks characteristics...",
         "Tasks characteristics deletion complete.");
   }
@@ -164,25 +170,44 @@ public class AsyncIssueIndexingImplTest {
   public void remove_existing_indexation_for_project_task() {
     String reportTaskUuid = persistReportTasks();
 
-    ProjectDto projectDto = dbTester.components().insertPrivateProjectDto();
+    ProjectDto projectDto = dbTester.components().insertPrivateProject().getProjectDto();
     String branchUuid = "branch_uuid";
     dbTester.components().insertProjectBranch(projectDto, b -> b.setBranchType(BRANCH).setUuid(branchUuid));
+
     CeQueueDto mainBranchTask = new CeQueueDto().setUuid("uuid_2").setTaskType(BRANCH_ISSUE_SYNC)
-      .setMainComponentUuid(projectDto.getUuid()).setComponentUuid(projectDto.getUuid());
-    CeQueueDto branchTask = new CeQueueDto().setUuid("uuid_3").setTaskType(BRANCH_ISSUE_SYNC)
-      .setMainComponentUuid(projectDto.getUuid()).setComponentUuid(branchUuid);
+      .setEntityUuid(projectDto.getUuid()).setComponentUuid(projectDto.getUuid());
     dbClient.ceQueueDao().insert(dbTester.getSession(), mainBranchTask);
+
+    CeQueueDto branchTask = new CeQueueDto().setUuid("uuid_3").setTaskType(BRANCH_ISSUE_SYNC)
+      .setEntityUuid(projectDto.getUuid()).setComponentUuid(branchUuid);
     dbClient.ceQueueDao().insert(dbTester.getSession(), branchTask);
+
+    ProjectDto anotherProjectDto = dbTester.components().insertPrivateProject().getProjectDto();
+    CeQueueDto taskOnAnotherProject = new CeQueueDto().setUuid("uuid_4").setTaskType(BRANCH_ISSUE_SYNC)
+      .setEntityUuid(anotherProjectDto.getUuid()).setComponentUuid("another-branchUuid");
+    CeActivityDto canceledTaskOnAnotherProject = new CeActivityDto(taskOnAnotherProject).setStatus(Status.CANCELED);
+    dbClient.ceActivityDao().insert(dbTester.getSession(), canceledTaskOnAnotherProject);
+
     dbTester.commit();
 
     underTest.triggerForProject(projectDto.getUuid());
 
-    assertCeTasks(reportTaskUuid);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(dbClient.ceQueueDao().selectAllInAscOrder(dbTester.getSession())).extracting("uuid")
+      .containsExactly(reportTaskUuid);
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
+    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
+
+    // verify that the canceled tasks on anotherProject is still here, and was not removed by the project reindexing
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC))
+      .hasSize(1)
+      .extracting(CeActivityDto::getEntityUuid)
+      .containsExactly(anotherProjectDto.getUuid());
+
+    assertThat(logTester.logs(Level.INFO))
       .contains(
-        "2 pending indexation task found to be deleted...",
-        "2 completed indexation task found to be deleted...",
-        "Indexation task deletion complete.",
+        "2 pending indexing task found to be deleted...",
+        "2 completed indexing task found to be deleted...",
+        "Indexing task deletion complete.",
         "Deleting tasks characteristics...",
         "Tasks characteristics deletion complete.",
         "Tasks characteristics deletion complete.",
@@ -195,7 +220,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branch_1")
       .setUuid("branch_uuid1")
-      .setProjectUuid("project_uuid1");
+      .setProjectUuid("project_uuid1")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
     insertSnapshot("analysis_1", "project_uuid1", 1);
@@ -204,7 +230,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branch_2")
       .setUuid("branch_uuid2")
-      .setProjectUuid("project_uuid2");
+      .setProjectUuid("project_uuid2")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto2);
     dbTester.commit();
     insertSnapshot("analysis_2", "project_uuid2", 2);
@@ -224,7 +251,7 @@ public class AsyncIssueIndexingImplTest {
       .extracting(p -> p.getComponent().get().getUuid())
       .containsExactly("branch_uuid2", "branch_uuid1");
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("2 projects found in need of issue sync.");
   }
 
@@ -234,7 +261,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branch_1")
       .setUuid("branch_uuid1")
-      .setProjectUuid("project_uuid1");
+      .setProjectUuid("project_uuid1")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
     insertSnapshot("analysis_1", "project_uuid1", 1);
@@ -243,7 +271,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(PULL_REQUEST)
       .setKey("pr_1")
       .setUuid("pr_uuid_1")
-      .setProjectUuid("project_uuid2");
+      .setProjectUuid("project_uuid2")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto2);
     dbTester.commit();
     insertSnapshot("analysis_2", "project_uuid2", 2);
@@ -258,9 +287,9 @@ public class AsyncIssueIndexingImplTest {
     assertThat(tasks).hasSize(2);
 
     assertThat(tasks)
-      .extracting(p -> p.getCharacteristics().get(BRANCH_TYPE_KEY),
-        p -> p.getCharacteristics().get(CeTaskCharacteristicDto.BRANCH_KEY),
-        p -> p.getCharacteristics().get(CeTaskCharacteristicDto.PULL_REQUEST))
+      .extracting(p -> p.getCharacteristics().get(BRANCH_TYPE),
+        p -> p.getCharacteristics().get(CeTaskCharacteristics.BRANCH),
+        p -> p.getCharacteristics().get(CeTaskCharacteristics.PULL_REQUEST))
       .containsExactlyInAnyOrder(
         tuple("BRANCH", "branch_1", null),
         tuple("PULL_REQUEST", null, "pr_1"));
@@ -284,7 +313,8 @@ public class AsyncIssueIndexingImplTest {
         .setBranchType(BRANCH)
         .setKey("branch_" + i)
         .setUuid("branch_uuid" + i)
-        .setProjectUuid("project_uuid" + i);
+        .setProjectUuid("project_uuid" + i)
+        .setIsMain(false);
       dbClient.branchDao().insert(dbTester.getSession(), dto);
       dbTester.commit();
       insertSnapshot("analysis_" + i, "project_uuid" + i, 1);
@@ -295,7 +325,8 @@ public class AsyncIssueIndexingImplTest {
         .setBranchType(BRANCH)
         .setKey("branch_" + i)
         .setUuid("branch_uuid" + i)
-        .setProjectUuid("project_uuid" + i);
+        .setProjectUuid("project_uuid" + i)
+        .setIsMain(false);
       dbClient.branchDao().insert(dbTester.getSession(), dto);
       dbTester.commit();
     }
@@ -306,7 +337,7 @@ public class AsyncIssueIndexingImplTest {
   private SnapshotDto insertSnapshot(String analysisUuid, String projectUuid, long createdAt) {
     SnapshotDto snapshot = new SnapshotDto()
       .setUuid(analysisUuid)
-      .setComponentUuid(projectUuid)
+      .setRootComponentUuid(projectUuid)
       .setStatus(STATUS_PROCESSED)
       .setCreatedAt(createdAt)
       .setLast(true);
@@ -325,14 +356,6 @@ public class AsyncIssueIndexingImplTest {
     reportActivity.setStatus(Status.SUCCESS);
     dbClient.ceActivityDao().insert(dbTester.getSession(), reportActivity);
     return reportTask.getUuid();
-  }
-
-  private void assertCeTasks(String reportTaskUuid) {
-    assertThat(dbClient.ceQueueDao().selectAllInAscOrder(dbTester.getSession())).extracting("uuid")
-      .containsExactly(reportTaskUuid);
-    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC)).isEmpty();
-    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
-    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
   }
 
 }

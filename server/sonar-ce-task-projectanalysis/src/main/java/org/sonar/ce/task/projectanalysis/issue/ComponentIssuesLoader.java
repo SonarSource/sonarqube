@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,13 +27,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -48,7 +50,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.groupingBy;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.issue.IssueFieldsSetter.FROM_BRANCH;
 import static org.sonar.server.issue.IssueFieldsSetter.STATUS;
 
@@ -146,7 +147,7 @@ public class ComponentIssuesLoader {
     try {
       return Integer.parseInt(str);
     } catch (NumberFormatException e) {
-      Loggers.get(ComponentIssuesLoader.class)
+      LoggerFactory.getLogger(ComponentIssuesLoader.class)
         .warn("Value of property {} should be an integer >= 0: {}", PROPERTY_CLOSED_ISSUE_MAX_AGE, str);
       return null;
     }
@@ -163,7 +164,7 @@ public class ComponentIssuesLoader {
    * While loading the changes for the issues, this class will also collect old status changes that should be deleted.
    */
   private void loadLatestDiffChangesForReopeningOfClosedIssues(DbSession dbSession, Collection<DefaultIssue> issues) {
-    Map<String, DefaultIssue> issuesByKey = issues.stream().collect(uniqueIndex(DefaultIssue::key));
+    Map<String, DefaultIssue> issuesByKey = issues.stream().collect(Collectors.toMap(DefaultIssue::key, Function.identity()));
     CollectIssueChangesToDeleteResultHandler collectChangesToDelete = new CollectIssueChangesToDeleteResultHandler(issueChangesToDeleteRepository);
     CollectLastStatusAndResolution collectLastStatusAndResolution = new CollectLastStatusAndResolution(issuesByKey);
 

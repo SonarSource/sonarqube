@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -81,9 +81,12 @@ public class GroupsAction implements UsersWsAction {
       .addSelectionModeParam()
       .addSearchQuery("users", "group names")
       .addPagingParams(25)
-      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"),
+      .setChangelog(
+        new Change("10.4", "Deprecated. Use GET api/v2/authorizations/groups-memberships?userId={} instead"),
+        new Change("6.4", "Paging response fields moved to a Paging object"),
         new Change("6.4", "'default' response field has been added"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setDeprecatedSince("10.4");
 
     action.createParam(PARAM_LOGIN)
       .setDescription("A user login")
@@ -119,7 +122,7 @@ public class GroupsAction implements UsersWsAction {
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "Unknown user: %s", login);
       int total = dbClient.groupMembershipDao().countGroups(dbSession, query, user.getUuid());
       Paging paging = forPageIndex(query.pageIndex()).withPageSize(query.pageSize()).andTotal(total);
-      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getUuid(), paging.offset(), query.pageSize());
+      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getUuid());
       return buildResponse(groups, defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()), paging);
     }
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ describe('validateProjectKey', () => {
     expect(validateProjectKey('123')).toBe(ProjectKeyValidationResult.OnlyDigits);
     // Cannot be more than 400 chars long.
     expect(validateProjectKey(new Array(PROJECT_KEY_MAX_LEN + 1).fill('a').join(''))).toBe(
-      ProjectKeyValidationResult.TooLong
+      ProjectKeyValidationResult.TooLong,
     );
     // Cannot be empty.
     expect(validateProjectKey('')).toBe(ProjectKeyValidationResult.Empty);

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import NavBar from '../../components/ui/NavBar';
-import { rawSizes } from '../theme';
 import GlobalFooterCodescan from './GlobalFooterCodescan';
+import MainSonarQubeBar from './nav/global/MainSonarQubeBar';
 
 /*
  * We need to render either children or the Outlet,
@@ -29,9 +28,9 @@ import GlobalFooterCodescan from './GlobalFooterCodescan';
  */
 export default function SimpleContainer({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="global-container">
-      <div className="page-wrapper" id="container">
-        <NavBar className="navbar-global" height={rawSizes.globalNavHeightRaw} />
+    <div className="sw-flex sw-flex-col sw-h-full sw-min-h-[100vh]">
+      <div className="sw-box-border sw-flex-auto" id="container">
+        <MainSonarQubeBar />
         {children !== undefined ? children : <Outlet />}
       </div>
       <GlobalFooterCodescan />

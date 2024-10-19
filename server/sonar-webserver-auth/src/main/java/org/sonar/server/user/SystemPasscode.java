@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
 /**
@@ -33,8 +34,14 @@ public interface SystemPasscode {
 
   /**
    * Whether the system passcode is provided by the HTTP request or not.
-   * Returns {@code false} if passcode is not configured.
+   * Returns {@code false} if passcode is not configured or not valid.
    */
   boolean isValid(Request request);
+
+  /**
+   * Check if the passcode passed as argument is valid.
+   * Returns {@code false} if passcode is not configured or not valid.
+   */
+  boolean isValidPasscode(@Nullable String passcode);
 
 }

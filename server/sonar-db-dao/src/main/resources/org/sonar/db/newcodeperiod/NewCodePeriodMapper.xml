@@ -9,6 +9,7 @@
     ncp.branch_uuid as branchUuid,
     ncp.type,
     ncp.value,
+    ncp.previous_non_compliant_value as previousNonCompliantValue,
     ncp.updated_at as updatedAt,
     ncp.created_at as createdAt
   </sql>
@@ -32,13 +33,14 @@
 
   <insert id="insert" parameterType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
     INSERT INTO new_code_periods (
-    uuid, project_uuid, branch_uuid, type, value, updated_at, created_at)
+    uuid, project_uuid, branch_uuid, type, value, previous_non_compliant_value, updated_at, created_at)
     VALUES (
     #{uuid, jdbcType=VARCHAR},
     #{projectUuid, jdbcType=VARCHAR},
     #{branchUuid, jdbcType=VARCHAR},
     #{type, jdbcType=VARCHAR},
     #{value, jdbcType=VARCHAR},
+    #{previousNonCompliantValue, jdbcType=VARCHAR},
     #{updatedAt, jdbcType=TIMESTAMP},
     #{createdAt, jdbcType=TIMESTAMP}
     )
@@ -49,6 +51,7 @@
     SET
     type=#{type, jdbcType=VARCHAR},
     value=#{value, jdbcType=VARCHAR},
+    previous_non_compliant_value=#{previousNonCompliantValue, jdbcType=VARCHAR},
     updated_at=#{updatedAt, jdbcType=TIMESTAMP}
     WHERE
     <choose>
@@ -102,6 +105,12 @@
     WHERE
     ncp.project_uuid=#{projectUuid, jdbcType=VARCHAR}
     AND ncp.branch_uuid is null
+  </select>
+
+  <select id="selectAll" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
+    SELECT
+    <include refid="newCodePeriodMapperColumns"/>
+    FROM new_code_periods ncp
   </select>
 
   <select id="selectAllByProject" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">

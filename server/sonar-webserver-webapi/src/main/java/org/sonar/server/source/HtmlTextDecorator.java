@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -83,7 +83,7 @@ class HtmlTextDecorator {
 
     } catch (IOException exception) {
       String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
-      Loggers.get(HtmlTextDecorator.class).error(errorMsg);
+      LoggerFactory.getLogger(HtmlTextDecorator.class).error(errorMsg);
       throw new IllegalStateException(errorMsg, exception);
     } finally {
       Closeables.closeQuietly(stringBuffer);

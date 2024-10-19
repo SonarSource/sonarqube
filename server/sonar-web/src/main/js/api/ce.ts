@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { post } from '../helpers/request';
 import { IndexationStatus } from '../types/indexation';
 import { ActivityRequestParameters, Task, TaskWarning } from '../types/tasks';
 import { Paging } from '../types/types';
 
 export function getAnalysisStatus(data: {
-  component: string;
   branch?: string;
+  component: string;
   pullRequest?: string;
 }): Promise<{
   component: {
@@ -41,13 +42,13 @@ export function getAnalysisStatus(data: {
 }
 
 export function getActivity(
-  data: ActivityRequestParameters
-): Promise<{ tasks: Task[]; paging: Paging }> {
+  data: ActivityRequestParameters,
+): Promise<{ paging: Paging; tasks: Task[] }> {
   return getJSON('/api/ce/activity', data);
 }
 
 export function getStatus(
-  component?: string
+  component?: string,
 ): Promise<{ failing: number; inProgress: number; pending: number; pendingTime?: number }> {
   return getJSON('/api/ce/activity_status', { component });
 }
@@ -59,7 +60,7 @@ export function getTask(id: string, additionalFields?: string[]): Promise<Task> 
 export function cancelTask(id: string): Promise<any> {
   return post('/api/ce/cancel', { id }).then(
     () => getTask(id),
-    () => getTask(id)
+    () => getTask(id),
   );
 }
 
@@ -67,7 +68,9 @@ export function cancelAllTasks(): Promise<any> {
   return post('/api/ce/cancel_all');
 }
 
-export function getTasksForComponent(component: string): Promise<{ queue: Task[]; current: Task }> {
+export function getTasksForComponent(
+  component: string,
+): Promise<{ current?: Task; queue: Task[] }> {
   return getJSON('/api/ce/component', { component }).catch(throwGlobalError);
 }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import {
+  ButtonSecondary,
+  ContentCell,
+  HeadingDark,
+  Link,
+  Spinner,
+  Table,
+  TableRow,
+  UnorderedList,
+} from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { deleteRule, searchRules } from '../../../api/rules';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
+import { useDeleteRuleMutation, useSearchRulesQuery } from '../../../queries/rules';
 import { Rule, RuleDetails } from '../../../types/types';
 import CustomRuleButton from './CustomRuleButton';
 
@@ -36,141 +43,118 @@ interface Props {
   organization: string;
 }
 
-interface State {
-  loading: boolean;
-  rules?: Rule[];
+const COLUMN_COUNT = 2;
+const COLUMN_COUNT_WITH_EDIT_PERMISSIONS = 3;
+
+export default function RuleDetailsCustomRules(props: Readonly<Props>) {
+  const { ruleDetails, canChange } = props;
+  const rulesSearchParams = {
+    f: 'name,severity,params',
+    template_key: ruleDetails.key,
+  };
+  const { isLoading: loadingRules, data } = useSearchRulesQuery(rulesSearchParams);
+  const { mutate: deleteRules, isPending: deletingRule } = useDeleteRuleMutation(rulesSearchParams);
+
+  const loading = loadingRules || deletingRule;
+  const rules = data?.rules ?? [];
+
+  const handleRuleDelete = React.useCallback(
+    (ruleKey: string) => {
+      deleteRules({ key: ruleKey });
+    },
+    [deleteRules],
+  );
+
+  return (
+    <div className="js-rule-custom-rules">
+      <div>
+        <HeadingDark as="h2">{translate('coding_rules.custom_rules')}</HeadingDark>
+
+        {props.canChange && (
+          <CustomRuleButton templateRule={ruleDetails}>
+            {({ onClick }) => (
+              <ButtonSecondary className="js-create-custom-rule sw-mt-6" onClick={onClick}>
+                {translate('coding_rules.create')}
+              </ButtonSecondary>
+            )}
+          </CustomRuleButton>
+        )}
+        {rules.length > 0 && (
+          <Table
+            className="sw-my-6"
+            id="coding-rules-detail-custom-rules"
+            columnCount={canChange ? COLUMN_COUNT_WITH_EDIT_PERMISSIONS : COLUMN_COUNT}
+            columnWidths={canChange ? ['auto', 'auto', '1%'] : ['auto', 'auto']}
+          >
+            {sortBy(rules, (rule) => rule.name).map((rule) => (
+              <RuleListItem
+                key={rule.key}
+                rule={rule}
+                editable={canChange}
+                onDelete={handleRuleDelete}
+              />
+            ))}
+          </Table>
+        )}
+        <Spinner className="sw-my-6" loading={loading} />
+      </div>
+    </div>
+  );
 }
 
-export default class RuleDetailsCustomRules extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false };
+function RuleListItem(
+  props: Readonly<{
+    editable?: boolean;
+    onDelete: (ruleKey: string) => void;
+    rule: Rule;
+  }>,
+) {
+  const { rule, editable } = props;
+  return (
+    <TableRow data-rule={rule.key}>
+      <ContentCell>
+        <div>
+          <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>
+        </div>
+      </ContentCell>
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchRules();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.ruleDetails.key !== this.props.ruleDetails.key) {
-      this.fetchRules();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchRules = () => {
-    this.setState({ loading: true });
-    searchRules({
-      f: 'name,severity,params',
-      organization: this.props.organization,
-      template_key: this.props.ruleDetails.key,
-    }).then(
-      ({ rules }) => {
-        if (this.mounted) {
-          this.setState({ rules, loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  handleRuleCreate = (newRuleDetails: RuleDetails) => {
-    if (this.mounted) {
-      this.setState(({ rules = [] }: State) => ({
-        rules: [...rules, newRuleDetails],
-      }));
-    }
-  };
-
-  handleRuleDelete = (ruleKey: string) => {
-    return deleteRule({ key: ruleKey, organization: this.props.organization }).then(() => {
-      if (this.mounted) {
-        this.setState(({ rules = [] }) => ({
-          rules: rules.filter((rule) => rule.key !== ruleKey),
-        }));
-      }
-    });
-  };
-
-  renderRule = (rule: Rule) => (
-    <tr data-rule={rule.key} key={rule.key}>
-      <td className="coding-rules-detail-list-name">
-        <Link to={getRuleUrl(rule.key, this.props.organization)}>{rule.name}</Link>
-      </td>
-
-      <td className="coding-rules-detail-list-severity">
-        <SeverityHelper className="display-flex-center" severity={rule.severity} />
-      </td>
-
-      <td className="coding-rules-detail-list-parameters">
-        {rule.params &&
-          rule.params
-            .filter((param) => param.defaultValue)
+      <ContentCell>
+        <UnorderedList className="sw-mt-0">
+          {rule.params
+            ?.filter((param) => param.defaultValue)
             .map((param) => (
-              <div className="coding-rules-detail-list-parameter" key={param.key}>
-                <span className="key">{param.key}</span>
-                <span className="sep">:&nbsp;</span>
-                <span className="value" title={param.defaultValue}>
-                  {param.defaultValue}
-                </span>
-              </div>
+              <li key={param.key}>
+                <span className="sw-font-semibold">{param.key}</span>
+                <span>:&nbsp;</span>
+                <span title={param.defaultValue}>{param.defaultValue}</span>
+              </li>
             ))}
-      </td>
+        </UnorderedList>
+      </ContentCell>
 
-      {this.props.canChange && (
-        <td className="coding-rules-detail-list-actions">
+      {editable && (
+        <ContentCell>
           <ConfirmButton
             confirmButtonText={translate('delete')}
             confirmData={rule.key}
-            isDestructive={true}
+            isDestructive
             modalBody={translateWithParameters('coding_rules.delete.custom.confirm', rule.name)}
             modalHeader={translate('coding_rules.delete_rule')}
-            onConfirm={this.handleRuleDelete}
+            onConfirm={props.onDelete}
           >
             {({ onClick }) => (
-              <Button className="button-red js-delete-custom-rule" onClick={onClick}>
+              <Button
+                className="js-delete-custom-rule"
+                aria-label={translateWithParameters('coding_rules.delete_rule_x', rule.name)}
+                onClick={onClick}
+                variety={ButtonVariety.DangerOutline}
+              >
                 {translate('delete')}
               </Button>
             )}
           </ConfirmButton>
-        </td>
+        </ContentCell>
       )}
-    </tr>
+    </TableRow>
   );
-
-  render() {
-    const { loading, rules = [] } = this.state;
-
-    return (
-      <div className="js-rule-custom-rules coding-rule-section">
-        <div className="coding-rules-detail-custom-rules-section">
-          <h2 className="coding-rules-detail-title">{translate('coding_rules.custom_rules')}</h2>
-
-          {this.props.canChange && (
-            <CustomRuleButton onDone={this.handleRuleCreate} organization={this.props.organization} templateRule={this.props.ruleDetails}>
-              {({ onClick }) => (
-                <Button className="js-create-custom-rule spacer-left" onClick={onClick}>
-                  {translate('coding_rules.create')}
-                </Button>
-              )}
-            </CustomRuleButton>
-          )}
-
-          <DeferredSpinner className="spacer-left" loading={loading}>
-            {rules.length > 0 && (
-              <table className="coding-rules-detail-list" id="coding-rules-detail-custom-rules">
-                <tbody>{sortBy(rules, (rule) => rule.name).map(this.renderRule)}</tbody>
-              </table>
-            )}
-          </DeferredSpinner>
-        </div>
-      </div>
-    );
-  }
 }

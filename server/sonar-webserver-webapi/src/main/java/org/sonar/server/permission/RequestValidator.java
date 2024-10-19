@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -55,8 +55,8 @@ public class RequestValidator {
   }
 
   public static void validateGlobalPermission(String permission) {
-    checkRequest(GlobalPermissions.ALL.contains(permission),
-      format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GlobalPermissions.ALL_ON_ONE_LINE, permission));
+    checkRequest(GlobalPermission.contains(permission),
+      format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GlobalPermission.ALL_ON_ONE_LINE, permission));
   }
 
   public static void validateQualifier(@Nullable String qualifier, ResourceTypes resourceTypes) {

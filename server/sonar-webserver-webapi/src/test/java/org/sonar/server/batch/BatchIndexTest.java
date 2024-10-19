@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.server.batch;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang3.CharUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.ServerFileSystem;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -39,7 +40,6 @@ public class BatchIndexTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
 
   private File jar;
 
@@ -102,5 +102,16 @@ public class BatchIndexTest {
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Bad filename: other.jar");
+  }
+
+  @Test
+  public void start_whenBatchDirDoesntExist_shouldThrow() throws IOException {
+    File homeDir = temp.newFolder();
+    when(fs.getHomeDir()).thenReturn(homeDir);
+
+    BatchIndex batchIndex = new BatchIndex(fs);
+    assertThatThrownBy(batchIndex::start)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(format("%s/lib/scanner folder not found", homeDir.getAbsolutePath()));
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,8 +29,6 @@ import javax.annotation.Generated;
  */
 @Generated("sonar-ws-generator")
 public class RemoveGroupFromTemplateRequest {
-
-  private String groupId;
   private String groupName;
   private String permission;
   private String templateId;
@@ -43,18 +41,6 @@ public class RemoveGroupFromTemplateRequest {
 
   public void setOrganization(String organization) {
     this.organization = organization;
-  }
-
-  /**
-   * Example value: "42"
-   */
-  public RemoveGroupFromTemplateRequest setGroupId(String groupId) {
-    this.groupId = groupId;
-    return this;
-  }
-
-  public String getGroupId() {
-    return groupId;
   }
 
   /**

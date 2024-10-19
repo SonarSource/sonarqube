@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
-import IssueIcon from '../../../components/icons/IssueIcon';
-import { sortByType } from '../../../helpers/issues';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue, SourceLine } from '../../../types/types';
-import { ButtonPlain } from '../../controls/buttons';
+
+const MOUSE_LEAVE_DELAY = 0.25;
 
 export interface LineIssuesIndicatorProps {
+  as?: React.ElementType;
   issues: Issue[];
   issuesOpen?: boolean;
   line: SourceLine;
@@ -35,50 +35,49 @@ export interface LineIssuesIndicatorProps {
 }
 
 export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
-  const { issues, issuesOpen, line } = props;
+  const { issues, issuesOpen, line, as = 'td' } = props;
   const hasIssues = issues.length > 0;
-  const className = classNames('source-meta', 'source-line-issues', {
-    'source-line-with-issues': hasIssues,
-  });
+  const intl = useIntl();
 
   if (!hasIssues) {
-    return <td className={className} data-line-number={line.line} />;
+    return <LineMeta />;
   }
 
-  const mostImportantIssue = sortByType(issues)[0];
-  const issueTypes = uniq(issues.map((i) => i.type));
-
-  const tooltipShowHide = translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show');
+  const issueAttributeCategories = uniq(issues.map((issue) => issue.cleanCodeAttributeCategory));
   let tooltipContent;
-  if (issueTypes.length > 1) {
-    tooltipContent = translateWithParameters(
-      'source_viewer.issues_on_line.multiple_issues',
-      tooltipShowHide
-    );
-  } else if (issues.length === 1) {
-    tooltipContent = translateWithParameters(
-      'source_viewer.issues_on_line.issue_of_type_X',
-      tooltipShowHide,
-      translate('issue.type', mostImportantIssue.type)
+
+  if (issueAttributeCategories.length > 1) {
+    tooltipContent = intl.formatMessage(
+      { id: 'source_viewer.issues_on_line.multiple_issues' },
+      { show: !issuesOpen },
     );
   } else {
-    tooltipContent = translateWithParameters(
-      'source_viewer.issues_on_line.X_issues_of_type_Y',
-      tooltipShowHide,
-      issues.length,
-      translate('issue.type', mostImportantIssue.type, 'plural')
+    tooltipContent = intl.formatMessage(
+      { id: 'source_viewer.issues_on_line.multiple_issues_same_category' },
+      {
+        show: !issuesOpen,
+        count: issues.length,
+        category: intl
+          .formatMessage({
+            id: `issue.clean_code_attribute_category.${issueAttributeCategories[0]}`,
+          })
+          .toLowerCase(),
+      },
     );
   }
 
   return (
-    <td className={className} data-line-number={line.line}>
-      <Tooltip overlay={tooltipContent}>
-        <ButtonPlain aria-label={tooltipContent} aria-expanded={issuesOpen} onClick={props.onClick}>
-          <IssueIcon type={mostImportantIssue.type} />
-          {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
-        </ButtonPlain>
+    <LineMeta className="it__source-line-with-issues" data-line-number={line.line} as={as}>
+      <Tooltip mouseLeaveDelay={MOUSE_LEAVE_DELAY} content={tooltipContent}>
+        <IssueIndicatorButton
+          aria-label={tooltipContent}
+          aria-expanded={issuesOpen}
+          onClick={props.onClick}
+        >
+          <LineIssuesIndicatorIcon issuesCount={issues.length} />
+        </IssueIndicatorButton>
       </Tooltip>
-    </td>
+    </LineMeta>
   );
 }
 

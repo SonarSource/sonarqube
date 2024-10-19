@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,12 +19,12 @@
  */
 package org.sonar.db.rule;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class RuleDescriptionSectionDtoTest {
+class RuleDescriptionSectionDtoTest {
   private static final RuleDescriptionSectionDto SECTION = RuleDescriptionSectionDto.builder()
     .key("key")
     .uuid("uuid")
@@ -33,7 +33,7 @@ public class RuleDescriptionSectionDtoTest {
 
 
   @Test
-  public void setDefault_whenKeyAlreadySet_shouldThrow() {
+  void setDefault_whenKeyAlreadySet_shouldThrow() {
     RuleDescriptionSectionDto.RuleDescriptionSectionDtoBuilder builderWithKey = RuleDescriptionSectionDto.builder()
       .key("tagada");
     assertThatExceptionOfType(IllegalArgumentException.class)
@@ -42,7 +42,7 @@ public class RuleDescriptionSectionDtoTest {
   }
 
   @Test
-  public void setKey_whenDefaultAlreadySet_shouldThrow() {
+  void setKey_whenDefaultAlreadySet_shouldThrow() {
     RuleDescriptionSectionDto.RuleDescriptionSectionDtoBuilder builderWithDefault = RuleDescriptionSectionDto.builder()
       .setDefault();
     assertThatExceptionOfType(IllegalArgumentException.class)
@@ -51,8 +51,9 @@ public class RuleDescriptionSectionDtoTest {
   }
 
   @Test
-  public void testToString() {
-    Assertions.assertThat(SECTION)
-      .hasToString("RuleDescriptionSectionDto[uuid='uuid', key='key', content='desc', context='RuleDescriptionSectionContextDto[key='key', displayName='displayName']']");
+  void testToString() {
+    assertThat("RuleDescriptionSectionDto[uuid='uuid', key='key', content='desc', " +
+      "context='RuleDescriptionSectionContextDto[key='key', displayName='displayName']']")
+      .isEqualTo(SECTION.toString());
   }
 }

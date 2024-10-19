@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -54,7 +53,7 @@ public class MigrationStepRegistryImpl implements InternalMigrationStepRegistry 
     return migrations.entrySet().stream()
       .sorted(Comparator.comparingLong(Map.Entry::getKey))
       .map(Map.Entry::getValue)
-      .collect(MoreCollectors.toList(migrations.size()));
+      .toList();
   }
 
 }

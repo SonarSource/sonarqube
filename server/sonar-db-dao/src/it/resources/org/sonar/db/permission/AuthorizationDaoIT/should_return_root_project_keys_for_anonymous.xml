@@ -1,0 +1,58 @@
+<dataset>
+
+  <user_roles id="1"
+              user_id="100"
+              resource_id="999"
+              role="user"
+              organization_uuid="org1"/>
+  <groups_users user_id="100"
+                group_uuid="200"/>
+  <group_roles id="1"
+               group_uuid="[null]"
+               resource_id="300"
+               role="user"
+               organization_uuid="org1"/>
+
+  <projects organization_uuid="org1"
+            id="300"
+            uuid="ABCD"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            kee="pj-w-snapshot"
+            scope="PRJ"
+            qualifier="TRK"
+            enabled="[true]"
+            private="[false]"/>
+  <projects organization_uuid="org1"
+            id="301"
+            uuid="BCDE"
+            uuid_path="NOT_USED"
+            project_uuid="BCDE"
+            kee="pj-w-snapshot1"
+            scope="PRJ"
+            qualifier="TRK"
+            enabled="[true]"
+            private="[false]"/>
+  <projects organization_uuid="org1"
+            id="302"
+            uuid="CDEF"
+            uuid_path="NOT_USED"
+            project_uuid="CDEF"
+            kee="pj-w-snapshot2"
+            scope="PRJ"
+            qualifier="TRK"
+            enabled="[true]"
+            private="[false]"/>
+
+  <projects organization_uuid="org1"
+            id="303"
+            uuid="DEFG"
+            uuid_path="NOT_USED"
+            project_uuid="DEFG"
+            kee="pj-w-snapshot3"
+            scope="PRJ"
+            qualifier="TRK"
+            enabled="[true]"
+            private="[false]"/>
+
+</dataset>

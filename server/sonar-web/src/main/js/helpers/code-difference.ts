@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import { sanitizeString } from './sanitize';
 
 const NUMBER_OF_EXAMPLES = 2;
 
-type DiffBlock = { noncompliant: Element; compliant: Element };
+type DiffBlock = { compliant: Element; noncompliant: Element };
 
 export default function applyCodeDifferences(element: Element | null) {
   if (element === null) {
@@ -37,7 +37,7 @@ export default function applyCodeDifferences(element: Element | null) {
     }
     const [markedNonCompliant, markedCompliantCode] = differentiateCode(
       noncompliant.innerHTML,
-      compliant.innerHTML
+      compliant.innerHTML,
     );
 
     replaceInDom(noncompliant, markedNonCompliant);
@@ -52,14 +52,14 @@ function getExamplesFromDom(element: Element) {
     Object.values(
       groupBy(
         pres.filter((e) => e.getAttribute('data-diff-id') !== undefined),
-        (e) => e.getAttribute('data-diff-id')
-      )
+        (e) => e.getAttribute('data-diff-id'),
+      ),
     )
       // If we have 1 or 3+ example we can't display any differences
       .filter((diffsBlock) => diffsBlock.length === NUMBER_OF_EXAMPLES)
       .map(
         (diffBlock) =>
-          keyBy(diffBlock, (block) => block.getAttribute('data-diff-type')) as DiffBlock
+          keyBy(diffBlock, (block) => block.getAttribute('data-diff-type')) as DiffBlock,
       )
   );
 }
@@ -71,10 +71,10 @@ function differentiateCode(compliant: string, nonCompliant: string) {
   let compliantCode = '';
 
   hunks.forEach((hunk) => {
-    const value = sanitizeString(hunk.value);
+    const { value } = hunk;
     if (!hunk.added && !hunk.removed) {
-      nonCompliantCode += `<div>${value}</div>`;
-      compliantCode += `<div>${value}</div>`;
+      nonCompliantCode += value;
+      compliantCode += value;
     }
 
     if (hunk.added) {
@@ -85,15 +85,15 @@ function differentiateCode(compliant: string, nonCompliant: string) {
       nonCompliantCode += `<div class='code-removed'>${value}</div>`;
     }
   });
-  return [nonCompliantCode, compliantCode];
+  return [sanitizeString(nonCompliantCode), sanitizeString(compliantCode)];
 }
 
 function replaceInDom(current: Element, code: string) {
   const markedCode = document.createElement('pre');
   markedCode.classList.add('code-difference-scrollable');
-  const flexDiv = document.createElement('div');
-  flexDiv.classList.add('code-difference-container');
-  flexDiv.innerHTML = code;
-  markedCode.appendChild(flexDiv);
+  const div = document.createElement('div');
+  div.classList.add('code-difference-container');
+  div.innerHTML = code;
+  markedCode.appendChild(div);
   current.parentNode?.replaceChild(markedCode, current);
 }

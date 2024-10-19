@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { post } from '../helpers/request';
 import { Branch, PullRequest } from '../types/branch-like';
 
 export function getBranches(project: string): Promise<Branch[]> {
   return getJSON('/api/project_branches/list', { project }).then(
     (r) => r.branches,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getPullRequests(project: string): Promise<PullRequest[]> {
   return getJSON('/api/project_pull_requests/list', { project }).then(
     (r) => r.pullRequests,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -53,4 +54,8 @@ export function excludeBranchFromPurge(projectKey: string, branchName: string, e
     branch: branchName,
     value: excluded,
   }).catch(throwGlobalError);
+}
+
+export function setMainBranch(project: string, branch: string) {
+  return post('/api/project_branches/set_main', { project, branch }).catch(throwGlobalError);
 }

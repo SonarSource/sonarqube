@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  FlagMessage,
+  InputSelect,
+  LightLabel,
+  Modal,
+  RadioButton,
+} from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Radio from '../../../components/controls/Radio';
-import Select from '../../../components/controls/Select';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
@@ -42,7 +45,7 @@ export interface SetQualityProfileModalProps {
 export default function SetQualityProfileModal(props: SetQualityProfileModalProps) {
   const { availableProfiles, component, currentProfile, usesDefault } = props;
   const [selected, setSelected] = React.useState(
-    usesDefault ? USE_SYSTEM_DEFAULT : currentProfile.key
+    usesDefault ? USE_SYSTEM_DEFAULT : currentProfile.key,
   );
 
   const defaultProfile = availableProfiles.find((p) => p.isDefault);
@@ -54,7 +57,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
 
   const header = translateWithParameters(
     'project_quality_profile.change_lang_X_profile',
-    currentProfile.languageName
+    currentProfile.languageName,
   );
   const profileOptions: ProfileOption[] = availableProfiles.map((p) => ({
     value: p.key,
@@ -65,101 +68,82 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
   const hasSelectedSysDefault = selected === USE_SYSTEM_DEFAULT;
   const hasChanged = usesDefault ? !hasSelectedSysDefault : selected !== currentProfile.key;
   const needsReanalysis = !component.qualityProfiles?.some((p) =>
-    hasSelectedSysDefault ? p.key === defaultProfile.key : p.key === selected
+    hasSelectedSysDefault ? p.key === defaultProfile.key : p.key === selected,
+  );
+
+  const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    props.onSubmit(hasSelectedSysDefault ? undefined : selected, currentProfile.key);
+  };
+
+  const renderForm = (
+    <form id="change-quality-profile" onSubmit={handleFormSubmit}>
+      <div>
+        <RadioButton
+          className="sw-mb-4"
+          checked={hasSelectedSysDefault}
+          onCheck={() => setSelected(USE_SYSTEM_DEFAULT)}
+          value={USE_SYSTEM_DEFAULT}
+        >
+          <div className="sw-ml-2">
+            <div>{translate('project_quality_profile.always_use_default')}</div>
+            <LightLabel>
+              <span>
+                {translate('current_noun')}: {defaultProfile?.name}
+              </span>
+              {defaultProfile?.isBuiltIn && <BuiltInQualityProfileBadge className="sw-ml-2" />}
+            </LightLabel>
+          </div>
+        </RadioButton>
+
+        <RadioButton
+          className="sw-mb-2"
+          checked={!hasSelectedSysDefault}
+          onCheck={(value) => {
+            if (hasSelectedSysDefault) {
+              setSelected(value);
+            }
+          }}
+          value={currentProfile.key}
+        >
+          <div className="sw-ml-2">{translate('project_quality_profile.always_use_specific')}</div>
+        </RadioButton>
+
+        <InputSelect
+          className="sw-ml-8"
+          aria-label={translate('project_quality_profile.always_use_specific')}
+          isDisabled={hasSelectedSysDefault}
+          onChange={({ value }: ProfileOption) => setSelected(value)}
+          options={profileOptions}
+          components={{
+            Option: LanguageProfileSelectOption,
+          }}
+          value={profileOptions.find(
+            (option) => option.value === (!hasSelectedSysDefault ? selected : currentProfile.key),
+          )}
+        />
+
+        {needsReanalysis && (
+          <FlagMessage className="sw-w-full sw-mt-4" variant="warning">
+            {translate('project_quality_profile.requires_new_analysis')}
+          </FlagMessage>
+        )}
+      </div>
+    </form>
   );
 
   return (
-    <SimpleModal
-      header={header}
+    <Modal
       onClose={props.onClose}
-      onSubmit={() =>
-        props.onSubmit(hasSelectedSysDefault ? undefined : selected, currentProfile.key)
+      headerTitle={header}
+      isOverflowVisible
+      body={renderForm}
+      primaryButton={
+        <ButtonPrimary disabled={!hasChanged} form="change-quality-profile" type="submit">
+          {translate('save')}
+        </ButtonPrimary>
       }
-    >
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-
-          <form onSubmit={onFormSubmit}>
-            <div className="modal-body">
-              <div className="big-spacer-bottom">
-                <Radio
-                  className="display-flex-start"
-                  checked={hasSelectedSysDefault}
-                  disabled={submitting}
-                  onCheck={() => setSelected(USE_SYSTEM_DEFAULT)}
-                  value={USE_SYSTEM_DEFAULT}
-                >
-                  <div className="spacer-left">
-                    <div className="little-spacer-bottom">
-                      {translate('project_quality_profile.always_use_default')}
-                    </div>
-                    <div className="display-flex-center">
-                      <span className="text-muted spacer-right">{translate('current_noun')}:</span>
-                      {defaultProfile.name}
-                      {defaultProfile.isBuiltIn && (
-                        <BuiltInQualityProfileBadge className="spacer-left" />
-                      )}
-                    </div>
-                  </div>
-                </Radio>
-              </div>
-
-              <div className="big-spacer-bottom">
-                <Radio
-                  className="display-flex-start"
-                  checked={!hasSelectedSysDefault}
-                  disabled={submitting}
-                  onCheck={(value) => {
-                    if (hasSelectedSysDefault) {
-                      setSelected(value);
-                    }
-                  }}
-                  value={currentProfile.key}
-                >
-                  <div className="spacer-left">
-                    <div className="little-spacer-bottom">
-                      {translate('project_quality_profile.always_use_specific')}
-                    </div>
-                    <div className="display-flex-center">
-                      <Select
-                        className="abs-width-300"
-                        isDisabled={submitting || hasSelectedSysDefault}
-                        onChange={({ value }: ProfileOption) => setSelected(value)}
-                        options={profileOptions}
-                        components={{
-                          Option: LanguageProfileSelectOption,
-                        }}
-                        value={profileOptions.find(
-                          (option) =>
-                            option.value ===
-                            (!hasSelectedSysDefault ? selected : currentProfile.key)
-                        )}
-                      />
-                    </div>
-                  </div>
-                </Radio>
-              </div>
-
-              {needsReanalysis && (
-                <Alert variant="warning">
-                  {translate('project_quality_profile.requires_new_analysis')}
-                </Alert>
-              )}
-            </div>
-
-            <div className="modal-foot">
-              {submitting && <i className="spinner spacer-right" />}
-              <SubmitButton disabled={submitting || !hasChanged}>{translate('save')}</SubmitButton>
-              <ButtonLink disabled={submitting} onClick={onCloseClick}>
-                {translate('cancel')}
-              </ButtonLink>
-            </div>
-          </form>
-        </>
-      )}
-    </SimpleModal>
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

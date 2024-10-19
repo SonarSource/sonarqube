@@ -1,0 +1,79 @@
+{
+  "test-project:src/main/java/org/example/Main.java": {
+    "component": {
+      "key": "test-project:src/main/java/org/example/Main.java",
+      "uuid": "AYoD1RtLMDFaa-UFkQ3W",
+      "path": "src/main/java/org/example/Main.java",
+      "name": "Main.java",
+      "longName": "src/main/java/org/example/Main.java",
+      "q": "FIL",
+      "project": "test-project",
+      "projectName": "test-project",
+      "measures": {
+        "lines": "8.0",
+        "coverage": "0.0",
+        "issues": "1.0"
+      }
+    },
+    "sources": [
+      {
+        "line": 1,
+        "code": "<span class=\"k\">package</span> org.example;",
+        "scmRevision": "a1e2b3e5d6f5",
+        "scmAuthor": "julien",
+        "scmDate": "2022-10-25T14:56:06+0200",
+        "duplicated": false,
+        "isNew": false
+      },
+      {
+        "line": 2,
+        "code": "<span class=\"k\">public</span> <span class=\"k\">class</span> <span class=\"sym-1 sym\">Main</span> {",
+        "scmRevision": "a1e2b3e5d6f5",
+        "scmAuthor": "julien",
+        "scmDate": "2022-10-25T14:56:06+0200",
+        "duplicated": false,
+        "isNew": false
+      },
+      {
+        "line": 3,
+        "code": "  <span class=\"k\">public</span> <span class=\"k\">static</span> <span class=\"k\">void</span> <span class=\"sym-2 sym\">main</span>(String[] <span class=\"sym-3 sym\">args</span>) {",
+        "scmRevision": "a1e2b3e5d6f5",
+        "scmAuthor": "julien",
+        "scmDate": "2022-10-25T14:56:06+0200",
+        "duplicated": false,
+        "isNew": false
+      },
+      {
+        "line": 4,
+        "code": "    System.out.println(<span class=\"s\">\"Hello world!\"</span>);",
+        "scmRevision": "a1e2b3e5d6f5",
+        "scmAuthor": "julien",
+        "scmDate": "2022-10-25T14:56:06+0200",
+        "utLineHits": 0,
+        "lineHits": 0,
+        "duplicated": false,
+        "isNew": false
+      },
+      {
+        "line": 5,
+        "code": "  }",
+        "scmRevision": "a1e2b3e5d6f5",
+        "scmAuthor": "julien",
+        "scmDate": "2022-10-25T14:56:06+0200",
+        "utLineHits": 0,
+        "lineHits": 0,
+        "duplicated": false,
+        "isNew": false
+      },
+      {
+        "line": 6,
+        "code": "}",
+        "scmRevision": "a1e2b3e5d6f5",
+        "scmAuthor": "julien",
+        "scmDate": "2022-10-25T14:56:06+0200",
+        "duplicated": false,
+        "isNew": false
+      }
+    ]
+  }
+}

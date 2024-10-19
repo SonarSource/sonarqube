@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,6 @@ public interface CeTaskMessageMapper {
   void insert(@Param("dto") CeTaskMessageDto dto);
 
   Optional<CeTaskMessageDto> selectByUuid(@Param("uuid") String uuid);
-
-  List<CeTaskMessageDto> selectByTask(@Param("taskUuid") String taskUuid);
 
   List<CeTaskMessageDto> selectNonDismissedByUserAndTask(@Param("taskUuid") String taskUuid, @Param("userUuid") String userUuid);
 

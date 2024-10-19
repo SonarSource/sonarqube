@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,9 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -52,7 +51,7 @@ public class StatusDetectionTest {
 
   @Test
   public void detect_status_branches_exclude() {
-    ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.emptyList());
+    ScmChangedFiles changedFiles = new ScmChangedFiles(Set.of());
     StatusDetection statusDetection = new StatusDetection(projectRepositories, changedFiles);
 
     // normally changed
@@ -65,7 +64,7 @@ public class StatusDetectionTest {
   @Test
   public void detect_status_branches_confirm() {
     Path filePath = Paths.get("module", "src", "Foo.java");
-    ScmChangedFiles changedFiles = new ScmChangedFiles(List.of(ChangedFile.of(filePath)));
+    ScmChangedFiles changedFiles = new ScmChangedFiles(Set.of(ChangedFile.of(filePath)));
 
     StatusDetection statusDetection = new StatusDetection(projectRepositories, changedFiles);
     assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.CHANGED);

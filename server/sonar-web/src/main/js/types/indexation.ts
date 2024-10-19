@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface IndexationStatus {
-  isCompleted: boolean;
-  percentCompleted: number;
-  hasFailures: boolean;
+interface IndexationStatusInProgress {
+  completedCount: number;
+  isCompleted: false;
+  total: number;
 }
+
+interface IndexationStatusCompleted {
+  completedCount?: number;
+  isCompleted: true;
+  total?: number;
+}
+
+export type IndexationStatus = {
+  hasFailures: boolean;
+} & (IndexationStatusInProgress | IndexationStatusCompleted);
 
 export interface IndexationContextInterface {
   status: IndexationStatus;

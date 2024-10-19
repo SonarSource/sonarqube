@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,7 @@ export function getLinearLocations(textRange: TextRange | undefined): LinearIssu
 
 export function getSecondaryIssueLocationsForLine(
   line: SourceLine,
-  highlightedLocations: (FlowLocation | undefined)[] | undefined
+  highlightedLocations: (FlowLocation | undefined)[] | undefined,
 ): LinearIssueLocation[] {
   if (!highlightedLocations) {
     return [];

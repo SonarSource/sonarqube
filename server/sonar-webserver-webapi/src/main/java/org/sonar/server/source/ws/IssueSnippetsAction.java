@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.protobuf.DbIssues;
@@ -71,7 +72,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
       .setDescription("Get code snippets involved in an issue or hotspot. Requires 'See Source Code permission' permission on the project<br/>")
       .setSince("7.8")
       .setInternal(true)
-      .setResponseExample(getResource(getClass(), "example-show.json"))
+      .setResponseExample(getResource(getClass(), "example-issue-snippets.json"))
       .setHandler(this);
 
     action
@@ -87,9 +88,10 @@ public class IssueSnippetsAction implements SourcesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = dbClient.issueDao().selectByKey(dbSession, issueKey)
         .orElseThrow(() -> new NotFoundException(format("Issue with key '%s' does not exist", issueKey)));
-      ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, issueDto.getProjectUuid())
+      ProjectDto projectDto = dbClient.projectDao().selectByBranchUuid(dbSession, issueDto.getProjectUuid())
         .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", issueDto.getProjectUuid())));
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, project);
+
+      userSession.checkEntityPermission(UserRole.CODEVIEWER, projectDto);
 
       DbIssues.Locations locations = issueDto.parseLocations();
       String componentUuid = issueDto.getComponentUuid();
@@ -115,7 +117,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
           for (Map.Entry<String, TreeSet<Integer>> e : linesPerComponent.entrySet()) {
             ComponentDto componentDto = componentsByUuid.get(e.getKey());
             if (componentDto != null) {
-              writeSnippet(dbSession, jsonWriter, componentDto, e.getValue(), branches.get(componentDto.branchUuid()));
+              writeSnippet(dbSession, jsonWriter, projectDto, componentDto, e.getValue(), branches.get(componentDto.branchUuid()));
             }
           }
 
@@ -125,7 +127,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     }
   }
 
-  private void writeSnippet(DbSession dbSession, JsonWriter writer, ComponentDto fileDto, Set<Integer> lines, BranchDto branchDto) {
+  private void writeSnippet(DbSession dbSession, JsonWriter writer, ProjectDto projectDto, ComponentDto fileDto, Set<Integer> lines, BranchDto branchDto) {
     Optional<Iterable<DbFileSources.Line>> lineSourcesOpt = sourceService.getLines(dbSession, fileDto.uuid(), lines);
     if (lineSourcesOpt.isEmpty()) {
       return;
@@ -142,7 +144,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     writer.name("component").beginObject();
     String branch = branchDto.isMain() ? null : branchDto.getBranchKey();
     String pullRequest = branchDto.getPullRequestKey();
-    componentViewerJsonWriter.writeComponentWithoutFav(writer, fileDto, dbSession, branch, pullRequest);
+    componentViewerJsonWriter.writeComponentWithoutFav(writer, projectDto, fileDto, branch, pullRequest);
     componentViewerJsonWriter.writeMeasures(writer, fileDto, dbSession);
     writer.endObject();
     linesJsonWriter.writeSource(lineSources, writer, periodDateSupplier);

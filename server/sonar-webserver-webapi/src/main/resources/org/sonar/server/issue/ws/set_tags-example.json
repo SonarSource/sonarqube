@@ -2,7 +2,14 @@
   "issue": {
     "key": "AVibidgv1LF0E-ru2DVv",
     "rule": "squid:S2301",
-    "severity": "MAJOR",
+    "cleanCodeAttribute": "CLEAR",
+    "cleanCodeAttributeCategory": "INTENTIONAL",
+    "impacts": [
+      {
+        "softwareQuality": "SECURITY",
+        "severity": "HIGH"
+      }
+    ],
     "component": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
     "project": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
     "line": 78,
@@ -13,7 +20,7 @@
       "endOffset": 39
     },
     "flows": [],
-    "status": "CONFIRMED",
+    "issueStatus": "ACCEPTED",
     "message": "Provide multiple methods instead of using \"modal\" to determine which action to take.",
     "effort": "15min",
     "debt": "15min",
@@ -47,13 +54,11 @@
     ],
     "creationDate": "2016-11-25T13:50:24+0100",
     "updateDate": "2017-01-09T13:51:12+0100",
-    "type": "CODE_SMELL",
     "ruleDescriptionContextKey": "spring"
   },
   "components": [
     {
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
-      "uuid": "AVfTIlxMwczdZ2UaLhnt",
       "enabled": true,
       "qualifier": "FIL",
       "name": "ServerIssueUpdater.java",
@@ -64,7 +69,6 @@
     },
     {
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
-      "uuid": "8b745480-b598-4e34-af4a-cb2de1808e50",
       "enabled": true,
       "qualifier": "TRK",
       "name": "SonarLint for IntelliJ IDEA",

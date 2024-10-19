@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -73,7 +73,7 @@ public class DeleteAction implements ProjectAnalysesWsAction {
       if (STATUS_UNPROCESSED.equals(analysis.getStatus())) {
         throw analysisNotFoundException(analysisUuid);
       }
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getComponentUuid());
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getRootComponentUuid());
 
       checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", analysisUuid);
       checkNotUsedInNewCodePeriod(dbSession, analysis);

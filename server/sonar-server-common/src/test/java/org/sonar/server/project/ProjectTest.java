@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,12 @@
 package org.sonar.server.project;
 
 import org.junit.Test;
+import org.sonar.db.entity.EntityDto;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectTest {
   @Test
@@ -51,6 +54,27 @@ public class ProjectTest {
 
     assertThat(project1.toString())
       .isEqualTo(project1.toString())
+      .isEqualTo("Project{uuid='U1', key='K1', name='N1', description='D1'}");
+  }
+
+  @Test
+  public void from_whenPortfolioPassed_shouldNotReturnNullFields() {
+    EntityDto entity = mock(EntityDto.class);
+
+    when(entity.getUuid()).thenReturn("U1");
+    when(entity.getKey()).thenReturn("K1");
+    when(entity.getName()).thenReturn("N1");
+    when(entity.getDescription()).thenReturn("D1");
+
+    Project underTest = Project.from(entity);
+
+    assertThat(underTest.getUuid()).isEqualTo("U1");
+    assertThat(underTest.getKey()).isEqualTo("K1");
+    assertThat(underTest.getName()).isEqualTo("N1");
+    assertThat(underTest.getDescription()).isEqualTo("D1");
+
+    assertThat(underTest.toString())
+      .isEqualTo(underTest.toString())
       .isEqualTo("Project{uuid='U1', key='K1', name='N1', description='D1'}");
   }
 

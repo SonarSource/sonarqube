@@ -78,6 +78,54 @@ enum RuleScope {
   ALL = 2;
 }
 
+enum CleanCodeAttribute {
+  UNKNOWN_ATTRIBUTE = 0;
+  CONVENTIONAL = 1;
+  FORMATTED = 2;
+  IDENTIFIABLE = 3;
+  CLEAR = 4;
+  COMPLETE = 5;
+  EFFICIENT = 6;
+  LOGICAL = 7;
+  DISTINCT = 8;
+  FOCUSED = 9;
+  MODULAR = 10;
+  TESTED = 11;
+  LAWFUL = 12;
+  RESPECTFUL = 13;
+  TRUSTWORTHY = 14;
+}
+
+enum CleanCodeAttributeCategory {
+  UNKNOWN_CATEGORY = 0;
+  ADAPTABLE = 1;
+  CONSISTENT = 2;
+  INTENTIONAL = 3;
+  RESPONSIBLE = 4;
+}
+
+message Impact {
+  required SoftwareQuality softwareQuality = 1;
+  required ImpactSeverity severity = 2;
+}
+
+enum SoftwareQuality {
+  UNKNOWN_IMPACT_QUALITY = 0;
+  MAINTAINABILITY = 1;
+  RELIABILITY = 2;
+  SECURITY = 3;
+}
+
+enum ImpactSeverity {
+  UNKNOWN_IMPACT_SEVERITY = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
+  // INFO and BLOCKER conflicts with Severity enum, so we use different values prefixed with enum name
+  ImpactSeverity_INFO = 4;
+  ImpactSeverity_BLOCKER = 5;
+}
+
 // Lines start at 1 and line offsets start at 0
 message TextRange {
   // Start line. Should never be absent

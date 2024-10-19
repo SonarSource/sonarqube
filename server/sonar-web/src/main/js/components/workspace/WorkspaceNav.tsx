@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import * as React from 'react';
-import { ComponentDescriptor } from './context';
 import WorkspaceNavComponent from './WorkspaceNavComponent';
+import { ComponentDescriptor } from './context';
 
 export interface Props {
   components: ComponentDescriptor[];
@@ -33,8 +34,8 @@ export default function WorkspaceNav(props: Props) {
   const components = props.components.filter((x) => x.key !== props.open.component);
 
   return (
-    <nav className="workspace-nav">
-      <ul className="workspace-nav-list">
+    <WorkspaceNavStyled>
+      <ul className="sw-float-right">
         {components.map((component) => (
           <WorkspaceNavComponent
             component={component}
@@ -44,6 +45,14 @@ export default function WorkspaceNav(props: Props) {
           />
         ))}
       </ul>
-    </nav>
+    </WorkspaceNavStyled>
   );
 }
+
+const WorkspaceNavStyled = styled.nav`
+  position: fixed;
+  z-index: 451;
+  bottom: 0;
+  right: 0;
+  height: 1.75rem;
+`;

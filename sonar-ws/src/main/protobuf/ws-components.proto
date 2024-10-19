@@ -50,8 +50,8 @@ message ShowWsResponse {
 message SuggestionsWsResponse {
   repeated Category results = 1;
   optional string warning = 2;
-  repeated sonarqube.ws.commons.Organization organizations = 3;
-  repeated Project projects = 4;
+  reserved 3; //drop organization
+  reserved 4; //drop projects
 
   message Category {
     optional string q = 1;
@@ -67,16 +67,6 @@ message SuggestionsWsResponse {
     optional string project = 5;
     optional bool isRecentlyBrowsed = 6;
     optional bool isFavorite = 7;
-  }
-
-  message Organization {
-    optional string key = 1;
-    optional string name = 2;
-  }
-
-  message Project {
-    optional string key = 1;
-    optional string name = 2;
   }
 }
 
@@ -124,6 +114,7 @@ message Component {
   optional string version = 19;
   optional string pullRequest = 20;
   optional bool needIssueSync = 21;
+  optional bool isAiCodeAssured = 22;
 
   message Tags {
     repeated string tags = 1;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ const paths = require('../config/paths');
 
 const getConfig = require('../config/esbuild-config');
 
-const release = process.argv.findIndex(val => val === 'release') >= 0;
+const release = process.argv.findIndex((val) => val === 'release') >= 0;
 
 function clean() {
   fs.emptyDirSync(paths.appBuild);

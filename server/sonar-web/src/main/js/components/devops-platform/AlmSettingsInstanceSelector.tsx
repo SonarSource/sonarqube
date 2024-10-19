@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,61 +17,72 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSelect, LabelValueSelectOption, Note } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import { translate } from '../../helpers/l10n';
-import { AlmSettingsInstance } from '../../types/alm-settings';
-import Select from '../controls/Select';
+import { AlmInstanceBase } from '../../types/alm-settings';
 
-function optionRenderer(props: OptionProps<AlmSettingsInstance, false>) {
-  return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
+function optionRenderer(props: OptionProps<LabelValueSelectOption<AlmInstanceBase>, false>) {
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
+  return <components.Option {...props}>{customOptions(props.data.value)}</components.Option>;
 }
 
-function singleValueRenderer(props: SingleValueProps<AlmSettingsInstance>) {
-  return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
+function singleValueRenderer(
+  props: SingleValueProps<LabelValueSelectOption<AlmInstanceBase>, false>,
+) {
+  return (
+    <components.SingleValue {...props}>{customOptions(props.data.value)}</components.SingleValue>
+  );
 }
 
-function customOptions(instance: AlmSettingsInstance) {
+function customOptions(instance: AlmInstanceBase) {
   return instance.url ? (
     <>
       <span>{instance.key} — </span>
-      <span className="text-muted">{instance.url}</span>
+      <Note>{instance.url}</Note>
     </>
   ) : (
     <span>{instance.key}</span>
   );
 }
 
+function orgToOption(alm: AlmInstanceBase) {
+  return { value: alm, label: alm.key };
+}
+
 interface Props {
-  instances: AlmSettingsInstance[];
+  className: string;
   initialValue?: string;
-  onChange: (instance: AlmSettingsInstance) => void;
-  classNames: string;
   inputId: string;
+  instances: AlmInstanceBase[];
+  onChange: (instance: AlmInstanceBase) => void;
 }
 
 export default function AlmSettingsInstanceSelector(props: Props) {
-  const { instances, initialValue, classNames, inputId } = props;
+  const { instances, initialValue, className, inputId } = props;
 
   return (
-    <Select
+    <InputSelect
       inputId={inputId}
-      className={classNames}
+      className={className}
       isClearable={false}
       isSearchable={false}
-      options={instances}
-      onChange={(inst) => {
-        if (inst) {
-          props.onChange(inst);
-        }
+      options={instances.map(orgToOption)}
+      onChange={(data: LabelValueSelectOption<AlmInstanceBase>) => {
+        props.onChange(data.value);
       }}
       components={{
         Option: optionRenderer,
         SingleValue: singleValueRenderer,
       }}
       placeholder={translate('alm.configuration.selector.placeholder')}
-      getOptionValue={(opt) => opt.key}
-      value={instances.find((inst) => inst.key === initialValue)}
+      getOptionValue={(opt: LabelValueSelectOption<AlmInstanceBase>) => opt.value.key}
+      value={instances.map(orgToOption).find((opt) => opt.value.key === initialValue) ?? null}
+      size="full"
     />
   );
 }

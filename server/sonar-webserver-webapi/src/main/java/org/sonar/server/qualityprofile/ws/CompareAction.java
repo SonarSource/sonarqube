@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -36,6 +38,7 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
@@ -64,6 +67,10 @@ public class CompareAction implements QProfileWsAction {
   private static final String ATTRIBUTE_LANGUAGE_KEY = "languageKey";
   private static final String ATTRIBUTE_LANGUAGE_NAME = "languageName";
   private static final String ATTRIBUTE_PARAMS = "params";
+  private static final String ATTRIBUTE_CLEAN_CODE_ATTRIBUTE_CATEGORY = "cleanCodeAttributeCategory";
+  private static final String ATTRIBUTE_IMPACTS = "impacts";
+  private static final String ATTRIBUTE_IMPACT_SOFTWARE_QUALITY = "softwareQuality";
+  private static final String ATTRIBUTE_IMPACT_SEVERITY = "severity";
 
   private static final String PARAM_LEFT_KEY = "leftKey";
   private static final String PARAM_RIGHT_KEY = "rightKey";
@@ -85,7 +92,11 @@ public class CompareAction implements QProfileWsAction {
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("compare-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(
+        new Change("10.3", String.format("Added '%s' and '%s' fields", ATTRIBUTE_CLEAN_CODE_ATTRIBUTE_CATEGORY, ATTRIBUTE_IMPACTS)),
+        new Change("10.3", String.format("Dropped '%s' field from '%s', '%s' and '%s' objects",
+          ATTRIBUTE_SEVERITY, ATTRIBUTE_SAME, ATTRIBUTE_IN_LEFT, ATTRIBUTE_IN_RIGHT)));
 
     compare.createParam(PARAM_LEFT_KEY)
       .setDescription("Profile key.")
@@ -152,14 +163,10 @@ public class CompareAction implements QProfileWsAction {
   private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDto> rulesByKey,
     Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginArray();
-    for (Entry<RuleKey, ActiveRuleDto> activeRule : activeRules.entrySet()) {
-      RuleKey key = activeRule.getKey();
-      ActiveRuleDto value = activeRule.getValue();
-
+    for (RuleKey key : activeRules.keySet()) {
       json.beginObject();
       RuleDto rule = rulesByKey.get(key);
       writeRule(json, rule, repositoriesByKey.get(rule.getRepositoryKey()));
-      json.prop(ATTRIBUTE_SEVERITY, value.getSeverityString());
       json.endObject();
     }
     json.endArray();
@@ -179,6 +186,20 @@ public class CompareAction implements QProfileWsAction {
       json.prop(ATTRIBUTE_LANGUAGE_KEY, languageKey);
       json.prop(ATTRIBUTE_LANGUAGE_NAME, language == null ? null : language.getName());
     }
+
+    CleanCodeAttribute cleanCodeAttribute = rule.getCleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      json.prop(ATTRIBUTE_CLEAN_CODE_ATTRIBUTE_CATEGORY, cleanCodeAttribute.getAttributeCategory().toString());
+    }
+    json.name(ATTRIBUTE_IMPACTS);
+    json.beginArray();
+    for (ImpactDto impact : rule.getDefaultImpacts()) {
+      json.beginObject();
+      json.prop(ATTRIBUTE_IMPACT_SOFTWARE_QUALITY, impact.getSoftwareQuality().toString());
+      json.prop(ATTRIBUTE_IMPACT_SEVERITY, impact.getSeverity().toString());
+      json.endObject();
+    }
+    json.endArray();
   }
 
   private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, RuleDto> rulesByKey,

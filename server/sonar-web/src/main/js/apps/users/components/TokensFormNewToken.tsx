@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ClipboardIconButton, CodeSnippet, FlagMessage } from 'design-system';
 import * as React from 'react';
-import { ClipboardButton } from '../../../components/controls/clipboard';
-import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   token: { name: string; token: string };
 }
 
-export default function TokensFormNewToken({ token }: Props) {
+export default function TokensFormNewToken({ token }: Readonly<Props>) {
   return (
-    <div className="panel panel-white big-spacer-top">
-      <Alert variant="warning">
+    <div className="sw-mt-4">
+      <FlagMessage variant="success">
         {translateWithParameters('users.tokens.new_token_created', token.name)}
-      </Alert>
-      <ClipboardButton copyValue={token.token} />
-      <code aria-label={translate('users.new_token')} className="big-spacer-left text-success">
-        {token.token}
-      </code>
+      </FlagMessage>
+
+      <div aria-label={translate('users.new_token')} className="sw-flex sw-items-center sw-mt-3">
+        <CodeSnippet className="sw-p-1" isOneLine noCopy snippet={token.token} />
+
+        <ClipboardIconButton className="sw-ml-4" copyValue={token.token} />
+      </div>
     </div>
   );
 }

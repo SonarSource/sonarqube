@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -89,6 +89,7 @@ public class CreateAction implements QualityGatesWsAction {
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response is removed."),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."))
       .setResponseExample(getClass().getResource("create-example.json"))
       .setHandler(this);
@@ -117,7 +118,6 @@ public class CreateAction implements QualityGatesWsAction {
       addCaycConditions(dbSession, newQualityGate);
 
       CreateResponse.Builder createResponse = CreateResponse.newBuilder()
-        .setId(newQualityGate.getUuid())
         .setName(newQualityGate.getName());
       dbSession.commit();
       logger.info("Created Quality Gate:: organization: {}, qGate: {}, user: {}", organizationDto.getKey(), name,
@@ -127,9 +127,9 @@ public class CreateAction implements QualityGatesWsAction {
   }
 
   private void addCaycConditions(DbSession dbSession, QualityGateDto newQualityGate) {
-    CAYC_METRICS.forEach(m ->
-      qualityGateConditionsUpdater.createCondition(dbSession, newQualityGate, m.getKey(), OPERATORS_BY_DIRECTION.get(m.getDirection()).getDbValue(),
-        String.valueOf(getDefaultCaycValue(m)))
+    CAYC_METRICS.forEach(metric ->
+      qualityGateConditionsUpdater.createCondition(dbSession, newQualityGate, metric.getKey(), OPERATORS_BY_DIRECTION.get(metric.getDirection()).getDbValue(),
+        String.valueOf(getDefaultCaycValue(metric)))
     );
   }
 

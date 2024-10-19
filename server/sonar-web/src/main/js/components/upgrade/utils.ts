@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,12 @@ import { groupBy, sortBy } from 'lodash';
 import { SystemUpgrade } from '../../types/system';
 
 export enum UpdateUseCase {
-  NewMinorVersion = 'new_minor_version',
+  NewVersion = 'new_version',
+  CurrentVersionInactive = 'current_version_inactive',
   NewPatch = 'new_patch',
-  PreLTS = 'pre_lts',
-  PreviousLTS = 'previous_lts',
 }
+
+export const SYSTEM_VERSION_REGEXP = /^(\d+)\.(\d+)(\.(\d+))?/;
 
 export function sortUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[] {
   return sortBy(upgrades, [

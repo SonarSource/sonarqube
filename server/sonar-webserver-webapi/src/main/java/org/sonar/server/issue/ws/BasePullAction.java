@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,15 @@ package org.sonar.server.issue.ws;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -36,17 +40,19 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueQueryParams;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.ws.pull.ProtobufObjectGenerator;
 import org.sonar.server.issue.ws.pull.PullActionIssuesRetriever;
 import org.sonar.server.issue.ws.pull.PullActionResponseWriter;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsAction;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.sonar.api.web.UserRole.USER;
 
-public abstract class BasePullAction implements IssuesWsAction {
+public abstract class BasePullAction implements WsAction {
   protected static final String PROJECT_KEY_PARAM = "projectKey";
   protected static final String BRANCH_NAME_PARAM = "branchName";
   protected static final String LANGUAGES_PARAM = "languages";
@@ -87,7 +93,9 @@ public abstract class BasePullAction implements IssuesWsAction {
       .setResponseExample(getClass().getResource(resourceExample))
       .setDescription(format("This endpoint fetches and returns all (unless filtered by optional params) the %s for a given branch. " +
         "The %s returned are not paginated, so the response size can be big. Requires project 'Browse' permission.", issueType, issueType))
-      .setSince(sinceVersion);
+      .setSince(sinceVersion)
+      .setChangelog(new Change("10.3", "The response field 'creationDate' contains the functional issue creation date " +
+        "instead of the database operation date"));
 
     action.createParam(PROJECT_KEY_PARAM)
       .setRequired(true)
@@ -108,16 +116,11 @@ public abstract class BasePullAction implements IssuesWsAction {
         "If not present all non-closed %s are returned.", issueType, issueType))
       .setExampleValue(1_654_032_306_000L);
 
-    if (issueType.equals("issues")) {
-      action.createParam(RULE_REPOSITORIES_PARAM)
-        .setDescription(format("Comma separated list of rule repositories. If not present all %s regardless of" +
-          " their rule repository are returned.", issueType))
-        .setExampleValue(repositoryExample);
+    additionalParams(action);
+  }
 
-      action.createParam(RESOLVED_ONLY_PARAM)
-        .setDescription(format("If true only %s with resolved status are returned", issueType))
-        .setExampleValue("true");
-    }
+  protected void additionalParams(WebService.NewAction action) {
+    // define additional parameters if needed
   }
 
   @Override
@@ -128,36 +131,37 @@ public abstract class BasePullAction implements IssuesWsAction {
     String changedSince = request.param(CHANGED_SINCE_PARAM);
     Long changedSinceTimestamp = changedSince != null ? Long.parseLong(changedSince) : null;
 
-    if (issueType.equals("issues")) {
-      boolean resolvedOnly = Boolean.parseBoolean(request.param(RESOLVED_ONLY_PARAM));
+    BasePullRequest wsRequest = new BasePullRequest(projectKey, branchName)
+      .languages(languages)
+      .changedSinceTimestamp(changedSinceTimestamp);
 
-      List<String> ruleRepositories = request.paramAsStrings(RULE_REPOSITORIES_PARAM);
-      if (ruleRepositories != null && !ruleRepositories.isEmpty()) {
-        validateRuleRepositories(ruleRepositories);
-      }
+    processAdditionalParams(request, wsRequest);
 
-      streamResponse(projectKey, branchName, languages, ruleRepositories, resolvedOnly, changedSinceTimestamp, response.stream().output());
-    } else {
-      streamResponse(projectKey, branchName, languages, emptyList(), false, changedSinceTimestamp, response.stream().output());
-    }
+    doHandle(wsRequest, response.stream().output());
   }
 
-  private void streamResponse(String projectKey, String branchName, @Nullable List<String> languages,
-    @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince, OutputStream outputStream)
-    throws IOException {
+  protected void processAdditionalParams(Request request, BasePullRequest wsRequest) {
+    // process additional parameters if needed
+  }
+
+  private void doHandle(BasePullRequest wsRequest, OutputStream outputStream) throws IOException {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkProjectPermission(USER, projectDto);
-      BranchDto branchDto = componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchName, null);
-      pullActionResponseWriter.appendTimestampToResponse(outputStream);
-      IssueQueryParams issueQueryParams = initializeQueryParams(branchDto, languages, ruleRepositories, resolvedOnly, changedSince);
+      ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, wsRequest.projectKey);
+      userSession.checkEntityPermission(USER, projectDto);
+      BranchDto branchDto = componentFinder.getBranchOrPullRequest(dbSession, projectDto, wsRequest.branchName, null);
+      IssueQueryParams issueQueryParams = initializeQueryParams(branchDto, wsRequest.languages, wsRequest.repositories,
+        wsRequest.resolvedOnly, wsRequest.changedSinceTimestamp);
       retrieveAndSendIssues(dbSession, issueQueryParams, outputStream);
     }
   }
 
+  protected abstract IssueQueryParams initializeQueryParams(BranchDto branchDto, @Nullable List<String> languages,
+    @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince);
+
   private void retrieveAndSendIssues(DbSession dbSession, IssueQueryParams queryParams, OutputStream outputStream)
     throws IOException {
+    pullActionResponseWriter.appendTimestampToResponse(outputStream);
 
     var issuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
 
@@ -170,20 +174,18 @@ public abstract class BasePullAction implements IssuesWsAction {
     }
   }
 
-  protected abstract void validateRuleRepositories(List<String> ruleRepositories);
-
-  protected abstract IssueQueryParams initializeQueryParams(BranchDto branchDto, @Nullable List<String> languages,
-    @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince);
-
-  protected abstract Set<String> getIssueKeysSnapshot(IssueQueryParams queryParams, int page);
-
   private void processNonClosedIssuesInBatches(DbSession dbSession, IssueQueryParams queryParams, OutputStream outputStream,
     PullActionIssuesRetriever issuesRetriever) {
     int nextPage = 1;
+    Map<String, RuleDto> ruleCache = new HashMap<>();
     do {
-      Set<String> issueKeysSnapshot = new HashSet<>(getIssueKeysSnapshot(queryParams, nextPage));
-      Consumer<List<IssueDto>> listConsumer = issueDtos -> pullActionResponseWriter.appendIssuesToResponse(issueDtos, outputStream);
-      issuesRetriever.processIssuesByBatch(dbSession, issueKeysSnapshot, listConsumer);
+      Set<String> issueKeysSnapshot = getIssueKeysSnapshot(queryParams, nextPage);
+      Consumer<List<IssueDto>> listConsumer = issueDtos -> {
+        populateRuleCache(dbSession, ruleCache, issueDtos);
+        pullActionResponseWriter.appendIssuesToResponse(issueDtos, ruleCache, outputStream);
+      };
+      Predicate<IssueDto> filter = issueDto -> filterNonClosedIssues(issueDto, queryParams);
+      issuesRetriever.processIssuesByBatch(dbSession, issueKeysSnapshot, listConsumer, filter);
 
       if (issueKeysSnapshot.isEmpty()) {
         nextPage = -1;
@@ -192,4 +194,52 @@ public abstract class BasePullAction implements IssuesWsAction {
       }
     } while (nextPage > 0);
   }
+
+  private void populateRuleCache(DbSession dbSession, Map<String, RuleDto> ruleCache, List<IssueDto> issueDtos) {
+    Set<String> rulesToQueryFor = issueDtos.stream()
+      .map(IssueDto::getRuleUuid)
+      .filter(ruleUuid -> !ruleCache.containsKey(ruleUuid))
+      .collect(Collectors.toSet());
+    dbClient.ruleDao().selectByUuids(dbSession, rulesToQueryFor)
+      .forEach(ruleDto -> ruleCache.putIfAbsent(ruleDto.getUuid(), ruleDto));
+  }
+
+  protected abstract boolean filterNonClosedIssues(IssueDto issueDto, IssueQueryParams queryParams);
+
+  protected abstract Set<String> getIssueKeysSnapshot(IssueQueryParams queryParams, int page);
+
+  protected static class BasePullRequest {
+    private final String projectKey;
+    private final String branchName;
+    private List<String> languages = null;
+    private List<String> repositories = null;
+    private boolean resolvedOnly = false;
+    private Long changedSinceTimestamp = null;
+
+    public BasePullRequest(String projectKey, String branchName) {
+      this.projectKey = projectKey;
+      this.branchName = branchName;
+    }
+
+    public BasePullRequest languages(@Nullable List<String> languages) {
+      this.languages = languages;
+      return this;
+    }
+
+    public BasePullRequest repositories(@Nullable List<String> repositories) {
+      this.repositories = repositories == null ? emptyList() : repositories;
+      return this;
+    }
+
+    public BasePullRequest resolvedOnly(boolean resolvedOnly) {
+      this.resolvedOnly = resolvedOnly;
+      return this;
+    }
+
+    public BasePullRequest changedSinceTimestamp(@Nullable Long changedSinceTimestamp) {
+      this.changedSinceTimestamp = changedSinceTimestamp;
+      return this;
+    }
+  }
+
 }

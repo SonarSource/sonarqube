@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.measure.ws;
 
+import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
@@ -28,6 +29,7 @@ import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Component;
 
 import static java.util.Optional.ofNullable;
+import static org.sonar.server.measure.ws.ComponentResponseCommon.addMeasureIncludingRenamedMetric;
 
 class ComponentDtoToWsComponent {
   private ComponentDtoToWsComponent() {
@@ -36,7 +38,7 @@ class ComponentDtoToWsComponent {
 
   static Component.Builder componentDtoToWsComponent(ComponentDto component, Map<MetricDto, LiveMeasureDto> measuresByMetric,
                                                      Map<String, ComponentDto> referenceComponentsByUuid, @Nullable String branch,
-                                                     @Nullable String pullRequest) {
+                                                     @Nullable String pullRequest, Collection<String> requestedMetrics) {
     Component.Builder wsComponent = componentDtoToWsComponent(component, branch, pullRequest);
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
@@ -47,7 +49,7 @@ class ComponentDtoToWsComponent {
     Measures.Measure.Builder measureBuilder = Measures.Measure.newBuilder();
     for (Map.Entry<MetricDto, LiveMeasureDto> entry : measuresByMetric.entrySet()) {
       MeasureDtoToWsMeasure.updateMeasureBuilder(measureBuilder, entry.getKey(), entry.getValue());
-      wsComponent.addMeasures(measureBuilder);
+      addMeasureIncludingRenamedMetric(requestedMetrics, wsComponent, measureBuilder);
       measureBuilder.clear();
     }
 

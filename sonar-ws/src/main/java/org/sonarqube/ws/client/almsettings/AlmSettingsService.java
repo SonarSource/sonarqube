@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -125,6 +125,7 @@ public class AlmSettingsService extends BaseService {
         .setParam("url", request.getUrl())
         .setParam("clientId", request.getClientId())
         .setParam("clientSecret", request.getClientSecret())
+        .setParam("webhookSecret", request.getWebhookSecret())
         .setMediaType(MediaTypes.JSON)).content();
   }
 

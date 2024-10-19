@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,62 +17,73 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import styled from '@emotion/styled';
+import { Button } from '@sonarsource/echoes-react';
+import { ButtonPrimary, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { dismissNotice } from '../../../api/users';
-import { ButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { isLoggedIn, NoticeType } from '../../../types/users';
+import { NoticeType, isLoggedIn } from '../../../types/users';
 import { CurrentUserContextInterface } from '../current-user/CurrentUserContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
-import './PromotionNotification.css';
 
-export interface PromotionNotificationProps extends CurrentUserContextInterface {}
+export function PromotionNotification(props: CurrentUserContextInterface) {
+  const { currentUser, updateDismissedNotices } = props;
 
-export function PromotionNotification(props: PromotionNotificationProps) {
-  const { currentUser } = props;
+  const onClick = React.useCallback(() => {
+    return dismissNotice(NoticeType.SONARLINT_AD)
+      .then(() => {
+        updateDismissedNotices(NoticeType.SONARLINT_AD, true);
+      })
+      .catch(() => {
+        /* noop */
+      });
+  }, [updateDismissedNotices]);
 
   if (!isLoggedIn(currentUser) || currentUser.dismissedNotices[NoticeType.SONARLINT_AD]) {
     return null;
   }
 
-  const onClick = () => {
-    dismissNotice(NoticeType.SONARLINT_AD)
-      .then(() => {
-        props.updateDismissedNotices(NoticeType.SONARLINT_AD, true);
-      })
-      .catch(() => {
-        /* noop */
-      });
-  };
-
   return (
-    <div className="toaster display-flex-center big-padded-left big-padded-right">
-      <div className="toaster-icon spacer-right">
-        <img alt="SonarQube + SonarLint" height={80} src={`${getBaseUrl()}/images/sq-sl.svg`} />
+    <PromotionNotificationWrapper className="it__promotion_notification sw-z-global-popup sw-rounded-1 sw-flex sw-items-center sw-px-4">
+      <div className="sw-mr-2">
+        <Image alt="SonarQube + SonarLint" height={80} src="/images/sq-sl.svg" />
       </div>
-      <div className="toaster-content flex-1 padded-left padded-right big-padded-top big-padded-bottom">
-        <span className="toaster-title text-bold medium">
-          {translate('promotion.sonarlint.title')}
-        </span>
-        <p className="spacer-top">{translate('promotion.sonarlint.content')}</p>
-      </div>
-      <div className="toaster-actions spacer-left padded-left display-flex-column display-flex-center">
-        <a
-          className="button button-primary big-spacer-bottom"
-          href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-welcome"
-          rel="noreferrer"
+      <PromotionNotificationContent className="sw-flex-1 sw-px-2 sw-py-4">
+        <span className="sw-typo-semibold">{translate('promotion.sonarlint.title')}</span>
+        <p className="sw-mt-2">{translate('promotion.sonarlint.content')}</p>
+      </PromotionNotificationContent>
+      <div className="sw-ml-2 sw-pl-2 sw-flex sw-flex-col sw-items-stretch">
+        <ButtonPrimary
+          className="sw-mb-4"
+          to="https://www.sonarsource.com/products/sonarlint/?referrer=sonarqube-welcome"
           onClick={onClick}
-          target="_blank"
         >
           {translate('learn_more')}
-        </a>
-        <ButtonLink className="toaster-link" onClick={onClick}>
+        </ButtonPrimary>
+        <Button className="sw-justify-center" onClick={onClick}>
           {translate('dismiss')}
-        </ButtonLink>
+        </Button>
       </div>
-    </div>
+    </PromotionNotificationWrapper>
   );
 }
 
 export default withCurrentUserContext(PromotionNotification);
+
+const PromotionNotificationWrapper = styled.div`
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  max-width: 600px;
+  box-shadow: 1px 1px 5px 0px black;
+
+  background: ${themeColor('promotionNotificationBackground')};
+  color: ${themeColor('promotionNotification')};
+`;
+
+const PromotionNotificationContent = styled.div`
+  border-right: ${themeBorder('default', 'promotionNotificationSeparator')};
+`;

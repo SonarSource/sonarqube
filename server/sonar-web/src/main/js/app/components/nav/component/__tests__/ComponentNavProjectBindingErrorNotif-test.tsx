@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import {
-  ComponentNavProjectBindingErrorNotif,
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import ComponentNavProjectBindingErrorNotif, {
   ComponentNavProjectBindingErrorNotifProps,
 } from '../ComponentNavProjectBindingErrorNotif';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('non-project admin');
+it('should not show a link if use is not allowed', () => {
+  renderComponentNavProjectBindingErrorNotif({
+    component: mockComponent({ configuration: { showSettings: false } }),
+  });
   expect(
-    shallowRender({ component: mockComponent({ configuration: { showSettings: true } }) })
-  ).toMatchSnapshot('project admin');
+    screen.queryByRole('link', {
+      name: 'component_navigation.pr_deco.action.check_project_settings',
+    }),
+  ).not.toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<ComponentNavProjectBindingErrorNotifProps> = {}) {
-  return shallow<ComponentNavProjectBindingErrorNotifProps>(
-    <ComponentNavProjectBindingErrorNotif component={mockComponent()} {...props} />
+it('should show a link if use is allowed', () => {
+  renderComponentNavProjectBindingErrorNotif({
+    component: mockComponent({ configuration: { showSettings: true } }),
+  });
+  expect(
+    screen.getByRole('link', {
+      name: 'component_navigation.pr_deco.action.check_project_settings',
+    }),
+  ).toBeInTheDocument();
+});
+
+function renderComponentNavProjectBindingErrorNotif(
+  props: Partial<ComponentNavProjectBindingErrorNotifProps> = {},
+) {
+  return renderComponent(
+    <ComponentNavProjectBindingErrorNotif component={mockComponent()} {...props} />,
   );
 }

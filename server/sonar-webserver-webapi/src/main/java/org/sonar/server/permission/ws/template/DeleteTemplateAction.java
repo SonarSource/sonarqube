@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.DefaultTemplatesResolver;
-import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
+import org.sonar.server.common.permission.DefaultTemplatesResolver;
+import org.sonar.server.common.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,11 @@ package org.sonar.server.issue.index;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -33,6 +35,8 @@ import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.VulnerabilityProbability;
 
+import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SEVERITY;
+import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class IssueDoc extends BaseDoc {
@@ -56,10 +60,6 @@ public class IssueDoc extends BaseDoc {
 
   public String componentUuid() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID);
-  }
-
-  public String modulePath() {
-    return getField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH);
   }
 
   public String projectUuid() {
@@ -90,6 +90,14 @@ public class IssueDoc extends BaseDoc {
     return getField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY);
   }
 
+  public String cleanCodeAttributeCategory() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY);
+  }
+
+  public Collection<Map<String, String>> impacts() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_IMPACTS);
+  }
+
   @CheckForNull
   public Integer line() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_LINE);
@@ -102,6 +110,11 @@ public class IssueDoc extends BaseDoc {
   @CheckForNull
   public String resolution() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION);
+  }
+
+  @CheckForNull
+  public String issueStatus() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_NEW_STATUS);
   }
 
   @CheckForNull
@@ -133,6 +146,10 @@ public class IssueDoc extends BaseDoc {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN);
   }
 
+  /**
+   * @deprecated since 10.2
+   */
+  @Deprecated(since = "10.2")
   public RuleType type() {
     return RuleType.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_TYPE));
   }
@@ -199,9 +216,18 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
+  /**
+   * @deprecated since 10.2
+   */
+  @Deprecated(since = "10.2")
   public IssueDoc setSeverity(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, s);
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE, Severity.ALL.indexOf(s));
+    return this;
+  }
+
+  public IssueDoc setCleanCodeAttributeCategory(@Nullable String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY, s);
     return this;
   }
 
@@ -217,6 +243,11 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setResolution(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, s);
+    return this;
+  }
+
+  public IssueDoc setIssueStatus(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_NEW_STATUS, s);
     return this;
   }
 
@@ -260,11 +291,6 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public IssueDoc setModuleUuidPath(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, s);
-    return this;
-  }
-
   @CheckForNull
   public Collection<String> getTags() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_TAGS);
@@ -275,6 +301,7 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
+  @Deprecated(since = "10.2")
   public IssueDoc setType(RuleType type) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TYPE, type.toString());
     return this;
@@ -282,6 +309,18 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setOrganizationUuid(String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, s);
+    return this;
+  }
+
+  public IssueDoc setImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    List<Map<String, String>> convertedMap = impacts
+      .entrySet()
+      .stream()
+      .map(entry -> Map.of(
+        SUB_FIELD_SOFTWARE_QUALITY, entry.getKey().name(),
+        SUB_FIELD_SEVERITY, entry.getValue().name()))
+      .toList();
+    setField(IssueIndexDefinition.FIELD_ISSUE_IMPACTS, convertedMap);
     return this;
   }
 
@@ -336,6 +375,26 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
+  public Collection<String> getStigAsdV5R3() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_STIG_ASD_V5R3);
+  }
+
+  public IssueDoc setStigAsdV5R3(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_STIG_ASD_V5R3, o);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getCasa() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CASA);
+  }
+
+  public IssueDoc setCasa(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CASA, o);
+    return this;
+  }
+
+  @CheckForNull
   public Collection<String> getSansTop25() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25);
   }
@@ -383,6 +442,25 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setIsNewCodeReference(boolean b) {
     setField(IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE, b);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getCodeVariants() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CODE_VARIANTS);
+  }
+
+  public IssueDoc setCodeVariants(@Nullable Collection<String> codeVariants) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CODE_VARIANTS, codeVariants);
+    return this;
+  }
+
+  public boolean isPrioritizedRule(){
+    return getField(IssueIndexDefinition.FIELD_PRIORITIZED_RULE);
+  }
+
+  public IssueDoc setPrioritizedRule(boolean prioritizedRule){
+    setField(IssueIndexDefinition.FIELD_PRIORITIZED_RULE, prioritizedRule);
     return this;
   }
 }

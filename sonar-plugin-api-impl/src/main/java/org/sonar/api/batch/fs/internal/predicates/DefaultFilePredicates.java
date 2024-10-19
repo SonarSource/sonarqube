@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -133,7 +133,10 @@ public class DefaultFilePredicates implements FilePredicates {
 
   @Override
   public FilePredicate is(File ioFile) {
-    return new IsPredicate(ioFile.toPath());
+    if (ioFile.isAbsolute()) {
+      return hasAbsolutePath(ioFile.getAbsolutePath());
+    }
+    return hasRelativePath(ioFile.getPath());
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -69,37 +69,8 @@ public class ReadOnlyPropertiesDaoTest {
   }
 
   @Test
-  public void deleteProjectProperties() {
-    underTest.deleteProjectProperties(null, null);
-
-    assertNoInteraction();
-
-  }
-
-  @Test
-  public void deleteProjectProperties1() {
-    underTest.deleteProjectProperties(null, null, dbSession);
-
-    assertNoInteraction();
-  }
-
-  @Test
   public void deleteGlobalProperty() {
-    underTest.deleteGlobalProperty(null);
-
-    assertNoInteraction();
-  }
-
-  @Test
-  public void deleteGlobalProperty1() {
     underTest.deleteGlobalProperty(null, dbSession);
-
-    assertNoInteraction();
-  }
-
-  @Test
-  public void insertGlobalProperties() {
-    underTest.saveGlobalProperties(null);
 
     assertNoInteraction();
   }

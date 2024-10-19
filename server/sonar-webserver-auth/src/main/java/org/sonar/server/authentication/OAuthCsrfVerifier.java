@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,15 +21,15 @@ package org.sonar.server.authentication;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -39,7 +39,7 @@ public class OAuthCsrfVerifier {
   private static final String CSRF_STATE_COOKIE = "OAUTHSTATE";
   private static final String DEFAULT_STATE_PARAMETER_NAME = "state";
 
-  public String generateState(HttpServletRequest request, HttpServletResponse response) {
+  public String generateState(HttpRequest request, HttpResponse response) {
     // Create a state token to prevent request forgery.
     // Store it in the session for later validation.
     String state = new BigInteger(130, new SecureRandom()).toString(32);
@@ -47,11 +47,11 @@ public class OAuthCsrfVerifier {
     return state;
   }
 
-  public void verifyState(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider) {
+  public void verifyState(HttpRequest request, HttpResponse response, OAuth2IdentityProvider provider) {
     verifyState(request, response, provider, DEFAULT_STATE_PARAMETER_NAME);
   }
 
-  public void verifyState(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider, String parameterName) {
+  public void verifyState(HttpRequest request, HttpResponse response, OAuth2IdentityProvider provider, String parameterName) {
     Cookie cookie = findCookie(CSRF_STATE_COOKIE, request)
       .orElseThrow(AuthenticationException.newBuilder()
         .setSource(Source.oauth2(provider))

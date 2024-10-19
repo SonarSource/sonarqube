@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import * as Echoes from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, ModalAlert } from '@sonarsource/echoes-react';
+import React from 'react';
 import { translate } from '../../helpers/l10n';
-import DeferredSpinner from '../ui/DeferredSpinner';
-import { ResetButtonLink, SubmitButton } from './buttons';
-import ClickEventBoundary from './ClickEventBoundary';
-import { ModalProps } from './Modal';
-import SimpleModal, { ChildrenProps } from './SimpleModal';
 
-export interface ConfirmModalProps<T> extends ModalProps {
+export interface ConfirmModalProps<T> {
   cancelButtonText?: string;
+  children: React.ReactNode;
   confirmButtonText: string;
   confirmData?: T;
   confirmDisable?: boolean;
   isDestructive?: boolean;
+  isOpen: boolean;
   onConfirm: (data?: T) => void | Promise<void | Response>;
 }
 
@@ -40,71 +39,65 @@ interface Props<T> extends ConfirmModalProps<T> {
   onClose: () => void;
 }
 
-export default class ConfirmModal<T = string> extends React.PureComponent<Props<T>> {
-  mounted = false;
+/** @deprecated Use {@link Echoes.ModalAlert | ModalAlert} from Echoes instead.
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3465543707/Modals | Migration Guide}
+ */
+export default function ConfirmModal<T = string>(props: Readonly<Props<T>>) {
+  const {
+    header,
+    onClose,
+    onConfirm,
+    children,
+    confirmButtonText,
+    confirmData,
+    confirmDisable,
+    headerDescription,
+    isDestructive,
+    isOpen,
+    cancelButtonText = translate('cancel'),
+  } = props;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const [submitting, setSubmitting] = React.useState(false);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const handleSubmit = React.useCallback(() => {
+    setSubmitting(true);
+    const result = onConfirm(confirmData);
 
-  handleSubmit = () => {
-    const result = this.props.onConfirm(this.props.confirmData);
     if (result) {
-      return result.then(this.props.onClose, () => {
-        /* noop */
-      });
+      return result.then(
+        () => {
+          setSubmitting(false);
+          onClose();
+        },
+        () => {
+          setSubmitting(false);
+        },
+      );
     }
-    this.props.onClose();
+
+    setSubmitting(false);
+    onClose();
     return undefined;
-  };
+  }, [confirmData, onClose, onConfirm, setSubmitting]);
 
-  renderModalContent = ({ onCloseClick, onFormSubmit, submitting }: ChildrenProps) => {
-    const {
-      children,
-      confirmButtonText,
-      confirmDisable,
-      header,
-      headerDescription,
-      isDestructive,
-      cancelButtonText = translate('cancel'),
-    } = this.props;
-    return (
-      <ClickEventBoundary>
-        <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-            {headerDescription}
-          </header>
-          <div className="modal-body">{children}</div>
-          <footer className="modal-foot">
-            <DeferredSpinner className="spacer-right" loading={submitting} />
-            <SubmitButton
-              autoFocus={true}
-              className={isDestructive ? 'button-red' : undefined}
-              disabled={submitting || confirmDisable}
-            >
-              {confirmButtonText}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-              {cancelButtonText}
-            </ResetButtonLink>
-          </footer>
-        </form>
-      </ClickEventBoundary>
-    );
-  };
-
-  render() {
-    const { header, onClose, noBackdrop, size } = this.props;
-    const modalProps = { header, onClose, noBackdrop, size };
-    return (
-      <SimpleModal onSubmit={this.handleSubmit} {...modalProps}>
-        {this.renderModalContent}
-      </SimpleModal>
-    );
-  }
+  return (
+    <ModalAlert
+      title={header}
+      description={headerDescription}
+      isOpen={isOpen}
+      onOpenChange={onClose}
+      content={children}
+      primaryButton={
+        <Button
+          variety={isDestructive ? ButtonVariety.Danger : ButtonVariety.Primary}
+          isDisabled={submitting || confirmDisable}
+          isLoading={submitting}
+          onClick={handleSubmit}
+        >
+          {confirmButtonText}
+        </Button>
+      }
+      secondaryButtonLabel={cancelButtonText}
+    />
+  );
 }

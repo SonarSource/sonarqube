@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.rightPad;
+import static org.apache.commons.lang3.StringUtils.rightPad;
 import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 
 /**
@@ -149,14 +149,6 @@ public class AllProcessesCommands implements AutoCloseable {
     writeByte(processNumber, OPERATIONAL_BYTE_OFFSET, OPERATIONAL);
   }
 
-  void ping(int processNumber) {
-    writeLong(processNumber, PING_BYTE_OFFSET, System.currentTimeMillis());
-  }
-
-  long getLastPing(int processNumber) {
-    return readLong(processNumber, PING_BYTE_OFFSET);
-  }
-
   String getSystemInfoUrl(int processNumber) {
     byte[] urlBytes = readBytes(processNumber, SYSTEM_INFO_URL_BYTE_OFFSET, SYSTEM_INFO_URL_SIZE_IN_BYTES);
     return new String(urlBytes, StandardCharsets.US_ASCII).trim();
@@ -245,14 +237,6 @@ public class AllProcessesCommands implements AutoCloseable {
     return bytes;
   }
 
-  private void writeLong(int processNumber, int offset, long value) {
-    mappedByteBuffer.putLong(offset(processNumber) + offset, value);
-  }
-
-  private long readLong(int processNumber, int offset) {
-    return mappedByteBuffer.getLong(offset(processNumber) + offset);
-  }
-
   // VisibleForTesting
   int offset(int processNumber) {
     return BYTE_LENGTH_FOR_ONE_PROCESS * processNumber;
@@ -284,16 +268,6 @@ public class AllProcessesCommands implements AutoCloseable {
     @Override
     public void setOperational() {
       AllProcessesCommands.this.setOperational(processNumber);
-    }
-
-    @Override
-    public void ping() {
-      AllProcessesCommands.this.ping(processNumber);
-    }
-
-    @Override
-    public long getLastPing() {
-      return AllProcessesCommands.this.getLastPing(processNumber);
     }
 
     @Override

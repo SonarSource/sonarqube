@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,88 +17,75 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Spinner, Title } from 'design-system';
+import React, { useState } from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { Router } from '~sonar-aligned/types/router';
 import { createPermissionTemplate } from '../../../api/permissions';
-import { Button } from '../../../components/controls/buttons';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
+import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
+import ProvisioningWarning from './ProvisioningWarning';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
 import { Organization } from "../../../types/types";
 
 interface Props {
+  organization: Organization;
   ready?: boolean;
   refresh: () => Promise<void>;
   router: Router;
-  organization: Organization;
 }
 
-interface State {
-  createModal: boolean;
-}
+function Header(props: Props) {
+  const { organization, ready, router } = props;
+  const [createModal, setCreateModal] = useState(false);
 
-class Header extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { createModal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleCreateClick = () => {
-    this.setState({ createModal: true });
-  };
-
-  handleCreateModalClose = () => {
-    if (this.mounted) {
-      this.setState({ createModal: false });
-    }
-  };
-
-  handleCreateModalSubmit = (data: {
+  const handleCreateModalSubmit = async (data: {
     description: string;
     name: string;
     projectKeyPattern: string;
   }) => {
-    const organization = this.props.organization && this.props.organization.kee;
-    return createPermissionTemplate({ ...data, organization }).then((response) => {
-      this.props.refresh().then(() => {
-        this.props.router.push({
-          pathname: `/organizations/${organization}/permission_templates`,
-          query: { id: response.permissionTemplate.id },
-        });
+    try {
+      const response = await createPermissionTemplate({ ...data, organization: organization.kee });
+      await props.refresh();
+      router.push({
+        pathname: `/organizations/${organization}/${PERMISSION_TEMPLATES_PATH}`,
+        query: { id: response.permissionTemplate.id },
       });
-    });
+    } catch (e) {
+      throwGlobalError(e);
+    }
   };
 
-  render() {
-    return (
-      <header className="page-header" id="project-permissions-header">
-        <h1 className="page-title">{translate('permission_templates.page')}</h1>
+  return (
+    <header>
+      <div id="project-permissions-header">
+        <div className="sw-flex sw-justify-between">
+          <div className="sw-flex sw-gap-3">
+            <Title>{translate('permission_templates.page')}</Title>
+            <Spinner className="sw-mt-2" loading={!ready} />
+          </div>
 
-        {!this.props.ready && <i className="spinner" />}
-
-        <div className="page-actions">
-          <Button onClick={this.handleCreateClick}>{translate('create')}</Button>
-
-          {this.state.createModal && (
-            <Form
-              confirmButtonText={translate('create')}
-              header={translate('permission_template.new_template')}
-              onClose={this.handleCreateModalClose}
-              onSubmit={this.handleCreateModalSubmit}
-            />
-          )}
+          <Button onClick={() => setCreateModal(true)} variety={ButtonVariety.Primary}>
+            {translate('create')}
+          </Button>
         </div>
+        <div className="sw-mb-4">{translate('permission_templates.page.description')}</div>
+      </div>
+      <ProvisioningWarning />
 
-        <p className="page-description">{translate('permission_templates.page.description')}</p>
-      </header>
-    );
-  }
+      {createModal && (
+        <Form
+          confirmButtonText={translate('create')}
+          header={translate('permission_template.new_template')}
+          onClose={() => setCreateModal(false)}
+          onSubmit={handleCreateModalSubmit}
+        />
+      )}
+    </header>
+  );
 }
 
 export default withRouter(withOrganizationContext(Header));

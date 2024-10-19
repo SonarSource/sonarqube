@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -45,8 +45,8 @@ describe('extractStatusConditionsFromApplicationStatusChildProject', () => {
   it('should correclty extract the conditions for the application child project status', () => {
     expect(
       extractStatusConditionsFromApplicationStatusChildProject(
-        mockQualityGateApplicationStatus().projects[0]
-      )
+        mockQualityGateApplicationStatus().projects[0],
+      ),
     ).toEqual([
       {
         actual: '10',

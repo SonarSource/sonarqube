@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,19 +22,19 @@ package org.sonar.scanner.issue.ignore.scanner;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.BlockIssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 
 public final class IssueExclusionsLoader {
-  private static final Logger LOG = Loggers.get(IssueExclusionsLoader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IssueExclusionsLoader.class);
 
   private final List<java.util.regex.Pattern> allFilePatterns;
   private final List<DoubleRegexpMatcher> blockMatchers;

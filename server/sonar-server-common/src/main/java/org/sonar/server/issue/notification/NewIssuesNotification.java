@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.notification;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -30,11 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.Durations;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import static java.util.Objects.requireNonNull;
@@ -44,7 +39,7 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_DATE;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_NAME;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ISSUE;
 
 public class NewIssuesNotification extends Notification {
 
@@ -55,15 +50,13 @@ public class NewIssuesNotification extends Notification {
   private static final String DOT = ".";
 
   private final transient DetailsSupplier detailsSupplier;
-  private final transient Durations durations;
 
-  public NewIssuesNotification(Durations durations, DetailsSupplier detailsSupplier) {
-    this(TYPE, durations, detailsSupplier);
+  public NewIssuesNotification(DetailsSupplier detailsSupplier) {
+    this(TYPE, detailsSupplier);
   }
 
-  protected NewIssuesNotification(String type, Durations durations, DetailsSupplier detailsSupplier) {
+  protected NewIssuesNotification(String type, DetailsSupplier detailsSupplier) {
     super(type);
-    this.durations = durations;
     this.detailsSupplier = detailsSupplier;
   }
 
@@ -126,9 +119,9 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
-    setDefaultMessage(stats.getDistributedMetricStats(RULE_TYPE).getOnCurrentAnalysis() + " new issues on " + projectName + ".\n");
+    setDefaultMessage(stats.getIssueCount().getOnCurrentAnalysis() + " new issues on " + projectName + ".\n");
 
-    setRuleTypeStatistics(stats);
+    setIssueStatistics(stats);
     setAssigneesStatistics(stats);
     setTagsStatistics(stats);
     setComponentsStatistics(stats);
@@ -198,21 +191,11 @@ public class NewIssuesNotification extends Notification {
       .filter(i -> biggerCriteria.applyAsInt(i.getValue()) > 0)
       .sorted(comparator.reversed())
       .limit(5)
-      .collect(MoreCollectors.toList(5));
+      .toList();
   }
 
-  public NewIssuesNotification setDebt(Duration debt) {
-    setFieldValue(Metric.EFFORT + COUNT, durations.format(debt));
-    return this;
-  }
-
-  private void setRuleTypeStatistics(NewIssuesStatistics.Stats stats) {
-    DistributedMetricStatsInt distributedMetricStats = stats.getDistributedMetricStats(RULE_TYPE);
-    setFieldValue(RULE_TYPE + COUNT, String.valueOf(distributedMetricStats.getOnCurrentAnalysis()));
-    Arrays.stream(RuleType.values())
-      .forEach(ruleType -> setFieldValue(
-        RULE_TYPE + DOT + ruleType + COUNT,
-        String.valueOf(distributedMetricStats.getForLabel(ruleType.name()).map(MetricStatsInt::getOnCurrentAnalysis).orElse(0))));
+  private void setIssueStatistics(NewIssuesStatistics.Stats stats) {
+    setFieldValue(ISSUE + COUNT, String.valueOf(stats.getIssueCount().getOnCurrentAnalysis()));
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton } from 'design-system';
 import * as React from 'react';
+import { withRouter, WithRouterProps } from '~sonar-aligned/components/hoc/withRouter';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import ButtonToggle from '../../../components/controls/ButtonToggle';
-import { withRouter, WithRouterProps } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
@@ -45,10 +45,10 @@ export class FavoriteFilter extends React.PureComponent<Props> {
   onFavoriteChange = (favorite: boolean) => {
     if (favorite) {
       this.handleSaveFavorite();
-      this.props.router.push(FAVORITE_PATHNAME);
+      this.props.router.push({ pathname: FAVORITE_PATHNAME, query: this.props.location.query });
     } else {
       this.handleSaveAll();
-      this.props.router.push(ALL_PATHNAME);
+      this.props.router.push({ pathname: ALL_PATHNAME, query: this.props.location.query });
     }
   };
 
@@ -62,13 +62,13 @@ export class FavoriteFilter extends React.PureComponent<Props> {
     }
 
     return (
-      <div className="page-header text-center display-flex-justify-center">
-        <ButtonToggle
+      <div className="sw-mb-8">
+        <ToggleButton
           options={[
             { value: true, label: translate('my_favorites') },
             { value: false, label: translate('all') },
           ]}
-          onCheck={this.onFavoriteChange}
+          onChange={this.onFavoriteChange}
           value={pathname === FAVORITE_PATHNAME}
         />
       </div>

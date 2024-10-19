@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,21 +20,21 @@
 package org.sonar.server.authentication;
 
 import javax.annotation.CheckForNull;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.IdentityProvider;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.HttpFilter;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
 
-public abstract class AuthenticationFilter extends ServletFilter {
+public abstract class AuthenticationFilter extends HttpFilter {
 
   static final String CALLBACK_PATH = "/oauth2/callback/";
   private final IdentityProviderRepository identityProviderRepository;
 
-  public AuthenticationFilter(IdentityProviderRepository identityProviderRepository) {
+  protected AuthenticationFilter(IdentityProviderRepository identityProviderRepository) {
     this.identityProviderRepository = identityProviderRepository;
   }
 
@@ -43,7 +43,7 @@ public abstract class AuthenticationFilter extends ServletFilter {
    *         case the request is fully handled and caller should not handle it
    */
   @CheckForNull
-  IdentityProvider resolveProviderOrHandleResponse(HttpServletRequest request, HttpServletResponse response, String path) {
+  IdentityProvider resolveProviderOrHandleResponse(HttpRequest request, HttpResponse response, String path) {
     String requestUri = request.getRequestURI();
     String providerKey = extractKeyProvider(requestUri, request.getContextPath() + path);
     if (providerKey == null) {

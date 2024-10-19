@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -60,12 +60,12 @@ public class IndexTypeTest {
   public void parseMainType_from_relationtype() {
     IndexMainType mainType = IndexType.main(Index.withRelations("foo"), "bar");
     IndexRelationType type1 = IndexType.relation(mainType, "donut");
-    assertThat(type1.format()).isEqualTo("foo/bar/donut");
+    assertThat(type1.format()).isEqualTo("foo/_doc");
 
     SimpleIndexMainType type2 = IndexType.parseMainType(type1.format());
     assertThat(type2)
       .extracting(SimpleIndexMainType::getIndex, SimpleIndexMainType::getType)
-      .containsExactly("foo", "bar");
+      .containsExactly("foo", "_doc");
   }
 
   @Test

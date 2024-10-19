@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,13 @@
  */
 package org.sonar.server.platform.web;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
 import org.sonar.server.ws.WebServiceEngine;
@@ -34,12 +33,11 @@ import org.sonar.server.ws.WebServiceEngine;
 /**
  * This filter is used to execute renamed/moved web services
  */
-public class WebServiceReroutingFilter extends ServletFilter {
+public class WebServiceReroutingFilter extends HttpFilter {
 
-  private static final Map<String, String> REDIRECTS = ImmutableMap.<String, String>builder()
-    .put("/api/components/bulk_update_key", "/api/projects/bulk_update_key")
-    .put("/api/components/update_key", "/api/projects/update_key")
-    .build();
+  private static final Map<String, String> REDIRECTS = Map.of(
+    "/api/components/bulk_update_key", "/api/projects/bulk_update_key",
+    "/api/components/update_key", "/api/projects/update_key");
   static final Set<String> MOVED_WEB_SERVICES = REDIRECTS.keySet();
 
   private final WebServiceEngine webServiceEngine;
@@ -56,16 +54,15 @@ public class WebServiceReroutingFilter extends ServletFilter {
   }
 
   @Override
-  public void doFilter(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse, FilterChain chain) {
-    HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-    RedirectionRequest wsRequest = new RedirectionRequest(httpRequest);
-    ServletResponse wsResponse = new ServletResponse((HttpServletResponse) servletResponse);
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain filterChain) {
+    RedirectionRequest wsRequest = new RedirectionRequest(request);
+    ServletResponse wsResponse = new ServletResponse(response);
 
     webServiceEngine.execute(wsRequest, wsResponse);
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // Nothing to do
   }
 
@@ -77,7 +74,7 @@ public class WebServiceReroutingFilter extends ServletFilter {
   private static class RedirectionRequest extends ServletRequest {
     private final String redirectedPath;
 
-    public RedirectionRequest(HttpServletRequest source) {
+    public RedirectionRequest(HttpRequest source) {
       super(source);
       this.redirectedPath = REDIRECTS.getOrDefault(source.getServletPath(), source.getServletPath());
     }

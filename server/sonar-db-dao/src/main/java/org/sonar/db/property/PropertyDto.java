@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ public class PropertyDto {
   private String uuid;
   private String key;
   private String value;
-  private String componentUuid;
+  private String entityUuid;
   private String userUuid;
 
   String getUuid() {
@@ -64,12 +64,12 @@ public class PropertyDto {
   }
 
   @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
-  public PropertyDto setComponentUuid(@Nullable String componentUuid) {
-    this.componentUuid = componentUuid;
+  public PropertyDto setEntityUuid(@Nullable String entityUuid) {
+    this.entityUuid = entityUuid;
     return this;
   }
 
@@ -94,13 +94,13 @@ public class PropertyDto {
     PropertyDto other = (PropertyDto) obj;
     return Objects.equals(this.key, other.key)
       && Objects.equals(this.userUuid, other.userUuid)
-      && Objects.equals(this.componentUuid, other.componentUuid)
+      && Objects.equals(this.entityUuid, other.entityUuid)
       && Objects.equals(this.value, other.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.key, this.value, this.componentUuid, this.userUuid);
+    return Objects.hash(this.key, this.value, this.entityUuid, this.userUuid);
   }
 
   @Override
@@ -108,7 +108,7 @@ public class PropertyDto {
     return MoreObjects.toStringHelper(this)
       .addValue(this.key)
       .addValue(this.value)
-      .addValue(this.componentUuid)
+      .addValue(this.entityUuid)
       .addValue(this.userUuid)
       .toString();
   }

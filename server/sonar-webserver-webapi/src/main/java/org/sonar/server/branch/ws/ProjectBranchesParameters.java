@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ public class ProjectBranchesParameters {
   public static final String ACTION_LIST = "list";
   public static final String ACTION_DELETE = "delete";
   public static final String ACTION_RENAME = "rename";
+  public static final String ACTION_SET_MAIN_BRANCH = "set_main";
   public static final String ACTION_SET_AUTOMATIC_DELETION_PROTECTION = "set_automatic_deletion_protection";
 
   // parameters

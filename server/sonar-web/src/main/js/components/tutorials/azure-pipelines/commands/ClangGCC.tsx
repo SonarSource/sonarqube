@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  CodeSnippet,
+  ListItem,
+  NumberedList,
+  NumberedListItem,
+  UnorderedList,
+} from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { getHostUrl } from '../../../../helpers/urls';
-import CodeSnippet from '../../../common/CodeSnippet';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
-import { BuildTools, OSs, TutorialModes } from '../../types';
+import { Arch, AutoConfig, BuildTools, OSs, TutorialConfig, TutorialModes } from '../../types';
+import { getBuildWrapperExecutableLinux, getBuildWrapperFolderLinux } from '../../utils';
 import AlertClassicEditor from './AlertClassicEditor';
+import Other from './Other';
 import PrepareAnalysisCommand, { PrepareType } from './PrepareAnalysisCommand';
 import PublishSteps from './PublishSteps';
 
 export interface ClangGCCProps {
+  config: TutorialConfig;
   projectKey: string;
-  onStepValidationChange: (isValid: boolean) => void;
 }
 
 type OsConstant = {
@@ -44,18 +52,18 @@ type OsConstant = {
 };
 
 export default function ClangGCC(props: ClangGCCProps) {
-  const { projectKey } = props;
-  const [os, setOs] = React.useState<OSs | undefined>();
+  const { config, projectKey } = props;
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
   const host = getHostUrl();
 
   const codeSnippetDownload: OsConstant = {
     [OSs.Linux]: {
-      script: `curl '${host}/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
+      script: `curl '${host}/static/cpp/${getBuildWrapperFolderLinux(arch)}.zip' --output build-wrapper.zip
 unzip build-wrapper.zip`,
       highlightScriptKey:
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix',
-      scriptBuild:
-        './build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>',
+      scriptBuild: `./${getBuildWrapperFolderLinux(arch)}/${getBuildWrapperExecutableLinux(arch)} --out-dir bw-output <your build command here>`,
     },
     [OSs.Windows]: {
       script: `Invoke-WebRequest -Uri '${host}/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
@@ -71,103 +79,108 @@ unzip build-wrapper.zip`,
       highlightScriptKey:
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix',
       scriptBuild:
-        './build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output <your build command here>',
+        './build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>',
     },
   };
 
-  React.useEffect(() => {
-    if (os) {
-      props.onStepValidationChange(true);
-    } else {
-      props.onStepValidationChange(false);
-    }
-  }, [os, props.onStepValidationChange]);
-
-  const handlOsChange = (value: OSs) => {
-    setOs(value);
-  };
+  if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+    return <Other projectKey={projectKey} />;
+  }
 
   return (
     <>
-      <span className="big-spacer-top display-block">
-        {translate('onboarding.tutorial.with.azure_pipelines.os')}
-      </span>
+      <div className="sw-mt-4">{translate('onboarding.tutorial.with.azure_pipelines.os')}</div>
       <RenderOptions
         label={translate('onboarding.tutorial.with.azure_pipelines.os')}
         checked={os}
-        onCheck={handlOsChange}
+        onCheck={(value: OSs) => setOs(value)}
         optionLabelKey="onboarding.build.other.os"
         options={Object.values(OSs)}
       />
-
-      {os && (
+      {os === OSs.Linux && (
         <>
-          <GithubCFamilyExampleRepositories
-            className="big-spacer-top abs-width-600"
-            os={os}
-            ci={TutorialModes.AzurePipelines}
+          <div className="sw-mt-4">
+            {translate('onboarding.tutorial.with.azure_pipelines.architecture')}
+          </div>
+          <RenderOptions
+            label={translate('onboarding.tutorial.with.azure_pipelines.architecture')}
+            checked={arch}
+            onCheck={(value: Arch) => setArch(value)}
+            optionLabelKey="onboarding.build.other.architecture"
+            options={[Arch.X86_64, Arch.Arm64]}
           />
-          <AlertClassicEditor />
-          <ol className="list-styled big-spacer-top">
-            <li>
-              <SentenceWithHighlights
-                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp"
-                highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
-                highlightKeys={['pipeline']}
-              />
-              <ul className="list-styled list-alpha spacer-top">
-                <li>
-                  <SentenceWithHighlights
-                    translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.script"
-                    highlightPrefixKeys={codeSnippetDownload[os].highlightScriptKey}
-                    highlightKeys={['task', 'inline']}
-                  />
-                  <CodeSnippet snippet={codeSnippetDownload[os].script} />
-                </li>
-              </ul>
-            </li>
-
-            <li>
-              <SentenceWithHighlights
-                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.ccpp"
-                highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
-                highlightKeys={['task', 'before']}
-              />
-              <PrepareAnalysisCommand
-                buildTool={BuildTools.CFamily}
-                kind={PrepareType.StandAlone}
-                projectKey={projectKey}
-              />
-            </li>
-
-            <li>
-              <SentenceWithHighlights
-                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build.ccpp"
-                highlightKeys={['task']}
-              />
-              <ul className="list-styled list-alpha spacer-top">
-                <li>
-                  <SentenceWithHighlights
-                    translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_script.ccpp"
-                    highlightKeys={['build_wrapper']}
-                  />
-                  <CodeSnippet snippet={codeSnippetDownload[os].scriptBuild} />
-                  <CompilationInfo />
-                </li>
-              </ul>
-            </li>
-
-            <li>
-              <SentenceWithHighlights
-                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.ccpp"
-                highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run"
-                highlightKeys={['task', 'after']}
-              />
-            </li>
-            <PublishSteps />
-          </ol>
         </>
       )}
+
+      <GithubCFamilyExampleRepositories
+        className="sw-mt-4 sw-w-abs-600"
+        os={os}
+        ci={TutorialModes.AzurePipelines}
+      />
+      <AlertClassicEditor />
+      <NumberedList className="sw-mt-4">
+        <NumberedListItem>
+          <SentenceWithHighlights
+            translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp"
+            highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
+            highlightKeys={['pipeline']}
+          />
+          <UnorderedList ticks className="sw-ml-12 sw-mt-2">
+            <ListItem>
+              <SentenceWithHighlights
+                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.script"
+                highlightPrefixKeys={codeSnippetDownload[os].highlightScriptKey}
+                highlightKeys={['task', 'inline']}
+              />
+              <CodeSnippet className="sw-p-6" snippet={codeSnippetDownload[os].script} />
+            </ListItem>
+          </UnorderedList>
+        </NumberedListItem>
+
+        <NumberedListItem>
+          <SentenceWithHighlights
+            translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.ccpp"
+            highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
+            highlightKeys={['task', 'before']}
+          />
+          <PrepareAnalysisCommand
+            buildTool={BuildTools.Cpp}
+            kind={PrepareType.StandAlone}
+            projectKey={projectKey}
+          />
+        </NumberedListItem>
+
+        <NumberedListItem>
+          <SentenceWithHighlights
+            translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build.ccpp"
+            highlightKeys={['task']}
+          />
+          <UnorderedList className="sw-mt-2">
+            <ListItem>
+              <SentenceWithHighlights
+                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_script.ccpp"
+                highlightKeys={['build_wrapper']}
+              />
+              <CodeSnippet
+                className="sw-p-6"
+                isOneLine
+                snippet={codeSnippetDownload[os].scriptBuild}
+              />
+              <CompilationInfo />
+            </ListItem>
+          </UnorderedList>
+        </NumberedListItem>
+
+        <NumberedListItem>
+          <SentenceWithHighlights
+            translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.ccpp"
+            highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run"
+            highlightKeys={['task', 'after']}
+          />
+        </NumberedListItem>
+
+        <PublishSteps />
+      </NumberedList>
     </>
   );
 }

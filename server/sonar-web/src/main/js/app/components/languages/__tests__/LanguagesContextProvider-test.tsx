@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,30 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { getLanguages } from '../../../../api/languages';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { Language } from '../../../../types/languages';
+import { LanguagesContext } from '../LanguagesContext';
 import LanguagesContextProvider from '../LanguagesContextProvider';
 
 jest.mock('../../../../api/languages', () => ({
-  getLanguages: jest.fn().mockResolvedValue({}),
+  getLanguages: jest.fn().mockResolvedValue([]),
 }));
 
 it('should call language', async () => {
-  const languages = { c: { key: 'c', name: 'c' } };
-  (getLanguages as jest.Mock).mockResolvedValueOnce(languages);
-  const wrapper = shallowRender();
+  const languages: Language[] = [
+    { key: 'c', name: 'c' },
+    { key: 'js', name: 'Javascript' },
+  ];
+  jest.mocked(getLanguages).mockResolvedValueOnce(languages);
+  renderLanguagesContextProvider();
 
-  expect(getLanguages).toHaveBeenCalled();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state()).toEqual({ languages });
+  expect(await byRole('listitem').findAll()).toHaveLength(2);
 });
 
-function shallowRender() {
-  return shallow<LanguagesContextProvider>(
+function renderLanguagesContextProvider() {
+  return renderComponent(
     <LanguagesContextProvider>
-      <div />
-    </LanguagesContextProvider>
+      <Consumer />
+    </LanguagesContextProvider>,
+  );
+}
+
+function Consumer() {
+  const languages = React.useContext(LanguagesContext);
+  return (
+    <ul>
+      {Object.keys(languages).map((k) => (
+        <li key={k}>{languages[k].name}</li>
+      ))}
+    </ul>
   );
 }

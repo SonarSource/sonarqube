@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,114 +17,93 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, Modal } from 'design-system';
 import * as React from 'react';
-import { addGroup, addUser } from '../../../api/quality-profiles';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
+import { useAddGroupMutation, useAddUserMutation } from '../../../queries/quality-profiles';
 import { UserSelected } from '../../../types/types';
 import { Group } from './ProfilePermissions';
 import ProfilePermissionsFormSelect from './ProfilePermissionsFormSelect';
 
 interface Props {
+  organization: string;
   onClose: () => void;
   onGroupAdd: (group: Group) => void;
   onUserAdd: (user: UserSelected) => void;
   profile: { language: string; name: string };
-  organization: string;
 }
 
-interface State {
-  selected?: UserSelected | Group;
-  submitting: boolean;
-}
+export default function ProfilePermissionForm(props: Readonly<Props>) {
+  const { organization, profile } = props;
+  const [selected, setSelected] = React.useState<UserSelected | Group>();
 
-export default class ProfilePermissionsForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { submitting: false };
+  const { mutate: addUser, isPending: addingUser } = useAddUserMutation(() =>
+    props.onUserAdd(selected as UserSelected),
+  );
+  const { mutate: addGroup, isPending: addingGroup } = useAddGroupMutation(() =>
+    props.onGroupAdd(selected as Group),
+  );
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const loading = addingUser || addingGroup;
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const header = translate('quality_profiles.grant_permissions_to_user_or_group');
+  const submitDisabled = !selected || loading;
 
-  stopSubmitting = () => {
-    if (this.mounted) {
-      this.setState({ submitting: false });
-    }
-  };
-
-  handleUserAdd = (user: UserSelected) => {
-    const {
-      profile: { language, name },
-      organization
-    } = this.props;
-    addUser({
-      language,
-      login: user.login,
-      organization,
-      qualityProfile: name
-    }).then(() => this.props.onUserAdd(user), this.stopSubmitting);
-  };
-
-  handleGroupAdd = (group: Group) => {
-    const {
-      profile: { language, name },
-      organization
-    } = this.props;
-    addGroup({
-      group: group.name,
-      language,
-      organization,
-      qualityProfile: name
-    }).then(() => this.props.onGroupAdd(group), this.stopSubmitting);
-  };
-
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { selected } = this.state;
     if (selected) {
-      this.setState({ submitting: true });
-      if ((selected as UserSelected).login !== undefined) {
-        this.handleUserAdd(selected as UserSelected);
+      if (isSelectedUser(selected)) {
+        addUser({
+          organization,
+          language: profile.language,
+          login: selected.login,
+          qualityProfile: profile.name,
+        });
       } else {
-        this.handleGroupAdd(selected as Group);
+        addGroup({
+          organization,
+          language: profile.language,
+          group: selected.name,
+          qualityProfile: profile.name,
+        });
       }
     }
   };
 
-  handleValueChange = (selected: UserSelected | Group) => {
-    this.setState({ selected });
-  };
-
-  render() {
-    const { profile } = this.props;
-    const header = translate('quality_profiles.grant_permissions_to_user_or_group');
-    const submitDisabled = !this.state.selected || this.state.submitting;
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleFormSubmit}>
-          <div className="modal-body">
-            <div className="modal-field">
-              <label htmlFor="change-profile-permission-input">
-                {translate('quality_profiles.search_description')}
-              </label>
-              <ProfilePermissionsFormSelect onChange={this.handleValueChange} profile={profile} organization={this.props.organization}/>
-            </div>
-          </div>
-          <footer className="modal-foot">
-            {this.state.submitting && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitDisabled}>{translate('add_verb')}</SubmitButton>
-            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
+  return (
+    <Modal
+      isOverflowVisible
+      headerTitle={header}
+      onClose={props.onClose}
+      loading={loading}
+      primaryButton={
+        <Button
+          type="submit"
+          form="grant_permissions_form"
+          isDisabled={submitDisabled}
+          variety={ButtonVariety.Primary}
+        >
+          {translate('add_verb')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+      body={
+        <form onSubmit={handleFormSubmit} id="grant_permissions_form">
+          <FormField label={translate('quality_profiles.search_description')}>
+            <ProfilePermissionsFormSelect
+              organization={organization}
+              onChange={(option) => setSelected(option)}
+              selected={selected}
+              profile={profile}
+            />
+          </FormField>
         </form>
-      </Modal>
-    );
-  }
+      }
+    />
+  );
+}
+
+function isSelectedUser(selected: UserSelected | Group): selected is UserSelected {
+  return (selected as UserSelected).login !== undefined;
 }

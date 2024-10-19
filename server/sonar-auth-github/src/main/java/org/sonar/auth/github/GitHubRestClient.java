@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static org.sonar.auth.OAuthRestClient.executePaginatedRequest;
@@ -37,7 +37,7 @@ import static org.sonar.auth.OAuthRestClient.executeRequest;
 
 public class GitHubRestClient {
 
-  private static final Logger LOGGER = Loggers.get(GitHubRestClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GitHubRestClient.class);
 
   private final GitHubSettings settings;
 
@@ -45,13 +45,13 @@ public class GitHubRestClient {
     this.settings = settings;
   }
 
-  GsonUser getUser(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+  public GsonUser getUser(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
     String responseBody = executeRequest(settings.apiURL() + "user", scribe, accessToken).getBody();
     LOGGER.trace("User response received : {}", responseBody);
     return GsonUser.parse(responseBody);
   }
 
-  String getEmail(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+  public String getEmail(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
     String responseBody = executeRequest(settings.apiURL() + "user/emails", scribe, accessToken).getBody();
     LOGGER.trace("Emails response received : {}", responseBody);
     List<GsonEmail> emails = GsonEmail.parse(responseBody);
@@ -62,7 +62,7 @@ public class GitHubRestClient {
       .orElse(null);
   }
 
-  List<GsonTeam> getTeams(OAuth20Service scribe, OAuth2AccessToken accessToken) {
+  public List<GsonTeam> getTeams(OAuth20Service scribe, OAuth2AccessToken accessToken) {
     return executePaginatedRequest(settings.apiURL() + "user/teams", scribe, accessToken, GsonTeam::parse);
   }
 
@@ -74,7 +74,7 @@ public class GitHubRestClient {
    *
    * @see <a href="https://developer.github.com/v3/orgs/members/#response-if-requester-is-an-organization-member-and-user-is-a-member">GitHub members API</a>
    */
-  boolean isOrganizationMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String organization, String login)
+  public boolean isOrganizationMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String organization, String login)
     throws IOException, ExecutionException, InterruptedException {
     String requestUrl = settings.apiURL() + format("orgs/%s/members/%s", organization, login);
     OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl);

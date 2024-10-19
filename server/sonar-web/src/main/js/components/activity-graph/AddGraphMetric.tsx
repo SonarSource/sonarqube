@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { find, sortBy } from 'lodash';
+
+import { Button, IconChevronDown } from '@sonarsource/echoes-react';
+import { Dropdown } from 'design-system';
+import { sortBy } from 'lodash';
 import * as React from 'react';
-import { Button } from '../../components/controls/buttons';
-import Dropdown from '../../components/controls/Dropdown';
-import DropdownIcon from '../../components/icons/DropdownIcon';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  HIDDEN_METRICS,
+  SOFTWARE_QUALITY_RATING_METRICS_MAP,
+} from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
 interface Props {
-  addMetric: (metric: string) => void;
   metrics: Metric[];
   metricsTypeFilter?: string[];
-  removeMetric: (metric: string) => void;
+  onAddMetric: (metric: string) => void;
+  onRemoveMetric: (metric: string) => void;
   selectedMetrics: string[];
 }
 
@@ -50,20 +56,35 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
 
   filterSelected = (query: string, selectedElements: string[]) => {
     return selectedElements.filter((element) =>
-      this.getLocalizedMetricNameFromKey(element).toLowerCase().includes(query.toLowerCase())
+      this.getLocalizedMetricNameFromKey(element).toLowerCase().includes(query.toLowerCase()),
     );
   };
 
   filterMetricsElements = (
     { metricsTypeFilter, metrics, selectedMetrics }: Props,
-    query: string
+    query: string,
   ) => {
     return metrics
       .filter((metric) => {
+        if (metric.hidden) {
+          return false;
+        }
+        if (isDiffMetric(metric.key)) {
+          return false;
+        }
         if (
-          metric.hidden ||
-          isDiffMetric(metric.key) ||
-          ['DATA', 'DISTRIB'].includes(metric.type) ||
+          [MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType) &&
+          !CCT_SOFTWARE_QUALITY_METRICS.includes(metric.key as MetricKey)
+        ) {
+          return false;
+        }
+        if (HIDDEN_METRICS.includes(metric.key as MetricKey)) {
+          return false;
+        }
+        if (Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric.key as MetricKey)) {
+          return false;
+        }
+        if (
           selectedMetrics.includes(metric.key) ||
           !getLocalizedMetricName(metric).toLowerCase().includes(query.toLowerCase())
         ) {
@@ -77,13 +98,18 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
       .map((metric) => metric.key);
   };
 
-  getSelectedMetricsElements = (metrics: Metric[], selectedMetrics?: string[]) => {
-    const selected = selectedMetrics || this.props.selectedMetrics;
-    return metrics.filter((metric) => selected.includes(metric.key)).map((metric) => metric.key);
+  getSelectedMetricsElements = (metrics: Metric[], selectedMetrics: string[]) => {
+    return metrics
+      .filter(
+        (metric) =>
+          selectedMetrics.includes(metric.key) &&
+          !Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric.key as MetricKey),
+      )
+      .map((metric) => metric.key);
   };
 
   getLocalizedMetricNameFromKey = (key: string) => {
-    const metric = find(this.props.metrics, { key });
+    const metric = this.props.metrics.find((m) => m.key === key);
     return metric === undefined ? key : getLocalizedMetricName(metric);
   };
 
@@ -93,7 +119,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
   };
 
   onSelect = (metric: string) => {
-    this.props.addMetric(metric);
+    this.props.onAddMetric(metric);
     this.setState((state) => {
       return {
         selectedMetrics: sortBy([...state.selectedMetrics, metric]),
@@ -103,7 +129,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
   };
 
   onUnselect = (metric: string) => {
-    this.props.removeMetric(metric);
+    this.props.onRemoveMetric(metric);
     this.setState((state) => {
       return {
         metrics: sortBy([...state.metrics, metric]),
@@ -117,13 +143,15 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
     const filteredMetrics = this.filterMetricsElements(this.props, query);
     const selectedMetrics = this.getSelectedMetricsElements(
       this.props.metrics,
-      this.props.selectedMetrics
+      this.props.selectedMetrics,
     );
+
     return (
       <Dropdown
-        className="display-inline-block"
+        allowResizing
+        size="large"
         closeOnClick={false}
-        closeOnClickOutside={true}
+        id="activity-graph-custom-metric-selector"
         overlay={
           <AddGraphMetricPopup
             elements={filteredMetrics}
@@ -132,16 +160,14 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
             onSearch={this.onSearch}
             onSelect={this.onSelect}
             onUnselect={this.onUnselect}
-            renderLabel={(element) => this.getLocalizedMetricNameFromKey(element)}
             selectedElements={selectedMetrics}
           />
         }
       >
-        <Button className="spacer-left">
-          <span className="text-ellipsis text-middle">
+        <Button suffix={<IconChevronDown />}>
+          <span className="sw-typo-default sw-flex">
             {translate('project_activity.graphs.custom.add')}
           </span>
-          <DropdownIcon className="text-top little-spacer-left" />
         </Button>
       </Dropdown>
     );

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.profiles.ProfileExporter;
@@ -36,7 +37,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -97,7 +97,7 @@ public class ExportAction implements QProfileWsAction {
       .map(language -> exporters.exportersForLanguage(language.getKey()))
       .flatMap(Collection::stream)
       .map(ProfileExporter::getKey)
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     if (!exporterKeys.isEmpty()) {
       action.createParam(PARAM_EXPORTER_KEY)
         .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used. " +

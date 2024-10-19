@@ -1,5 +1,4 @@
 {
-  "id": 5,
   "name": "My Quality Gate",
   "conditions": [
     {
@@ -16,6 +15,7 @@
     }
   ],
   "isBuiltIn": false,
+  "isDefault": false,
   "actions": {
     "rename": true,
     "setAsDefault": true,
@@ -24,5 +24,6 @@
     "delete": true,
     "manageConditions": true,
     "delegate": true
-  }
+  },
+  "caycStatus": "non-compliant"
 }

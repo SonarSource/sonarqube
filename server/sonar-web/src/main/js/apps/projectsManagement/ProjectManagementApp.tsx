@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, uniq, without } from 'lodash';
+
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
+import { debounce, uniq } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getComponents, Project } from '../../api/components';
-import { changeProjectDefaultVisibility } from '../../api/permissions';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { Visibility } from '~sonar-aligned/types/component';
+import {
+  Project,
+  changeProjectDefaultVisibility,
+  getComponents,
+} from '../../api/project-management';
 import { getValue } from '../../api/settings';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import ListFooter from '../../components/controls/ListFooter';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import { toShortNotSoISOString } from '../../helpers/dates';
-import { throwGlobalError } from '../../helpers/error';
+import { toShortISO8601String } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { SettingsKey } from '../../types/settings';
 import { Organization, Visibility } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
-import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
 import Projects from './Projects';
 import Search from './Search';
@@ -45,7 +49,6 @@ export interface Props {
 
 interface State {
   analyzedBefore?: Date;
-  createProjectForm: boolean;
   defaultProjectVisibility?: Visibility;
   page: number;
   projects: Project[];
@@ -53,7 +56,7 @@ interface State {
   qualifiers: string;
   query: string;
   ready: boolean;
-  selection: string[];
+  selection: Project[];
   total: number;
   visibility?: Visibility;
 }
@@ -61,13 +64,12 @@ interface State {
 const DEBOUNCE_DELAY = 250;
 const PAGE_SIZE = 50;
 
-export class ProjectManagementApp extends React.PureComponent<Props, State> {
+class ProjectManagementApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      createProjectForm: false,
       ready: false,
       projects: [],
       provisioned: false,
@@ -109,7 +111,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
   requestProjects = () => {
     const { analyzedBefore } = this.state;
     const parameters = {
-      analyzedBefore: analyzedBefore && toShortNotSoISOString(analyzedBefore),
+      analyzedBefore: analyzedBefore && toShortISO8601String(analyzedBefore),
       onProvisionedOnly: this.state.provisioned || undefined,
       organization: this.props.organization.kee,
       p: this.state.page !== 1 ? this.state.page : undefined,
@@ -142,7 +144,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
   onProvisionedChanged = (provisioned: boolean) => {
     this.setState(
       { ready: false, page: 1, query: '', provisioned, qualifiers: 'TRK', selection: [] },
-      this.requestProjects
+      this.requestProjects,
     );
   };
 
@@ -156,7 +158,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
         qualifiers: newQualifier,
         selection: [],
       },
-      this.requestProjects
+      this.requestProjects,
     );
   };
 
@@ -170,98 +172,87 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
         visibility: newVisibility === 'all' ? undefined : newVisibility,
         selection: [],
       },
-      this.requestProjects
+      this.requestProjects,
     );
   };
 
   handleDateChanged = (analyzedBefore: Date | undefined) =>
     this.setState({ ready: false, page: 1, analyzedBefore }, this.requestProjects);
 
-  onProjectSelected = (project: string) => {
-    this.setState(({ selection }) => ({ selection: uniq([...selection, project]) }));
+  onProjectSelected = (project: Project) => {
+    this.setState(({ selection }) => ({
+      selection: uniq([...selection, project]),
+    }));
   };
 
-  onProjectDeselected = (project: string) => {
-    this.setState(({ selection }) => ({ selection: without(selection, project) }));
+  onProjectDeselected = (project: Project) => {
+    this.setState(({ selection }) => ({
+      selection: selection.filter(({ key }) => key !== project.key),
+    }));
   };
 
   onAllSelected = () => {
-    this.setState(({ projects }) => ({ selection: projects.map((project) => project.key) }));
+    this.setState(({ projects }) => ({
+      selection: projects,
+    }));
   };
 
   onAllDeselected = () => {
     this.setState({ selection: [] });
   };
 
-  openCreateProjectForm = () => {
-    this.setState({ createProjectForm: true });
-  };
-
-  closeCreateProjectForm = () => {
-    this.setState({ createProjectForm: false });
-  };
-
   render() {
-    const { organization } = this.props;
+    const { organization, currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
     const { actions = {} } = organization;
     return (
-      <div className="page page-limited" id="projects-management-page">
-        <Suggestions suggestions="projects_management" />
-        <Helmet defer={false} title={translate('projects_management')} />
+      <LargeCenteredLayout as="main" id="projects-management-page">
+        <PageContentFontWrapper className="sw-typo-default sw-my-8">
+          <Helmet defer={false} title={translate('projects_management')} />
 
-        <Header
-          defaultProjectVisibility={defaultProjectVisibility}
-          hasProvisionPermission={actions.provision}
-          onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
-          onProjectCreate={this.openCreateProjectForm}
-        />
-
-        <Search
-          analyzedBefore={this.state.analyzedBefore}
-          onAllDeselected={this.onAllDeselected}
-          onAllSelected={this.onAllSelected}
-          onDateChanged={this.handleDateChanged}
-          onDeleteProjects={this.requestProjects}
-          onProvisionedChanged={this.onProvisionedChanged}
-          onQualifierChanged={this.onQualifierChanged}
-          onSearch={this.onSearch}
-          onVisibilityChanged={this.onVisibilityChanged}
-          projects={this.state.projects}
-          provisioned={this.state.provisioned}
-          qualifiers={this.state.qualifiers}
-          query={this.state.query}
-          ready={this.state.ready}
-          selection={this.state.selection}
-          total={this.state.total}
-          visibility={this.state.visibility}
-          organization={organization.kee}
-        />
-
-        <Projects
-          currentUser={this.props.currentUser}
-          onProjectDeselected={this.onProjectDeselected}
-          onProjectSelected={this.onProjectSelected}
-          projects={this.state.projects}
-          ready={this.state.ready}
-          selection={this.state.selection}
-        />
-
-        <ListFooter
-          count={this.state.projects.length}
-          loadMore={this.loadMore}
-          ready={this.state.ready}
-          total={this.state.total}
-        />
-
-        {this.state.createProjectForm && (
-          <CreateProjectForm
+          <Header
             defaultProjectVisibility={defaultProjectVisibility}
-            onClose={this.closeCreateProjectForm}
-            onProjectCreated={this.requestProjects}
+            hasProvisionPermission={actions.provision}
+            onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
           />
-        )}
-      </div>
+
+          <Search
+            analyzedBefore={this.state.analyzedBefore}
+            onAllDeselected={this.onAllDeselected}
+            onAllSelected={this.onAllSelected}
+            onDateChanged={this.handleDateChanged}
+            onDeleteProjects={this.requestProjects}
+            onProvisionedChanged={this.onProvisionedChanged}
+            onQualifierChanged={this.onQualifierChanged}
+            onSearch={this.onSearch}
+            onVisibilityChanged={this.onVisibilityChanged}
+            projects={this.state.projects}
+            provisioned={this.state.provisioned}
+            qualifiers={this.state.qualifiers}
+            query={this.state.query}
+            ready={this.state.ready}
+            selection={this.state.selection}
+            total={this.state.total}
+            visibility={this.state.visibility}
+          />
+
+          <Projects
+            currentUser={this.props.currentUser}
+            onProjectDeselected={this.onProjectDeselected}
+            onProjectSelected={this.onProjectSelected}
+            projects={this.state.projects}
+            ready={this.state.ready}
+            selection={this.state.selection}
+          />
+
+          <ListFooter
+            count={this.state.projects.length}
+            loadMore={this.loadMore}
+            ready={this.state.ready}
+            total={this.state.total}
+          />
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, Note, TableRow } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-interface Props {
-  canBePinned?: boolean;
-}
-
-export default function ComponentsEmpty({ canBePinned = true }: Props) {
+export default function ComponentsEmpty() {
   return (
-    <tr>
-      {canBePinned && <td />}
-      <td className="note" colSpan={10}>
-        {translate('no_results')}
-      </td>
-    </tr>
+    <TableRow>
+      <ContentCell className="sw-col-span-full">
+        <Note role="alert">{translate('no_results')}</Note>
+      </ContentCell>
+    </TableRow>
   );
 }

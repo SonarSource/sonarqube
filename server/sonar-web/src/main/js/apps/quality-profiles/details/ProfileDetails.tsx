@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { FlagMessage, themeColor } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Exporter, Profile } from '../types';
@@ -28,49 +29,52 @@ import ProfilePermissions from './ProfilePermissions';
 import ProfileProjects from './ProfileProjects';
 import ProfileRules from './ProfileRules';
 
-export interface ProfileDetailsProps {
+interface ProfileDetailsProps {
+  organization: string;
   exporters: Exporter[];
   profile: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
-  organization: string;
 }
 
-export function ProfileDetails(props: ProfileDetailsProps) {
-  const { profile, organization } = props;
+function ProfileDetails(props: ProfileDetailsProps) {
+  const { organization, profile, profiles, exporters } = props;
+
   return (
-    <div>
-      <div className="quality-profile-grid">
-        <div className="quality-profile-grid-left">
-          <ProfileRules profile={profile}  organization={organization}/>
-          <ProfileExporters exporters={props.exporters} profile={profile} />
-          {profile.actions && profile.actions.edit && !profile.isBuiltIn && (
-            <ProfilePermissions profile={profile} organization={props.organization}/>
-          )}
-        </div>
-        <div className="quality-profile-grid-right">
+    <ContentWrapper>
+      <div className="sw-grid sw-grid-cols-3 sw-gap-12 sw-mt-12">
+        <div className="sw-col-span-2 sw-flex sw-flex-col sw-gap-12">
           {profile.activeRuleCount === 0 && (profile.projectCount || profile.isDefault) && (
-            <Alert className="big-spacer-bottom" variant="warning">
+            <FlagMessage variant="warning">
               {profile.projectCount !== undefined &&
                 profile.projectCount > 0 &&
                 translate('quality_profiles.warning.used_by_projects_no_rules')}
               {!profile.projectCount &&
                 profile.isDefault &&
                 translate('quality_profiles.warning.is_default_no_rules')}
-            </Alert>
+            </FlagMessage>
           )}
 
           <ProfileInheritance
             organization={organization}
             profile={profile}
-            profiles={props.profiles}
+            profiles={profiles}
             updateProfiles={props.updateProfiles}
           />
           <ProfileProjects organization={organization} profile={profile} />
+          {profile.actions?.edit && !profile.isBuiltIn && <ProfilePermissions organization={organization} profile={profile} />}
+        </div>
+        <div className="sw-flex sw-flex-col sw-gap-12">
+          <ProfileRules organization={organization} profile={profile} />
+          <ProfileExporters exporters={exporters} profile={profile} />
         </div>
       </div>
-    </div>
+    </ContentWrapper>
   );
 }
+
+const ContentWrapper = styled.div`
+  color: ${themeColor('pageContent')};
+`;
 
 export default withQualityProfilesContext(ProfileDetails);

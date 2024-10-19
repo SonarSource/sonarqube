@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,16 +24,16 @@ import EvolutionRules from './EvolutionRules';
 import EvolutionStagnant from './EvolutionStagnant';
 
 export interface EvolutionProps {
-  profiles: Profile[];
   organization:string;
+  profiles: Profile[];
 }
 
-export default function Evolution({ profiles, organization }: EvolutionProps) {
+export default function Evolution({ organization, profiles }: EvolutionProps) {
   return (
-    <div className="quality-profiles-evolution">
+    <div className="sw-flex sw-flex-col sw-gap-12">
       <EvolutionDeprecated organization={organization} profiles={profiles} />
       <EvolutionStagnant organization={organization} profiles={profiles} />
-      <EvolutionRules organization={organization}/>
+      <EvolutionRules organization={organization} />
     </div>
   );
 }

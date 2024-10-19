@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,6 @@
 import * as React from 'react';
 import { getDefinitions } from '../../../api/settings';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass,
-} from '../../../helpers/pages';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import '../styles.css';
@@ -40,14 +34,12 @@ interface State {
   loading: boolean;
 }
 
-export class SettingsApp extends React.PureComponent<Props, State> {
+class SettingsApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { definitions: [], loading: true };
 
   componentDidMount() {
     this.mounted = true;
-    addSideBarClass();
-    addWhitePageClass();
     this.fetchSettings();
   }
 
@@ -59,15 +51,13 @@ export class SettingsApp extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    removeSideBarClass();
-    removeWhitePageClass();
   }
 
   fetchSettings = async () => {
     const { component } = this.props;
 
     const definitions: ExtendedSettingDefinition[] = await getDefinitions(component?.key).catch(
-      () => []
+      () => [],
     );
 
     if (this.mounted) {

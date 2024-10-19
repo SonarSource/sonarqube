@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,21 +35,21 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static java.util.stream.Collectors.joining;
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.isBlank;
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
 @ServerSide
 public class AzureDevOpsHttpClient {
 
-  private static final Logger LOG = Loggers.get(AzureDevOpsHttpClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AzureDevOpsHttpClient.class);
 
   public static final String API_VERSION_3 = "api-version=3.0";
 
@@ -68,19 +68,16 @@ public class AzureDevOpsHttpClient {
 
   public void checkPAT(String serverUrl, String token) {
     String url = String.format("%s/_apis/projects?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
-    LOG.debug(String.format("check pat : [%s]", url));
     doGet(token, url);
   }
 
   public GsonAzureProjectList getProjects(String serverUrl, String token) {
     String url = String.format("%s/_apis/projects?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
-    LOG.debug(String.format("get projects : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProjectList.class));
   }
 
   public GsonAzureProject getProject(String serverUrl, String token, String projectName) {
     String url = String.format("%s/_apis/projects/%s?%s", getTrimmedUrl(serverUrl), projectName, API_VERSION_3);
-    LOG.debug(String.format("get project : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProject.class));
 
   }
@@ -89,15 +86,13 @@ public class AzureDevOpsHttpClient {
     String url = Stream.of(getTrimmedUrl(serverUrl), projectName, "_apis/git/repositories?" + API_VERSION_3)
       .filter(StringUtils::isNotBlank)
       .collect(joining("/"));
-    LOG.debug(String.format("get repos : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepoList.class));
   }
 
   public GsonAzureRepo getRepo(String serverUrl, String token, String projectName, String repositoryName) {
-    String url = Stream.of(getTrimmedUrl(serverUrl), projectName, "_apis/git/repositories",  repositoryName + "?" + API_VERSION_3)
+    String url = Stream.of(getTrimmedUrl(serverUrl), projectName, "_apis/git/repositories", repositoryName + "?" + API_VERSION_3)
       .filter(StringUtils::isNotBlank)
       .collect(joining("/"));
-    LOG.debug(String.format("get repo : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepo.class));
   }
 

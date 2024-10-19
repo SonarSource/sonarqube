@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '../../types/component';
+import { HotspotRatingEnum } from 'design-system';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Standards } from '../../types/security';
 import {
   Hotspot,
@@ -29,7 +30,6 @@ import {
   RawHotspot,
   ReviewHistoryElement,
   ReviewHistoryType,
-  RiskExposure,
 } from '../../types/security-hotspots';
 import { mockFlowLocation, mockUser } from '../testMocks';
 
@@ -42,7 +42,7 @@ export function mockRawHotspot(overrides: Partial<RawHotspot> = {}): RawHotspot 
     status: HotspotStatus.TO_REVIEW,
     resolution: undefined,
     securityCategory: 'command-injection',
-    vulnerabilityProbability: RiskExposure.HIGH,
+    vulnerabilityProbability: HotspotRatingEnum.HIGH,
     message: "'3' is a magic number.",
     line: 81,
     author: 'Developer 1',
@@ -67,17 +67,17 @@ export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
     creationDate: '2013-05-13T17:55:41+0200',
     flows: [{ locations: [mockFlowLocation()] }],
     key: '01fc972e-2a3c-433e-bcae-0bd7f88f5123',
-    line: 142,
+    line: 6,
     message: "'3' is a magic number.",
     project: mockHotspotComponent({ qualifier: ComponentQualifier.Project }),
     resolution: HotspotResolution.FIXED,
     rule: mockHotspotRule(),
     status: HotspotStatus.REVIEWED,
     textRange: {
-      startLine: 142,
-      endLine: 142,
-      startOffset: 26,
-      endOffset: 83,
+      startLine: 6,
+      endLine: 6,
+      startOffset: 3,
+      endOffset: 9,
     },
     updateDate: '2013-05-13T17:55:42+0200',
     users: [assigneeUser, authorUser],
@@ -113,14 +113,14 @@ export function mockHotspotRule(overrides?: Partial<HotspotRule>): HotspotRule {
   return {
     key: 'squid:S2077',
     name: 'That rule',
-    vulnerabilityProbability: RiskExposure.HIGH,
+    vulnerabilityProbability: HotspotRatingEnum.HIGH,
     securityCategory: 'sql-injection',
     ...overrides,
   };
 }
 
 export function mockHotspotReviewHistoryElement(
-  overrides?: Partial<ReviewHistoryElement>
+  overrides?: Partial<ReviewHistoryElement>,
 ): ReviewHistoryElement {
   return {
     date: '2019-09-13T17:55:42+0200',
@@ -162,17 +162,6 @@ export function mockStandards(): Standards {
         title: 'Sensitive Data Exposure',
       },
     },
-    sansTop25: {
-      'insecure-interaction': {
-        title: 'Insecure Interaction Between Components',
-      },
-      'risky-resource': {
-        title: 'Risky Resource Management',
-      },
-      'porous-defenses': {
-        title: 'Porous Defenses',
-      },
-    },
     sonarsourceSecurity: {
       'buffer-overflow': {
         title: 'Buffer Overflow',
@@ -197,6 +186,16 @@ export function mockStandards(): Standards {
     'owaspAsvs-4.0': {
       '1': {
         title: 'New OWASP ASVS cat 1',
+      },
+    },
+    'stig-ASD_V5R3': {
+      'V-123': {
+        title: 'STIG requirement 123',
+      },
+    },
+    casa: {
+      '1': {
+        title: 'New CASA cat 1',
       },
     },
   };

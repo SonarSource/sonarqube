@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,9 +37,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -70,40 +71,56 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_COVERAGE_KEY,
     CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY,
     CoreMetrics.NEW_LINES_KEY,
-    CoreMetrics.NEW_RELIABILITY_RATING_KEY);
+    CoreMetrics.NEW_RELIABILITY_RATING_KEY,
 
-  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier " +
+    //Ratings based on software quality
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY,
+    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY,
+    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
+    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY
+    );
+
+  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, p.created_at, s.created_at, p.tags, p.qualifier " +
     "FROM projects p " +
-    "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
+    "INNER JOIN project_branches pb ON pb.project_uuid = p.uuid AND pb.is_main = ? " +
+    "LEFT OUTER JOIN snapshots s ON s.root_component_uuid=pb.uuid AND s.islast=? " +
     "WHERE p.qualifier in (?, ?)";
 
-  private static final String PROJECT_FILTER = " AND p.uuid=?";
+  private static final String PROJECT_FILTER = " AND pb.project_uuid=?";
 
-  private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.text_value FROM live_measures pm " +
-    "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
-    "WHERE pm.component_uuid = ? " +
-    "AND m.name IN ({metricNames}) " +
-    "AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL) " +
-    "AND m.enabled = ? ";
+  private static final String SQL_MEASURES = """
+    SELECT m.name, pm.value, pm.text_value FROM live_measures pm
+    INNER JOIN metrics m ON m.uuid = pm.metric_uuid
+    INNER JOIN project_branches pb ON pb.uuid = pm.component_uuid
+    WHERE pb.project_uuid = ?
+    AND pb.is_main = ?
+    AND m.name IN ({metricNames})
+    AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL)
+    AND m.enabled = ?""";
 
-  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = "SELECT m.name, pm.value, pm.text_value FROM live_measures pm " +
-    "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
-    "WHERE pm.component_uuid = ? " +
-    "AND m.name = ? " +
-    "AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL) " +
-    "AND m.enabled = ? ";
+  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = """
+    SELECT m.name, pm.value, pm.text_value FROM live_measures pm
+    INNER JOIN metrics m ON m.uuid = pm.metric_uuid
+    WHERE pm.component_uuid = ?
+    AND m.name = ?
+    AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL)
+    AND m.enabled = ?""";
 
-  private static final String SQL_BIGGEST_NCLOC_VALUE = "SELECT max(lm.value) FROM metrics m " +
-    "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
-    "INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid " +
-    "WHERE pb.project_uuid = ? " +
-    "AND m.name = ? AND lm.value IS NOT NULL AND m.enabled = ? ";
+  private static final String SQL_BIGGEST_NCLOC_VALUE = """
+    SELECT max(lm.value) FROM metrics m
+    INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid
+    INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid
+    WHERE pb.project_uuid = ?
+    AND m.name = ? AND lm.value IS NOT NULL AND m.enabled = ? """;
 
-  private static final String SQL_BRANCH_BY_NCLOC = "SELECT lm.component_uuid FROM metrics m " +
-    "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
-    "INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid " +
-    "WHERE pb.project_uuid = ? " +
-    "AND m.name = ? AND lm.value = ? AND m.enabled = ? ";
+  private static final String SQL_BRANCH_BY_NCLOC = """
+    SELECT lm.component_uuid FROM metrics m
+    INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid
+    INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid
+    WHERE pb.project_uuid = ?
+    AND m.name = ? AND lm.value = ? AND m.enabled = ?""";
 
   private static final boolean ENABLED = true;
   private static final int FIELD_METRIC_NAME = 1;
@@ -129,16 +146,17 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
     List<Project> projects = new ArrayList<>();
     try (PreparedStatement stmt = createProjectsStatement(session, projectUuid);
-         ResultSet rs = stmt.executeQuery()) {
+      ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         String orgUuid = rs.getString(1);
         String uuid = rs.getString(2);
         String key = rs.getString(3);
         String name = rs.getString(4);
-        Long analysisDate = DatabaseUtils.getLong(rs, 5);
-        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 6));
-        String qualifier = rs.getString(7);
-        Project project = new Project(orgUuid, uuid, key, name, qualifier, tags, analysisDate);
+        Long creationDate = rs.getLong(5);
+        Long analysisDate = DatabaseUtils.getLong(rs, 6);
+        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 7));
+        String qualifier = rs.getString(8);
+        Project project = new Project(orgUuid, uuid, key, name, qualifier, tags, creationDate, analysisDate);
         projects.add(project);
       }
       return projects;
@@ -155,10 +173,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       }
       PreparedStatement stmt = session.getConnection().prepareStatement(sql.toString());
       stmt.setBoolean(1, true);
-      stmt.setString(2, Qualifiers.PROJECT);
-      stmt.setString(3, Qualifiers.APP);
+      stmt.setBoolean(2, true);
+      stmt.setString(3, Qualifiers.PROJECT);
+      stmt.setString(4, Qualifiers.APP);
       if (projectUuid != null) {
-        stmt.setString(4, projectUuid);
+        stmt.setString(5, projectUuid);
       }
       return stmt;
     } catch (SQLException e) {
@@ -220,6 +239,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private void prepareMeasuresStatement(String projectUuid) throws SQLException {
     AtomicInteger index = new AtomicInteger(1);
     measuresStatement.setString(index.getAndIncrement(), projectUuid);
+    measuresStatement.setBoolean(index.getAndIncrement(), true);
     METRIC_KEYS
       .stream()
       .filter(m -> !m.equals(NCLOC_LANGUAGE_DISTRIBUTION_KEY))
@@ -227,11 +247,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     measuresStatement.setBoolean(index.getAndIncrement(), ENABLED);
   }
 
-  private static PreparedStatement prepareNclocByLanguageStatement(DbSession session, String projectUuid) {
+  private static PreparedStatement prepareNclocByLanguageStatement(DbSession session, String branchUuid) {
     try {
       PreparedStatement stmt = session.getConnection().prepareStatement(SQL_NCLOC_LANGUAGE_DISTRIBUTION);
       AtomicInteger index = new AtomicInteger(1);
-      stmt.setString(index.getAndIncrement(), projectUuid);
+      stmt.setString(index.getAndIncrement(), branchUuid);
       stmt.setString(index.getAndIncrement(), NCLOC_LANGUAGE_DISTRIBUTION_KEY);
       stmt.setBoolean(index.getAndIncrement(), ENABLED);
       return stmt;
@@ -324,10 +344,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     private final String key;
     private final String name;
     private final String qualifier;
+    private final Long creationDate;
     private final Long analysisDate;
     private final List<String> tags;
 
-    public Project(String organizationUuid, String uuid, String key, String name, String qualifier, List<String> tags, @Nullable Long analysisDate) {
+    public Project(String organizationUuid, String uuid, String key, String name, String qualifier, List<String> tags, Long creationDate, @Nullable Long analysisDate) {
       this.organizationUuid = organizationUuid;
       this.uuid = uuid;
       this.key = key;
@@ -335,6 +356,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       this.qualifier = qualifier;
       this.tags = tags;
       this.analysisDate = analysisDate;
+      this.creationDate = creationDate;
     }
 
     public String getOrganizationUuid() {
@@ -364,6 +386,10 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     @CheckForNull
     public Long getAnalysisDate() {
       return analysisDate;
+    }
+
+    public Long getCreationDate() {
+      return creationDate;
     }
   }
 

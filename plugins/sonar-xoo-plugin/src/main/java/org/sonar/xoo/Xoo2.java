@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,17 +19,22 @@
  */
 package org.sonar.xoo;
 
+import java.util.Arrays;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
 
 public class Xoo2 implements Language {
 
   public static final String KEY = "xoo2";
   public static final String NAME = "Xoo2";
-  public static final String FILE_SUFFIX = ".xoo2";
+  public static final String FILE_SUFFIXES_KEY = "sonar.xoo2.file.suffixes";
+  public static final String DEFAULT_FILE_SUFFIXES = ".xoo2";
 
-  private static final String[] XOO_SUFFIXES = {
-    FILE_SUFFIX
-  };
+  private final Configuration configuration;
+
+  public Xoo2(Configuration configuration) {
+    this.configuration = configuration;
+  }
 
   @Override
   public String getKey() {
@@ -43,7 +48,7 @@ public class Xoo2 implements Language {
 
   @Override
   public String[] getFileSuffixes() {
-    return XOO_SUFFIXES;
+    return Arrays.stream(configuration.getStringArray(FILE_SUFFIXES_KEY)).filter(s -> s != null && !s.trim().isEmpty()).toArray(String[]::new);
   }
 
   @Override

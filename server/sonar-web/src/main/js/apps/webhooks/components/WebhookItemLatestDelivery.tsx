@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,75 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagErrorIcon, FlagSuccessIcon, InteractiveIcon, MenuIcon } from 'design-system';
 import * as React from 'react';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
-import BulletListIcon from '../../../components/icons/BulletListIcon';
+import { useState } from 'react';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { WebhookResponse } from '../../../types/webhook';
 import LatestDeliveryForm from './LatestDeliveryForm';
 
 interface Props {
-  webhook: Webhook;
+  webhook: WebhookResponse;
 }
 
-interface State {
-  modal: boolean;
-}
+export default function WebhookItemLatestDelivery({ webhook }: Props) {
+  const [modalOpen, setModalOpen] = useState(false);
 
-export default class WebhookItemLatestDelivery extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { modal: false };
-
-  componentDidMount() {
-    this.mounted = true;
+  if (!webhook.latestDelivery) {
+    return <span>{translate('webhooks.last_execution.none')}</span>;
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleClick = () => {
-    this.setState({ modal: true });
-  };
-
-  handleModalClose = () => {
-    if (this.mounted) {
-      this.setState({ modal: false });
-    }
-  };
-
-  render() {
-    const { webhook } = this.props;
-    if (!webhook.latestDelivery) {
-      return <span>{translate('webhooks.last_execution.none')}</span>;
-    }
-
-    const { modal } = this.state;
-    return (
-      <>
-        {webhook.latestDelivery.success ? (
-          <AlertSuccessIcon className="text-text-top" />
-        ) : (
-          <AlertErrorIcon className="text-text-top" />
-        )}
-        <span className="spacer-left display-inline-flex-center">
-          <DateTimeFormatter date={webhook.latestDelivery.at} />
-          <ButtonIcon className="button-small little-spacer-left" onClick={this.handleClick}>
-            <BulletListIcon />
-          </ButtonIcon>
-        </span>
-
-        {modal && (
-          <LatestDeliveryForm
-            delivery={webhook.latestDelivery}
-            onClose={this.handleModalClose}
-            webhook={webhook}
+  return (
+    <div className="sw-flex sw-items-center">
+      {webhook.latestDelivery.success ? <FlagSuccessIcon /> : <FlagErrorIcon />}
+      <div className="sw-ml-2 sw-flex sw-items-center">
+        <DateTimeFormatter date={webhook.latestDelivery.at} />
+        <span title={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}>
+          <InteractiveIcon
+            className="sw-ml-2"
+            Icon={MenuIcon}
+            aria-label={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
+            onClick={() => setModalOpen(true)}
+            size="small"
           />
-        )}
-      </>
-    );
-  }
+        </span>
+      </div>
+
+      {modalOpen && (
+        <LatestDeliveryForm
+          delivery={webhook.latestDelivery}
+          onClose={() => setModalOpen(false)}
+          webhook={webhook}
+        />
+      )}
+    </div>
+  );
 }

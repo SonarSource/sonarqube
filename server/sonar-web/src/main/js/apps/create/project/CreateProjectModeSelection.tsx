@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable react/no-unused-prop-types */
 
-import classNames from 'classnames';
+import { LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import {
+  ButtonSecondary,
+  GreyCard,
+  HelperHintIcon,
+  LightPrimary,
+  TextMuted,
+  Title,
+} from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
+import { getCreateProjectModeLocation } from '../../../helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
 import { CreateProjectModes } from './types';
@@ -35,26 +45,26 @@ export interface CreateProjectModeSelectionProps {
   };
   appState: AppState;
   loadingBindings: boolean;
-  onSelectMode: (mode: CreateProjectModes) => void;
   onConfigMode: (mode: AlmKeys) => void;
 }
 
-const DEFAULT_ICON_SIZE = 50;
+type almList = {
+  key: AlmKeys;
+  mode: CreateProjectModes;
+}[];
 
-function getErrorMessage(hasConfig: boolean, canAdmin: boolean | undefined) {
-  if (!hasConfig) {
-    return canAdmin
-      ? translate('onboarding.create_project.alm_not_configured.admin')
-      : translate('onboarding.create_project.alm_not_configured');
-  }
-  return undefined;
-}
+const almList: almList = [
+  { key: AlmKeys.Azure, mode: CreateProjectModes.AzureDevOps },
+  { key: AlmKeys.BitbucketCloud, mode: CreateProjectModes.BitbucketCloud },
+  { key: AlmKeys.BitbucketServer, mode: CreateProjectModes.BitbucketServer },
+  { key: AlmKeys.GitHub, mode: CreateProjectModes.GitHub },
+  { key: AlmKeys.GitLab, mode: CreateProjectModes.GitLab },
+];
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
   alm: AlmKeys,
   mode: CreateProjectModes,
-  last = false
 ) {
   const {
     almCounts,
@@ -64,59 +74,65 @@ function renderAlmOption(
   const count = almCounts[alm];
   const hasConfig = count > 0;
   const disabled = loadingBindings || (!hasConfig && !canAdmin);
-
-  const onClick = () => {
-    if (!hasConfig && !canAdmin) {
-      return null;
-    }
-
-    if (!hasConfig && canAdmin) {
-      const configMode = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
-      return props.onConfigMode(configMode);
-    }
-
-    return props.onSelectMode(mode);
-  };
-
-  const errorMessage = getErrorMessage(hasConfig, canAdmin);
+  const configMode = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
 
   const svgFileName = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
+  const svgFileNameGrey = `${svgFileName}_grey`;
+
+  const icon = (
+    <Image
+      alt="" // Should be ignored by screen readers
+      className="sw-h-4 sw-w-4"
+      src={`/images/alm/${!disabled && hasConfig ? svgFileName : svgFileNameGrey}.svg`}
+    />
+  );
 
   return (
-    <div className="display-flex-column">
-      <button
-        className={classNames(
-          'button button-huge display-flex-column create-project-mode-type-alm',
-          { disabled, 'big-spacer-right': !last }
+    <GreyCard key={alm} className="sw-col-span-4 sw-p-4 sw-flex sw-justify-between sw-items-center">
+      <div className="sw-items-center sw-flex sw-py-2">
+        {!disabled && hasConfig ? (
+          <LinkStandalone iconLeft={icon} to={getCreateProjectModeLocation(mode)}>
+            <span className="sw-ml-2">
+              {translate('onboarding.create_project.import_select_method', alm)}
+            </span>
+          </LinkStandalone>
+        ) : (
+          <>
+            {icon}
+            <TextMuted
+              className="sw-ml-3 sw-text-sm sw-font-semibold"
+              text={translate('onboarding.create_project.import_select_method', alm)}
+            />
+          </>
         )}
-        disabled={disabled}
-        onClick={onClick}
-        type="button"
-      >
-        <img
-          alt="" // Should be ignored by screen readers
-          height={DEFAULT_ICON_SIZE}
-          src={`${getBaseUrl()}/images/alm/${svgFileName}.svg`}
-        />
-        <div className="medium big-spacer-top abs-height-50 display-flex-center">
-          {translate('onboarding.create_project.select_method', alm)}
-        </div>
+      </div>
 
-        {loadingBindings && (
-          <span>
-            {translate('onboarding.create_project.check_alm_supported')}
-            <i className="little-spacer-left spinner" />
-          </span>
-        )}
-
-        {!loadingBindings && errorMessage && (
-          <p className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
-            {errorMessage}
-          </p>
-        )}
-      </button>
-    </div>
+      <Spinner isLoading={loadingBindings}>
+        {!hasConfig &&
+          (canAdmin ? (
+            <ButtonSecondary onClick={() => props.onConfigMode(configMode)}>
+              {translate('setup')}
+            </ButtonSecondary>
+          ) : (
+            <HelpTooltip overlay={translate('onboarding.create_project.alm_not_configured')}>
+              <HelperHintIcon aria-label="help-tooltip" />
+            </HelpTooltip>
+          ))}
+      </Spinner>
+    </GreyCard>
   );
+}
+
+function separateAvailableOptions(almCounts: CreateProjectModeSelectionProps['almCounts']) {
+  const availableOptions: almList = [];
+  const unavailableOptions: almList = [];
+  almList.forEach(({ key, mode }) =>
+    (almCounts[key] > 0 ? availableOptions : unavailableOptions).push({ key, mode }),
+  );
+  return {
+    availableOptions,
+    unavailableOptions,
+  };
 }
 
 export function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
@@ -125,41 +141,41 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
     almCounts,
   } = props;
   const almTotalCount = Object.values(almCounts).reduce((prev, cur) => prev + cur);
+  const filteredAlm = separateAvailableOptions(almCounts);
 
   return (
-    <>
-      <h1 className="huge-spacer-top huge-spacer-bottom">
-        {translate('onboarding.create_project.select_method')}
-      </h1>
-
-      <p>{translate('onboarding.create_project.select_method.devops_platform')}</p>
-      {almTotalCount === 0 && canAdmin && (
-        <p className="spacer-top">
-          {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
-        </p>
-      )}
-      <div className="big-spacer-top huge-spacer-bottom display-flex-center">
-        {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
-        {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
-        {renderAlmOption(props, AlmKeys.BitbucketCloud, CreateProjectModes.BitbucketCloud)}
-        {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
-        {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
-      </div>
-
-      <p className="big-spacer-bottom">
-        {translate('onboarding.create_project.select_method.manually')}
-      </p>
-      <button
-        className="button button-huge display-flex-column create-project-mode-type-manual"
-        onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
-        type="button"
-      >
-        <ChevronsIcon size={DEFAULT_ICON_SIZE} />
-        <div className="medium big-spacer-top">
-          {translate('onboarding.create_project.select_method.manual')}
+    <div className="sw-typo-default">
+      <div className="sw-flex sw-flex-col">
+        <Title className="sw-mb-10">{translate('onboarding.create_project.select_method')}</Title>
+        <LightPrimary>
+          {translate('onboarding.create_project.select_method.devops_platform')}
+        </LightPrimary>
+        <LightPrimary>
+          {translate('onboarding.create_project.select_method.devops_platform_second')}
+        </LightPrimary>
+        {almTotalCount === 0 && canAdmin && (
+          <LightPrimary className="sw-mt-3">
+            {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
+          </LightPrimary>
+        )}
+        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-mt-4">
+          {filteredAlm.availableOptions.map(({ key, mode }) => renderAlmOption(props, key, mode))}
+          {filteredAlm.unavailableOptions.map(({ key, mode }) => renderAlmOption(props, key, mode))}
         </div>
-      </button>
-    </>
+        <LightPrimary className="sw-mb-4 sw-mt-10">
+          {translate('onboarding.create_project.select_method.manually')}
+        </LightPrimary>
+        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12">
+          <GreyCard className="sw-col-span-4 sw-p-4 sw-py-6 sw-flex sw-justify-between sw-items-center">
+            <div>
+              <LinkStandalone to={getCreateProjectModeLocation(CreateProjectModes.Manual)}>
+                {translate('onboarding.create_project.import_select_method.manual')}
+              </LinkStandalone>
+            </div>
+          </GreyCard>
+        </div>
+      </div>
+    </div>
   );
 }
 

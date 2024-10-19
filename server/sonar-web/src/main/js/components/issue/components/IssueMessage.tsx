@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,57 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IssueMessageHighlighting, StandoutLink } from 'design-system';
 import * as React from 'react';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
+import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
+import { areMyIssuesSelected, parseQuery, serializeQuery } from '../../../apps/issues/utils';
 import { translate } from '../../../helpers/l10n';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { RuleStatus } from '../../../types/rules';
 import { Issue } from '../../../types/types';
-import Link from '../../common/Link';
-import { IssueMessageHighlighting } from '../IssueMessageHighlighting';
-import IssueMessageTags from './IssueMessageTags';
 
 export interface IssueMessageProps {
-  issue: Issue;
   branchLike?: BranchLike;
   displayWhyIsThisAnIssue?: boolean;
+  issue: Issue;
 }
 
 export default function IssueMessage(props: IssueMessageProps) {
   const { issue, branchLike, displayWhyIsThisAnIssue } = props;
+  const location = useLocation();
+  const query = parseQuery(location.query);
+  const myIssuesSelected = areMyIssuesSelected(location.query);
 
-  const { externalRuleEngine, quickFixAvailable, message, messageFormattings, ruleStatus } = issue;
+  const { component } = React.useContext(ComponentContext);
+
+  const { message, messageFormattings } = issue;
 
   const whyIsThisAnIssueUrl = getComponentIssuesUrl(issue.project, {
     ...getBranchLikeQuery(branchLike),
     files: issue.componentLongName,
     open: issue.key,
-    resolved: 'false',
     why: '1',
   });
 
+  const urlQuery = {
+    ...getBranchLikeQuery(branchLike),
+    ...serializeQuery(query),
+    myIssues: myIssuesSelected ? 'true' : undefined,
+    open: issue.key,
+  };
+
+  const issueUrl = component?.key
+    ? getComponentIssuesUrl(component?.key, urlQuery)
+    : getIssuesUrl(urlQuery);
+
   return (
     <>
-      <div className="display-inline-flex-center issue-message break-word">
-        <span className="spacer-right">
-          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        </span>
-        <IssueMessageTags
-          engine={externalRuleEngine}
-          quickFixAvailable={quickFixAvailable}
-          ruleStatus={ruleStatus as RuleStatus | undefined}
-        />
-      </div>
+      <StandoutLink className="it__issue-message" to={issueUrl}>
+        <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+      </StandoutLink>
+
       {displayWhyIsThisAnIssue && (
-        <Link
+        <StandoutLink
           aria-label={translate('issue.why_this_issue.long')}
-          className="spacer-right"
           target="_blank"
+          className="sw-ml-2"
           to={whyIsThisAnIssueUrl}
         >
           {translate('issue.why_this_issue')}
-        </Link>
+        </StandoutLink>
       )}
     </>
   );

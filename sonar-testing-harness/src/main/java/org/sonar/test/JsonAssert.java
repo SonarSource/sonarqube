@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -123,7 +123,7 @@ public class JsonAssert {
   }
 
   private static String pretty(String json) {
-    JsonElement gson = new JsonParser().parse(json);
+    JsonElement gson = JsonParser.parseString(json);
     return new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(gson);
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -50,6 +50,9 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xbill.DNS.Address;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -63,6 +66,8 @@ import static org.sonarqube.ws.WsUtils.nullToEmpty;
  */
 public class OkHttpClientBuilder {
 
+  private static final Logger LOG = LoggerFactory.getLogger(OkHttpClientBuilder.class);
+
   private static final String NONE = "NONE";
   private static final String P11KEYSTORE = "PKCS11";
   private static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
@@ -75,8 +80,10 @@ public class OkHttpClientBuilder {
   private Boolean followRedirects;
   private long connectTimeoutMs = -1;
   private long readTimeoutMs = -1;
+  private long responseTimeoutMs = -1;
   private SSLSocketFactory sslSocketFactory = null;
   private X509TrustManager sslTrustManager = null;
+  private boolean acceptGzip = false;
 
   /**
    * Optional User-Agent. If set, then all the requests sent by the
@@ -124,6 +131,14 @@ public class OkHttpClientBuilder {
   }
 
   /**
+   * This flag decides whether the client should accept GZIP encoding. Default is false.
+   */
+  public OkHttpClientBuilder acceptGzip(boolean acceptGzip) {
+    this.acceptGzip = acceptGzip;
+    return this;
+  }
+
+  /**
    * Password used for proxy authentication. It is ignored if
    * proxy login is not defined (see {@link #setProxyLogin(String)}).
    * It can be null or empty when login is defined.
@@ -166,6 +181,18 @@ public class OkHttpClientBuilder {
   }
 
   /**
+   * Sets the default response timeout for new connections. A value of 0 means no timeout.
+   * Default is to have no timeout.
+   */
+  public OkHttpClientBuilder setResponseTimeoutMs(long l) {
+    if (l < 0) {
+      throw new IllegalArgumentException("Response timeout must be positive. Got " + l);
+    }
+    this.responseTimeoutMs = l;
+    return this;
+  }
+
+  /**
    * Set if redirects should be followed or not.
    * Default is defined by OkHttp (true, follow redirects).
    */
@@ -183,7 +210,13 @@ public class OkHttpClientBuilder {
     if (readTimeoutMs >= 0) {
       builder.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS);
     }
+    if (responseTimeoutMs >= 0) {
+      builder.callTimeout(responseTimeoutMs, TimeUnit.MILLISECONDS);
+    }
     builder.addNetworkInterceptor(this::addHeaders);
+    if (!acceptGzip) {
+      builder.addNetworkInterceptor(new GzipRejectorInterceptor());
+    }
     if (proxyLogin != null) {
       builder.proxyAuthenticator((route, response) -> {
         if (response.request().header(PROXY_AUTHORIZATION) != null) {
@@ -219,7 +252,15 @@ public class OkHttpClientBuilder {
       }
     });
 
+    builder.addInterceptor(buildLoggingInterceptor());
+
     return builder.build();
+  }
+
+  private static HttpLoggingInterceptor buildLoggingInterceptor() {
+    var logging = new HttpLoggingInterceptor(LOG::debug);
+    logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+    return logging;
   }
 
   private Response addHeaders(Interceptor.Chain chain) throws IOException {

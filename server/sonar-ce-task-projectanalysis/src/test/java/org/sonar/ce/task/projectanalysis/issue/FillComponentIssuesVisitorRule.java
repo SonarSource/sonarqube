@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,8 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -37,7 +39,7 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
 /**
  * This rule can be used when testing a visitor that depends on {@link ComponentIssuesRepository}.
  */
-public class FillComponentIssuesVisitorRule extends TypeAwareVisitorAdapter implements TestRule {
+public class FillComponentIssuesVisitorRule extends TypeAwareVisitorAdapter implements TestRule, AfterEachCallback {
 
   private MutableComponentIssuesRepository issuesRepository = new ComponentIssuesRepositoryImpl();
   private final TreeRootHolder treeRootHolder;
@@ -76,4 +78,8 @@ public class FillComponentIssuesVisitorRule extends TypeAwareVisitorAdapter impl
     issuesRepository.setIssues(component, issues.get(component));
   }
 
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    issues = ArrayListMultimap.create();
+  }
 }

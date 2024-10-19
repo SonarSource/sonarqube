@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -35,10 +36,10 @@ import static java.util.stream.Collectors.toMap;
 @Immutable
 public class ScmChangedFiles {
   @Nullable
-  private final Collection<ChangedFile> changedFiles;
+  private final Set<ChangedFile> changedFiles;
   private final Map<Path, ChangedFile> changedFilesByPath;
 
-  public ScmChangedFiles(@Nullable Collection<ChangedFile> changedFiles) {
+  public ScmChangedFiles(@Nullable Set<ChangedFile> changedFiles) {
     this.changedFiles = changedFiles;
     this.changedFilesByPath = toChangedFilesByPathMap(changedFiles);
   }
@@ -72,7 +73,7 @@ public class ScmChangedFiles {
     return Optional.ofNullable(changedFilesByPath.get(absoluteFilePath));
   }
 
-  private static Map<Path, ChangedFile> toChangedFilesByPathMap(@Nullable Collection<ChangedFile> changedFiles) {
+  private static Map<Path, ChangedFile> toChangedFilesByPathMap(@Nullable Set<ChangedFile> changedFiles) {
     return Optional.ofNullable(changedFiles)
       .map(files -> files.stream().collect(toMap(ChangedFile::getAbsolutFilePath, identity())))
       .orElse(emptyMap());

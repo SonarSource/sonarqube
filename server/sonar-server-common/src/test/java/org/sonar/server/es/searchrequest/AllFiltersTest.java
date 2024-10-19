@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.server.es.searchrequest;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -30,7 +29,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.Test;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -97,7 +96,7 @@ public class AllFiltersTest {
     allFilters.addFilter(name, mock(FilterScope.class), query)
       .addFilter(name2, mock(FilterScope.class), null);
 
-    List<QueryBuilder> all = allFilters.stream().collect(Collectors.toList());
+    List<QueryBuilder> all = allFilters.stream().toList();
     assertThat(all).hasSize(1);
     assertThat(all.iterator().next()).isSameAs(query);
   }

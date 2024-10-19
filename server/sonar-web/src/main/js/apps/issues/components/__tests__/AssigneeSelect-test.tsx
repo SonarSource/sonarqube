@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,134 +17,127 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { Props as ReactSelectAsyncProps } from 'react-select/async';
-import { SearchSelect } from '../../../../components/controls/Select';
-import Avatar from '../../../../components/ui/Avatar';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
+import { mockUserBase } from '../../../../helpers/mocks/users';
 import { mockCurrentUser, mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { searchAssignees } from '../../utils';
-import AssigneeSelect, {
-  AssigneeOption,
-  AssigneeSelectProps,
-  MIN_QUERY_LENGTH,
-} from '../AssigneeSelect';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { CurrentUser } from '../../../../types/users';
+import AssigneeSelect, { AssigneeSelectProps, MIN_QUERY_LENGTH } from '../AssigneeSelect';
 
 jest.mock('../../utils', () => ({
   searchAssignees: jest.fn().mockResolvedValue({
     results: [
-      {
+      mockUserBase({
         active: true,
-        avatar: '##avatar1',
+        avatar: 'avatar1',
         login: 'toto@toto',
         name: 'toto',
-      },
-      {
+      }),
+      mockUserBase({
         active: false,
-        avatar: '##avatar2',
+        avatar: 'avatar2',
         login: 'tata@tata',
         name: 'tata',
-      },
-      {
+      }),
+      mockUserBase({
         active: true,
-        avatar: '##avatar3',
+        avatar: 'avatar3',
         login: 'titi@titi',
-      },
+      }),
     ],
   }),
 }));
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ currentUser: mockLoggedInUser(), issues: [mockIssue()] })).toMatchSnapshot(
-    'logged in & assignable issues'
+const ui = {
+  combobox: byRole('combobox', { name: 'issue_bulk_change.assignee.change' }),
+};
+
+it('should show correct suggestions when there is assignable issue for the current user', async () => {
+  const user = userEvent.setup();
+  renderAssigneeSelect(
+    {
+      issues: [mockIssue(false, { assignee: 'someone' })],
+    },
+    mockLoggedInUser({ name: 'Skywalker' }),
   );
-  expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot(
-    'logged in & no assignable issues'
-  );
-  expect(shallowRender({ issues: [mockIssue(false, { assignee: 'someone' })] })).toMatchSnapshot(
-    'unassignable issues'
-  );
+
+  await user.click(ui.combobox.get());
+  expect(await screen.findByText('Skywalker')).toBeInTheDocument();
 });
 
-it('should render options correctly', () => {
-  const wrapper = shallowRender();
+it('should show correct suggestions when all issues are already assigned to current user', async () => {
+  const user = userEvent.setup();
+  renderAssigneeSelect(
+    {
+      issues: [mockIssue(false, { assignee: 'luke' })],
+    },
+    mockLoggedInUser({ login: 'luke', name: 'Skywalker' }),
+  );
 
-  expect(
-    shallow(
-      wrapper.instance().renderAssignee({
-        avatar: '##avatar1',
-        value: 'toto@toto',
-        label: 'toto',
-      })
-    )
-      .find(Avatar)
-      .exists()
-  ).toBe(true);
-
-  expect(
-    shallow(
-      wrapper.instance().renderAssignee({
-        value: 'toto@toto',
-        label: 'toto',
-      })
-    )
-      .find(Avatar)
-      .exists()
-  ).toBe(false);
+  await user.click(ui.combobox.get());
+  expect(screen.queryByText('Skywalker')).not.toBeInTheDocument();
 });
 
-it('should render noOptionsMessage correctly', () => {
-  const wrapper = shallowRender();
-  expect(
-    wrapper.find<ReactSelectAsyncProps<AssigneeOption, false>>(SearchSelect).props()
-      .noOptionsMessage!({ inputValue: 'a' })
-  ).toBe(`select2.tooShort.${MIN_QUERY_LENGTH}`);
+it('should show correct suggestions when there is no assigneable issue', async () => {
+  const user = userEvent.setup();
+  renderAssigneeSelect({}, mockLoggedInUser({ name: 'Skywalker' }));
 
-  expect(
-    wrapper.find<ReactSelectAsyncProps<AssigneeOption, false>>(SearchSelect).props()
-      .noOptionsMessage!({ inputValue: 'droids' })
-  ).toBe('select2.noMatches');
+  await user.click(ui.combobox.get());
+  expect(screen.queryByText('Skywalker')).not.toBeInTheDocument();
 });
 
-it('should handle assignee search', async () => {
+it('should handle assignee search correctly', async () => {
+  const user = userEvent.setup();
+  renderAssigneeSelect();
+
+  // Minimum MIN_QUERY_LENGTH charachters to trigger search
+  await user.click(ui.combobox.get());
+  await user.type(ui.combobox.get(), 'a');
+
+  expect(await screen.findByText(`select.search.tooShort.${MIN_QUERY_LENGTH}`)).toBeInTheDocument();
+
+  // Trigger search
+  await user.click(ui.combobox.get());
+  await user.type(ui.combobox.get(), 'someone');
+
+  expect(await screen.findByText('toto')).toBeInTheDocument();
+  expect(await screen.findByText('user.x_deleted.tata')).toBeInTheDocument();
+  expect(await screen.findByText('user.x_deleted.titi@titi')).toBeInTheDocument();
+});
+
+it('should handle assignee selection', async () => {
   const onAssigneeSelect = jest.fn();
-  const wrapper = shallowRender({ onAssigneeSelect });
+  const user = userEvent.setup();
+  renderAssigneeSelect({ onAssigneeSelect });
 
-  wrapper.instance().handleAssigneeSearch('a', jest.fn());
-  expect(searchAssignees).not.toHaveBeenCalled();
+  await user.click(ui.combobox.get());
+  await user.type(ui.combobox.get(), 'tot');
 
-  const result = await new Promise((resolve: (opts: AssigneeOption[]) => void) => {
-    wrapper.instance().handleAssigneeSearch('someone', resolve);
-  });
+  // Do not select assignee until suggestion is selected
+  expect(onAssigneeSelect).not.toHaveBeenCalled();
 
-  expect(result).toEqual([
-    {
-      avatar: '##avatar1',
-      value: 'toto@toto',
-      label: 'toto',
-    },
-    {
-      avatar: '##avatar2',
-      value: 'tata@tata',
-      label: 'user.x_deleted.tata',
-    },
-    {
-      avatar: '##avatar3',
-      value: 'titi@titi',
-      label: 'user.x_deleted.titi@titi',
-    },
-  ]);
+  // Select assignee when suggestion is selected
+  await user.click(screen.getByLabelText('toto'));
+  expect(onAssigneeSelect).toHaveBeenCalledTimes(1);
 });
 
-function shallowRender(overrides: Partial<AssigneeSelectProps> = {}) {
-  return shallow<AssigneeSelect>(
-    <AssigneeSelect
-      inputId="id"
-      currentUser={mockCurrentUser()}
-      issues={[]}
-      onAssigneeSelect={jest.fn()}
-      {...overrides}
-    />
+function renderAssigneeSelect(
+  overrides: Partial<AssigneeSelectProps> = {},
+  currentUser: CurrentUser = mockCurrentUser(),
+) {
+  return renderComponent(
+    <CurrentUserContextProvider currentUser={currentUser}>
+      <AssigneeSelect
+        inputId="id"
+        issues={[]}
+        label=""
+        onAssigneeSelect={jest.fn()}
+        {...overrides}
+      />
+    </CurrentUserContextProvider>,
   );
 }

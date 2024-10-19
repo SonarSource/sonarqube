@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,12 +35,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatchers;
+import org.slf4j.event.Level;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
@@ -141,7 +141,7 @@ public class CpdExecutorTest {
     Duplication[] dups = readDuplications(1);
     assertThat(dups[0].getDuplicateList()).hasSize(CpdExecutor.MAX_CLONE_PART_PER_GROUP);
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Too many duplication references on file " + batchComponent1 + " for block at line 0. Keep only the first "
         + CpdExecutor.MAX_CLONE_PART_PER_GROUP + " references.");
   }
@@ -159,7 +159,7 @@ public class CpdExecutorTest {
 
     assertThat(reader.readComponentDuplications(batchComponent1.scannerId())).toIterable().hasSize(CpdExecutor.MAX_CLONE_GROUP_PER_FILE);
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Too many duplication groups on file " + batchComponent1 + ". Keep only the first " + CpdExecutor.MAX_CLONE_GROUP_PER_FILE + " groups.");
   }
 
@@ -203,7 +203,7 @@ public class CpdExecutorTest {
     verify(executorService).shutdown();
     verifyNoMoreInteractions(executorService);
     readDuplications(batchComponent1, 0);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Resource not found in component store: unknown. Skipping CPD computation for it");
+    assertThat(logTester.logs(Level.ERROR)).contains("Resource not found in component store: unknown. Skipping CPD computation for it");
   }
 
   @Test
@@ -217,7 +217,7 @@ public class CpdExecutorTest {
     executor.execute(1);
 
     readDuplications(0);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .usingElementComparator((l, r) -> l.matches(r) ? 0 : 1)
       .containsOnly(
         "Timeout during detection of duplications for .*Foo.php");

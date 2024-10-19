@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,45 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone as Link } from '@sonarsource/echoes-react';
+import { SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import DocLink from '../../../common/DocLink';
+import { InlineSnippet } from '../../components/InlineSnippet';
 import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
 
 export default function DotNetFramework(props: DotNetProps) {
   const { baseUrl, component, token } = props;
 
+  const docUrl = useDocUrl(DocLink.SonarScannerDotNet);
+
   const commands = [
-    `SonarScanner.MSBuild.exe begin /k:"${component.key}" /d:sonar.host.url="${baseUrl}" /d:sonar.login="${token}"`,
+    `SonarScanner.MSBuild.exe begin /k:"${component.key}" /d:sonar.host.url="${baseUrl}" /d:sonar.token="${token}"`,
     'MsBuild.exe /t:Rebuild',
-    `SonarScanner.MSBuild.exe end /d:sonar.login="${token}"`,
+    `SonarScanner.MSBuild.exe end /d:sonar.token="${token}"`,
   ];
 
   return (
     <div>
       <div>
-        <h4 className="spacer-bottom huge-spacer-top">
+        <SubHeading className=" sw-mb-2 sw-mt-8">
           {translate('onboarding.analysis.msbuild.header')}
-        </h4>
-        <p className="markdown">
+        </SubHeading>
+        <p>
           <FormattedMessage
             defaultMessage={translate('onboarding.analysis.msbuild.text')}
             id="onboarding.analysis.msbuild.text"
             values={{
-              code: <code>%PATH%</code>,
-              link: (
-                <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                  {translate('onboarding.analysis.msbuild.docs_link')}
-                </DocLink>
-              ),
+              code: <InlineSnippet snippet="SonarScanner.MSBuild.exe" />,
+              path: <InlineSnippet snippet="%PATH%" />,
+              link: <Link to={docUrl}>{translate('onboarding.analysis.msbuild.docs_link')}</Link>,
             }}
           />
         </p>
       </div>
 
-      <DotNetExecute commands={commands} component={component} />
+      <DotNetExecute commands={commands} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isEqual, isNil, omitBy } from 'lodash';
-import { RawQuery } from '../types/types';
-import { isValidDate, parseDate, toNotSoISOString, toShortNotSoISOString } from './dates';
+import { RawQuery } from '~sonar-aligned/types/router';
+import { isValidDate, parseDate, toISO8601WithOffsetString, toShortISO8601String } from './dates';
 
 export function queriesEqual(a: RawQuery, b: RawQuery): boolean {
   const keysA = Object.keys(a);
@@ -29,7 +29,12 @@ export function queriesEqual(a: RawQuery, b: RawQuery): boolean {
     return false;
   }
 
-  return keysA.every((key) => isEqual(a[key], b[key]));
+  return keysA.every((key) =>
+    isEqual(
+      Array.isArray(a[key]) ? a[key].sort() : a[key],
+      Array.isArray(b[key]) ? b[key].sort() : b[key],
+    ),
+  );
 }
 
 export function cleanQuery(query: RawQuery): RawQuery {
@@ -57,9 +62,13 @@ export function parseAsOptionalBoolean(value: string | undefined): boolean | und
 
 export function parseAsDate(value?: string): Date | undefined {
   if (value) {
-    // We atttemp to parse date that does not have time.
-    // Otherwise date will create a date at midnight UTC
-    // and it does not play well when we get the local day.
+    /**
+     * When the time zone offset is absent, date-only forms are interpreted as a UTC time
+     * and date-time forms are interpreted as local time.
+     * To ensure we always parse dates as date-time, we first try and add the time to the date,
+     * and if it fails, we try and parse the date as is.
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+     */
     let date = parseDate(value + ' 00:00:00');
     if (isValidDate(date)) {
       return date;
@@ -72,8 +81,8 @@ export function parseAsDate(value?: string): Date | undefined {
   return undefined;
 }
 
-export function parseAsString(value: string | undefined): string {
-  return value || '';
+export function parseAsString<T extends string>(value: string | undefined): T {
+  return (value ?? '') as T;
 }
 
 export function parseAsOptionalString(value: string | undefined): string | undefined {
@@ -86,12 +95,15 @@ export function parseAsArray<T>(value: string | undefined, itemParser: (x: strin
 
 export function parseAsOptionalArray<T>(
   value: string | undefined,
-  itemParser: (x: string) => T
+  itemParser: (x: string) => T,
 ): T[] | undefined {
   return value ? parseAsArray(value, itemParser) : undefined;
 }
 
-export function serializeDate(value?: Date, serializer = toNotSoISOString): string | undefined {
+export function serializeDate(
+  value?: Date,
+  serializer = toISO8601WithOffsetString,
+): string | undefined {
   if (value != null) {
     return serializer(value);
   }
@@ -99,7 +111,7 @@ export function serializeDate(value?: Date, serializer = toNotSoISOString): stri
 }
 
 export function serializeDateShort(value: Date | undefined): string | undefined {
-  return serializeDate(value, toShortNotSoISOString);
+  return serializeDate(value, toShortISO8601String);
 }
 
 export function serializeString(value: string | undefined): string | undefined {

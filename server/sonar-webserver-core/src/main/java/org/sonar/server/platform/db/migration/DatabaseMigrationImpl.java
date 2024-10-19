@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,15 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.concurrent.Semaphore;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
+import org.sonar.server.platform.db.migration.step.MigrationStatusListenerImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
 
 /**
@@ -34,7 +35,7 @@ import org.sonar.server.platform.db.migration.step.MigrationStepExecutionExcepti
  */
 public class DatabaseMigrationImpl implements DatabaseMigration {
 
-  private static final Logger LOGGER = Loggers.get(DatabaseMigrationImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMigrationImpl.class);
 
   /**
    * ExecutorService implements threads management.
@@ -72,7 +73,7 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
 
   private void doDatabaseMigration() {
     migrationState.setStatus(Status.RUNNING);
-    migrationState.setStartedAt(new Date());
+    migrationState.setStartedAt(Instant.now());
     migrationState.setError(null);
     Profiler profiler = Profiler.create(LOGGER);
     try {
@@ -102,7 +103,7 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
   private void doUpgradeDb() {
     Profiler profiler = Profiler.createIfTrace(LOGGER);
     profiler.startTrace("Starting DB Migration");
-    migrationEngine.execute();
+    migrationEngine.execute(new MigrationStatusListenerImpl(migrationState));
     profiler.stopTrace("DB Migration ended");
   }
 

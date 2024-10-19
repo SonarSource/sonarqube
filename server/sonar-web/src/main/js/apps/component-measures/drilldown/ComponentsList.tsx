@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, NumericalCell, Table, TableRow, TableRowInteractive } from 'design-system';
+import { times } from 'lodash';
 import * as React from 'react';
-import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
 import { ComponentMeasure, ComponentMeasureEnhanced, Dict, Metric } from '../../../types/types';
 import { complementary } from '../config/complementary';
-import ComponentsListRow from './ComponentsListRow';
+import ComponentCell from './ComponentCell';
 import EmptyResult from './EmptyResult';
+import MeasureCell from './MeasureCell';
 
 interface Props {
   branchLike?: BranchLike;
@@ -38,44 +40,60 @@ interface Props {
 }
 
 export default function ComponentsList({ components, metric, metrics, ...props }: Props) {
+  const { branchLike, rootComponent, selectedComponent } = props;
+
   if (!components.length) {
     return <EmptyResult />;
   }
 
   const otherMetrics = (complementary[metric.key] || []).map((key) => metrics[key]);
   return (
-    <table className="data zebra zebra-hover">
-      {otherMetrics.length > 0 && (
-        <thead>
-          <tr>
-            <th>&nbsp;</th>
-            <th className="text-right">
-              <span className="small">{getLocalizedMetricName(metric)}</span>
-            </th>
+    <Table
+      columnCount={otherMetrics.length + 2}
+      columnWidths={['auto', ...times(otherMetrics.length + 1, () => '1%')]}
+      header={
+        otherMetrics.length > 0 && (
+          <TableRow>
+            <ContentCell />
+            <NumericalCell className="sw-typo-default">
+              {getLocalizedMetricName(metric)}
+            </NumericalCell>
             {otherMetrics.map((metric) => (
-              <th className="text-right" key={metric.key}>
-                <span className="small">{getLocalizedMetricName(metric)}</span>
-              </th>
+              <NumericalCell className="sw-typo-default" key={metric.key}>
+                {getLocalizedMetricName(metric)}
+              </NumericalCell>
             ))}
-          </tr>
-        </thead>
-      )}
-
-      <tbody>
-        {components.map((component) => (
-          <ComponentsListRow
+          </TableRow>
+        )
+      }
+    >
+      {components.map((component) => (
+        <TableRowInteractive
+          key={component.key}
+          className="it__measures-component-row"
+          selected={component.key === selectedComponent?.key}
+        >
+          <ComponentCell
+            branchLike={branchLike}
             component={component}
-            isSelected={
-              getComponentMeasureUniqueKey(component) ===
-              getComponentMeasureUniqueKey(props.selectedComponent)
-            }
-            key={getComponentMeasureUniqueKey(component)}
             metric={metric}
-            otherMetrics={otherMetrics}
-            {...props}
+            rootComponent={rootComponent}
+            view={props.view}
           />
-        ))}
-      </tbody>
-    </table>
+
+          <MeasureCell branchLike={branchLike} component={component} metric={metric} />
+
+          {otherMetrics.map((metric) => (
+            <MeasureCell
+              branchLike={branchLike}
+              key={metric.key}
+              component={component}
+              measure={component.measures.find((measure) => measure.metric.key === metric.key)}
+              metric={metric}
+            />
+          ))}
+        </TableRowInteractive>
+      ))}
+    </Table>
   );
 }

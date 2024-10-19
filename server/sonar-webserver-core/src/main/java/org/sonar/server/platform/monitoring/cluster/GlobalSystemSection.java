@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,52 +19,36 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import com.google.common.base.Joiner;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
-import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.server.authentication.IdentityProvider;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.authentication.IdentityProviderRepository;
-import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.platform.StatisticsSupport;
-import org.sonar.server.user.SecurityRealmFactory;
+import org.sonar.server.platform.monitoring.CommonSystemInformation;
 
-import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
+import static org.sonar.process.systeminfo.SystemInfoUtils.addIfNotEmpty;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
 public class GlobalSystemSection implements SystemInfoSection, Global {
-  private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
-  private final Configuration config;
   private final Server server;
-  private final SecurityRealmFactory securityRealmFactory;
-  private final IdentityProviderRepository identityProviderRepository;
-  private final DockerSupport dockerSupport;
+  private final ContainerSupport containerSupport;
   private final StatisticsSupport statisticsSupport;
-
   private final SonarRuntime sonarRuntime;
+  private final CommonSystemInformation commonSystemInformation;
 
-  public GlobalSystemSection(Configuration config, Server server, SecurityRealmFactory securityRealmFactory,
-    IdentityProviderRepository identityProviderRepository, DockerSupport dockerSupport, StatisticsSupport statisticsSupport, SonarRuntime sonarRuntime) {
-    this.config = config;
+  public GlobalSystemSection(Server server, ContainerSupport containerSupport, StatisticsSupport statisticsSupport, SonarRuntime sonarRuntime,
+    CommonSystemInformation commonSystemInformation) {
     this.server = server;
-    this.securityRealmFactory = securityRealmFactory;
-    this.identityProviderRepository = identityProviderRepository;
-    this.dockerSupport = dockerSupport;
+    this.containerSupport = containerSupport;
     this.statisticsSupport = statisticsSupport;
     this.sonarRuntime = sonarRuntime;
+    this.commonSystemInformation = commonSystemInformation;
   }
 
   @Override
@@ -75,46 +59,19 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
     setAttribute(protobuf, NCLOC.getName() ,statisticsSupport.getLinesOfCode());
-    setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
+    setAttribute(protobuf, "Container", containerSupport.isRunningInContainer());
+    setAttribute(protobuf, "Running on OpenShift", containerSupport.isRunningOnHelmOpenshift());
+    setAttribute(protobuf, "Helm autoscaling", containerSupport.isHelmAutoscalingEnabled());
     setAttribute(protobuf, "High Availability", true);
-    setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
-    addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
-    addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders());
-    setAttribute(protobuf, "Force authentication", getForceAuthentication());
+    setAttribute(protobuf, "External Users and Groups Provisioning",
+      commonSystemInformation.getManagedInstanceProviderName());
+    setAttribute(protobuf, "External User Authentication",
+      commonSystemInformation.getExternalUserAuthentication());
+    addIfNotEmpty(protobuf, "Accepted external identity providers",
+      commonSystemInformation.getEnabledIdentityProviders());
+    addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up",
+      commonSystemInformation.getAllowsToSignUpEnabledIdentityProviders());
+    setAttribute(protobuf, "Force authentication", commonSystemInformation.getForceAuthentication());
     return protobuf.build();
   }
-
-  private List<String> getEnabledIdentityProviders() {
-    return identityProviderRepository.getAllEnabledAndSorted()
-      .stream()
-      .filter(IdentityProvider::isEnabled)
-      .map(IdentityProvider::getName)
-      .collect(MoreCollectors.toList());
-  }
-
-  private List<String> getAllowsToSignUpEnabledIdentityProviders() {
-    return identityProviderRepository.getAllEnabledAndSorted()
-      .stream()
-      .filter(IdentityProvider::isEnabled)
-      .filter(IdentityProvider::allowsUsersToSignUp)
-      .map(IdentityProvider::getName)
-      .collect(MoreCollectors.toList());
-  }
-
-  private boolean getForceAuthentication() {
-    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
-  }
-
-  private static void addIfNotEmpty(ProtobufSystemInfo.Section.Builder protobuf, String key, @Nullable List<String> values) {
-    if (values != null && !values.isEmpty()) {
-      setAttribute(protobuf, key, COMMA_JOINER.join(values));
-    }
-  }
-
-  @CheckForNull
-  private String getExternalUserAuthentication() {
-    SecurityRealm realm = securityRealmFactory.getRealm();
-    return realm == null ? null : realm.getName();
-  }
-
 }

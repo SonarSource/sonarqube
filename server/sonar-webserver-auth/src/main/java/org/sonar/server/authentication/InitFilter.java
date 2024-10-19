@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,14 @@
  */
 package org.sonar.server.authentication;
 
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
@@ -61,17 +59,14 @@ public class InitFilter extends AuthenticationFilter {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-    IdentityProvider provider = resolveProviderOrHandleResponse(httpRequest, httpResponse, INIT_CONTEXT);
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) {
+    IdentityProvider provider = resolveProviderOrHandleResponse(request, response, INIT_CONTEXT);
     if (provider != null) {
-      handleProvider(httpRequest, httpResponse, provider);
+      handleProvider(request, response, provider);
     }
   }
 
-  private void handleProvider(HttpServletRequest request, HttpServletResponse response, IdentityProvider provider) {
+  private void handleProvider(HttpRequest request, HttpResponse response, IdentityProvider provider) {
     try {
       if (provider instanceof BaseIdentityProvider baseIdentityProvider) {
         handleBaseIdentityProvider(request, response, baseIdentityProvider);
@@ -91,7 +86,7 @@ public class InitFilter extends AuthenticationFilter {
     }
   }
 
-  private void handleBaseIdentityProvider(HttpServletRequest request, HttpServletResponse response, BaseIdentityProvider provider) {
+  private void handleBaseIdentityProvider(HttpRequest request, HttpResponse response, BaseIdentityProvider provider) {
     try {
       provider.init(baseContextFactory.newContext(request, response, provider));
     } catch (UnauthorizedException e) {
@@ -103,7 +98,7 @@ public class InitFilter extends AuthenticationFilter {
     }
   }
 
-  private void handleOAuth2IdentityProvider(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider) {
+  private void handleOAuth2IdentityProvider(HttpRequest request, HttpResponse response, OAuth2IdentityProvider provider) {
     try {
       provider.init(oAuth2ContextFactory.newContext(request, response, provider));
     } catch (UnauthorizedException e) {
@@ -116,7 +111,7 @@ public class InitFilter extends AuthenticationFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // Nothing to do
   }
 

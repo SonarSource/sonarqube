@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,6 @@
 package org.sonar.server.pushapi.sonarlint;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +46,9 @@ public class SonarLintPushActionTest {
   private final DbClient dbClient = mock(DbClient.class);
   private final ProjectDao projectDao = mock(ProjectDao.class);
   private final SonarLintClientPermissionsValidator permissionsValidator = mock(SonarLintClientPermissionsValidator.class);
+  private final SonarLintPushEventExecutorService sonarLintPushEventExecutorService = mock(SonarLintPushEventExecutorServiceImpl.class);
 
-  private final WsPushActionTester ws = new WsPushActionTester(new SonarLintPushAction(registry, userSession, dbClient, permissionsValidator));
+  private final WsPushActionTester ws = new WsPushActionTester(new SonarLintPushAction(registry, userSession, dbClient, permissionsValidator, sonarLintPushEventExecutorService));
 
   @Before
   public void before() {
@@ -62,7 +62,7 @@ public class SonarLintPushActionTest {
       ProjectDto dto = new ProjectDto();
       dto.setKee("project" + i);
       return dto;
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
   @Test

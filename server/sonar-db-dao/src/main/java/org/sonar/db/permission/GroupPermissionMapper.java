@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,44 +25,44 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface GroupPermissionMapper {
 
-  List<String> selectGroupNamesByQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQuery(@Param("query") PermissionQuery query, @Param("pagination") Pagination pagination);
 
   int countGroupsByQuery(@Param("query") PermissionQuery query);
 
-  List<GroupPermissionDto> selectByGroupUuids(@Param("organizationUuid") String organizationUuid, @Param("groupUuids") List<String> groupUuids, @Nullable @Param("projectUuid") String projectUuid);
+  List<GroupPermissionDto> selectByGroupUuids(@Param("organizationUuid") String organizationUuid, @Param("groupUuids") List<String> groupUuids, @Nullable @Param("entityUuid") String entityUuid);
 
-  void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountPerProjectPermission> resultHandler);
+  void groupsCountByEntityUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountPerEntityPermission> resultHandler);
 
   List<String> selectProjectKeysWithAnyonePermissions(int max);
 
-  int countProjectsWithAnyonePermissions();
+  int countEntitiesWithAnyonePermissions();
 
   void insert(GroupPermissionDto dto);
 
-  int delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
+  int delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("entityUuid") String entityUuid);
 
   List<String> selectGlobalPermissionsOfGroups(@Nullable @Param("groupUuid") String groupUuid);
 
-  List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid);
-
-  List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid, @Param("projectUuid") String projectUuid);
-
-  void selectAllPermissionsByGroupUuid(@Param("organizationUuid") String organizationUuid, @Param("groupUuid") String groupUuid, ResultHandler<GroupPermissionDto> resultHandler);
+  List<String> selectEntityPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid, @Param("entityUuid") String entityUuid);
 
   /**
-   * Lists uuid of groups with at least one permission on the specified root component but which do not have the specified
+   * Lists uuid of groups with at least one permission on the specified entity but which do not have the specified
    * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Set} can't contain
    * {@code null}).
    */
-  Set<String> selectGroupUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("role") String permission);
+  Set<String> selectGroupUuidsWithPermissionOnEntityBut(@Param("entityUuid") String entityUuid, @Param("role") String permission);
 
-  int deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
+  Set<String> selectGroupUuidsWithPermissionOnEntity(@Param("entityUuid") String entityUuid, @Param("role") String permission);
 
-  int deleteByRootComponentUuidAndGroupUuid(@Param("rootComponentUuid") String rootComponentUuid, @Nullable @Param("groupUuid") String groupUuid);
+  List<GroupPermissionDto> selectGroupPermissionsOnEntity(@Param("entityUuid") String entityUuid);
 
-  int deleteByRootComponentUuidAndPermission(@Param("rootComponentUuid") String rootComponentUuid, @Param("permission") String permission);
+  int deleteByEntityUuid(@Param("entityUuid") String entityUuid);
+
+  int deleteByEntityUuidAndGroupUuid(@Param("entityUuid") String entityUuid, @Nullable @Param("groupUuid") String groupUuid);
+
+  int deleteByEntityUuidAndPermission(@Param("entityUuid") String entityUuid, @Param("permission") String permission);
 }

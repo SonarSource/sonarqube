@@ -15,16 +15,12 @@
     csc.task_uuid is not null as hasScannerContext
   </sql>
 
-  <sql id="countWarnings">
-    (select count(1) from ce_task_message ctm where ctm.task_uuid = ca.uuid) as warningCount
-  </sql>
-
   <sql id="ceActivityColumns">
     ca.uuid,
     ca.node_name as nodeName,
     ca.task_type as taskType,
     ca.component_uuid as componentUuid,
-    ca.main_component_uuid as mainComponentUuid,
+    ca.entity_uuid as entityUuid,
     ca.analysis_uuid as analysisUuid,
     ca.status as status,
     ca.submitter_uuid as submitterUuid,
@@ -40,7 +36,12 @@
     ca.main_is_last_key as mainIsLastKey,
     ca.execution_time_ms as executionTimeMs,
     ca.error_message as errorMessage,
-    ca.error_type as errorType
+    ca.error_type as errorType,
+    ctm.uuid as ctm_uuid,
+    ctm.task_uuid as ctm_taskUuid,
+    ctm.message as ctm_message,
+    ctm.message_type as ctm_type,
+    ctm.created_at as ctm_createdAt
   </sql>
 
   <sql id="columns">
@@ -48,64 +49,62 @@
     <include refid="hasScannerContextColumn"/>
   </sql>
 
-  <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
+  <sql id="fromClauseWithJoins">
+    from ce_activity ca
+    left outer join ce_task_message ctm on ca.uuid = ctm.task_uuid
+    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
+  </sql>
+
+  <resultMap id="ceActivityResultMap" type="org.sonar.db.ce.CeActivityDto" autoMapping="true">
+    <id property="uuid" column="uuid"/>
+    <collection property="ceTaskMessageDtos" ofType="org.sonar.db.ce.CeTaskMessageDto" autoMapping="true" columnPrefix="ctm_">
+      <id property="uuid" column="uuid"/>
+      <result property="key" column="kee"/>
+    </collection>
+  </resultMap>
+
+  <select id="selectByUuid" parameterType="String" resultMap="ceActivityResultMap">
     select
       <include refid="columns"/>,
-      ca.error_stacktrace as errorStacktrace,
-      <include refid="countWarnings"/>
-    from ce_activity ca
-    left outer join ce_scanner_context csc on
-      ca.uuid = csc.task_uuid
+      ca.error_stacktrace as errorStacktrace
+      <include refid="fromClauseWithJoins"/>
     where
       ca.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
+  <select id="selectByQuery" parameterType="map" resultMap="ceActivityResultMap">
     select
-      <include refid="columns"/>,
-      <include refid="countWarnings"/>
-    <include refid="sqlSelectByQuery" />
-    order by
-      ca.created_at desc, uuid desc
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="mssql">
-    select * from (
-    select row_number() over(order by ca.created_at desc, uuid desc) as number,
-      <include refid="columns"/>,
-      <include refid="countWarnings"/>
+      <include refid="columns"/>
+      <include refid="fromClauseWithJoins"/>
+    where ca.uuid in (
       <include refid="sqlSelectByQuery" />
-      ) as query
-    where
-      query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by createdAt desc, uuid desc
-  </select>
-
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="oracle">
-    select * from (
-      select rownum as rn, t.* from (
-        select
-        <include refid="columns"/>,
-        <include refid="countWarnings"/>
-        <include refid="sqlSelectByQuery" />
-        order by ca.created_at desc, ca.uuid desc
-      ) t
-    ) t
-    where
-      t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    )
+    order by ca.created_at desc, ca.uuid desc
   </select>
 
   <sql id="sqlSelectByQuery">
+    <include refid="sqlSelectByQueryWithoutPagination"/>
+    order by ca.created_at desc, uuid desc
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </sql>
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    select
+      count(1) from (
+        <include refid="sqlSelectByQueryWithoutPagination" />
+      ) allTaskUuids
+  </select>
+
+  <sql id="sqlSelectByQueryWithoutPagination">
+    select ca.uuid
     from ce_activity ca
-    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
     <where>
       <if test="query.onlyCurrents">
         and ca.main_is_last=${_true}
       </if>
-      <if test="query.mainComponentUuids != null and query.mainComponentUuids.size()>0">
-        and ca.main_component_uuid in
-        <foreach collection="query.mainComponentUuids" open="(" close=")" item="cUuid" separator=",">
+      <if test="query.entityUuids != null and query.entityUuids.size()>0">
+        and ca.entity_uuid in
+        <foreach collection="query.entityUuids" open="(" close=")" item="cUuid" separator=",">
           #{cUuid,jdbcType=VARCHAR}
         </foreach>
       </if>
@@ -136,31 +135,23 @@
     </where>
   </sql>
 
-  <select id="selectOlderThan" parameterType="long" resultType="org.sonar.db.ce.CeActivityDto">
+  <select id="selectOlderThan" parameterType="long" resultMap="ceActivityResultMap">
     select
       <include refid="columns"/>
-    from ce_activity ca
-    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
+      <include refid="fromClauseWithJoins"/>
     where
       ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </select>
 
-  <select id="selectNewerThan" parameterType="long" resultType="org.sonar.db.ce.CeActivityDto">
+  <select id="selectNewerThan" parameterType="long" resultMap="ceActivityResultMap">
     select
       <include refid="columns"/>
-    from ce_activity ca
-    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
+      <include refid="fromClauseWithJoins"/>
     where
       ca.created_at &gt; #{afterDate,jdbcType=BIGINT}
   </select>
 
-  <select id="countByQuery" parameterType="map" resultType="int">
-    select
-      count(1)
-    <include refid="sqlSelectByQuery" />
-  </select>
-
-  <select id="countLastByStatusAndMainComponentUuid" resultType="int">
+  <select id="countLastByStatusAndEntityUuid" resultType="int">
     select
       count(1)
     from
@@ -168,8 +159,8 @@
     where
       main_is_last=${_true}
       and status=#{status,jdbcType=VARCHAR}
-      <if test="mainComponentUuid!=null">
-        and main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
+      <if test="entityUuid!=null">
+        and entity_uuid=#{entityUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
@@ -178,7 +169,7 @@
       uuid,
       node_name,
       component_uuid,
-      main_component_uuid,
+      entity_uuid,
       analysis_uuid,
       status,
       task_type,
@@ -203,7 +194,7 @@
       #{uuid,jdbcType=VARCHAR},
       #{nodeName,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
-      #{mainComponentUuid,jdbcType=VARCHAR},
+      #{entityUuid,jdbcType=VARCHAR},
       #{analysisUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{taskType,jdbcType=VARCHAR},
@@ -254,12 +245,10 @@
       </foreach>
   </delete>
 
-  <select id="selectLastByComponentUuidAndTaskType" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
+  <select id="selectLastByComponentUuidAndTaskType" parameterType="map" resultMap="ceActivityResultMap">
     select
     <include refid="columns"/>
-    from ce_activity ca
-    left outer join ce_scanner_context csc on
-    ca.uuid = csc.task_uuid
+    <include refid="fromClauseWithJoins"/>
     where
     ca.component_uuid = #{componentUuid,jdbcType=VARCHAR}
     and ca.task_type = #{taskType,jdbcType=VARCHAR}
@@ -289,10 +278,10 @@
     from dual
   </select>
 
-  <select id="selectByTaskType" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
+  <select id="selectByTaskType" parameterType="map" resultMap="ceActivityResultMap">
     select
     <include refid="ceActivityColumns"/>
-    from ce_activity ca
+    <include refid="fromClauseWithJoins"/>
     where
     ca.task_type = #{taskType,jdbcType=VARCHAR}
   </select>

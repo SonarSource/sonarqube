@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,10 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
@@ -42,25 +44,24 @@ import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.common.text.MacroInterpreter;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.rule.RuleDescriptionFormatter;
-import org.sonar.server.rule.ws.SearchAction.SearchResult;
-import org.sonar.server.text.MacroInterpreter;
+import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.RuleScope;
 import org.sonarqube.ws.Rules;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CLEAN_CODE_ATTRIBUTE;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CREATED_AT;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_OVERLOADED;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DESCRIPTION_SECTIONS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EDUCATION_PRINCIPLES;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EFFORT_TO_FIX_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GAP_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_HTML_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_INTERNAL_KEY;
@@ -81,6 +82,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_STATUS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SYSTEM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TEMPLATE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_UPDATED_AT;
 import static org.sonarqube.ws.Rules.Rule.DescriptionSection.Context.newBuilder;
 
 /**
@@ -119,6 +121,7 @@ public class RuleMapper {
     // Mandatory fields
     ruleResponse.setKey(ruleDto.getKey().toString());
     ruleResponse.setType(Common.RuleType.forNumber(ruleDto.getType()));
+    setImpacts(ruleResponse, ruleDto);
 
     // Optional fields
     setName(ruleResponse, ruleDto, fieldsToReturn);
@@ -127,6 +130,7 @@ public class RuleMapper {
     setSysTags(ruleResponse, ruleDto, fieldsToReturn);
     setParams(ruleResponse, ruleDto, result, fieldsToReturn);
     setCreatedAt(ruleResponse, ruleDto, fieldsToReturn);
+    setUpdatedAt(ruleResponse, ruleDto, fieldsToReturn);
     setDescriptionFields(ruleResponse, ruleDto, fieldsToReturn);
     setSeverity(ruleResponse, ruleDto, fieldsToReturn);
     setInternalKey(ruleResponse, ruleDto, fieldsToReturn);
@@ -136,7 +140,7 @@ public class RuleMapper {
     setIsExternal(ruleResponse, ruleDto, fieldsToReturn);
     setTemplateKey(ruleResponse, ruleDto, result, fieldsToReturn);
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
-    setEffortToFixDescription(ruleResponse, ruleDto, fieldsToReturn);
+    setGapDescription(ruleResponse, ruleDto, fieldsToReturn);
     setScope(ruleResponse, ruleDto, fieldsToReturn);
     setDeprecatedKeys(ruleResponse, ruleDto, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
 
@@ -149,7 +153,21 @@ public class RuleMapper {
       setAdHocType(ruleResponse, ruleDto);
     }
     setEducationPrinciples(ruleResponse, ruleDto, fieldsToReturn);
+    setCleanCodeAttributes(ruleResponse, ruleDto, fieldsToReturn);
+
     return ruleResponse;
+  }
+
+  private static void setImpacts(Rules.Rule.Builder ruleResponse, RuleDto ruleDto) {
+    Rules.Impacts.Builder impactsBuilder = Rules.Impacts.newBuilder();
+    ruleDto.getDefaultImpacts().forEach(impactDto -> impactsBuilder.addImpacts(toImpact(impactDto)));
+    ruleResponse.setImpacts(impactsBuilder.build());
+  }
+
+  private static Common.Impact toImpact(ImpactDto impactDto) {
+    Common.ImpactSeverity severity = ImpactFormatter.mapImpactSeverity(impactDto.getSeverity());
+    Common.SoftwareQuality softwareQuality = Common.SoftwareQuality.valueOf(impactDto.getSoftwareQuality().name());
+    return Common.Impact.newBuilder().setSeverity(severity).setSoftwareQuality(softwareQuality).build();
   }
 
   private static void setAdHocName(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
@@ -205,6 +223,14 @@ public class RuleMapper {
     }
   }
 
+  private static void setCleanCodeAttributes(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    CleanCodeAttribute cleanCodeAttribute = ruleDto.getCleanCodeAttribute();
+    if (shouldReturnField(fieldsToReturn, FIELD_CLEAN_CODE_ATTRIBUTE) && cleanCodeAttribute != null) {
+      ruleResponse.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttribute.name()));
+      ruleResponse.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttribute.getAttributeCategory().name()));
+    }
+  }
+
   private static void setDeprecatedKeys(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn,
     Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid) {
     if (shouldReturnField(fieldsToReturn, FIELD_DEPRECATED_KEYS)) {
@@ -235,18 +261,15 @@ public class RuleMapper {
     }
   }
 
-  private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setGapDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     String gapDescription = ruleDto.getGapDescription();
-    if ((shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) || shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION))
-      && gapDescription != null) {
-      ruleResponse.setEffortToFixDescription(gapDescription);
+    if (shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION) && gapDescription != null) {
       ruleResponse.setGapDescription(gapDescription);
     }
   }
 
   private static void setIsRemediationFunctionOverloaded(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_OVERLOADED) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION_OVERLOADED)) {
-      ruleResponse.setDebtOverloaded(isRemediationFunctionOverloaded(ruleDto));
+    if (shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION_OVERLOADED)) {
       ruleResponse.setRemFnOverloaded(isRemediationFunctionOverloaded(ruleDto));
     }
   }
@@ -258,14 +281,10 @@ public class RuleMapper {
         String gapMultiplier = defaultDebtRemediationFunction.gapMultiplier();
         if (gapMultiplier != null) {
           ruleResponse.setDefaultRemFnGapMultiplier(gapMultiplier);
-          // Set deprecated field
-          ruleResponse.setDefaultDebtRemFnCoeff(gapMultiplier);
         }
         String baseEffort = defaultDebtRemediationFunction.baseEffort();
         if (baseEffort != null) {
           ruleResponse.setDefaultRemFnBaseEffort(baseEffort);
-          // Set deprecated field
-          ruleResponse.setDefaultDebtRemFnOffset(baseEffort);
         }
         if (defaultDebtRemediationFunction.type() != null) {
           ruleResponse.setDefaultRemFnType(defaultDebtRemediationFunction.type().name());
@@ -289,14 +308,10 @@ public class RuleMapper {
         String gapMultiplier = debtRemediationFunction.gapMultiplier();
         if (gapMultiplier != null) {
           ruleResponse.setRemFnGapMultiplier(gapMultiplier);
-          // Set deprecated field
-          ruleResponse.setDebtRemFnCoeff(gapMultiplier);
         }
         String baseEffort = debtRemediationFunction.baseEffort();
         if (baseEffort != null) {
           ruleResponse.setRemFnBaseEffort(baseEffort);
-          // Set deprecated field
-          ruleResponse.setDebtRemFnOffset(baseEffort);
         }
       }
     }
@@ -329,13 +344,19 @@ public class RuleMapper {
   private static void setParams(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult searchResult, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_PARAMS)) {
       List<RuleParamDto> ruleParameters = searchResult.getRuleParamsByRuleUuid().get(ruleDto.getUuid());
-      ruleResponse.getParamsBuilder().addAllParams(ruleParameters.stream().map(RuleParamDtoToWsRuleParam.INSTANCE).collect(toList()));
+      ruleResponse.getParamsBuilder().addAllParams(ruleParameters.stream().map(RuleParamDtoToWsRuleParam.INSTANCE).toList());
     }
   }
 
   private static void setCreatedAt(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_CREATED_AT)) {
       ruleResponse.setCreatedAt(formatDateTime(ruleDto.getCreatedAt()));
+    }
+  }
+
+  private static void setUpdatedAt(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, FIELD_UPDATED_AT)) {
+      ruleResponse.setUpdatedAt(formatDateTime(ruleDto.getUpdatedAt()));
     }
   }
 
@@ -369,6 +390,7 @@ public class RuleMapper {
 
   /**
    * This was done to preserve backward compatibility with SonarLint until they stop using htmlDesc field in api/rules/[show|search] endpoints, see SONAR-16635
+   *
    * @deprecated the method should be removed once SonarLint supports rules.descriptionSections fields, I.E in 10.x and DB is cleaned up of non-necessary default sections.
    */
   @Deprecated(since = "9.6", forRemoval = true)

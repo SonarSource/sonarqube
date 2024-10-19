@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,16 +22,17 @@ import { Dict } from './types';
 export enum SecurityStandard {
   OWASP_TOP10_2021 = 'owaspTop10-2021',
   OWASP_TOP10 = 'owaspTop10',
-  SANS_TOP25 = 'sansTop25',
   SONARSOURCE = 'sonarsourceSecurity',
   CWE = 'cwe',
   PCI_DSS_3_2 = 'pciDss-3.2',
   PCI_DSS_4_0 = 'pciDss-4.0',
   OWASP_ASVS_4_0 = 'owaspAsvs-4.0',
+  STIG_ASD_V5R3 = 'stig-ASD_V5R3',
+  CASA = 'casa',
 }
 
 export type StandardType = SecurityStandard;
 
 export type Standards = {
-  [key in StandardType]: Dict<{ title: string; description?: string; level?: string }>;
+  [key in StandardType]: Dict<{ description?: string; level?: string; title: string }>;
 };

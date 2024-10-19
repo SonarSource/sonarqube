@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,10 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.LoggerContextVO;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Marker;
+import org.slf4j.event.KeyValuePair;
 
 public class TestILoggingEvent implements ILoggingEvent {
   private String formattedMessage;
@@ -88,6 +90,10 @@ public class TestILoggingEvent implements ILoggingEvent {
     return null;
   }
 
+  @Override public List<Marker> getMarkerList() {
+    return null;
+  }
+
   @Override
   public Map<String, String> getMDCPropertyMap() {
     return null;
@@ -101,6 +107,18 @@ public class TestILoggingEvent implements ILoggingEvent {
   @Override
   public long getTimeStamp() {
     return 0;
+  }
+
+  @Override public int getNanoseconds() {
+    return 0;
+  }
+
+  @Override public long getSequenceNumber() {
+    return 0;
+  }
+
+  @Override public List<KeyValuePair> getKeyValuePairs() {
+    return null;
   }
 
   @Override

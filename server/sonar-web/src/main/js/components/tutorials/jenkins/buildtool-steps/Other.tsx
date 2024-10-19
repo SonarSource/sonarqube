@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import FinishButton from '../../components/FinishButton';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
 const JENKINSFILE_SNIPPET = `node {
@@ -44,7 +43,6 @@ export default function Other(props: LanguageProps) {
         alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
         snippet={JENKINSFILE_SNIPPET}
       />
-      <FinishButton onClick={props.onDone} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,13 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Collections.emptyList;
 
 public class JGitBlameCommand {
-  private static final Logger LOG = Loggers.get(JGitBlameCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JGitBlameCommand.class);
 
   public List<BlameLine> blame(Git git, String filename) {
     BlameResult blameResult;

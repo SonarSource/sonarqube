@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -63,14 +63,6 @@ public interface ServerFileSystem {
    * @return a directory which may or not exist
    */
   File getInstalledBundledPluginsDir();
-
-  /**
-   * The file listing all the installed plugins. Used by scanner only.
-   * @return an existing file
-   * @deprecated see {@link org.sonar.server.startup.GeneratePluginIndex}
-   */
-  @Deprecated
-  File getPluginIndex();
 
   /**
    * Directory where plugins to be uninstalled are moved to.

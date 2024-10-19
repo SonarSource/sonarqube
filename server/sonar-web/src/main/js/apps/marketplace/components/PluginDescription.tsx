@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge, CellComponent } from 'design-system';
 import * as React from 'react';
 import { Plugin } from '../../../types/plugins';
 
@@ -24,18 +25,12 @@ interface Props {
   plugin: Plugin;
 }
 
-const PluginDescription = (props: Props) => {
+export default function PluginDescription(props: Readonly<Props>) {
   return (
-    <td className="text-top width-25 big-spacer-right">
-      <div>
-        <strong className="js-plugin-name">{props.plugin.name}</strong>
-        {props.plugin.category && (
-          <span className="js-plugin-category badge spacer-left">{props.plugin.category}</span>
-        )}
-      </div>
-      <div className="js-plugin-description little-spacer-top">{props.plugin.description}</div>
-    </td>
+    <CellComponent>
+      <strong className="sw-typo-semibold">{props.plugin.name}</strong>
+      {props.plugin.category && <Badge className="sw-ml-2">{props.plugin.category}</Badge>}
+      {props.plugin.description && <div className="sw-mt-2">{props.plugin.description}</div>}
+    </CellComponent>
   );
-};
-
-export default PluginDescription;
+}

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ package org.sonar.ce.task.step;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.core.util.logs.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,8 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public final class ComputationStepExecutor {
-  private static final Logger LOGGER = Loggers.get(ComputationStepExecutor.class);
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ComputationStepExecutor.class);
   private static final String MDC_CODESCAN_JOB_ID = "jobId";
 
   private final ComputationSteps steps;

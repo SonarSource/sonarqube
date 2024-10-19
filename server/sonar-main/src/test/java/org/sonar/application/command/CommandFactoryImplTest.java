@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,7 +40,6 @@ import org.sonar.process.Props;
 import org.sonar.process.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -108,13 +107,6 @@ public class CommandFactoryImplTest {
   }
 
   @Test
-  public void createEsCommand_throws_ISE_if_es_binary_is_not_found() {
-    assertThatThrownBy(() -> newFactory(new Properties()).createEsCommand())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Cannot find elasticsearch binary");
-  }
-
-  @Test
   public void createEsCommand_for_unix_returns_command_for_default_settings() throws Exception {
     when(system2.isOsWindows()).thenReturn(false);
     prepareEsFileSystem();
@@ -122,9 +114,7 @@ public class CommandFactoryImplTest {
     Properties props = new Properties();
     props.setProperty("sonar.search.host", "localhost");
 
-    AbstractCommand command = newFactory(props, system2).createEsCommand();
-    assertThat(command).isInstanceOf(EsScriptCommand.class);
-    EsScriptCommand esCommand = (EsScriptCommand) command;
+    JavaCommand<?> esCommand = newFactory(props, system2).createEsCommand();
     EsInstallation esConfig = esCommand.getEsInstallation();
 
     assertThat(esConfig.getHost()).isNotEmpty();
@@ -139,57 +129,13 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
 
-    File esConfDir = new File(tempDir, "conf/es");
     assertThat(esCommand.getEnvVariables())
-      .contains(entry("ES_PATH_CONF", esConfDir.getAbsolutePath()))
-      .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
       .containsKey("ES_JAVA_HOME");
-    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
 
-    assertThat(esConfig.getEsJvmOptions().getAll())
-      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
-  }
-
-  @Test
-  public void createEsCommand_for_windows_returns_command_for_default_settings() throws Exception {
-    when(system2.isOsWindows()).thenReturn(true);
-    prepareEsFileSystem();
-
-    Properties props = new Properties();
-    props.setProperty("sonar.search.host", "localhost");
-
-    AbstractCommand command = newFactory(props, system2).createEsCommand();
-    assertThat(command).isInstanceOf(JavaCommand.class);
-    JavaCommand<?> esCommand = (JavaCommand<?>) command;
-    EsInstallation esConfig = esCommand.getEsInstallation();
-
-    assertThat(esConfig.getHost()).isNotEmpty();
-    assertThat(esConfig.getHttpPort()).isEqualTo(9001);
-    assertThat(esConfig.getEsJvmOptions().getAll())
-      // enforced values
-      .contains("-XX:+UseG1GC")
-      .contains("-Dfile.encoding=UTF-8")
-      // default settings
-      .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
-    assertThat(esConfig.getEsYmlSettings()).isNotNull();
-
-    assertThat(esConfig.getLog4j2Properties())
-      .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
-
-    File esConfDir = new File(tempDir, "conf/es");
-    assertThat(esCommand.getArguments()).isEmpty();
-    assertThat(esCommand.getEnvVariables())
-      .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
-      .containsKey("ES_JAVA_HOME");
-    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
-
-    assertThat(esConfig.getEsJvmOptions().getAll())
-      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
     assertThat(esCommand.getJvmOptions().getAll())
-      .containsAll(esConfig.getEsJvmOptions().getAll())
-      .contains("-Delasticsearch")
-      .contains("-Des.path.home=" + new File(homeDir, "elasticsearch"))
-      .contains("-Des.path.conf=" + esConfDir.getAbsolutePath());
+      .contains("-Xms4m", "-Xmx64m", "-XX:+UseSerialGC", "-Dcli.name=server", "-Dcli.script=./bin/elasticsearch",
+        "-Dcli.libs=lib/tools/server-cli", "-Des.path.home=" + esConfig.getHomeDirectory().getAbsolutePath(),
+        "-Des.path.conf=" + esConfig.getConfDirectory().getAbsolutePath(), "-Des.distribution.type=tar");
   }
 
   @Test

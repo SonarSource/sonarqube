@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,10 @@ public class RulesWsParameters {
   public static final String PARAM_CWE = "cwe";
   public static final String PARAM_OWASP_TOP_10 = "owaspTop10";
   public static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  /**
+   * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
+   */
+  @Deprecated(since = "10.0", forRemoval = true)
   public static final String PARAM_SANS_TOP_25 = "sansTop25";
   public static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   public static final String PARAM_INHERITANCE = "inheritance";
@@ -44,6 +48,11 @@ public class RulesWsParameters {
   public static final String PARAM_TEMPLATE_KEY = "template_key";
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_COMPARE_TO_PROFILE = "compareToProfile";
+
+  public static final String PARAM_IMPACT_SOFTWARE_QUALITIES = "impactSoftwareQualities";
+  public static final String PARAM_IMPACT_SEVERITIES = "impactSeverities";
+  public static final String PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES = "cleanCodeAttributeCategories";
+  public static final String PARAM_PRIORITIZED_RULE = "prioritizedRule";
 
   public static final String FIELD_REPO = "repo";
   public static final String FIELD_NAME = "name";
@@ -67,33 +76,32 @@ public class RulesWsParameters {
   public static final String FIELD_NOTE_LOGIN = "noteLogin";
   public static final String FIELD_MARKDOWN_NOTE = "mdNote";
   public static final String FIELD_HTML_NOTE = "htmlNote";
+  public static final String FIELD_CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
 
   /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_DEFAULT_REM_FUNCTION}
+   * Value for 'f' parameter which is used to return all the "defaultDebtRemFn" fields.
+   *
+   * @deprecated since 10.0, replaced by {@link #FIELD_DEFAULT_REM_FUNCTION}
    */
-  @Deprecated
+  @Deprecated(since = "10.0")
   public static final String FIELD_DEFAULT_DEBT_REM_FUNCTION = "defaultDebtRemFn";
+  /**
+   * Value for 'f' parameter which is used to return all the "defaultRemFn" fields.
+   */
   public static final String FIELD_DEFAULT_REM_FUNCTION = "defaultRemFn";
 
   /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_REM_FUNCTION}
+   * Value for 'f' parameter which is used to return all the "debtRemFn" fields.
+   *
+   * @deprecated since 10.0, replaced by {@link #FIELD_REM_FUNCTION}
    */
-  @Deprecated
+  @Deprecated(since = "10.0")
   public static final String FIELD_DEBT_REM_FUNCTION = "debtRemFn";
+  /**
+   * Value for 'f' parameter which is used to return all the "remFn" fields.
+   */
   public static final String FIELD_REM_FUNCTION = "remFn";
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_GAP_DESCRIPTION}
-   */
-  @Deprecated
-  public static final String FIELD_EFFORT_TO_FIX_DESCRIPTION = "effortToFixDescription";
   public static final String FIELD_GAP_DESCRIPTION = "gapDescription";
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_REM_FUNCTION_OVERLOADED}
-   */
-  @Deprecated
-  public static final String FIELD_DEBT_OVERLOADED = "debtOverloaded";
   public static final String FIELD_REM_FUNCTION_OVERLOADED = "remFnOverloaded";
 
   /**
@@ -109,9 +117,9 @@ public class RulesWsParameters {
   public static final Set<String> OPTIONAL_FIELDS = Set.of(FIELD_REPO, FIELD_NAME, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_SEVERITY, FIELD_STATUS, FIELD_INTERNAL_KEY,
     FIELD_IS_EXTERNAL, FIELD_IS_TEMPLATE, FIELD_TEMPLATE_KEY, FIELD_TAGS, FIELD_SYSTEM_TAGS, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_HTML_DESCRIPTION,
     FIELD_MARKDOWN_DESCRIPTION, FIELD_DESCRIPTION_SECTIONS, FIELD_NOTE_LOGIN, FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE,
-    FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION,
+    FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_DEBT_REM_FUNCTION,
     FIELD_DEFAULT_REM_FUNCTION, FIELD_GAP_DESCRIPTION, FIELD_REM_FUNCTION_OVERLOADED, FIELD_REM_FUNCTION,
-    FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE, FIELD_DEPRECATED_KEYS, FIELD_EDUCATION_PRINCIPLES);
+    FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE, FIELD_DEPRECATED_KEYS, FIELD_EDUCATION_PRINCIPLES, FIELD_CLEAN_CODE_ATTRIBUTE);
 
   private RulesWsParameters() {
     // prevent instantiation

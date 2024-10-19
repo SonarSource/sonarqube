@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,10 @@ public class SamlAuthenticationStatus {
   private List<String> errors = new ArrayList<>();
 
   private List<String> warnings = new ArrayList<>();
+
+  private boolean encryptionEnabled = false;
+
+  private boolean signatureEnabled = false;
 
   public String getStatus() {
     return status;
@@ -75,5 +79,21 @@ public class SamlAuthenticationStatus {
 
   public void setWarnings(List<String> warnings) {
     this.warnings = warnings;
+  }
+
+  public boolean isEncryptionEnabled() {
+    return encryptionEnabled;
+  }
+
+  public void setEncryptionEnabled(boolean encryptionEnabled) {
+    this.encryptionEnabled = encryptionEnabled;
+  }
+
+  public boolean isSignatureEnabled() {
+    return signatureEnabled;
+  }
+
+  public void setSignatureEnabled(boolean signatureEnabled) {
+    this.signatureEnabled = signatureEnabled;
   }
 }

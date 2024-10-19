@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import selectEvent from 'react-select-event';
-import { byRole, byText } from 'testing-library-selector';
+import React from 'react';
+import { Outlet, Route } from 'react-router-dom';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
@@ -34,9 +35,6 @@ import { Permissions } from '../../../types/permissions';
 import { TokenType } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
-
-jest.mock('../../../api/user-tokens');
-jest.mock('../../../api/notifications');
 
 jest.mock('../../../helpers/preferences', () => ({
   getKeyboardShortcutEnabled: jest.fn().mockResolvedValue(true),
@@ -148,7 +146,7 @@ jest.mock('../../../api/users', () => ({
       {
         key: 'github',
         name: 'GitHub',
-        iconPath: '/images/alm/github-white.svg',
+        iconPath: '/images/alm/github.svg',
         backgroundColor: '#444444',
       },
     ],
@@ -173,20 +171,25 @@ it('should handle a currentUser not logged in', () => {
   locationMock.mockRestore();
 });
 
-it('should render the top menu', () => {
+it('should render the top menu', async () => {
   const name = 'Tyler Durden';
   renderAccountApp(mockLoggedInUser({ name }));
 
-  expect(screen.getByText(name)).toBeInTheDocument();
+  expect(await screen.findByText(name)).toBeInTheDocument();
 
-  expect(screen.getByText('my_account.profile')).toBeInTheDocument();
-  expect(screen.getByText('my_account.security')).toBeInTheDocument();
-  expect(screen.getByText('my_account.notifications')).toBeInTheDocument();
-  expect(screen.getByText('my_account.projects')).toBeInTheDocument();
+  const topMenuNavigationItems = [
+    'my_account.profile',
+    'my_account.security',
+    'my_account.notifications',
+    'my_account.projects',
+  ];
+  topMenuNavigationItems.forEach((itemName) => {
+    expect(byRole('navigation').byRole('link', { name: itemName }).get()).toBeInTheDocument();
+  });
 });
 
 describe('profile page', () => {
-  it('should display all the information', () => {
+  it('should display all the information', async () => {
     const loggedInUser = mockLoggedInUser({
       email: 'email@company.com',
       groups: ['group1'],
@@ -194,10 +197,10 @@ describe('profile page', () => {
     });
     renderAccountApp(loggedInUser);
 
+    expect(await screen.findByText('group1')).toBeInTheDocument();
+    expect(screen.getByText('account1')).toBeInTheDocument();
     expect(screen.getAllByText(loggedInUser.login)).toHaveLength(2);
     expect(screen.getAllByText(loggedInUser.email!)).toHaveLength(2);
-    expect(screen.getByText('group1')).toBeInTheDocument();
-    expect(screen.getByText('account1')).toBeInTheDocument();
   });
 
   it('should handle missing info', () => {
@@ -228,7 +231,7 @@ describe('profile page', () => {
     renderAccountApp(loggedInUser);
 
     expect(
-      await screen.findByText(`${loggedInUser.externalProvider}: ${loggedInUser.externalIdentity}`)
+      await screen.findByText(`${loggedInUser.externalProvider}: ${loggedInUser.externalIdentity}`),
     ).toBeInTheDocument();
   });
 
@@ -236,9 +239,7 @@ describe('profile page', () => {
     const user = userEvent.setup();
     renderAccountApp(mockLoggedInUser());
 
-    const toggle = screen.getByRole('button', {
-      name: 'my_account.preferences.keyboard_shortcuts.enabled',
-    });
+    const toggle = screen.getByRole('switch');
     expect(toggle).toBeInTheDocument();
 
     await user.click(toggle);
@@ -271,11 +272,11 @@ describe('security page', () => {
 
       renderAccountApp(
         mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-        securityPagePath
+        securityPagePath,
       );
 
-      expect(await screen.findByText('users.tokens')).toBeInTheDocument();
-      expect(screen.getAllByRole('row')).toHaveLength(3); // 2 tokens + header
+      expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3)); // 2 tokens + header
 
       // Add the token
       const newTokenName = 'importantToken';
@@ -292,16 +293,23 @@ describe('security page', () => {
 
       // eslint-disable-next-line jest/no-conditional-in-test
       if (tokenTypeOption === TokenType.Project) {
-        await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
+        await user.click(ui.tokenTypeSelect.get());
+        await user.click(byRole('option', { name: tokenTypeLabel }).get());
+
         // eslint-disable-next-line jest/no-conditional-expect
         expect(generateButton).toBeDisabled();
         // eslint-disable-next-line jest/no-conditional-expect
-        expect(screen.getAllByRole('textbox')).toHaveLength(4);
-        await selectEvent.select(screen.getAllByRole('textbox')[2], ['Project Name 1']);
+        expect(screen.getByRole('textbox', { name: 'users.tokens.name' })).toBeInTheDocument();
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(screen.getAllByRole('combobox')).toHaveLength(3);
+
+        await user.click(ui.projectSelect.get());
+        await user.click(byRole('option', { name: 'Project Name 1' }).get());
         // eslint-disable-next-line jest/no-conditional-expect
         expect(generateButton).toBeEnabled();
       } else {
-        await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
+        await user.click(ui.tokenTypeSelect.get());
+        await user.click(byRole('option', { name: tokenTypeLabel }).get());
         // eslint-disable-next-line jest/no-conditional-expect
         expect(generateButton).toBeEnabled();
       }
@@ -309,9 +317,9 @@ describe('security page', () => {
       await user.click(generateButton);
 
       expect(
-        await screen.findByText(`users.tokens.new_token_created.${newTokenName}`)
+        await screen.findByText(`users.tokens.new_token_created.${newTokenName}`),
       ).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toBeInTheDocument();
 
       const lastTokenCreated = tokenMock.getLastToken();
       // eslint-disable-next-line jest/no-conditional-in-test
@@ -321,7 +329,7 @@ describe('security page', () => {
       // eslint-disable-next-line jest/no-conditional-in-test
       expect(screen.getByLabelText('users.new_token')).toHaveTextContent(
         // eslint-disable-next-line jest/no-conditional-in-test
-        lastTokenCreated.token ?? ''
+        lastTokenCreated.token ?? '',
       );
 
       expect(screen.getAllByRole('row')).toHaveLength(4); // 3 tokens + header
@@ -339,18 +347,18 @@ describe('security page', () => {
 
       // Revoke the token
       const revokeButtons = within(row).getByRole('button', {
-        name: 'users.tokens.revoke_token',
+        name: 'users.tokens.revoke_label.importantToken',
       });
       await user.click(revokeButtons);
 
       expect(
-        screen.getByRole('heading', { name: 'users.tokens.revoke_token' })
+        screen.getByRole('heading', { name: 'users.tokens.revoke_label.importantToken' }),
       ).toBeInTheDocument();
 
-      await user.click(screen.getByText('users.tokens.revoke_token', { selector: 'button' }));
+      await user.click(screen.getByRole('button', { name: 'yes' }));
 
-      expect(screen.getAllByRole('row')).toHaveLength(3); // 2 tokens + header
-    }
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3)); // 2 tokens + header
+    },
   );
 
   it('should flag expired tokens as such', async () => {
@@ -359,42 +367,45 @@ describe('security page', () => {
         name: 'expired token',
         isExpired: true,
         expirationDate: '2021-01-23T19:25:19+0000',
-      })
+      }),
     );
 
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-      securityPagePath
+      securityPagePath,
     );
 
-    expect(await screen.findByText('users.tokens')).toBeInTheDocument();
+    expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
 
     // expired token is flagged as such
-    const expiredTokenRow = screen.getByRole('row', { name: /expired token/ });
+    const expiredTokenRow = await screen.findByRole('row', { name: /expired token/ });
     expect(within(expiredTokenRow).getByText('my_account.tokens.expired')).toBeInTheDocument();
 
     // unexpired token is not flagged
     const unexpiredTokenRow = screen.getAllByRole('row')[0];
     expect(
-      within(unexpiredTokenRow).queryByText('my_account.tokens.expired')
+      within(unexpiredTokenRow).queryByText('my_account.tokens.expired'),
     ).not.toBeInTheDocument();
   });
 
-  it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", () => {
-    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+  it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", async () => {
+    const user = userEvent.setup();
+    jest.mocked(getScannableProjects).mockResolvedValueOnce({
       projects: [],
     });
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-      securityPagePath
+      securityPagePath,
     );
 
-    selectEvent.openMenu(screen.getAllByRole('textbox')[1]);
+    expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
+
+    await user.click(ui.tokenTypeSelect.get());
     expect(screen.queryByText(`users.tokens.${TokenType.Project}`)).not.toBeInTheDocument();
   });
 
   it('should preselect the user token type if the user has no scan rights', async () => {
-    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+    jest.mocked(getScannableProjects).mockResolvedValueOnce({
       projects: [],
     });
     renderAccountApp(mockLoggedInUser(), securityPagePath);
@@ -404,7 +415,8 @@ describe('security page', () => {
   });
 
   it('should preselect the only project the user has access to if they select project token', async () => {
-    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+    const user = userEvent.setup();
+    jest.mocked(getScannableProjects).mockResolvedValueOnce({
       projects: [
         {
           key: 'project-key-1',
@@ -414,12 +426,12 @@ describe('security page', () => {
     });
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-      securityPagePath
+      securityPagePath,
     );
+    expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
 
-    await selectEvent.select(screen.getAllByRole('textbox')[1], [
-      `users.tokens.${TokenType.Project}`,
-    ]);
+    await user.click(ui.tokenTypeSelect.get());
+    await user.click(byRole('option', { name: `users.tokens.${TokenType.Project}` }).get());
 
     expect(screen.getByText('Project Name 1')).toBeInTheDocument();
   });
@@ -429,7 +441,7 @@ describe('security page', () => {
     renderAccountApp(mockLoggedInUser({ local: true }), securityPagePath);
 
     expect(
-      await screen.findByRole('heading', { name: 'my_profile.password.title' })
+      await screen.findByRole('heading', { name: 'my_profile.password.title' }),
     ).toBeInTheDocument();
 
     const oldPasswordField = screen.getByLabelText('my_profile.password.old', {
@@ -437,26 +449,18 @@ describe('security page', () => {
       exact: false,
     });
 
-    const newPasswordField = screen.getByLabelText('my_profile.password.new', {
-      selector: 'input',
-      exact: false,
-    });
-    const confirmPasswordField = screen.getByLabelText('my_profile.password.confirm', {
-      selector: 'input',
-      exact: false,
-    });
+    const newPasswordField = screen.getByLabelText(/^password/);
+    const confirmPasswordField = screen.getByLabelText(/confirm_password*/i);
 
     await fillTextField(user, oldPasswordField, '123456old');
-    await fillTextField(user, newPasswordField, 'newPassword');
-    await fillTextField(user, confirmPasswordField, 'newtypo');
+    await fillTextField(user, newPasswordField, 'P@ssword12345');
+    await fillTextField(user, confirmPasswordField, 'P@ssword12345typo');
 
-    await user.click(screen.getByRole('button', { name: 'update_verb' }));
-
-    expect(screen.getByText('user.password_doesnt_match_confirmation')).toBeInTheDocument();
+    expect(screen.getByText('user.password.do_not_match')).toBeInTheDocument();
 
     // Backspace to erase the previous content
     // [Backspace>7/] == hold, trigger 7 times and release
-    await fillTextField(user, confirmPasswordField, '[Backspace>7/]newPassword');
+    await fillTextField(user, confirmPasswordField, '[Backspace>4/]');
 
     await user.click(screen.getByRole('button', { name: 'update_verb' }));
 
@@ -470,10 +474,10 @@ describe('notifications page', () => {
     addButton: byRole('button', { name: 'my_profile.per_project_notifications.add' }),
     addModalButton: byRole('button', { name: 'add_verb' }),
     searchInput: byRole('searchbox', { name: 'search.placeholder' }),
-    sonarQubeProject: byRole('heading', { name: 'SonarQube' }),
+    sonarQubeProject: byRole('link', { name: 'SonarQube' }),
     checkbox: (type: NotificationProjectType) =>
       byRole('checkbox', {
-        name: `notification.dispatcher.descrption_x.notification.dispatcher.${type}.project`,
+        name: `notification.dispatcher.description_x.notification.dispatcher.${type}.project`,
       }),
   };
 
@@ -482,7 +486,7 @@ describe('notifications page', () => {
     noNotificationForProject: byText('my_account.no_project_notifications'),
     checkbox: (type: NotificationGlobalType) =>
       byRole('checkbox', {
-        name: `notification.dispatcher.descrption_x.notification.dispatcher.${type}`,
+        name: `notification.dispatcher.description_x.notification.dispatcher.${type}`,
       }),
   };
 
@@ -529,14 +533,15 @@ describe('notifications page', () => {
 
     await user.click(await projectUI.addButton.find());
     expect(projectUI.addModalButton.get()).toBeDisabled();
-    await user.type(projectUI.searchInput.get(), 'sonar');
+
+    await user.keyboard('sonar');
     // navigate within the two results, choose the first:
     await user.keyboard('[ArrowDown][ArrowDown][ArrowUp][Enter]');
     await user.click(projectUI.addModalButton.get());
 
     expect(projectUI.sonarQubeProject.get()).toBeInTheDocument();
     expect(
-      projectUI.checkbox(NotificationProjectType.NewFalsePositiveIssue).get()
+      projectUI.checkbox(NotificationProjectType.NewFalsePositiveIssue).get(),
     ).toBeInTheDocument();
 
     await user.click(projectUI.checkbox(NotificationProjectType.NewAlerts).get());
@@ -551,10 +556,10 @@ describe('notifications page', () => {
 
     renderAccountApp(mockLoggedInUser(), notificationsPagePath);
 
-    await user.click(
-      screen.getByRole('button', { name: 'my_profile.per_project_notifications.add' })
-    );
-    expect(screen.getByLabelText('search.placeholder', { selector: 'input' })).toBeInTheDocument();
+    await user.click(await projectUI.addButton.find());
+
+    expect(screen.getByLabelText('my_account.set_notifications_for.title')).toBeInTheDocument();
+
     await user.keyboard('sonarqube');
 
     await user.click(screen.getByText('SonarQube'));
@@ -567,11 +572,11 @@ describe('notifications page', () => {
     await user.click(screen.getByRole('searchbox'));
     await user.keyboard('bla');
 
-    expect(screen.queryByRole('heading', { name: 'SonarQube' })).not.toBeInTheDocument();
+    expect(projectUI.sonarQubeProject.query()).not.toBeInTheDocument();
 
     await user.keyboard('[Backspace>3/]');
 
-    expect(await screen.findByRole('heading', { name: 'SonarQube' })).toBeInTheDocument();
+    expect(await projectUI.sonarQubeProject.find()).toBeInTheDocument();
   });
 });
 
@@ -662,5 +667,27 @@ function getProjectBlock(projectName: string) {
 }
 
 function renderAccountApp(currentUser: CurrentUser, navigateTo?: string) {
-  renderAppRoutes('account', routes, { currentUser, navigateTo });
+  renderAppRoutes(
+    'account',
+    () => (
+      <Route
+        path="/"
+        element={
+          <>
+            <div id="component-nav-portal" />
+
+            <Outlet />
+          </>
+        }
+      >
+        {routes()}
+      </Route>
+    ),
+    { currentUser, navigateTo },
+  );
 }
+
+const ui = {
+  tokenTypeSelect: byRole('combobox', { name: 'users.tokens.type' }),
+  projectSelect: byRole('combobox', { name: 'users.tokens.project' }),
+};

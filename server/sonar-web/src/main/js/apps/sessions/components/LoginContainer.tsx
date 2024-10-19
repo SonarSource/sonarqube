@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { logIn } from '../../../api/auth';
 import { getLoginMessage } from '../../../api/settings';
 import { getIdentityProviders } from '../../../api/users';
-import { Location, withRouter } from '../../../components/hoc/withRouter';
-import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
@@ -68,13 +70,14 @@ export class LoginContainer extends React.PureComponent<Props, State> {
       },
       () => {
         /* already handled */
-      }
+      },
     );
   }
 
   async loadLoginMessage() {
     try {
       const { message } = await getLoginMessage();
+
       if (this.mounted) {
         this.setState({ message });
       }

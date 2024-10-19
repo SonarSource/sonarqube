@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,12 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 public class MetadataGenerator {
-  private static final Logger LOG = Loggers.get(MetadataGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataGenerator.class);
   static final Charset UTF_32BE = Charset.forName("UTF-32BE");
 
   static final Charset UTF_32LE = Charset.forName("UTF-32LE");
@@ -63,7 +63,9 @@ public class MetadataGenerator {
       inputFile.setCharset(charset);
       Metadata metadata = fileMetadata.readMetadata(is, charset, inputFile.absolutePath(), exclusionsScanner.createCharHandlerFor(inputFile));
       inputFile.setMetadata(metadata);
-      inputFile.setStatus(statusDetection.status(moduleKeyWithBranch, inputFile, metadata.hash()));
+      if(!inputFile.isStatusSet()) {
+        inputFile.setStatus(statusDetection.status(moduleKeyWithBranch, inputFile, metadata.hash()));
+      }
       LOG.debug("'{}' generated metadata{} with charset '{}'", inputFile, inputFile.type() == Type.TEST ? " as test " : "", charset);
     } catch (Exception e) {
       throw new IllegalStateException(e);

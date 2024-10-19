@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -37,17 +36,13 @@ public class ProjectWsRef {
   private final String key;
 
   private ProjectWsRef(@Nullable String uuid, @Nullable String key) {
+    validateUuidAndKeyPair(uuid, key);
     this.uuid = uuid;
     this.key = key;
-    checkRequest(this.uuid != null ^ this.key != null, MSG_ID_OR_KEY_MUST_BE_PROVIDED);
   }
 
-  public static Optional<ProjectWsRef> newOptionalWsProjectRef(@Nullable String uuid, @Nullable String key) {
-    if (uuid == null && key == null) {
-      return Optional.empty();
-    }
-
-    return Optional.of(new ProjectWsRef(uuid, key));
+  public static void validateUuidAndKeyPair(@Nullable String uuid, @Nullable String key) {
+    checkRequest(uuid != null ^ key != null, MSG_ID_OR_KEY_MUST_BE_PROVIDED);
   }
 
   public static ProjectWsRef newWsProjectRef(@Nullable String uuid, @Nullable String key) {

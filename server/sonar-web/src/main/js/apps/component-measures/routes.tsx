@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,14 @@
  */
 import React from 'react';
 import { Navigate, Route, useParams, useSearchParams } from 'react-router-dom';
+import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import NavigateWithParams from '../../app/utils/NavigateWithParams';
 import { omitNil } from '../../helpers/request';
-import { searchParamsToQuery } from '../../helpers/urls';
-import App from './components/App';
+import ComponentMeasuresApp from './components/ComponentMeasuresApp';
 
 const routes = () => (
   <Route path="component_measures">
-    <Route index={true} element={<App />} />
+    <Route index element={<ComponentMeasuresApp />} />
     <Route
       path="domain/:domainName"
       element={
@@ -58,10 +58,10 @@ function MetricRedirect() {
           id: searchParams.get('id') ?? undefined,
           graph: 'custom',
           custom_metrics: params.metricKey,
-        })
+        }),
       ).toString(),
     };
-    return <Navigate to={to} replace={true} />;
+    return <Navigate to={to} replace />;
   }
   const to = {
     pathname: '/component_measures',
@@ -70,10 +70,10 @@ function MetricRedirect() {
         ...searchParamsToQuery(searchParams),
         metric: params.metricKey,
         view: params.view,
-      })
+      }),
     ).toString(),
   };
-  return <Navigate to={to} replace={true} />;
+  return <Navigate to={to} replace />;
 }
 
 export default routes;

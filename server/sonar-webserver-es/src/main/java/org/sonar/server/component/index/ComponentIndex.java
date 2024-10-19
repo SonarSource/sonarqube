@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -105,8 +105,8 @@ public class ComponentIndex {
 
     source.query(esQuery);
 
-    SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
-      .source(source);
+    SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType()).source(source);
+
     return new SearchIdResult<>(client.search(request), id -> id, system2.getDefaultTimeZone().toZoneId());
   }
 

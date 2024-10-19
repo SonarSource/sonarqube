@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge, ListItem } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
@@ -24,49 +25,29 @@ import { Release, Update } from '../../../types/plugins';
 import PluginChangeLogButton from './PluginChangeLogButton';
 
 interface Props {
-  update: Update;
+  pluginName: string;
   release: Release;
+  update: Update;
 }
 
-interface State {
-  changelogOpen: boolean;
-}
-
-export default class PluginUpdateItem extends React.PureComponent<Props, State> {
-  state: State = { changelogOpen: false };
-
-  handleChangelogClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.toggleChangelog();
-  };
-
-  toggleChangelog = (show?: boolean) => {
-    if (show !== undefined) {
-      this.setState({ changelogOpen: show });
-    } else {
-      this.setState((state) => ({ changelogOpen: !state.changelogOpen }));
-    }
-  };
-
-  render() {
-    const { release, update } = this.props;
-    return (
-      <li className="display-flex-row little-spacer-bottom" key={release.version}>
-        <div className="pull-left spacer-right">
-          {update.status === 'COMPATIBLE' ? (
-            <span className="js-update-version badge badge-success">{release.version}</span>
-          ) : (
-            <Tooltip overlay={translate('marketplace.update_status', update.status)}>
-              <span className="js-update-version badge badge-warning">{release.version}</span>
-            </Tooltip>
-          )}
-        </div>
-        <div>
-          {release.description}
-          <PluginChangeLogButton release={release} update={update} />
-        </div>
-      </li>
-    );
-  }
+export default function PluginUpdateItem({ release, update, pluginName }: Readonly<Props>) {
+  return (
+    <ListItem className="sw-flex sw-items-center" key={release.version}>
+      <div className="sw-mr-2">
+        {update.status === 'COMPATIBLE' ? (
+          <Badge variant="new">{release.version}</Badge>
+        ) : (
+          <Tooltip content={translate('marketplace.update_status', update.status)}>
+            <span>
+              <Badge>{release.version}</Badge>
+            </span>
+          </Tooltip>
+        )}
+      </div>
+      <div>
+        {release.description}
+        <PluginChangeLogButton pluginName={pluginName} release={release} update={update} />
+      </div>
+    </ListItem>
+  );
 }

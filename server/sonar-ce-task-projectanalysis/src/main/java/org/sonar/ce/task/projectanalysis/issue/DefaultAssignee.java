@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,13 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import javax.annotation.CheckForNull;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserIdDto;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
@@ -36,13 +37,13 @@ import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
  */
 public class DefaultAssignee {
 
-  private static final Logger LOG = Loggers.get(DefaultAssignee.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultAssignee.class);
 
   private final DbClient dbClient;
   private final ConfigurationRepository configRepository;
 
   private boolean loaded = false;
-  private String userUuid = null;
+  private UserIdDto userId = null;
 
   public DefaultAssignee(DbClient dbClient, ConfigurationRepository configRepository) {
     this.dbClient = dbClient;
@@ -50,26 +51,26 @@ public class DefaultAssignee {
   }
 
   @CheckForNull
-  public String loadDefaultAssigneeUuid() {
+  public UserIdDto loadDefaultAssigneeUserId() {
     if (loaded) {
-      return userUuid;
+      return userId;
     }
     String login = configRepository.getConfiguration().get(DEFAULT_ISSUE_ASSIGNEE).orElse(null);
     if (!isNullOrEmpty(login)) {
-      userUuid = findValidUserUuidFromLogin(login);
+      userId = findValidUserUuidFromLogin(login);
     }
     loaded = true;
-    return userUuid;
+    return userId;
   }
 
-  private String findValidUserUuidFromLogin(String login) {
+  private UserIdDto findValidUserUuidFromLogin(String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
       if (user == null) {
         LOG.info("Property {} is set with an unknown login: {}", DEFAULT_ISSUE_ASSIGNEE, login);
         return null;
       }
-      return user.getUuid();
+      return new UserIdDto(user.getUuid(), user.getLogin());
     }
   }
 

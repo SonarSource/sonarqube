@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -79,7 +79,7 @@ public class DefaultActiveRules implements ActiveRules {
 
   @Override
   public Collection<ActiveRule> findAll() {
-    return activeRulesByRepository.entrySet().stream().flatMap(x -> x.getValue().stream()).collect(Collectors.toList());
+    return activeRulesByRepository.entrySet().stream().flatMap(x -> x.getValue().stream()).toList();
   }
 
   @Override

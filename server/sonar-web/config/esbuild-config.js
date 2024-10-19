@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,24 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 const autoprefixer = require('autoprefixer');
-const postCssPlugin = require('esbuild-plugin-postcss2').default;
+const postCssPlugin = require('./esbuild-postcss-plugin');
+const postcss = require('postcss');
 const postCssCalc = require('postcss-calc');
 const postCssCustomProperties = require('postcss-custom-properties');
+const tailwindcss = require('tailwindcss');
 const htmlPlugin = require('./esbuild-html-plugin');
 const htmlTemplate = require('./indexHtmlTemplate');
-const { getCustomProperties, TARGET_BROWSERS } = require('./utils');
+const {
+  getCustomProperties,
+  ESBUILD_TARGET_BROWSERS,
+  AUTOPREFIXER_BROWSER_LIST,
+} = require('./utils');
 
 module.exports = (release) => {
   const plugins = [
     postCssPlugin({
       plugins: [
-        autoprefixer,
+        autoprefixer({ overrideBrowserslist: AUTOPREFIXER_BROWSER_LIST }),
         postCssCustomProperties({
           importFrom: { customProperties: getCustomProperties() },
           preserve: false,
         }),
         postCssCalc,
+        tailwindcss('./tailwind.config.js'),
       ],
+      postcss,
     }),
   ];
 
@@ -48,7 +56,7 @@ module.exports = (release) => {
   return {
     entryPoints: ['src/main/js/app/index.ts'],
     tsconfig: './tsconfig.json',
-    external: ['/images/*'],
+    external: ['/images/*', '../fonts/*'],
     loader: {
       '.png': 'dataurl',
       '.md': 'text',
@@ -61,7 +69,7 @@ module.exports = (release) => {
     minify: release,
     metafile: true,
     sourcemap: true,
-    target: TARGET_BROWSERS,
+    target: ESBUILD_TARGET_BROWSERS,
     outdir: 'build/webapp/js',
     entryNames: release ? 'out[hash]' : 'out',
     plugins,

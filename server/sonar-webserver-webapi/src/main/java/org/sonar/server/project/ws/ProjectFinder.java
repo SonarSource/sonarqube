@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,10 +54,11 @@ public class ProjectFinder {
 
   public SearchResult search(DbSession dbSession, @Nullable String searchQuery) {
     List<ProjectDto> allProjects = dbClient.projectDao().selectProjects(dbSession);
-    Set<String> projectsUserHasAccessTo = userSession.keepAuthorizedProjects(UserRole.SCAN, allProjects)
-            .stream()
-            .map(ProjectDto::getKey)
-            .collect(toSet());
+
+    Set<String> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(UserRole.SCAN, allProjects)
+      .stream()
+      .map(ProjectDto::getKey)
+      .collect(toSet());
 
     applyQueryAndPermissionFilter(searchQuery, allProjects, projectsUserHasAccessTo);
     List<ProjectDto> projectsWithOrgLevelPermissions = searchProjectsWithOrgLevelPermissions(dbSession);

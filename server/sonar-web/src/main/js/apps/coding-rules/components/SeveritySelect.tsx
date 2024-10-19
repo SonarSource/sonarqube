@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,46 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSelect, LabelValueSelectOption } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps, OptionTypeBase, SingleValueProps } from 'react-select';
-import Select from '../../../components/controls/Select';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
+import { IssueSeverity } from '../../../types/issues';
 
 export interface SeveritySelectProps {
   isDisabled: boolean;
+  onChange: (value: LabelValueSelectOption<IssueSeverity>) => void;
   severity: string;
-  ariaLabelledby: string;
-  onChange: (value: OptionTypeBase) => void;
+}
+
+function Option(props: Readonly<OptionProps<LabelValueSelectOption<IssueSeverity>, false>>) {
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
+  return (
+    <components.Option {...props}>
+      <SeverityHelper className="sw-flex sw-items-center" severity={props.data.value} />
+    </components.Option>
+  );
+}
+
+function SingleValue(
+  props: Readonly<SingleValueProps<LabelValueSelectOption<IssueSeverity>, false>>,
+) {
+  return (
+    <components.SingleValue {...props}>
+      <SeverityHelper className="sw-flex sw-items-center" severity={props.data.value} />
+    </components.SingleValue>
+  );
 }
 
 export function SeveritySelect(props: SeveritySelectProps) {
-  const { isDisabled, severity, ariaLabelledby } = props;
+  const { isDisabled, severity } = props;
   const serverityOption = SEVERITIES.map((severity) => ({
     label: translate('severity', severity),
     value: severity,
   }));
 
-  function Option(props: OptionProps<OptionTypeBase, false>) {
-    return (
-      <components.Option {...props}>
-        <SeverityHelper className="display-flex-center" severity={props.data.value} />
-      </components.Option>
-    );
-  }
-
-  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
-    return (
-      <components.SingleValue {...props}>
-        <SeverityHelper className="display-flex-center" severity={props.data.value} />
-      </components.SingleValue>
-    );
-  }
-
   return (
-    <Select
-      aria-labelledby={ariaLabelledby}
+    <InputSelect
+      aria-label={translate('severity')}
+      inputId="coding-rules-severity-select"
       isDisabled={isDisabled}
       onChange={props.onChange}
       components={{ Option, SingleValue }}

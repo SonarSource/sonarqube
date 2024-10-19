@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package org.sonar.server.component.index;
 
 import org.junit.Test;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -44,7 +44,7 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
     UserDto user = newUserDto();
     userSession.logIn(user);
 
-    ComponentDto project = newProject("sonarqube", "Quality Product");
+    EntityDto project = newProject("sonarqube", "Quality Product");
     indexer.index(project);
 
     assertNoSearchResults("sonarqube");
@@ -59,7 +59,7 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
     GroupDto group = newGroupDto();
     userSession.logIn().setGroups(group);
 
-    ComponentDto project = newProject("sonarqube", "Quality Product");
+    EntityDto project = newProject("sonarqube", "Quality Product");
     indexer.index(project);
 
     assertNoSearchResults("sonarqube");

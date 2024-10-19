@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -133,7 +133,6 @@ public class QualityGatesServiceCreateResponseJsonParser implements Parser<Quali
     Qualitygates.CreateResponse.Builder builder = Qualitygates.CreateResponse.newBuilder();
     String json = readInputStream(input);
     JsonObject jobj = new Gson().fromJson(json, JsonObject.class);
-    builder.setId(jobj.get("id").getAsString());
     builder.setName(jobj.get("name").getAsString());
     return builder.build();
   }

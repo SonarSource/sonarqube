@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TableSeparator } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { translate } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
-import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 
 export interface GraphsTooltipsContentDuplicationProps {
@@ -30,13 +31,13 @@ export interface GraphsTooltipsContentDuplicationProps {
 }
 
 export default function GraphsTooltipsContentDuplication(
-  props: GraphsTooltipsContentDuplicationProps
+  props: Readonly<GraphsTooltipsContentDuplicationProps>,
 ) {
   const { addSeparator, measuresHistory, tooltipIdx } = props;
   const duplicationDensity = measuresHistory.find(
-    (measure) => measure.metric === MetricKey.duplicated_lines_density
+    (measure) => measure.metric === MetricKey.duplicated_lines_density,
   );
-  if (!duplicationDensity || !duplicationDensity.history[tooltipIdx]) {
+  if (!duplicationDensity?.history[tooltipIdx]) {
     return null;
   }
   const duplicationDensityValue = duplicationDensity.history[tooltipIdx].value;
@@ -44,20 +45,14 @@ export default function GraphsTooltipsContentDuplication(
     return null;
   }
   return (
-    <tbody>
-      {addSeparator && (
-        <tr>
-          <td className="activity-graph-tooltip-separator" colSpan={3}>
-            <hr />
-          </td>
-        </tr>
-      )}
-      <tr className="activity-graph-tooltip-line">
-        <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
-          {formatMeasure(duplicationDensityValue, 'PERCENT')}
+    <>
+      {addSeparator && <TableSeparator />}
+      <tr className="sw-h-8">
+        <td className="sw-font-bold sw-text-right sw-pr-2 thin" colSpan={2}>
+          {formatMeasure(duplicationDensityValue, MetricType.Percent)}
         </td>
         <td>{translate('metric.duplicated_lines_density.name')}</td>
       </tr>
-    </tbody>
+    </>
   );
 }

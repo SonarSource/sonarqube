@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,39 +19,6 @@
  */
 .overview {
   animation: fadeIn 0.5s forwards;
-}
-
-.overview-panel {
-  min-height: 100%;
-}
-
-.overview-panel-content {
-  background: white;
-  border: 1px solid var(--barBorderColor);
-}
-
-.overview-quality-gate-sonar-lint-info {
-  padding: 8px 16px;
-  border: 1px solid var(--barBorderColor);
-}
-
-.overview-panel-title {
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: var(--smallFontSize);
-  margin-bottom: var(--gridSize);
-}
-
-.overview-panel-padded {
-  padding: calc(2 * var(--gridSize));
-}
-
-.overview-panel-big-padded {
-  padding: calc(3 * var(--gridSize));
-}
-
-.overview-panel-huge-padded {
-  padding: calc(5 * var(--gridSize));
 }
 
 /*
@@ -92,47 +59,8 @@
   background: var(--veryLightGreen);
 }
 
-/*
- * Quality Gate
- */
-
-.overview-quality-gate-badge-large {
-  padding: calc(2 * var(--gridSize));
-  color: white;
-  box-sizing: border-box;
-}
-
-.overview-quality-gate-badge-large.failed {
-  background: var(--error700);
-}
-
-.overview-quality-gate-badge-large.success {
-  background: var(--success500);
-  height: 160px;
-}
-
-.overview-quality-gate-badge-large h3 {
-  color: white;
-}
-
 .overview-quality-gate-conditions-list {
   background-color: white;
-}
-
-.overview-quality-gate-conditions-project-name {
-  padding: calc(2 * var(--gridSize)) 0 calc(2 * var(--gridSize)) calc(2 * var(--gridSize));
-  font-size: var(--bigFontSize);
-}
-
-.overview-quality-gate-conditions-section-title {
-  border-bottom: 1px solid var(--barBorderColor);
-  margin: 0;
-  font-size: var(--baseFontSize);
-  background: var(--barBorderColor);
-}
-
-.overview-quality-gate-conditions-list-collapse {
-  margin: calc(2 * var(--gridSize)) 0;
 }
 
 .overview-quality-gate-condition,
@@ -145,18 +73,6 @@
 
 .overview-quality-gate-condition:hover {
   background-color: var(--rowHoverHighlight);
-}
-
-.overview-quality-gate-condition-container {
-  padding: calc(1.5 * var(--gridSize)) var(--gridSize) calc(1.5 * var(--gridSize))
-    calc(3 * var(--gridSize));
-  border-bottom: 1px solid var(--barBorderColor);
-}
-
-.overview-quality-gate-condition-value {
-  flex: 0 0 20%;
-  line-height: 1;
-  font-size: var(--bigFontSize);
 }
 
 /*
@@ -186,10 +102,6 @@
   max-width: 1260px;
 }
 
-.pr-overview-failed-conditions {
-  flex: 0 0 240px;
-}
-
 .pr-overview .overview-quality-gate-condition:first-of-type {
   margin-top: 0;
 }
@@ -208,43 +120,6 @@
 
 .pr-overview .overview-quality-gate-condition-warn {
   border-color: var(--orange);
-}
-
-.pr-overview .overview-quality-gate-condition:hover .overview-quality-gate-condition-container,
-.pr-overview .overview-quality-gate-condition:focus .overview-quality-gate-condition-container {
-  border-color: inherit;
-}
-
-.pr-overview .overview-quality-gate-condition-metric,
-.pr-overview .overview-quality-gate-condition-period {
-  display: block;
-  max-width: 125px;
-  line-height: 16px;
-  font-size: var(--smallFontSize);
-}
-
-.pr-overview .overview-quality-gate-condition-container {
-  min-width: 150px;
-  /* three lines by 16px and 4px margin */
-  min-height: 52px;
-  padding: var(--gridSize);
-  border-top: 1px solid var(--barBorderColor);
-  border-right: 1px solid var(--barBorderColor);
-  transition: border-color 0.3s ease;
-}
-
-.pr-overview .overview-quality-gate-condition-value {
-  font-size: var(--hugeFontSize);
-}
-
-.pr-overview .overview-quality-gate-badge-large {
-  width: 240px;
-  min-height: 160px;
-  color: var(--transparentWhite);
-}
-
-.pr-overview .overview-quality-gate-sonar-lint-info {
-  width: 207px;
 }
 
 .pr-pverview .overview-measures-row {
@@ -266,22 +141,8 @@
  */
 
 .overview-panel .activity-graph-legends {
-  justify-content: right;
-  margin-top: -30px;
-}
-
-.overview-panel .activity-graph-new-code-legend {
-  position: relative;
-  z-index: var(--aboveNormalZIndex);
-  width: 12px;
-  overflow: hidden;
-  margin-top: 1px;
-  margin-left: calc(2 * var(--gridSize));
-  text-indent: -9999px;
-}
-
-.overview-panel .activity-graph-new-code-legend::after {
-  margin: 0;
+  justify-content: right !important;
+  margin-top: -38px;
 }
 
 .overview-analysis {

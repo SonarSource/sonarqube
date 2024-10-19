@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,11 +27,15 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.ValueCase;
 
 import static java.util.Optional.of;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class BatchMeasureToMeasure {
 
-  public Optional<Measure> toMeasure(@Nullable ScannerReport.Measure batchMeasure, Metric metric) {
+  private BatchMeasureToMeasure() {
+    // utility class
+  }
+
+  public static Optional<Measure> toMeasure(@Nullable ScannerReport.Measure batchMeasure, Metric metric) {
     Objects.requireNonNull(metric);
     if (batchMeasure == null) {
       return Optional.empty();

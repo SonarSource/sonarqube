@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -32,12 +32,15 @@ import org.sonar.api.batch.sensor.issue.NewMessageFormatting;
 import org.sonar.api.issue.Issue;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.abbreviate;
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
+import static org.apache.commons.lang3.StringUtils.trim;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
+
+  private static final String NULL_CHARACTER = "\u0000";
+  private static final String NULL_REPLACEMENT = "[NULL]";
 
   private InputComponent component;
   private TextRange textRange;
@@ -65,7 +68,8 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public DefaultIssueLocation message(String message) {
     validateMessage(message);
-    this.message = abbreviate(trim(message), Issue.MESSAGE_MAX_SIZE);
+    String sanitizedMessage = sanitizeNulls(message);
+    this.message = abbreviate(trim(sanitizedMessage), Issue.MESSAGE_MAX_SIZE);
     return this;
   }
 
@@ -73,7 +77,8 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   public DefaultIssueLocation message(String message, List<NewMessageFormatting> newMessageFormattings) {
     validateMessage(message);
     validateFormattings(newMessageFormattings, message);
-    this.message = abbreviate(message,  Issue.MESSAGE_MAX_SIZE);
+    String sanitizedMessage = sanitizeNulls(message);
+    this.message = abbreviate(sanitizedMessage, Issue.MESSAGE_MAX_SIZE);
 
     for (NewMessageFormatting newMessageFormatting : newMessageFormattings) {
       DefaultMessageFormatting messageFormatting = (DefaultMessageFormatting) newMessageFormatting;
@@ -98,24 +103,17 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
       .forEach(e -> e.validate(message));
   }
 
-  private void validateMessage(String message) {
+  private static void validateMessage(String message) {
     requireNonNull(message, "Message can't be null");
-    if (message.contains("\u0000")) {
-      throw new IllegalArgumentException(unsupportedCharacterError(message, component));
-    }
+  }
+
+  private static String sanitizeNulls(String message) {
+    return StringUtils.replace(message, NULL_CHARACTER, NULL_REPLACEMENT);
   }
 
   @Override
   public NewMessageFormatting newMessageFormatting() {
     return new DefaultMessageFormatting();
-  }
-
-  private static String unsupportedCharacterError(String message, @Nullable InputComponent component) {
-    String error = "Character \\u0000 is not supported in issue message '" + message + "'";
-    if (component != null) {
-      error += ", on component: " + component.toString();
-    }
-    return error;
   }
 
   @Override

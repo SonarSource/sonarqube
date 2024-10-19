@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,8 @@ export function generateGitHubActionsYaml(
   mainBranchName: string,
   branchesEnabled: boolean,
   runsOn: string,
-  steps: string
+  steps: string,
+  additionalConfig?: string,
 ) {
   return `name: Build
 
@@ -33,10 +34,11 @@ ${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]
 
 jobs:
   build:
-    name: Build
+    name: Build and analyze
     runs-on: ${runsOn}
+    ${additionalConfig ?? ''}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis${steps}`;
 }

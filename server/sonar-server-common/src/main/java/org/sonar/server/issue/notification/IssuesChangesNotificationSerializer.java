@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
@@ -36,8 +38,6 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class IssuesChangesNotificationSerializer {
   private static final String FIELD_ISSUES_COUNT = "issues.count";
@@ -88,12 +88,13 @@ public class IssuesChangesNotificationSerializer {
     return issues.stream()
       .map(issue -> new ChangedIssue.Builder(issue.key)
         .setNewStatus(issue.newStatus)
-        .setNewResolution(issue.newResolution)
+        .setNewIssueStatus(issue.newIssueStatus == null ? null : IssueStatus.valueOf(issue.newIssueStatus))
+        .setOldIssueStatus(issue.oldIssueStatus == null ? null : IssueStatus.valueOf(issue.oldIssueStatus))
         .setAssignee(issue.assignee)
         .setRule(rules.get(issue.ruleKey))
         .setProject(projects.get(issue.projectUuid))
         .build())
-      .collect(toSet(issues.size()));
+      .collect(Collectors.toSet());
   }
 
   private static void serializeIssues(IssuesChangesNotification res, Set<ChangedIssue> issues) {
@@ -122,9 +123,11 @@ public class IssuesChangesNotificationSerializer {
         assignee.getName()
           .ifPresent(name -> notification.setFieldValue(issuePropertyPrefix + ".assignee.name", name));
       });
-    issue.getNewResolution()
-      .ifPresent(newResolution -> notification.setFieldValue(issuePropertyPrefix + ".newResolution", newResolution));
     notification.setFieldValue(issuePropertyPrefix + ".newStatus", issue.getNewStatus());
+    issue.getNewIssueStatus()
+      .ifPresent(newIssueStatus -> notification.setFieldValue(issuePropertyPrefix + ".newIssueStatus", newIssueStatus.name()));
+    issue.getOldIssueStatus()
+      .ifPresent(oldIssueStatus -> notification.setFieldValue(issuePropertyPrefix + ".oldIssueStatus", oldIssueStatus.name()));
     notification.setFieldValue(issuePropertyPrefix + ".ruleKey", issue.getRule().getKey().toString());
     notification.setFieldValue(issuePropertyPrefix + ".projectUuid", issue.getProject().getUuid());
   }
@@ -136,6 +139,8 @@ public class IssuesChangesNotificationSerializer {
       .setKey(getIssueFieldValue(notification, issuePropertyPrefix + ".key", index))
       .setNewStatus(getIssueFieldValue(notification, issuePropertyPrefix + ".newStatus", index))
       .setNewResolution(notification.getFieldValue(issuePropertyPrefix + ".newResolution"))
+      .setNewIssueStatus(notification.getFieldValue(issuePropertyPrefix + ".newIssueStatus"))
+      .setOldIssueStatus(notification.getFieldValue(issuePropertyPrefix + ".oldIssueStatus"))
       .setAssignee(assignee)
       .setRuleKey(getIssueFieldValue(notification, issuePropertyPrefix + ".ruleKey", index))
       .setProjectUuid(getIssueFieldValue(notification, issuePropertyPrefix + ".projectUuid", index))
@@ -174,7 +179,7 @@ public class IssuesChangesNotificationSerializer {
       .collect(Collectors.toSet())
       .stream()
       .map(ruleKey -> readRule(notification, ruleKey))
-      .collect(uniqueIndex(Rule::getKey, t -> t));
+      .collect(Collectors.toMap(Rule::getKey, Function.identity()));
   }
 
   private static Rule readRule(IssuesChangesNotification notification, RuleKey ruleKey) {
@@ -211,7 +216,7 @@ public class IssuesChangesNotificationSerializer {
           .setBranchName(notification.getFieldValue(projectPropertyPrefix + ".branchName"))
           .build();
       })
-      .collect(uniqueIndex(Project::getUuid, t -> t));
+      .collect(Collectors.toMap(Project::getUuid, Function.identity()));
   }
 
   private static String getProjectFieldValue(IssuesChangesNotification notification, String fieldName, String uuid) {
@@ -251,6 +256,10 @@ public class IssuesChangesNotificationSerializer {
     @CheckForNull
     private final String newResolution;
     @CheckForNull
+    private final String newIssueStatus;
+    @CheckForNull
+    private final String oldIssueStatus;
+    @CheckForNull
     private final User assignee;
     private final RuleKey ruleKey;
     private final String projectUuid;
@@ -262,9 +271,12 @@ public class IssuesChangesNotificationSerializer {
       this.assignee = builder.assignee;
       this.ruleKey = RuleKey.parse(builder.ruleKey);
       this.projectUuid = builder.projectUuid;
+      this.newIssueStatus = builder.newIssueStatus;
+      this.oldIssueStatus = builder.oldIssueStatus;
     }
 
     static class Builder {
+      private String oldIssueStatus = null;
       private String key = null;
       private String newStatus = null;
       @CheckForNull
@@ -273,6 +285,7 @@ public class IssuesChangesNotificationSerializer {
       private User assignee = null;
       private String ruleKey = null;
       private String projectUuid = null;
+      private String newIssueStatus = null;
 
       public Builder setKey(String key) {
         this.key = key;
@@ -286,6 +299,16 @@ public class IssuesChangesNotificationSerializer {
 
       public Builder setNewResolution(@Nullable String newResolution) {
         this.newResolution = newResolution;
+        return this;
+      }
+
+      public Builder setNewIssueStatus(@Nullable String newIssueStatus) {
+        this.newIssueStatus = newIssueStatus;
+        return this;
+      }
+
+      public Builder setOldIssueStatus(@Nullable String oldIssueStatus) {
+        this.oldIssueStatus = oldIssueStatus;
         return this;
       }
 

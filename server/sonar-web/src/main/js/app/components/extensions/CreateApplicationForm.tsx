@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  FormField,
+  InputField,
+  InputTextArea,
+  Modal,
+  RadioButton,
+} from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { createApplication } from '../../../api/application';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Radio from '../../../components/controls/Radio';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier, Visibility } from '../../../types/component';
 
 interface Props {
   onClose: () => void;
@@ -37,6 +40,7 @@ interface State {
   description: string;
   key: string;
   name: string;
+  submitting: boolean;
   visibility: Visibility;
 }
 
@@ -50,6 +54,7 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
       key: '',
       name: '',
       visibility: Visibility.Public,
+      submitting: false,
     };
   }
 
@@ -77,117 +82,115 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
     this.setState({ visibility });
   };
 
-  handleFormSubmit = () => {
+  handleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
     const { name, description, key, visibility } = this.state;
-    return createApplication(name, description, key.length > 0 ? key : undefined, visibility).then(
-      ({ application }) => {
+    this.setState({ submitting: true });
+    return createApplication(name, description, key.length > 0 ? key : undefined, visibility)
+      .then(({ application }) => {
         if (this.mounted) {
+          this.setState({ submitting: false });
           this.props.onCreate({
             key: application.key,
             qualifier: ComponentQualifier.Application,
           });
         }
-      }
+      })
+      .catch(() => {
+        this.setState({ submitting: false });
+      });
+  };
+
+  renderForm = () => {
+    const { name, description, key, visibility } = this.state;
+
+    return (
+      <form onSubmit={this.handleFormSubmit} id="create-application-form">
+        <MandatoryFieldsExplanation className="modal-field" />
+
+        <FormField
+          htmlFor="view-edit-name"
+          label={translate('name')}
+          required
+          requiredAriaLabel={translate('field_required')}
+        >
+          <InputField
+            autoFocus
+            id="view-edit-name"
+            maxLength={100}
+            name="name"
+            onChange={this.handleNameChange}
+            type="text"
+            size="full"
+            value={name}
+          />
+        </FormField>
+        <FormField htmlFor="view-edit-description" label={translate('description')}>
+          <InputTextArea
+            id="view-edit-description"
+            name="description"
+            onChange={this.handleDescriptionChange}
+            size="full"
+            value={description}
+          />
+        </FormField>
+        <FormField
+          htmlFor="view-edit-key"
+          label={translate('key')}
+          description={translate('onboarding.create_application.key.description')}
+        >
+          <InputField
+            autoComplete="off"
+            id="view-edit-key"
+            maxLength={256}
+            name="key"
+            onChange={this.handleKeyChange}
+            type="text"
+            size="full"
+            value={key}
+          />
+        </FormField>
+
+        <FormField label={translate('visibility')}>
+          {[Visibility.Public, Visibility.Private].map((v) => (
+            <RadioButton
+              key={v}
+              checked={visibility === v}
+              value={v}
+              onCheck={this.handleVisibilityChange}
+            >
+              {translate('visibility', v)}
+            </RadioButton>
+          ))}
+        </FormField>
+      </form>
     );
   };
 
   render() {
-    const { name, description, key, visibility } = this.state;
+    const { submitting } = this.state;
     const header = translate('qualifiers.create.APP');
     const submitDisabled = !this.state.name.length;
 
     return (
-      <SimpleModal
-        header={header}
+      <Modal
         onClose={this.props.onClose}
-        onSubmit={this.handleFormSubmit}
-        size="small"
-      >
-        {({ onCloseClick, onFormSubmit, submitting }) => (
-          <form className="views-form" onSubmit={onFormSubmit}>
-            <div className="modal-head">
-              <h2>{header}</h2>
-            </div>
-
-            <div className="modal-body">
-              <MandatoryFieldsExplanation className="modal-field" />
-
-              <div className="modal-field">
-                <label htmlFor="view-edit-name">
-                  {translate('name')}
-                  <MandatoryFieldMarker />
-                </label>
-                <input
-                  autoFocus={true}
-                  id="view-edit-name"
-                  maxLength={100}
-                  name="name"
-                  onChange={this.handleNameChange}
-                  size={50}
-                  type="text"
-                  value={name}
-                />
-              </div>
-              <div className="modal-field">
-                <label htmlFor="view-edit-description">{translate('description')}</label>
-                <textarea
-                  id="view-edit-description"
-                  name="description"
-                  onChange={this.handleDescriptionChange}
-                  value={description}
-                />
-              </div>
-              <div className="modal-field">
-                <label htmlFor="view-edit-key">{translate('key')}</label>
-                <input
-                  autoComplete="off"
-                  id="view-edit-key"
-                  maxLength={256}
-                  name="key"
-                  onChange={this.handleKeyChange}
-                  size={256}
-                  type="text"
-                  value={key}
-                />
-                <p className="modal-field-description">
-                  {translate('onboarding.create_application.key.description')}
-                </p>
-              </div>
-
-              <div className="modal-field">
-                <label>{translate('visibility')}</label>
-                <div className="little-spacer-top">
-                  {[Visibility.Public, Visibility.Private].map((v) => (
-                    <Radio
-                      className={`big-spacer-right visibility-${v}`}
-                      key={v}
-                      checked={visibility === v}
-                      value={v}
-                      onCheck={this.handleVisibilityChange}
-                    >
-                      {translate('visibility', v)}
-                    </Radio>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="modal-foot">
-              <DeferredSpinner className="spacer-right" loading={submitting} />
-              <SubmitButton disabled={submitting || submitDisabled}>
-                {translate('create')}
-              </SubmitButton>
-              <ResetButtonLink
-                className="js-modal-close"
-                id="view-edit-cancel"
-                onClick={onCloseClick}
-              >
-                {translate('cancel')}
-              </ResetButtonLink>
-            </div>
-          </form>
-        )}
-      </SimpleModal>
+        headerTitle={header}
+        isScrollable
+        loading={submitting}
+        body={this.renderForm()}
+        primaryButton={
+          <ButtonSecondary
+            disabled={submitting || submitDisabled}
+            form="create-application-form"
+            type="submit"
+          >
+            {translate('create')}
+          </ButtonSecondary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

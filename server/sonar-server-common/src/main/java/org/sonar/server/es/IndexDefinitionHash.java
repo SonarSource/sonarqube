@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,10 +23,10 @@ import com.google.common.collect.ImmutableSortedMap;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.server.es.newindex.BuiltIndex;
-
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * Hash of index definition is stored in the index itself in order to detect changes of mappings
@@ -44,8 +44,9 @@ class IndexDefinitionHash {
     return of(
       index.getSettings().toString(),
       Map.of(mainType.getIndex(), mainType),
-      index.getRelationTypes().stream().collect(uniqueIndex(IndexType.IndexRelationType::getName, t -> t)),
-      index.getAttributes());
+      index.getRelationTypes().stream().collect(Collectors.toMap(IndexType.IndexRelationType::getName, Function.identity())),
+      index.getAttributes(),
+      index.getCustomHashMetadata());
   }
 
   private static String of(String str, Map<?, ?>... maps) {

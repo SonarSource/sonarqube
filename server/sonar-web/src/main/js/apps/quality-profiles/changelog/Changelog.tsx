@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import { isSameMinute } from 'date-fns';
+import {
+  CellComponent,
+  ContentCell,
+  FlagMessage,
+  Link,
+  Note,
+  Table,
+  TableRow,
+  TableRowInteractive,
+} from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import { FormattedMessage, useIntl } from 'react-intl';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { parseDate } from '../../../helpers/dates';
-import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { ProfileChangelogEvent } from '../types';
 import ChangesList from './ChangesList';
@@ -34,67 +46,127 @@ interface Props {
 }
 
 export default function Changelog(props: Props) {
-  let isEvenRow = false;
+  const intl = useIntl();
+
   const sortedRows = sortBy(
     props.events,
     // sort events by date, rounded to a minute, recent events first
     (e) => -Number(parseDate(e.date)),
-    (e) => e.action
+    (e) => e.action,
   );
 
+  const isSameEventDate = (thisEvent: ProfileChangelogEvent, otherEvent?: ProfileChangelogEvent) =>
+    otherEvent !== undefined && isSameMinute(parseDate(otherEvent.date), parseDate(thisEvent.date));
+
+  const isSameEventAuthor = (
+    thisEvent: ProfileChangelogEvent,
+    otherEvent?: ProfileChangelogEvent,
+  ) => otherEvent !== undefined && otherEvent.authorName === thisEvent.authorName;
+
+  const isSameEventAction = (
+    thisEvent: ProfileChangelogEvent,
+    otherEvent?: ProfileChangelogEvent,
+  ) => otherEvent !== undefined && otherEvent.action === thisEvent.action;
+
   const rows = sortedRows.map((event, index) => {
-    const prev = index > 0 ? sortedRows[index - 1] : null;
-    const isSameDate = prev != null && isSameMinute(parseDate(prev.date), parseDate(event.date));
-    const isBulkChange =
-      prev != null &&
-      isSameDate &&
-      prev.authorName === event.authorName &&
-      prev.action === event.action;
+    const prevRow = sortedRows[index - 1];
+    const shouldDisplayDate = !isSameEventDate(event, prevRow);
+    const shouldDisplayAuthor = shouldDisplayDate || !isSameEventAuthor(event, prevRow);
+    const shouldDisplayAction = shouldDisplayAuthor || !isSameEventAction(event, prevRow);
 
-    if (!isBulkChange) {
-      isEvenRow = !isEvenRow;
-    }
+    const nextEventInDifferentGroup = sortedRows
+      .slice(index + 1)
+      .find((e) => !isSameEventDate(event, e));
 
-    const className = 'js-profile-changelog-event ' + (isEvenRow ? 'even' : 'odd');
+    const isNewSonarQubeVersion =
+      shouldDisplayDate &&
+      nextEventInDifferentGroup !== undefined &&
+      nextEventInDifferentGroup.sonarQubeVersion !== event.sonarQubeVersion;
 
     return (
-      <tr className={className} key={index}>
-        <td className="thin nowrap">{!isBulkChange && <DateTimeFormatter date={event.date} />}</td>
+      <TableRowInteractive key={index}>
+        <ContentCell
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-align-top')}
+        >
+          {shouldDisplayDate && (
+            <div>
+              <span className="sw-whitespace-nowrap">
+                <DateTimeFormatter date={event.date} />
+              </span>
 
-        <td className="thin nowrap">
-          {!isBulkChange &&
-            (event.authorName ? (
-              <span>{event.authorName}</span>
-            ) : (
-              <span className="note">System</span>
-            ))}
-        </td>
+              {isNewSonarQubeVersion && (
+                <div className="sw-mt-2 sw-whitespace-nowrap">
+                  <FlagMessage variant="info">
+                    <FormattedMessage
+                      id="quality_profiles.changelog.sq_upgrade"
+                      values={{
+                        sqVersion: event.sonarQubeVersion,
+                      }}
+                    />
+                  </FlagMessage>
+                </div>
+              )}
+            </div>
+          )}
+        </ContentCell>
 
-        <td className="thin nowrap">
-          {!isBulkChange && translate('quality_profiles.changelog', event.action)}
-        </td>
+        <ContentCell
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-whitespace-nowrap sw-align-top sw-max-w-[120px]')}
+        >
+          {shouldDisplayAuthor && (event.authorName ? event.authorName : <Note>System</Note>)}
+        </ContentCell>
 
-        <td className="quality-profile-changelog-rule-cell">
-          <Link to={getRulesUrl({ rule_key: event.ruleKey }, props.organization)}>{event.ruleName}</Link>
-        </td>
+        <ContentCell
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-whitespace-nowrap sw-align-top')}
+        >
+          {shouldDisplayAction &&
+            intl.formatMessage({ id: `quality_profiles.changelog.${event.action}` })}
+        </ContentCell>
 
-        <td>{event.params && <ChangesList changes={event.params} />}</td>
-      </tr>
+        <CellComponent
+          className={classNames('sw-align-top', { 'sw-border-transparent': !shouldDisplayDate })}
+        >
+          {event.ruleName && (
+            <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
+          )}
+          <div className="sw-mt-3 sw-flex sw-gap-2">
+            {event.cleanCodeAttributeCategory && (
+              <CleanCodeAttributePill
+                cleanCodeAttributeCategory={event.cleanCodeAttributeCategory}
+              />
+            )}
+            {event.impacts && <SoftwareImpactPillList softwareImpacts={event.impacts} />}
+          </div>
+        </CellComponent>
+
+        <ContentCell
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-align-top sw-max-w-[400px]')}
+        >
+          {event.params && <ChangesList changes={event.params} />}
+        </ContentCell>
+      </TableRowInteractive>
     );
   });
 
   return (
-    <table className="data zebra-hover">
-      <thead>
-        <tr>
-          <th className="thin nowrap">{translate('date')}</th>
-          <th className="thin nowrap">{translate('user')}</th>
-          <th className="thin nowrap">{translate('action')}</th>
-          <th>{translate('rule')}</th>
-          <th>{translate('parameters')}</th>
-        </tr>
-      </thead>
-      <tbody>{rows}</tbody>
-    </table>
+    <Table
+      columnCount={5}
+      columnWidths={['1%', '1%', '1%', 'auto', 'auto']}
+      header={
+        <TableRow>
+          <ContentCell>{intl.formatMessage({ id: 'date' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'user' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'action' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'rule' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'updates' })}</ContentCell>
+        </TableRow>
+      }
+    >
+      {rows}
+    </Table>
   );
 }

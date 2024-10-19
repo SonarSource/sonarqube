@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
+import { HttpStatusCode } from 'axios';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { axiosToCatch, post, postJSON } from '../helpers/request';
+import { CleanCodeAttribute, SoftwareImpact } from '../types/clean-code-taxonomy';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
 import { SearchRulesQuery } from '../types/rules';
-import { RuleActivation, RuleDetails, RulesUpdateRequest } from '../types/types';
+import {
+  RestRuleDetails,
+  RestRuleParameter,
+  RuleActivation,
+  RuleDetails,
+  RulesUpdateRequest,
+} from '../types/types';
+
+const RULES_ENDPOINT = '/api/v2/clean-code-policy/rules';
+
+export interface CreateRuleData {
+  cleanCodeAttribute: CleanCodeAttribute;
+  impacts: SoftwareImpact[];
+  key: string;
+  markdownDescription: string;
+  name: string;
+  parameters?: Partial<RestRuleParameter>[];
+  status?: string;
+  templateKey: string;
+}
 
 export function getRulesApp(organization: string): Promise<GetRulesAppResponse> {
   return getJSON('/api/rules/app', { organization }).catch(throwGlobalError);
@@ -31,9 +53,8 @@ export function searchRules(data: SearchRulesQuery): Promise<SearchRulesResponse
   return getJSON('/api/rules/search', data).catch(throwGlobalError);
 }
 
-export function takeFacet(response: SearchRulesResponse, property: string) {
-  const facet = response.facets?.find((f) => f.property === property);
-  return facet ? facet.values : [];
+export function listRules(data: SearchRulesQuery): Promise<SearchRulesResponse> {
+  return getJSON('/api/rules/list', data).catch(throwGlobalError);
 }
 
 export function getRuleRepositories(parameters: {
@@ -41,7 +62,7 @@ export function getRuleRepositories(parameters: {
 }): Promise<Array<{ key: string; language: string; name: string }>> {
   return getJSON('/api/rules/repositories', parameters).then(
     ({ repositories }) => repositories,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -57,30 +78,15 @@ export function getRuleTags(parameters: { organization?: string; ps?: number; q:
   return getJSON('/api/rules/tags', parameters).then((r) => r.tags, throwGlobalError);
 }
 
-export function createRule(data: {
-  custom_key: string;
-  markdown_description: string;
-  name: string;
-  organization: string;
-  params?: string;
-  prevent_reactivation?: boolean;
-  severity?: string;
-  status?: string;
-  template_key: string;
-  type?: string;
-}): Promise<RuleDetails> {
-  return postJSON('/api/rules/create', data).then(
-    (r) => r.rule,
-    (response) => {
-      // do not show global error if the status code is 409
-      // this case should be handled inside a component
-      if (response && response.status === 409) {
-        return Promise.reject(response);
-      } else {
-        return throwGlobalError(response);
-      }
+export function createRule(data: CreateRuleData): Promise<RestRuleDetails> {
+  return axiosToCatch.post<RuleDetails>(RULES_ENDPOINT, data).catch(({ response }) => {
+    // do not show global error if the status code is 409
+    // this case should be handled inside a component
+    if (response && response.status === HttpStatusCode.Conflict) {
+      return Promise.reject(response);
     }
-  );
+    return throwGlobalError(response);
+  });
 }
 
 export function deleteRule(parameters: { key: string; organization?: string }) {

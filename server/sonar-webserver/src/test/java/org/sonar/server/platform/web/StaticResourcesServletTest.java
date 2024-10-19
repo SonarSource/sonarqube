@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,11 +36,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.extension.CoreExtensionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -58,6 +59,7 @@ public class StaticResourcesServletTest {
 
   @Before
   public void setUp() throws Exception {
+    logTester.setLevel(Level.TRACE);
     jetty = new Server(0);
     ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
     context.setContextPath("/");
@@ -74,12 +76,14 @@ public class StaticResourcesServletTest {
     }
   }
 
-  private Response call(String path) throws Exception {
+  private Response callAndStop(String path) throws Exception {
     OkHttpClient client = new OkHttpClient();
     Request request = new Request.Builder()
       .url(jetty.getURI().resolve(path).toString())
       .build();
-    return client.newCall(request).execute();
+    Response response = client.newCall(request).execute();
+    jetty.stop();
+    return response;
   }
 
   @Test
@@ -87,7 +91,7 @@ public class StaticResourcesServletTest {
     system.pluginStream = IOUtils.toInputStream("bar");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    Response response = call("/static/myplugin/foo.txt");
+    Response response = callAndStop("/static/myplugin/foo.txt");
 
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar");
@@ -99,7 +103,7 @@ public class StaticResourcesServletTest {
     system.pluginStream = IOUtils.toInputStream("bar");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    Response response = call("/static/myplugin/foo/bar.txt");
+    Response response = callAndStop("/static/myplugin/foo/bar.txt");
 
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar");
@@ -111,7 +115,7 @@ public class StaticResourcesServletTest {
     system.coreExtensionStream = IOUtils.toInputStream("bar");
     when(coreExtensionRepository.isInstalled("coreext")).thenReturn(true);
 
-    Response response = call("/static/coreext/foo/bar.txt");
+    Response response = callAndStop("/static/coreext/foo/bar.txt");
 
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar");
@@ -125,7 +129,7 @@ public class StaticResourcesServletTest {
     system.coreExtensionStream = IOUtils.toInputStream("bar of core extension");
     when(coreExtensionRepository.isInstalled("samekey")).thenReturn(true);
 
-    Response response = call("/static/samekey/foo/bar.txt");
+    Response response = callAndStop("/static/samekey/foo/bar.txt");
 
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar of core extension");
@@ -138,7 +142,7 @@ public class StaticResourcesServletTest {
     system.pluginStream = IOUtils.toInputStream("bar");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.header("Content-Type")).isEqualTo("text/css");
     assertThat(response.body().string()).isEqualTo("bar");
@@ -149,11 +153,10 @@ public class StaticResourcesServletTest {
     system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.code()).isEqualTo(404);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -161,11 +164,10 @@ public class StaticResourcesServletTest {
     system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.code()).isEqualTo(404);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -174,12 +176,11 @@ public class StaticResourcesServletTest {
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
     when(pluginRepository.getPluginInfo("myplugin")).thenReturn(new PluginInfo("myplugin"));
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -188,11 +189,11 @@ public class StaticResourcesServletTest {
     system.isCommitted = true;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).contains("Response is committed. Cannot send error response code 404");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.TRACE)).contains("Response is committed. Cannot send error response code 404");
   }
 
   @Test
@@ -200,11 +201,11 @@ public class StaticResourcesServletTest {
     system.sendErrorException = new IOException("Simulating sendError throwing IOException");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).contains("Failed to send error code 404: java.io.IOException: Simulating sendError throwing IOException");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.TRACE)).contains("Failed to send error code 404: {}");
   }
 
   @Test
@@ -213,11 +214,11 @@ public class StaticResourcesServletTest {
     system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).contains("Response is committed. Cannot send error response code 404");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.TRACE)).contains("Response is committed. Cannot send error response code 404");
   }
 
   @Test
@@ -225,12 +226,12 @@ public class StaticResourcesServletTest {
     system.pluginStreamException = new ClientAbortException("Simulating ClientAbortException");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).contains(
-      "Client canceled loading resource [static/foo.css] from plugin [myplugin]: org.apache.catalina.connector.ClientAbortException: Simulating ClientAbortException");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.getLogs(Level.TRACE)).extracting(LogAndArguments::getFormattedMsg).contains(
+      "Client canceled loading resource [static/foo.css] from plugin [myplugin]: {}");
   }
 
   @Test
@@ -239,10 +240,10 @@ public class StaticResourcesServletTest {
     system.pluginStreamException = new RuntimeException("Simulating a error");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    Response response = call("/static/myplugin/foo.css");
+    Response response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Unable to load resource [static/foo.css] from plugin [myplugin]");
+    assertThat(logTester.logs(Level.ERROR)).contains("Unable to load resource [static/foo.css] from plugin [myplugin]");
   }
 
   private static class TestSystem extends StaticResourcesServlet.System {

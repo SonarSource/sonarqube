@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,15 @@ process.env.NODE_ENV = 'development';
 
 const fs = require('fs');
 const chalk = require('chalk');
+const chokidar = require('chokidar');
 const esbuild = require('esbuild');
 const http = require('http');
 const httpProxy = require('http-proxy');
 const getConfig = require('../config/esbuild-config');
 const { handleL10n } = require('./utils');
 const paths = require('../config/paths');
+const { spawn } = require('child_process');
+const { buildDesignSystem } = require('./build-design-system');
 
 const STATUS_OK = 200;
 const STATUS_ERROR = 500;
@@ -62,30 +65,30 @@ function handleStaticFileRequest(req, res) {
   });
 }
 
-function run() {
+const forceBuildDesignSystem = process.argv.includes('--force-build-design-system');
+
+async function run() {
   console.log('starting...');
-  esbuild
-    .serve(
-      {
-        servedir: 'build/webapp'
-      },
-      config
-    )
-    .then(result => {
+  const esbuildContext = await esbuild.context(config);
+  esbuildContext
+    .serve({
+      servedir: 'build/webapp',
+    })
+    .then((result) => {
       const { port: esbuildport } = result;
 
       const proxy = httpProxy.createProxyServer();
       const esbuildProxy = httpProxy.createProxyServer({
-        target: `http://localhost:${esbuildport}`
+        target: `http://localhost:${esbuildport}`,
       });
 
-      proxy.on('error', error => {
+      proxy.on('error', (error) => {
         console.error(chalk.blue('Backend'));
         console.error('\t', chalk.red(error.message));
         console.error('\t', error.stack);
       });
 
-      esbuildProxy.on('error', error => {
+      esbuildProxy.on('error', (error) => {
         console.error(chalk.cyan('Frontend'));
         console.error('\t', chalk.red(error.message));
         console.error('\t', error.stack);
@@ -115,9 +118,10 @@ function run() {
               req,
               res,
               {
-                target: proxyTarget
+                target: proxyTarget,
+                changeOrigin: true,
               },
-              e => console.error('req error', e)
+              (e) => console.error('req error', e),
             );
           } else {
             handleStaticFileRequest(req, res);
@@ -127,7 +131,14 @@ function run() {
 
       console.log(`server started: http://localhost:${port}`);
     })
-    .catch(e => console.error(e));
+    .catch((e) => console.error(e));
 }
 
-run();
+buildDesignSystem({ callback: run, force: forceBuildDesignSystem });
+
+chokidar
+  .watch('./design-system/src', {
+    ignored: /(^|[/\\])\../, // ignore dotfiles
+    persistent: true,
+  })
+  .on('change', () => buildDesignSystem({ force: true }));

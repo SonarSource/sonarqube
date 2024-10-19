@@ -1,0 +1,111 @@
+{
+   "left" : {
+      "key" : "xoo-profile-1-01234",
+      "name" : "Profile 1"
+   },
+   "right" : {
+      "key" : "xoo-profile-2-12345",
+      "name" : "Profile 2"
+   },
+   "same" : [
+      {
+         "key" : "blah:rule1",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule1",
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "impacts": [
+            {
+               "softwareQuality": "RELIABILITY",
+               "severity": "HIGH"
+            }
+         ]
+      }
+   ],
+   "inLeft" : [
+      {
+         "key" : "blah:rule2",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule2",
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "impacts": [
+            {
+               "softwareQuality": "RELIABILITY",
+               "severity": "HIGH"
+            }
+         ]
+      }
+   ],
+   "inRight" : [
+      {
+         "key" : "blah:rule3",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule3",
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "impacts": [
+            {
+               "softwareQuality": "RELIABILITY",
+               "severity": "HIGH"
+            }
+         ]
+      }
+   ],
+   "modified" : [
+      {
+         "key" : "blah:rule4",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule4",
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "impacts": [
+            {
+               "softwareQuality": "RELIABILITY",
+               "severity": "HIGH"
+            }
+         ],
+         "left" : {
+            "severity" : "BLOCKER",
+            "params" : {
+               "param_rule4" : "polop"
+            }
+         },
+         "right" : {
+            "severity" : "BLOCKER",
+            "params" : {
+               "param_rule4" : "palap"
+            }
+         }
+      },
+      {
+         "key" : "blah:rule5",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule5",
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "impacts": [
+            {
+               "softwareQuality": "RELIABILITY",
+               "severity": "HIGH"
+            }
+         ],
+         "left" : {
+            "severity" : "MINOR"
+         },
+         "right" : {
+            "severity" : "MAJOR"
+         }
+      }
+   ]
+}

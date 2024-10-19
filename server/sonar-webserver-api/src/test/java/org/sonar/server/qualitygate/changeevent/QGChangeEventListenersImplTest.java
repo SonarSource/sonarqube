@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,23 +28,24 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.groups.Tuple;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -78,6 +79,11 @@ public class QGChangeEventListenersImplTest {
   private final InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
 
   private final QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new LinkedHashSet<>(List.of(listener1, listener2, listener3)));
+
+  @Before
+  public void before() {
+    logTester.setLevel(Level.TRACE);
+  }
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_issues_are_empty() {
@@ -119,8 +125,14 @@ public class QGChangeEventListenersImplTest {
     inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verify(listener3).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verifyNoMoreInteractions();
-    assertThat(logTester.logs()).hasSize(4);
-    assertThat(logTester.logs(LoggerLevel.WARN)).hasSize(1);
+
+    assertThat(logTester.logs(Level.TRACE)).hasSizeGreaterThanOrEqualTo(3).contains(
+      format("calling onChange() on listener %s for events %s...", listener1.getClass().getName(), component1QGChangeEvent),
+      format("calling onChange() on listener %s for events %s...", listener2.getClass().getName(), component1QGChangeEvent),
+      format("calling onChange() on listener %s for events %s...", listener3.getClass().getName(), component1QGChangeEvent));
+    assertThat(logTester.logs(Level.WARN)).hasSizeGreaterThanOrEqualTo(1).contains(
+      format("onChange() call failed on listener %s for events %s", failingListener.getClass().getName(), component1QGChangeEvent));
+
   }
 
   @Test
@@ -136,18 +148,18 @@ public class QGChangeEventListenersImplTest {
     Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
     inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verifyNoMoreInteractions();
-    assertThat(logTester.logs()).hasSize(3);
-    assertThat(logTester.logs(LoggerLevel.WARN)).hasSize(1);
+    assertThat(logTester.logs(Level.TRACE)).hasSizeGreaterThanOrEqualTo(2).contains(
+      format("calling onChange() on listener %s for events %s...", listener1.getClass().getName(), component1QGChangeEvent),
+      format("calling onChange() on listener %s for events %s...", listener2.getClass().getName(), component1QGChangeEvent));
+    assertThat(logTester.logs(Level.WARN)).hasSizeGreaterThanOrEqualTo(1).contains("Broadcasting to listeners failed for 1 events");
   }
 
   @Test
   public void broadcastOnIssueChange_logs_each_listener_call_at_TRACE_level() {
     underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
-    assertThat(logTester.logs()).hasSize(3);
-    List<String> traceLogs = logTester.logs(LoggerLevel.TRACE);
-    assertThat(traceLogs).hasSize(3)
-      .containsOnly(
+    assertThat(logTester.logs(Level.TRACE)).hasSizeGreaterThanOrEqualTo(3)
+      .contains(
         "calling onChange() on listener " + listener1.getClass().getName() + " for events " + component1QGChangeEvent + "...",
         "calling onChange() on listener " + listener2.getClass().getName() + " for events " + component1QGChangeEvent + "...",
         "calling onChange() on listener " + listener3.getClass().getName() + " for events " + component1QGChangeEvent + "...");
@@ -201,7 +213,7 @@ public class QGChangeEventListenersImplTest {
       Arrays.stream(component4Issues),
       Stream.of(component5Issue))
       .flatMap(s -> s)
-      .collect(Collectors.toList());
+      .toList();
 
     List<DefaultIssue> changedIssues = randomizedList(issues);
     List<QGChangeEvent> qgChangeEvents = Stream.of(
@@ -210,7 +222,7 @@ public class QGChangeEventListenersImplTest {
       Arrays.stream(component3QGChangeEvents),
       Arrays.stream(component4QGChangeEvents))
       .flatMap(s -> s)
-      .collect(Collectors.toList());
+      .toList();
 
     underTest.broadcastOnIssueChange(changedIssues, randomizedList(qgChangeEvents), false);
 

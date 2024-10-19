@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,35 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
-import Link from '../../components/common/Link';
-import { getUrlForDoc } from '../../helpers/docs';
-import withAppStateContext, { WithAppStateContextProps } from './app-state/withAppStateContext';
+import { useUncataloguedDocUrl } from '../../helpers/docs';
 
 const PAUSE_REDIRECT = 1;
 
-function DocumentationRedirect({ appState }: WithAppStateContextProps) {
+export default function DocumentationRedirect() {
   const location = useLocation();
-  const url = getUrlForDoc(appState.version, location.pathname.replace(/^\/documentation/, ''));
+  const url = useUncataloguedDocUrl(location.pathname.replace(/^\/documentation/, '')) as string;
 
   return (
     <>
       <Helmet>
         <meta httpEquiv="refresh" content={`${PAUSE_REDIRECT}; url='${url}'`} />
       </Helmet>
-      <div className="global-loading">
-        <div className="display-flex-center">
-          <i className="spinner global-loading-spinner" />
-          <span className="spacer-left global-loading-text">Redirecting...</span>
+      <div className="sw-flex sw-flex-col sw-items-center sw-gap-4 sw-h-[100vh]">
+        <div className="global-loading">
+          <i className="global-loading-spinner" />
+          <span className="global-loading-text">Redirecting...</span>
         </div>
-        <div className="display-flex-justify-content spacer-top large">
-          <Link to={url}>Click here if you&apos;re not being redirected automatically</Link>
+        <div>
+          <LinkStandalone to={url}>
+            Click here if you&apos;re not being redirected automatically
+          </LinkStandalone>
         </div>
       </div>
     </>
   );
 }
-
-export default withAppStateContext(DocumentationRedirect);

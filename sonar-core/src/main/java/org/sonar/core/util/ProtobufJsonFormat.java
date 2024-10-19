@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -222,7 +222,8 @@ public class ProtobufJsonFormat {
         writer.value((String) value);
         break;
       case ENUM:
-        writer.value(((Descriptors.EnumValueDescriptor) value).getName());
+        String enumValue = formatEnumValue(fieldDescriptor, (Descriptors.EnumValueDescriptor) value);
+        writer.value(enumValue);
         break;
       case MESSAGE:
         writeMessageValue((Message) value, writer);
@@ -230,6 +231,20 @@ public class ProtobufJsonFormat {
       default:
         throw new IllegalStateException(String.format("JSON format does not support type '%s' of field '%s'", fieldDescriptor.getJavaType(), fieldDescriptor.getName()));
     }
+  }
+
+  /**
+   * As a limitation from protobuf, there can't be the same enum value defined twice in proto, even if they belong to different enums.
+   * To remove this constraint, we let the possibility to have the enum name as the prefix of the enum value to make it unique.
+   * The class will make sure to remove it when converted to JSON.
+   *  @see <a href="https://github.com/protocolbuffers/protobuf/issues/5425">https://github.com/protocolbuffers/protobuf/issues/5425</a>
+   */
+  private static String formatEnumValue(Descriptors.FieldDescriptor fieldDescriptor, Descriptors.EnumValueDescriptor value) {
+    String enumValue = value.getName();
+    if (enumValue.startsWith(fieldDescriptor.getEnumType().getName())) {
+      enumValue = enumValue.substring(fieldDescriptor.getEnumType().getName().length() + 1);
+    }
+    return enumValue;
   }
 
   private static void writeMessageValue(Message message, JsonWriter writer) {

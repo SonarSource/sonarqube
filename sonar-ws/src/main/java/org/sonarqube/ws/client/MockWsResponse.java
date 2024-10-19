@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,15 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.*;
 
 public class MockWsResponse extends BaseResponse {
 
@@ -62,6 +65,13 @@ public class MockWsResponse extends BaseResponse {
     return Optional.ofNullable(headers.get(name));
   }
 
+  @Override
+  public Map<String, List<String>> headers() {
+    return headers.entrySet()
+      .stream()
+      .collect(toMap(Map.Entry::getKey, e -> Collections.singletonList(e.getValue())));
+  }
+
   public MockWsResponse setContentType(String contentType) {
     headers.put(CONTENT_TYPE_HEADER, contentType);
     return this;
@@ -84,6 +94,11 @@ public class MockWsResponse extends BaseResponse {
 
   public MockWsResponse setContent(String s) {
     this.content = s.getBytes(StandardCharsets.UTF_8);
+    return this;
+  }
+
+  public MockWsResponse setHeader(String key, String value) {
+    this.headers.put(key, value);
     return this;
   }
 

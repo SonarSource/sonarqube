@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,22 +21,18 @@ package org.sonar.server.pushapi.sonarlint;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import javax.servlet.AsyncContext;
 import org.sonar.server.pushapi.ServerPushClient;
 
 public class SonarLintClient extends ServerPushClient {
-
-  private static final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
   private final Set<String> languages;
   private final Set<String> projectUuids;
 
   private final String userUuid;
 
-  public SonarLintClient(AsyncContext asyncContext, Set<String> projectUuids, Set<String> languages, String userUuid) {
-    super(scheduledExecutorService, asyncContext);
+  public SonarLintClient(SonarLintPushEventExecutorService executorService, AsyncContext asyncContext, Set<String> projectUuids, Set<String> languages, String userUuid) {
+    super(executorService, asyncContext);
     this.projectUuids = projectUuids;
     this.languages = languages;
     this.userUuid = userUuid;

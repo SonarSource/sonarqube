@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,161 +17,86 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { HighlightRing } from 'design-system';
 import * as React from 'react';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IssueResponse } from '../../../types/issues';
-import { Issue, RawQuery } from '../../../types/types';
-import { updateIssue } from '../actions';
+import { IssueActions } from '../../../types/issues';
+import { Issue } from '../../../types/types';
 import IssueAssign from './IssueAssign';
-import IssueCommentAction from './IssueCommentAction';
-import IssueSeverity from './IssueSeverity';
 import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
-import IssueType from './IssueType';
+import SonarLintBadge from './SonarLintBadge';
 
 interface Props {
-  issue: Issue;
+  canSetTags?: boolean;
   currentPopup?: string;
+  issue: Issue;
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
+  showSonarLintBadge?: boolean;
+  showTags?: boolean;
   togglePopup: (popup: string, show?: boolean) => void;
-  className?: string;
-  showCommentsInPopup?: boolean;
 }
 
-interface State {
-  commentAutoTriggered: boolean;
-  commentPlaceholder: string;
-}
+export default function IssueActionsBar(props: Readonly<Props>) {
+  const {
+    issue,
+    currentPopup,
+    onAssign,
+    onChange,
+    togglePopup,
+    showSonarLintBadge,
+    showTags,
+    canSetTags,
+  } = props;
 
-export default class IssueActionsBar extends React.PureComponent<Props, State> {
-  state: State = {
-    commentAutoTriggered: false,
-    commentPlaceholder: '',
-  };
+  const canAssign = issue.actions.includes(IssueActions.Assign);
+  const tagsPopupOpen = currentPopup === 'edit-tags' && canSetTags;
 
-  setIssueProperty = (
-    property: keyof Issue,
-    popup: string,
-    apiCall: (query: RawQuery) => Promise<IssueResponse>,
-    value: string
-  ) => {
-    const { issue } = this.props;
-    if (issue[property] !== value) {
-      const newIssue = { ...issue, [property]: value };
-      updateIssue(
-        this.props.onChange,
-        apiCall({ issue: issue.key, [property]: value }),
-        issue,
-        newIssue
-      );
-    }
-    this.props.togglePopup(popup, false);
-  };
+  return (
+    <div className="sw-flex sw-gap-3 sw-min-w-0">
+      <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-typo-default sw-min-w-0">
+        <HighlightRing
+          as="li"
+          className="sw-relative"
+          data-guiding-id={`issue-transition-${issue.key}`}
+        >
+          <IssueTransition
+            isOpen={currentPopup === 'transition'}
+            togglePopup={togglePopup}
+            issue={issue}
+            onChange={onChange}
+          />
+        </HighlightRing>
 
-  toggleComment = (open: boolean | undefined, placeholder = '', autoTriggered = false) => {
-    this.setState({
-      commentPlaceholder: placeholder,
-      commentAutoTriggered: autoTriggered,
-    });
-    this.props.togglePopup('comment', open);
-  };
+        <li className="sw-min-w-0">
+          <IssueAssign
+            isOpen={currentPopup === 'assign'}
+            togglePopup={togglePopup}
+            canAssign={canAssign}
+            issue={issue}
+            onAssign={onAssign}
+          />
+        </li>
 
-  handleTransition = (issue: Issue) => {
-    this.props.onChange(issue);
-    if (
-      issue.resolution === 'FALSE-POSITIVE' ||
-      (issue.resolution === 'WONTFIX' && issue.type !== 'SECURITY_HOTSPOT')
-    ) {
-      this.toggleComment(true, translate('issue.comment.explain_why'), true);
-    }
-  };
-
-  render() {
-    const { issue, className, showCommentsInPopup } = this.props;
-    const canAssign = issue.actions.includes('assign');
-    const canComment = issue.actions.includes('comment');
-    const canSetSeverity = issue.actions.includes('set_severity');
-    const canSetType = issue.actions.includes('set_type');
-    const canSetTags = issue.actions.includes('set_tags');
-    const hasTransitions = issue.transitions && issue.transitions.length > 0;
-    const isSecurityHotspot = issue.type === 'SECURITY_HOTSPOT';
-
-    return (
-      <div className={classNames(className, 'issue-actions')}>
-        <div className="issue-meta-list">
-          <div className="issue-meta">
-            <IssueType
-              canSetType={canSetType}
-              isOpen={this.props.currentPopup === 'set-type' && canSetType}
-              issue={issue}
-              setIssueProperty={this.setIssueProperty}
-              togglePopup={this.props.togglePopup}
-            />
-          </div>
-          {!isSecurityHotspot && (
-            <div className="issue-meta">
-              <IssueSeverity
-                canSetSeverity={canSetSeverity}
-                isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
-                issue={issue}
-                setIssueProperty={this.setIssueProperty}
-                togglePopup={this.props.togglePopup}
-              />
-            </div>
-          )}
-          <div className="issue-meta">
-            <IssueTransition
-              hasTransitions={hasTransitions}
-              isOpen={this.props.currentPopup === 'transition' && hasTransitions}
-              issue={issue}
-              onChange={this.handleTransition}
-              togglePopup={this.props.togglePopup}
-            />
-          </div>
-          <div className="issue-meta">
-            <IssueAssign
-              canAssign={canAssign}
-              isOpen={this.props.currentPopup === 'assign' && canAssign}
-              issue={issue}
-              onAssign={this.props.onAssign}
-              togglePopup={this.props.togglePopup}
-            />
-          </div>
-          {!isSecurityHotspot && issue.effort && (
-            <div className="issue-meta">
-              <span className="issue-meta-label">
-                {translateWithParameters('issue.x_effort', issue.effort)}
-              </span>
-            </div>
-          )}
-          {(canComment || showCommentsInPopup) && (
-            <IssueCommentAction
-              commentAutoTriggered={this.state.commentAutoTriggered}
-              commentPlaceholder={this.state.commentPlaceholder}
-              currentPopup={this.props.currentPopup}
-              issueKey={issue.key}
-              onChange={this.props.onChange}
-              toggleComment={this.toggleComment}
-              comments={issue.comments}
-              canComment={canComment}
-              showCommentsInPopup={showCommentsInPopup}
-            />
-          )}
-        </div>
-        <div className="list-inline">
-          <div className="issue-meta js-issue-tags">
+        {showTags && (
+          <li>
             <IssueTags
               canSetTags={canSetTags}
-              isOpen={this.props.currentPopup === 'edit-tags' && canSetTags}
               issue={issue}
-              onChange={this.props.onChange}
-              togglePopup={this.props.togglePopup}
+              onChange={props.onChange}
+              open={tagsPopupOpen}
+              togglePopup={props.togglePopup}
+              tagsToDisplay={1}
             />
-          </div>
-        </div>
-      </div>
-    );
-  }
+          </li>
+        )}
+
+        {showSonarLintBadge && issue.quickFixAvailable && (
+          <li>
+            <SonarLintBadge />
+          </li>
+        )}
+      </ul>
+    </div>
+  );
 }

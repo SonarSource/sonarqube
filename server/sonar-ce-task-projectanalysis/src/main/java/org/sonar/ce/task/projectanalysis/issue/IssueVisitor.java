@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 
 public abstract class IssueVisitor {
 
@@ -41,6 +43,13 @@ public abstract class IssueVisitor {
    * are ignored.
    */
   public void onIssue(Component component, DefaultIssue issue) {
+
+  }
+
+  /**
+   * This method is called for all raw issues of a component before tracking is done.
+   */
+  public void onRawIssues(Component component, Input<DefaultIssue> rawIssues, @Nullable Input<DefaultIssue> baseIssues) {
 
   }
 

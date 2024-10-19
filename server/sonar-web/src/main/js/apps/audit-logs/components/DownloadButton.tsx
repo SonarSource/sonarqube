@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
 import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { ButtonPrimary } from 'design-system';
 import * as React from 'react';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import '../style.css';
 import { RangeOption } from '../utils';
 
@@ -63,7 +63,7 @@ function getRangeParams(selection: RangeOption, dateRange?: { from?: Date; to?: 
   }).toString();
 }
 
-export default function DownloadButton(props: DownloadButtonProps) {
+export default function DownloadButton(props: Readonly<DownloadButtonProps>) {
   const { dateRange, downloadStarted, selection } = props;
 
   const downloadDisabled =
@@ -73,24 +73,23 @@ export default function DownloadButton(props: DownloadButtonProps) {
 
   const downloadUrl = downloadDisabled
     ? '#'
-    : `${getBaseUrl()}/api/audit_logs/download?${getRangeParams(selection, dateRange)}`;
+    : `/api/audit_logs/download?${getRangeParams(selection, dateRange)}`;
 
   return (
     <>
-      <a
-        className={classNames('button button-primary', { disabled: downloadDisabled })}
+      <ButtonPrimary
         download="audit_logs.json"
+        disabled={downloadDisabled}
         aria-disabled={downloadDisabled}
         onClick={downloadDisabled ? undefined : props.onStartDownload}
-        href={downloadUrl}
-        rel="noopener noreferrer"
+        to={downloadUrl}
         target="_blank"
       >
         {translate('download_verb')}
-      </a>
+      </ButtonPrimary>
 
       {downloadStarted && (
-        <div className="spacer-top">
+        <div className="sw-mt-2">
           <p>{translate('audit_logs.download_start.sentence.1')}</p>
           <p>{translate('audit_logs.download_start.sentence.2')}</p>
           <br />

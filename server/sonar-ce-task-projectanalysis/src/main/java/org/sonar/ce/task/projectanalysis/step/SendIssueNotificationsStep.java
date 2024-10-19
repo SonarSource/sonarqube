@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -59,7 +58,6 @@ import org.sonar.server.notification.NotificationService;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 /**
@@ -189,8 +187,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
       .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
       .setProjectVersion(project.getProjectAttributes().getProjectVersion())
       .setAnalysisDate(new Date(analysisDate))
-      .setStatistics(project.getName(), globalStatistics)
-      .setDebt(Duration.create(globalStatistics.effort().getOnCurrentAnalysis()));
+      .setStatistics(project.getName(), globalStatistics);
     notificationStatistics.newIssuesDeliveries += service.deliverEmails(singleton(notification));
     notificationStatistics.newIssues++;
 
@@ -214,12 +211,11 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
           .setProjectVersion(project.getProjectAttributes().getProjectVersion())
           .setAnalysisDate(new Date(analysisDate))
-          .setStatistics(project.getName(), assigneeStatistics)
-          .setDebt(Duration.create(assigneeStatistics.effort().getOnCurrentAnalysis()));
+          .setStatistics(project.getName(), assigneeStatistics);
 
         return myNewIssuesNotification;
       })
-      .collect(toSet(statistics.getAssigneesStatistics().size()));
+      .collect(Collectors.toSet());
 
     notificationStatistics.myNewIssuesDeliveries += service.deliverEmails(myNewIssuesNotifications);
     notificationStatistics.myNewIssues += myNewIssuesNotifications.size();

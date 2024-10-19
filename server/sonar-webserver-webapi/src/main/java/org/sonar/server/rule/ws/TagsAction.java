@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,16 +34,14 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.Pagination;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.index.RuleIndex;
 
 public class TagsAction implements RulesWsAction {
 
-  private final RuleIndex ruleIndex;
   private final DbClient dbClient;
 
-  public TagsAction(RuleIndex ruleIndex, DbClient dbClient) {
-    this.ruleIndex = ruleIndex;
+  public TagsAction(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
@@ -74,8 +72,11 @@ public class TagsAction implements RulesWsAction {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
 
-    List<String> tags = ruleIndex.listTags(organization, query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
-    writeResponse(response, tags);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Pagination pagination = Pagination.forPage(1).andSize(pageSize == 0 ? 500 : pageSize);
+      List<String> tags = dbClient.ruleDao().selectTags(dbSession, organization.getUuid(), query, pagination);
+      writeResponse(response, tags);
+    }
   }
 
   private OrganizationDto getOrganization(@Nullable String organizationKey) {

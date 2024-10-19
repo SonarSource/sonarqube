@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,14 +20,12 @@
 package org.sonar.server.authentication.ws;
 
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -37,7 +35,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
-public class LogoutAction extends ServletFilter implements AuthenticationWsAction {
+public class LogoutAction extends HttpFilter implements AuthenticationWsAction {
 
   private static final String LOGOUT_ACTION = "logout";
   public static final String LOGOUT_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + LOGOUT_ACTION;
@@ -65,10 +63,7 @@ public class LogoutAction extends ServletFilter implements AuthenticationWsActio
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) {
     if (!request.getMethod().equals(POST.name())) {
       response.setStatus(HTTP_BAD_REQUEST);
       return;
@@ -76,7 +71,7 @@ public class LogoutAction extends ServletFilter implements AuthenticationWsActio
     logout(request, response);
   }
 
-  private void logout(HttpServletRequest request, HttpServletResponse response) {
+  private void logout(HttpRequest request, HttpResponse response) {
     generateAuthenticationEvent(request, response);
     jwtHttpHandler.removeToken(request, response);
   }
@@ -84,7 +79,7 @@ public class LogoutAction extends ServletFilter implements AuthenticationWsActio
   /**
    * The generation of the authentication event should not prevent the removal of JWT cookie, that's why it's done in a separate method
    */
-  private void generateAuthenticationEvent(HttpServletRequest request, HttpServletResponse response) {
+  private void generateAuthenticationEvent(HttpRequest request, HttpResponse response) {
     try {
       Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
       String userLogin = token.map(value -> value.getUserDto().getLogin()).orElse(null);
@@ -95,7 +90,7 @@ public class LogoutAction extends ServletFilter implements AuthenticationWsActio
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // Nothing to do
   }
 

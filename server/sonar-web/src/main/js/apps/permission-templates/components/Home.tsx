@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../../helpers/l10n';
@@ -25,28 +26,31 @@ import Header from './Header';
 import List from './List';
 
 interface Props {
+  organization: Organization;
   permissionTemplates: PermissionTemplate[];
   permissions: Permission[];
   ready: boolean;
   refresh: () => Promise<void>;
   topQualifiers: string[];
-  organization: Organization;
 }
 
 export default function Home(props: Props) {
   return (
-    <div className="page page-limited">
-      <Helmet defer={false} title={translate('permission_templates.page')} />
+    <LargeCenteredLayout id="users-page">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
+        <Helmet defer={false} title={translate('permission_templates.page')} />
 
-      <Header ready={props.ready} refresh={props.refresh} />
+        <Header ready={props.ready} refresh={props.refresh} />
 
-      <List
-        permissionTemplates={props.permissionTemplates}
-        permissions={props.permissions}
-        refresh={props.refresh}
-        topQualifiers={props.topQualifiers}
-        organization={props.organization}
-      />
-    </div>
+        <main>
+          <List
+            permissionTemplates={props.permissionTemplates}
+            permissions={props.permissions}
+            refresh={props.refresh}
+            topQualifiers={props.topQualifiers}
+          />
+        </main>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }

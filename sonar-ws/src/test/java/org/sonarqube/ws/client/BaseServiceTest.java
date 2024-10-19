@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,11 +38,12 @@ public class BaseServiceTest {
 
       public void test() {
         GetRequest get = new GetRequest(path("issue")).setMediaType(MediaTypes.JSON);
-        when(wsConnector.call(get)).thenReturn(new MockWsResponse().setContent("ok"));
+        when(wsConnector.call(get)).thenReturn(new MockWsResponse().setContent("ok").setHeader("header", "value"));
 
         WsResponse response = call(get);
 
         assertThat(response.content()).isEqualTo("ok");
+        assertThat(response.headers()).hasEntrySatisfying("header", headerValues -> headerValues.contains("value"));
       }
 
     }.test();

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
-import org.sonar.core.sarif.Sarif210;
+import org.sonar.sarif.pojo.SarifSchema210;
 
 public interface Sarif210Importer {
 
@@ -28,5 +28,5 @@ public interface Sarif210Importer {
    * @param sarif210 the deserialized sarif report
    * @return the number of issues imported
    */
-  SarifImportResults importSarif(Sarif210 sarif210);
+  SarifImportResults importSarif(SarifSchema210 sarif210);
 }

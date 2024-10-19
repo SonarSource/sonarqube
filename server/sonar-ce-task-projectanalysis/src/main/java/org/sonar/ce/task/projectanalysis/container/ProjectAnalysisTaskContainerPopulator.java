@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,6 @@ import org.sonar.ce.task.projectanalysis.component.FileStatusesImpl;
 import org.sonar.ce.task.projectanalysis.component.PreviousSourceHashRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
-import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
@@ -53,7 +52,10 @@ import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryImp
 import org.sonar.ce.task.projectanalysis.filemove.ScoreMatrixDumperImpl;
 import org.sonar.ce.task.projectanalysis.filemove.SourceSimilarityImpl;
 import org.sonar.ce.task.projectanalysis.filesystem.ComputationTempFolderProvider;
+import org.sonar.ce.task.projectanalysis.issue.AnticipatedTransitionRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.index.IndexDiffResolverImpl;
 import org.sonar.ce.task.projectanalysis.issue.BaseIssuesLoader;
+import org.sonar.ce.task.projectanalysis.issue.ChangedIssuesRepository;
 import org.sonar.ce.task.projectanalysis.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.ce.task.projectanalysis.issue.ClosedIssuesInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesLoader;
@@ -96,15 +98,10 @@ import org.sonar.ce.task.projectanalysis.issue.TrackerRawInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerReferenceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerSourceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerTargetBranchInputFactory;
+import org.sonar.ce.task.projectanalysis.issue.TransitionIssuesToAnticipatedStatesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.BranchCoverageRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommentDensityRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngineImpl;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.DuplicatedBlockRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.LineCoverageRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.SkippedTestRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.TestErrorRule;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.ce.task.projectanalysis.issue.fixedissues.PullRequestFixedIssueRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.language.LanguageRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
 import org.sonar.ce.task.projectanalysis.measure.MeasureComputersHolderImpl;
@@ -129,7 +126,9 @@ import org.sonar.ce.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.ce.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.SecurityReviewMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.ce.task.projectanalysis.qualityprofile.PrioritizedRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QualityProfileRuleChangeResolver;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.DbLineHashVersion;
@@ -199,8 +198,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // File System
       new ComputationTempFolderProvider(),
 
-      ReportModulesPath.class,
       FileStatusesImpl.class,
+      IndexDiffResolverImpl.class,
       new MetricModule(),
 
       // holders
@@ -209,6 +208,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
       PeriodHolderImpl.class,
+      PrioritizedRulesHolderImpl.class,
       QualityGateHolderImpl.class,
       QualityGateStatusHolderImpl.class,
       RatingSettings.class,
@@ -244,6 +244,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SourceLineReadersFactory.class,
       QProfileStatusRepositoryImpl.class,
       IssueChangesToDeleteRepository.class,
+      PullRequestFixedIssueRepositoryImpl.class,
 
       // issues
       RuleRepositoryImpl.class,
@@ -259,22 +260,15 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssueFilter.class,
 
       FlowGenerator.class,
+      QualityProfileRuleChangeResolver.class,
       // push events
       PushEventFactory.class,
-
-      // common rules
-      CommonRuleEngineImpl.class,
-      BranchCoverageRule.class,
-      LineCoverageRule.class,
-      CommentDensityRule.class,
-      DuplicatedBlockRule.class,
-      TestErrorRule.class,
-      SkippedTestRule.class,
 
       // order is important: RuleTypeCopier must be the first one. And DebtAggregator must be before NewDebtAggregator (new debt requires
       // debt)
       RuleTagsCopier.class,
       IssueCreationDateCalculator.class,
+      TransitionIssuesToAnticipatedStatesVisitor.class,
       ComputeLocationHashesVisitor.class,
       DebtCalculator.class,
       EffortAggregator.class,
@@ -285,6 +279,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssuesRepositoryVisitor.class,
       RemoveProcessedComponentsVisitor.class,
       IssueOnReferenceBranchVisitor.class,
+      ChangedIssuesRepository.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       AnalysisFromSonarQube94Visitor.class,
@@ -346,7 +341,10 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       WebhookPostTask.class,
 
       // notifications
-      NotificationFactory.class);
+      NotificationFactory.class,
+
+      // anticipated transitions
+      AnticipatedTransitionRepositoryImpl.class);
   }
 
 }

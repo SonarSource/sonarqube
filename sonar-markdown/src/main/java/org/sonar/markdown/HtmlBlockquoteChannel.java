@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -63,7 +63,7 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
   private class QuotedLineElementChannel extends RegexChannel<MarkdownOutput> {
 
     private QuotedLineElementChannel() {
-      super("&gt;\\s[^\r\n]*+");
+      super("&gt;[^\r\n]*+");
     }
 
     @Override
@@ -82,15 +82,15 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
         if (token.charAt(index) == '&') {
           index += 4;
           while (index < token.length()) {
-            index ++;
             if (token.charAt(index) != ' ') {
               return index;
             }
+            index ++;
           }
         }
         index ++;
       }
-      return token.length() - 1;
+      return token.length();
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,9 +26,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
 import org.sonar.ce.task.projectexport.util.ProjectExportDumpFS;
 
@@ -91,7 +91,7 @@ public class DumpWriterImplTest {
 
     assertThat(rootDir).doesNotExist();
     assertThat(targetZipFile).isFile().exists();
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0))
+    assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Dump file published", "size=", "path=" + targetZipFile.getAbsolutePath());
   }
 

@@ -1,4 +1,14 @@
 {
   "printWidth": 100,
-  "singleQuote": true
+  "singleQuote": true,
+  "plugins": ["prettier-plugin-organize-imports"],
+
+  "overrides": [
+    {
+      "files": [".eslintrc", "tsconfig.json"],
+      "options": {
+        "trailingComma": "none"
+      }
+    }
+  ]
 }

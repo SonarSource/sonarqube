@@ -16,12 +16,22 @@
         {
           "key": "E21",
           "category": "QUALITY_PROFILE",
-          "name": "Quality Profile changed to Sonar Way"
+          "name": "Quality Profile changed to Sonar Way",
+          "qualityProfile": {
+            "key": "Profile Key",
+            "name": "Profile Name",
+            "languageKey": "The Key of the Language"
+          }
         },
         {
           "key": "E22",
           "category": "OTHER",
           "name": "6.3"
+        },
+        {
+          "key": "E23",
+          "category": "QUALITY_PROFILE",
+          "name": "Use 'Sonar Way update profile' (JavaScript)"
         }
       ]
     },

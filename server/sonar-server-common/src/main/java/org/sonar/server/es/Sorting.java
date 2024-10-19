@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@ import java.util.List;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -79,7 +78,7 @@ public class Sorting {
       boolean effectiveMissingLast = asc == field.missingLast;
       sortBuilder.missing(effectiveMissingLast ? "_last" : "_first");
       return sortBuilder;
-    }).collect(MoreCollectors.toList(fields.size()));
+    }).toList();
   }
 
   public static class Field {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,17 +19,17 @@
  */
 package org.sonar.db.qualityprofile;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
-public class ActiveRuleKeyTest {
+class ActiveRuleKeyTest {
 
   @Test
-  public void of() {
+  void of() {
     RuleKey ruleKey = RuleKey.of("xoo", "R1");
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
@@ -39,7 +39,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void rule_key_can_contain_colons() {
+  void rule_key_can_contain_colons() {
     RuleKey ruleKey = RuleKey.of("java", "Key:With:Some::Colons");
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
@@ -49,7 +49,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void parse() {
+  void parse() {
     ActiveRuleKey key = ActiveRuleKey.parse("P1:xoo:R1");
     assertThat(key.getRuleProfileUuid()).isEqualTo("P1");
     assertThat(key.getRuleKey().repository()).isEqualTo("xoo");
@@ -57,17 +57,17 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void parse_fail_when_less_than_three_colons() {
+  void parse_fail_when_less_than_three_colons() {
     try {
       ActiveRuleKey.parse("P1:xoo");
-      fail();
+      Assertions.fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Bad format of activeRule key: P1:xoo");
     }
   }
 
   @Test
-  public void equals_and_hashcode() {
+  void equals_and_hashcode() {
     ActiveRuleKey key1 = ActiveRuleKey.parse("P1:xoo:R1");
     ActiveRuleKey key1b = ActiveRuleKey.parse("P1:xoo:R1");
     ActiveRuleKey key2 = ActiveRuleKey.parse("P1:xoo:R2");

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,10 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Priority;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
@@ -34,8 +37,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
@@ -48,17 +49,17 @@ import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.scanner.extension.ScannerCoreExtensionsInstaller;
+import org.sonar.scanner.http.ScannerWsClientProvider;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
 import org.sonar.scanner.repository.DefaultNewCodePeriodLoader;
 import org.sonar.scanner.repository.MetricsRepositoryProvider;
 import org.sonar.scanner.repository.settings.DefaultGlobalSettingsLoader;
-import org.sonar.scanner.scan.SpringProjectScanContainer;
 
-@Priority(3)
+@Priority(4)
 public class SpringGlobalContainer extends SpringComponentContainer {
-  private static final Logger LOG = Loggers.get(SpringGlobalContainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SpringGlobalContainer.class);
   private final Map<String, String> scannerProperties;
 
   private SpringGlobalContainer(Map<String, String> scannerProperties, List<?> addedExternally) {
@@ -67,6 +68,9 @@ public class SpringGlobalContainer extends SpringComponentContainer {
   }
 
   public static SpringGlobalContainer create(Map<String, String> scannerProperties, List<?> extensions) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("JVM max available memory: {}", FileUtils.byteCountToDisplaySize(Runtime.getRuntime().maxMemory()));
+    }
     return new SpringGlobalContainer(scannerProperties, extensions);
   }
 
@@ -99,6 +103,7 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       DefaultServer.class,
       DefaultDocumentationLinkGenerator.class,
       new GlobalTempFolderProvider(),
+      new SonarUserHomeProvider(),
       analysisWarnings,
       UriReader.class,
       PluginFiles.class,
@@ -114,12 +119,13 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       ScannerCoreExtensionsInstaller.class,
       DefaultGlobalSettingsLoader.class,
       DefaultNewCodePeriodLoader.class,
-      DefaultMetricsRepositoryLoader.class);
+      DefaultMetricsRepositoryLoader.class,
+      RuntimeJavaVersion.class);
   }
 
   @Override
   protected void doAfterStart() {
-    installPlugins();
+    installRequiredPlugins();
     loadCoreExtensions();
 
     long startTime = System.currentTimeMillis();
@@ -134,12 +140,13 @@ public class SpringGlobalContainer extends SpringComponentContainer {
     if (!analysisMode.equals("publish")) {
       throw MessageException.of("The preview mode, along with the 'sonar.analysis.mode' parameter, is no more supported. You should stop using this parameter.");
     }
-    new SpringProjectScanContainer(this).execute();
+    getComponentByType(RuntimeJavaVersion.class).checkJavaVersion();
+    new SpringScannerContainer(this).execute();
 
     LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
   }
 
-  private void installPlugins() {
+  private void installRequiredPlugins() {
     PluginRepository pluginRepository = getComponentByType(PluginRepository.class);
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       Plugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());

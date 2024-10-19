@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Status } from '~sonar-aligned/types/common';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { BranchLike } from './branch-like';
-import { CaycStatus, MeasureEnhanced, Metric, Status } from './types';
+import { CaycStatus, MeasureEnhanced, Metric } from './types';
 import { UserBase } from './users';
 
 export interface QualityGateProjectStatus {
+  caycStatus: CaycStatus;
   conditions?: QualityGateProjectStatusCondition[];
   ignoredConditions: boolean;
   status: Status;
-  caycStatus: CaycStatus;
 }
 
 export interface QualityGateProjectStatusCondition {
@@ -47,36 +49,37 @@ export interface QualityGateApplicationStatusCondition {
   comparator: string;
   errorThreshold?: string;
   metric: string;
-  periodIndex?: number;
   onLeak?: boolean;
+  periodIndex?: number;
   status: Status;
   value: string;
   warningThreshold?: string;
 }
 
 export interface QualityGateApplicationStatusChildProject {
+  caycStatus: CaycStatus;
   conditions: QualityGateApplicationStatusCondition[];
   key: string;
   name: string;
   status: Status;
-  caycStatus: CaycStatus;
 }
 
 export interface QualityGateStatus {
+  branchLike?: BranchLike;
+  caycStatus: CaycStatus;
+  conditions: QualityGateStatusConditionEnhanced[];
   failedConditions: QualityGateStatusConditionEnhanced[];
   ignoredConditions?: boolean;
-  caycStatus: CaycStatus;
   key: string;
   name: string;
   status: Status;
-  branchLike?: BranchLike;
 }
 
 export interface QualityGateStatusCondition {
   actual?: string;
   error?: string;
   level: Status;
-  metric: string;
+  metric: MetricKey;
   op: string;
   period?: number;
   warning?: string;

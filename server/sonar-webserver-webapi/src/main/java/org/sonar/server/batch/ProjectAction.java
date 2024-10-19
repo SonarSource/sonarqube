@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.batch;
 
-import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
@@ -27,9 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.scanner.protocol.input.FileData;
-import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
-import org.sonar.scanner.protocol.input.SingleProjectRepository;
 import org.sonarqube.ws.Batch.WsProjectResponse;
 import org.sonarqube.ws.Batch.WsProjectResponse.FileData.Builder;
 
@@ -61,14 +58,15 @@ public class ProjectAction implements BatchWsAction {
       .setChangelog(
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_KEY)),
         new Change("7.6", "Stop returning settings"),
-        new Change("7.7", "Stop supporting preview mode, removed timestamp and last analysis date"))
+        new Change("7.7", "Stop supporting preview mode, removed timestamp and last analysis date"),
+        new Change("10.0", String.format("No longer possible to use module keys with parameter '%s'", PARAM_KEY)))
       .setInternal(true)
       .setHandler(this);
 
     action
       .createParam(PARAM_KEY)
       .setRequired(true)
-      .setDescription("Project or module key")
+      .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action
@@ -103,32 +101,14 @@ public class ProjectAction implements BatchWsAction {
 
   private static WsProjectResponse buildResponse(ProjectRepositories data) {
     WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
-    if (data instanceof SingleProjectRepository singleProjectRepository) {
-      response.putAllFileDataByPath(buildFileDataByPath(singleProjectRepository));
-    } else {
-      response.putAllFileDataByModuleAndPath(buildFileDataByModuleAndPath((MultiModuleProjectRepository) data));
-    }
-
+    response.putAllFileDataByPath(buildFileDataByPath(data));
     return response.build();
   }
 
-  private static Map<String, WsProjectResponse.FileDataByPath> buildFileDataByModuleAndPath(MultiModuleProjectRepository data) {
-    return data.repositoriesByModule().entrySet()
-      .stream()
-      .map(entry -> Maps.immutableEntry(entry.getKey(), buildFileDataByPath(entry.getValue().fileData())))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
-  private static Map<String, WsProjectResponse.FileData> buildFileDataByPath(SingleProjectRepository data) {
+  private static Map<String, WsProjectResponse.FileData> buildFileDataByPath(ProjectRepositories data) {
     return data.fileData().entrySet()
       .stream()
       .collect(Collectors.toMap(Map.Entry::getKey, e -> toFileDataResponse(e.getValue())));
-  }
-
-  private static WsProjectResponse.FileDataByPath buildFileDataByPath(Map<String, FileData> fileDataByPath) {
-    WsProjectResponse.FileDataByPath.Builder response = WsProjectResponse.FileDataByPath.newBuilder();
-    fileDataByPath.forEach((key, value) -> response.putFileDataByPath(key, toFileDataResponse(value)));
-    return response.build();
   }
 
   private static WsProjectResponse.FileData toFileDataResponse(FileData fileData) {

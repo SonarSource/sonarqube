@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ import * as React from 'react';
 import { Outlet } from 'react-router-dom';
 import { AppState } from '../../types/appstate';
 import { GlobalSettingKeys } from '../../types/settings';
-import withAppStateContext from './app-state/withAppStateContext';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 import PageTracker from './PageTracker';
+import withAppStateContext from './app-state/withAppStateContext';
 
 interface Props {
   appState: AppState;

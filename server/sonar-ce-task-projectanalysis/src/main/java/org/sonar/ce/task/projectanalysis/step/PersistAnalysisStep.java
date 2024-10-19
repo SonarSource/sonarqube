@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -107,11 +107,11 @@ public class PersistAnalysisStep implements ComputationStep {
         .setUuid(snapshotUuid)
         .setProjectVersion(projectVersion)
         .setBuildString(buildString)
-        .setComponentUuid(componentUuid)
+        .setRootComponentUuid(componentUuid)
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
         .setCreatedAt(analysisDate)
-        .setBuildDate(system2.now());
+        .setAnalysisDate(system2.now());
 
       if (component.getType() == PROJECT) {
         component.getProjectAttributes().getScmRevisionId().ifPresent(dto::setRevision);

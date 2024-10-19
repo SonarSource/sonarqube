@@ -7,6 +7,7 @@
         pb.uuid,
         pb.project_uuid as "projectUuid",
         pb.kee,
+        pb.is_main as "isMain",
         pb.branch_type as "branchType",
         pb.merge_branch_uuid as "mergeBranchUuid"
         from project_branches pb
@@ -19,12 +20,10 @@
         p.is_empty as empty,
         p.text_value as textValue,
         p.clob_value as clobValue,
-        p.component_uuid as componentUuid,
+        p.entity_uuid as entityUuid,
         p.user_uuid as userUuid
         from properties p
-        join components pr on p.component_uuid=pr.uuid
-        join project_branches pb on pb.uuid = pr.uuid
-        where p.user_uuid is null and pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type='BRANCH' and pb.exclude_from_purge = ${_true}
+        where p.entity_uuid=#{projectUuid,jdbcType=VARCHAR} and p.user_uuid is null
     </select>
 
     <select id="selectLinksForExport" parameterType="string" resultType="org.sonar.db.component.ProjectLinkDto">
@@ -37,9 +36,7 @@
         p.created_at as "createdAt",
         p.updated_at as "updatedAt"
         from project_links p
-        join components proj on proj.uuid = p.project_uuid
-        join project_branches pb on pb.uuid = proj.uuid
-        where pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type='BRANCH' and pb.exclude_from_purge = ${_true}
+        where p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
         order by p.uuid
     </select>
 
@@ -56,6 +53,97 @@
     LEFT JOIN project_branches pb on pb.uuid = ncp.branch_uuid
     WHERE ncp.project_uuid=#{projectUuid, jdbcType=VARCHAR} AND
         (ncp.branch_uuid is null OR (pb.branch_type='BRANCH' AND pb.exclude_from_purge=${_true}))
+    </select>
+
+    <select id="scrollAdhocRulesForExport" parameterType="map" resultMap="org.sonar.db.rule.RuleMapper.ruleResultMap"
+            fetchSize="${_scrollFetchSize}"
+            resultSetType="FORWARD_ONLY" resultOrdered="true">
+    select
+        r.uuid as "r_uuid",
+        r.plugin_key as "pluginKey",
+        r.plugin_config_key as "configKey",
+        r.plugin_rule_key as "ruleKey",
+        r.plugin_name as "repositoryKey",
+        r.name,
+        r.status,
+        r.rule_type as "type",
+        r.scope,
+        r.ad_hoc_name as "adHocName",
+        r.ad_hoc_description as "adHocDescription",
+        r.ad_hoc_severity as "adHocSeverity",
+        r.ad_hoc_type as "adHocType",
+        r.clean_code_attribute as "cleanCodeAttribute",
+        rdi.rule_uuid as "rdi_ruleUuid",
+        rdi.software_quality as "rdi_softwareQuality",
+        rdi.severity as "rdi_severity",
+        CASE WHEN rt.is_system_tag = ${_true} THEN rt.value ELSE NULL END as rt_systemTags,
+        CASE WHEN rt.is_system_tag = ${_false} THEN rt.value ELSE NULL END as rt_tags
+    from
+      rules r
+      left outer join rule_tags rt on rt.rule_uuid = r.uuid
+      left outer join rules_default_impacts rdi on rdi.rule_uuid = r.uuid
+      where
+        r.status != 'REMOVED' and r.is_ad_hoc = ${_true}
+        and exists(
+             select i.kee
+             from issues i
+                      left join components p on p.uuid = i.project_uuid
+                      left join project_branches pb on pb.uuid = p.uuid
+             where i.rule_uuid = r.uuid
+               and pb.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+               and pb.branch_type = 'BRANCH'
+               and pb.exclude_from_purge = ${_true}
+               and i.status != 'CLOSED')
+      order by r.uuid
+    </select>
+
+
+    <select id="scrollIssueForExport" parameterType="map" resultMap="org.sonar.db.issue.IssueMapper.issueResultMap"
+            fetchSize="${_scrollFetchSize}"
+            resultSetType="FORWARD_ONLY" resultOrdered="true">
+          select i.kee as kee,
+          r.uuid as ruleUuid,
+          r.plugin_rule_key as ruleKey,
+          r.plugin_name as ruleRepo,
+          i.issue_type as type,
+          i.component_uuid as componentUuid,
+          i.message as message,
+          i.line as line,
+          i.checksum as checksum,
+          i.status as status,
+          i.resolution as resolution,
+          i.severity as severity,
+          i.manual_severity as manualSeverity,
+          i.gap as gap,
+          i.effort as effort,
+          i.assignee assigneeUuid,
+          i.author_login as authorLogin,
+          i.tags as tagsString,
+          i.issue_creation_date as issueCreationTime,
+          i.issue_update_date as issueUpdateTime,
+          i.issue_close_date as issueCloseTime,
+          i.created_at as createdAt,
+          i.updated_at as updatedAt,
+          i.locations as locations,
+          i.project_uuid as projectUuid,
+          i.rule_description_context_key as ruleDescriptionContextKey,
+          i.message_formattings as messageFormattings,
+          i.code_variants as codeVariantsString,
+          ii.software_quality as ii_softwareQuality,
+          ii.severity as ii_severity,
+          rdi.software_quality as rdi_softwareQuality,
+          rdi.severity as rdi_severity
+        from issues i
+          join rules r on r.uuid = i.rule_uuid and r.status != 'REMOVED'
+          join components p on p.uuid = i.project_uuid
+          join project_branches pb on pb.uuid = p.uuid
+          left outer join issues_impacts ii on i.kee = ii.issue_key
+          left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+        where pb.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+          and pb.branch_type = 'BRANCH'
+          and pb.exclude_from_purge= ${_true}
+          and i.status != 'CLOSED'
+        order by i.rule_uuid asc, i.kee, i.created_at asc
     </select>
 
 </mapper>

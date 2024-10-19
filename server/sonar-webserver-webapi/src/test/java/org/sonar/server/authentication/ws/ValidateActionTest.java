@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,19 +19,23 @@
  */
 package org.sonar.server.authentication.ws;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.FilterChain;
 import org.sonar.server.authentication.BasicAuthentication;
+import org.sonar.server.authentication.HttpHeadersAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
+import org.sonar.server.authentication.UserAuthResult;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.usertoken.UserTokenAuthentication;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
@@ -42,30 +46,37 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.UserAuthResult.AuthType.TOKEN;
 
 public class ValidateActionTest {
 
-  StringWriter stringWriter = new StringWriter();
+  private final StringWriter stringWriter = new StringWriter();
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  FilterChain chain = mock(FilterChain.class);
+  private final HttpRequest request = mock(HttpRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
+  private final FilterChain chain = mock(FilterChain.class);
 
-  BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
-  JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final HttpHeadersAuthentication httpHeadersAuthentication = mock(HttpHeadersAuthentication.class);
+  private final UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);
 
-  MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings();
 
-  ValidateAction underTest = new ValidateAction(settings.asConfig(), basicAuthentication, jwtHttpHandler);
+  private final ValidateAction underTest = new ValidateAction(settings.asConfig(), basicAuthentication, jwtHttpHandler, httpHeadersAuthentication, userTokenAuthentication);
 
   @Before
   public void setUp() throws Exception {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(response.getWriter()).thenReturn(writer);
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
+    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
+    when(userTokenAuthentication.authenticate(request)).thenReturn(Optional.empty());
   }
 
   @Test
-  public void verify_definition() {
+  public void define_shouldDefineWS() {
     String controllerKey = "foo";
     WebService.Context context = new WebService.Context();
     WebService.NewController newController = context.createController(controllerKey);
@@ -80,81 +91,91 @@ public class ValidateActionTest {
   }
 
   @Test
-  public void return_true_when_jwt_token_is_set() throws Exception {
+  public void doFilter_whenJwtToken_shouldReturnTrue() throws Exception {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(newUserDto()));
-    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
-
     underTest.doFilter(request, response, chain);
-
-    verify(response).setContentType(MediaTypes.JSON);
-    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":true}");
+    verifyResponseIsTrue();
   }
 
   @Test
-  public void return_true_when_basic_auth() throws Exception {
-    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
+  public void doFilter_whenBasicAuth_shouldReturnTrue() throws Exception {
     when(basicAuthentication.authenticate(request)).thenReturn(Optional.of(newUserDto()));
-
     underTest.doFilter(request, response, chain);
-
-    verify(response).setContentType(MediaTypes.JSON);
-    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":true}");
+    verifyResponseIsTrue();
   }
 
   @Test
-  public void return_true_when_no_jwt_nor_basic_auth_and_no_force_authentication() throws Exception {
+  public void doFilter_whenNoForceAuthentication_shoudlReturnTrue() throws Exception {
     settings.setProperty("sonar.forceAuthentication", "false");
-    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
-
     underTest.doFilter(request, response, chain);
-
-    verify(response).setContentType(MediaTypes.JSON);
-    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":true}");
+    verifyResponseIsTrue();
   }
 
   @Test
-  public void return_false_when_no_jwt_nor_basic_auth_and_force_authentication_is_true() throws Exception {
+  public void doFilter_whenForceAuthentication_shouldReturnFalse() throws Exception {
     settings.setProperty("sonar.forceAuthentication", "true");
-    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
-
     underTest.doFilter(request, response, chain);
-
-    verify(response).setContentType(MediaTypes.JSON);
-    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":false}");
+    verifyResponseIsFalse();
   }
 
   @Test
-  public void return_false_when_no_jwt_nor_basic_auth_and_force_authentication_fallback_to_default() throws Exception {
-    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
-
+  public void doFilter_whenDefaultForceAuthentication_shouldReturnFalse() throws Exception {
     underTest.doFilter(request, response, chain);
-
-    verify(response).setContentType(MediaTypes.JSON);
-    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":false}");
+    verifyResponseIsFalse();
   }
 
   @Test
-  public void return_false_when_jwt_throws_unauthorized_exception() throws Exception {
+  public void doFilter_whenJwtThrowsUnauthorizedException_shouldReturnFalse() throws Exception {
     doThrow(AuthenticationException.class).when(jwtHttpHandler).validateToken(request, response);
-    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
-
     underTest.doFilter(request, response, chain);
-
-    verify(response).setContentType(MediaTypes.JSON);
-    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":false}");
+    verifyResponseIsFalse();
   }
 
   @Test
-  public void return_false_when_basic_authenticator_throws_unauthorized_exception() throws Exception {
-    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
+  public void doFilter_whenBasicAuthenticatorThrowsUnauthorizedException_shouldReturnFalse() throws Exception {
     doThrow(AuthenticationException.class).when(basicAuthentication).authenticate(request);
-
     underTest.doFilter(request, response, chain);
+    verifyResponseIsFalse();
+  }
 
+  @Test
+  public void doFiler_whenHttpHeaderAuthentication_shouldReturnTrue() throws IOException {
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.of(newUserDto()));
+    underTest.doFilter(request, response, chain);
+    verifyResponseIsTrue();
+  }
+
+  @Test
+  public void doFiler_whenHttpHeaderAuthenticationThrowsUnauthorizedException_shouldReturnFalse() throws IOException {
+    doThrow(AuthenticationException.class).when(httpHeadersAuthentication).authenticate(request, response);
+    underTest.doFilter(request, response, chain);
+    verifyResponseIsFalse();
+  }
+
+  @Test
+  public void doFilter_whenUserTokenAuthentication_shouldReturnTrue() throws IOException {
+    when(userTokenAuthentication.authenticate(request)).thenReturn(Optional.of(new UserAuthResult(newUserDto(), TOKEN)));
+    underTest.doFilter(request, response, chain);
+    verifyResponseIsTrue();
+  }
+
+  @Test
+  public void doFiler_whenUserTokenAuthenticationThrowsUnauthorizedException_shouldReturnFalse() throws IOException {
+    doThrow(AuthenticationException.class).when(httpHeadersAuthentication).authenticate(request, response);
+    underTest.doFilter(request, response, chain);
+    verifyResponseIsFalse();
+  }
+
+  private void verifyResponseIsFalse() {
+    verifyResponse("{\"valid\":false}");
+  }
+
+  private void verifyResponseIsTrue() {
+    verifyResponse("{\"valid\":true}");
+  }
+
+  private void verifyResponse(String expectedJson) {
     verify(response).setContentType(MediaTypes.JSON);
-    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":false}");
+    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo(expectedJson);
   }
 }

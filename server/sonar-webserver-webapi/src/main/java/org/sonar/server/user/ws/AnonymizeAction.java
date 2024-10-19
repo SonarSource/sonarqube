@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -26,8 +27,8 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.user.UserAnonymizer;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndexer;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
@@ -35,14 +36,12 @@ public class AnonymizeAction implements UsersWsAction {
   private static final String PARAM_LOGIN = "login";
 
   private final DbClient dbClient;
-  private final UserIndexer userIndexer;
   private final UserSession userSession;
   private final UserAnonymizer userAnonymizer;
 
-  public AnonymizeAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserAnonymizer userAnonymizer) {
+  public AnonymizeAction(DbClient dbClient, UserSession userSession, UserAnonymizer userAnonymizer) {
     this.userAnonymizer = userAnonymizer;
     this.dbClient = dbClient;
-    this.userIndexer = userIndexer;
     this.userSession = userSession;
   }
 
@@ -52,7 +51,9 @@ public class AnonymizeAction implements UsersWsAction {
       .setDescription("Anonymize a deactivated user. Requires Administer System permission")
       .setSince("9.7")
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use DELETE api/v2/users-management/users/{id}?anonymize=true instead"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")
@@ -74,7 +75,7 @@ public class AnonymizeAction implements UsersWsAction {
 
       userAnonymizer.anonymize(dbSession, user);
       dbClient.userDao().update(dbSession, user);
-      userIndexer.commitAndIndex(dbSession, user);
+      dbSession.commit();
     }
 
     response.noContent();

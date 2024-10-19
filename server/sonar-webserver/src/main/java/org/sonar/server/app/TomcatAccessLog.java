@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ import ch.qos.logback.core.FileAppender;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.startup.Tomcat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.Props;
 
@@ -33,11 +33,11 @@ class TomcatAccessLog {
 
   private static final String PROPERTY_ENABLE = "sonar.web.accessLogs.enable";
   private static final String PROPERTY_PATTERN = "sonar.web.accessLogs.pattern";
-  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{ID}\"";
+  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{ID}\" %D";
 
   void configure(Tomcat tomcat, Props props) {
     tomcat.setSilent(true);
-    tomcat.getService().addLifecycleListener(new LifecycleLogger(Loggers.get(TomcatAccessLog.class)));
+    tomcat.getService().addLifecycleListener(new LifecycleLogger(LoggerFactory.getLogger(TomcatAccessLog.class)));
     configureLogbackAccess(tomcat, props);
   }
 

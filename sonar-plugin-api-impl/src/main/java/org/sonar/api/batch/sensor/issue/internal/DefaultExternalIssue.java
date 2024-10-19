@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,18 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.EnumMap;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 
 import static java.lang.String.format;
@@ -39,6 +44,9 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   private RuleType type;
   private String engineId;
   private String ruleId;
+  private String cveId;
+  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+  private CleanCodeAttribute cleanCodeAttribute;
 
   public DefaultExternalIssue(DefaultInputProject project) {
     this(project, null);
@@ -62,6 +70,12 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
+  public DefaultExternalIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    this.impacts.put(softwareQuality, severity);
+    return this;
+  }
+
+  @Override
   public String engineId() {
     return engineId;
   }
@@ -69,6 +83,10 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   @Override
   public String ruleId() {
     return ruleId;
+  }
+
+  public String cveId() {
+    return cveId;
   }
 
   @Override
@@ -87,14 +105,23 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     requireNonNull(this.ruleId, "Rule id is mandatory on external issue");
     checkState(primaryLocation != null, "Primary location is mandatory on every external issue");
     checkState(primaryLocation.message() != null, "External issues must have a message");
-    checkState(severity != null, "Severity is mandatory on every external issue");
-    checkState(type != null, "Type is mandatory on every external issue");
     storage.store(this);
   }
 
   @Override
   public RuleType type() {
     return type;
+  }
+
+  @Override
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
+    return impacts;
+  }
+
+  @CheckForNull
+  @Override
+  public CleanCodeAttribute cleanCodeAttribute() {
+    return cleanCodeAttribute;
   }
 
   @Override
@@ -106,6 +133,11 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   @Override
   public NewExternalIssue ruleId(String ruleId) {
     this.ruleId = ruleId;
+    return this;
+  }
+
+  public NewExternalIssue cveId(String cveId) {
+    this.cveId = cveId;
     return this;
   }
 
@@ -127,6 +159,12 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   @Override
   public DefaultExternalIssue type(RuleType type) {
     this.type = type;
+    return this;
+  }
+
+  @Override
+  public DefaultExternalIssue cleanCodeAttribute(CleanCodeAttribute attribute) {
+    this.cleanCodeAttribute = attribute;
     return this;
   }
 

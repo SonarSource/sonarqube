@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.db.webhook;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class WebhookDeliveryDto extends WebhookDeliveryLiteDto<WebhookDeliveryDto> {
   /** Error message if HTTP request cannot be sent, else null */
@@ -52,7 +52,7 @@ public class WebhookDeliveryDto extends WebhookDeliveryLiteDto<WebhookDeliveryDt
   public String toString() {
     return new ToStringBuilder(this)
       .append("uuid", uuid)
-      .append("componentUuid", componentUuid)
+      .append("projectUuid", projectUuid)
       .append("name", name)
       .append("success", success)
       .append("httpStatus", httpStatus)

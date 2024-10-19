@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,8 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.ce.queue.ReportSubmitter;
+import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
@@ -35,6 +37,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -42,16 +45,22 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_PROJECT_IDENTIFIER;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_URL;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 public class SubmitActionTest {
 
   private static final String PROJECT_UUID = "PROJECT_1";
-  private static final CeTask.Component COMPONENT = new CeTask.Component(PROJECT_UUID, "KEY_1", "NAME_1");
+  private static final String BRANCH_UUID = "BRANCH_1";
+  private static final CeTask.Component ENTITY = new CeTask.Component(PROJECT_UUID, "KEY_1", "NAME_1");
+  private static final CeTask.Component COMPONENT = new CeTask.Component(BRANCH_UUID, "KEY_1", "NAME_1");
   private static final CeTask A_CE_TASK = new CeTask.Builder()
     .setUuid("TASK_1")
     .setType(CeTaskTypes.REPORT)
     .setComponent(COMPONENT)
-    .setMainComponent(COMPONENT)
+    .setEntity(ENTITY)
     .setSubmitter(new CeTask.User("UUID_1", "LOGIN_1"))
     .build();
 
@@ -75,14 +84,22 @@ public class SubmitActionTest {
     verify(reportSubmitter).submit(eq("my_project"), eq("My Project"), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
+    assertThat(submitResponse.getProjectId()).isEqualTo(BRANCH_UUID);
   }
 
   @Test
   public void submit_task_with_characteristics() {
     when(reportSubmitter.submit(eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
-    String[] characteristics = {"branch=foo", "pullRequest=123", "unsupported=bar"};
+    String devOpsPlatformUrl = "https://github.com";
+    String devOpsPlatformProjectIdentifier = "foo/bar";
+    
+    String[] characteristics = {
+      buildCharacteristicParam(BRANCH, "foo"),
+      buildCharacteristicParam(PULL_REQUEST, "123"),
+      buildCharacteristicParam("unsupported", "bar"),
+      buildCharacteristicParam(DEVOPS_PLATFORM_URL, devOpsPlatformUrl),
+      buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER,  devOpsPlatformProjectIdentifier) };
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
@@ -95,7 +112,16 @@ public class SubmitActionTest {
     verify(reportSubmitter).submit(eq("my_project"), eq("My Project"), map.capture(), any());
 
     // unsupported characteristics are ignored
-    assertThat(map.getValue()).containsExactly(entry("branch", "foo"), entry("pullRequest", "123"));
+
+    assertThat(map.getValue()).containsExactly(
+      entry(BRANCH, "foo"),
+      entry(PULL_REQUEST, "123"),
+      entry(DEVOPS_PLATFORM_URL, devOpsPlatformUrl),
+      entry(DEVOPS_PLATFORM_PROJECT_IDENTIFIER, devOpsPlatformProjectIdentifier));
+  }
+
+  private static String buildCharacteristicParam(String characteristic, String value) {
+    return characteristic + "=" + value;
   }
 
   @Test
@@ -114,7 +140,7 @@ public class SubmitActionTest {
     verify(reportSubmitter).submit(eq("my_project"), eq(expectedName), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
+    assertThat(submitResponse.getProjectId()).isEqualTo(BRANCH_UUID);
   }
 
   @Test
@@ -147,5 +173,21 @@ public class SubmitActionTest {
       .execute();
 
     verify(reportSubmitter).submit(eq("my_project"), eq("my_project"), anyMap(), any());
+  }
+
+  @Test
+  public void handle_whenReportSubmitterThrowIllegalStateException_shouldThrowServerException() {
+    when(reportSubmitter.submit(eq("my_project"), eq("my_project"), anyMap(), any()))
+      .thenThrow(new IllegalStateException("Error message"));
+
+    TestRequest request = tester.newRequest()
+      .setParam("projectKey", "my_project")
+      .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setMethod("POST");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(ServerException.class)
+      .hasMessage("Error message");
   }
 }

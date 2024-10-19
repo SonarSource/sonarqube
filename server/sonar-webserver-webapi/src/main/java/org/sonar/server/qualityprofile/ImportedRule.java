@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,6 +32,7 @@ class ImportedRule {
   private String name = null;
   private String type = null;
   private String severity = null;
+  private Boolean prioritizedRule = false;
   private String description = null;
   private Map<String, String> parameters = null;
   public Map<String, String> getParameters() {
@@ -58,6 +59,10 @@ class ImportedRule {
     return severity;
   }
 
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
+  }
+
   public String getDescription() {
     return description;
   }
@@ -69,6 +74,11 @@ class ImportedRule {
 
   ImportedRule setSeverity(String severity) {
     this.severity = severity;
+    return this;
+  }
+
+  public ImportedRule setPrioritizedRule(Boolean prioritizedRule) {
+    this.prioritizedRule = prioritizedRule;
     return this;
   }
 

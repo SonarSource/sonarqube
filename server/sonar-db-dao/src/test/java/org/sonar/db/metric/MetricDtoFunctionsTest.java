@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,16 @@
  */
 package org.sonar.db.metric;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MetricDtoFunctionsTest {
+class MetricDtoFunctionsTest {
 
   private MetricDto metric;
 
   @Test
-  public void isOptimizedForBestValue_at_true() {
+  void isOptimizedForBestValue_at_true() {
     metric = new MetricDto()
       .setBestValue(42.0d)
       .setOptimizedBestValue(true);
@@ -39,7 +39,7 @@ public class MetricDtoFunctionsTest {
   }
 
   @Test
-  public void isOptimizedForBestValue_is_false_when_no_best_value() {
+  void isOptimizedForBestValue_is_false_when_no_best_value() {
     metric = new MetricDto()
       .setBestValue(null)
       .setOptimizedBestValue(true);
@@ -50,7 +50,7 @@ public class MetricDtoFunctionsTest {
   }
 
   @Test
-  public void isOptimizedForBestValue_is_false_when_is_not_optimized() {
+  void isOptimizedForBestValue_is_false_when_is_not_optimized() {
     metric = new MetricDto()
       .setBestValue(42.0d)
       .setOptimizedBestValue(false);

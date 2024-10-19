@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,30 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omit, sortBy } from 'lodash';
+
+import { InputSize, Select, SelectOption, Tooltip } from '@sonarsource/echoes-react';
+import classNames from 'classnames';
+import { InteractiveIcon, SortAscendIcon, SortDescendIcon, StyledPageTitle } from 'design-system';
+import { sortBy } from 'lodash';
 import * as React from 'react';
-import { components, OptionProps } from 'react-select';
-import { colors } from '../../../app/theme';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import Select from '../../../components/controls/Select';
-import Tooltip from '../../../components/controls/Tooltip';
-import SortAscIcon from '../../../components/icons/SortAscIcon';
-import SortDescIcon from '../../../components/icons/SortDescIcon';
 import { translate } from '../../../helpers/l10n';
-import { parseSorting, SORTING_LEAK_METRICS, SORTING_METRICS } from '../utils';
+import { SORTING_LEAK_METRICS, SORTING_METRICS, parseSorting } from '../utils';
 
 interface Props {
-  className?: string;
   defaultOption: string;
   onChange: (sort: string, desc: boolean) => void;
   selectedSort: string;
   view: string;
 }
 
-export interface Option {
-  label: string;
-  value: string;
-  className?: string;
+export interface Option extends SelectOption {
+  optionClass?: string;
   short?: string;
 }
 
@@ -48,9 +42,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
   sortOrderButtonNode: HTMLElement | null = null;
 
   getSorting = () => {
-    const options = this.getOptions();
-    const { sortDesc, sortValue } = parseSorting(this.props.selectedSort);
-    return { sortDesc, value: options.find((o) => o.value === sortValue) };
+    return parseSorting(this.props.selectedSort);
   };
 
   getOptions = () => {
@@ -59,8 +51,8 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
       (option) => ({
         value: option.value,
         label: translate('projects.sorting', option.value),
-        className: option.class,
-      })
+        optionClass: option.class,
+      }),
     );
   };
 
@@ -72,63 +64,57 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
     }
   };
 
-  handleSortChange = (option: Option) => {
-    this.props.onChange(option.value, this.getSorting().sortDesc);
-  };
-
-  projectsSortingSelectOption = (props: OptionProps<Option, false>) => {
-    const { data, children } = props;
-    return (
-      <components.Option
-        {...omit(props, ['children'])}
-        className={`it__project-sort-option-${data.value} ${data.className}`}
-      >
-        {data.short ? data.short : children}
-      </components.Option>
-    );
+  handleSortChange = (value: string) => {
+    this.props.onChange(value, this.getSorting().sortDesc);
   };
 
   render() {
-    const { sortDesc, value } = this.getSorting();
+    const { sortDesc, sortValue } = this.getSorting();
 
     return (
-      <div className={this.props.className}>
-        <label id="aria-projects-sort">{translate('projects.sort_by')}:</label>
+      <div className="sw-flex sw-items-center">
+        <StyledPageTitle id="aria-projects-sort" as="label" className="sw-typo-semibold sw-mr-2">
+          {translate('projects.sort_by')}
+        </StyledPageTitle>
         <Select
-          aria-labelledby="aria-projects-sort"
-          className="little-spacer-left input-medium it__projects-sort-select"
-          isClearable={false}
+          ariaLabelledBy="aria-projects-sort"
+          className="sw-typo-default"
           onChange={this.handleSortChange}
-          components={{
-            Option: this.projectsSortingSelectOption,
-          }}
-          options={this.getOptions()}
-          isSearchable={false}
-          value={value}
+          data={this.getOptions()}
+          optionComponent={ProjectsSortingSelectItem}
+          placeholder={translate('project_activity.filter_events')}
+          isNotClearable
+          value={sortValue}
+          size={InputSize.Medium}
         />
         <Tooltip
-          mouseLeaveDelay={1}
-          overlay={
+          content={
             sortDesc ? translate('projects.sort_descending') : translate('projects.sort_ascending')
           }
         >
-          <ButtonIcon
+          <InteractiveIcon
+            Icon={sortDesc ? SortDescendIcon : SortAscendIcon}
             aria-label={
               sortDesc
                 ? translate('projects.sort_descending')
                 : translate('projects.sort_ascending')
             }
-            className="js-projects-sorting-invert spacer-left"
-            color={colors.gray52}
+            className="js-projects-invert-sort sw-ml-2"
             onClick={this.handleDescToggle}
             innerRef={(sortButtonRef) => {
               this.sortOrderButtonNode = sortButtonRef;
             }}
-          >
-            {sortDesc ? <SortDescIcon className="" /> : <SortAscIcon className="" />}
-          </ButtonIcon>
+          />
         </Tooltip>
       </div>
     );
   }
+}
+
+function ProjectsSortingSelectItem({ label, optionClass, short, value }: Readonly<Option>) {
+  return (
+    <div className={classNames(`it__project-sort-option-${value}`, optionClass)}>
+      {short ?? label}
+    </div>
+  );
 }

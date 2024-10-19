@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { AppState } from '../types/appstate';
-import { BranchParameters } from '../types/branch-like';
 import { Extension, NavigationComponent } from '../types/types';
 
 export function getComponentNavigation(
-  data: { component: string } & BranchParameters
+  data: { component: string } & BranchParameters,
 ): Promise<NavigationComponent> {
-  return getJSON('/api/navigation/component', data).catch(throwGlobalError);
+  return getJSON('/api/navigation/component', data);
 }
 
-export function getMarketplaceNavigation(): Promise<{ serverId: string; ncloc: number }> {
+export function getMarketplaceNavigation(): Promise<{ ncloc: number; serverId: string }> {
   return getJSON('/api/navigation/marketplace').catch(throwGlobalError);
 }
 
@@ -41,5 +41,5 @@ export function getSettingsNavigation(): Promise<{
 }
 
 export function getGlobalNavigation(): Promise<AppState> {
-  return getJSON('/api/navigation/global', undefined, true);
+  return getJSON('/api/navigation/global', undefined, { bypassRedirect: true });
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserTokenNewValue;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserTokenDao implements Dao {
@@ -85,7 +84,7 @@ public class UserTokenDao implements Dao {
   public Map<String, Integer> countTokensByUsers(DbSession dbSession, Collection<UserDto> users) {
     Map<String, Integer> result = new HashMap<>(users.size());
     executeLargeInputs(
-      users.stream().map(UserDto::getUuid).collect(toList()),
+      users.stream().map(UserDto::getUuid).toList(),
       input -> {
         List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByUserUuids(input);
         for (UserTokenCount userTokenCount : userTokenCounts) {
@@ -114,8 +113,8 @@ public class UserTokenDao implements Dao {
     }
   }
 
-  public void deleteByProjectKey(DbSession dbSession, String projectKey) {
-    int deletedRows = mapper(dbSession).deleteByProjectKey(projectKey);
+  public void deleteByProjectUuid(DbSession dbSession, String projectKey, String projectUuid) {
+    int deletedRows = mapper(dbSession).deleteByProjectUuid(projectUuid);
 
     if (deletedRows > 0) {
       auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(projectKey));

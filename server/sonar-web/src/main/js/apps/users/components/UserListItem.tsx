@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,77 +17,109 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonIcon,
+  ButtonSize,
+  ButtonVariety,
+  IconMoreVertical,
+  Spinner,
+} from '@sonarsource/echoes-react';
+import { ActionCell, Avatar, ContentCell, TableRow } from 'design-system';
 import * as React from 'react';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import Avatar from '../../../components/ui/Avatar';
-import { translate } from '../../../helpers/l10n';
-import { IdentityProvider } from '../../../types/types';
-import { User } from '../../../types/users';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useUserGroupsCountQuery } from '../../../queries/group-memberships';
+import { useUserTokensQuery } from '../../../queries/users';
+import { IdentityProvider, Provider } from '../../../types/types';
+import { RestUserDetailed } from '../../../types/users';
+import GroupsForm from './GroupsForm';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
 
-interface Props {
+export interface UserListItemProps {
   identityProvider?: IdentityProvider;
-  isCurrentUser: boolean;
-  onUpdateUsers: () => void;
-  updateTokensCount: (login: string, tokensCount: number) => void;
-  user: User;
+  manageProvider: Provider | undefined;
+  user: RestUserDetailed;
 }
 
-interface State {
-  openTokenForm: boolean;
-}
+export default function UserListItem(props: Readonly<UserListItemProps>) {
+  const { identityProvider, user, manageProvider } = props;
+  const {
+    id,
+    name,
+    login,
+    avatar,
+    sonarQubeLastConnectionDate,
+    sonarLintLastConnectionDate,
+    scmAccounts,
+  } = user;
 
-export default class UserListItem extends React.PureComponent<Props, State> {
-  state: State = { openTokenForm: false };
+  const [openTokenForm, setOpenTokenForm] = React.useState(false);
+  const [openGroupForm, setOpenGroupForm] = React.useState(false);
+  const { data: tokens, isLoading: tokensAreLoading } = useUserTokensQuery(login);
+  const { data: groupsCount, isLoading: groupsAreLoading } = useUserGroupsCountQuery(id);
 
-  handleOpenTokensForm = () => this.setState({ openTokenForm: true });
-  handleCloseTokensForm = () => this.setState({ openTokenForm: false });
+  return (
+    <TableRow>
+      <ContentCell>
+        <div className="sw-flex sw-items-center">
+          <Avatar className="sw-shrink-0 sw-mr-4" hash={avatar} name={name} size="md" />
+          <UserListItemIdentity
+            identityProvider={identityProvider}
+            user={user}
+            manageProvider={manageProvider}
+          />
+        </div>
+      </ContentCell>
+      <ContentCell>
+        <UserScmAccounts scmAccounts={scmAccounts || []} />
+      </ContentCell>
+      <ContentCell>
+        <DateFromNow date={sonarQubeLastConnectionDate ?? ''} hourPrecision />
+      </ContentCell>
+      <ContentCell>
+        <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
+      </ContentCell>
+      <ContentCell>
+        <Spinner isLoading={groupsAreLoading}>
+          {groupsCount}
+          {manageProvider === undefined && (
+            <ButtonIcon
+              Icon={IconMoreVertical}
+              tooltipContent={translate('users.update_groups')}
+              className="it__user-groups sw-ml-2"
+              ariaLabel={translateWithParameters('users.update_users_groups', user.login)}
+              onClick={() => setOpenGroupForm(true)}
+              size={ButtonSize.Medium}
+              variety={ButtonVariety.DefaultGhost}
+            />
+          )}
+        </Spinner>
+      </ContentCell>
+      <ContentCell>
+        <Spinner isLoading={tokensAreLoading}>
+          {tokens?.length}
 
-  render() {
-    const { identityProvider, onUpdateUsers, user } = this.props;
-
-    return (
-      <tr>
-        <td className="thin nowrap text-middle">
-          <Avatar hash={user.avatar} name={user.name} size={36} />
-        </td>
-        <UserListItemIdentity identityProvider={identityProvider} user={user} />
-        <td className="thin nowrap text-middle">
-          <UserScmAccounts scmAccounts={user.scmAccounts || []} />
-        </td>
-        <td className="thin nowrap text-middle">
-          <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
-        </td>
-        <td className="thin nowrap text-middle">
-          {user.tokensCount}
           <ButtonIcon
-            className="js-user-tokens spacer-left button-small"
-            onClick={this.handleOpenTokensForm}
-            tooltip={translate('users.update_tokens')}
-          >
-            <BulletListIcon />
-          </ButtonIcon>
-        </td>
-        <td className="thin nowrap text-right text-middle">
-          <UserActions
-            isCurrentUser={this.props.isCurrentUser}
-            onUpdateUsers={onUpdateUsers}
-            user={user}
+            Icon={IconMoreVertical}
+            tooltipContent={translateWithParameters('users.update_tokens')}
+            className="it__user-tokens sw-ml-2"
+            ariaLabel={translateWithParameters('users.update_tokens_for_x', name ?? login)}
+            onClick={() => setOpenTokenForm(true)}
+            size={ButtonSize.Medium}
+            variety={ButtonVariety.DefaultGhost}
           />
-        </td>
-        {this.state.openTokenForm && (
-          <TokensFormModal
-            onClose={this.handleCloseTokensForm}
-            updateTokensCount={this.props.updateTokensCount}
-            user={user}
-          />
-        )}
-      </tr>
-    );
-  }
+        </Spinner>
+      </ContentCell>
+
+      <ActionCell>
+        <UserActions user={user} manageProvider={manageProvider} />
+      </ActionCell>
+
+      {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
+      {openGroupForm && <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />}
+    </TableRow>
+  );
 }

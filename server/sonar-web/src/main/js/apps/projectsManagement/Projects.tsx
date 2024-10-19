@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,61 +17,62 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
+import { ActionCell, ContentCell, Table, TableRow } from 'design-system';
 import * as React from 'react';
-import { Project } from '../../api/components';
+import { Project } from '../../api/project-management';
 import { translate } from '../../helpers/l10n';
 import { LoggedInUser } from '../../types/users';
 import ProjectRow from './ProjectRow';
 
 interface Props {
   currentUser: Pick<LoggedInUser, 'login'>;
-  onProjectDeselected: (project: string) => void;
-  onProjectSelected: (project: string) => void;
+  onProjectDeselected: (project: Project) => void;
+  onProjectSelected: (project: Project) => void;
   projects: Project[];
   ready?: boolean;
-  selection: string[];
+  selection: Project[];
 }
 
-export default class Projects extends React.PureComponent<Props> {
-  onProjectCheck = (project: Project, checked: boolean) => {
+export default function Projects(props: Readonly<Props>) {
+  const { ready, projects, currentUser, selection } = props;
+
+  const onProjectCheck = (project: Project, checked: boolean) => {
     if (checked) {
-      this.props.onProjectSelected(project.key);
+      props.onProjectSelected(project);
     } else {
-      this.props.onProjectDeselected(project.key);
+      props.onProjectDeselected(project);
     }
   };
 
-  render() {
-    return (
-      <div className="boxed-group boxed-group-inner">
-        <table
-          className={classNames('data', 'zebra', { 'new-loading': !this.props.ready })}
-          id="projects-management-page-projects"
-        >
-          <thead>
-            <tr>
-              <th />
-              <th>{translate('name')}</th>
-              <th />
-              <th>{translate('key')}</th>
-              <th className="thin nowrap text-right">{translate('last_analysis')}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.projects.map((project) => (
-              <ProjectRow
-                currentUser={this.props.currentUser}
-                key={project.key}
-                onProjectCheck={this.onProjectCheck}
-                project={project}
-                selected={this.props.selection.includes(project.key)}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
+  const header = (
+    <TableRow>
+      <ContentCell>&nbsp;</ContentCell>
+      <ContentCell>{translate('name')}</ContentCell>
+      <ContentCell>{translate('visibility')}</ContentCell>
+      <ContentCell>{translate('key')}</ContentCell>
+      <ContentCell>{translate('last_analysis')}</ContentCell>
+      <ActionCell>{translate('actions')}</ActionCell>
+    </TableRow>
+  );
+
+  return (
+    <Table
+      columnCount={6}
+      header={header}
+      id="projects-management-page-projects"
+      className={classNames({ 'sw-opacity-50 sw-transition sw-duration-75 sw-ease-in': !ready })}
+    >
+      {projects.map((project) => (
+        <ProjectRow
+          currentUser={currentUser}
+          key={project.key}
+          onProjectCheck={onProjectCheck}
+          project={project}
+          selected={selection.some((s) => s.key === project.key)}
+        />
+      ))}
+    </Table>
+  );
 }

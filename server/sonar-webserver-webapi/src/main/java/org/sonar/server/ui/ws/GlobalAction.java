@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,11 +28,14 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,6 +51,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.DEVELOPER_AGGREGATED_INFO_DISABLED;
 import static org.sonar.api.CoreProperties.RATING_GRID;
+import static org.sonar.api.internal.MetadataLoader.loadSqVersionEol;
 import static org.sonar.core.config.CorePropertyDefinitions.CODESCAN_WHITE_LABEL_PRODUCT;
 import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE;
 import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
@@ -80,11 +84,12 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final WebAnalyticsLoader webAnalyticsLoader;
   private final IssueIndexSyncProgressChecker issueIndexSyncChecker;
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
+  private final DocumentationLinkGenerator documentationLinkGenerator;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
     WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
-    DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier) {
+    DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier, DocumentationLinkGenerator documentationLinkGenerator) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -97,6 +102,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.systemSettingValuesByKey = new HashMap<>();
     this.issueIndexSyncChecker = issueIndexSyncChecker;
     this.defaultAdminCredentialsVerifier = defaultAdminCredentialsVerifier;
+    this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
   @Override
@@ -116,7 +122,8 @@ public class GlobalAction implements NavigationWsAction, Startable {
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("global-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(new Change("10.5", "Field 'versionEOL' added, to indicate the end of support of installed version."));
   }
 
   @Override
@@ -129,6 +136,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeDeprecatedLogoProperties(json);
       writeQualifiers(json);
       writeVersion(json);
+      writeVersionEol(json);
       writeDatabaseProduction(json);
       writeInstanceUsesDefaultAdminCredentials(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
@@ -136,6 +144,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       json.prop("standalone", nodeInformation.isStandalone());
       json.prop("whiteLabel", config.get(CODESCAN_WHITE_LABEL_PRODUCT).orElse("CODESCAN"));
       writeWebAnalytics(json);
+      writeDocumentationUrl(json);
       json.endObject();
     }
   }
@@ -183,6 +192,10 @@ public class GlobalAction implements NavigationWsAction, Startable {
     json.prop("version", displayVersion);
   }
 
+  private void writeVersionEol(JsonWriter json) {
+    json.prop("versionEOL", loadSqVersionEol(System2.INSTANCE));
+  }
+
   private void writeDatabaseProduction(JsonWriter json) {
     json.prop("productionDatabase", !dbClient.getDatabase().getDialect().getId().equals(H2.ID));
   }
@@ -201,5 +214,9 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeWebAnalytics(JsonWriter json) {
     webAnalyticsLoader.getUrlPathToJs().ifPresent(p -> json.prop("webAnalyticsJsPath", p));
+  }
+
+  private void writeDocumentationUrl(JsonWriter json) {
+    json.prop("documentationUrl", documentationLinkGenerator.getDocumentationLink(null));
   }
 }

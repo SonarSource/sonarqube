@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -114,16 +114,6 @@ class FakeServer extends Server {
 
   @Override
   public String getPublicRootUrl() {
-    return null;
-  }
-
-  @Override
-  public boolean isSecured() {
-    return false;
-  }
-
-  @Override
-  public String getPermanentServerId() {
     return null;
   }
 }

@@ -11,15 +11,28 @@ dependencies {
     api 'com.github.scribejava:scribejava-core'
     api 'com.google.code.gson:gson'
     api project(':server:sonar-auth-common')
+    api project(':server:sonar-server-common')
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     compileOnlyApi 'com.squareup.okhttp3:okhttp'
-    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
     compileOnlyApi project(':sonar-core')
 
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'com.squareup.okhttp3:okhttp'
+    testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+    // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+    useJUnitPlatform()
 }

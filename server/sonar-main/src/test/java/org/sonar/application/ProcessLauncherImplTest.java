@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.application.command.EsJvmOptions;
-import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsInstallation;
@@ -184,6 +183,39 @@ public class ProcessLauncherImplTest {
   }
 
   @Test
+  public void launch_whenEnablingEsWithHttpEncryption_shouldCopyKeystoreToEsConf() throws Exception {
+    File tempDir = temp.newFolder();
+    File certificateFile = temp.newFile("certificate.pk12");
+    File httpCertificateFile = temp.newFile("httpCertificate.pk12");
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+
+    EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
+      .set("sonar.cluster.enabled", "true")
+      .set("sonar.cluster.search.password", "bootstrap-password")
+      .set("sonar.cluster.es.ssl.keystore", certificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.ssl.truststore", certificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.http.ssl.keystore", httpCertificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.http.ssl.keystorePassword", "keystore-password"));
+
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    command.addClasspath("lib/*.class");
+    command.addClasspath("lib/*.jar");
+    command.setArgument("foo", "bar");
+    command.setClassName("org.sonarqube.Main");
+    command.setEnvVariable("VAR1", "valueOfVar1");
+    command.setJvmOptions(new JvmOptions<>()
+      .add("-Dfoo=bar")
+      .add("-Dfoo2=bar2"));
+    command.setEsInstallation(esInstallation);
+
+    ManagedProcess monitor = underTest.launch(command);
+    assertThat(monitor).isNotNull();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "certificate.pk12")).exists();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "httpCertificate.pk12")).exists();
+  }
+
+  @Test
   public void properties_are_passed_to_command_via_a_temporary_properties_file() throws Exception {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
@@ -239,7 +271,7 @@ public class ProcessLauncherImplTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
-    EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
+    JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
     assertThat(outdatedEsDir.mkdir()).isTrue();
@@ -257,7 +289,7 @@ public class ProcessLauncherImplTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
-    EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
+    JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
     assertThat(outdatedEsDir).doesNotExist();
@@ -280,13 +312,14 @@ public class ProcessLauncherImplTest {
       .hasMessage("Fail to launch process [%s]", ProcessId.ELASTICSEARCH.getHumanReadableName());
   }
 
-  private EsScriptCommand createEsScriptCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
-    EsScriptCommand command = new EsScriptCommand(ProcessId.ELASTICSEARCH, temp.newFolder());
+  private JavaCommand<?> createEsCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
+    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH, temp.newFolder());
     Props props = new Props(new Properties());
     props.set("sonar.path.temp", tempDir.getAbsolutePath());
     props.set("sonar.path.home", homeDir.getAbsolutePath());
     props.set("sonar.path.data", dataDir.getAbsolutePath());
     props.set("sonar.path.logs", logDir.getAbsolutePath());
+    command.setJvmOptions(mock(JvmOptions.class));
     command.setEsInstallation(new EsInstallation(props)
       .setEsYmlSettings(mock(EsYmlSettings.class))
       .setEsJvmOptions(mock(EsJvmOptions.class))

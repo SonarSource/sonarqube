@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import Link from '../../../components/common/Link';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
-import { ComponentQualifier } from '../../../types/component';
+import { useProjectBindingQuery } from '../../../queries/devops-integration';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/constants';
@@ -35,18 +35,18 @@ export interface FirstAnalysisNextStepsNotifProps {
   component: Component;
   currentUser: CurrentUser;
   detectedCIOnLastAnalysis?: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifProps) {
-  const { component, currentUser, branchesEnabled, detectedCIOnLastAnalysis, projectBinding } =
-    props;
+  const { component, currentUser, branchesEnabled, detectedCIOnLastAnalysis } = props;
 
-  if (!isLoggedIn(currentUser) || component.qualifier !== ComponentQualifier.Project) {
+  const { data: projectBinding, isLoading } = useProjectBindingQuery(component.key);
+
+  if (!isLoggedIn(currentUser) || component.qualifier !== ComponentQualifier.Project || isLoading) {
     return null;
   }
 
-  const showConfigurePullRequestDecoNotif = branchesEnabled && projectBinding === undefined;
+  const showConfigurePullRequestDecoNotif = branchesEnabled && projectBinding == null;
   const showConfigureCINotif =
     detectedCIOnLastAnalysis !== undefined ? !detectedCIOnLastAnalysis : false;
 
@@ -62,7 +62,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     <Link
       to={{
         pathname: '/tutorials',
-        search: queryToSearch({ id: component.key }),
+        search: queryToSearchString({ id: component.key }),
       }}
     >
       {translate('overview.project.next_steps.links.set_up_ci')}
@@ -72,7 +72,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     <Link
       to={{
         pathname: '/project/settings',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: component.key,
           category: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
         }),
@@ -84,46 +84,48 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
 
   return (
     <DismissableAlert alertKey={`config_ci_pr_deco.${component.key}`} variant="info">
-      {showOnlyConfigureCI && (
-        <FormattedMessage
-          defaultMessage={translate('overview.project.next_steps.set_up_ci')}
-          id="overview.project.next_steps.set_up_ci"
-          values={{
-            link: tutorialsLink,
-          }}
-        />
-      )}
-
-      {showOnlyConfigurePR &&
-        (isProjectAdmin ? (
+      <div>
+        {showOnlyConfigureCI && (
           <FormattedMessage
-            defaultMessage={translate('overview.project.next_steps.set_up_pr_deco.admin')}
-            id="overview.project.next_steps.set_up_pr_deco.admin"
+            defaultMessage={translate('overview.project.next_steps.set_up_ci')}
+            id="overview.project.next_steps.set_up_ci"
             values={{
-              link_project_settings: projectSettingsLink,
+              link: tutorialsLink,
             }}
           />
-        ) : (
-          translate('overview.project.next_steps.set_up_pr_deco')
-        ))}
+        )}
 
-      {showBoth &&
-        (isProjectAdmin ? (
-          <FormattedMessage
-            defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci.admin')}
-            id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
-            values={{
-              link_ci: tutorialsLink,
-              link_project_settings: projectSettingsLink,
-            }}
-          />
-        ) : (
-          <FormattedMessage
-            defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci')}
-            id="overview.project.next_steps.set_up_pr_deco_and_ci"
-            values={{ link_ci: tutorialsLink }}
-          />
-        ))}
+        {showOnlyConfigurePR &&
+          (isProjectAdmin ? (
+            <FormattedMessage
+              defaultMessage={translate('overview.project.next_steps.set_up_pr_deco.admin')}
+              id="overview.project.next_steps.set_up_pr_deco.admin"
+              values={{
+                link_project_settings: projectSettingsLink,
+              }}
+            />
+          ) : (
+            translate('overview.project.next_steps.set_up_pr_deco')
+          ))}
+
+        {showBoth &&
+          (isProjectAdmin ? (
+            <FormattedMessage
+              defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci.admin')}
+              id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
+              values={{
+                link_ci: tutorialsLink,
+                link_project_settings: projectSettingsLink,
+              }}
+            />
+          ) : (
+            <FormattedMessage
+              defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci')}
+              id="overview.project.next_steps.set_up_pr_deco_and_ci"
+              values={{ link_ci: tutorialsLink }}
+            />
+          ))}
+      </div>
     </DismissableAlert>
   );
 }

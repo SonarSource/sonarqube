@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,11 +28,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -42,15 +42,13 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 
 import static java.util.stream.Collectors.toCollection;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
-@ServerSide
 public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
-  private static final Logger LOG = Loggers.get(AsyncIssueIndexingImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AsyncIssueIndexingImpl.class);
 
   private final CeQueue ceQueue;
   private final DbClient dbClient;
@@ -65,7 +63,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      // remove already existing indexation task, if any
+      // remove already existing indexing task, if any
       removeExistingIndexationTasks(dbSession);
 
       dbClient.branchDao().updateAllNeedIssueSync(dbSession);
@@ -101,7 +99,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   public void triggerForProject(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      // remove already existing indexation task, if any
+      // remove already existing indexing task, if any
       removeExistingIndexationTasksForProject(dbSession, projectUuid);
 
       dbClient.branchDao().updateAllNeedIssueSyncForProject(dbSession, projectUuid);
@@ -121,7 +119,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   private void sortProjectUuids(DbSession dbSession, List<String> projectUuids) {
     Map<String, SnapshotDto> snapshotByProjectUuid = dbClient.snapshotDao()
       .selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
-      .collect(Collectors.toMap(SnapshotDto::getComponentUuid, Function.identity()));
+      .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, Function.identity()));
 
     projectUuids.sort(compareBySnapshot(snapshotByProjectUuid));
   }
@@ -144,44 +142,51 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   }
 
   private void removeExistingIndexationTasks(DbSession dbSession) {
-    removeIndexationTasks(dbSession, dbClient.ceQueueDao().selectAllInAscOrder(dbSession));
+    Set<String> ceQueueUuids = dbClient.ceQueueDao().selectAllInAscOrder(dbSession)
+      .stream().filter(p -> p.getTaskType().equals(BRANCH_ISSUE_SYNC))
+      .map(CeQueueDto::getUuid).collect(Collectors.toSet());
+    Set<String> ceActivityUuids = dbClient.ceActivityDao().selectByTaskType(dbSession, BRANCH_ISSUE_SYNC)
+      .stream().map(CeActivityDto::getUuid).collect(Collectors.toSet());
+    removeIndexationTasks(dbSession, ceQueueUuids, ceActivityUuids);
   }
 
   private void removeExistingIndexationTasksForProject(DbSession dbSession, String projectUuid) {
-    removeIndexationTasks(dbSession, dbClient.ceQueueDao().selectByMainComponentUuid(dbSession, projectUuid));
+    Set<String> ceQueueUuidsForProject = dbClient.ceQueueDao().selectByEntityUuid(dbSession, projectUuid)
+      .stream().filter(p -> p.getTaskType().equals(BRANCH_ISSUE_SYNC))
+      .map(CeQueueDto::getUuid).collect(Collectors.toSet());
+    Set<String> ceActivityUuidsForProject = dbClient.ceActivityDao().selectByTaskType(dbSession, BRANCH_ISSUE_SYNC)
+      .stream()
+      .filter(ceActivityDto -> projectUuid.equals(ceActivityDto.getEntityUuid()))
+      .map(CeActivityDto::getUuid).collect(Collectors.toSet());
+    removeIndexationTasks(dbSession, ceQueueUuidsForProject, ceActivityUuidsForProject);
   }
 
-  private void removeIndexationTasks(DbSession dbSession, List<CeQueueDto> ceQueueDtos) {
-    List<String> uuids = ceQueueDtos.stream()
-      .filter(p -> p.getTaskType().equals(BRANCH_ISSUE_SYNC))
-      .map(CeQueueDto::getUuid)
-      .toList();
-
-    LOG.info(String.format("%s pending indexation task found to be deleted...", uuids.size()));
-    for (String uuid : uuids) {
+  private void removeIndexationTasks(DbSession dbSession, Set<String> ceQueueUuids, Set<String> ceActivityUuids) {
+    LOG.atInfo().setMessage("{} pending indexing task found to be deleted...")
+      .addArgument(ceQueueUuids.size())
+      .log();
+    for (String uuid : ceQueueUuids) {
       dbClient.ceQueueDao().deleteByUuid(dbSession, uuid);
     }
-    dbSession.commit();
 
-    Set<String> ceUuids = dbClient.ceActivityDao().selectByTaskType(dbSession, BRANCH_ISSUE_SYNC).stream()
-      .map(CeActivityDto::getUuid)
-      .collect(Collectors.toSet());
-    LOG.info(String.format("%s completed indexation task found to be deleted...", uuids.size()));
-    dbClient.ceActivityDao().deleteByUuids(dbSession, ceUuids);
-    dbSession.commit();
-    LOG.info("Indexation task deletion complete.");
+    LOG.atInfo().setMessage("{} completed indexing task found to be deleted...")
+      .addArgument(ceQueueUuids.size())
+      .log();
+    dbClient.ceActivityDao().deleteByUuids(dbSession, ceActivityUuids);
+    LOG.info("Indexing task deletion complete.");
 
     LOG.info("Deleting tasks characteristics...");
-    Set<String> tasksUuid = Stream.concat(uuids.stream(), ceUuids.stream()).collect(Collectors.toSet());
+    Set<String> tasksUuid = Stream.concat(ceQueueUuids.stream(), ceActivityUuids.stream()).collect(Collectors.toSet());
     dbClient.ceTaskCharacteristicsDao().deleteByTaskUuids(dbSession, tasksUuid);
-    dbSession.commit();
     LOG.info("Tasks characteristics deletion complete.");
+
+    dbSession.commit();
   }
 
   private CeTaskSubmit buildTaskSubmit(BranchDto branch) {
     Map<String, String> characteristics = new HashMap<>();
-    characteristics.put(branch.getBranchType() == BranchType.BRANCH ? BRANCH_KEY : PULL_REQUEST, branch.getKey());
-    characteristics.put(BRANCH_TYPE_KEY, branch.getBranchType().name());
+    characteristics.put(branch.getBranchType() == BranchType.BRANCH ? CeTaskCharacteristics.BRANCH : PULL_REQUEST, branch.getKey());
+    characteristics.put(BRANCH_TYPE, branch.getBranchType().name());
 
     return ceQueue.prepareSubmit()
       .setType(BRANCH_ISSUE_SYNC)

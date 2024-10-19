@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,22 +19,19 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.user.ExternalIdentity;
-import org.sonar.server.user.NewUser;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.service.UserCreateRequest;
+import org.sonar.server.common.user.service.UserInformation;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.UserUpdater;
 import org.sonarqube.ws.Users.CreateWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -42,7 +39,6 @@ import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
-import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MIN_LENGTH;
@@ -59,14 +55,14 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
 
 public class CreateAction implements UsersWsAction {
 
-  private final DbClient dbClient;
-  private final UserUpdater userUpdater;
   private final UserSession userSession;
+  private final ManagedInstanceChecker managedInstanceChecker;
+  private final UserService userService;
 
-  public CreateAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession) {
-    this.dbClient = dbClient;
-    this.userUpdater = userUpdater;
+  public CreateAction(UserSession userSession, ManagedInstanceChecker managedInstanceService, UserService userService) {
     this.userSession = userSession;
+    this.managedInstanceChecker = managedInstanceService;
+    this.userService = userService;
   }
 
   @Override
@@ -77,11 +73,13 @@ public class CreateAction implements UsersWsAction {
         "Requires Administer System permission")
       .setSince("3.7")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use POST api/v2/users-management/users instead"),
         new Change("6.3", "The password is only mandatory when creating local users, and should not be set on non local users"),
         new Change("6.3", "The 'infos' message is no more returned when a user is reactivated"))
       .setPost(true)
       .setResponseExample(getClass().getResource("create-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4");
 
     action.createParam(PARAM_LOGIN)
       .setRequired(true)
@@ -120,32 +118,18 @@ public class CreateAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-    CreateRequest createRequest = toWsRequest(request);
-    checkArgument(isValidIfPresent(createRequest.getEmail()), "Email '%s' is not valid", createRequest.getEmail());
-    writeProtobuf(doHandle(createRequest), request, response);
+    managedInstanceChecker.throwIfInstanceIsManaged();
+
+    UserCreateRequest userCreateRequest = toUserCreateRequest(request);
+    String email = userCreateRequest.getEmail().orElse(null);
+    checkArgument(isValidIfPresent(email), "Email '%s' is not valid", email);
+
+    writeProtobuf(doHandle(userCreateRequest), request, response);
   }
 
-  private CreateWsResponse doHandle(CreateRequest request) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      String login = request.getLogin();
-      NewUser.Builder newUser = NewUser.builder()
-        .setLogin(login)
-        .setName(request.getName())
-        .setEmail(request.getEmail())
-        .setScmAccounts(request.getScmAccounts())
-        .setPassword(request.getPassword());
-      if (!request.isLocal()) {
-        newUser.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, login, login));
-      }
-      UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
-      if (existingUser == null) {
-        return buildResponse(userUpdater.createAndCommit(dbSession, newUser.build(), u -> {
-        }));
-      }
-      checkArgument(!existingUser.isActive(), "An active user with login '%s' already exists", login);
-      return buildResponse(userUpdater.reactivateAndCommit(dbSession, existingUser, newUser.build(), u -> {
-      }));
-    }
+  private CreateWsResponse doHandle(UserCreateRequest userCreateRequest) {
+    UserInformation userInformation = userService.createUser(userCreateRequest);
+    return buildResponse(userInformation.userDto());
   }
 
   private static CreateWsResponse buildResponse(UserDto userDto) {
@@ -154,45 +138,27 @@ public class CreateAction implements UsersWsAction {
       .setName(userDto.getName())
       .setActive(userDto.isActive())
       .setLocal(userDto.isLocal())
-      .addAllScmAccounts(userDto.getScmAccountsAsList());
+      .addAllScmAccounts(userDto.getSortedScmAccounts());
     ofNullable(emptyToNull(userDto.getEmail())).ifPresent(userBuilder::setEmail);
     return CreateWsResponse.newBuilder().setUser(userBuilder).build();
   }
 
-  private static CreateRequest toWsRequest(Request request) {
-    return CreateRequest.builder()
+  private static UserCreateRequest toUserCreateRequest(Request request) {
+    return UserCreateRequest.builder()
+      .setEmail(request.param(PARAM_EMAIL))
+      .setLocal(request.mandatoryParamAsBoolean(PARAM_LOCAL))
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
       .setName(request.mandatoryParam(PARAM_NAME))
       .setPassword(request.param(PARAM_PASSWORD))
-      .setEmail(request.param(PARAM_EMAIL))
       .setScmAccounts(parseScmAccounts(request))
-      .setLocal(request.mandatoryParamAsBoolean(PARAM_LOCAL))
       .build();
   }
 
   public static List<String> parseScmAccounts(Request request) {
     if (request.hasParam(PARAM_SCM_ACCOUNT)) {
-      List<String> scmAccounts = request.multiParam(PARAM_SCM_ACCOUNT);
-      validateScmAccounts(scmAccounts);
-      return scmAccounts;
+      return request.multiParam(PARAM_SCM_ACCOUNT);
     }
     return emptyList();
-  }
-
-  private static void validateScmAccounts(List<String> scmAccounts) {
-    scmAccounts.forEach(CreateAction::validateScmAccountFormat);
-    validateNoDuplicates(scmAccounts);
-  }
-
-  private static void validateScmAccountFormat(String scmAccount) {
-    checkArgument(scmAccount.equals(scmAccount.strip()), "SCM account cannot start or end with whitespace: '%s'", scmAccount);
-  }
-
-  private static void validateNoDuplicates(List<String> scmAccounts) {
-    Set<String> duplicateCheck = new HashSet<>();
-    for (String account : scmAccounts) {
-      checkArgument(duplicateCheck.add(account), "Duplicate SCM account: '%s'", account);
-    }
   }
 
   static class CreateRequest {

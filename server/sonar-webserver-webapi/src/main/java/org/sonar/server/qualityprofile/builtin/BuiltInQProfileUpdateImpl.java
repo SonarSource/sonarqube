@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -35,8 +35,6 @@ import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
@@ -58,13 +56,13 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     Set<String> deactivatedRuleUuids = dbClient.activeRuleDao().selectByRuleProfile(dbSession, initialRuleProfile)
       .stream()
       .map(ActiveRuleDto::getRuleUuid)
-      .collect(MoreCollectors.toHashSet());
+      .collect(Collectors.toSet());
 
     // all rules, including those which are removed from built-in profile
     Set<String> ruleUuids = Stream.concat(
         deactivatedRuleUuids.stream(),
         builtInDefinition.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleUuid))
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     Collection<RuleActivation> activations = new ArrayList<>();
     for (BuiltInQProfile.ActiveRule ar : builtInDefinition.getActiveRules()) {
@@ -91,7 +89,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
   private static RuleActivation convert(BuiltInQProfile.ActiveRule ar) {
     Map<String, String> params = ar.getParams().stream()
-      .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
+      .collect(Collectors.toMap(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
     return RuleActivation.create(ar.getRuleUuid(), ar.getSeverity(), params);
   }
 

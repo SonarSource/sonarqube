@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,28 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
+import { useDeleteAnalysisMutation } from '../../../../queries/project-analyses';
 import { ParsedAnalysis } from '../../../../types/project-activity';
 
 interface Props {
   analysis: ParsedAnalysis;
-  deleteAnalysis: (analysis: string) => Promise<void>;
   onClose: () => void;
 }
 
-export default function RemoveAnalysisForm({ analysis, deleteAnalysis, onClose }: Props) {
+export default function RemoveAnalysisForm({ analysis, onClose }: Readonly<Props>) {
+  const { mutate: deleteAnalysis } = useDeleteAnalysisMutation(onClose);
+
   return (
-    <ConfirmModal
-      confirmButtonText={translate('delete')}
-      confirmData={analysis.key}
-      header={translate('project_activity.delete_analysis')}
-      isDestructive={true}
+    <Modal
+      headerTitle={translate('project_activity.delete_analysis')}
       onClose={onClose}
-      onConfirm={deleteAnalysis}
-    >
-      {translate('project_activity.delete_analysis.question')}
-    </ConfirmModal>
+      body={<p>{translate('project_activity.delete_analysis.question')}</p>}
+      primaryButton={
+        <Button
+          onClick={() => deleteAnalysis(analysis.key)}
+          type="submit"
+          variety={ButtonVariety.Danger}
+        >
+          {translate('delete')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

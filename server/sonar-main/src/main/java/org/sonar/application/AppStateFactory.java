@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,10 @@
 package org.sonar.application;
 
 import com.google.common.net.HostAndPort;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.application.cluster.AppNodesClusterHostsConsistency;
@@ -34,6 +37,8 @@ import org.sonar.process.Props;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_KUBERNETES;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
@@ -78,6 +83,8 @@ public class AppStateFactory {
       .map(HostAndPort::fromString)
       .collect(Collectors.toSet());
     String searchPassword = props.value(CLUSTER_SEARCH_PASSWORD.getKey());
-    return new EsConnectorImpl(hostAndPorts, searchPassword);
+    Path keyStorePath = Optional.ofNullable(props.value(CLUSTER_ES_HTTP_KEYSTORE.getKey())).map(Paths::get).orElse(null);
+    String keyStorePassword = props.value(CLUSTER_ES_HTTP_KEYSTORE_PASSWORD.getKey());
+    return new EsConnectorImpl(hostAndPorts, searchPassword, keyStorePath, keyStorePassword);
   }
 }

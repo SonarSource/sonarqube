@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ce.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -42,8 +43,9 @@ public class IndexationStatusAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("indexation_status")
-      .setDescription("Returns percentage of completed issue synchronization.")
+      .setDescription("Returns the count of projects with completed issue indexing.")
       .setResponseExample(getClass().getResource("indexation_status-example.json"))
+      .setChangelog(new Change("10.2", "Project count is returned instead of branch percentage."))
       .setHandler(this)
       .setInternal(true)
       .setSince("8.4");
@@ -63,8 +65,9 @@ public class IndexationStatusAction implements CeWsAction {
 
     return IndexationStatusWsResponse.newBuilder()
       .setIsCompleted(issueSyncProgress.isCompleted())
-      .setPercentCompleted(issueSyncProgress.toPercentCompleted())
       .setHasFailures(issueSyncProgress.hasFailures())
+      .setCompletedCount(issueSyncProgress.getCompletedCount())
+      .setTotal(issueSyncProgress.getTotal())
       .build();
   }
 

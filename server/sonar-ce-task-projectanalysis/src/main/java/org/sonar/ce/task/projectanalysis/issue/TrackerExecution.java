@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.issue.Issue;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -28,7 +29,6 @@ import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.NonClosedTracking;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class TrackerExecution {
 
@@ -63,7 +63,7 @@ public class TrackerExecution {
     // - recover fields values from before they were closed
     Set<DefaultIssue> matchesClosedIssues = closedIssuesTracking.getMatchedRaws().values().stream()
       .filter(t -> Issue.STATUS_CLOSED.equals(t.getStatus()))
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     componentIssuesLoader.loadLatestDiffChangesForReopeningOfClosedIssues(matchesClosedIssues);
 
     return closedIssuesTracking;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,14 +21,11 @@ package org.sonar.server.authentication.ws;
 
 import java.util.Collections;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.api.web.FilterChain;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -49,17 +46,14 @@ public class LogoutActionTest {
 
   private static final UserDto USER = newUserDto().setLogin("john");
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  private final HttpRequest request = mock(HttpRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
+  private final FilterChain chain = mock(FilterChain.class);
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private FilterChain chain = mock(FilterChain.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-
-  private LogoutAction underTest = new LogoutAction(jwtHttpHandler, authenticationEvent);
+  private final LogoutAction underTest = new LogoutAction(jwtHttpHandler, authenticationEvent);
 
   @Test
   public void verify_definition() {
@@ -121,12 +115,12 @@ public class LogoutActionTest {
   public void generate_auth_event_on_failure() {
     setUser(USER);
     AuthenticationException exception = AuthenticationException.newBuilder().setMessage("error!").setSource(sso()).build();
-    doThrow(exception).when(jwtHttpHandler).getToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
+    doThrow(exception).when(jwtHttpHandler).getToken(any(HttpRequest.class), any(HttpResponse.class));
 
     executeRequest();
 
     verify(authenticationEvent).logoutFailure(request, "error!");
-    verify(jwtHttpHandler).removeToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
+    verify(jwtHttpHandler).removeToken(any(HttpRequest.class), any(HttpResponse.class));
     verifyNoInteractions(chain);
   }
 
@@ -136,12 +130,12 @@ public class LogoutActionTest {
   }
 
   private void setUser(UserDto user) {
-    when(jwtHttpHandler.getToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
+    when(jwtHttpHandler.getToken(any(HttpRequest.class), any(HttpResponse.class)))
       .thenReturn(Optional.of(new JwtHttpHandler.Token(user, Collections.emptyMap())));
   }
 
   private void setNoUser() {
-    when(jwtHttpHandler.getToken(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(Optional.empty());
+    when(jwtHttpHandler.getToken(any(HttpRequest.class), any(HttpResponse.class))).thenReturn(Optional.empty());
   }
 
 }

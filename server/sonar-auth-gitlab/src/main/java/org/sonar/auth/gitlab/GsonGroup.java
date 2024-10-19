@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,6 @@ package org.sonar.auth.gitlab;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,27 +29,33 @@ import java.util.List;
  */
 public class GsonGroup {
 
+  @SerializedName("id")
+  private String id;
   @SerializedName("full_path")
   private String fullPath;
 
   public GsonGroup() {
     // http://stackoverflow.com/a/18645370/229031
-    this("");
+    this("", "");
   }
 
-  GsonGroup(String fullPath) {
+  private GsonGroup(String id, String fullPath) {
+    this.id = id;
     this.fullPath = fullPath;
   }
 
-  String getFullPath() {
+  public String getId() {
+    return id;
+  }
+
+  public String getFullPath() {
     return fullPath;
   }
 
   static List<GsonGroup> parse(String json) {
-    Type collectionType = new TypeToken<Collection<GsonGroup>>() {
-    }.getType();
     Gson gson = new Gson();
-    return gson.fromJson(json, collectionType);
+    return gson.fromJson(json, new TypeToken<List<GsonGroup>>() {
+    });
   }
 
 }

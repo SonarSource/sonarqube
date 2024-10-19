@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,21 +22,12 @@ package org.sonar.server.user;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.sonar.db.DbClient;
-import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserSessionFactoryImplTest {
-
-  @Mock
-  private DbClient dbClient;
-
-  @Mock
-  private UserLastConnectionDatesUpdater userLastConnectionDatesUpdater;
 
   @InjectMocks
   private UserSessionFactoryImpl userSessionFactory;

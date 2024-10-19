@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,16 +22,14 @@ package org.sonar.ce.task.projectexport.steps;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.task.projectexport.component.ComponentRepository;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.property.PropertyDto;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 public class ExportSettingsStep implements ComputationStep {
 
@@ -43,13 +41,11 @@ public class ExportSettingsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final ProjectHolder projectHolder;
-  private final ComponentRepository componentRepository;
   private final DumpWriter dumpWriter;
 
-  public ExportSettingsStep(DbClient dbClient, ProjectHolder projectHolder, ComponentRepository componentRepository, DumpWriter dumpWriter) {
+  public ExportSettingsStep(DbClient dbClient, ProjectHolder projectHolder, DumpWriter dumpWriter) {
     this.dbClient = dbClient;
     this.projectHolder = projectHolder;
-    this.componentRepository = componentRepository;
     this.dumpWriter = dumpWriter;
   }
 
@@ -61,24 +57,21 @@ public class ExportSettingsStep implements ComputationStep {
       DbSession dbSession = dbClient.openSession(false)) {
 
       final ProjectDump.Setting.Builder builder = ProjectDump.Setting.newBuilder();
-      final List<PropertyDto> properties = dbSession.getMapper(ProjectExportMapper.class).selectPropertiesForExport(projectHolder.projectDto().getUuid())
+      final List<PropertyDto> properties = dbClient.projectExportDao()
+        .selectPropertiesForExport(dbSession, projectHolder.projectDto().getUuid())
         .stream()
-        .filter(dto -> dto.getComponentUuid() != null)
+        .filter(dto -> dto.getEntityUuid() != null)
         .filter(dto -> !IGNORED_KEYS.contains(dto.getKey()))
         .toList();
       for (PropertyDto property : properties) {
         builder.clear()
           .setKey(property.getKey())
           .setValue(defaultString(property.getValue()));
-
-        if (property.getComponentUuid() != null) {
-          builder.setComponentRef(componentRepository.getRef(property.getComponentUuid()));
-        }
         output.write(builder.build());
         ++count;
       }
 
-      Loggers.get(getClass()).debug("{} settings exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} settings exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Settings Export failed after processing %d settings successfully", count), e);
     }

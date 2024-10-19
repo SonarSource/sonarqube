@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,170 +17,116 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { find, without } from 'lodash';
+import { Modal, TextMuted } from 'design-system';
+import { find } from 'lodash';
 import * as React from 'react';
-import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../api/user_groups';
-import { ResetButtonLink } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { Group, UserSelected } from '../../../types/types';
-import { FormattedMessage } from 'react-intl';
+import {
+  useAddGroupMembershipMutation,
+  useGroupMembersQuery,
+  useRemoveGroupMembersQueryFromCache,
+  useRemoveGroupMembershipMutation,
+} from '../../../queries/group-memberships';
+import { Group } from '../../../types/types';
+import { RestUserBase } from '../../../types/users';
 
 interface Props {
+  organization: string | undefined;
   group: Group;
   onClose: () => void;
-  organization: string | undefined;
 }
 
-interface State {
-  lastSearchParams?: SelectListSearchParams;
-  needToReload: boolean;
-  users: UserSelected[];
-  usersTotalCount?: number;
-  selectedUsers: string[];
-}
+export default function EditMembersModal(props: Readonly<Props>) {
+  const { group } = props;
 
-export default class EditMembersModal extends React.PureComponent<Props, State> {
-  mounted = false;
+  const [query, setQuery] = React.useState<string>('');
+  const [changedUsers, setChangedUsers] = React.useState<Map<string, boolean>>(new Map());
+  const [filter, setFilter] = React.useState<SelectListFilter>(SelectListFilter.Selected);
+  const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
+  const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
+  const { data, isLoading, fetchNextPage } = useGroupMembersQuery({
+    q: query,
+    groupId: group.id,
+    filter,
+  });
+  const emptyQueryCache = useRemoveGroupMembersQueryFromCache();
 
-  constructor(props: Props) {
-    super(props);
+  const users: (RestUserBase & { selected?: boolean })[] =
+    data?.pages.flatMap((page) => page.users) ?? [];
 
-    this.state = {
-      needToReload: false,
-      users: [],
-      selectedUsers: [],
-    };
-  }
+  const modalHeader = translate('users.update');
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchUsers = (searchParams: SelectListSearchParams) =>
-    getUsersInGroup({
-      name: this.props.group.name,
-      p: searchParams.page,
-      ps: searchParams.pageSize,
-      q: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.filter,
-      organization: this.props.organization,
-    }).then((data) => {
-      if (this.mounted) {
-        this.setState((prevState) => {
-          const more = searchParams.page != null && searchParams.page > 1;
-
-          const users = more ? [...prevState.users, ...data.users] : data.users;
-          const newSelectedUsers = data.users
-            .filter((user) => user.selected)
-            .map((user) => user.login);
-          const selectedUsers = more
-            ? [...prevState.selectedUsers, ...newSelectedUsers]
-            : newSelectedUsers;
-
-          return {
-            needToReload: false,
-            lastSearchParams: searchParams,
-            loading: false,
-            users,
-            usersTotalCount: data.total,
-            selectedUsers,
-          };
-        });
-      }
-    });
-
-  handleSelect = (login: string) =>
+  const handleSelect = (userId: string) =>
     addUserToGroup({
-      name: this.props.group.name,
-      login,
-      organization: this.props.organization,
+      groupId: group.id,
+      userId,
     }).then(() => {
-      if (this.mounted) {
-        this.setState((state: State) => ({
-          needToReload: true,
-          selectedUsers: [...state.selectedUsers, login],
-        }));
-      }
+      const newChangedUsers = new Map(changedUsers);
+      newChangedUsers.set(userId, true);
+      setChangedUsers(newChangedUsers);
     });
 
-  handleUnselect = (login: string) =>
+  const handleUnselect = (userId: string) =>
     removeUserFromGroup({
-      name: this.props.group.name,
-      login,
-      organization: this.props.organization,
+      userId,
+      groupId: group.id,
     }).then(() => {
-      if (this.mounted) {
-        this.setState((state: State) => ({
-          needToReload: true,
-          selectedUsers: without(state.selectedUsers, login),
-        }));
-      }
+      const newChangedUsers = new Map(changedUsers);
+      newChangedUsers.set(userId, false);
+      setChangedUsers(newChangedUsers);
     });
 
-  renderElement = (login: string): React.ReactNode => {
-    const user = find(this.state.users, { login });
+  const renderElement = (id: string): React.ReactNode => {
+    const user = find(users, { id });
+    if (!user) {
+      return null;
+    }
+
     return (
-      <div className="select-list-list-item">
-        {user === undefined ? (
-          login
-        ) : (
-          <>
-            {user.name}
-            <br />
-            <span className="note">{user.login}</span>
-          </>
-        )}
+      <div>
+        {user.name}
+        <br />
+        <TextMuted text={user.login} />
       </div>
     );
   };
 
-  render() {
-    const modalHeader = translate('users.group.update');
-    return (
-      <Modal contentLabel={modalHeader} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>
-            <FormattedMessage
-                 defaultMessage={modalHeader}
-                 id="users.group.update"
-                 values={{
-                 group: this.props.group.name
-                 }}
-            />
-          </h2>
-        </header>
+  const onSearch = (searchParams: SelectListSearchParams) => {
+    setQuery(searchParams.query);
+    setFilter(searchParams.filter);
+    if (searchParams.page === 1) {
+      emptyQueryCache();
+      setChangedUsers(new Map());
+    } else {
+      fetchNextPage();
+    }
+  };
 
-        <div className="modal-body modal-container">
-          <SelectList
-            elements={this.state.users.map((user) => user.login)}
-            elementsTotalCount={this.state.usersTotalCount}
-            needToReload={
-              this.state.needToReload &&
-              this.state.lastSearchParams &&
-              this.state.lastSearchParams.filter !== SelectListFilter.All
-            }
-            onSearch={this.fetchUsers}
-            onSelect={this.handleSelect}
-            onUnselect={this.handleUnselect}
-            renderElement={this.renderElement}
-            selectedElements={this.state.selectedUsers}
-            withPaging={true}
-          />
-        </div>
-
-        <footer className="modal-foot">
-          <ResetButtonLink onClick={this.props.onClose}>{translate('Done')}</ResetButtonLink>
-        </footer>
-      </Modal>
-    );
-  }
+  return (
+    <Modal
+      headerTitle={modalHeader}
+      body={
+        <SelectList
+          elements={users.map((user) => user.id)}
+          elementsTotalCount={data?.pages[0].page.total}
+          needToReload={changedUsers.size > 0 && filter !== SelectListFilter.All}
+          onSearch={onSearch}
+          onSelect={handleSelect}
+          onUnselect={handleUnselect}
+          renderElement={renderElement}
+          selectedElements={users
+            .filter((u) => (changedUsers.has(u.id) ? changedUsers.get(u.id) : u.selected))
+            .map((u) => u.id)}
+          withPaging
+          loading={isLoading}
+        />
+      }
+      secondaryButtonLabel={translate('done')}
+      onClose={props.onClose}
+    />
+  );
 }

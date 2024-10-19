@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Theme } from '@emotion/react';
+import { QueryClient } from '@tanstack/react-query';
 import { IntlShape } from 'react-intl';
-import { Location, Router } from '../components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { AppState } from './appstate';
+import { BranchLike } from './branch-like';
 import { L10nBundle } from './l10nBundle';
-import { Component, Dict } from './types';
+import { Component } from './types';
 import { CurrentUser, HomePage } from './users';
 
 export enum AdminPageExtension {
@@ -29,36 +33,36 @@ export enum AdminPageExtension {
 }
 
 export interface ExtensionRegistryEntry {
-  start: ExtensionStartMethod;
   providesCSSFile: boolean;
+  start: ExtensionStartMethod;
 }
 
-export interface ExtensionStartMethod {
-  (params: ExtensionStartMethodParameter | string): ExtensionStartMethodReturnType;
-}
+export type ExtensionStartMethod = (
+  params: ExtensionStartMethodParameter | string,
+) => ExtensionStartMethodReturnType;
 
-export interface ExtensionStartMethodParameter {
-  appState: AppState;
-  el: HTMLElement | undefined | null;
-  component?: Component;
-  onBranchesChange?: (updateBranches?: boolean, updatePRs?: boolean) => void;
-  currentUser: CurrentUser;
+export interface ExtensionOptions {
+  branchLike?: BranchLike;
+  component: Component;
   intl: IntlShape;
+  l10nBundle: L10nBundle;
   location: Location;
   router: Router;
-  theme: {
-    colors: Dict<string>;
-    sizes: Dict<string>;
-    rawSizes: Dict<number>;
-    fonts: Dict<string>;
-    zIndexes: Dict<string>;
-    others: Dict<string>;
-  };
+  theme: Theme;
+}
+
+export interface ExtensionStartMethodParameter extends Omit<ExtensionOptions, 'component'> {
+  appState: AppState;
   baseUrl: string;
-  l10nBundle: L10nBundle;
+  component?: Component;
+  currentUser: CurrentUser;
+  el: HTMLElement | undefined | null;
+  onBranchesChange?: (updateBranches?: boolean, updatePRs?: boolean) => void;
+  onComponentChange?: (changes: Partial<Component>) => void;
+  queryClient: QueryClient;
   // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
   // for more information on why we're passing this as a prop to an extension.
   updateCurrentUserHomepage: (homepage: HomePage) => void;
 }
 
-export type ExtensionStartMethodReturnType = React.ReactNode | Function | void | undefined | null;
+export type ExtensionStartMethodReturnType = React.ReactNode | Function | void;

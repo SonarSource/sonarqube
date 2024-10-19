@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -63,7 +63,7 @@ public class ProjectQGChangeEventListener implements QGChangeEventListener {
 
   private void addQualityGateEventToProject(QGChangeEvent qualityGateEvent, Metric.Level currentStatus) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String componentUuid = qualityGateEvent.getAnalysis().getComponentUuid();
+      String componentUuid = qualityGateEvent.getAnalysis().getRootComponentUuid();
 
       SnapshotDto liveMeasureSnapshotDto = createLiveMeasureSnapshotDto(qualityGateEvent.getAnalysis().getProjectVersion(), componentUuid);
       dbClient.snapshotDao().insert(dbSession, liveMeasureSnapshotDto);
@@ -96,7 +96,7 @@ public class ProjectQGChangeEventListener implements QGChangeEventListener {
     dto.setProjectVersion(projectVersion);
     dto.setLast(false);
     dto.setStatus(SnapshotDto.STATUS_LIVE_MEASURE_COMPUTED);
-    dto.setComponentUuid(componentUuid);
+    dto.setRootComponentUuid(componentUuid);
 
     return dto;
   }

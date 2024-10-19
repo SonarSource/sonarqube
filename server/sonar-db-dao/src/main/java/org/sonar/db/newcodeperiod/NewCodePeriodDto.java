@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ public class NewCodePeriodDto {
   private String projectUuid = null;
   private String branchUuid = null;
   private NewCodePeriodType type = null;
+  private String previousNonCompliantValue = null;
   private String value = null;
   private long updatedAt = 0L;
   private long createdAt = 0L;
@@ -98,6 +99,15 @@ public class NewCodePeriodDto {
 
   public NewCodePeriodDto setValue(@Nullable String value) {
     this.value = value;
+    return this;
+  }
+
+  public String getPreviousNonCompliantValue() {
+    return previousNonCompliantValue;
+  }
+
+  public NewCodePeriodDto setPreviousNonCompliantValue(String previousNonCompliantValue) {
+    this.previousNonCompliantValue = previousNonCompliantValue;
     return this;
   }
 }

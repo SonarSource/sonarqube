@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,13 +21,18 @@ package org.sonar.server.qualitygate;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 @Immutable
 public class QualityGate {
+
+  public static final String BUILTIN_QUALITY_GATE_NAME = "Sonar way";
+
+  public static final String SONAR_WAY_LEGACY_QUALITY_GATE_NAME = "Sonar way (legacy)";
+
   private final String id;
   private final String name;
   private final Set<Condition> conditions;
@@ -38,7 +43,7 @@ public class QualityGate {
     this.conditions = requireNonNull(conditions, "conditions can't be null")
       .stream()
       .map(c -> requireNonNull(c, "condition can't be null"))
-      .collect(toSet(conditions.size()));
+      .collect(Collectors.toSet());
   }
 
   public String getId() {

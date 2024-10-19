@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -46,5 +46,10 @@ public class SystemInfoTesting {
     ProtobufSystemInfo.Attribute value = attribute(section, key);
     assertThat(value).as(key).isNotNull();
     assertThat(value.getLongValue()).isEqualTo(expectedValue);
+  }
+
+  public static void assertThatAttributeDoesNotExist(ProtobufSystemInfo.Section section, String key) {
+    ProtobufSystemInfo.Attribute value = attribute(section, key);
+    assertThat(value).as(key).isNull();
   }
 }

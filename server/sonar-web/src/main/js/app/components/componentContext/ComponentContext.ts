@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ import * as React from 'react';
 import { ComponentContextShape } from '../../../types/component';
 
 export const ComponentContext = React.createContext<ComponentContextShape>({
-  branchLikes: [],
-  onBranchesChange: noop,
   onComponentChange: noop,
+  fetchComponent: () => new Promise(noop),
 });

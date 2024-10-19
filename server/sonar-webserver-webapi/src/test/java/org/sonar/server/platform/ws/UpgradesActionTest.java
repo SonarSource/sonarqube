@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,12 @@
 package org.sonar.server.platform.ws;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -39,19 +41,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.Version.parse;
+import static org.sonar.server.platform.ws.ActiveVersionEvaluatorTest.getReleases;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class UpgradesActionTest {
+class UpgradesActionTest {
   private static final String JSON_EMPTY_UPGRADE_LIST = "{" +
     "  \"upgrades\":" + "[]" +
     "}";
 
-  private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
-  private UpdateCenter updateCenter = mock(UpdateCenter.class);
-  private Sonar sonar = mock(Sonar.class);
-  private UpgradesAction underTest = new UpgradesAction(updateCenterFactory);
+  private final UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
+  private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
+  private final UpdateCenter updateCenter = mock(UpdateCenter.class);
+  private final Sonar sonar = mock(Sonar.class);
+  private final System2 system2 = mock(System2.class);
 
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final ActiveVersionEvaluator activeVersionEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2);
+  private final UpgradesAction underTest = new UpgradesAction(updateCenterFactory, activeVersionEvaluator);
+
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   private static SonarUpdate createSonar_51_update() {
     Plugin brandingPlugin = Plugin.factory("branding")
@@ -67,7 +75,8 @@ public class UpgradesActionTest {
     Plugin viewsPlugin = Plugin.factory("views")
       .setName("Views")
       .setCategory("Governance")
-      .setDescription("Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications by team, teams by department.")
+      .setDescription("Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications " +
+        "by team, teams by department.")
       .setHomepageUrl("https://redirect.sonarsource.com/plugins/views.html")
       .setLicense("Commercial")
       .setOrganization("SonarSource")
@@ -88,15 +97,17 @@ public class UpgradesActionTest {
     return sonarUpdate;
   }
 
-  @Before
-  public void wireMocks() {
+  @BeforeEach
+  void setup() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
     when(updateCenter.getSonar()).thenReturn(sonar);
     when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+0200"));
+    when(sonar.getLtaVersion()).thenReturn(new Release(sonar, Version.create("9.9.4")));
+    when(sonar.getPastLtaVersion()).thenReturn(new Release(sonar, Version.create("8.9.10")));
   }
 
   @Test
-  public void action_updates_is_defined() {
+  void action_updates_is_defined() {
     WebService.Action def = tester.getDef();
 
     assertThat(def.key()).isEqualTo("upgrades");
@@ -108,14 +119,17 @@ public class UpgradesActionTest {
   }
 
   @Test
-  public void empty_array_is_returned_when_there_is_no_upgrade_available() {
+  void empty_array_is_returned_when_there_is_no_upgrade_available() {
+    when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
+    when(sonarQubeVersion.get()).thenReturn(parse("9.9.2"));
+
     TestResponse response = tester.newRequest().execute();
 
     assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
   }
 
   @Test
-  public void empty_array_is_returned_when_update_center_is_unavailable() {
+  void empty_array_is_returned_when_update_center_is_unavailable() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
     TestResponse response = tester.newRequest().execute();
@@ -124,14 +138,18 @@ public class UpgradesActionTest {
   }
 
   @Test
-  public void verify_JSON_response_against_example() {
+  void verify_JSON_response_against_example() {
     SonarUpdate sonarUpdate = createSonar_51_update();
+    when(sonarQubeVersion.get()).thenReturn(parse("8.9.0"));
     when(sonar.getLtsRelease()).thenReturn(new Release(sonar, Version.create("8.9.2")));
+    when(sonar.getLtaVersion()).thenReturn(new Release(sonar, Version.create("8.9.2")));
     when(updateCenter.findSonarUpdates()).thenReturn(of(sonarUpdate));
+    when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
 
     TestResponse response = tester.newRequest().execute();
 
     assertJson(response.getInput()).withStrictArrayOrder()
       .isSimilarTo(tester.getDef().responseExampleAsString());
   }
+
 }

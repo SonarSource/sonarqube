@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getWrappedDisplayName } from '../../../components/hoc/utils';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { Feature } from '../../../types/features';
 import { AvailableFeaturesContext } from './AvailableFeaturesContext';
 
@@ -27,7 +27,7 @@ export interface WithAvailableFeaturesProps {
 }
 
 export default function withAvailableFeatures<P>(
-  WrappedComponent: React.ComponentType<P & WithAvailableFeaturesProps>
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & WithAvailableFeaturesProps>>,
 ) {
   return class WithAvailableFeatures extends React.PureComponent<
     Omit<P, keyof WithAvailableFeaturesProps>
@@ -46,5 +46,13 @@ export default function withAvailableFeatures<P>(
         </AvailableFeaturesContext.Consumer>
       );
     }
+  };
+}
+
+export function useAvailableFeatures() {
+  const availableFeatures = React.useContext(AvailableFeaturesContext);
+
+  return {
+    hasFeature: (feature: Feature) => availableFeatures.includes(feature),
   };
 }

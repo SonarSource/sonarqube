@@ -6,18 +6,18 @@
   },
   "groups": [
     {
-      "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "sonar-users",
       "description": "Users",
       "membersCount": 17,
-      "default": true
+      "default": true,
+      "managed": false
     },
     {
-      "id": "AU-Tpxb--iU5OvuD2FLz",
       "name": "administrators",
       "description": "Administrators",
       "membersCount": 2,
-      "default": false
+      "default": false,
+      "managed": true
     }
   ]
 }

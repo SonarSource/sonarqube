@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HotspotRatingEnum } from 'design-system';
 import { flatten, groupBy, sortBy } from 'lodash';
 import {
+  renderCASACategory,
   renderCWECategory,
   renderOwaspAsvs40Category,
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderPciDss32Category,
   renderPciDss40Category,
-  renderSansTop25Category,
   renderSonarSourceSecurityCategory,
+  renderStigCategory,
 } from '../../helpers/security-standard';
 import { SecurityStandard } from '../../types/security';
 import {
@@ -38,7 +40,6 @@ import {
   RawHotspot,
   ReviewHistoryElement,
   ReviewHistoryType,
-  RiskExposure,
 } from '../../types/security-hotspots';
 import {
   Dict,
@@ -49,27 +50,33 @@ import {
 
 const OTHERS_SECURITY_CATEGORY = 'others';
 
-export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
+export const RISK_EXPOSURE_LEVELS = [
+  HotspotRatingEnum.HIGH,
+  HotspotRatingEnum.MEDIUM,
+  HotspotRatingEnum.LOW,
+];
 export const SECURITY_STANDARDS = [
   SecurityStandard.SONARSOURCE,
   SecurityStandard.OWASP_TOP10,
   SecurityStandard.OWASP_TOP10_2021,
-  SecurityStandard.SANS_TOP25,
   SecurityStandard.CWE,
   SecurityStandard.PCI_DSS_3_2,
   SecurityStandard.PCI_DSS_4_0,
   SecurityStandard.OWASP_ASVS_4_0,
+  SecurityStandard.CASA,
+  SecurityStandard.STIG_ASD_V5R3,
 ];
 
 export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.OWASP_TOP10]: renderOwaspTop10Category,
   [SecurityStandard.OWASP_TOP10_2021]: renderOwaspTop102021Category,
-  [SecurityStandard.SANS_TOP25]: renderSansTop25Category,
   [SecurityStandard.SONARSOURCE]: renderSonarSourceSecurityCategory,
   [SecurityStandard.CWE]: renderCWECategory,
   [SecurityStandard.PCI_DSS_3_2]: renderPciDss32Category,
   [SecurityStandard.PCI_DSS_4_0]: renderPciDss40Category,
   [SecurityStandard.OWASP_ASVS_4_0]: renderOwaspAsvs40Category,
+  [SecurityStandard.CASA]: renderCASACategory,
+  [SecurityStandard.STIG_ASD_V5R3]: renderStigCategory,
 };
 
 export function mapRules(rules: Array<{ key: string; name: string }>): Dict<string> {
@@ -81,7 +88,7 @@ export function mapRules(rules: Array<{ key: string; name: string }>): Dict<stri
 
 export function groupByCategory(
   hotspots: RawHotspot[] = [],
-  securityCategories: StandardSecurityCategories
+  securityCategories: StandardSecurityCategories,
 ) {
   const groups = groupBy(hotspots, (h) => h.securityCategory);
 
@@ -94,7 +101,7 @@ export function groupByCategory(
   return [
     ...sortBy(
       groupList.filter((group) => group.key !== OTHERS_SECURITY_CATEGORY),
-      (group) => group.title
+      (group) => group.title,
     ),
     ...groupList.filter(({ key }) => key === OTHERS_SECURITY_CATEGORY),
   ];
@@ -114,7 +121,7 @@ function getCategoryTitle(key: string, securityCategories: StandardSecurityCateg
 
 export function constructSourceViewerFile(
   { component, project }: Hotspot,
-  lines?: number
+  lines?: number,
 ): SourceViewerFile {
   return {
     key: component.key,
@@ -152,7 +159,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
           name: log.userName || log.user,
         },
         diffs: log.diffs,
-      }))
+      })),
     );
   }
 
@@ -169,7 +176,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
         html: comment.htmlText,
         key: comment.key,
         markdown: comment.markdown,
-      }))
+      })),
     );
   }
 
@@ -187,7 +194,7 @@ const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {
 
 export function getStatusOptionFromStatusAndResolution(
   status: HotspotStatus,
-  resolution?: HotspotResolution
+  resolution?: HotspotResolution,
 ) {
   // Resolution is the most determinist info here, so we use it first to get the matching status option
   // If not provided, we use the status (which will be TO_REVIEW)
@@ -237,7 +244,7 @@ function getSecondaryLocations(flows: RawHotspot['flows']) {
     .map((flow) =>
       flow.map((location) => {
         return { ...location };
-      })
+      }),
     );
 
   const onlySecondaryLocations = parsedFlows.every((flow) => flow.length === 1);
@@ -258,8 +265,8 @@ export function getLocations(rawFlows: RawHotspot['flows'], selectedFlowIndex: n
 function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
-    (location) => location.textRange && location.textRange.startLine,
-    (location) => location.textRange && location.textRange.startOffset
+    (location) => location.textRange?.startLine,
+    (location) => location.textRange?.startOffset,
   );
 }
 

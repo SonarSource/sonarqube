@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.util.OkHttpClientProvider;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
@@ -250,7 +250,7 @@ public class WebhookCallerImplTest {
 
   @Test
   public void silently_catch_error_when_url_is_local_network_interface() throws Exception {
-    String url = "https://192.168.1.21";
+    String url = "https://localhost";
 
     InetAddress inetAddress = InetAddress.getByName(HttpUrl.parse(url).host());
 

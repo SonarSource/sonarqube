@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Objects.requireNonNull;
@@ -144,7 +144,6 @@ public interface UserSession {
   /**
    * Returns {@code true} if the permission is granted to user on the component,
    * otherwise {@code false}.
-   *
    * If the component does not exist, then returns {@code false}.
    *
    * @param component  non-null component.
@@ -152,13 +151,13 @@ public interface UserSession {
    */
   boolean hasComponentPermission(String permission, ComponentDto component);
 
-  boolean hasProjectPermission(String permission, ProjectDto project);
+  boolean hasEntityPermission(String permission, EntityDto entity);
 
-  boolean hasProjectPermission(String permission, String projectUuid);
+  boolean hasEntityPermission(String permission, String entityUuid);
 
   boolean hasChildProjectsPermission(String permission, ComponentDto component);
 
-  boolean hasChildProjectsPermission(String permission, ProjectDto component);
+  boolean hasChildProjectsPermission(String permission, EntityDto application);
 
   boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto component);
 
@@ -181,7 +180,7 @@ public interface UserSession {
    */
   List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components);
 
-  List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects);
+  <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> components);
 
   /**
    * Ensures that {@link #hasComponentPermission(String, ComponentDto)} is {@code true},
@@ -190,10 +189,10 @@ public interface UserSession {
   UserSession checkComponentPermission(String projectPermission, ComponentDto component);
 
   /**
-   * Ensures that {@link #hasProjectPermission(String, ProjectDto)} is {@code true},
+   * Ensures that {@link #hasEntityPermission(String, EntityDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkProjectPermission(String projectPermission, ProjectDto project);
+  UserSession checkEntityPermission(String projectPermission, EntityDto entity);
 
   /**
    * Ensures that {@link #hasChildProjectsPermission(String, ComponentDto)} is {@code true}
@@ -202,10 +201,10 @@ public interface UserSession {
   UserSession checkChildProjectsPermission(String projectPermission, ComponentDto project);
 
   /**
-   * Ensures that {@link #hasChildProjectsPermission(String, ProjectDto)} is {@code true}
+   * Ensures that {@link #hasChildProjectsPermission(String, EntityDto)} is {@code true}
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application);
+  UserSession checkChildProjectsPermission(String projectPermission, EntityDto application);
 
   /**
    * Ensures that {@link #hasComponentUuidPermission(String, String)} is {@code true},
@@ -219,7 +218,6 @@ public interface UserSession {
   /**
    * Whether user can administrate system, for example for using cross-organizations services
    * like update center, system info or management of users.
-   *
    * Returns {@code true} if:
    * <ul>
    *   <li>user is administrator</li>
@@ -234,6 +232,8 @@ public interface UserSession {
   UserSession checkIsSystemAdministrator();
 
   boolean isActive();
+
+  boolean isAuthenticatedBrowserSession();
 
   /**
    * Whether the user has root privileges. If {@code true}, then user automatically

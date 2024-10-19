@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,10 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
-public final class Pagination {
+public final class Pagination implements Pagineable {
   private static final Pagination ALL = new Builder(1).andSize(Integer.MAX_VALUE);
+
+  private static final Pagination FIRST = new Builder(1).andSize(1);
 
   private final int page;
   private final int pageSize;
@@ -39,6 +41,13 @@ public final class Pagination {
     return ALL;
   }
 
+  public static Pagination first() {
+    return FIRST;
+  }
+
+  /**
+   * @param page minimum value is 1
+   */
   public static Builder forPage(int page) {
     return new Builder(page);
   }
@@ -47,16 +56,14 @@ public final class Pagination {
     return page;
   }
 
+  @Override
   public int getPageSize() {
     return pageSize;
   }
 
+  @Override
   public int getOffset() {
     return (page - 1) * pageSize;
-  }
-
-  public int getStartRowNumber() {
-    return getOffset() + 1;
   }
 
   public int getEndRowNumber() {

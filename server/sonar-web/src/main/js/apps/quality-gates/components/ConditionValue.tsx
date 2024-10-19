@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
+import { themeColor } from 'design-system';
 import * as React from 'react';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Condition, Metric } from '../../../types/types';
-import { getCorrectCaycCondition, isCaycCondition } from '../utils';
+import { getCorrectCaycCondition } from '../utils';
 import ConditionValueDescription from './ConditionValueDescription';
 
 interface Props {
   condition: Condition;
+  isCaycCompliantAndOverCompliant?: boolean;
   isCaycModal?: boolean;
   metric: Metric;
-  isCaycCompliantAndOverCompliant?: boolean;
 }
 
 function ConditionValue({
@@ -43,15 +45,15 @@ function ConditionValue({
     return (
       <>
         {isToBeModified && (
-          <span className="red-text strike-through spacer-right">
+          <RedColorText className="sw-line-through sw-mr-2">
             {formatMeasure(condition.error, metric.type)}
-          </span>
+          </RedColorText>
         )}
-        <span className={classNames('spacer-right', { 'green-text': isToBeModified })}>
+        <GreenColorText isToBeModified={isToBeModified} className={classNames('sw-mr-2')}>
           {formatMeasure(getCorrectCaycCondition(condition).error, metric.type)}
-        </span>
+        </GreenColorText>
         <ConditionValueDescription
-          className={classNames({ 'green-text': isToBeModified })}
+          isToBeModified={isToBeModified}
           condition={getCorrectCaycCondition(condition)}
           metric={metric}
         />
@@ -61,8 +63,8 @@ function ConditionValue({
 
   return (
     <>
-      <span className="spacer-right">{formatMeasure(condition.error, metric.type)}</span>
-      {isCaycCompliantAndOverCompliant && isCaycCondition(condition) && (
+      <span className="sw-mr-2">{formatMeasure(condition.error, metric.type)}</span>
+      {isCaycCompliantAndOverCompliant && condition.isCaycCondition && (
         <ConditionValueDescription condition={condition} metric={metric} />
       )}
     </>
@@ -70,3 +72,11 @@ function ConditionValue({
 }
 
 export default ConditionValue;
+
+const RedColorText = styled.span`
+  color: ${themeColor('qgConditionNotCayc')};
+`;
+
+export const GreenColorText = styled.span<{ isToBeModified: boolean }>`
+  color: ${(props) => (props.isToBeModified ? themeColor('qgConditionCayc') : 'inherit')};
+`;

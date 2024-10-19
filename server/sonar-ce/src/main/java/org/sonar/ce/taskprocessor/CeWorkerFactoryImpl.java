@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,10 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CeWorkerFactoryImpl implements CeWorkerFactory {
@@ -57,7 +57,7 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
   public CeWorker create(int ordinal) {
     String uuid = uuidFactory.create();
     CeWorkerImpl ceWorker = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController, executionListeners);
-    ceWorkers = Stream.concat(ceWorkers.stream(), Stream.of(ceWorker)).collect(MoreCollectors.toSet(ceWorkers.size() + 1));
+    ceWorkers = Stream.concat(ceWorkers.stream(), Stream.of(ceWorker)).collect(Collectors.toSet());
     return ceWorker;
   }
 

@@ -1,0 +1,142 @@
+{
+  "rules": [
+    {
+      "id": "rule1",
+      "name": "just_some_rule_name",
+      "description": "just_some_description",
+      "engineId": "test",
+      "cleanCodeAttribute": "FORMATTED",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
+        },
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "LOW"
+        }
+      ]
+    },
+    {
+      "id": "rule2",
+      "name": "just_some_other_rule_name",
+      "description": "just_some_description",
+      "engineId": "test2",
+      "cleanCodeAttribute": "IDENTIFIABLE",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "ruleId": "rule1",
+      "effortMinutes": 40,
+      "primaryLocation": {
+        "message": "fix the issue here",
+        "filePath": "file1.js",
+        "textRange": {
+          "startLine": 1,
+          "startColumn": 2,
+          "endLine": 3,
+          "endColumn": 4
+        }
+      }
+    },
+    {
+      "ruleId": "rule1",
+      "primaryLocation": {
+        "message": "fix the bug here",
+        "filePath": "file2.js",
+        "textRange": {
+          "startLine": 3
+        }
+      }
+    },
+    {
+      "ruleId": "rule1",
+      "primaryLocation": {
+        "message": "fix the bug here",
+        "filePath": "file3.js"
+      }
+    },
+    {
+      "ruleId": "rule1",
+      "primaryLocation": {
+        "message": "fix the bug here",
+        "filePath": "file3.js"
+      },
+      "secondaryLocations": [
+        {
+          "message": "fix the bug here",
+          "filePath": "file1.js",
+          "textRange": {
+            "startLine": 1
+          }
+        },
+        {
+          "filePath": "file2.js",
+          "textRange": {
+            "startLine": 2
+          }
+        }
+      ]
+    },
+    {
+      "ruleId": "rule2",
+      "effortMinutes": 40,
+      "primaryLocation": {
+        "message": "fix the issue here",
+        "filePath": "file1.js",
+        "textRange": {
+          "startLine": 1,
+          "startColumn": 2,
+          "endLine": 3,
+          "endColumn": 4
+        }
+      }
+    },
+    {
+      "ruleId": "rule2",
+      "primaryLocation": {
+        "message": "fix the bug here",
+        "filePath": "file2.js",
+        "textRange": {
+          "startLine": 3
+        }
+      }
+    },
+    {
+      "ruleId": "rule2",
+      "primaryLocation": {
+        "message": "fix the bug here",
+        "filePath": "file3.js"
+      }
+    },
+    {
+      "ruleId": "rule2",
+      "primaryLocation": {
+        "message": "fix the bug here",
+        "filePath": "file3.js"
+      },
+      "secondaryLocations": [
+        {
+          "message": "fix the bug here",
+          "filePath": "file1.js",
+          "textRange": {
+            "startLine": 1
+          }
+        },
+        {
+          "filePath": "file2.js",
+          "textRange": {
+            "startLine": 2
+          }
+        }
+      ]
+    }
+  ]
+}

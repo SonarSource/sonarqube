@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
@@ -38,7 +39,7 @@ it('should render correctly when the extension is found', () => {
     mockComponent({
       configuration: { extensions: [{ key: 'pluginId/extensionId', name: 'name' }] },
     }),
-    { pluginKey: 'pluginId', extensionKey: 'extensionId' }
+    { pluginKey: 'pluginId', extensionKey: 'extensionId' },
   );
   expect(getExtensionStart).toHaveBeenCalledWith('pluginId/extensionId');
 });
@@ -46,7 +47,7 @@ it('should render correctly when the extension is found', () => {
 it('should render correctly when the extension is not found', () => {
   renderProjectAdminPageExtension(
     mockComponent({ extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }),
-    { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' }
+    { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' },
   );
   expect(screen.getByText('page_not_found')).toBeInTheDocument();
 });
@@ -56,20 +57,23 @@ function renderProjectAdminPageExtension(
   params: {
     extensionKey: string;
     pluginKey: string;
-  }
+  },
 ) {
   const { pluginKey, extensionKey } = params;
+  const queryClient = new QueryClient();
   return render(
-    <HelmetProvider context={{}}>
-      <IntlProvider defaultLocale="en" locale="en">
-        <ComponentContext.Provider value={{ component } as ComponentContextShape}>
-          <MemoryRouter initialEntries={[`/${pluginKey}/${extensionKey}`]}>
-            <Routes>
-              <Route path="/:pluginKey/:extensionKey" element={<ProjectAdminPageExtension />} />
-            </Routes>
-          </MemoryRouter>
-        </ComponentContext.Provider>
-      </IntlProvider>
-    </HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider context={{}}>
+        <IntlProvider defaultLocale="en" locale="en">
+          <ComponentContext.Provider value={{ component } as ComponentContextShape}>
+            <MemoryRouter initialEntries={[`/${pluginKey}/${extensionKey}`]}>
+              <Routes>
+                <Route path="/:pluginKey/:extensionKey" element={<ProjectAdminPageExtension />} />
+              </Routes>
+            </MemoryRouter>
+          </ComponentContext.Provider>
+        </IntlProvider>
+      </HelmetProvider>
+    </QueryClientProvider>,
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -45,12 +45,15 @@ jest.mock('../../../../helpers/storage', () => ({
 
 it('should properly start & stop polling for indexation status', async () => {
   const onNewStatus = jest.fn();
+
   const newStatus: IndexationStatus = {
-    isCompleted: false,
-    percentCompleted: 100,
+    completedCount: 23,
     hasFailures: false,
+    isCompleted: false,
+    total: 42,
   };
-  (getIndexationStatus as jest.Mock).mockResolvedValueOnce(newStatus);
+
+  jest.mocked(getIndexationStatus).mockResolvedValueOnce(newStatus);
 
   IndexationNotificationHelper.startPolling(onNewStatus);
   expect(getIndexationStatus).toHaveBeenCalled();
@@ -61,7 +64,7 @@ it('should properly start & stop polling for indexation status', async () => {
   jest.runOnlyPendingTimers();
   expect(getIndexationStatus).toHaveBeenCalledTimes(2);
 
-  (getIndexationStatus as jest.Mock).mockClear();
+  jest.mocked(getIndexationStatus).mockClear();
 
   IndexationNotificationHelper.stopPolling();
   jest.runAllTimers();
@@ -74,7 +77,7 @@ it('should properly handle the flag to show the completed banner', () => {
 
   expect(save).toHaveBeenCalledWith(expect.any(String), 'true');
 
-  (get as jest.Mock).mockReturnValueOnce('true');
+  jest.mocked(get).mockReturnValueOnce('true');
   let shouldDisplay = IndexationNotificationHelper.shouldDisplayCompletedNotification();
 
   expect(shouldDisplay).toBe(true);

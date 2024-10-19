@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,16 +23,16 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 @ThreadSafe
 public abstract class PathPattern {
 
-  private static final Logger LOG = Loggers.get(PathPattern.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PathPattern.class);
 
   /**
    * @deprecated since 6.6

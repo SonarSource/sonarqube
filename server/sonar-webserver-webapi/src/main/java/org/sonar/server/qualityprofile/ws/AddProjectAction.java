@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -69,7 +69,6 @@ public class AddProjectAction implements QProfileWsAction {
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer Quality Profiles'</li>" +
-        "  <li>Edit right on the specified quality profile</li>" +
         "  <li>Administer right on the specified project</li>" +
         "</ul>")
       .setPost(true)
@@ -135,7 +134,7 @@ public class AddProjectAction implements QProfileWsAction {
   }
 
   private void checkPermissions(QProfileDto profile, ProjectDto project) {
-    if (wsSupport.canAdministrate(profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
+    if (wsSupport.canAdministrate(profile) || userSession.hasEntityPermission(UserRole.ADMIN, project)) {
       return;
     }
 

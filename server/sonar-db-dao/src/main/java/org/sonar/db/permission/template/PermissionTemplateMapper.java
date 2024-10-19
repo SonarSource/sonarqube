@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 import org.sonar.db.permission.PermissionQuery;
 
 /**
@@ -64,11 +64,11 @@ public interface PermissionTemplateMapper {
 
   PermissionTemplateDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 
-  List<String> selectUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid, RowBounds rowBounds);
+  List<String> selectUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid, @Param("pagination") Pagination pagination);
 
   int countUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
 
-  List<String> selectGroupNamesByQueryAndTemplate(@Param("templateUuid") String templateUuid, @Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQueryAndTemplate(@Param("templateUuid") String templateUuid, @Param("query") PermissionQuery query, @Param("pagination") Pagination pagination);
 
   int countGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
 

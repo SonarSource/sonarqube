@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -70,7 +70,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     FormulaContextImpl context = new FormulaContextImpl(matrix, components, debtRatingGrid);
     components.getSortedTree().forEach(c -> {
       for (MeasureUpdateFormula formula : formulaFactory.getFormulas()) {
-        if (useLeakFormulas || !formula.isOnLeak()) {
+        if (shouldComputeMetric(formula, useLeakFormulas, components.getBranch(), matrix)) {
           context.change(c, formula);
           try {
             formula.computeHierarchy(context);
@@ -88,10 +88,10 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     FormulaContextImpl context = new FormulaContextImpl(matrix, components, debtRatingGrid);
 
     components.getSortedTree().forEach(c -> {
-      IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak));
+      IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak),
+        dbClient.issueDao().selectIssueImpactGroupsByComponent(dbSession, c, beginningOfLeak));
       for (MeasureUpdateFormula formula : formulaFactory.getFormulas()) {
-        // use formulas when the leak period is defined, it's a PR, or the formula is not about the leak period
-        if (useLeakFormulas || !formula.isOnLeak()) {
+        if (shouldComputeMetric(formula, useLeakFormulas, components.getBranch(), matrix)) {
           context.change(c, formula);
           try {
             formula.compute(context, issueCounter);
@@ -102,6 +102,15 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
         }
       }
     });
+  }
+
+  private static boolean shouldComputeMetric(MeasureUpdateFormula formula, boolean useLeakFormulas, ComponentDto branchComponent,
+                                      MeasureMatrix matrix) {
+    // Use formula when the leak period is defined, it's a PR, or the formula is not about the leak period
+    return (useLeakFormulas || !formula.isOnLeak())
+           // Some metrics should only be computed if the metric has been computed on the branch before (during analysis).
+           // Otherwise, the computed measure would only apply to the touched components and be incomplete.
+           && (!formula.isOnlyIfComputedOnBranch() || matrix.getMeasure(branchComponent, formula.getMetric().getKey()).isPresent());
   }
 
   private static long getBeginningOfLeakPeriod(SnapshotDto lastAnalysis, BranchDto branch) {
@@ -145,6 +154,15 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       return children.stream()
         .flatMap(c -> matrix.getMeasure(c, currentFormula.getMetric().getKey()).stream())
         .map(LiveMeasureDto::getValue)
+        .filter(Objects::nonNull)
+        .toList();
+    }
+
+    public List<String> getChildrenTextValues() {
+      List<ComponentDto> children = componentIndex.getChildren(currentComponent);
+      return children.stream()
+        .flatMap(c -> matrix.getMeasure(c, currentFormula.getMetric().getKey()).stream())
+        .map(LiveMeasureDto::getTextValue)
         .filter(Objects::nonNull)
         .toList();
     }
@@ -240,6 +258,12 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
 
     @Override
     public void setValue(Rating value) {
+      String metricKey = currentFormula.getMetric().getKey();
+      matrix.setValue(currentComponent, metricKey, value);
+    }
+
+    @Override
+    public void setValue(String value) {
       String metricKey = currentFormula.getMetric().getKey();
       matrix.setValue(currentComponent, metricKey, value);
     }

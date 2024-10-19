@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
-import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { Location, withRouter } from '../../components/hoc/withRouter';
+import withIndexationGuard from '../../components/hoc/withIndexationGuard';
 import { getLeakValue } from '../../components/measure/utils';
-import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
+import { isSameBranchLike } from '../../helpers/branch-like';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
+import { withBranchLikes } from '../../queries/branch';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import {
@@ -42,26 +48,21 @@ import {
 import { Component, Dict } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
-import './styles.css';
-import { getLocations, SECURITY_STANDARDS } from './utils';
+import { SECURITY_STANDARDS, getLocations } from './utils';
 
 const PAGE_SIZE = 500;
-interface DispatchProps {
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
-}
 
-interface OwnProps {
+interface Props {
   branchLike?: BranchLike;
-  currentUser: CurrentUser;
   component: Component;
+  currentUser: CurrentUser;
   location: Location;
+  router: Router;
 }
-
-type Props = DispatchProps & OwnProps;
 
 interface State {
-  filterByCategory?: { standard: SecurityStandard; category: string };
   filterByCWE?: string;
+  filterByCategory?: { category: string; standard: SecurityStandard };
   filterByFile?: string;
   filters: HotspotFilters;
   hotspotKeys?: string[];
@@ -85,38 +86,44 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      loading: true,
-      loadingMeasure: false,
-      loadingMore: false,
-      hotspots: [],
-      hotspotsTotal: 0,
-      hotspotsPageIndex: 1,
-      selectedHotspot: undefined,
-      standards: {
-        [SecurityStandard.OWASP_TOP10]: {},
-        [SecurityStandard.OWASP_TOP10_2021]: {},
-        [SecurityStandard.SANS_TOP25]: {},
-        [SecurityStandard.SONARSOURCE]: {},
-        [SecurityStandard.CWE]: {},
-        [SecurityStandard.PCI_DSS_3_2]: {},
-        [SecurityStandard.PCI_DSS_4_0]: {},
-        [SecurityStandard.OWASP_ASVS_4_0]: {},
-      },
       filters: {
         ...this.constructFiltersFromProps(props),
         status: HotspotStatusFilter.TO_REVIEW,
+      },
+
+      hotspots: [],
+      hotspotsPageIndex: 1,
+      hotspotsTotal: 0,
+      loading: true,
+      loadingMeasure: false,
+      loadingMore: false,
+      selectedHotspot: undefined,
+
+      standards: {
+        [SecurityStandard.CWE]: {},
+        [SecurityStandard.OWASP_ASVS_4_0]: {},
+        [SecurityStandard.OWASP_TOP10_2021]: {},
+        [SecurityStandard.OWASP_TOP10]: {},
+        [SecurityStandard.PCI_DSS_3_2]: {},
+        [SecurityStandard.PCI_DSS_4_0]: {},
+        [SecurityStandard.SONARSOURCE]: {},
+        [SecurityStandard.CASA]: {},
+        [SecurityStandard.STIG_ASD_V5R3]: {},
       },
     };
   }
 
   componentDidMount() {
     this.mounted = true;
+
     this.fetchInitialData();
+
     this.registerKeyboardEvents();
   }
 
   componentDidUpdate(previous: Props) {
     if (
+      !isSameBranchLike(previous.branchLike, this.props.branchLike) ||
       this.props.component.key !== previous.component.key ||
       this.props.location.query.hotspots !== previous.location.query.hotspots ||
       SECURITY_STANDARDS.some((s) => this.props.location.query[s] !== previous.location.query[s]) ||
@@ -126,7 +133,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     }
 
     if (
-      !isSameBranchLike(this.props.branchLike, previous.branchLike) ||
+      !isSameBranchLike(previous.branchLike, this.props.branchLike) ||
       isLoggedIn(this.props.currentUser) !== isLoggedIn(previous.currentUser) ||
       this.props.location.query.assignedToMe !== previous.location.query.assignedToMe ||
       this.props.location.query.inNewCodePeriod !== previous.location.query.inNewCodePeriod
@@ -150,6 +157,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     if (isInput(event)) {
       return;
     }
+
     if (event.key === KeyboardKeys.Alt) {
       event.preventDefault();
       return;
@@ -158,20 +166,24 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     switch (event.key) {
       case KeyboardKeys.DownArrow: {
         event.preventDefault();
+
         if (event.altKey) {
           this.selectNextLocation();
         } else {
           this.selectNeighboringHotspot(+1);
         }
+
         break;
       }
       case KeyboardKeys.UpArrow: {
         event.preventDefault();
+
         if (event.altKey) {
           this.selectPreviousLocation();
         } else {
           this.selectNeighboringHotspot(-1);
         }
+
         break;
       }
     }
@@ -179,16 +191,21 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   selectNextLocation = () => {
     const { selectedHotspotLocationIndex, selectedHotspot } = this.state;
+
     if (selectedHotspot === undefined) {
       return;
     }
+
     const locations = getLocations(selectedHotspot.flows, undefined);
+
     if (locations.length === 0) {
       return;
     }
+
     const lastIndex = locations.length - 1;
 
     let newIndex;
+
     if (selectedHotspotLocationIndex === undefined) {
       newIndex = 0;
     } else if (selectedHotspotLocationIndex === lastIndex) {
@@ -196,6 +213,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     } else {
       newIndex = selectedHotspotLocationIndex + 1;
     }
+
     this.setState({ selectedHotspotLocationIndex: newIndex });
   };
 
@@ -203,21 +221,25 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     const { selectedHotspotLocationIndex } = this.state;
 
     let newIndex;
+
     if (selectedHotspotLocationIndex === 0) {
       newIndex = undefined;
     } else if (selectedHotspotLocationIndex !== undefined) {
       newIndex = selectedHotspotLocationIndex - 1;
     }
+
     this.setState({ selectedHotspotLocationIndex: newIndex });
   };
 
   selectNeighboringHotspot = (shift: number) => {
     this.setState({ selectedHotspotLocationIndex: undefined });
+
     this.setState(({ hotspots, selectedHotspot }) => {
       const index = selectedHotspot && hotspots.findIndex((h) => h.key === selectedHotspot.key);
 
       if (index !== undefined && index > -1) {
         const newIndex = Math.max(0, Math.min(hotspots.length - 1, index + shift));
+
         return {
           selectedHotspot: hotspots[newIndex],
         };
@@ -232,7 +254,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   constructFiltersFromProps(
-    props: Props
+    props: Props,
   ): Pick<HotspotFilters, 'assignedToMe' | 'inNewCodePeriod'> {
     return {
       assignedToMe: props.location.query.assignedToMe === 'true' && isLoggedIn(props.currentUser),
@@ -248,6 +270,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   };
 
   fetchInitialData() {
+    const { branchLike: previousBranch } = this.props;
     return Promise.all([
       getStandards(),
       this.fetchSecurityHotspots(),
@@ -258,43 +281,53 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           return;
         }
 
-        const selectedHotspot = hotspots.length > 0 ? hotspots[0] : undefined;
+        const { branchLike } = this.props;
 
-        this.setState({
-          hotspots,
-          hotspotsTotal: paging.total,
-          loading: false,
-          selectedHotspot,
-          standards,
-        });
+        if (isSameBranchLike(previousBranch, branchLike)) {
+          const selectedHotspot = hotspots.length > 0 ? hotspots[0] : undefined;
+
+          this.setState({
+            hotspots,
+            hotspotsTotal: paging.total,
+            loading: false,
+            selectedHotspot,
+            standards,
+          });
+        }
       })
       .catch(this.handleCallFailure);
   }
 
   fetchSecurityHotspotsReviewed = () => {
-    const { branchLike, component } = this.props;
+    const { branchLike: previousBranch, component } = this.props;
     const { filters } = this.state;
 
     const reviewedHotspotsMetricKey = filters.inNewCodePeriod
-      ? 'new_security_hotspots_reviewed'
-      : 'security_hotspots_reviewed';
+      ? MetricKey.new_security_hotspots_reviewed
+      : MetricKey.security_hotspots_reviewed;
 
     this.setState({ loadingMeasure: true });
+
     return getMeasures({
       component: component.key,
       metricKeys: reviewedHotspotsMetricKey,
-      ...getBranchLikeQuery(branchLike),
+      ...getBranchLikeQuery(previousBranch),
     })
       .then((measures) => {
+        const { branchLike } = this.props;
         if (!this.mounted) {
           return;
         }
-        const measure = measures && measures.length > 0 ? measures[0] : undefined;
-        const hotspotsReviewedMeasure = filters.inNewCodePeriod
-          ? getLeakValue(measure)
-          : measure?.value;
 
-        this.setState({ hotspotsReviewedMeasure, loadingMeasure: false });
+        if (isSameBranchLike(previousBranch, branchLike)) {
+          const measure = measures && measures.length > 0 ? measures[0] : undefined;
+
+          const hotspotsReviewedMeasure = filters.inNewCodePeriod
+            ? getLeakValue(measure)
+            : measure?.value;
+
+          this.setState({ hotspotsReviewedMeasure, loadingMeasure: false });
+        }
       })
       .catch(() => {
         if (this.mounted) {
@@ -302,6 +335,56 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         }
       });
   };
+
+  fetchFilteredSecurityHotspots({
+    filterByCategory,
+    filterByCWE,
+    filterByFile,
+    page,
+  }: {
+    filterByCWE: string | undefined;
+
+    filterByCategory:
+      | {
+          category: string;
+          standard: SecurityStandard;
+        }
+      | undefined;
+    filterByFile: string | undefined;
+    page: number;
+  }) {
+    const { branchLike, component, location } = this.props;
+    const { filters } = this.state;
+
+    const hotspotFilters: Dict<string> = {};
+
+    if (filterByCategory) {
+      hotspotFilters[filterByCategory.standard] = filterByCategory.category;
+    }
+
+    if (filterByCWE) {
+      hotspotFilters[SecurityStandard.CWE] = filterByCWE;
+    }
+
+    if (filterByFile) {
+      hotspotFilters.files = filterByFile;
+    }
+
+    hotspotFilters['owaspAsvsLevel'] = location.query['owaspAsvsLevel'];
+
+    return getSecurityHotspots(
+      {
+        ...hotspotFilters,
+        inNewCodePeriod: filters.inNewCodePeriod && Boolean(filterByFile), // only add new code period when filtering by file
+        p: page,
+        project: component.key,
+        ps: PAGE_SIZE,
+        status: HotspotStatus.TO_REVIEW, // we're only interested in unresolved hotspots
+        ...getBranchLikeQuery(branchLike),
+      },
+      component.needIssueSync,
+    );
+  }
 
   fetchSecurityHotspots(page = 1) {
     const { branchLike, component, location } = this.props;
@@ -312,8 +395,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       : undefined;
 
     const standard = SECURITY_STANDARDS.find(
-      (stnd) => stnd !== SecurityStandard.CWE && location.query[stnd] !== undefined
+      (stnd) => stnd !== SecurityStandard.CWE && location.query[stnd] !== undefined,
     );
+
     const filterByCategory = standard
       ? { standard, category: location.query[standard] }
       : undefined;
@@ -325,35 +409,22 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     this.setState({ filterByCategory, filterByCWE, filterByFile, hotspotKeys });
 
     if (hotspotKeys && hotspotKeys.length > 0) {
-      return getSecurityHotspotList(hotspotKeys, {
-        projectKey: component.key,
-        ...getBranchLikeQuery(branchLike),
-      });
+      return getSecurityHotspotList(
+        hotspotKeys,
+        {
+          project: component.key,
+          ...getBranchLikeQuery(branchLike),
+        },
+        component.needIssueSync,
+      );
     }
 
     if (filterByCategory || filterByCWE || filterByFile) {
-      const hotspotFilters: Dict<string> = {};
-
-      if (filterByCategory) {
-        hotspotFilters[filterByCategory.standard] = filterByCategory.category;
-      }
-      if (filterByCWE) {
-        hotspotFilters[SecurityStandard.CWE] = filterByCWE;
-      }
-      if (filterByFile) {
-        hotspotFilters.files = filterByFile;
-      }
-
-      hotspotFilters['owaspAsvsLevel'] = location.query['owaspAsvsLevel'];
-
-      return getSecurityHotspots({
-        ...hotspotFilters,
-        projectKey: component.key,
-        p: page,
-        ps: PAGE_SIZE,
-        status: HotspotStatus.TO_REVIEW, // we're only interested in unresolved hotspots
-        inNewCodePeriod: filters.inNewCodePeriod && Boolean(filterByFile), // only add leak period when filtering by file
-        ...getBranchLikeQuery(branchLike),
+      return this.fetchFilteredSecurityHotspots({
+        filterByCategory,
+        filterByCWE,
+        filterByFile,
+        page,
       });
     }
 
@@ -367,16 +438,19 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         ? undefined
         : HotspotResolution[filters.status];
 
-    return getSecurityHotspots({
-      projectKey: component.key,
-      p: page,
-      ps: PAGE_SIZE,
-      status,
-      resolution,
-      onlyMine: filters.assignedToMe,
-      inNewCodePeriod: filters.inNewCodePeriod,
-      ...getBranchLikeQuery(branchLike),
-    });
+    return getSecurityHotspots(
+      {
+        inNewCodePeriod: filters.inNewCodePeriod,
+        ...(component.needIssueSync ? {} : { onlyMine: filters.assignedToMe }),
+        p: page,
+        project: component.key,
+        ps: PAGE_SIZE,
+        resolution,
+        status,
+        ...getBranchLikeQuery(branchLike),
+      },
+      component.needIssueSync,
+    );
   }
 
   reloadSecurityHotspotList = () => {
@@ -404,11 +478,26 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       ({ filters }) => ({ filters: { ...filters, ...changes } }),
       () => {
         this.reloadSecurityHotspotList();
+
         if (changes.inNewCodePeriod !== undefined) {
           this.fetchSecurityHotspotsReviewed();
         }
-      }
+      },
     );
+  };
+
+  handleShowAllHotspots = () => {
+    this.props.router.push({
+      pathname: this.props.location.pathname,
+      query: {
+        assignedToMe: undefined,
+        file: undefined,
+        fileUuid: undefined,
+        hotspots: [],
+        id: this.props.component.key,
+        sinceLeakPeriod: undefined,
+      },
+    });
   };
 
   handleChangeStatusFilter = (status: HotspotStatusFilter) => {
@@ -420,17 +509,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   handleHotspotUpdate = (hotspotKey: string) => {
     const { hotspots, hotspotsPageIndex } = this.state;
-    const { branchLike, component } = this.props;
     const index = hotspots.findIndex((h) => h.key === hotspotKey);
-
-    if (isPullRequest(branchLike)) {
-      this.props.fetchBranchStatus(branchLike, component.key);
-    }
 
     return Promise.all(
       range(hotspotsPageIndex).map((p) =>
-        this.fetchSecurityHotspots(p + 1 /* pages are 1-indexed */)
-      )
+        this.fetchSecurityHotspots(p + 1 /* pages are 1-indexed */),
+      ),
     )
       .then((hotspotPages) => {
         const allHotspots = flatMap(hotspotPages, 'hotspots');
@@ -485,6 +569,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   render() {
     const { branchLike, component } = this.props;
+
     const {
       filterByCategory,
       filterByCWE,
@@ -506,15 +591,18 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       <SecurityHotspotsAppRenderer
         branchLike={branchLike}
         component={component}
-        filters={filters}
         filterByCategory={filterByCategory}
         filterByCWE={filterByCWE}
         filterByFile={filterByFile}
+        filters={filters}
         hotspots={hotspots}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         hotspotsTotal={hotspotsTotal}
         isStaticListOfHotspots={Boolean(
-          (hotspotKeys && hotspotKeys.length > 0) || filterByCategory || filterByCWE || filterByFile
+          (hotspotKeys && hotspotKeys.length > 0) ||
+            filterByCategory ||
+            filterByCWE ||
+            filterByFile,
         )}
         loading={loading}
         loadingMeasure={loadingMeasure}
@@ -522,9 +610,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         onChangeFilters={this.handleChangeFilters}
         onHotspotClick={this.handleHotspotClick}
         onLoadMore={this.handleLoadMore}
+        onLocationClick={this.handleLocationClick}
+        onShowAllHotspots={this.handleShowAllHotspots}
         onSwitchStatusFilter={this.handleChangeStatusFilter}
         onUpdateHotspot={this.handleHotspotUpdate}
-        onLocationClick={this.handleLocationClick}
         securityCategories={standards[SecurityStandard.SONARSOURCE]}
         selectedHotspot={selectedHotspot}
         selectedHotspotLocation={selectedHotspotLocationIndex}
@@ -535,5 +624,15 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 }
 
 export default withRouter(
-  withComponentContext(withCurrentUserContext(withBranchStatusActions(SecurityHotspotsApp)))
+  withComponentContext(
+    withCurrentUserContext(
+      withBranchLikes(
+        withIndexationGuard({
+          Component: SecurityHotspotsApp,
+          showIndexationMessage: ({ component }) =>
+            !!(component.qualifier === ComponentQualifier.Application && component.needIssueSync),
+        }),
+      ),
+    ),
+  ),
 );

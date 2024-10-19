@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ public class CeWsParameters {
 
   public static final String ACTION_WORKER_COUNT = "worker_count";
 
-  public static final String PARAM_COMPONENT_ID = "componentId";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_STATUS = "status";

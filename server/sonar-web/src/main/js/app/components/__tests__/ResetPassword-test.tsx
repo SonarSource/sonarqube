@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import ResetPasswordForm from '../../../components/common/ResetPasswordForm';
+import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { ResetPassword, ResetPasswordProps } from '../ResetPassword';
 
 jest.mock('../../../helpers/system', () => ({
   getBaseUrl: jest.fn().mockReturnValue('/context'),
+}));
+
+jest.mock('../../../api/users', () => ({
+  changePassword: jest.fn().mockResolvedValue(true),
 }));
 
 const originalLocation = window.location;
@@ -47,22 +52,31 @@ afterAll(() => {
   });
 });
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+/*
+ * Note: the form itself is also used in the context of the account page
+ * and is tested there as well (i.e. Account-it.tsx)
+ */
+it('should navigate to the homepage after submission', async () => {
+  const user = userEvent.setup();
+  renderResetPassword();
 
-it('should navigate to the homepage after submission', () => {
-  const wrapper = shallowRender();
-  const form = wrapper.find(ResetPasswordForm);
-  const { onPasswordChange } = form.props();
+  // Make password strong
+  await user.type(ui.oldPasswordInput.get(), '1234');
+  await user.type(ui.passwordInput.get(), 'P@ssword12345');
+  await user.type(ui.passwordConfirmationInput.get(), 'P@ssword12345');
 
-  if (onPasswordChange) {
-    onPasswordChange();
-  }
+  await user.click(ui.submitButton.get());
 
   expect(window.location.href).toBe('/context/');
 });
 
-function shallowRender(props: Partial<ResetPasswordProps> = {}) {
-  return shallow(<ResetPassword currentUser={mockLoggedInUser()} {...props} />);
+function renderResetPassword(props: Partial<ResetPasswordProps> = {}) {
+  return renderComponent(<ResetPassword currentUser={mockLoggedInUser()} {...props} />);
 }
+
+const ui = {
+  oldPasswordInput: byLabelText(/my_profile\.password\.old/),
+  passwordInput: byLabelText(/^password/),
+  passwordConfirmationInput: byLabelText(/confirm_password\*/i),
+  submitButton: byRole('button', { name: 'update_verb' }),
+};

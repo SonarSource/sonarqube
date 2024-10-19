@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.component.ProjectLinkTesting.newCustomLinkDto;
 import static org.sonar.db.component.ProjectLinkTesting.newProvidedLinkDto;
@@ -31,29 +32,28 @@ import static org.sonar.db.component.ProjectLinkTesting.newProvidedLinkDto;
 public class ProjectLinkDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public ProjectLinkDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
-
+  
   @SafeVarargs
-  public final ProjectLinkDto insertProvidedLink(ComponentDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
+  public final ProjectLinkDto insertProvidedLink(ProjectDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
     return insertLink(project, newProvidedLinkDto(), dtoPopulators);
   }
 
   @SafeVarargs
-  public final ProjectLinkDto insertCustomLink(ComponentDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
+  public final ProjectLinkDto insertCustomLink(ProjectDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
     return insertLink(project, newCustomLinkDto(), dtoPopulators);
   }
 
   @SafeVarargs
-  private final ProjectLinkDto insertLink(ComponentDto project, ProjectLinkDto componentLink, Consumer<ProjectLinkDto>... dtoPopulators) {
+  private final ProjectLinkDto insertLink(ProjectDto project, ProjectLinkDto componentLink, Consumer<ProjectLinkDto>... dtoPopulators) {
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(componentLink));
-    dbClient.projectLinkDao().insert(dbSession, componentLink.setProjectUuid(project.uuid()));
+    dbClient.projectLinkDao().insert(db.getSession(), componentLink.setProjectUuid(project.getUuid()));
     db.commit();
     return componentLink;
   }
+
 }

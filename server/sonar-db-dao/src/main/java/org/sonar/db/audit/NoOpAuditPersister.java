@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.audit.model.AbstractEditorNewValue;
+import org.sonar.db.audit.model.DevOpsPermissionsMappingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
@@ -188,6 +189,16 @@ public class NoOpAuditPersister implements AuditPersister {
 
   @Override
   public void deleteGroupFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void addDevOpsPermissionsMapping(DbSession dbSession, DevOpsPermissionsMappingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void deleteDevOpsPermissionsMapping(DbSession dbSession, DevOpsPermissionsMappingNewValue deletedValue) {
     // no op
   }
 

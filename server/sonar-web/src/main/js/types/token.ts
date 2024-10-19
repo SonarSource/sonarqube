@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,13 +31,13 @@ export enum TokenExpiration {
 }
 
 export interface UserToken {
-  name: string;
   createdAt: string;
-  lastConnectionDate?: string;
   expirationDate?: string;
   isExpired: boolean;
+  lastConnectionDate?: string;
+  name: string;
+  project?: { key: string; name: string };
   type: TokenType;
-  project?: { name: string; key: string };
 }
 
 export interface NewUserToken extends UserToken {

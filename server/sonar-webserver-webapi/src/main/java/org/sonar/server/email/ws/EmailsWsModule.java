@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,11 +20,13 @@
 package org.sonar.server.email.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.common.email.config.EmailConfigurationService;
 
 public class EmailsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      EmailConfigurationService.class,
       EmailsWs.class,
       SendAction.class);
   }

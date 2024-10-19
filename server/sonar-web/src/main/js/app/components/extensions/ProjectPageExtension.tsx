@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { ComponentContext } from '../componentContext/ComponentContext';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import NotFound from '../NotFound';
+import { ComponentContext } from '../componentContext/ComponentContext';
 import Extension from './Extension';
 import withCurrentUserContext from "../current-user/withCurrentUserContext";
 import { CurrentUserContextInterface } from "../current-user/CurrentUserContext";
@@ -34,9 +35,10 @@ export interface ProjectPageExtensionProps {
 
 function ProjectPageExtension({ params }: ProjectPageExtensionProps & CurrentUserContextInterface) {
   const { extensionKey, pluginKey } = useParams();
-  const { branchLike, component, organization } = React.useContext(ComponentContext);
+  const { component, organization } = React.useContext(ComponentContext);
+  const { data: branchLike, isLoading } = useCurrentBranchQuery(component);
 
-  if (component === undefined) {
+  if (component === undefined || isLoading) {
     return null;
   }
 
@@ -45,11 +47,11 @@ function ProjectPageExtension({ params }: ProjectPageExtensionProps & CurrentUse
       ? `${params.pluginKey}/${params.extensionKey}`
       : `${pluginKey}/${extensionKey}`;
 
-  const extension = component.extensions && component.extensions.find((p) => p.key === fullKey);
+  const extension = component.extensions?.find((p) => p.key === fullKey);
   return extension ? (
     <Extension extension={extension} options={{ branchLike, component, organization }} />
   ) : (
-    <NotFound withContainer={false} />
+    <NotFound />
   );
 }
 

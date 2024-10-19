@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -42,12 +44,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -81,18 +80,20 @@ import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
+import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
 import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
+import static org.sonar.api.issue.DefaultTransitions.UNCONFIRM;
+import static org.sonar.api.issue.DefaultTransitions.WONT_FIX;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
 import static org.sonar.server.issue.AssignAction.ASSIGNEE_PARAMETER;
@@ -118,7 +119,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SET_TYPE;
 
 public class BulkChangeAction implements IssuesWsAction {
 
-  private static final Logger LOG = Loggers.get(BulkChangeAction.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BulkChangeAction.class);
   private static final List<String> ACTIONS_TO_DISTRIBUTE = List.of(SET_SEVERITY_KEY, SET_TYPE_KEY, DO_TRANSITION_KEY);
 
   private final System2 system2;
@@ -150,11 +151,15 @@ public class BulkChangeAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_CHANGE)
       .setDescription("Bulk change on issues. Up to 500 issues can be updated. <br/>" +
-        "Requires authentication.")
+                      "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
+        new Change("10.4", ("Transitions '%s' and '%s' are now deprecated. Use transition '%s' instead. " +
+          "The transition '%s' is deprecated too.").formatted(WONT_FIX, CONFIRM, ACCEPT, UNCONFIRM)),
+        new Change("10.4", "Transition '%s' is now supported.".formatted(ACCEPT)),
+        new Change("10.2", format("Parameters '%s' and '%s' are now deprecated.", PARAM_SET_SEVERITY, PARAM_SET_TYPE)),
         new Change("8.2", "Security hotspots are no longer supported and will be ignored."),
-        new Change("8.2", format("transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
+        new Change("8.2", format("Transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
         new Change("6.3", "'actions' parameter is ignored"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("bulk_change-example.json"))
@@ -169,10 +174,12 @@ public class BulkChangeAction implements IssuesWsAction {
       .setExampleValue("john.smith");
     action.createParam(PARAM_SET_SEVERITY)
       .setDescription("To change the severity of the list of issues")
+      .setDeprecatedSince("10.2")
       .setExampleValue(BLOCKER)
       .setPossibleValues(Severity.ALL);
     action.createParam(PARAM_SET_TYPE)
       .setDescription("To change the type of the list of issues")
+      .setDeprecatedSince("10.2")
       .setExampleValue(BUG)
       .setPossibleValues(RuleType.names())
       .setSince("5.5");
@@ -188,7 +195,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .setExampleValue("security,java8");
     action.createParam(PARAM_COMMENT)
       .setDescription("Add a comment. "
-        + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
+                      + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
       .setExampleValue("Here is my comment");
     action.createParam(PARAM_SEND_NOTIFICATIONS)
       .setSince("4.0")
@@ -212,7 +219,7 @@ public class BulkChangeAction implements IssuesWsAction {
 
     List<DefaultIssue> items = bulkChangeData.issues.stream()
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
-      .collect(MoreCollectors.toList());
+      .toList();
     issueStorage.save(dbSession, items);
 
     refreshLiveMeasures(dbSession, bulkChangeData, result);
@@ -237,15 +244,15 @@ public class BulkChangeAction implements IssuesWsAction {
       .collect(Collectors.toSet());
     List<ComponentDto> touchedComponents = touchedComponentUuids.stream()
       .map(data.componentsByUuid::get)
-      .collect(MoreCollectors.toList(touchedComponentUuids.size()));
+      .toList();
 
-    List<DefaultIssue> changedIssues = data.issues.stream().filter(result.success::contains).collect(MoreCollectors.toList());
+    List<DefaultIssue> changedIssues = data.issues.stream().filter(result.success::contains).toList();
     issueChangePostProcessor.process(dbSession, changedIssues, touchedComponents, false);
   }
 
   private static Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
     return issue -> {
-      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.projectsByUuid.get(issue.projectUuid()));
+      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.branchComponentByUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
       return result.success.contains(issue);
@@ -280,7 +287,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .filter(issue -> issue.updateDate() != null)
       .map(issue -> toNotification(bulkChangeData, userDtoByUuid, issue))
       .filter(Objects::nonNull)
-      .collect(toSet(issues.size()));
+      .collect(Collectors.toSet());
 
     if (changedIssues.isEmpty()) {
       return;
@@ -305,13 +312,13 @@ public class BulkChangeAction implements IssuesWsAction {
       // should not happen but filter it out anyway to avoid NPE in oldestUpdateDate call below
       .filter(issue -> issue.updateDate() != null)
       .filter(Objects::nonNull)
-      .collect(toSet(issues.size()));
+      .collect(Collectors.toSet());
 
     if (changedIssues.isEmpty()) {
       return;
     }
 
-    issueChangeEventService.distributeIssueChangeEvent(issues, bulkChangeData.projectsByUuid, bulkChangeData.branchesByProjectUuid);
+    issueChangeEventService.distributeIssueChangeEvent(issues, bulkChangeData.branchComponentByUuid, bulkChangeData.branchesByProjectUuid);
   }
 
   @CheckForNull
@@ -322,15 +329,17 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     RuleDto ruleDefinitionDto = bulkChangeData.rulesByKey.get(issue.ruleKey());
-    ComponentDto projectDto = bulkChangeData.projectsByUuid.get(issue.projectUuid());
+    ComponentDto projectDto = bulkChangeData.branchComponentByUuid.get(issue.projectUuid());
     if (ruleDefinitionDto == null || projectDto == null) {
       return null;
     }
+    IssueDto oldIssueDto = bulkChangeData.originalIssueByKey.get(issue.key());
 
     Optional<UserDto> assignee = Optional.ofNullable(issue.assignee()).map(userDtoByUuid::get);
     return new ChangedIssue.Builder(issue.key())
       .setNewStatus(issue.status())
-      .setNewResolution(issue.resolution())
+      .setNewIssueStatus(issue.issueStatus())
+      .setOldIssueStatus(oldIssueDto.getIssueStatus())
       .setAssignee(assignee.map(u -> new User(u.getUuid(), u.getLogin(), u.getName())).orElse(null))
       .setRule(new IssuesChangesNotificationBuilder.Rule(ruleDefinitionDto.getKey(), RuleType.valueOfNullable(ruleDefinitionDto.getType()), ruleDefinitionDto.getName()))
       .setProject(new Project.Builder(projectDto.uuid())
@@ -375,11 +384,12 @@ public class BulkChangeAction implements IssuesWsAction {
     private final Map<String, Map<String, Object>> propertiesByActions;
     private final boolean sendNotification;
     private final Collection<DefaultIssue> issues;
-    private final Map<String, ComponentDto> projectsByUuid;
+    private final Map<String, ComponentDto> branchComponentByUuid;
     private final Map<String, BranchDto> branchesByProjectUuid;
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<RuleKey, RuleDto> rulesByKey;
     private final List<Action> availableActions;
+    private final Map<String, IssueDto> originalIssueByKey;
 
     BulkChangeData(DbSession dbSession, Request request) {
       this.sendNotification = request.mandatoryParamAsBoolean(PARAM_SEND_NOTIFICATIONS);
@@ -392,38 +402,45 @@ public class BulkChangeAction implements IssuesWsAction {
         .filter(issueDto -> SECURITY_HOTSPOT.getDbConstant() != issueDto.getType())
         .toList();
 
-      List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
-      this.projectsByUuid = getAuthorizedProjects(allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
-      this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, projectsByUuid.keySet()).stream()
-        .collect(uniqueIndex(BranchDto::getUuid, identity()));
-      this.issues = getAuthorizedIssues(allIssues);
+      List<ComponentDto> allBranches = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(Collectors.toSet()));
+      this.branchComponentByUuid = getAuthorizedComponents(allBranches).stream().collect(toMap(ComponentDto::uuid, identity()));
+      this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, branchComponentByUuid.keySet()).stream()
+        .collect(toMap(BranchDto::getUuid, identity()));
+      List<IssueDto> authorizedIssues = getAuthorizedIssues(allIssues);
+      this.originalIssueByKey = authorizedIssues.stream().collect(toMap(IssueDto::getKee, identity()));
+      this.issues = toDefaultIssues(authorizedIssues);
       this.componentsByUuid = getComponents(dbSession,
-        issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
-          .collect(uniqueIndex(ComponentDto::uuid, identity()));
+        issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
+        .collect(toMap(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
-        issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
-        .collect(uniqueIndex(RuleDto::getKey, identity()));
+          issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
+        .collect(toMap(RuleDto::getKey, identity()));
 
       this.availableActions = actions.stream()
         .filter(action -> propertiesByActions.containsKey(action.key()))
         .filter(action -> action.verify(getProperties(action.key()), issues, userSession))
-        .collect(MoreCollectors.toList());
+        .toList();
     }
 
     private List<ComponentDto> getComponents(DbSession dbSession, Collection<String> componentUuids) {
       return dbClient.componentDao().selectByUuids(dbSession, componentUuids);
     }
 
-    private List<ComponentDto> getAuthorizedProjects(List<ComponentDto> projectDtos) {
+    private List<ComponentDto> getAuthorizedComponents(List<ComponentDto> projectDtos) {
       return userSession.keepAuthorizedComponents(UserRole.USER, projectDtos);
     }
 
-    private List<DefaultIssue> getAuthorizedIssues(List<IssueDto> allIssues) {
-      Set<String> projectUuids = projectsByUuid.values().stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet());
+    private List<IssueDto> getAuthorizedIssues(List<IssueDto> allIssues) {
+      Set<String> branchUuids = branchComponentByUuid.values().stream().map(ComponentDto::uuid).collect(Collectors.toSet());
       return allIssues.stream()
-        .filter(issue -> projectUuids.contains(issue.getProjectUuid()))
+        .filter(issue -> branchUuids.contains(issue.getProjectUuid()))
+        .toList();
+    }
+
+    private List<DefaultIssue> toDefaultIssues(List<IssueDto> allIssues) {
+      return allIssues.stream()
         .map(IssueDto::toDefaultIssue)
-        .collect(MoreCollectors.toList());
+        .toList();
     }
 
     Map<String, Object> getProperties(String actionKey) {
@@ -431,7 +448,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     List<Action> getActionsWithoutComment() {
-      return availableActions.stream().filter(action -> !action.key().equals(COMMENT_KEY)).collect(MoreCollectors.toList());
+      return availableActions.stream().filter(action -> !action.key().equals(COMMENT_KEY)).toList();
     }
 
     Optional<Action> getCommentAction() {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,11 +33,8 @@ public class ComponentTreeRequest {
 
   private List<String> additionalFields;
   private String asc;
-  private String baseComponentId;
   private String branch;
   private String component;
-  private String developerId;
-  private String developerKey;
   private List<String> metricKeys;
   private String metricPeriodSort;
   private String metricSort;
@@ -86,20 +83,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Example value: "AU-TpxcA-iU5OvuD2FLz"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ComponentTreeRequest setBaseComponentId(String baseComponentId) {
-    this.baseComponentId = baseComponentId;
-    return this;
-  }
-
-  public String getBaseComponentId() {
-    return baseComponentId;
-  }
-
-  /**
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -122,32 +105,6 @@ public class ComponentTreeRequest {
 
   public String getComponent() {
     return component;
-  }
-
-  /**
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public ComponentTreeRequest setDeveloperId(String developerId) {
-    this.developerId = developerId;
-    return this;
-  }
-
-  public String getDeveloperId() {
-    return developerId;
-  }
-
-  /**
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public ComponentTreeRequest setDeveloperKey(String developerKey) {
-    this.developerKey = developerKey;
-    return this;
-  }
-
-  public String getDeveloperKey() {
-    return developerKey;
   }
 
   /**
@@ -258,7 +215,6 @@ public class ComponentTreeRequest {
   /**
    * Possible values:
    * <ul>
-   *   <li>"BRC"</li>
    *   <li>"DIR"</li>
    *   <li>"FIL"</li>
    *   <li>"TRK"</li>

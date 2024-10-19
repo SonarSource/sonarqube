@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,31 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { PopupPlacement, Tags } from 'design-system';
 import * as React from 'react';
-import DropdownIcon from '../../components/icons/DropdownIcon';
-import TagsIcon from '../../components/icons/TagsIcon';
-import { translateWithParameters } from '../../helpers/l10n';
-import './TagsList.css';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import Tooltip from '../controls/Tooltip';
 
 interface Props {
   allowUpdate?: boolean;
   className?: string;
+  overlay?: React.ReactNode;
   tags: string[];
+  tagsClassName?: string;
+  tagsToDisplay?: number;
 }
 
-export default function TagsList({ allowUpdate = false, className, tags }: Props) {
+export default function TagsList({
+  allowUpdate = false,
+  className,
+  tags,
+  overlay,
+  tagsClassName,
+  tagsToDisplay = 2,
+}: Readonly<Props>) {
+  const [open, setOpen] = React.useState(false);
+
   return (
-    <span
-      aria-label={translateWithParameters('tags_list_x', tags.join(', '))}
-      role="note"
-      className={classNames('tags-list', className)}
-    >
-      <TagsIcon className="text-middle" />
-      <span aria-hidden={true} className="text-ellipsis text-middle" title={tags.join(', ')}>
-        {tags.join(', ')}
-      </span>
-      {allowUpdate && <DropdownIcon className="text-middle" />}
-    </span>
+    <Tags
+      allowUpdate={allowUpdate}
+      ariaTagsListLabel={translateWithParameters('tags_list_x', tags.join(', '))}
+      className={className}
+      emptyText={translate('no_tags')}
+      menuId="rule-tags-menu"
+      onClose={() => setOpen(false)}
+      open={open}
+      overlay={overlay}
+      popupPlacement={PopupPlacement.Bottom}
+      tags={tags}
+      tagsClassName={tagsClassName}
+      tagsToDisplay={tagsToDisplay}
+      tooltip={Tooltip}
+    />
   );
 }

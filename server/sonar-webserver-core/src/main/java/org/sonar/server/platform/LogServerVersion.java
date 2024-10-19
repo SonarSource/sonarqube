@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,14 +26,14 @@ import java.util.Properties;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.SonarQubeVersion;
 
 @ServerSide
 public class LogServerVersion implements Startable {
 
-  private static final Logger LOG = Loggers.get(LogServerVersion.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LogServerVersion.class);
   private final SonarQubeVersion sonarQubeVersion;
 
   public LogServerVersion(SonarQubeVersion sonarQubeVersion) {

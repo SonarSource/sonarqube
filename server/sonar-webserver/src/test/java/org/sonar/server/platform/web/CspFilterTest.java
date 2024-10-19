@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,13 +37,14 @@ public class CspFilterTest {
 
   private static final String TEST_CONTEXT = "/sonarqube";
   private static final String EXPECTED = "default-src 'self'; " +
-          "base-uri 'none'; " +
-          "connect-src 'self' http: https:; " +
-          "img-src * data: blob:; " +
-          "object-src 'none'; " +
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-          "style-src 'self' 'unsafe-inline'; " +
-          "worker-src 'none'";
+    "base-uri 'none'; " +
+    "connect-src 'self' http: https:; " +
+    "font-src 'self' data:; " +
+    "img-src * data: blob:; " +
+    "object-src 'none'; " +
+    "script-src 'self'; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "worker-src 'none'";
   private final ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);
   private final HttpServletResponse response = mock(HttpServletResponse.class);
   private final FilterChain chain = mock(FilterChain.class);
@@ -61,8 +62,6 @@ public class CspFilterTest {
     HttpServletRequest request = newRequest("/");
     underTest.doFilter(request, response, chain);
     verify(response).setHeader("Content-Security-Policy", EXPECTED);
-    verify(response).setHeader("X-Content-Security-Policy", EXPECTED);
-    verify(response).setHeader("X-WebKit-CSP", EXPECTED);
     verify(chain).doFilter(request, response);
   }
 

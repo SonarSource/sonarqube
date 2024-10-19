@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,81 +17,119 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  LAYOUT_FOOTER_HEIGHT,
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LAYOUT_PROJECT_NAV_HEIGHT,
+  SubnavigationGroup,
+  SubnavigationItem,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
-import { Dict, MeasureEnhanced } from '../../../types/types';
-import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
-import DomainFacet from './DomainFacet';
-import ProjectOverviewFacet from './ProjectOverviewFacet';
+import useFollowScroll from '../../../hooks/useFollowScroll';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { Domain } from '../../../types/measures';
+import { MeasureEnhanced } from '../../../types/types';
+import { PROJECT_OVERVEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
+import DomainSubnavigation from './DomainSubnavigation';
 
 interface Props {
+  componentKey: string;
   measures: MeasureEnhanced[];
   selectedMetric: string;
   showFullMeasures: boolean;
   updateQuery: (query: Partial<Query>) => void;
 }
 
-interface State {
-  openFacets: Dict<boolean>;
-}
+export default function Sidebar(props: Readonly<Props>) {
+  const { showFullMeasures, updateQuery, componentKey, selectedMetric, measures } = props;
+  const { top: topScroll, scrolledOnce } = useFollowScroll();
+  const { data: isLegacy } = useIsLegacyCCTMode();
+  const domains = populateDomainsFromMeasures(measures, isLegacy);
 
-export default class Sidebar extends React.PureComponent<Props, State> {
-  static getDerivedStateFromProps(props: Props, state: State) {
-    return { openFacets: getOpenFacets(state.openFacets, props) };
-  }
+  const handleChangeMetric = React.useCallback(
+    (metric: string) => {
+      updateQuery({ metric });
+    },
+    [updateQuery],
+  );
 
-  state: State = {
-    openFacets: {},
+  const handleProjectOverviewClick = () => {
+    handleChangeMetric(PROJECT_OVERVEW);
   };
 
-  toggleFacet = (name: string) => {
-    this.setState(({ openFacets }) => ({
-      openFacets: { ...openFacets, [name]: !openFacets[name] },
-    }));
-  };
+  const distanceFromBottom = topScroll + window.innerHeight - document.body.scrollHeight;
+  const footerVisibleHeight =
+    (scrolledOnce &&
+      (distanceFromBottom > -LAYOUT_FOOTER_HEIGHT
+        ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom
+        : 0)) ||
+    0;
 
-  changeMetric = (metric: string) => {
-    this.props.updateQuery({ metric });
-  };
-
-  render() {
-    const { showFullMeasures } = this.props;
-    return (
-      <nav aria-label={translate('secondary')}>
+  return (
+    <StyledSidebar
+      className="sw-col-span-3"
+      style={{
+        top: `${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT}px`,
+        height: `calc(
+            100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + footerVisibleHeight}px
+          )`,
+      }}
+    >
+      <section
+        className="sw-flex sw-flex-col sw-gap-4 sw-p-4"
+        aria-label={translate('component_measures.navigation')}
+      >
         <A11ySkipTarget
           anchor="measures_filters"
-          label={translate('component_measures.skip_to_filters')}
+          label={translate('component_measures.skip_to_navigation')}
           weight={10}
         />
-        <ProjectOverviewFacet
-          onChange={this.changeMetric}
-          selected={this.props.selectedMetric}
-          value={PROJECT_OVERVEW}
-        />
-        {groupByDomains(this.props.measures).map((domain) => (
-          <DomainFacet
+        <SubnavigationGroup>
+          <SubnavigationItem
+            active={isProjectOverview(selectedMetric)}
+            ariaCurrent={isProjectOverview(selectedMetric)}
+            onClick={handleProjectOverviewClick}
+          >
+            {translate('component_measures.overview', PROJECT_OVERVEW, 'subnavigation')}
+          </SubnavigationItem>
+        </SubnavigationGroup>
+
+        {domains.map((domain: Domain) => (
+          <DomainSubnavigation
+            componentKey={componentKey}
             domain={domain}
             key={domain.name}
-            onChange={this.changeMetric}
-            onToggle={this.toggleFacet}
-            open={this.state.openFacets[domain.name] === true}
-            selected={this.props.selectedMetric}
+            onChange={handleChangeMetric}
+            measures={measures}
+            open={isDomainSelected(selectedMetric, domain)}
+            selected={selectedMetric}
             showFullMeasures={showFullMeasures}
           />
         ))}
-      </nav>
-    );
-  }
+      </section>
+    </StyledSidebar>
+  );
 }
 
-function getOpenFacets(openFacets: Dict<boolean>, { measures, selectedMetric }: Props) {
-  const newOpenFacets = { ...openFacets };
-  const measure = measures.find((measure) => measure.metric.key === selectedMetric);
-  if (measure && measure.metric && measure.metric.domain) {
-    newOpenFacets[measure.metric.domain] = true;
-  } else if (KNOWN_DOMAINS.includes(selectedMetric)) {
-    newOpenFacets[selectedMetric] = true;
-  }
-  return newOpenFacets;
+function isDomainSelected(selectedMetric: string, domain: Domain) {
+  return (
+    selectedMetric === domain.name ||
+    domain.measures.some((measure) => measure.metric.key === selectedMetric)
+  );
 }
+
+const StyledSidebar = withTheme(styled.div`
+  box-sizing: border-box;
+  margin-top: -2rem;
+
+  background-color: ${themeColor('filterbar')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+  position: sticky;
+  overflow-x: hidden;
+`);

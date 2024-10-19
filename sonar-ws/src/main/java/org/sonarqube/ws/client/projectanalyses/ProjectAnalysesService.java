@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,6 @@
 package org.sonarqube.ws.client.projectanalyses;
 
 import javax.annotation.Generated;
-import javax.annotation.Nullable;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
@@ -29,9 +28,6 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-
-import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_analyses">Further information about this web service online</a>
@@ -123,21 +119,4 @@ public class ProjectAnalysesService extends BaseService {
       UpdateEventResponse.parser());
   }
 
-  public void set_baseline(String projectKey, @Nullable String branchName, String analysisUuid) {
-    requireNonNull(projectKey, "projectKey can't be null");
-    requireNonNull(analysisUuid, "analysisUuid can't be null");
-    PostRequest request = new PostRequest(path("set_baseline"))
-      .setParam("project", projectKey)
-      .setParam("analysis", analysisUuid);
-    ofNullable(branchName).ifPresent(t -> request.setParam("branch", t));
-    call(request);
-  }
-
-  public void unset_baseline(String projectKey, @Nullable String branchName) {
-    requireNonNull(projectKey, "projectKey can't be null");
-    PostRequest request = new PostRequest(path("unset_baseline"))
-      .setParam("project", projectKey);
-    ofNullable(branchName).ifPresent(t -> request.setParam("branch", t));
-    call(request);
-  }
 }

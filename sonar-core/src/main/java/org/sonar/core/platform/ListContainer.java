@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +21,10 @@ package org.sonar.core.platform;
 
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 import static java.util.Collections.unmodifiableList;
@@ -32,12 +34,13 @@ import static java.util.Collections.unmodifiableList;
  */
 public class ListContainer implements ExtensionContainer {
   private final List<Object> objects = new ArrayList<>();
+  private final Set<Class<?>> webConfigurationClasses = new HashSet<>();
 
   @Override
   public Container add(Object... objects) {
     for (Object o : objects) {
-      if (o instanceof Module) {
-        ((Module) o).configure(this);
+      if (o instanceof Module module) {
+        module.configure(this);
       } else if (o instanceof Iterable) {
         add(Iterables.toArray((Iterable<?>) o, Object.class));
       } else {
@@ -86,6 +89,26 @@ public class ListContainer implements ExtensionContainer {
   @Override
   public ExtensionContainer declareExtension(@Nullable String defaultCategory, Object extension) {
     return this;
+  }
+
+  @Override
+  public void addWebApiV2ConfigurationClass(Class<?> clazz) {
+    webConfigurationClasses.add(clazz);
+  }
+
+  @Override
+  public Set<Class<?>> getWebApiV2ConfigurationClasses() {
+    return webConfigurationClasses;
+  }
+
+  @Override
+  public <T> T getParentComponentByType(Class<T> type) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <T> List<T> getParentComponentsByType(Class<T> type) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

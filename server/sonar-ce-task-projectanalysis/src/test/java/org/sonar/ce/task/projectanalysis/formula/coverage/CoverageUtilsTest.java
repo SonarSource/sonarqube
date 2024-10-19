@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,10 @@ package org.sonar.ce.task.projectanalysis.formula.coverage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -36,47 +37,46 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.formula.coverage.CoverageUtils.getLongMeasureValue;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
-public class CoverageUtilsTest {
+class CoverageUtilsTest {
 
   private static final String SOME_METRIC_KEY = "some key";
-  public static final double DEFAULT_VARIATION = 0d;
 
-  @Rule
-  public CounterInitializationContextRule fileAggregateContext = new CounterInitializationContextRule();
+  @RegisterExtension
+  private final CounterInitializationContextRule fileAggregateContext = new CounterInitializationContextRule();
 
   @Test
-  public void verify_calculate_coverage() {
+  void verify_calculate_coverage() {
     assertThat(CoverageUtils.calculateCoverage(5, 10)).isEqualTo(50d);
   }
 
   @Test
-  public void getLongMeasureValue_returns_0_if_measure_does_not_exist() {
+  void getLongMeasureValue_returns_0_if_measure_does_not_exist() {
     assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isZero();
   }
 
   @Test
-  public void getLongMeasureValue_returns_0_if_measure_is_NO_VALUE() {
+  void getLongMeasureValue_returns_0_if_measure_is_NO_VALUE() {
     fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().createNoValue());
 
     assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isZero();
   }
 
   @Test
-  public void getLongMeasureValue_returns_value_if_measure_is_INT() {
+  void getLongMeasureValue_returns_value_if_measure_is_INT() {
     fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().create(152));
 
     assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(152L);
   }
 
   @Test
-  public void getLongMeasureValue_returns_value_if_measure_is_LONG() {
+  void getLongMeasureValue_returns_value_if_measure_is_LONG() {
     fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().create(152L));
 
     assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(152L);
   }
 
   @Test
-  public void getLongMeasureValue_throws_ISE_if_measure_is_DOUBLE() {
+  void getLongMeasureValue_throws_ISE_if_measure_is_DOUBLE() {
     assertThatThrownBy(() -> {
       fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().create(152d, 1));
       getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY);
@@ -85,7 +85,7 @@ public class CoverageUtilsTest {
       .hasMessage("value can not be converted to long because current value type is a DOUBLE");
   }
 
-  private static class CounterInitializationContextRule extends ExternalResource implements CounterInitializationContext {
+  private static class CounterInitializationContextRule implements CounterInitializationContext, AfterEachCallback {
     private final Map<String, Measure> measures = new HashMap<>();
 
     public CounterInitializationContextRule put(String metricKey, Measure measure) {
@@ -94,11 +94,6 @@ public class CoverageUtilsTest {
       checkState(!measures.containsKey(metricKey));
       measures.put(metricKey, measure);
       return this;
-    }
-
-    @Override
-    protected void after() {
-      measures.clear();
     }
 
     @Override
@@ -111,5 +106,9 @@ public class CoverageUtilsTest {
       return Optional.ofNullable(measures.get(metricKey));
     }
 
+    @Override
+    public void afterEach(ExtensionContext extensionContext) throws Exception {
+      measures.clear();
+    }
   }
 }

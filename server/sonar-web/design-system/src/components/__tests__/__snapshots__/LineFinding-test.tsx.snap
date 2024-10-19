@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly as button 1`] = `
+.emotion-0 {
+  all: unset;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.25rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font: var(--echoes-typography-text-large-semi-bold);
+  cursor: default;
+  border: 1px solid rgb(253,162,155);
+  color: rgb(62,67,87);
+  word-break: break-word;
+  background-color: rgb(255,255,255);
+}
+
+.emotion-0:focus-visible {
+  background-color: rgb(239,242,249);
+}
+
+.emotion-0:hover {
+  box-shadow: 0px 1px 3px 0px rgba(29,33,47,0.05),0px 1px 25px 0px rgba(29,33,47,0.05);
+}
+
+.emotion-2 {
+  all: unset;
+  cursor: pointer;
+}
+
+.emotion-2:focus-visible {
+  background-color: rgb(239,242,249);
+}
+
+<div>
+  <div
+    class="emotion-0 emotion-1"
+    data-issue="key"
+  >
+    <button
+      class="emotion-2 emotion-3"
+    >
+      message
+    </button>
+  </div>
+</div>
+`;

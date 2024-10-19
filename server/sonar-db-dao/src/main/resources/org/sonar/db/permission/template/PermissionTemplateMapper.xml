@@ -97,11 +97,12 @@
     where group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </delete>
 
-  <select id="selectUserLoginsByQueryAndTemplate" parameterType="map" resultType="string">
+  <select id="selectUserLoginsByQueryAndTemplate" resultType="string">
     select u.login as login
       <include refid="userLoginsByQueryAndTemplate"/>
     group by u.login, u.name
     order by case when (count(ptu.permission_reference) > 0) then 1 else 2 end asc, u.name
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countUserLoginsByQueryAndTemplate" parameterType="map" resultType="int">
@@ -131,11 +132,12 @@
     </where>
   </sql>
 
-  <select id="selectGroupNamesByQueryAndTemplate" parameterType="map" resultType="string">
+  <select id="selectGroupNamesByQueryAndTemplate" resultType="string">
     select groups.name, lower(groups.name), groups.group_uuid
     <include refid="groupNamesByQueryAndTemplate"/>
     group by groups.name, lower(groups.name), groups.group_uuid
     order by case when (count(groups.permission) > 0) then 1 else 2 end asc, lower(groups.name), groups.name, groups.group_uuid
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countGroupNamesByQueryAndTemplate" parameterType="map" resultType="int">

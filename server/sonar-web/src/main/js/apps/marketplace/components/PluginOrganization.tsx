@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,39 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, ListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from '../../../helpers/l10n';
 import { Plugin } from '../../../types/plugins';
 
 export interface PluginOrganizationProps {
   plugin: Plugin;
 }
 
-export default function PluginOrganization({ plugin }: PluginOrganizationProps) {
+export default function PluginOrganization({ plugin }: Readonly<PluginOrganizationProps>) {
   if (!plugin.organizationName) {
     return null;
   }
   return (
-    <li className="little-spacer-bottom">
+    <ListItem>
       <FormattedMessage
-        defaultMessage={translate('marketplace.developed_by_x')}
         id="marketplace.developed_by_x"
         values={{
           organization: plugin.organizationUrl ? (
-            <a
-              className="js-plugin-organization"
-              href={plugin.organizationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {plugin.organizationName}
-            </a>
+            <Link to={plugin.organizationUrl}>{plugin.organizationName}</Link>
           ) : (
-            <span className="js-plugin-organization">{plugin.organizationName}</span>
+            <span>{plugin.organizationName}</span>
           ),
         }}
       />
-    </li>
+    </ListItem>
   );
 }

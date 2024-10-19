@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
@@ -47,7 +50,7 @@ import static java.util.Optional.ofNullable;
 
 public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
   private static final String TAGS_SEPARATOR = ",";
-  private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  private static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private final File file;
   private final System2 system2;
@@ -98,7 +101,6 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setType(RuleType.valueOf(next.getRuleType()));
     defaultIssue.setComponentUuid(next.hasComponentUuid() ? next.getComponentUuid() : null);
     defaultIssue.setComponentKey(next.getComponentKey());
-    defaultIssue.setModuleUuidPath(next.hasModuleUuidPath() ? next.getModuleUuidPath() : null);
     defaultIssue.setProjectUuid(next.getProjectUuid());
     defaultIssue.setProjectKey(next.getProjectKey());
     defaultIssue.setRuleKey(RuleKey.parse(next.getRuleKey()));
@@ -113,10 +115,12 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setStatus(next.getStatus());
     defaultIssue.setResolution(next.hasResolution() ? next.getResolution() : null);
     defaultIssue.setAssigneeUuid(next.hasAssigneeUuid() ? next.getAssigneeUuid() : null);
+    defaultIssue.setAssigneeLogin(next.hasAssigneeLogin() ? next.getAssigneeLogin() : null);
     defaultIssue.setChecksum(next.hasChecksum() ? next.getChecksum() : null);
     defaultIssue.setAuthorLogin(next.hasAuthorLogin() ? next.getAuthorLogin() : null);
     next.getCommentsList().forEach(c -> defaultIssue.addComment(toDefaultIssueComment(c)));
-    defaultIssue.setTags(ImmutableSet.copyOf(TAGS_SPLITTER.split(next.getTags())));
+    defaultIssue.setTags(ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(next.getTags())));
+    defaultIssue.setCodeVariants(ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(next.getCodeVariants())));
     defaultIssue.setRuleDescriptionContextKey(next.hasRuleDescriptionContextKey() ? next.getRuleDescriptionContextKey() : null);
     defaultIssue.setLocations(next.hasLocations() ? next.getLocations() : null);
     defaultIssue.setIsFromExternalRuleEngine(next.getIsFromExternalRuleEngine());
@@ -134,12 +138,20 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setSendNotifications(next.getSendNotifications());
     defaultIssue.setSelectedAt(next.hasSelectedAt() ? next.getSelectedAt() : null);
     defaultIssue.setQuickFixAvailable(next.getQuickFixAvailable());
+    defaultIssue.setPrioritizedRule(next.getIsPrioritizedRule());
     defaultIssue.setIsNoLongerNewCodeReferenceIssue(next.getIsNoLongerNewCodeReferenceIssue());
+    defaultIssue.setCleanCodeAttribute(next.hasCleanCodeAttribute() ? CleanCodeAttribute.valueOf(next.getCleanCodeAttribute()) : null);
+    if (next.hasAnticipatedTransitionUuid()) {
+      defaultIssue.setAnticipatedTransitionUuid(next.getAnticipatedTransitionUuid());
+    }
 
+    for (IssueCache.Impact impact : next.getImpactsList()) {
+      defaultIssue.addImpact(SoftwareQuality.valueOf(impact.getSoftwareQuality()), Severity.valueOf(impact.getSeverity()));
+    }
     for (IssueCache.FieldDiffs protoFieldDiffs : next.getChangesList()) {
       defaultIssue.addChange(toDefaultIssueChanges(protoFieldDiffs));
     }
-
+    defaultIssue.setCveId(next.hasCveId() ? next.getCveId() : null);
     return defaultIssue;
   }
 
@@ -148,9 +160,9 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.clear();
     builder.setKey(defaultIssue.key());
     builder.setRuleType(defaultIssue.type().getDbConstant());
+    ofNullable(defaultIssue.getCleanCodeAttribute()).ifPresent(value -> builder.setCleanCodeAttribute(value.name()));
     ofNullable(defaultIssue.componentUuid()).ifPresent(builder::setComponentUuid);
     builder.setComponentKey(defaultIssue.componentKey());
-    ofNullable(defaultIssue.moduleUuidPath()).ifPresent(builder::setModuleUuidPath);
     builder.setProjectUuid(defaultIssue.projectUuid());
     builder.setProjectKey(defaultIssue.projectKey());
     builder.setRuleKey(defaultIssue.ruleKey().toString());
@@ -165,10 +177,12 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.setStatus(defaultIssue.status());
     ofNullable(defaultIssue.resolution()).ifPresent(builder::setResolution);
     ofNullable(defaultIssue.assignee()).ifPresent(builder::setAssigneeUuid);
+    ofNullable(defaultIssue.assigneeLogin()).ifPresent(builder::setAssigneeLogin);
     ofNullable(defaultIssue.checksum()).ifPresent(builder::setChecksum);
     ofNullable(defaultIssue.authorLogin()).ifPresent(builder::setAuthorLogin);
     defaultIssue.defaultIssueComments().forEach(c -> builder.addComments(toProtoComment(c)));
     ofNullable(defaultIssue.tags()).ifPresent(t -> builder.setTags(String.join(TAGS_SEPARATOR, t)));
+    ofNullable(defaultIssue.codeVariants()).ifPresent(codeVariant -> builder.setCodeVariants(String.join(TAGS_SEPARATOR, codeVariant)));
     ofNullable(defaultIssue.getLocations()).ifPresent(l -> builder.setLocations((DbIssues.Locations) l));
     defaultIssue.getRuleDescriptionContextKey().ifPresent(builder::setRuleDescriptionContextKey);
     builder.setIsFromExternalRuleEngine(defaultIssue.isFromExternalRuleEngine());
@@ -178,6 +192,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.currentChange()).ifPresent(c -> builder.setCurrentChanges(toProtoIssueChanges(c)));
     builder.setIsNew(defaultIssue.isNew());
     builder.setIsOnChangedLine(defaultIssue.isOnChangedLine());
+    builder.setIsPrioritizedRule(defaultIssue.isPrioritizedRule());
     builder.setIsNewCodeReferenceIssue(defaultIssue.isNewCodeReferenceIssue());
     builder.setIsCopied(defaultIssue.isCopied());
     builder.setBeingClosed(defaultIssue.isBeingClosed());
@@ -187,11 +202,19 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.selectedAt()).ifPresent(builder::setSelectedAt);
     builder.setQuickFixAvailable(defaultIssue.isQuickFixAvailable());
     builder.setIsNoLongerNewCodeReferenceIssue(defaultIssue.isNoLongerNewCodeReferenceIssue());
+    defaultIssue.getAnticipatedTransitionUuid().ifPresent(builder::setAnticipatedTransitionUuid);
 
+
+    for (Map.Entry<SoftwareQuality, Severity> impact : defaultIssue.impacts().entrySet()) {
+      builder.addImpacts(IssueCache.Impact.newBuilder()
+        .setSoftwareQuality(impact.getKey().name())
+        .setSeverity(impact.getValue().name())
+        .build());
+    }
     for (FieldDiffs fieldDiffs : defaultIssue.changes()) {
       builder.addChanges(toProtoIssueChanges(fieldDiffs));
     }
-
+    ofNullable(defaultIssue.getCveId()).ifPresent(builder::setCveId);
     return builder.build();
   }
 

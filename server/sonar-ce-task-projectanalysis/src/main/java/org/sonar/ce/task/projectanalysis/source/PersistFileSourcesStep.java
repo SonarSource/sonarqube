@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,10 @@
 package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -78,7 +78,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private class FileSourceVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
-    private String projectUuid;
+    private String branchUuid;
 
     private FileSourceVisitor(DbSession session) {
       super(CrawlerDepthLimit.FILE, PRE_ORDER);
@@ -86,8 +86,8 @@ public class PersistFileSourcesStep implements ComputationStep {
     }
 
     @Override
-    public void visitProject(Component project) {
-      this.projectUuid = project.getUuid();
+    public void visitProject(Component branch) {
+      this.branchUuid = branch.getUuid();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       if (previousDto == null) {
         FileSourceDto dto = new FileSourceDto()
           .setUuid(uuidFactory.create())
-          .setProjectUuid(projectUuid)
+          .setProjectUuid(branchUuid)
           .setFileUuid(file.getUuid())
           .setBinaryData(binaryData)
           .setSrcHash(srcHash)
@@ -130,7 +130,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
         String revision = computeRevision(latestChangeWithRevision);
-        boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
+        boolean revisionUpdated = !Objects.equals(revision, previousDto.getRevision());
         boolean lineHashesVersionUpdated = previousDto.getLineHashesVersion() != lineHashesVersion;
         if (binaryDataUpdated || srcHashUpdated || revisionUpdated || lineHashesVersionUpdated) {
           FileSourceDto updatedDto = new FileSourceDto()

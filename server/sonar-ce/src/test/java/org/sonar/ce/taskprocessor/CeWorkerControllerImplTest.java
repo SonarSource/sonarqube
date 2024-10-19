@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ package org.sonar.ce.taskprocessor;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.configuration.CeConfigurationRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,6 @@ public class CeWorkerControllerImplTest {
   /** 1 <= workerCount <= 5 */
   private int randomWorkerCount = 1 + random.nextInt(5);
 
-  @Rule
   public CeConfigurationRule ceConfigurationRule = new CeConfigurationRule()
     .setWorkerCount(randomWorkerCount);
   @Rule
@@ -166,7 +165,7 @@ public class CeWorkerControllerImplTest {
 
   private void verifyInfoLog(int workerCount) {
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .containsOnly("Compute Engine will use " + workerCount + " concurrent workers to process tasks");
   }
 }

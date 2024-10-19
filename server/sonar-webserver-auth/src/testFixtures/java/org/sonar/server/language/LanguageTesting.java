@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,12 @@
 package org.sonar.server.language;
 
 import com.google.common.collect.Collections2;
-import org.apache.commons.lang.StringUtils;
+import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.core.util.NonNullInputFunction;
-
-import java.util.Arrays;
 
 public class LanguageTesting {
 

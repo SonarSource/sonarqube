@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,13 +21,15 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.Lists;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.CheckForNull;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -35,19 +37,19 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleChangeDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO;
@@ -56,7 +58,7 @@ public class ChangelogAction implements QProfileWsAction {
 
   private final QProfileWsSupport wsSupport;
   private final Languages languages;
-  private DbClient dbClient;
+  private final DbClient dbClient;
 
   public ChangelogAction(QProfileWsSupport wsSupport, Languages languages, DbClient dbClient) {
     this.wsSupport = wsSupport;
@@ -71,8 +73,12 @@ public class ChangelogAction implements QProfileWsAction {
       .setDescription("Get the history of changes on a quality profile: rule activation/deactivation, change in parameters/severity. " +
         "Events are ordered by date in descending order (most recent first).")
       .setChangelog(
-        new org.sonar.api.server.ws.Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
-        new org.sonar.api.server.ws.Change("9.8", "The field 'paging' has been added to the response"))
+        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
+        new Change("9.8", "The field 'paging' has been added to the response"),
+        new Change("10.3", "Added fields 'cleanCodeAttributeCategory', 'impacts' to response"),
+        new Change("10.3", "Added fields 'oldCleanCodeAttribute', 'newCleanCodeAttribute', 'oldCleanCodeAttributeCategory', " +
+          "'newCleanCodeAttributeCategory' and 'impactChanges' to 'params' section of response"),
+        new Change("10.3", "Added field 'sonarQubeVersion' to 'params' section of response"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
@@ -114,36 +120,43 @@ public class ChangelogAction implements QProfileWsAction {
 
       int total = dbClient.qProfileChangeDao().countByQuery(dbSession, query);
 
-      List<Change> changelogs = load(dbSession, query);
+      List<QProfileChangeDto> changelogs = load(dbSession, query);
       Map<String, UserDto> usersByUuid = getUsersByUserUuid(dbSession, changelogs);
       Map<String, RuleDto> rulesByRuleIds = getRulesByRuleUuids(dbSession, changelogs);
       writeResponse(response.newJsonWriter(), total, page, pageSize, changelogs, usersByUuid, rulesByRuleIds);
     }
   }
 
-  private Map<String, UserDto> getUsersByUserUuid(DbSession dbSession, List<Change> changes) {
+  private Map<String, UserDto> getUsersByUserUuid(DbSession dbSession, List<QProfileChangeDto> changes) {
     Set<String> userUuids = changes.stream()
-      .map(Change::getUserUuid)
+      .map(QProfileChangeDto::getUserUuid)
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     return dbClient.userDao()
       .selectByUuids(dbSession, userUuids)
       .stream()
-      .collect(uniqueIndex(UserDto::getUuid));
+      .collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
   }
 
-  private Map<String, RuleDto> getRulesByRuleUuids(DbSession dbSession, List<Change> changes) {
+  private Map<String, RuleDto> getRulesByRuleUuids(DbSession dbSession, List<QProfileChangeDto> changes) {
     Set<String> ruleUuids = changes.stream()
-      .map(c -> c.ruleUuid)
+      .map(ChangelogAction::extractRuleUuid)
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     return dbClient.ruleDao()
       .selectByUuids(dbSession, Lists.newArrayList(ruleUuids))
       .stream()
-      .collect(uniqueIndex(RuleDto::getUuid));
+      .collect(Collectors.toMap(RuleDto::getUuid, Function.identity()));
   }
 
-  private static void writeResponse(JsonWriter json, int total, int page, int pageSize, List<Change> changelogs,
+  private static String extractRuleUuid(QProfileChangeDto change) {
+    if (change.getRuleChange() != null) {
+      return change.getRuleChange().getRuleUuid();
+    }
+    return change.getDataAsMap().get("ruleUuid");
+  }
+
+  private static void writeResponse(JsonWriter json, int total, int page, int pageSize, List<QProfileChangeDto> changelogs,
     Map<String, UserDto> usersByUuid, Map<String, RuleDto> rulesByRuleUuids) {
     json.beginObject();
     writePaging(json, total, page, pageSize);
@@ -157,33 +170,79 @@ public class ChangelogAction implements QProfileWsAction {
       JsonWriter changeWriter = json.beginObject();
       changeWriter
         .prop("date", DateUtils.formatDateTime(change.getCreatedAt()))
-        .prop("action", change.getType());
+        .prop("sonarQubeVersion", change.getSqVersion())
+        .prop("action", change.getChangeType());
       UserDto user = usersByUuid.get(change.getUserUuid());
       if (user != null) {
         changeWriter
           .prop("authorLogin", user.getLogin())
           .prop("authorName", user.getName());
       }
-      RuleDto rule = rulesByRuleUuids.get(change.getRuleUuid());
+      RuleDto rule = rulesByRuleUuids.get(extractRuleUuid(change));
       if (rule != null) {
         changeWriter
           .prop("ruleKey", rule.getKey().toString())
           .prop("ruleName", rule.getName());
+
+        if (rule.getCleanCodeAttribute() != null) {
+          changeWriter
+            .prop("cleanCodeAttributeCategory", rule.getCleanCodeAttribute().getAttributeCategory().toString());
+        }
+        changeWriter
+          .name("impacts")
+          .beginArray();
+        for (ImpactDto impact : rule.getDefaultImpacts()) {
+          changeWriter
+            .beginObject()
+            .prop("softwareQuality", impact.getSoftwareQuality().toString())
+            .prop("severity", impact.getSeverity().toString())
+            .endObject();
+        }
+
+        changeWriter.endArray();
       }
-      writeParameters(json, change);
+      writeChanges(json, change);
       json.endObject();
     });
     json.endArray();
     json.endObject().close();
   }
 
-  private static void writeParameters(JsonWriter json, Change change) {
+  private static void writeChanges(JsonWriter json, QProfileChangeDto change) {
     json.name("params").beginObject()
-      .prop("severity", change.getSeverity());
-    for (Map.Entry<String, String> param : change.getParams().entrySet()) {
-      json.prop(param.getKey(), param.getValue());
+      .prop("severity", change.getDataAsMap().get("severity"));
+    change.getDataAsMap().entrySet().stream()
+      .filter(entry -> entry.getKey().startsWith("param_"))
+      .forEach(param -> json.prop(param.getKey().replace("param_", ""), param.getValue()));
+
+    RuleChangeDto ruleChange = change.getRuleChange();
+    if (ruleChange != null) {
+      json
+        .prop("oldCleanCodeAttribute", nameOrNull(ruleChange.getOldCleanCodeAttribute()))
+        .prop("newCleanCodeAttribute", nameOrNull(ruleChange.getNewCleanCodeAttribute()))
+        .prop("oldCleanCodeAttributeCategory", ruleChange.getOldCleanCodeAttribute() == null ? null :
+          nameOrNull(ruleChange.getOldCleanCodeAttribute().getAttributeCategory()))
+        .prop("newCleanCodeAttributeCategory", ruleChange.getNewCleanCodeAttribute() == null ? null :
+          nameOrNull(ruleChange.getNewCleanCodeAttribute().getAttributeCategory()));
+
+      if (ruleChange.getRuleImpactChanges() != null) {
+        json.name("impactChanges").beginArray();
+        for (RuleImpactChangeDto impact : ruleChange.getRuleImpactChanges()) {
+          json.beginObject()
+            .prop("oldSoftwareQuality", nameOrNull(impact.getOldSoftwareQuality()))
+            .prop("newSoftwareQuality", nameOrNull(impact.getNewSoftwareQuality()))
+            .prop("oldSeverity", nameOrNull(impact.getOldSeverity()))
+            .prop("newSeverity", nameOrNull(impact.getNewSeverity()))
+            .endObject();
+        }
+        json.endArray();
+      }
     }
     json.endObject();
+  }
+
+  private static String nameOrNull(@Nullable Enum<?> enumValue) {
+    return enumValue == null ? null : enumValue.name();
   }
 
   /**
@@ -199,80 +258,7 @@ public class ChangelogAction implements QProfileWsAction {
   /**
    * @return non-null list of changes, by descending order of date
    */
-  public List<Change> load(DbSession dbSession, QProfileChangeQuery query) {
-    List<QProfileChangeDto> changeDtos = dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
-    return changeDtos.stream()
-      .map(Change::from)
-      .collect(MoreCollectors.toList(changeDtos.size()));
-  }
-
-  static class Change {
-    private String key;
-    private String type;
-    private long at;
-    private String severity;
-    private String userUuid;
-    private String inheritance;
-    private String ruleUuid;
-    private final Map<String, String> params = new HashMap<>();
-
-    private Change() {
-    }
-
-    public String getKey() {
-      return key;
-    }
-
-    @CheckForNull
-    public String getSeverity() {
-      return severity;
-    }
-
-    @CheckForNull
-    public String getUserUuid() {
-      return userUuid;
-    }
-
-    public String getType() {
-      return type;
-    }
-
-    @CheckForNull
-    public String getInheritance() {
-      return inheritance;
-    }
-
-    @CheckForNull
-    public String getRuleUuid() {
-      return ruleUuid;
-    }
-
-    public long getCreatedAt() {
-      return at;
-    }
-
-    public Map<String, String> getParams() {
-      return params;
-    }
-
-    private static Change from(QProfileChangeDto dto) {
-      Map<String, String> data = dto.getDataAsMap();
-      Change change = new Change();
-      change.key = dto.getUuid();
-      change.userUuid = dto.getUserUuid();
-      change.type = dto.getChangeType();
-      change.at = dto.getCreatedAt();
-      // see content of data in class org.sonar.server.qualityprofile.ActiveRuleChange
-      change.severity = data.get("severity");
-      String ruleUuid = data.get("ruleUuid");
-      if (ruleUuid != null) {
-        change.ruleUuid = ruleUuid;
-      }
-      change.inheritance = data.get("inheritance");
-      data.entrySet().stream()
-        .filter(entry -> entry.getKey().startsWith("param_"))
-        .forEach(entry -> change.params.put(entry.getKey().replace("param_", ""), entry.getValue()));
-      return change;
-    }
+  public List<QProfileChangeDto> load(DbSession dbSession, QProfileChangeQuery query) {
+    return dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
   }
 }

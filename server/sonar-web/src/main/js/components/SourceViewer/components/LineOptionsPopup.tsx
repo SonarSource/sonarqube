@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,47 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
-import { PopupPlacement } from '../../../components/ui/popups';
+import { DropdownMenu, ItemCopy } from 'design-system';
+import React, { memo } from 'react';
 import { translate } from '../../../helpers/l10n';
-import { getCodeUrl, getPathUrlAsString } from '../../../helpers/urls';
 import { SourceLine } from '../../../types/types';
-import { ClipboardButton } from '../../controls/clipboard';
-import { SourceViewerContext } from '../SourceViewerContext';
+import { getLineCodeAsPlainText } from '../helpers/lines';
 
-export interface LineOptionsPopupProps {
-  firstLineNumber: number;
+interface Props {
   line: SourceLine;
+  permalink: string;
 }
 
-export function LineOptionsPopup({ firstLineNumber, line }: LineOptionsPopupProps) {
+export function LineOptionsPopup({ line, permalink }: Props) {
+  const lineCodeAsPlainText = getLineCodeAsPlainText(line.code);
   return (
-    <SourceViewerContext.Consumer>
-      {({ branchLike, file }) => {
-        const codeLocation = getCodeUrl(file.project, branchLike, file.key, line.line);
-        const codeUrl = getPathUrlAsString(codeLocation, false);
-        const isAtTop = line.line - 4 < firstLineNumber;
-        return (
-          <DropdownOverlay
-            className="big-spacer-left"
-            noPadding={true}
-            placement={isAtTop ? PopupPlacement.BottomLeft : PopupPlacement.TopLeft}
-          >
-            <div className="padded source-viewer-bubble-popup nowrap">
-              <ClipboardButton
-                className="button-link"
-                copyValue={codeUrl}
-                aria-label={translate('component_viewer.copy_permalink')}
-              >
-                {translate('component_viewer.copy_permalink')}
-              </ClipboardButton>
-            </div>
-          </DropdownOverlay>
-        );
-      }}
-    </SourceViewerContext.Consumer>
+    <DropdownMenu>
+      <ItemCopy
+        copyValue={permalink}
+        tooltipOverlay={translate('source_viewer.copied_to_clipboard')}
+      >
+        {translate('source_viewer.copy_permalink')}
+      </ItemCopy>
+
+      {lineCodeAsPlainText && (
+        <ItemCopy
+          copyValue={lineCodeAsPlainText}
+          tooltipOverlay={translate('source_viewer.copied_to_clipboard')}
+        >
+          {translate('source_viewer.copy_line')}
+        </ItemCopy>
+      )}
+    </DropdownMenu>
   );
 }
 
-export default React.memo(LineOptionsPopup);
+export default memo(LineOptionsPopup);

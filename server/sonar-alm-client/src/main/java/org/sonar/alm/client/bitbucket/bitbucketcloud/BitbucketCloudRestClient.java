@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,15 +38,15 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.NotFoundException;
 
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
 
 @ServerSide
 public class BitbucketCloudRestClient {
-  private static final Logger LOG = Loggers.get(BitbucketCloudRestClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BitbucketCloudRestClient.class);
   private static final String AUTHORIZATION = "Authorization";
   private static final String GET = "GET";
   private static final String ENDPOINT = "https://api.bitbucket.org";

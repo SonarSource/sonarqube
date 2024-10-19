@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ public class ActiveRuleCountQuery {
   private final String inheritance;
 
   public ActiveRuleCountQuery(Builder builder) {
-    this.profileUuids = builder.profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList());
+    this.profileUuids = builder.profiles.stream().map(QProfileDto::getKee).toList();
     this.ruleStatus = builder.ruleStatus;
     this.inheritance = builder.inheritance;
     this.organization = builder.organization;

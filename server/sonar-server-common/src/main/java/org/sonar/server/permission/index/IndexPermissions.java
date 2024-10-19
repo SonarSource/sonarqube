@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,19 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class IndexPermissions {
-  private final String projectUuid;
+  private final String entityUuid;
   private final String qualifier;
   private final List<String> userUuids = new ArrayList<>();
   private final List<String> groupUuids = new ArrayList<>();
   private boolean allowAnyone = false;
 
-  public IndexPermissions(String projectUuid, String qualifier) {
-    this.projectUuid = projectUuid;
+  public IndexPermissions(String entityUuid, String qualifier) {
+    this.entityUuid = entityUuid;
     this.qualifier = qualifier;
   }
 
-  public String getProjectUuid() {
-    return projectUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   public String getQualifier() {

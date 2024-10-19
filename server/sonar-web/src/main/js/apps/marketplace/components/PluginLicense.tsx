@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,30 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ListItem } from 'design-system';
+import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   license?: string;
 }
 
-export default function PluginLicense({ license }: Props) {
-  if (!license) {
+export default function PluginLicense({ license }: Readonly<Props>) {
+  if (isEmpty(license)) {
     return null;
   }
   return (
-    <Tooltip overlay={license}>
-      <li className="little-spacer-bottom marketplace-plugin-license">
-        <FormattedMessage
-          defaultMessage={translate('marketplace.licensed_under_x')}
-          id="marketplace.licensed_under_x"
-          values={{
-            license: <span className="js-plugin-license">{license}</span>,
-          }}
-        />
-      </li>
-    </Tooltip>
+    <ListItem>
+      <Tooltip content={license}>
+        <div>
+          <FormattedMessage
+            id="marketplace.licensed_under_x"
+            values={{
+              license,
+            }}
+          />
+        </div>
+      </Tooltip>
+    </ListItem>
   );
 }

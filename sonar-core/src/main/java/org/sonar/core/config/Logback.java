@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.core.config;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
  * @since 2.12
  */
 public class Logback {
+
+  private static final StatusPrinter2 statusPrinter = new StatusPrinter2();
 
   private Logback() {
     // only statics
@@ -74,7 +76,7 @@ public class Logback {
     } finally {
       IOUtils.closeQuietly(input);
     }
-    StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+    statusPrinter.printInCaseOfErrorsOrWarnings(lc);
   }
 
   private static LoggerContext configureContext(LoggerContext context, Map<String, String> substitutionVariables) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -55,7 +55,8 @@ class SQSchemaDumper {
   }).thenComparing(String.CASE_INSENSITIVE_ORDER);
 
   String dumpToText() throws SQLException {
-    SQDatabase database = SQDatabase.newH2Database("SQSchemaDumper", true);
+
+    SQDatabase database = new SQDatabase.Builder().asH2Database("SQSchemaDumper").createSchema(true).build();
     database.start();
 
     try (Connection connection = database.getDataSource().getConnection();

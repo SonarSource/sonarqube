@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ public class GsonGroupTest {
       "\"web_url\": \"https://gitlab.com/groups/my-awesome-group/my-project\",\n" +
       "\"name\": \"my-project\",\n" +
       "\"path\": \"my-project\",\n" +
-      "\"description\": \"\",\n" +
+      "\"description\": \"toto\",\n" +
       "\"visibility\": \"private\",\n" +
       "\"lfs_enabled\": true,\n" +
       "\"avatar_url\": null,\n" +
@@ -47,6 +47,7 @@ public class GsonGroupTest {
 
     assertThat(groups).isNotNull();
     assertThat(groups.size()).isOne();
+    assertThat(groups.get(0).getId()).isEqualTo("123456789");
     assertThat(groups.get(0).getFullPath()).isEqualTo("my-awesome-group/my-project");
   }
 }

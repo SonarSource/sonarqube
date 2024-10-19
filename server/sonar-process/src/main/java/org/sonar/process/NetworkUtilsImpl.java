@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,8 +33,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Predicate;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
@@ -42,7 +42,7 @@ public class NetworkUtilsImpl implements NetworkUtils {
 
   private static final Set<Integer> PORTS_ALREADY_ALLOCATED = new HashSet<>();
   private static final int PORT_MAX_TRIES = 50;
-  private static final Logger LOG = Loggers.get(NetworkUtilsImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NetworkUtilsImpl.class);
 
   public static final NetworkUtils INSTANCE = new NetworkUtilsImpl();
 
@@ -124,7 +124,11 @@ public class NetworkUtilsImpl implements NetworkUtils {
     try {
       Optional<InetAddress> inetAddress = toInetAddress(hostOrAddress);
       if (inetAddress.isPresent()) {
-        return NetworkInterface.getByInetAddress(inetAddress.get()) != null;
+        var addr = inetAddress.get();
+        if (addr.isAnyLocalAddress() || addr.isLoopbackAddress()) {
+          return true;
+        }
+        return NetworkInterface.getByInetAddress(addr) != null;
       }
       return false;
     } catch (SocketException e) {

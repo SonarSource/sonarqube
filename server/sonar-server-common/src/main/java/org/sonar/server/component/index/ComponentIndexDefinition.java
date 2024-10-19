@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,27 +43,28 @@ public class ComponentIndexDefinition implements IndexDefinition {
   public static final Index DESCRIPTOR = Index.withRelations("components");
   public static final IndexType.IndexRelationType TYPE_COMPONENT = IndexType.relation(IndexType.main(DESCRIPTOR, TYPE_AUTHORIZATION), "component");
   public static final String FIELD_UUID = "uuid";
-  public static final String FIELD_PROJECT_UUID = "project_uuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_QUALIFIER = "qualifier";
   public static final String FIELD_ORGANIZATION_UUID = "organization_uuid";
 
   private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
+  private final int numberOfShards;
 
   static final DefaultIndexSettingsElement[] NAME_ANALYZERS = {SORTABLE_ANALYZER, SEARCH_PREFIX_ANALYZER, SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER, SEARCH_GRAMS_ANALYZER};
 
   private final Configuration config;
   private final boolean enableSource;
 
-  private ComponentIndexDefinition(Configuration config, boolean enableSource) {
+  private ComponentIndexDefinition(Configuration config, boolean enableSource, int numberOfShards) {
     this.config = config;
     this.enableSource = enableSource;
+    this.numberOfShards = numberOfShards;
   }
 
   @Inject
   public ComponentIndexDefinition(Configuration config) {
-    this(config, false);
+    this(config, false, DEFAULT_NUMBER_OF_SHARDS);
   }
 
   /**
@@ -71,7 +72,8 @@ public class ComponentIndexDefinition implements IndexDefinition {
    * of indexed documents.
    */
   public static ComponentIndexDefinition createForTest() {
-    return new ComponentIndexDefinition(new MapSettings().asConfig(), true);
+    // different shards can have different scoring, affecting tests, so we use a single shard
+    return new ComponentIndexDefinition(new MapSettings().asConfig(), true, 1);
   }
 
   @Override
@@ -80,13 +82,12 @@ public class ComponentIndexDefinition implements IndexDefinition {
       DESCRIPTOR,
       newBuilder(config)
         .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
-        .setDefaultNbOfShards(DEFAULT_NUMBER_OF_SHARDS)
+        .setDefaultNbOfShards(numberOfShards)
         .build())
       .setEnableSource(enableSource);
 
     TypeMapping mapping = index.createTypeMapping(TYPE_COMPONENT);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
-    mapping.keywordFieldBuilder(FIELD_PROJECT_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
     mapping.textFieldBuilder(FIELD_NAME)
       .withFieldData()

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byLabelText, byRole, byText } from 'testing-library-selector';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { changePassword } from '../../../api/users';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -33,18 +33,9 @@ jest.mock('../../../api/users', () => ({
 
 const ui = {
   updateButton: byRole('button', { name: 'update_verb' }),
-  passwordInput: byLabelText('users.change_admin_password.form.password', {
-    selector: 'input',
-    exact: false,
-  }),
-  confirmInput: byLabelText('users.change_admin_password.form.confirm', {
-    selector: 'input',
-    exact: false,
-  }),
+  passwordInput: byLabelText(/^password/),
+  confirmInput: byLabelText(/confirm_password\*/i),
   unauthorizedMessage: byText('unauthorized.message'),
-  defaultPasswordWarningMessage: byText(
-    'users.change_admin_password.form.cannot_use_default_password'
-  ),
 };
 
 it('should disallow change when not an admin', () => {
@@ -55,34 +46,33 @@ it('should disallow change when not an admin', () => {
 it('should allow changing password when using the default admin password', async () => {
   const user = userEvent.setup();
   renderChangeAdminPasswordApp(
-    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true })
+    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true }),
   );
   expect(ui.updateButton.get()).toBeDisabled();
-  await user.type(ui.passwordInput.get(), 'password');
+  await user.type(ui.passwordInput.get(), 'passworD$123');
 
   expect(ui.updateButton.get()).toBeDisabled();
   await user.type(ui.confirmInput.get(), 'pass');
   expect(ui.updateButton.get()).toBeDisabled();
-  await user.keyboard('word');
+  await user.keyboard('worD$123');
   expect(ui.updateButton.get()).toBeEnabled();
   await user.click(ui.updateButton.get());
   expect(changePassword).toHaveBeenCalledWith({
     login: 'admin',
-    password: 'password',
+    password: 'passworD$123',
   });
 });
 
 it('should not allow to submit the default password', async () => {
   const user = userEvent.setup();
   renderChangeAdminPasswordApp(
-    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true })
+    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true }),
   );
 
   await user.type(ui.passwordInput.get(), DEFAULT_ADMIN_PASSWORD);
   await user.type(ui.confirmInput.get(), DEFAULT_ADMIN_PASSWORD);
 
   expect(ui.updateButton.get()).toBeDisabled();
-  expect(ui.defaultPasswordWarningMessage.get()).toBeInTheDocument();
 });
 
 function renderChangeAdminPasswordApp(appState?: AppState) {

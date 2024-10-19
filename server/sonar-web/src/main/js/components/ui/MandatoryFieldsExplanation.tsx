@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { LightLabel, RequiredIcon } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
@@ -28,12 +28,12 @@ export interface MandatoryFieldsExplanationProps {
 
 export default function MandatoryFieldsExplanation({ className }: MandatoryFieldsExplanationProps) {
   return (
-    <div aria-hidden={true} className={classNames('text-muted', className)}>
+    <LightLabel aria-hidden className={className}>
       <FormattedMessage
         id="fields_marked_with_x_required"
         defaultMessage={translate('fields_marked_with_x_required')}
-        values={{ star: <em className="mandatory">*</em> }}
+        values={{ star: <RequiredIcon className="sw-m-0" /> }}
       />
-    </div>
+    </LightLabel>
   );
 }

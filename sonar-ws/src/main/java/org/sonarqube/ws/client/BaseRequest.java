@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonarqube.ws.WsUtils.checkArgument;
 import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 
-abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
+abstract class BaseRequest<SELF extends BaseRequest<SELF>> implements WsRequest {
 
   private final String path;
 
@@ -51,7 +51,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
   private final DefaultHeaders headers = new DefaultHeaders();
   private OptionalInt timeOutInMs = OptionalInt.empty();
   private OptionalInt writeTimeOutInMs = OptionalInt.empty();
-  
+
   BaseRequest(String path) {
     this.path = path;
   }
@@ -71,9 +71,9 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return timeOutInMs;
   }
 
-  public SELF setTimeOutInMs(int timeOutInMs) {
+  public <T extends SELF> T setTimeOutInMs(int timeOutInMs) {
     this.timeOutInMs = OptionalInt.of(timeOutInMs);
-    return (SELF) this;
+    return (T) this;
   }
 
   @Override
@@ -81,65 +81,65 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return writeTimeOutInMs;
   }
 
-  public SELF setWriteTimeOutInMs(int writeTimeOutInMs) {
+  public <T extends SELF> T setWriteTimeOutInMs(int writeTimeOutInMs) {
     this.writeTimeOutInMs = OptionalInt.of(writeTimeOutInMs);
-    return (SELF) this;
+    return (T) this;
   }
 
   /**
    * Expected media type of response. Default is {@link MediaTypes#JSON}.
    */
   @SuppressWarnings("unchecked")
-  public SELF setMediaType(String s) {
+  public  <T extends SELF> T  setMediaType(String s) {
     requireNonNull(s, "media type of response cannot be null");
     this.mediaType = s;
-    return (SELF) this;
+    return (T) this;
   }
 
-  public SELF setParam(String key, @Nullable String value) {
+  public <T extends SELF> T setParam(String key, @Nullable String value) {
+    return (T) setSingleValueParam(key, value);
+  }
+
+  public <T extends SELF> T setParam(String key, @Nullable Integer value) {
     return setSingleValueParam(key, value);
   }
 
-  public SELF setParam(String key, @Nullable Integer value) {
+  public <T extends SELF> T setParam(String key, @Nullable Long value) {
     return setSingleValueParam(key, value);
   }
 
-  public SELF setParam(String key, @Nullable Long value) {
+  public <T extends SELF> T setParam(String key, @Nullable Float value) {
     return setSingleValueParam(key, value);
   }
 
-  public SELF setParam(String key, @Nullable Float value) {
-    return setSingleValueParam(key, value);
-  }
-
-  public SELF setParam(String key, @Nullable Boolean value) {
+  public <T extends SELF> T setParam(String key, @Nullable Boolean value) {
     return setSingleValueParam(key, value);
   }
 
   @SuppressWarnings("unchecked")
-  private SELF setSingleValueParam(String key, @Nullable Object value) {
+  private <T extends SELF> T setSingleValueParam(String key, @Nullable Object value) {
     checkArgument(!isNullOrEmpty(key), "a WS parameter key cannot be null");
     if (value == null) {
-      return (SELF) this;
+      return (T) this;
     }
     parameters.setValue(key, value.toString());
 
-    return (SELF) this;
+    return (T) this;
   }
 
   @SuppressWarnings("unchecked")
-  public SELF setParam(String key, @Nullable Collection<? extends Object> values) {
+  public <T extends SELF> T setParam(String key, @Nullable Collection<? extends Object> values) {
     checkArgument(!isNullOrEmpty(key), "a WS parameter key cannot be null");
     if (values == null || values.isEmpty()) {
-      return (SELF) this;
+      return (T) this;
     }
 
     parameters.setValues(key, values.stream()
       .filter(Objects::nonNull)
       .map(Object::toString)
-      .collect(Collectors.toList()));
+      .toList());
 
-    return (SELF) this;
+    return (T) this;
   }
 
   @Override
@@ -165,10 +165,10 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
   }
 
   @SuppressWarnings("unchecked")
-  public SELF setHeader(String name, @Nullable String value) {
+  public <T extends SELF> T setHeader(String name, @Nullable String value) {
     requireNonNull(name, "Header name can't be null");
     headers.setValue(name, value);
-    return (SELF) this;
+    return (T) this;
   }
 
   private static class DefaultParameters implements Parameters {
@@ -203,7 +203,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
       checkArgument(!isNullOrEmpty(key));
       checkArgument(values != null && !values.isEmpty());
 
-      keyValues.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values.stream().map(Object::toString).filter(Objects::nonNull).collect(Collectors.toList()));
+      keyValues.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values.stream().map(Object::toString).filter(Objects::nonNull).toList());
       return this;
     }
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
@@ -32,7 +33,6 @@ import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliver
 
 import static java.util.Collections.emptySet;
 import static org.sonar.core.util.stream.MoreCollectors.index;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
 public class QGChangeNotificationHandler extends EmailNotificationHandler<QGChangeNotification> {
@@ -75,7 +75,7 @@ public class QGChangeNotificationHandler extends EmailNotificationHandler<QGChan
     return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
-      .collect(toSet(notifications.size()));
+      .collect(Collectors.toSet());
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<QGChangeNotification> notifications) {

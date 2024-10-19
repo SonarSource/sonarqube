@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,13 +34,15 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.impl.ws.PartImpl;
 import org.sonar.api.impl.ws.ValidatingRequest;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.server.http.HttpRequest;
+import org.slf4j.LoggerFactory;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
 import static java.util.Locale.ENGLISH;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART;
 
 public class ServletRequest extends ValidatingRequest {
@@ -51,8 +53,8 @@ public class ServletRequest extends ValidatingRequest {
 
   private final HttpServletRequest source;
 
-  public ServletRequest(HttpServletRequest source) {
-    this.source = source;
+  public ServletRequest(HttpRequest source) {
+    this.source = ((JavaxHttpRequest) source).getDelegate();
   }
 
   @Override
@@ -118,7 +120,7 @@ public class ServletRequest extends ValidatingRequest {
       }
       return new PartImpl(part.getInputStream(), part.getSubmittedFileName());
     } catch (Exception e) {
-      Loggers.get(ServletRequest.class).warn("Can't read file part for parameter " + key, e);
+      LoggerFactory.getLogger(ServletRequest.class).warn("Can't read file part for parameter " + key, e);
       return null;
     }
   }

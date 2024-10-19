@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexMainType;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
@@ -338,6 +338,17 @@ public class NewIndexTest {
     newIndex.setEnableSource(false);
 
     assertThat(getAttributeAsMap(newIndex, "_source")).containsExactly(entry("enabled", false));
+  }
+
+  @Test
+  @UseDataProvider("indexWithAndWithoutRelations")
+  public void index_withHashMetadata(Index index) {
+    NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration).addCustomHashMetadata("custom", "hash");
+
+    assertThat(newIndex.getCustomHashMetadata()).containsExactly(entry("custom", "hash"));
+
+    BuiltIndex build = newIndex.build();
+    assertThat(build.getCustomHashMetadata()).containsExactly(entry("custom", "hash"));
   }
 
   @Test

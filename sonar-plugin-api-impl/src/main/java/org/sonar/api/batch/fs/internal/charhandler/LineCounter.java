@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,11 +22,11 @@ package org.sonar.api.batch.fs.internal.charhandler;
 import java.nio.charset.Charset;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LineCounter extends CharHandler {
-  private static final Logger LOG = Loggers.get(LineCounter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LineCounter.class);
 
   private final AnalysisWarnings analysisWarnings;
   private final String filePath;

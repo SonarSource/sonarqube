@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A runtime exception that provides contextual information as a list of key-value
@@ -112,15 +112,15 @@ public class ContextException extends RuntimeException {
   }
 
   public static ContextException of(Throwable t) {
-    if (t instanceof ContextException) {
-      return new ContextException(t.getCause()).addContext((ContextException) t);
+    if (t instanceof ContextException contextException) {
+      return new ContextException(t.getCause()).addContext(contextException);
     }
     return new ContextException(t);
   }
 
   public static ContextException of(String message, Throwable t) {
-    if (t instanceof ContextException) {
-      return new ContextException(message, t.getCause()).addContext((ContextException) t);
+    if (t instanceof ContextException contextException) {
+      return new ContextException(message, t.getCause()).addContext(contextException);
     }
     return new ContextException(message, t);
   }

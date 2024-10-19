@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep, uniqueId } from 'lodash';
+import { Visibility } from '~sonar-aligned/types/component';
 import {
   mockAzureProject,
   mockAzureRepository,
@@ -36,7 +38,6 @@ import {
   GithubRepository,
   GitlabProject,
 } from '../../types/alm-integration';
-import { Visibility } from '../../types/component';
 import { Paging } from '../../types/types';
 import {
   checkPersonalAccessTokenIsValid,
@@ -57,7 +58,16 @@ import {
   searchForBitbucketCloudRepositories,
   searchForBitbucketServerRepositories,
   setAlmPersonalAccessToken,
+  setupAzureProjectCreation,
+  setupBitbucketCloudProjectCreation,
+  setupBitbucketServerProjectCreation,
+  setupGithubProjectCreation,
+  setupGitlabProjectCreation,
 } from '../alm-integrations';
+
+function createUniqueNumber() {
+  return Math.floor(Date.now() * Math.random());
+}
 
 export default class AlmIntegrationsServiceMock {
   almInstancePATMap: { [key: string]: boolean } = {};
@@ -141,8 +151,9 @@ export default class AlmIntegrationsServiceMock {
   ];
 
   defaultAzureRepositories: AzureRepository[] = [
-    mockAzureRepository({ sqProjectKey: 'random' }),
-    mockAzureRepository({ name: 'Azure repo 2' }),
+    mockAzureRepository({ sqProjectKey: 'random', projectName: 'Azure project' }),
+    mockAzureRepository({ name: 'Azure repo 2', projectName: 'Azure project' }),
+    mockAzureRepository({ name: 'Azure repo 3', projectName: 'Azure project 2' }),
   ];
 
   defaultGithubRepositories: GithubRepository[] = [
@@ -184,7 +195,9 @@ export default class AlmIntegrationsServiceMock {
       .mockImplementation(this.checkPersonalAccessTokenIsValid);
     jest.mocked(setAlmPersonalAccessToken).mockImplementation(this.setAlmPersonalAccessToken);
     jest.mocked(getGitlabProjects).mockImplementation(this.getGitlabProjects);
+    jest.mocked(setupGitlabProjectCreation).mockReturnValue(() => this.importProject());
     jest.mocked(importGitlabProject).mockImplementation(this.importProject);
+    jest.mocked(setupBitbucketCloudProjectCreation).mockReturnValue(() => this.importProject());
     jest.mocked(importBitbucketCloudRepository).mockImplementation(this.importProject);
     jest.mocked(getGithubClientId).mockImplementation(this.getGithubClientId);
     jest.mocked(getGithubOrganizations).mockImplementation(this.getGithubOrganizations);
@@ -192,7 +205,9 @@ export default class AlmIntegrationsServiceMock {
     jest.mocked(getAzureRepositories).mockImplementation(this.getAzureRepositories);
     jest.mocked(getGithubRepositories).mockImplementation(this.getGithubRepositories);
     jest.mocked(searchAzureRepositories).mockImplementation(this.searchAzureRepositories);
+    jest.mocked(setupAzureProjectCreation).mockReturnValue(() => this.importAzureRepository());
     jest.mocked(importAzureRepository).mockImplementation(this.importAzureRepository);
+    jest.mocked(setupGithubProjectCreation).mockReturnValue(() => this.importGithubRepository());
     jest.mocked(importGithubRepository).mockImplementation(this.importGithubRepository);
     jest
       .mocked(searchForBitbucketCloudRepositories)
@@ -202,6 +217,9 @@ export default class AlmIntegrationsServiceMock {
       .mocked(getBitbucketServerRepositories)
       .mockImplementation(this.getBitbucketServerRepositories);
     jest.mocked(importBitbucketServerProject).mockImplementation(this.importBitbucketServerProject);
+    jest
+      .mocked(setupBitbucketServerProjectCreation)
+      .mockReturnValue(() => this.importBitbucketServerProject());
     jest
       .mocked(searchForBitbucketServerRepositories)
       .mockImplementation(this.searchForBitbucketServerRepositories);
@@ -220,15 +238,15 @@ export default class AlmIntegrationsServiceMock {
     return Promise.resolve({ projects: this.azureProjects });
   };
 
-  getAzureRepositories = () => {
+  getAzureRepositories: typeof getAzureRepositories = (_, projectName) => {
     return Promise.resolve({
-      repositories: this.azureRepositories,
+      repositories: this.azureRepositories.filter((repo) => repo.projectName === projectName),
     });
   };
 
-  searchAzureRepositories = () => {
+  searchAzureRepositories: typeof searchAzureRepositories = (_, searchQuery) => {
     return Promise.resolve({
-      repositories: this.azureRepositories,
+      repositories: this.azureRepositories.filter((repo) => repo.name.includes(searchQuery)),
     });
   };
 
@@ -288,7 +306,7 @@ export default class AlmIntegrationsServiceMock {
     const generatedRepositories = Array.from(Array(quantity).keys()).map((index) => {
       return mockBitbucketCloudRepository({
         name: `Gitlab project ${index}`,
-        uuid: Math.floor(Math.random() * 100000),
+        uuid: createUniqueNumber(),
       });
     });
 

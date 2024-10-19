@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Link from '../../../../components/common/Link';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys, BitbucketServerBindingDefinition } from '../../../../types/alm-settings';
+import { BitbucketServerBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface BitbucketServerFormProps {
@@ -33,11 +34,11 @@ export interface BitbucketServerFormProps {
 
 export default function BitbucketServerForm(props: BitbucketServerFormProps) {
   const { formData } = props;
-
+  const toStatic = useDocUrl(DocLink.AlmBitBucketServerIntegration);
   return (
     <>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.bitbucket.help')}
         id="name.bitbucket"
         maxLength={200}
@@ -47,11 +48,12 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
       />
       <AlmBindingDefinitionFormField
         help={
-          <FormattedMessage
-            defaultMessage={translate('settings.almintegration.form.url.bitbucket.help')}
-            id="settings.almintegration.form.url.bitbucket.help"
-            values={{ example: 'https://bitbucket-server.your-company.com' }}
-          />
+          <>
+            {translate('settings.almintegration.form.url.bitbucket.help')}
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.pat_warning')}
+          </>
         }
         id="url.bitbucket"
         maxLength={2000}
@@ -64,7 +66,7 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
         help={
           <FormattedMessage
             defaultMessage={translate(
-              'settings.almintegration.form.personal_access_token.bitbucket.help'
+              'settings.almintegration.form.personal_access_token.bitbucket.help',
             )}
             id="settings.almintegration.form.personal_access_token.bitbucket.help"
             values={{
@@ -74,26 +76,22 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
                   target="_blank"
                 >
                   {translate(
-                    'settings.almintegration.form.personal_access_token.bitbucket.help.url'
+                    'settings.almintegration.form.personal_access_token.bitbucket.help.url',
                   )}
                 </Link>
               ),
               permission: <strong>Read</strong>,
-              doc_link: (
-                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketServer]}>
-                  {translate('learn_more')}
-                </DocLink>
-              ),
+              doc_link: <Link to={toStatic}>{translate('learn_more')}</Link>,
             }}
           />
         }
-        isTextArea={true}
+        isTextArea
         onFieldChange={props.onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken || ''}
         maxLength={2000}
-        isSecret={true}
+        isSecret
       />
     </>
   );

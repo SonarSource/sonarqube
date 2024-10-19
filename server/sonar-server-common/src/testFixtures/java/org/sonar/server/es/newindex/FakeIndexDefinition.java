@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@ public class FakeIndexDefinition implements IndexDefinition {
   public static final String TYPE = "fake";
   public static final Index DESCRIPTOR = Index.simple(INDEX);
   public static final IndexMainType TYPE_FAKE = IndexType.main(DESCRIPTOR, TYPE);
+  public static final IndexMainType EXCPECTED_TYPE_FAKE = IndexType.main(DESCRIPTOR, "_doc");
   public static final String INT_FIELD = "intField";
 
   private int replicas = 0;

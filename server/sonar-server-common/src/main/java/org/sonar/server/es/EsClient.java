@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,21 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLContext;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -41,9 +49,6 @@ import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRespo
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
 import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
@@ -75,6 +80,9 @@ import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
+import org.elasticsearch.client.indices.GetMappingsRequest;
+import org.elasticsearch.client.indices.GetMappingsResponse;
+import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.Priority;
 import org.jetbrains.annotations.NotNull;
@@ -98,11 +106,11 @@ public class EsClient implements Closeable {
   private final Gson gson;
 
   public EsClient(HttpHost... hosts) {
-    this(new MinimalRestHighLevelClient(null, hosts));
+    this(new MinimalRestHighLevelClient(null, null, null, hosts));
   }
 
-  public EsClient(@Nullable String searchPassword, HttpHost... hosts) {
-    this(new MinimalRestHighLevelClient(searchPassword, hosts));
+  public EsClient(@Nullable String searchPassword, @Nullable String keyStorePath, @Nullable String keyStorePassword, HttpHost... hosts) {
+    this(new MinimalRestHighLevelClient(searchPassword, keyStorePath, keyStorePassword, hosts));
   }
 
   EsClient(RestHighLevelClient restHighLevelClient) {
@@ -123,11 +131,7 @@ public class EsClient implements Closeable {
   }
 
   public static SearchRequest prepareSearch(IndexType.IndexMainType mainType) {
-    return Requests.searchRequest(mainType.getIndex().getName()).types(mainType.getType());
-  }
-
-  public static SearchRequest prepareSearch(String index, String type) {
-    return Requests.searchRequest(index).types(type);
+    return Requests.searchRequest(mainType.getIndex().getName());
   }
 
   public SearchResponse search(SearchRequest searchRequest) {
@@ -269,17 +273,18 @@ public class EsClient implements Closeable {
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int SOCKET_TIMEOUT = 60000;
 
-    public MinimalRestHighLevelClient(@Nullable String searchPassword, HttpHost... hosts) {
-      super(buildHttpClient(searchPassword, hosts));
+    public MinimalRestHighLevelClient(@Nullable String searchPassword, @Nullable String keyStorePath,
+                                      @Nullable String keyStorePassword, HttpHost... hosts) {
+      super(buildHttpClient(searchPassword, keyStorePath, keyStorePassword, hosts).build(), RestClient::close, Lists.newArrayList(), true);
     }
 
     MinimalRestHighLevelClient(RestClient restClient) {
-      super(restClient, RestClient::close, Lists.newArrayList());
+      super(restClient, RestClient::close, Lists.newArrayList(), true);
     }
 
     @NotNull
-    private static RestClientBuilder buildHttpClient(@Nullable String searchPassword,
-      HttpHost[] hosts) {
+    private static RestClientBuilder buildHttpClient(@Nullable String searchPassword, @Nullable String keyStorePath,
+                                                     @Nullable String keyStorePassword, HttpHost[] hosts) {
       return RestClient.builder(hosts)
         .setRequestConfigCallback(r -> r
           .setConnectTimeout(CONNECT_TIMEOUT)
@@ -289,6 +294,12 @@ public class EsClient implements Closeable {
             BasicCredentialsProvider provider = getBasicCredentialsProvider(searchPassword);
             httpClientBuilder.setDefaultCredentialsProvider(provider);
           }
+
+          if (keyStorePath != null) {
+            SSLContext sslContext = getSSLContext(keyStorePath, keyStorePassword);
+            httpClientBuilder.setSSLContext(sslContext);
+          }
+
           return httpClientBuilder;
         });
     }
@@ -299,6 +310,18 @@ public class EsClient implements Closeable {
       return provider;
     }
 
+    private static SSLContext getSSLContext(String keyStorePath, @Nullable String keyStorePassword) {
+      try {
+        KeyStore keyStore = KeyStore.getInstance("pkcs12");
+        try (InputStream is = Files.newInputStream(Paths.get(keyStorePath))) {
+          keyStore.load(is, keyStorePassword == null ? null : keyStorePassword.toCharArray());
+        }
+        SSLContextBuilder sslBuilder = SSLContexts.custom().loadTrustMaterial(keyStore, null);
+        return sslBuilder.build();
+      } catch (IOException | GeneralSecurityException e) {
+        throw new IllegalStateException("Failed to setup SSL context on ES client", e);
+      }
+    }
   }
 
   <R> R execute(EsRequestExecutor<R> executor) {

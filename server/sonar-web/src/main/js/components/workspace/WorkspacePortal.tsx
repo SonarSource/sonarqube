@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 
-export default class WorkspacePortal extends React.PureComponent {
+export default class WorkspacePortal extends React.PureComponent<React.PropsWithChildren> {
   el: HTMLElement;
 
   constructor(props: {}) {

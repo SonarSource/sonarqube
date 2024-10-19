@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,71 +17,85 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { bisector, extent, max } from 'd3-array';
-import { scaleLinear, scalePoint, scaleTime, ScaleTime } from 'd3-scale';
+import {
+  NumberValue,
+  ScaleLinear,
+  ScalePoint,
+  ScaleTime,
+  scaleLinear,
+  scalePoint,
+  scaleTime,
+} from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
+import { CSSColor, ThemeProp, themeColor, withTheme } from 'design-system';
 import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import * as React from 'react';
-import { colors, rawSizes } from '../../app/theme';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { isDefined } from '../../helpers/types';
 import { Chart } from '../../types/types';
+import { LINE_CHART_DASHES } from '../activity-graph/utils';
 import './AdvancedTimeline.css';
 import './LineChart.css';
+import SplitLine from './SplitLine';
+import SplitLinePopover from './SplitLinePopover';
 
-export interface Props {
-  graphDescription?: string;
+export interface PropsWithoutTheme {
   basisCurve?: boolean;
-  endDate?: Date;
   disableZoom?: boolean;
-  displayNewCodeLegend?: boolean;
+  endDate?: Date;
   formatYTick?: (tick: number | string) => string;
+  graphDescription?: string;
+  height: number;
   hideGrid?: boolean;
   hideXAxis?: boolean;
-  height: number;
-  width: number;
   leakPeriodDate?: Date;
   // used to avoid same y ticks labels
-  maxYTicksCount: number;
+  maxYTicksCount?: number;
   metricType: string;
-  padding: number[];
+  padding?: number[];
   selectedDate?: Date;
   series: Chart.Serie[];
   showAreas?: boolean;
+  splitPointDate?: Date;
   startDate?: Date;
   updateSelectedDate?: (selectedDate?: Date) => void;
   updateTooltip?: (selectedDate?: Date, tooltipXPos?: number, tooltipIdx?: number) => void;
   updateZoom?: (start?: Date, endDate?: Date) => void;
-  zoomSpeed: number;
+  width: number;
+  zoomSpeed?: number;
 }
 
-type XScale = ScaleTime<number, number>;
-// TODO it should be `ScaleLinear<number, number> | ScalePoint<number> | ScalePoint<string>`, but it's super hard to make it work :'(
-type YScale = any;
+export type Props = PropsWithoutTheme & ThemeProp;
 
-const LEGEND_LINE_HEIGHT = 16;
+type PropsWithDefaults = Props & typeof AdvancedTimelineClass.defaultProps;
+
+type XScale = ScaleTime<number, number>;
+type YScale = ScaleLinear<number, number> | ScalePoint<number | string>;
+type YPoint = (number | string) & NumberValue;
+
+const X_LABEL_OFFSET = 15;
 
 interface State {
-  leakLegendTextWidth?: number;
   maxXRange: number[];
   mouseOver?: boolean;
   selectedDate?: Date;
-  selectedDateXPos?: number;
   selectedDateIdx?: number;
-  yScale: YScale;
+  selectedDateXPos?: number;
   xScale: XScale;
+  yScale: YScale;
 }
 
-export default class AdvancedTimeline extends React.PureComponent<Props, State> {
+export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
   static defaultProps = {
-    eventSize: 8,
-    maxYTicksCount: 4,
-    padding: [26, 10, 50, 60],
-    zoomSpeed: 1,
+    padding: [26, 10, 50, 50],
   };
 
-  constructor(props: Props) {
+  constructor(props: PropsWithDefaults) {
     super(props);
+
     const scales = this.getScales(props);
     const selectedDatePos = this.getSelectedDatePos(scales.xScale, props.selectedDate);
     this.state = { ...scales, ...selectedDatePos };
@@ -89,9 +103,10 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     this.handleZoomUpdate = throttle(this.handleZoomUpdate, 40);
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: PropsWithDefaults) {
     let scales;
     let selectedDatePos;
+
     if (
       this.props.metricType !== prevProps.metricType ||
       this.props.startDate !== prevProps.startDate ||
@@ -101,7 +116,9 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       this.props.height !== prevProps.height ||
       this.props.series !== prevProps.series
     ) {
-      scales = this.getScales(this.props);
+      scales = this.getScales(this.props as PropsWithDefaults);
+      this.setState({ ...scales });
+
       if (this.state.selectedDate != null) {
         selectedDatePos = this.getSelectedDatePos(scales.xScale, this.state.selectedDate);
       }
@@ -109,22 +126,18 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
 
     if (!isEqual(this.props.selectedDate, prevProps.selectedDate)) {
       const xScale = scales ? scales.xScale : this.state.xScale;
+
       selectedDatePos = this.getSelectedDatePos(xScale, this.props.selectedDate);
     }
 
-    if (scales || selectedDatePos) {
-      if (scales) {
-        this.setState({ ...scales });
-      }
-      if (selectedDatePos) {
-        this.setState({ ...selectedDatePos });
-      }
+    if (selectedDatePos) {
+      this.setState({ ...selectedDatePos });
 
-      if (selectedDatePos && this.props.updateTooltip) {
+      if (this.props.updateTooltip) {
         this.props.updateTooltip(
           selectedDatePos.selectedDate,
           selectedDatePos.selectedDateXPos,
-          selectedDatePos.selectedDateIdx
+          selectedDatePos.selectedDateIdx,
         );
       }
     }
@@ -138,36 +151,52 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     return scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
   };
 
-  getYScale = (props: Props, availableHeight: number, flatData: Chart.Point[]): YScale => {
-    if (props.metricType === 'RATING') {
+  getYScale = (
+    props: PropsWithDefaults,
+    availableHeight: number,
+    flatData: Chart.Point[],
+  ): YScale => {
+    if (props.metricType === MetricType.Rating) {
       return this.getRatingScale(availableHeight);
-    } else if (props.metricType === 'LEVEL') {
+    } else if (props.metricType === MetricType.Level) {
       return this.getLevelScale(availableHeight);
     }
+
     return scaleLinear()
       .range([availableHeight, 0])
       .domain([0, max(flatData, (d) => Number(d.y || 0)) || 1])
       .nice();
   };
 
-  getXScale = ({ startDate, endDate }: Props, availableWidth: number, flatData: Chart.Point[]) => {
+  isYScaleLinear(yScale: YScale): yScale is ScaleLinear<number, number> {
+    return 'ticks' in yScale;
+  }
+
+  getXScale = (
+    { startDate, endDate }: PropsWithDefaults,
+    availableWidth: number,
+    flatData: Chart.Point[],
+  ) => {
     const dateRange = extent(flatData, (d) => d.x) as [Date, Date];
     const start = startDate && startDate > dateRange[0] ? startDate : dateRange[0];
     const end = endDate && endDate < dateRange[1] ? endDate : dateRange[1];
+
     const xScale: ScaleTime<number, number> = scaleTime()
       .domain(sortBy([start, end]))
       .range([0, availableWidth])
       .clamp(false);
+
     return {
       xScale,
       maxXRange: dateRange.map(xScale),
     };
   };
 
-  getScales = (props: Props) => {
+  getScales = (props: PropsWithDefaults) => {
     const availableWidth = props.width - props.padding[1] - props.padding[3];
     const availableHeight = props.height - props.padding[0] - props.padding[2];
     const flatData = flatten(props.series.map((serie) => serie.data));
+
     return {
       ...this.getXScale(props, availableWidth, flatData),
       yScale: this.getYScale(props, availableHeight, flatData),
@@ -176,6 +205,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
 
   getSelectedDatePos = (xScale: XScale, selectedDate?: Date) => {
     const firstSerie = this.props.series[0];
+
     if (selectedDate && firstSerie) {
       const idx = firstSerie.data.findIndex((p) => p.x.valueOf() === selectedDate.valueOf());
       const xRange = sortBy(xScale.range());
@@ -188,24 +218,22 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
         };
       }
     }
+
     return { selectedDate: undefined, selectedDateXPos: undefined, selectedDateIdx: undefined };
   };
 
-  getEventMarker = (size: number) => {
-    const half = size / 2;
-    return `M${half} 0 L${size} ${half} L ${half} ${size} L0 ${half} L${half} 0 L${size} ${half}`;
-  };
-
   handleWheel = (event: React.WheelEvent<SVGElement>) => {
-    event.preventDefault();
+    const { zoomSpeed = 1 } = this.props;
     const { maxXRange, xScale } = this.state;
+
     const parentBbox = event.currentTarget.getBoundingClientRect();
     const mouseXPos = (event.pageX - parentBbox.left) / parentBbox.width;
     const xRange = xScale.range();
 
-    const speed = event.deltaMode
-      ? (25 / event.deltaMode) * this.props.zoomSpeed
-      : this.props.zoomSpeed;
+    const speed = (event.deltaMode as number | undefined)
+      ? (25 / event.deltaMode) * zoomSpeed
+      : zoomSpeed;
+
     const leftPos = xRange[0] - Math.round(speed * event.deltaY * mouseXPos);
     const rightPos = xRange[1] + Math.round(speed * event.deltaY * (1 - mouseXPos));
     const startDate = leftPos > maxXRange[0] ? xScale.invert(leftPos) : undefined;
@@ -230,6 +258,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
 
   handleMouseOut = () => {
     const { updateTooltip } = this.props;
+
     if (updateTooltip) {
       this.setState({
         mouseOver: false,
@@ -237,34 +266,33 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
         selectedDateXPos: undefined,
         selectedDateIdx: undefined,
       });
+
       updateTooltip(undefined, undefined, undefined);
     }
   };
 
   handleClick = () => {
     const { updateSelectedDate } = this.props;
+
     if (updateSelectedDate) {
       updateSelectedDate(this.state.selectedDate || undefined);
-    }
-  };
-
-  setLeakLegendTextWidth = (node: SVGTextElement | null) => {
-    if (node) {
-      this.setState({ leakLegendTextWidth: node.getBoundingClientRect().width });
     }
   };
 
   updateTooltipPos = (xPos: number) => {
     this.setState((state) => {
       const firstSerie = this.props.series[0];
+
       if (state.mouseOver && firstSerie) {
         const { updateTooltip } = this.props;
         const date = state.xScale.invert(xPos);
         const bisectX = bisector<Chart.Point, Date>((d) => d.x).right;
         let idx = bisectX(firstSerie.data, date);
+
         if (idx >= 0) {
           const previousPoint = firstSerie.data[idx - 1];
           const nextPoint = firstSerie.data[idx];
+
           if (
             !nextPoint ||
             (previousPoint &&
@@ -272,25 +300,28 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
           ) {
             idx--;
           }
+
           const selectedDate = firstSerie.data[idx].x;
           const xPos = state.xScale(selectedDate);
+
           if (updateTooltip) {
             updateTooltip(selectedDate, xPos, idx);
           }
+
           return { selectedDate, selectedDateXPos: xPos, selectedDateIdx: idx };
         }
       }
+
       return null;
     });
   };
 
   renderHorizontalGrid = () => {
-    const { formatYTick } = this.props;
+    const { formatYTick, maxYTicksCount = 4 } = this.props;
     const { xScale, yScale } = this.state;
-    const hasTicks = typeof yScale.ticks === 'function';
-    let ticks: Array<string | number> = hasTicks
-      ? yScale.ticks(this.props.maxYTicksCount)
-      : yScale.domain();
+    const hasTicks = this.isYScaleLinear(yScale);
+
+    let ticks: Array<string | number> = hasTicks ? yScale.ticks(maxYTicksCount) : yScale.domain();
 
     if (!ticks.length) {
       ticks.push(yScale.domain()[1]);
@@ -307,29 +338,33 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
 
     return (
       <g>
-        {ticks.map((tick) => (
-          <g key={tick}>
-            {formatYTick != null && (
-              <text
-                className="line-chart-tick line-chart-tick-x"
-                dx="-1em"
-                dy="0.3em"
-                textAnchor="end"
-                x={xScale.range()[0]}
-                y={yScale(tick)}
-              >
-                {formatYTick(tick)}
-              </text>
-            )}
-            <line
-              className="line-chart-grid"
-              x1={xScale.range()[0]}
-              x2={xScale.range()[1]}
-              y1={yScale(tick)}
-              y2={yScale(tick)}
-            />
-          </g>
-        ))}
+        {ticks.map((tick) => {
+          const y = yScale(tick as YPoint);
+
+          return (
+            <g key={tick}>
+              {formatYTick != null && (
+                <text
+                  className="line-chart-tick line-chart-tick-x sw-typo-default"
+                  dx="-1em"
+                  dy="0.3em"
+                  textAnchor="end"
+                  x={xScale.range()[0]}
+                  y={y}
+                >
+                  {formatYTick(tick)}
+                </text>
+              )}
+              <line
+                className="line-chart-grid"
+                x1={xScale.range()[0]}
+                x2={xScale.range()[1]}
+                y1={y}
+                y2={y}
+              />
+            </g>
+          );
+        })}
       </g>
     );
   };
@@ -339,19 +374,20 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     const format = xScale.tickFormat(7);
     const ticks = xScale.ticks(7);
     const y = yScale.range()[0];
+
     return (
       <g transform="translate(0, 20)">
         {ticks.slice(0, -1).map((tick, index) => {
-          const nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
-          const x = (xScale(tick) + xScale(nextTick)) / 2;
+          const x = xScale(tick);
+
           return (
             <text
-              className="line-chart-tick"
+              className="line-chart-tick sw-typo-default"
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               textAnchor="end"
-              transform={`rotate(-35, ${x}, ${y})`}
-              x={x}
+              transform={`rotate(-35, ${x + X_LABEL_OFFSET}, ${y})`}
+              x={x + X_LABEL_OFFSET}
               y={y}
             >
               {format(tick)}
@@ -362,62 +398,13 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     );
   };
 
-  renderNewCodeLegend = (params: { leakStart: number; leakWidth: number }) => {
-    const { leakStart, leakWidth } = params;
-    const { leakLegendTextWidth, xScale, yScale } = this.state;
-    const yRange = yScale.range();
-    const xRange = xScale.range();
-
-    const legendMinWidth = (leakLegendTextWidth || 0) + rawSizes.grid;
-    const legendPadding = rawSizes.grid / 2;
-
-    let legendBackgroundPosition;
-    let legendBackgroundWidth;
-    let legendMargin;
-    let legendPosition;
-    let legendTextAnchor;
-
-    if (leakWidth >= legendMinWidth) {
-      legendBackgroundWidth = leakWidth;
-      legendBackgroundPosition = leakStart;
-      legendMargin = 0;
-      legendPosition = legendBackgroundPosition + legendPadding;
-      legendTextAnchor = 'start';
-    } else {
-      legendBackgroundWidth = legendMinWidth;
-      legendBackgroundPosition = xRange[xRange.length - 1] - legendBackgroundWidth;
-      legendMargin = rawSizes.grid / 2;
-      legendPosition = xRange[xRange.length - 1] - legendPadding;
-      legendTextAnchor = 'end';
-    }
-
-    return (
-      <>
-        <rect
-          fill={colors.leakPrimaryColor}
-          height={LEGEND_LINE_HEIGHT}
-          width={legendBackgroundWidth}
-          x={legendBackgroundPosition}
-          y={yRange[yRange.length - 1] - LEGEND_LINE_HEIGHT - legendMargin}
-        />
-        <text
-          className="new-code-legend"
-          ref={this.setLeakLegendTextWidth}
-          x={legendPosition}
-          y={yRange[yRange.length - 1] - legendPadding - legendMargin}
-          textAnchor={legendTextAnchor}
-        >
-          new code
-        </text>
-      </>
-    );
-  };
-
   renderLeak = () => {
-    const { displayNewCodeLegend, leakPeriodDate } = this.props;
+    const { leakPeriodDate, theme } = this.props;
+
     if (!leakPeriodDate) {
       return null;
     }
+
     const { xScale, yScale } = this.state;
     const yRange = yScale.range();
     const xRange = xScale.range();
@@ -427,40 +414,47 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     const leakStart = Math.max(xScale(leakPeriodDate), xRange[0]);
 
     const leakWidth = xRange[xRange.length - 1] - leakStart;
+
     if (leakWidth < 1) {
       return null;
     }
 
     return (
-      <>
-        {displayNewCodeLegend && this.renderNewCodeLegend({ leakStart, leakWidth })}
-        <rect
-          className="leak-chart-rect"
-          fill={colors.leakPrimaryColor}
-          height={yRange[0] - yRange[yRange.length - 1]}
-          width={leakWidth}
-          x={leakStart}
-          y={yRange[yRange.length - 1]}
-        />
-      </>
+      <rect
+        className="leak-chart-rect"
+        fill={themeColor('newCodeLegend')({ theme })}
+        height={yRange[0] - yRange[yRange.length - 1]}
+        width={leakWidth}
+        x={leakStart}
+        y={yRange[yRange.length - 1]}
+      />
     );
   };
 
   renderLines = () => {
+    const { series, theme } = this.props;
+    const { xScale, yScale } = this.state;
+
     const lineGenerator = d3Line<Chart.Point>()
       .defined((d) => Boolean(d.y || d.y === 0))
-      .x((d) => this.state.xScale(d.x))
-      .y((d) => this.state.yScale(d.y));
+      .x((d) => xScale(d.x))
+      .y((d) => yScale(d.y as YPoint) as number);
+
     if (this.props.basisCurve) {
       lineGenerator.curve(curveBasis);
     }
+
     return (
       <g>
-        {this.props.series.map((serie, idx) => (
+        {series.map((serie, idx) => (
           <path
-            className={classNames('line-chart-path', 'line-chart-path-' + idx)}
-            d={lineGenerator(serie.data) || undefined}
+            className={classNames('line-chart-path', `line-chart-path-${idx}`)}
+            d={lineGenerator(serie.data) ?? undefined}
             key={serie.name}
+            stroke={themeColor(`graphLineColor.${idx}` as Parameters<typeof themeColor>[0])({
+              theme,
+            })}
+            strokeDasharray={LINE_CHART_DASHES[idx]}
           />
         ))}
       </g>
@@ -468,32 +462,44 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderDots = () => {
+    const { series, theme } = this.props;
+    const { xScale, yScale } = this.state;
+
     return (
       <g>
-        {this.props.series
+        {series
           .map((serie, serieIdx) =>
             serie.data
               .map((point, idx) => {
                 const pointNotDefined = !point.y && point.y !== 0;
+
                 const hasPointBefore =
                   serie.data[idx - 1] && (serie.data[idx - 1].y || serie.data[idx - 1].y === 0);
+
                 const hasPointAfter =
                   serie.data[idx + 1] && (serie.data[idx + 1].y || serie.data[idx + 1].y === 0);
+
                 if (pointNotDefined || hasPointBefore || hasPointAfter) {
                   return undefined;
                 }
+
                 return (
                   <circle
-                    className={classNames('line-chart-dot', 'line-chart-dot-' + serieIdx)}
-                    cx={this.state.xScale(point.x)}
-                    cy={this.state.yScale(point.y)}
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={serie.name + idx}
+                    cx={xScale(point.x)}
+                    cy={yScale(point.y as YPoint)}
+                    fill={themeColor(
+                      `graphLineColor.${serieIdx}` as Parameters<typeof themeColor>[0],
+                    )({
+                      theme,
+                    })}
+                    key={`${serie.name}${point.x}${point.y}`}
                     r="2"
+                    stroke="white"
+                    strokeWidth={1}
                   />
                 );
               })
-              .filter(isDefined)
+              .filter(isDefined),
           )
           .filter((dots) => dots.length > 0)}
       </g>
@@ -501,30 +507,33 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderAreas = () => {
+    const { series, basisCurve } = this.props;
+    const { xScale, yScale } = this.state;
+
     const areaGenerator = area<Chart.Point>()
       .defined((d) => Boolean(d.y || d.y === 0))
-      .x((d) => this.state.xScale(d.x))
-      .y1((d) => this.state.yScale(d.y))
-      .y0(this.state.yScale(0));
-    if (this.props.basisCurve) {
+      .x((d) => xScale(d.x))
+      .y1((d) => yScale(d.y as YPoint) as number)
+      .y0(yScale(0) as number);
+
+    if (basisCurve) {
       areaGenerator.curve(curveBasis);
     }
+
     return (
       <g>
-        {this.props.series.map((serie, idx) => (
-          <path
-            className={classNames('line-chart-area', 'line-chart-area-' + idx)}
-            d={areaGenerator(serie.data) || undefined}
-            key={serie.name}
-          />
+        {series.map((serie, idx) => (
+          <StyledArea d={areaGenerator(serie.data) ?? undefined} index={idx} key={serie.name} />
         ))}
       </g>
     );
   };
 
   renderSelectedDate = () => {
+    const { series, theme } = this.props;
     const { selectedDateIdx, selectedDateXPos, yScale } = this.state;
-    const firstSerie = this.props.series[0];
+    const firstSerie = series[0];
+
     if (selectedDateIdx == null || selectedDateXPos == null || !firstSerie) {
       return null;
     }
@@ -538,18 +547,24 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
           y1={yScale.range()[0]}
           y2={yScale.range()[1]}
         />
-        {this.props.series.map((serie, idx) => {
+        {series.map((serie, idx) => {
           const point = serie.data[selectedDateIdx];
+
           if (!point || (!point.y && point.y !== 0)) {
             return null;
           }
+
           return (
             <circle
-              className={classNames('line-chart-dot', 'line-chart-dot-' + idx)}
               cx={selectedDateXPos}
-              cy={yScale(point.y)}
+              cy={yScale(point.y as YPoint)}
+              fill={themeColor(`graphLineColor.${idx}` as Parameters<typeof themeColor>[0])({
+                theme,
+              })}
               key={serie.name}
               r="4"
+              stroke="white"
+              strokeWidth={1}
             />
           );
         })}
@@ -558,13 +573,15 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderClipPath = () => {
+    const { yScale, xScale } = this.state;
+
     return (
       <defs>
         <clipPath id="chart-clip">
           <rect
-            height={this.state.yScale.range()[0] + 10}
+            height={yScale.range()[0] + 10}
             transform="translate(0,-5)"
-            width={this.state.xScale.range()[1]}
+            width={xScale.range()[1]}
           />
         </clipPath>
       </defs>
@@ -572,23 +589,29 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderMouseEventsOverlay = (zoomEnabled: boolean) => {
+    const { yScale, xScale } = this.state;
+
     const mouseEvents: Partial<React.SVGProps<SVGRectElement>> = {};
+
     if (zoomEnabled) {
       mouseEvents.onWheel = this.handleWheel;
     }
+
     if (this.props.updateTooltip) {
       mouseEvents.onMouseEnter = this.handleMouseEnter;
       mouseEvents.onMouseMove = this.handleMouseMove;
       mouseEvents.onMouseOut = this.handleMouseOut;
     }
+
     if (this.props.updateSelectedDate) {
       mouseEvents.onClick = this.handleClick;
     }
+
     return (
       <rect
         className="chart-mouse-events-overlay"
-        height={this.state.yScale.range()[0]}
-        width={this.state.xScale.range()[1]}
+        height={yScale.range()[0]}
+        width={xScale.range()[1]}
         {...mouseEvents}
       />
     );
@@ -607,31 +630,53 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       hideXAxis,
       showAreas,
       graphDescription,
-    } = this.props;
+      splitPointDate,
+    } = this.props as PropsWithDefaults;
+    const { xScale, yScale } = this.state;
+
     if (!width || !height) {
       return <div />;
     }
+
     const zoomEnabled = !disableZoom && this.props.updateZoom != null;
-    const isZoomed = Boolean(startDate || endDate);
+    const isZoomed = Boolean(startDate ?? endDate);
+
     return (
-      <svg
-        aria-label={graphDescription}
-        className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
-        height={height}
-        width={width}
-      >
-        {zoomEnabled && this.renderClipPath()}
-        <g transform={`translate(${padding[3]}, ${padding[0]})`}>
-          {leakPeriodDate != null && this.renderLeak()}
-          {!hideGrid && this.renderHorizontalGrid()}
-          {!hideXAxis && this.renderXAxisTicks()}
-          {showAreas && this.renderAreas()}
-          {this.renderLines()}
-          {this.renderDots()}
-          {this.renderSelectedDate()}
-          {this.renderMouseEventsOverlay(zoomEnabled)}
-        </g>
-      </svg>
+      <div className="sw-relative">
+        <svg
+          aria-label={graphDescription}
+          className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
+          height={height}
+          width={width}
+        >
+          {zoomEnabled && this.renderClipPath()}
+          <g transform={`translate(${padding[3]}, ${padding[0]})`}>
+            {leakPeriodDate != null && this.renderLeak()}
+            {!hideGrid && this.renderHorizontalGrid()}
+            {!hideXAxis && this.renderXAxisTicks()}
+            {showAreas && this.renderAreas()}
+            {this.renderLines()}
+            {this.renderDots()}
+            {this.renderSelectedDate()}
+            {this.renderMouseEventsOverlay(zoomEnabled)}
+            <SplitLine splitPointDate={splitPointDate} xScale={xScale} yScale={yScale} />
+          </g>
+        </svg>
+        <SplitLinePopover
+          paddingLeft={padding[3]}
+          splitPointDate={splitPointDate}
+          xScale={xScale}
+        />
+      </div>
     );
   }
 }
+
+const AREA_OPACITY = 0.15;
+
+const StyledArea = styled.path<{ index: number }>`
+  clip-path: url(#chart-clip);
+  fill: ${({ index }) => themeColor(`graphLineColor.${index}` as CSSColor, AREA_OPACITY)};
+`;
+
+export const AdvancedTimeline = withTheme<PropsWithoutTheme>(AdvancedTimelineClass);

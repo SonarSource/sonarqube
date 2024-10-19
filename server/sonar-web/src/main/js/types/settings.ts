@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,9 @@ export const enum SettingsKey {
   PluginRiskConsent = 'sonar.plugins.risk.consent',
   LicenceRemainingLocNotificationThreshold = 'sonar.license.notifications.remainingLocThreshold',
   TokenMaxAllowedLifetime = 'sonar.auth.token.max.allowed.lifetime',
+  QPAdminCanDisableInheritedRules = 'sonar.qualityProfiles.allowDisableInheritedRules',
+  LegacyMode = 'sonar.legacy.ratings.mode.enabled',
+  CodeSuggestion = 'sonar.ai.suggestions.enabled',
 }
 
 export enum GlobalSettingKeys {
@@ -66,6 +69,8 @@ export enum SettingType {
   SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST',
   PROPERTY_SET = 'PROPERTY_SET',
   FORMATTED_TEXT = 'FORMATTED_TEXT',
+  REGULAR_EXPRESSION = 'REGULAR_EXPRESSION',
+  USER_LOGIN = 'USER_LOGIN',
 }
 export interface SettingDefinition {
   description?: string;
@@ -77,7 +82,6 @@ export interface SettingDefinition {
 }
 
 export interface SettingFieldDefinition extends SettingDefinition {
-  description: string;
   name: string;
 }
 
@@ -90,9 +94,18 @@ export interface ExtendedSettingDefinition extends SettingDefinition {
   subCategory: string;
 }
 
+export interface DefinitionV2 {
+  description?: string;
+  key: string;
+  multiValues?: boolean;
+  name: string;
+  secured: boolean;
+  type?: SettingType;
+}
+
 export interface SettingValueResponse {
-  settings: SettingValue[];
   setSecuredSettings: string[];
+  settings: SettingValue[];
 }
 
 export interface SettingValue {

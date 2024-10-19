@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,14 +56,18 @@ public class ProjectBadgesSupport {
   }
 
   void addProjectAndBranchParams(WebService.NewAction action) {
-    action.createParam(PARAM_PROJECT)
-      .setDescription("Project or application key")
-      .setRequired(true)
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    addProjectAndTokenParams(action);
     action
       .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+  }
+
+  public void addProjectAndTokenParams(WebService.NewAction action) {
+    action.createParam(PARAM_PROJECT)
+      .setDescription("Project or application key")
+      .setRequired(true)
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action
       .createParam(PARAM_TOKEN)
       .setDescription("Project badge token")
@@ -72,16 +76,10 @@ public class ProjectBadgesSupport {
 
   BranchDto getBranch(DbSession dbSession, Request request) {
     try {
-      String projectKey = request.mandatoryParam(PARAM_PROJECT);
       String branchName = request.param(PARAM_BRANCH);
-      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
+      ProjectDto project = getProject(dbSession, request);
 
-      BranchDto branch;
-      if (branchName == null) {
-        branch = componentFinder.getMainBranch(dbSession, project);
-      } else {
-        branch = componentFinder.getBranchOrPullRequest(dbSession, project, branchName, null);
-      }
+      BranchDto branch = componentFinder.getBranchOrPullRequest(dbSession, project, branchName, null);
 
       if (!branch.getBranchType().equals(BRANCH)) {
         throw generateInvalidProjectException();
@@ -91,6 +89,11 @@ public class ProjectBadgesSupport {
     } catch (NotFoundException e) {
       throw new NotFoundException(PROJECT_HAS_NOT_BEEN_FOUND);
     }
+  }
+
+  public ProjectDto getProject(DbSession dbSession, Request request) {
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
+    return componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
   }
 
   private static ProjectBadgesException generateInvalidProjectException() {

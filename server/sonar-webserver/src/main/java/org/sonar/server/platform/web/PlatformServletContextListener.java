@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,11 +24,13 @@ import java.util.Properties;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.PlatformImpl;
 
 public final class PlatformServletContextListener implements ServletContextListener {
   static final String STARTED_ATTRIBUTE = "sonarqube.started";
+  private static final Logger LOG = LoggerFactory.getLogger(PlatformServletContextListener.class);
 
   @Override
   public void contextInitialized(ServletContextEvent event) {
@@ -44,10 +46,10 @@ public final class PlatformServletContextListener implements ServletContextListe
       PlatformImpl.getInstance().doStart();
       event.getServletContext().setAttribute(STARTED_ATTRIBUTE, Boolean.TRUE);
     } catch (org.sonar.api.utils.MessageException | org.sonar.process.MessageException e) {
-      Loggers.get(PlatformImpl.class).error("Web server startup failed: " + e.getMessage());
+      LOG.error("Web server startup failed: {}", e.getMessage());
       stopQuietly();
     } catch (Throwable t) {
-      Loggers.get(PlatformImpl.class).error("Web server startup failed", t);
+      LOG.error("Web server startup failed", t);
       stopQuietly();
       throw new AbortTomcatStartException();
     }

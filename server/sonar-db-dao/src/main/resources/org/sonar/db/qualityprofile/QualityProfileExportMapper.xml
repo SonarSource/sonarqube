@@ -19,6 +19,7 @@
     <include refid="selectRuleDescriptionSectionColumns"/>
     a.uuid as "activeRuleUuid",
     a.failure_level as "severity",
+    a.prioritized_rule as "prioritizedRule",
     r.plugin_rule_key as "rule",
     r.plugin_name as "repository",
     r.priority as "defaultSeverity",
@@ -41,15 +42,17 @@
     <id property="activeRuleUuid" column="activeRuleUuid"/>
     <result property="ruleKey" column="ruleKey"/>
     <result property="severity" column="severity"/>
+    <result property="prioritizedRule" column="prioritizedRule"/>
     <result property="rule" column="rule"/>
     <result property="repository" column="repository"/>
     <result property="name" column="name"/>
     <result property="type" column="type"/>
     <result property="template" column="template"/>
     <result property="extendedDescription" column="extendedDescription"/>
-    <result property="tags" column="tags"/>
     <result property="description" column="description"/>
-
+    <collection property="tags" column="t_tags" notNullColumn="t_tags" javaType="java.util.Set" ofType="string">
+     <result column="t_tags"/>
+    </collection>
   </resultMap>
 
   <select id="selectByProfileUuid" parameterType="string" resultMap="exportRuleResultMap">
@@ -60,6 +63,7 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     left join rules rt on rt.uuid = r.template_uuid
+    left join rule_tags t on r.uuid = t.rule_uuid and t.is_system_tag = ${_false}
     left join rules_metadata rm on rm.rule_uuid = r.uuid and rm.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     <include refid="leftOuterJoinRulesDefaultDescriptionSection"/>
     where oqp.uuid = #{uuid, jdbcType=VARCHAR}

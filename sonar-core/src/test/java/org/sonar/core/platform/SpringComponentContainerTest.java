@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -76,6 +76,13 @@ public class SpringComponentContainerTest {
         this.getClass().getClassLoader() + "-org.sonar.core.platform.SpringComponentContainerTest.B");
     assertThat(container.getComponentByType(A.class)).isNotNull();
     assertThat(container.getComponentByType(B.class)).isNotNull();
+  }
+
+  @Test
+  public void addWebConfigurationClass_addsClass() {
+    SpringComponentContainer container = new SpringComponentContainer();
+    container.addWebApiV2ConfigurationClass(org.sonar.core.test.Test.class);
+    assertThat(container.getWebApiV2ConfigurationClasses()).contains(org.sonar.core.test.Test.class);
   }
 
   @Test

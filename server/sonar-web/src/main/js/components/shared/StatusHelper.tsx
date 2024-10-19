@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,22 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import StatusIcon from '../../components/icons/StatusIcon';
 import { translate } from '../../helpers/l10n';
+import { IssueStatus } from '../../types/issues';
+import IssueStatusIcon from '../icon-mappers/IssueStatusIcon';
 
 interface Props {
   className?: string;
-  resolution: string | undefined;
-  status: string;
+  issueStatus: IssueStatus;
 }
 
 export default function StatusHelper(props: Props) {
-  const resolution = props.resolution && ` (${translate('issue.resolution', props.resolution)})`;
   return (
     <span className={props.className}>
-      <StatusIcon className="little-spacer-right" status={props.status} />
-      {translate('issue.status', props.status)}
-      {resolution}
+      <IssueStatusIcon className="sw-mr-1" issueStatus={props.issueStatus} />
+      {translate('issue.issue_status', props.issueStatus)}
     </span>
   );
 }

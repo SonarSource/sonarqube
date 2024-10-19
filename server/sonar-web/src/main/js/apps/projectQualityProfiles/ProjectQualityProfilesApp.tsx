@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { addGlobalSuccessMessage } from 'design-system';
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import {
@@ -28,7 +29,6 @@ import {
 } from '../../api/quality-profiles';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translateWithParameters } from '../../helpers/l10n';
 import { isDefined } from '../../helpers/types';
 import { Component, Organization } from '../../types/types';
@@ -68,7 +68,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
 
   checkPermissions() {
     const { configuration } = this.props.component;
-    const hasPermission = configuration && configuration.showQualityProfiles;
+    const hasPermission = configuration?.showQualityProfiles;
     return !!hasPermission;
   }
 
@@ -94,8 +94,8 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
             selected: Boolean(results.find((p) => p.key === component.key)?.selected),
             profile,
           }))
-          .catch(() => ({ selected: false, profile }))
-      )
+          .catch(() => ({ selected: false, profile })),
+      ),
     );
 
     const selectedProjectProfiles = projectProfiles
@@ -111,11 +111,11 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     const componentProfiles = differenceBy(
       component.qualityProfiles,
       selectedProjectProfiles.map((p) => p.profile),
-      'key'
+      'key',
     )
       // Discard languages we already have up-to-date info for.
       .filter(
-        ({ language }) => !selectedProjectProfiles.some((p) => p.profile.language === language)
+        ({ language }) => !selectedProjectProfiles.some((p) => p.profile.language === language),
       )
       .map(({ key }) => {
         const profile = allProfiles.find((p) => p.key === key);
@@ -123,25 +123,26 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
           // If the profile is the default profile, all is good.
           if (profile.isDefault) {
             return { profile, selected: false };
-          } else {
-            // If it is neither the default, nor explicitly selected, it
-            // means this is outdated information. This can only mean the
-            // user wants to use the default profile, but it will only
-            // be taken into account after a new analysis. Fetch the
-            // default profile.
-            const defaultProfile = allProfiles.find(
-              (p) => p.isDefault && p.language === profile.language
-            );
-            return (
-              defaultProfile && {
-                profile: defaultProfile,
-                selected: false,
-              }
-            );
           }
-        } else {
-          return undefined;
+
+          // If it is neither the default, nor explicitly selected, it
+          // means this is outdated information. This can only mean the
+          // user wants to use the default profile, but it will only
+          // be taken into account after a new analysis. Fetch the
+          // default profile.
+          const defaultProfile = allProfiles.find(
+            (p) => p.isDefault && p.language === profile.language,
+          );
+
+          return (
+            defaultProfile && {
+              profile: defaultProfile,
+              selected: false,
+            }
+          );
         }
+
+        return undefined;
       })
       .filter(isDefined);
 
@@ -191,8 +192,8 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
           addGlobalSuccessMessage(
             translateWithParameters(
               'project_quality_profile.successfully_updated',
-              newProfile.languageName
-            )
+              newProfile.languageName,
+            ),
           );
         }
       } catch (e) {
@@ -207,10 +208,10 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     const { component } = this.props;
     const { allProfiles = [], projectProfiles = [] } = this.state;
 
-    const newProfile = newKey && allProfiles.find((p) => p.key === newKey);
+    const newProfile = newKey !== undefined && allProfiles.find((p) => p.key === newKey);
     const oldProjectProfile = projectProfiles.find((p) => p.profile.key === oldKey);
     const defaultProfile = allProfiles.find(
-      (p) => p.isDefault && p.language === oldProjectProfile?.profile.language
+      (p) => p.isDefault && p.language === oldProjectProfile?.profile.language,
     );
 
     if (defaultProfile === undefined || oldProjectProfile === undefined) {
@@ -260,8 +261,8 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
       addGlobalSuccessMessage(
         translateWithParameters(
           'project_quality_profile.successfully_updated',
-          defaultProfile.languageName
-        )
+          defaultProfile.languageName,
+        ),
       );
     }
   };

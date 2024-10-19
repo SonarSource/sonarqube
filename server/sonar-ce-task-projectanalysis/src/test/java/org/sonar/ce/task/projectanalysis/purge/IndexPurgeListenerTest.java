@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,32 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
-import java.util.List;
 import org.junit.Test;
-import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class IndexPurgeListenerTest {
 
   private IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  private ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
-
-  private IndexPurgeListener underTest = new IndexPurgeListener(issueIndexer, componentIndexer);
-
-  @Test
-  public void test_onComponentDisabling() {
-    String uuid = "123456";
-    String projectUuid = "P789";
-    List<String> uuids = singletonList(uuid);
-    underTest.onComponentsDisabling(projectUuid, uuids);
-
-    verify(componentIndexer).delete(projectUuid, uuids);
-  }
+  private IndexPurgeListener underTest = new IndexPurgeListener(issueIndexer);
 
   @Test
   public void test_onIssuesRemoval() {

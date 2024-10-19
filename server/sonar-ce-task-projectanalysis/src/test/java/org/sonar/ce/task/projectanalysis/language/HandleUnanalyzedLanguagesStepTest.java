@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -110,9 +110,9 @@ public class HandleUnanalyzedLanguagesStepTest {
       .containsExactly(tuple(
         "10 unanalyzed C, 20 unanalyzed C++ and 1000 unanalyzed SomeLang files were detected in this project during the last analysis. C," +
           " C++ and SomeLang cannot be analyzed with your current SonarQube edition. Please consider" +
-          " <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer Edition</a> to find Bugs," +
+          " <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to Developer Edition</a> to find Bugs," +
           " Code Smells, Vulnerabilities and Security Hotspots in these files.",
-        CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE));
+        MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE));
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY).get().getIntValue()).isEqualTo(10);
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(20);
   }
@@ -130,7 +130,7 @@ public class HandleUnanalyzedLanguagesStepTest {
     List<CeTaskMessages.Message> messages = argumentCaptor.getAllValues();
     assertThat(messages).extracting(CeTaskMessages.Message::getText).containsExactly(
       "10 unanalyzed C files were detected in this project during the last analysis. C cannot be analyzed with your current SonarQube edition. Please" +
-        " consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer" +
+        " consider <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to Developer" +
         " Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in this file.");
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY).get().getIntValue()).isEqualTo(10);
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY)).isEmpty();
@@ -149,7 +149,7 @@ public class HandleUnanalyzedLanguagesStepTest {
     List<CeTaskMessages.Message> messages = argumentCaptor.getAllValues();
     assertThat(messages).extracting(CeTaskMessages.Message::getText).containsExactly(
       "1 unanalyzed C++ file was detected in this project during the last analysis. C++ cannot be analyzed with your current SonarQube edition. Please" +
-        " consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer" +
+        " consider <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to Developer" +
         " Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in this file.");
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isOne();
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY)).isEmpty();

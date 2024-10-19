@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.analysis;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisFromSonarQube94Visitor.AnalysisFromSonarQube94;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitor;
 import org.sonar.ce.task.projectanalysis.component.ReportAttributes;
@@ -35,7 +34,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.ce.task.projectanalysis.analysis.AnalysisFromSonarQube94Visitor.*;
+import static org.sonar.ce.task.projectanalysis.analysis.AnalysisFromSonarQube94Visitor.AnalysisFromSonarQube94;
+import static org.sonar.ce.task.projectanalysis.analysis.AnalysisFromSonarQube94Visitor.AnalysisFromSonarQube94StackFactory;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.ComponentImpl.builder;
 

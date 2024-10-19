@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from 'design-system';
 import { flatten, sortBy } from 'lodash';
-import BugIcon from '../components/icons/BugIcon';
-import CodeSmellIcon from '../components/icons/CodeSmellIcon';
-import SecurityHotspotIcon from '../components/icons/SecurityHotspotIcon';
-import VulnerabilityIcon from '../components/icons/VulnerabilityIcon';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { SoftwareQuality } from '../types/clean-code-taxonomy';
 import { IssueType, RawIssue } from '../types/issues';
-import { MetricKey } from '../types/metrics';
-import { Dict, Flow, FlowLocation, Issue, TextRange } from '../types/types';
+import { Dict, Flow, FlowLocation, FlowType, Issue, TextRange } from '../types/types';
 import { UserBase } from '../types/users';
 import { ISSUE_TYPES } from './constants';
 
@@ -43,7 +41,7 @@ function injectRelational(
   issue: Dict<any>,
   source: any[] | undefined,
   baseField: string,
-  lookupField: string
+  lookupField: string,
 ) {
   const newFields: Dict<any> = {};
   const baseValue = issue[baseField];
@@ -98,26 +96,34 @@ function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
   return x;
 }
 
+const FLOW_ORDER_MAP = {
+  [FlowType.DATA]: 0,
+  [FlowType.EXECUTION]: 1,
+};
+
 function splitFlows(
   issue: RawIssue,
-  components: Component[] = []
-): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][]; flowsWithType: Flow[] } {
+  components: Component[] = [],
+): { flows: FlowLocation[][]; flowsWithType: Flow[]; secondaryLocations: FlowLocation[] } {
   if (issue.flows?.some((flow) => flow.type !== undefined)) {
+    const flowsWithType = issue.flows.filter((flow) => flow.type !== undefined) as Flow[];
+    flowsWithType.sort((f1, f2) => FLOW_ORDER_MAP[f1.type] - FLOW_ORDER_MAP[f2.type]);
+
     return {
       flows: [],
-      flowsWithType: issue.flows.filter((flow) => flow.type !== undefined) as Flow[],
+      flowsWithType,
       secondaryLocations: [],
     };
   }
 
-  const parsedFlows: FlowLocation[][] = (issue.flows || [])
+  const parsedFlows: FlowLocation[][] = (issue.flows ?? [])
     .filter((flow) => flow.locations !== undefined)
     .map((flow) => flow.locations!.filter((location) => location.textRange != null))
     .map((flow) =>
       flow.map((location) => {
         const component = components.find((component) => component.key === location.component);
-        return { ...location, componentName: component && component.name };
-      })
+        return { ...location, componentName: component?.name };
+      }),
     );
 
   const onlySecondaryLocations = parsedFlows.every((flow) => flow.length === 1);
@@ -134,8 +140,8 @@ function splitFlows(
 function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
-    (location) => location.textRange && location.textRange.startLine,
-    (location) => location.textRange && location.textRange.startOffset
+    (location) => location.textRange?.startLine,
+    (location) => location.textRange?.startOffset,
   );
 }
 
@@ -143,7 +149,7 @@ export function parseIssueFromResponse(
   issue: RawIssue,
   components?: Component[],
   users?: UserBase[],
-  rules?: Rule[]
+  rules?: Rule[],
 ): Issue {
   return {
     ...issue,
@@ -157,6 +163,37 @@ export function parseIssueFromResponse(
     ...ensureTextRange(issue),
   } as Issue;
 }
+
+export function getIssueTypeBySoftwareQuality(quality: SoftwareQuality): IssueType {
+  const map = {
+    [SoftwareQuality.Maintainability]: IssueType.CodeSmell,
+    [SoftwareQuality.Security]: IssueType.Vulnerability,
+    [SoftwareQuality.Reliability]: IssueType.Bug,
+  };
+
+  return map[quality];
+}
+
+export const SOFTWARE_QUALITIES_METRIC_KEYS_MAP = {
+  [SoftwareQuality.Security]: {
+    metric: MetricKey.security_issues,
+    deprecatedMetric: MetricKey.vulnerabilities,
+    rating: MetricKey.security_rating,
+    newRating: MetricKey.new_security_rating,
+  },
+  [SoftwareQuality.Reliability]: {
+    metric: MetricKey.reliability_issues,
+    deprecatedMetric: MetricKey.bugs,
+    rating: MetricKey.reliability_rating,
+    newRating: MetricKey.new_reliability_rating,
+  },
+  [SoftwareQuality.Maintainability]: {
+    metric: MetricKey.maintainability_issues,
+    deprecatedMetric: MetricKey.code_smells,
+    rating: MetricKey.sqale_rating,
+    newRating: MetricKey.new_maintainability_rating,
+  },
+};
 
 export const ISSUETYPE_METRIC_KEYS_MAP = {
   [IssueType.CodeSmell]: {

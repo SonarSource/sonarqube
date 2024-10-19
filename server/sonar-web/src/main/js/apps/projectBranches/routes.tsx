@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectBranchesApp from './components/ProjectBranchesApp';
+import ProjectBranchesApp from './ProjectBranchesApp';
 
 const routes = () => <Route path="branches" element={<ProjectBranchesApp />} />;
 

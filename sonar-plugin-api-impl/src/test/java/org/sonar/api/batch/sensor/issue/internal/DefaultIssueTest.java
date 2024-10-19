@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,6 +41,7 @@ import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.fix.NewQuickFix;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +80,8 @@ public class DefaultIssueTest {
         .message("Wrong way!"))
       .forRule(RULE_KEY)
       .gap(10.0)
-      .setRuleDescriptionContextKey("spring");
+      .setRuleDescriptionContextKey("spring")
+      .setCodeVariants(List.of("variant1", "variant2"));
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
@@ -87,6 +89,7 @@ public class DefaultIssueTest {
     assertThat(issue.gap()).isEqualTo(10.0);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
     assertThat(issue.ruleDescriptionContextKey()).contains("spring");
+    assertThat(issue.codeVariants()).containsOnly("variant1", "variant2");
 
     issue.save();
 
@@ -230,6 +233,13 @@ public class DefaultIssueTest {
     DefaultIssue issue = new DefaultIssue(project, storage).setQuickFixAvailable(true);
 
     assertThat(issue.isQuickFixAvailable()).isTrue();
+  }
+
+  @Test
+  public void issue_can_override_impacts() {
+    DefaultIssue issue = new DefaultIssue(project, storage).overrideImpact(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
+
+    assertThat(issue.overridenImpacts()).containsEntry(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
   }
 
   @Test

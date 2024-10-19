@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,243 +17,249 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import styled from '@emotion/styled';
+import {
+  ActionCell,
+  CellComponent,
+  ContentCell,
+  DiscreetLink,
+  InheritanceIcon,
+  Link,
+  Note,
+  SeparatorCircleIcon,
+  SubTitle,
+  Table,
+  TableRow,
+  TableRowInteractive,
+  TextSubdued,
+} from 'design-system';
 import { filter } from 'lodash';
 import * as React from 'react';
-import { activateRule, deactivateRule, Profile } from '../../../api/quality-profiles';
-import InstanceMessage from '../../../components/common/InstanceMessage';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import Tooltip from '../../../components/controls/Tooltip';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { FormattedMessage } from 'react-intl';
+import { Profile } from '../../../api/quality-profiles';
+import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import {
+  useActivateRuleMutation,
+  useDeactivateRuleMutation,
+} from '../../../queries/quality-profiles';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
+import ActivatedRuleActions from './ActivatedRuleActions';
 import ActivationButton from './ActivationButton';
-import RuleInheritanceIcon from './RuleInheritanceIcon';
 
 interface Props {
-  activations: RuleActivation[] | undefined;
-  onActivate: () => Promise<void>;
-  onDeactivate: () => Promise<void>;
   organization: string;
+  activations: RuleActivation[] | undefined;
+  canDeactivateInherited?: boolean;
+  onActivate: () => void;
+  onDeactivate: () => void;
   referencedProfiles: Dict<Profile>;
   ruleDetails: RuleDetails;
 }
 
-export default class RuleDetailsProfiles extends React.PureComponent<Props> {
-  handleActivate = () => this.props.onActivate();
+const MANDATORY_COLUMNS_COUNT = 2;
 
-  handleDeactivate = (key?: string) => {
-    if (key) {
+const PROFILES_HEADING_ID = 'rule-details-profiles-heading';
+
+export default function RuleDetailsProfiles(props: Readonly<Props>) {
+  const { activations = [], referencedProfiles, ruleDetails, canDeactivateInherited } = props;
+  const { mutate: activateRule } = useActivateRuleMutation(props.onActivate);
+  const { mutate: deactivateRule } = useDeactivateRuleMutation(props.onDeactivate);
+
+  const canActivate = Object.values(referencedProfiles).some((profile) =>
+    Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),
+  );
+  const showParamsColumn =
+    ruleDetails.templateKey === undefined &&
+    ruleDetails?.params !== undefined &&
+    ruleDetails.params.length > 0;
+
+  const handleDeactivate = (key?: string) => {
+    if (key !== undefined) {
       deactivateRule({
         key,
-        organization: this.props.organization,
-        rule: this.props.ruleDetails.key,
-      }).then(this.props.onDeactivate, () => {});
+        organization: props.organization,
+        rule: ruleDetails.key,
+      });
     }
   };
 
-  handleRevert = (key?: string) => {
-    if (key) {
+  const handleRevert = (key?: string) => {
+    if (key !== undefined) {
       activateRule({
         key,
-        organization: this.props.organization,
-        rule: this.props.ruleDetails.key,
+        organization: props.organization,
+        rule: ruleDetails.key,
         reset: true,
-      }).then(this.props.onActivate, () => {});
+      });
     }
   };
 
-  renderInheritedProfile = (activation: RuleActivation, profile: Profile, organization:string) => {
-    if (!profile.parentName) {
-      return null;
-    }
-    const profilePath = getQualityProfileUrl(profile.parentName, profile.language, organization);
+  const renderRowActions = (activation: RuleActivation, profile: Profile) => {
     return (
-      <div className="coding-rules-detail-quality-profile-inheritance">
-        {(activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
-          <>
-            <RuleInheritanceIcon className="text-middle" inheritance={activation.inherit} />
-            <Link className="little-spacer-left text-middle" to={profilePath}>
-              {profile.parentName}
-            </Link>
-          </>
-        )}
-      </div>
+      <ActionCell>
+        <ActivatedRuleActions
+          activation={activation}
+          profile={profile}
+          ruleDetails={ruleDetails}
+          onActivate={props.onActivate}
+          handleDeactivate={handleDeactivate}
+          handleRevert={handleRevert}
+          canDeactivateInherited={canDeactivateInherited}
+        />
+      </ActionCell>
     );
   };
 
-  renderSeverity = (activation: RuleActivation, parentActivation?: RuleActivation) => (
-    <td className="coding-rules-detail-quality-profile-severity">
-      <Tooltip overlay={translate('coding_rules.activation_severity')}>
-        <span>
-          <SeverityHelper className="display-inline-flex-center" severity={activation.severity} />
-        </span>
-      </Tooltip>
-      {parentActivation !== undefined && activation.severity !== parentActivation.severity && (
-        <div className="coding-rules-detail-quality-profile-inheritance">
-          {translate('coding_rules.original')} {translate('severity', parentActivation.severity)}
-        </div>
-      )}
-    </td>
-  );
+  const renderActivationRow = (activation: RuleActivation) => {
+    const profile = referencedProfiles[activation.qProfile];
 
-  renderParameter = (param: { key: string; value: string }, parentActivation?: RuleActivation) => {
-    const originalParam =
-      parentActivation && parentActivation.params.find((p) => p.key === param.key);
-    const originalValue = originalParam && originalParam.value;
-
-    return (
-      <div className="coding-rules-detail-quality-profile-parameter" key={param.key}>
-        <span className="key">{param.key}</span>
-        <span className="sep">: </span>
-        <span className="value" title={param.value}>
-          {param.value}
-        </span>
-        {parentActivation && param.value !== originalValue && (
-          <div className="coding-rules-detail-quality-profile-inheritance">
-            {translate('coding_rules.original')} <span className="value">{originalValue}</span>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  renderParameters = (activation: RuleActivation, parentActivation?: RuleActivation) => (
-    <td className="coding-rules-detail-quality-profile-parameters">
-      {activation.params.map((param) => this.renderParameter(param, parentActivation))}
-    </td>
-  );
-
-  renderActions = (activation: RuleActivation, profile: Profile) => {
-    const canEdit = profile.actions && profile.actions.edit && !profile.isBuiltIn;
-    const { ruleDetails } = this.props;
-    const hasParent = activation.inherit !== 'NONE' && profile.parentKey;
-    return (
-      <td className="coding-rules-detail-quality-profile-actions">
-        {canEdit && (
-          <>
-            {!ruleDetails.isTemplate && (
-              <ActivationButton
-                activation={activation}
-                buttonText={translate('change_verb')}
-                className="coding-rules-detail-quality-profile-change"
-                modalHeader={translate('coding_rules.change_details')}
-                onDone={this.handleActivate}
-                profiles={[profile]}
-                rule={ruleDetails}
-              />
-            )}
-            {hasParent ? (
-              activation.inherit === 'OVERRIDES' &&
-              profile.parentName && (
-                <ConfirmButton
-                  confirmButtonText={translate('yes')}
-                  confirmData={profile.key}
-                  modalBody={translateWithParameters(
-                    'coding_rules.revert_to_parent_definition.confirm',
-                    profile.parentName
-                  )}
-                  modalHeader={translate('coding_rules.revert_to_parent_definition')}
-                  onConfirm={this.handleRevert}
-                >
-                  {({ onClick }) => (
-                    <Button
-                      className="coding-rules-detail-quality-profile-revert button-red spacer-left"
-                      onClick={onClick}
-                    >
-                      {translate('coding_rules.revert_to_parent_definition')}
-                    </Button>
-                  )}
-                </ConfirmButton>
-              )
-            ) : (
-              <ConfirmButton
-                confirmButtonText={translate('yes')}
-                confirmData={profile.key}
-                modalBody={translate('coding_rules.deactivate.confirm')}
-                modalHeader={translate('coding_rules.deactivate')}
-                onConfirm={this.handleDeactivate}
-              >
-                {({ onClick }) => (
-                  <Button
-                    className="coding-rules-detail-quality-profile-deactivate button-red spacer-left"
-                    onClick={onClick}
-                  >
-                    {translate('coding_rules.deactivate')}
-                  </Button>
-                )}
-              </ConfirmButton>
-            )}
-          </>
-        )}
-      </td>
-    );
-  };
-
-  renderActivation = (activation: RuleActivation) => {
-    const { activations = [], ruleDetails, organization } = this.props;
-    const profile = this.props.referencedProfiles[activation.qProfile];
     if (!profile) {
       return null;
     }
 
     const parentActivation = activations.find((x) => x.qProfile === profile.parentKey);
 
-    return (
-      <tr data-profile={profile.key} key={profile.key}>
-        <td className="coding-rules-detail-quality-profile-name">
-          <Link to={getQualityProfileUrl(profile.name, profile.language, this.props.organization)}>{profile.name}</Link>
-          {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
-          {this.renderInheritedProfile(activation, profile, this.props.organization)}
-        </td>
+    const inheritedProfileSection = profile.parentName
+      ? (activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
+          <Note as="div" className="sw-flex sw-items-center sw-w-full">
+            <InheritanceIcon
+              fill={activation.inherit === 'OVERRIDES' ? 'destructiveIconFocus' : 'currentColor'}
+            />
 
-        {this.renderSeverity(activation, parentActivation)}
-        {!ruleDetails.templateKey && this.renderParameters(activation, parentActivation)}
-        {this.renderActions(activation, profile)}
-      </tr>
+            <DiscreetLink
+              aria-label={`${translate('quality_profiles.parent')} ${profile.parentName}`}
+              className="sw-ml-1 sw-truncate"
+              title={profile.parentName}
+              to={getQualityProfileUrl(profile.parentName, profile.language)}
+            >
+              {profile.parentName}
+            </DiscreetLink>
+          </Note>
+        )
+      : null;
+
+    return (
+      <TableRowInteractive key={profile.key}>
+        <ContentCell className="sw-flex sw-flex-col sw-gap-2">
+          <div className="sw-self-start sw-flex sw-gap-2 sw-items-center">
+            <Link
+              className="sw-truncate sw-max-w-64"
+              aria-label={profile.name}
+              title={profile.name}
+              to={getQualityProfileUrl(profile.name, profile.language)}
+            >
+              {profile.name}
+            </Link>
+
+            {activation.prioritizedRule && (
+              <>
+                <SeparatorCircleIcon />
+                <TextSubdued>{translate('coding_rules.prioritized_rule.title')}</TextSubdued>
+              </>
+            )}
+
+            {profile.isBuiltIn && <BuiltInQualityProfileBadge />}
+          </div>
+
+          {inheritedProfileSection}
+        </ContentCell>
+
+        {showParamsColumn && (
+          <CellComponent>
+            {activation.params.map((param: { key: string; value: string }) => {
+              const originalParam = parentActivation?.params.find((p) => p.key === param.key);
+              const originalValue = originalParam?.value;
+
+              return (
+                <StyledParameter className="sw-my-4" key={param.key}>
+                  <span className="key">{param.key}</span>
+
+                  <span className="sep sw-mr-1">: </span>
+
+                  <span className="value" title={param.value}>
+                    {param.value}
+                  </span>
+
+                  {parentActivation && param.value !== originalValue && (
+                    <div className="sw-flex sw-ml-4">
+                      {translate('coding_rules.original')}
+
+                      <span className="value sw-ml-1" title={originalValue}>
+                        {originalValue}
+                      </span>
+                    </div>
+                  )}
+                </StyledParameter>
+              );
+            })}
+          </CellComponent>
+        )}
+
+        {renderRowActions(activation, profile)}
+      </TableRowInteractive>
     );
   };
 
-  render() {
-    const { activations = [], referencedProfiles, ruleDetails } = this.props;
-    const canActivate = Object.values(referencedProfiles).some((profile) =>
-      Boolean(profile.actions && profile.actions.edit && profile.language === ruleDetails.lang)
-    );
-
-    return (
-      <div className="js-rule-profiles coding-rule-section">
-        <div className="coding-rules-detail-quality-profiles-section">
-          <h2 className="coding-rules-detail-title">
-            <InstanceMessage message={translate('coding_rules.quality_profiles')} />
-          </h2>
-
-          {canActivate && (
-            <ActivationButton
-              buttonText={translate('coding_rules.activate')}
-              className="coding-rules-quality-profile-activate"
-              modalHeader={translate('coding_rules.activate_in_quality_profile')}
-              onDone={this.handleActivate}
-              profiles={filter(
-                this.props.referencedProfiles,
-                (profile) => !activations.find((activation) => activation.qProfile === profile.key)
-              )}
-              rule={ruleDetails}
-            />
-          )}
-
-          {activations.length > 0 && (
-            <table
-              className="coding-rules-detail-quality-profiles width-100"
-              id="coding-rules-detail-quality-profiles"
-            >
-              <tbody>{activations.map(this.renderActivation)}</tbody>
-            </table>
-          )}
+  return (
+    <div className="js-rule-profiles sw-mb-8">
+      <div className="sw-flex sw-justify-between sw-items-end">
+        <div>
+          <SubTitle id={PROFILES_HEADING_ID}>
+            <FormattedMessage id="coding_rules.quality_profiles" />
+          </SubTitle>
+          <Note>
+            <FormattedMessage id="coding_rules.quality_profiles.description" />
+          </Note>
         </div>
+
+        {canActivate && (
+          <ActivationButton
+            buttonText={translate('coding_rules.activate')}
+            modalHeader={translate('coding_rules.activate_in_quality_profile')}
+            onDone={props.onActivate}
+            profiles={filter(
+              referencedProfiles,
+              (profile) => !activations.find((activation) => activation.qProfile === profile.key),
+            )}
+            rule={ruleDetails}
+          />
+        )}
       </div>
-    );
-  }
+
+      {activations.length > 0 && (
+        <Table
+          aria-labelledby={PROFILES_HEADING_ID}
+          className="sw-my-6"
+          columnCount={MANDATORY_COLUMNS_COUNT + +showParamsColumn}
+          header={
+            <TableRow>
+              <ContentCell>{translate('profile_name')}</ContentCell>
+              {showParamsColumn && <ContentCell>{translate('parameters')}</ContentCell>}
+              <ActionCell>{translate('actions')}</ActionCell>
+            </TableRow>
+          }
+          id="coding-rules-detail-quality-profiles"
+        >
+          {activations.map(renderActivationRow)}
+        </Table>
+      )}
+    </div>
+  );
 }
+
+const StyledParameter = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .value {
+    display: inline-block;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;

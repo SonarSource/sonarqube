@@ -12,33 +12,24 @@
   </appender>
 
   <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.apache.commons.beanutils.converters">
-    <level value="WARN"/>
-  </logger>
+  <logger name="org.apache.commons.beanutils.converters" level="WARN"/>
 
   <!-- sonar.showSql -->
   <!-- see also org.sonar.db.MyBatis#configureLogback() -->
-  <logger name="org.mybatis">
-    <level value="WARN"/>
-  </logger>
-  <logger name="org.apache.ibatis">
-    <level value="WARN"/>
-  </logger>
-  <logger name="java.sql">
-    <level value="WARN"/>
-  </logger>
-  <logger name="java.sql.ResultSet">
-    <level value="WARN"/>
-  </logger>
-  <logger name="PERSISTIT">
-    <level value="WARN"/>
-  </logger>
-  <logger name="ch.qos.logback">
-    <level value="WARN"/>
-  </logger>
+  <logger name="org.mybatis" level="WARN"/>
 
-  <root>
-    <level value="INFO"/>
+  <logger name="org.apache.ibatis" level="WARN"/>
+
+  <logger name="java.sql" level="WARN"/>
+
+  <logger name="java.sql.ResultSet" level="WARN"/>
+
+  <logger name="PERSISTIT" level="WARN"/>
+
+  <logger name="ch.qos.logback" level="WARN"/>
+
+
+  <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>
 

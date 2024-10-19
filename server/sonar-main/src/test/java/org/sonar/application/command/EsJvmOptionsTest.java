@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.process.Props;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -74,8 +74,8 @@ public class EsJvmOptionsTest {
         "-Dlog4j2.disable.jmx=true",
         "-Dlog4j2.formatMsgNoLookups=true",
         "-Djava.locale.providers=COMPAT",
-        "-Dcom.redhat.fips=false",
-        "-Des.enforce.bootstrap.checks=true");
+        "-Des.enforce.bootstrap.checks=true",
+        "-Xlog:disable");
   }
 
   @Test
@@ -193,6 +193,7 @@ public class EsJvmOptionsTest {
         "-XX:+UseG1GC\n" +
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
         "-XX:ErrorFile=" + Paths.get("path_to_logs/es_hs_err_pid%p.log").toAbsolutePath() + "\n" +
+        "-Xlog:disable\n" +
         "-Des.networkaddress.cache.ttl=60\n" +
         "-Des.networkaddress.cache.negative.ttl=10\n" +
         "-XX:+AlwaysPreTouch\n" +
@@ -210,7 +211,6 @@ public class EsJvmOptionsTest {
         "-Dlog4j2.disable.jmx=true\n" +
         "-Dlog4j2.formatMsgNoLookups=true\n" +
         "-Djava.locale.providers=COMPAT\n" +
-        "-Dcom.redhat.fips=false\n" +
         "-Des.enforce.bootstrap.checks=true\n" +
         "-foo\n" +
         "-bar");

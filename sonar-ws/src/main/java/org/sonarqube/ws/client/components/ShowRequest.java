@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,6 @@ public class ShowRequest {
 
   private String branch;
   private String component;
-  private String componentId;
   private String pullRequest;
 
   /**
@@ -58,20 +57,6 @@ public class ShowRequest {
 
   public String getComponent() {
     return component;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public ShowRequest setComponentId(String componentId) {
-    this.componentId = componentId;
-    return this;
-  }
-
-  public String getComponentId() {
-    return componentId;
   }
 
   /**

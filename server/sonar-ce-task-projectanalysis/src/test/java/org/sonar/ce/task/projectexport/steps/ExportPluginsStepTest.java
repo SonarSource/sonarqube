@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,10 +23,11 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -46,6 +47,11 @@ public class ExportPluginsStepTest {
   private FakeDumpWriter dumpWriter = new FakeDumpWriter();
   ExportPluginsStep underTest = new ExportPluginsStep(pluginRepository, dumpWriter);
 
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
+
   @Test
   public void export_plugins() {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(
@@ -56,7 +62,7 @@ public class ExportPluginsStepTest {
     List<ProjectDump.Plugin> exportedPlugins = dumpWriter.getWrittenMessagesOf(DumpElement.PLUGINS);
     assertThat(exportedPlugins).hasSize(2);
     assertThat(exportedPlugins).extracting(ProjectDump.Plugin::getKey).containsExactlyInAnyOrder("java", "cs");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 plugins exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("2 plugins exported");
   }
 
   @Test
@@ -66,7 +72,7 @@ public class ExportPluginsStepTest {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.PLUGINS)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 plugins exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 plugins exported");
   }
 
   @Test

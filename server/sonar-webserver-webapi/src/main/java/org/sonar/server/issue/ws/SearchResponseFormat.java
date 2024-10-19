@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,9 +28,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
+import java.util.stream.Collectors;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -41,11 +44,13 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.issue.workflow.Transition;
@@ -74,7 +79,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
@@ -116,6 +120,17 @@ public class SearchResponseFormat {
     if (fields.contains(SearchAdditionalField.LANGUAGES)) {
       response.setLanguages(formatLanguages());
     }
+    return response.build();
+  }
+
+  Issues.ListWsResponse formatList(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging) {
+    Issues.ListWsResponse.Builder response = Issues.ListWsResponse.newBuilder();
+
+    response.setPaging(Common.Paging.newBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(data.getIssues().size()));
+    response.addAllIssues(createIssues(fields, data));
+    response.addAllComponents(formatComponents(data));
     return response.build();
   }
 
@@ -163,13 +178,26 @@ public class SearchResponseFormat {
     issueBuilder.setKey(dto.getKey());
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
+    CleanCodeAttribute cleanCodeAttribute = dto.getEffectiveCleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      issueBuilder.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttribute.name()));
+      issueBuilder.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttribute.getAttributeCategory().name()));
+    }
+    issueBuilder.addAllImpacts(dto.getEffectiveImpacts().entrySet()
+      .stream()
+      .map(entry -> Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.valueOf(entry.getKey().name()))
+        .setSeverity(ImpactFormatter.mapImpactSeverity(entry.getValue()))
+        .build())
+      .toList());
+
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
     issueBuilder.setComponent(component.getKey());
     setBranchOrPr(component, issueBuilder, data);
-    ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
-    if (project != null) {
-      issueBuilder.setProject(project.getKey());
+    ComponentDto branch = data.getComponentByUuid(dto.getProjectUuid());
+    if (branch != null) {
+      issueBuilder.setProject(branch.getKey());
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
     if (dto.isExternal()) {
@@ -181,9 +209,11 @@ public class SearchResponseFormat {
     ofNullable(data.getUserByUuid(dto.getAssigneeUuid())).ifPresent(assignee -> issueBuilder.setAssignee(assignee.getLogin()));
     ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
+    ofNullable(dto.getIssueStatus()).map(IssueStatus::name).ifPresent(issueBuilder::setIssueStatus);
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(dto.parseMessageFormattings()));
     issueBuilder.addAllTags(dto.getTags());
+    issueBuilder.addAllCodeVariants(dto.getCodeVariants());
     Long effort = dto.getEffort();
     if (effort != null) {
       String effortValue = durations.encode(Duration.create(effort));
@@ -205,6 +235,10 @@ public class SearchResponseFormat {
       .ifPresentOrElse(issueBuilder::setQuickFixAvailable, () -> issueBuilder.setQuickFixAvailable(false));
 
     issueBuilder.setScope(UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
+    issueBuilder.setPrioritizedRule(dto.isPrioritizedRule());
+
+    Optional.ofNullable(dto.getCveId()).ifPresent(issueBuilder::setCveId);
+
     if (issueMap != null && !issueMap.isEmpty()) {
       Sort.Builder wsSort = Sort.newBuilder();
       Object[] sortValue = issueMap.get(issueBuilder.getKey());
@@ -453,7 +487,7 @@ public class SearchResponseFormat {
       return;
     }
 
-    Map<String, RuleKey> ruleUuidsByRuleKeys = data.getRules().stream().collect(uniqueIndex(RuleDto::getUuid, RuleDto::getKey));
+    Map<String, RuleKey> ruleUuidsByRuleKeys = data.getRules().stream().collect(Collectors.toMap(RuleDto::getUuid, RuleDto::getKey));
     Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
     wsFacet.setProperty(PARAM_RULES);
     facet.forEach((ruleUuid, count) -> wsFacet.addValuesBuilder()
@@ -471,10 +505,10 @@ public class SearchResponseFormat {
     Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
     wsFacet.setProperty(FACET_PROJECTS);
     facet.forEach((uuid, count) -> {
-      ComponentDto component = datas.getComponentByUuid(uuid);
-      requireNonNull(component, format("Component has not been found for uuid '%s'", uuid));
+      ProjectDto project = datas.getProject(uuid);
+      requireNonNull(project, format("Project has not been found for uuid '%s'", uuid));
       wsFacet.addValuesBuilder()
-        .setVal(component.getKey())
+        .setVal(project.getKey())
         .setCount(count)
         .build();
     });

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.logs.Profiler;
 
 import static com.google.common.collect.Iterables.concat;
@@ -109,7 +109,7 @@ public class VisitorsCrawler implements ComponentCrawler {
   }
 
   private void visitNode(Component component, VisitorWrapper visitor) {
-    Profiler profiler = Profiler.create(Loggers.get(visitor.getWrappedVisitor().getClass()))
+    Profiler profiler = Profiler.create(LoggerFactory.getLogger(visitor.getWrappedVisitor().getClass()))
       .startTrace("Visiting component {}", component.getKey());
     visitor.visitAny(component);
     switch (component.getType()) {

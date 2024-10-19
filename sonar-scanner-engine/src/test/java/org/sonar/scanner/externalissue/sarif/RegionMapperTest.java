@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.Metadata;
-import org.sonar.core.sarif.Region;
+import org.sonar.sarif.pojo.Region;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -48,8 +48,8 @@ import static org.mockito.Mockito.when;
 public class RegionMapperTest {
   private static final int LINE_END_OFFSET = 10;
   private static final DefaultInputFile INPUT_FILE = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), "relative/path", null),
-    f -> f.setMetadata(generateMetadata()));
-
+    f -> f.setMetadata(generateMetadata()), f -> {
+  });
 
   private static Metadata generateMetadata() {
     Metadata metadata = mock(Metadata.class);
@@ -97,9 +97,9 @@ public class RegionMapperTest {
 
   @DataProvider
   public static Object[][] index() {
-    return new Object[][]{
-      {1,3, 0,2},
-      {5,8, 4,7}
+    return new Object[][] {
+      {1, 3, 0, 2},
+      {5, 8, 4, 7}
     };
   }
 

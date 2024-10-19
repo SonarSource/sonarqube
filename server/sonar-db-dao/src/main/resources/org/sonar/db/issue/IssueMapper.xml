@@ -32,14 +32,20 @@
     r.plugin_name as ruleRepo,
     r.language as language,
     r.security_standards as securityStandards,
+    i.clean_code_attribute as cleanCodeAttribute,
+    r.clean_code_attribute as ruleCleanCodeAttribute,
     p.kee as componentKey,
     i.component_uuid as componentUuid,
-    p.module_uuid_path as moduleUuidPath,
     p.path as filePath,
     root.kee as projectKey,
     i.project_uuid as projectUuid,
     i.issue_type as type,
     i.quick_fix_available as quickFixAvailable,
+    i.code_variants as codeVariantsString,
+    i.prioritized_rule as prioritizedRule,
+    <include refid="issueImpactsColumns"/>
+    <include refid="ruleDefaultImpactsColumns"/>
+    <include refid="issuesDependencyColumns"/>
     <include refid="isNewCodeReferenceIssue"/>
   </sql>
 
@@ -69,7 +75,10 @@
     i.component_uuid,
     i.project_uuid,
     i.issue_type,
-    i.quick_fix_available
+    i.quick_fix_available,
+    i.code_variants,
+    i.clean_code_attribute,
+    i.prioritized_rule
   </sql>
 
   <sql id="isNewCodeReferenceIssue" databaseId="mssql">
@@ -107,11 +116,41 @@
     </if>
   </sql>
 
+  <sql id="issueImpactsColumns">
+    ii.software_quality as "ii_softwareQuality",
+    ii.severity as "ii_severity",
+  </sql>
+
+  <sql id="ruleDefaultImpactsColumns">
+    rdi.software_quality as "rdi_softwareQuality",
+    rdi.severity as "rdi_severity",
+  </sql>
+
+  <sql id="issuesDependencyColumns">
+    cve.id as cveId,
+  </sql>
+
+  <resultMap id="issueResultMap" type="Issue" autoMapping="true">
+    <id property="kee" column="kee"/>
+
+    <collection property="impacts" column="ii_softwareQuality" notNullColumn="ii_softwareQuality"
+                javaType="java.util.Set" ofType="Impact">
+      <result property="softwareQuality" column="ii_softwareQuality"/>
+      <result property="severity" column="ii_severity"/>
+    </collection>
+    <collection property="ruleDefaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality"
+                javaType="java.util.Set" ofType="Impact">
+      <result property="softwareQuality" column="rdi_softwareQuality"/>
+      <result property="severity" column="rdi_severity"/>
+    </collection>
+  </resultMap>
+
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false">
     INSERT INTO issues (kee, rule_uuid, severity, manual_severity,
     message, message_formattings, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
-    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available)
+    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants,
+    clean_code_attribute, prioritized_rule)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -131,7 +170,10 @@
     #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
     #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
-    #{quickFixAvailable, jdbcType=BOOLEAN})
+    #{quickFixAvailable, jdbcType=BOOLEAN},
+    #{codeVariantsString,jdbcType=VARCHAR},
+    #{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
+    #{prioritizedRule,jdbcType=BOOLEAN})
   </insert>
 
   <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
@@ -142,10 +184,23 @@
     #{createdAt,jdbcType=BIGINT})
   </insert>
 
-  <insert id="deleteAsNewCodeOnReferenceBranch" parameterType="String" useGeneratedKeys="false">
+  <insert id="insertIssueImpact" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO issues_impacts (issue_key, software_quality, severity)
+    VALUES (
+    #{issueKey,jdbcType=VARCHAR},
+    #{dto.softwareQuality,jdbcType=VARCHAR},
+    #{dto.severity,jdbcType=VARCHAR})
+  </insert>
+
+  <delete id="deleteAsNewCodeOnReferenceBranch" parameterType="String">
     DELETE FROM new_code_reference_issues
     where issue_key = #{issueKey, jdbcType=VARCHAR}
-  </insert>
+  </delete>
+
+  <delete id="deleteIssueImpacts" parameterType="String">
+    DELETE FROM issues_impacts
+    where issue_key = #{issueUuid, jdbcType=VARCHAR}
+  </delete>
 
   <!--
     IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
@@ -172,7 +227,10 @@
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
-    issue_type=#{type,jdbcType=INTEGER}
+    issue_type=#{type,jdbcType=INTEGER},
+    code_variants=#{codeVariantsString,jdbcType=VARCHAR},
+    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
     where kee = #{kee}
   </update>
 
@@ -202,23 +260,32 @@
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
-    issue_type=#{type,jdbcType=INTEGER}
+    issue_type=#{type,jdbcType=INTEGER},
+    code_variants=#{codeVariantsString,jdbcType=VARCHAR},
+    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
-  <select id="selectByKey" parameterType="String" resultType="Issue">
+  <select id="selectByKey" parameterType="String" resultMap="issueResultMap">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumns"/>,
+    u.login as assigneeLogin
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
-  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}"
-          resultSetType="FORWARD_ONLY">
+  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
     <include refid="issueColumns"/>
     from issues i
@@ -226,27 +293,18 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
+    order by
+      i.kee
   </select>
 
-  <select id="selectNonClosedByComponentUuidExcludingExternals" parameterType="String" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    where
-    (r.is_external is NULL or r.is_external = ${_false}) and
-    i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
-    i.status &lt;&gt; 'CLOSED' and
-    i.issue_type &lt;&gt; 4
-  </select>
-
-  <select id="scrollClosedByComponentUuid" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollClosedByComponentUuid" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
       <include refid="issueColumns"/>,
       ic.change_data as closedChangeData
@@ -263,6 +321,12 @@
       and ic.change_data like '%status=%|CLOSED%'
     left join new_code_reference_issues n on
       i.kee = n.issue_key
+    left outer join issues_impacts ii on
+      i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on
+      r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'
@@ -272,17 +336,76 @@
       i.kee, ic.issue_change_creation_date desc
   </select>
 
-  <select id="selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
+  <resultMap id="indexedIssueResultMap" type="org.sonar.db.issue.IndexedIssueDto" autoMapping="true">
+    <id property="issueKey" column="issueKey"/>
+
+    <collection property="impacts" column="ii_softwareQuality" notNullColumn="ii_softwareQuality"
+                javaType="java.util.Set" ofType="Impact">
+      <result property="softwareQuality" column="ii_softwareQuality"/>
+      <result property="severity" column="ii_severity"/>
+    </collection>
+    <collection property="ruleDefaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality"
+                javaType="java.util.Set" ofType="Impact">
+      <result property="softwareQuality" column="rdi_softwareQuality"/>
+      <result property="severity" column="rdi_severity"/>
+    </collection>
+  </resultMap>
+
+  <select id="scrollIssuesForIndexation" parameterType="map" resultMap="indexedIssueResultMap" fetchSize="${_scrollFetchSize}"
+           resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
-      distinct(i.component_uuid)
+      i.kee as issueKey,
+      i.assignee,
+      i.line,
+      i.resolution,
+      i.severity,
+      i.status,
+      i.effort,
+      i.author_login as authorLogin,
+      i.issue_close_date as issueCloseDate,
+      i.issue_creation_date as issueCreationDate,
+      i.issue_update_date as issueUpdateDate,
+      r.uuid as ruleUuid,
+      r.language as language,
+      i.clean_code_attribute as cleanCodeAttribute,
+      r.clean_code_attribute as ruleCleanCodeAttribute,
+      c.uuid as componentUuid,
+      c.path,
+      c.scope,
+      c.branch_uuid as branchUuid,
+      pb.is_main as isMain,
+      pb.project_uuid as projectUuid,
+      i.tags,
+      i.issue_type as issueType,
+      r.security_standards as securityStandards,
+      c.qualifier,
+      i.code_variants as codeVariants,
+      i.prioritized_rule as prioritizedRule,
+      <include refid="issueImpactsColumns"/>
+      <include refid="ruleDefaultImpactsColumns"/>
+      <include refid="issuesDependencyColumns"/>
+      <include refid="isNewCodeReferenceIssue"/>
     from issues i
-    inner join components p on
-      p.uuid = i.component_uuid
-      and p.enabled = ${_true}
-    where
-      i.project_uuid=#{projectUuid,jdbcType=VARCHAR}
-      and i.status &lt;&gt; 'CLOSED'
-      and (p.qualifier = 'DIR' OR p.qualifier = 'BRC')
+    inner join rules r on r.uuid = i.rule_uuid
+    inner join components c on c.uuid = i.component_uuid
+    inner join project_branches pb on c.branch_uuid = pb.uuid
+    left join new_code_reference_issues n on n.issue_key = i.kee
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
+    <where>
+      <if test="branchUuid != null">
+            and c.branch_uuid = #{branchUuid,jdbcType=VARCHAR} and i.project_uuid = #{branchUuid,jdbcType=VARCHAR}
+      </if>
+      <if test="issueKeys != null">
+           and i.kee in
+        <foreach collection="issueKeys" open="(" close=")" item="key" separator=",">
+            #{key,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+    </where>
+    order by i.kee
   </select>
 
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
@@ -291,21 +414,27 @@
     where i.project_uuid=#{projectUuid,jdbcType=VARCHAR} and i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="selectByKeys" parameterType="map" resultType="Issue">
+  <select id="selectByKeys" parameterType="map" resultMap="issueResultMap">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumns"/>,
+    u.login as assigneeLogin
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where i.kee in
     <foreach collection="list" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
     </foreach>
   </select>
 
-  <select id="selectByKeysIfNotUpdatedAt" parameterType="map" resultType="Issue">
+  <select id="selectByKeysIfNotUpdatedAt" parameterType="map" resultMap="issueResultMap">
     select
       <include refid="issueColumns"/>
     from issues i
@@ -313,6 +442,10 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where
       i.kee in
         <foreach collection="keys" open="(" close=")" item="key" separator=",">
@@ -343,77 +476,104 @@
       and i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="selectNonClosedByModuleOrProject" parameterType="map" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i
-    inner join rules r on r.uuid = i.rule_uuid
-    inner join components p on p.uuid = i.component_uuid
-    inner join components root on root.uuid = i.project_uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    where
-    (r.is_external is NULL or r.is_external = ${_false}) and
-    i.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
-    p.module_uuid_path like  #{likeModuleUuidPath, jdbcType=VARCHAR} escape '/' and
-    i.status &lt;&gt; 'CLOSED' and
-    i.issue_type &lt;&gt; 4
-  </select>
-
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">
-    select i.issue_type as ruleType, i.severity as severity, i.resolution as resolution, i.status as status, sum(i.effort) as effort, count(i.issue_type) as "count",
-    <if test="leakPeriodBeginningDate &gt;= 0">
-      (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
-    </if>
-    <if test="leakPeriodBeginningDate &lt; 0">
-      CASE WHEN n.uuid is null THEN false ELSE true END as inLeak
-    </if>
+    select
+      i.issue_type as ruleType,
+      i.severity as severity,
+      i.resolution as resolution,
+      i.status as status, sum(i.effort) as effort,
+      count(i.issue_type) as "count",
+      sum(case when i.prioritized_rule = true then 1 else 0 end) as prioritizedRule,
+      <if test="leakPeriodBeginningDate &gt;= 0">
+        (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
+      </if>
+      <if test="leakPeriodBeginningDate &lt; 0">
+        CASE WHEN n.uuid is null THEN false ELSE true END as inLeak
+      </if>
     from issues i
     <if test="leakPeriodBeginningDate &lt; 0">
       left join new_code_reference_issues n on n.issue_key = i.kee
     </if>
-    where i.status !='CLOSED'
+    where i.status &lt;&gt; 'CLOSED'
     and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
     group by i.issue_type, i.severity, i.resolution, i.status, inLeak
   </select>
 
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="oracle">
-    select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
-    from (
-      select i.issue_type, i.severity, i.resolution, i.status, i.effort,
-      <if test="leakPeriodBeginningDate &gt;= 0">
-        case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
-      </if>
-      <if test="leakPeriodBeginningDate &lt; 0">
-        case when n.uuid is null then 0 else 1 end as inLeak
-      </if>
-      from issues i
-      <if test="leakPeriodBeginningDate &lt; 0">
-        left join new_code_reference_issues n on n.issue_key = i.kee
-      </if>
-      where i.status !='CLOSED'
-      and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
-    ) i2
-    group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
+    <include refid="selectIssueGroupsByComponentVendorSpecific"/>
   </select>
 
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="mssql">
-    select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
+    <include refid="selectIssueGroupsByComponentVendorSpecific"/>
+  </select>
+
+  <sql id="selectIssueGroupsByComponentVendorSpecific">
+    select
+      i2.issue_type as ruleType,
+      i2.severity as severity,
+      i2.resolution as resolution,
+      i2.status as status,
+      sum(i2.effort) as effort,
+      count(i2.issue_type) as "count",
+      sum(i2.prioritized_rule) as prioritizedRule,
+      i2.inLeak as inLeak
     from (
-      select i.issue_type, i.severity, i.resolution, i.status, i.effort,
-      <if test="leakPeriodBeginningDate &gt;= 0">
-      case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
-      </if>
-      <if test="leakPeriodBeginningDate &lt; 0">
-        case when n.uuid is null then 0 else 1 end as inLeak
-      </if>
+      select
+        i.issue_type,
+        i.severity,
+        i.resolution,
+        i.status,
+        i.effort,
+        case when prioritized_rule = 1 then 1 else 0 end as prioritized_rule,
+        <if test="leakPeriodBeginningDate &gt;= 0">
+          case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
+        </if>
+        <if test="leakPeriodBeginningDate &lt; 0">
+          case when n.uuid is null then 0 else 1 end as inLeak
+        </if>
       from issues i
       <if test="leakPeriodBeginningDate &lt; 0">
         left join new_code_reference_issues n on n.issue_key = i.kee
       </if>
-      where i.status !='CLOSED'
+      where i.status &lt;&gt; 'CLOSED'
       and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
     ) i2
     group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
+  </sql>
+
+  <select id="selectIssueImpactGroupsByComponent" resultType="org.sonar.db.issue.IssueImpactGroupDto" parameterType="map">
+    select
+      i2.status as status,
+      i2.resolution as resolution,
+      i2.software_quality as softwareQuality,
+      i2.severity as severity,
+      count(i2.kee) as "count",
+      i2.inLeak as inLeak,
+      sum(i2.effort) as effort
+      from (
+        select
+          i.status,
+          i.resolution,
+          i.kee,
+          ii.software_quality,
+          ii.severity,
+          i.effort,
+          <if test="leakPeriodBeginningDate &gt;= 0">
+            case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then ${_true} else ${_false} end as inLeak
+          </if>
+          <if test="leakPeriodBeginningDate &lt; 0">
+            case when n.uuid is null then  ${_false} else ${_true} end as inLeak
+          </if>
+          from issues i
+            inner join issues_impacts ii on i.kee = ii.issue_key
+          <if test="leakPeriodBeginningDate &lt; 0">
+            left join new_code_reference_issues n on n.issue_key = i.kee
+          </if>
+          where i.status &lt;&gt; 'CLOSED'
+          and (i.resolution is null or i.resolution = 'WONTFIX')
+          and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
+      ) i2
+    group by i2.status, i2.resolution, i2.software_quality, i2.severity, i2.inLeak
   </select>
 
   <select id="selectIssueKeysByComponentUuid" parameterType="string" resultType="string">
@@ -451,77 +611,7 @@
           </foreach>
     </if>
     order by i.kee
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectIssueKeysByComponentUuidWithFilters" parameterType="map" resultType="string" databaseId="mssql">
-   	select
-      i.kee
-    from
-    (select
-        row_number() over(order by i.kee ASC) as row_number,
-          i.kee
-        from rules r
-        inner join issues i on i.rule_uuid = r.uuid
-        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-        AND i.status &lt;&gt; 'CLOSED'
-        <if test="includingRepositories.size() > 0">
-            AND r.plugin_name IN
-              <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-        </if>
-        <if test="excludingRepositories.size() > 0">
-          AND r.plugin_name NOT IN
-            <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-              #{ruleRepository}
-            </foreach>
-        </if>
-        <if test="languages.size() > 0">
-            AND r.language IN
-              <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                  #{language}
-              </foreach>
-        </if>
-      order by row_number asc
-      offset #{pagination.offset} rows
-      fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only)  i
-   </select>
-
-  <select id="selectIssueKeysByComponentUuidWithFilters" parameterType="map" resultType="string" databaseId="oracle">
-    select
-      i.kee
-    from (
-	      select rownum as rn, t.* from (
-	        select
-	         i.kee
-	        from rules r
-          inner join issues i on i.rule_uuid = r.uuid
-	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-          AND i.status &lt;&gt; 'CLOSED'
-          <if test="includingRepositories.size() > 0">
-              AND r.plugin_name IN
-                <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                  #{ruleRepository}
-                </foreach>
-          </if>
-          <if test="excludingRepositories.size() > 0">
-            AND r.plugin_name NOT IN
-              <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-          </if>
-          <if test="languages.size() > 0">
-              AND r.language IN
-                <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                    #{language}
-                </foreach>
-          </if>
-          order by i.kee ASC
-	      ) t ) i
-	    where
-	      i.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-	    order by i.rn asc
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string">
@@ -552,146 +642,16 @@
         </foreach>
    </if>
     order by i.kee
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string" databaseId="mssql">
-  	select
-      i.kee
-    from
-    (select
-        row_number() over(order by i.kee ASC) as row_number,
-         i.kee
-        from rules r
-        inner join issues i on i.rule_uuid = r.uuid
-        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-        AND i.issue_update_date &gt;= #{changedSince,jdbcType=BIGINT}
-        AND i.status &lt;&gt; 'CLOSED'
-        <if test="includingRepositories.size() > 0">
-            AND r.plugin_name IN
-              <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-        </if>
-        <if test="excludingRepositories.size() > 0">
-          AND r.plugin_name NOT IN
-            <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-              #{ruleRepository}
-            </foreach>
-        </if>
-        <if test="languages.size() > 0">
-            AND r.language IN
-              <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                  #{language}
-              </foreach>
-        </if>
-        order by row_number asc
-        offset #{pagination.offset} rows
-        fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only)  i
-  </select>
-
-  <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string" databaseId="oracle">
-    select
-      i.kee
-    from
-	  (select rownum as rn, t.* from (
-	        select
-	         i.kee
-	        from rules r
-          inner join issues i on i.rule_uuid = r.uuid
-	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-          AND i.issue_update_date &gt;= #{changedSince,jdbcType=BIGINT}
-          AND i.status &lt;&gt; 'CLOSED'
-          <if test="includingRepositories.size() > 0">
-              AND r.plugin_name IN
-                <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                  #{ruleRepository}
-                </foreach>
-          </if>
-          <if test="excludingRepositories.size() > 0">
-            AND r.plugin_name NOT IN
-              <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-          </if>
-          <if test="languages.size() > 0">
-              AND r.language IN
-                <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                    #{language}
-                </foreach>
-          </if>
-          order by i.kee ASC
-	      ) t
-	    ) i
-	    where
-	      i.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-	    order by i.rn asc
-  </select>
-
-  <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue">
-    select
-    <include refid="issueColumns"/>,
-    u.login as assigneeLogin
-    from issues i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join users u on i.assignee = u.uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-    order by i.issue_creation_date ASC
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="mssql">
-  	select
-    <include refid="issueColumns"/>,
-    u.login as assigneeLogin
-    from
-    (select
-        row_number() over(order by i.issue_creation_date ASC) as row_number,
-          <include refid="issueColumnsInInnerQuery"/>
-        from issues i
-        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-      order by row_number asc
-      offset #{pagination.offset} rows
-      fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only)  i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join users u on i.assignee = u.uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-  </select>
-
-   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="oracle">
-    select
-    <include refid="issueColumns"/>,
-    u.login as assigneeLogin
-    from
-	  (select <include refid="issueColumnsInInnerQuery"/> from (
-	      select rownum as rn, t.* from (
-	        select
-	        <include refid="issueColumnsInInnerQuery"/>
-	        from issues i
-	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-	        	order by i.issue_creation_date ASC
-	      ) t
-	    ) i
-	    where
-	      i.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-	    order by i.rn asc) i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join users u on i.assignee = u.uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <sql id="selectByBranchColumns">
     i.kee as kee,
     i.rule_uuid as ruleUuid,
     i.created_at as createdAt,
+    i.issue_creation_date as issueCreationTime,
     i.status as status,
+    i.resolution as resolution,
     r.rule_type as ruleType,
     r.plugin_name as ruleRepo,
     r.plugin_rule_key as ruleKey,
@@ -703,16 +663,28 @@
     i.locations as locations,
     i.component_uuid as component_uuid,
     i.assignee as assigneeUuid,
-    i.rule_description_context_key as ruleDescriptionContextKey
+    u.login as assigneeLogin,
+    i.rule_description_context_key as ruleDescriptionContextKey,
+    i.prioritized_rule as prioritizedRule,
+    <include refid="issueImpactsColumns"/>
+    <include refid="ruleDefaultImpactsColumns"/>
+    <include refid="issuesDependencyColumns"/>
+    i.clean_code_attribute as cleanCodeAttribute,
+    r.clean_code_attribute as ruleCleanCodeAttribute
   </sql>
 
-  <select id="selectByBranch" parameterType="map" resultType="Issue">
+  <select id="selectByBranch" parameterType="map" resultMap="issueResultMap" resultOrdered="true">
     select
       <include refid="selectByBranchColumns"/>
     , p.path as filePath
     from issues i
         inner join rules r on r.uuid = i.rule_uuid
         inner join components p on p.uuid=i.component_uuid
+        left join users u on i.assignee = u.uuid
+        left outer join issues_impacts ii on i.kee = ii.issue_key
+        left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+        left join issues_dependency dep on i.kee = dep.issue_uuid
+        left join cves cve on dep.cve_uuid = cve.uuid
     where
       <if test="keys.size() > 0">
         i.kee IN
@@ -723,6 +695,7 @@
        <if test="changedSince != null">
         AND i.issue_update_date &gt;= #{changedSince,jdbcType=BIGINT}
        </if>
+    order by i.kee
   </select>
 
   <select id="selectRecentlyClosedIssues" resultType="string">
@@ -753,5 +726,68 @@
         </if>
   </select>
 
+  <select id="selectIssueKeysByQuery" parameterType="map" resultType="string">
+    select
+    i.kee
+    from issues i
+    inner join components p on p.uuid=i.component_uuid
+    inner join components root on root.uuid=i.project_uuid
+    inner join project_branches pb on pb.uuid=i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
+    <if test="query.softwareQualities.size() > 0">
+      left join issues_impacts im on i.kee = im.issue_key
+    </if>
+    <where>
+      <if test="query.project != null">
+        root.kee = #{query.project,jdbcType=VARCHAR}
+      </if>
+      <if test="query.component != null">
+        AND p.kee = #{query.component,jdbcType=VARCHAR}
+      </if>
+      <if test="query.branch != null">
+        AND pb.kee = #{query.branch,jdbcType=VARCHAR}
+      </if>
+      <if test="query.pullRequest != null">
+        AND pb.kee = #{query.pullRequest,jdbcType=VARCHAR}
+      </if>
+      <if test="query.types.size() > 0">
+        AND i.issue_type IN
+        <foreach collection="query.types" open="(" close=")" item="type" separator=",">
+          #{type,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.softwareQualities.size() > 0">
+        AND im.software_quality IN
+        <foreach collection="query.softwareQualities" open="(" close=")" item="type" separator=",">
+          #{type,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.statuses.size() > 0">
+        AND i.status IN
+        <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
+          #{status,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.resolved != null">
+          AND i.resolution is <if test="query.resolved">not</if> null
+      </if>
+      <if test="query.resolutions.size() > 0">
+        AND i.resolution IN
+        <foreach collection="query.resolutions" open="(" close=")" item="resolution" separator=",">
+          #{resolution,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.newCodeOnReference == true">
+        AND n.uuid IS NOT NULL
+      </if>
+      <if test="query.createdAfter != null">
+        AND i.issue_creation_date &gt;= #{query.createdAfter,jdbcType=BIGINT}
+      </if>
+    </where>
+      <if test="_databaseId == 'mssql'">
+        <!--  order by clause is required if using offset rows fetch next on MSSQL Database   -->
+        order by (select null)
+      </if>
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
 </mapper>
-

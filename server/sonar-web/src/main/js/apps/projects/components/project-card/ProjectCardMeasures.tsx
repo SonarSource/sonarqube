@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,98 +17,142 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { differenceInMilliseconds } from 'date-fns';
+import {
+  CoverageIndicator,
+  DuplicationsIndicator,
+  Note,
+  PageContentFontWrapper,
+} from 'design-system';
 import * as React from 'react';
-import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
-import Measure from '../../../../components/measure/Measure';
-import CoverageRating from '../../../../components/ui/CoverageRating';
-import DuplicationsRating from '../../../../components/ui/DuplicationsRating';
-import Rating from '../../../../components/ui/Rating';
-import { parseDate } from '../../../../helpers/dates';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import Measure from '~sonar-aligned/components/measure/Measure';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import RatingComponent from '../../../../app/components/metrics/RatingComponent';
+import { duplicationRatingConverter } from '../../../../components/measure/utils';
+import { translate } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
-import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey } from '../../../../types/metrics';
 import { Dict } from '../../../../types/types';
-import { formatDuration } from '../../utils';
 import ProjectCardMeasure from './ProjectCardMeasure';
 
 export interface ProjectCardMeasuresProps {
+  // eslint-disable-next-line react/no-unused-prop-types
+  componentKey: string;
+  componentQualifier: ComponentQualifier;
   isNewCode: boolean;
   measures: Dict<string | undefined>;
-  componentQualifier: ComponentQualifier;
-  newCodeStartingDate?: string;
+}
+
+function renderNewIssues(props: ProjectCardMeasuresProps) {
+  const { measures, isNewCode, componentKey } = props;
+
+  if (!isNewCode) {
+    return null;
+  }
+
+  return (
+    <ProjectCardMeasure
+      metricKey={MetricKey.new_violations}
+      label={translate(`metric.${MetricKey.new_violations}.description`)}
+    >
+      <Measure
+        componentKey={componentKey}
+        metricKey={MetricKey.new_violations}
+        metricType={MetricType.ShortInteger}
+        value={measures[MetricKey.new_violations]}
+        className="sw-ml-2 sw-typo-lg-semibold"
+      />
+    </ProjectCardMeasure>
+  );
 }
 
 function renderCoverage(props: ProjectCardMeasuresProps) {
-  const { measures, isNewCode } = props;
+  const { measures, isNewCode, componentKey } = props;
   const coverageMetric = isNewCode ? MetricKey.new_coverage : MetricKey.coverage;
 
   return (
     <ProjectCardMeasure metricKey={coverageMetric} label={translate('metric.coverage.name')}>
-      <div className="display-flex-center">
+      <div>
+        {measures[coverageMetric] && <CoverageIndicator value={measures[coverageMetric]} />}
         <Measure
-          className="big"
+          componentKey={componentKey}
           metricKey={coverageMetric}
-          metricType="PERCENT"
+          metricType={MetricType.Percent}
           value={measures[coverageMetric]}
+          className="sw-ml-2 sw-typo-lg-semibold"
         />
-        {measures[coverageMetric] && (
-          <span className="spacer-left project-card-measure-secondary-info">
-            <CoverageRating value={measures[coverageMetric]} />
-          </span>
-        )}
       </div>
     </ProjectCardMeasure>
   );
 }
 
 function renderDuplication(props: ProjectCardMeasuresProps) {
-  const { measures, isNewCode } = props;
+  const { measures, isNewCode, componentKey } = props;
   const duplicationMetric = isNewCode
     ? MetricKey.new_duplicated_lines_density
     : MetricKey.duplicated_lines_density;
+
+  const rating =
+    measures[duplicationMetric] !== undefined
+      ? duplicationRatingConverter(Number(measures[duplicationMetric]))
+      : undefined;
 
   return (
     <ProjectCardMeasure
       metricKey={duplicationMetric}
       label={translate('metric.duplicated_lines_density.short_name')}
     >
-      <div className="display-flex-center">
+      <div>
+        {measures[duplicationMetric] != null && <DuplicationsIndicator rating={rating} />}
         <Measure
-          className="big"
+          componentKey={componentKey}
           metricKey={duplicationMetric}
-          metricType="PERCENT"
+          metricType={MetricType.Percent}
           value={measures[duplicationMetric]}
+          className="sw-ml-2 sw-typo-lg-semibold"
         />
-        {measures[duplicationMetric] != null && (
-          <span className="spacer-left project-card-measure-secondary-info">
-            <DuplicationsRating value={Number(measures[duplicationMetric])} />
-          </span>
-        )}
       </div>
     </ProjectCardMeasure>
   );
 }
 
 function renderRatings(props: ProjectCardMeasuresProps) {
-  const { isNewCode, measures } = props;
+  const { isNewCode, measures, componentKey } = props;
+
+  const measuresByCodeLeak = isNewCode
+    ? []
+    : [
+        {
+          iconLabel: translate(`metric.${MetricKey.security_issues}.short_name`),
+          noShrink: true,
+          metricKey:
+            measures[MetricKey.security_issues] === undefined
+              ? MetricKey.vulnerabilities
+              : MetricKey.security_issues,
+          metricRatingKey: MetricKey.security_rating,
+          metricType: MetricType.ShortInteger,
+        },
+        {
+          iconLabel: translate(`metric.${MetricKey.reliability_issues}.short_name`),
+          metricKey:
+            measures[MetricKey.reliability_issues] === undefined
+              ? MetricKey.bugs
+              : MetricKey.reliability_issues,
+          metricRatingKey: MetricKey.reliability_rating,
+          metricType: MetricType.ShortInteger,
+        },
+        {
+          iconLabel: translate(`metric.${MetricKey.maintainability_issues}.short_name`),
+          metricKey:
+            measures[MetricKey.maintainability_issues] === undefined
+              ? MetricKey.code_smells
+              : MetricKey.maintainability_issues,
+          metricRatingKey: MetricKey.sqale_rating,
+          metricType: MetricType.ShortInteger,
+        },
+      ];
 
   const measureList = [
-    {
-      iconLabel: translate('metric.bugs.name'),
-      noShrink: true,
-      metricKey: isNewCode ? MetricKey.new_bugs : MetricKey.bugs,
-      metricRatingKey: isNewCode ? MetricKey.new_reliability_rating : MetricKey.reliability_rating,
-      metricType: 'SHORT_INT',
-    },
-    {
-      iconLabel: translate('metric.vulnerabilities.name'),
-      metricKey: isNewCode ? MetricKey.new_vulnerabilities : MetricKey.vulnerabilities,
-      metricRatingKey: isNewCode ? MetricKey.new_security_rating : MetricKey.security_rating,
-      metricType: 'SHORT_INT',
-    },
+    ...measuresByCodeLeak,
     {
       iconKey: 'security_hotspots',
       iconLabel: translate('projects.security_hotspots_reviewed'),
@@ -118,89 +162,66 @@ function renderRatings(props: ProjectCardMeasuresProps) {
       metricRatingKey: isNewCode
         ? MetricKey.new_security_review_rating
         : MetricKey.security_review_rating,
-      metricType: 'PERCENT',
-    },
-    {
-      iconLabel: translate('metric.code_smells.name'),
-      metricKey: isNewCode ? MetricKey.new_code_smells : MetricKey.code_smells,
-      metricRatingKey: isNewCode ? MetricKey.new_maintainability_rating : MetricKey.sqale_rating,
-      metricType: 'SHORT_INT',
+      metricType: MetricType.Percent,
     },
   ];
 
   return measureList.map((measure) => {
-    const { iconKey, iconLabel, metricKey, metricRatingKey, metricType, noShrink } = measure;
+    const { iconLabel, metricKey, metricRatingKey, metricType } = measure;
+
+    const measureValue =
+      [
+        MetricKey.security_issues,
+        MetricKey.reliability_issues,
+        MetricKey.maintainability_issues,
+      ].includes(metricKey) && measures[metricKey]
+        ? JSON.parse(measures[metricKey] as string)?.total
+        : measures[metricKey];
 
     return (
-      <ProjectCardMeasure
-        className={classNames({ 'flex-0': noShrink })}
-        key={metricKey}
-        metricKey={metricKey}
-        iconKey={iconKey}
-        label={iconLabel}
-      >
+      <ProjectCardMeasure key={metricKey} metricKey={metricKey} label={iconLabel}>
+        <RatingComponent ratingMetric={metricRatingKey} componentKey={componentKey} />
         <Measure
-          className="spacer-right big project-card-measure-secondary-info"
+          componentKey={componentKey}
           metricKey={metricKey}
           metricType={metricType}
-          value={measures[metricKey]}
+          value={measureValue}
+          className="sw-ml-2 sw-typo-lg-semibold"
         />
-        <span className="big">
-          <Rating value={measures[metricRatingKey]} />
-        </span>
       </ProjectCardMeasure>
     );
   });
 }
 
 export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
-  const { isNewCode, measures, componentQualifier, newCodeStartingDate } = props;
+  const { isNewCode, measures, componentQualifier } = props;
+  // const { data: isLegacy } = useIsLegacyCCTMode();
 
   const { ncloc } = measures;
 
   if (!isNewCode && !ncloc) {
     return (
-      <div className="note big-spacer-top">
+      <Note className="sw-py-4">
         {componentQualifier === ComponentQualifier.Application
           ? translate('portfolio.app.empty')
           : translate('overview.project.main_branch_empty')}
-      </div>
+      </Note>
     );
   }
 
-  const newCodeTimespan = newCodeStartingDate
-    ? differenceInMilliseconds(Date.now(), parseDate(newCodeStartingDate))
-    : 0;
-
   const measureList = [
+    renderNewIssues(props),
     ...renderRatings(props),
     renderCoverage(props),
     renderDuplication(props),
   ].filter(isDefined);
 
   return (
-    <>
-      {isNewCode && newCodeTimespan !== undefined && newCodeStartingDate && (
-        <DateTimeFormatter date={newCodeStartingDate}>
-          {(formattedNewCodeStartingDate) => (
-            <p className="spacer-top spacer-bottom" title={formattedNewCodeStartingDate}>
-              {translateWithParameters(
-                'projects.new_code_period_x',
-                formatDuration(newCodeTimespan)
-              )}
-            </p>
-          )}
-        </DateTimeFormatter>
-      )}
-      <div className="display-flex-row display-flex-space-between">
-        {measureList.map((measure, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <React.Fragment key={i}>
-            {i > 0 && <span className="bordered-left little-spacer" />}
-            {measure}
-          </React.Fragment>
-        ))}
-      </div>
-    </>
+    <PageContentFontWrapper className="sw-flex sw-gap-8">
+      {measureList.map((measure, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <React.Fragment key={i}>{measure}</React.Fragment>
+      ))}
+    </PageContentFontWrapper>
   );
 }

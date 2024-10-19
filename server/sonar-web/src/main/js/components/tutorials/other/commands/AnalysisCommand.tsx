@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Component } from '../../../../types/types';
-import { BuildTools, ManualTutorialConfig } from '../../types';
+import { Arch, AutoConfig, BuildTools, OSs, TutorialConfig } from '../../types';
 import ClangGCCCustom from './ClangGCCCommand';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
@@ -27,21 +27,23 @@ import JavaMaven from './JavaMaven';
 import Other from './Other';
 
 export interface AnalysisCommandProps {
-  component: Component;
+  arch: Arch;
   baseUrl: string;
+  component: Component;
+  config: TutorialConfig;
   isLocal: boolean;
-  languageConfig: ManualTutorialConfig;
+  os: OSs;
   token?: string;
 }
 
-export default function AnalysisCommand(props: AnalysisCommandProps) {
-  const { component, baseUrl, isLocal, languageConfig, token } = props;
+export default function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
+  const { config, os, arch, component, baseUrl, isLocal, token } = props;
 
-  if (!token) {
+  if (typeof token === 'undefined') {
     return null;
   }
 
-  switch (languageConfig.buildTool) {
+  switch (config.buildTool) {
     case BuildTools.Maven:
       return <JavaMaven baseUrl={baseUrl} component={component} token={token} />;
 
@@ -51,27 +53,43 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
     case BuildTools.DotNet:
       return <DotNet baseUrl={baseUrl} component={component} token={token} />;
 
-    case BuildTools.CFamily:
-      return languageConfig.os !== undefined ? (
-        <ClangGCCCustom
-          os={languageConfig.os}
-          baseUrl={baseUrl}
-          component={component}
-          isLocal={isLocal}
-          token={token}
-        />
-      ) : null;
-
+    case BuildTools.Dart:
     case BuildTools.Other:
-      return languageConfig.os !== undefined ? (
+      return (
         <Other
+          arch={arch}
           baseUrl={baseUrl}
-          os={languageConfig.os}
+          os={os}
           component={component}
           isLocal={isLocal}
           token={token}
         />
-      ) : null;
+      );
+
+    case BuildTools.Cpp:
+    case BuildTools.ObjectiveC:
+      if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+        return (
+          <Other
+            arch={arch}
+            os={os}
+            baseUrl={baseUrl}
+            component={component}
+            isLocal={isLocal}
+            token={token}
+          />
+        );
+      }
+      return (
+        <ClangGCCCustom
+          os={os}
+          arch={arch}
+          baseUrl={baseUrl}
+          component={component}
+          isLocal={isLocal}
+          token={token}
+        />
+      );
 
     default:
       return null;

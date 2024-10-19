@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
@@ -61,7 +64,7 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
   }
 
   @Override
-  public TaintVulnerabilityLite generateIssueMessage(IssueDto issueDto) {
+  public TaintVulnerabilityLite generateIssueMessage(IssueDto issueDto, RuleDto ruleDto) {
     TaintVulnerabilityLite.Builder taintBuilder = TaintVulnerabilityLite.newBuilder();
     Locations locations = issueDto.parseLocations();
 
@@ -87,13 +90,29 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
       issueDto.getAssigneeUuid().equals(userSession.getUuid()));
 
     taintBuilder.setKey(issueDto.getKey());
-    taintBuilder.setCreationDate(issueDto.getCreatedAt());
+    if (issueDto.getIssueCreationTime() != null) {
+      taintBuilder.setCreationDate(issueDto.getIssueCreationTime());
+    }
     taintBuilder.setResolved(issueDto.getStatus().equals(org.sonar.api.issue.Issue.STATUS_RESOLVED));
     taintBuilder.setRuleKey(issueDto.getRuleKey().toString());
     if (issueDto.getSeverity() != null) {
       taintBuilder.setSeverity(Common.Severity.valueOf(issueDto.getSeverity()));
     }
     taintBuilder.setType(Common.RuleType.forNumber(issueDto.getType()));
+    CleanCodeAttribute cleanCodeAttribute = issueDto.getEffectiveCleanCodeAttribute();
+    String cleanCodeAttributeString = cleanCodeAttribute != null ? cleanCodeAttribute.name() : null;
+    String cleanCodeAttributeCategoryString = cleanCodeAttribute != null ? cleanCodeAttribute.getAttributeCategory().name() : null;
+    if (cleanCodeAttributeString != null) {
+      taintBuilder.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttributeString));
+      taintBuilder.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttributeCategoryString));
+    }
+    taintBuilder.addAllImpacts(issueDto.getEffectiveImpacts().entrySet()
+      .stream().map(entry -> Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.valueOf(entry.getKey().name()))
+        .setSeverity(ImpactFormatter.mapImpactSeverity(entry.getValue()))
+        .build())
+      .toList());
+
     taintBuilder.setClosed(false);
     taintBuilder.setMainLocation(locationBuilder.build());
     issueDto.getOptionalRuleDescriptionContextKey().ifPresent(taintBuilder::setRuleDescriptionContextKey);

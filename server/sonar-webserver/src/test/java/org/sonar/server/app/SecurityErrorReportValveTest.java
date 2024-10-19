@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ public class SecurityErrorReportValveTest {
     underTest.invoke(request, response);
 
     verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
-    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-XSS-Protection", "0");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
     verify(response).setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains;");
   }

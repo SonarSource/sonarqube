@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
+import { Checkbox, Modal, Note } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button, ButtonLink } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { save } from '../../../helpers/storage';
 import { HotspotStatusOption } from '../../../types/security-hotspots';
+import { SHOW_STATUS_DIALOG_STORAGE_KEY } from '../constants';
 
 export interface StatusUpdateSuccessModalProps {
   hotspotsReviewedMeasure?: string;
@@ -35,6 +37,8 @@ export interface StatusUpdateSuccessModalProps {
 export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModalProps) {
   const { hotspotsReviewedMeasure, lastStatusChangedTo } = props;
 
+  const [isChecked, setIsChecked] = React.useState(false);
+
   if (!lastStatusChangedTo) {
     return null;
   }
@@ -45,13 +49,21 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
     ? translate('hotspots.congratulations')
     : translate('hotspots.update.success');
 
-  return (
-    <Modal contentLabel={modalTitle}>
-      <div className="modal-head big text-center text-bold">
-        <p>{translateWithParameters('hotspots.successful_status_change_to_x', statusLabel)}</p>
-      </div>
+  const handleCheckboxChange = (value: boolean) => {
+    setIsChecked(value);
+    save(SHOW_STATUS_DIALOG_STORAGE_KEY, (!value).toString());
+  };
 
-      <div className="modal-body text-center">
+  return (
+    <Modal onClose={props.onClose}>
+      <p className="sw-hidden" id="modal_header_title">
+        {modalTitle}
+      </p>
+      <h2 className="sw-heading-lg sw-text-center">
+        {translateWithParameters('hotspots.successful_status_change_to_x', statusLabel)}
+      </h2>
+
+      <div className="sw-text-center sw-mt-8 sw-typo-default">
         <FormattedMessage
           id="hotspots.successfully_changed_to_x"
           defaultMessage={translate('hotspots.find_in_status_filter_x')}
@@ -60,7 +72,7 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
           }}
         />
         {closingHotspots && (
-          <p className="spacer-top">
+          <p className="sw-mt-2">
             <FormattedMessage
               id="hotspots.x_done_keep_going"
               defaultMessage={translate('hotspots.x_done_keep_going')}
@@ -77,15 +89,23 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
           </p>
         )}
       </div>
+      <Checkbox checked={isChecked} onCheck={handleCheckboxChange} className="sw-mt-8">
+        <Note className="sw-ml-2">{translate('hotspots.success_dialog.do_not_show')}</Note>
+      </Checkbox>
 
-      <div className="modal-foot modal-foot-clear display-flex-center display-flex-space-between">
-        <ButtonLink onClick={props.onSwitchFilterToStatusOfUpdatedHotspot}>
+      <ButtonGroup className="sw-mt-4">
+        <Button
+          onClick={() => {
+            props.onSwitchFilterToStatusOfUpdatedHotspot();
+            props.onClose();
+          }}
+        >
           {translateWithParameters('hotspots.see_x_hotspots', statusLabel)}
-        </ButtonLink>
-        <Button className="button padded" onClick={props.onClose}>
+        </Button>
+        <Button onClick={props.onClose} variety={ButtonVariety.Primary}>
           {translate('hotspots.continue_to_next_hotspot')}
         </Button>
-      </div>
+      </ButtonGroup>
     </Modal>
   );
 }

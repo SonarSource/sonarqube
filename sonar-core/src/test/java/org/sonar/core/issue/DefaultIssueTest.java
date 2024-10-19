@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,96 +19,28 @@
  */
 package org.sonar.core.issue;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
+import org.sonar.api.issue.IssueStatus;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultIssueTest {
+class DefaultIssueTest {
 
-  private static final String TEST_CONTEXT_KEY = "test_context_key";
-  private DefaultIssue issue = new DefaultIssue();
-
-  @Test
-  public void test_setters_and_getters() throws Exception {
-    issue.setKey("ABCD")
-      .setComponentKey("org.sample.Sample")
-      .setProjectKey("Sample")
-      .setRuleKey(RuleKey.of("java", "S100"))
-      .setLanguage("xoo")
-      .setSeverity("MINOR")
-      .setManualSeverity(true)
-      .setMessage("a message")
-      .setLine(7)
-      .setGap(1.2d)
-      .setEffort(Duration.create(28800L))
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setAssigneeUuid("julien")
-      .setAuthorLogin("steph")
-      .setChecksum("c7b5db46591806455cf082bb348631e8")
-      .setLocations("loc")
-      .setLocationsChanged(true)
-      .setNew(true)
-      .setIsOnChangedLine(true)
-      .setIsNewCodeReferenceIssue(true)
-      .setIsNoLongerNewCodeReferenceIssue(true)
-      .setBeingClosed(true)
-      .setOnDisabledRule(true)
-      .setCopied(true)
-      .setChanged(true)
-      .setSendNotifications(true)
-      .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
-      .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"))
-      .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"))
-      .setSelectedAt(1400000000000L)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
-
-    assertThat((Object) issue.getLocations()).isEqualTo("loc");
-    assertThat(issue.locationsChanged()).isTrue();
-    assertThat(issue.key()).isEqualTo("ABCD");
-    assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
-    assertThat(issue.projectKey()).isEqualTo("Sample");
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("java", "S100"));
-    assertThat(issue.language()).isEqualTo("xoo");
-    assertThat(issue.severity()).isEqualTo("MINOR");
-    assertThat(issue.manualSeverity()).isTrue();
-    assertThat(issue.message()).isEqualTo("a message");
-    assertThat(issue.line()).isEqualTo(7);
-    assertThat(issue.gap()).isEqualTo(1.2d);
-    assertThat(issue.effort()).isEqualTo(Duration.create(28800L));
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.assignee()).isEqualTo("julien");
-    assertThat(issue.authorLogin()).isEqualTo("steph");
-    assertThat(issue.checksum()).isEqualTo("c7b5db46591806455cf082bb348631e8");
-    assertThat(issue.isNew()).isTrue();
-    assertThat(issue.isOnChangedLine()).isTrue();
-    assertThat(issue.isNewCodeReferenceIssue()).isTrue();
-    assertThat(issue.isNoLongerNewCodeReferenceIssue()).isTrue();
-    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
-    assertThat(issue.isCopied()).isTrue();
-    assertThat(issue.isBeingClosed()).isTrue();
-    assertThat(issue.isOnDisabledRule()).isTrue();
-    assertThat(issue.isChanged()).isTrue();
-    assertThat(issue.mustSendNotifications()).isTrue();
-    assertThat(issue.creationDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
-    assertThat(issue.updateDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"));
-    assertThat(issue.closeDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"));
-    assertThat(issue.selectedAt()).isEqualTo(1400000000000L);
-    assertThat(issue.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
-  }
+  private final DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void set_empty_dates() {
+  void set_empty_dates() {
     issue
       .setCreationDate(null)
       .setUpdateDate(null)
@@ -122,7 +54,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void fail_on_empty_status() {
+  void fail_on_empty_status() {
     try {
       issue.setStatus("");
       fail();
@@ -132,7 +64,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void fail_on_bad_severity() {
+  void fail_on_bad_severity() {
     try {
       issue.setSeverity("FOO");
       fail();
@@ -142,19 +74,19 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void message_should_be_abbreviated_if_too_long() {
+  void message_should_be_abbreviated_if_too_long() {
     issue.setMessage(StringUtils.repeat("a", 5_000));
     assertThat(issue.message()).hasSize(1_333);
   }
 
   @Test
-  public void message_could_be_null() {
+  void message_could_be_null() {
     issue.setMessage(null);
     assertThat(issue.message()).isNull();
   }
 
   @Test
-  public void test_nullable_fields() {
+  void test_nullable_fields() {
     issue.setGap(null).setSeverity(null).setLine(null);
     assertThat(issue.gap()).isNull();
     assertThat(issue.severity()).isNull();
@@ -162,7 +94,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void test_equals_and_hashCode() {
+  void test_equals_and_hashCode() {
     DefaultIssue a1 = new DefaultIssue().setKey("AAA");
     DefaultIssue a2 = new DefaultIssue().setKey("AAA");
     DefaultIssue b = new DefaultIssue().setKey("BBB");
@@ -174,14 +106,14 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void comments_should_not_be_modifiable() {
+  void comments_should_not_be_modifiable() {
     DefaultIssue issue = new DefaultIssue().setKey("AAA");
 
     List<DefaultIssueComment> comments = issue.defaultIssueComments();
     assertThat(comments).isEmpty();
-
+    DefaultIssueComment defaultIssueComment = new DefaultIssueComment();
     try {
-      comments.add(new DefaultIssueComment());
+      comments.add(defaultIssueComment);
       fail();
     } catch (UnsupportedOperationException e) {
       // ok
@@ -191,7 +123,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void all_changes_contain_current_change() {
+  void all_changes_contain_current_change() {
     IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
     when(issueChangeContext.getExternalUser()).thenReturn("toto");
     when(issueChangeContext.getWebhookSource()).thenReturn("github");
@@ -207,7 +139,26 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void adding_null_change_has_no_effect() {
+  void setFieldChange_whenAddingChange_shouldUpdateCurrentChange() {
+    IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
+    DefaultIssue issue = new DefaultIssue().setKey("AAA");
+
+    issue.setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
+    assertThat(issue.changes()).hasSize(1);
+    FieldDiffs currentChange = issue.currentChange();
+    assertThat(currentChange).isNotNull();
+    assertThat(currentChange.get("actionPlan")).isNotNull();
+    assertThat(currentChange.get("authorLogin")).isNull();
+
+    issue.setFieldChange(issueChangeContext, "authorLogin", null, "testuser");
+    assertThat(issue.changes()).hasSize(1);
+    assertThat(currentChange.get("actionPlan")).isNotNull();
+    assertThat(currentChange.get("authorLogin")).isNotNull();
+    assertThat(currentChange.get("authorLogin").newValue()).isEqualTo("testuser");
+  }
+
+  @Test
+  void adding_null_change_has_no_effect() {
     DefaultIssue issue = new DefaultIssue();
 
     issue.addChange(null);
@@ -216,7 +167,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void test_isToBeMigratedAsNewCodeReferenceIssue_is_correctly_calculated() {
+  void test_isToBeMigratedAsNewCodeReferenceIssue_is_correctly_calculated() {
     issue.setKey("ABCD")
       .setIsOnChangedLine(true)
       .setIsNewCodeReferenceIssue(false)
@@ -268,7 +219,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void isQuickFixAvailable_givenQuickFixAvailable_returnTrue() {
+  void isQuickFixAvailable_givenQuickFixAvailable_returnTrue() {
     DefaultIssue defaultIssue = new DefaultIssue();
 
     defaultIssue.setQuickFixAvailable(true);
@@ -278,5 +229,104 @@ public class DefaultIssueTest {
     defaultIssue.setQuickFixAvailable(false);
 
     assertThat(defaultIssue.isQuickFixAvailable()).isFalse();
+  }
+
+  @Test
+  void setLine_whenLineIsNegative_shouldThrowException() {
+    int anyNegativeValue = Integer.MIN_VALUE;
+    assertThatThrownBy(() -> issue.setLine(anyNegativeValue))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Line must be null or greater than zero (got %s)", anyNegativeValue));
+  }
+
+  @Test
+  void setLine_whenLineIsZero_shouldThrowException() {
+    assertThatThrownBy(() -> issue.setLine(0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Line must be null or greater than zero (got 0)");
+  }
+
+  @Test
+  void setGap_whenGapIsNegative_shouldThrowException() {
+    Double anyNegativeValue = -1.0;
+    assertThatThrownBy(() -> issue.setGap(anyNegativeValue))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Gap must be greater than or equal 0 (got %s)", anyNegativeValue));
+  }
+
+  @Test
+  void setGap_whenGapIsZero_shouldWork() {
+    issue.setGap(0.0);
+    assertThat(issue.gap()).isEqualTo(0.0);
+  }
+
+  @Test
+  void effortInMinutes_shouldConvertEffortToMinutes() {
+    issue.setEffort(Duration.create(60));
+    assertThat(issue.effortInMinutes()).isEqualTo(60L);
+  }
+
+  @Test
+  void effortInMinutes_whenNull_shouldReturnNull() {
+    issue.setEffort(null);
+    assertThat(issue.effortInMinutes()).isNull();
+  }
+
+  @Test
+  void tags_whenNull_shouldReturnEmptySet() {
+    assertThat(issue.tags()).isEmpty();
+  }
+
+  @Test
+  void codeVariants_whenNull_shouldReturnEmptySet() {
+    assertThat(issue.codeVariants()).isEmpty();
+  }
+
+  @Test
+  void issueByDefault_shouldNotHaveAppliedAnticipatedTransitions() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    assertThat(defaultIssue.getAnticipatedTransitionUuid()).isNotPresent();
+  }
+
+  @Test
+  void anticipatedTransitions_WhenSetTrue_shouldReturnTrue() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setAnticipatedTransitionUuid("uuid");
+    assertThat(defaultIssue.getAnticipatedTransitionUuid()).isPresent();
+
+  }
+
+  @Test
+  void getImpacts_whenAddingNewImpacts_shouldReturnListOfImpacts() {
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    issue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+
+    assertThat(issue.impacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH,
+      SoftwareQuality.RELIABILITY, Severity.LOW));
+  }
+
+  @Test
+  void getIssueStatus_shouldReturnExpectedStatus() {
+    issue.setStatus(Issue.STATUS_RESOLVED);
+    issue.setResolution(Issue.RESOLUTION_FIXED);
+
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FIXED);
+  }
+
+  @Test
+  void replaceImpacts_shouldReplaceExistingImpacts() {
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    issue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+
+    issue.replaceImpacts(Map.of(SoftwareQuality.SECURITY, Severity.LOW));
+
+    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.SECURITY, Severity.LOW));
+  }
+
+  @Test
+  void prioritizedRule_shouldHaveCorrectDefaultValue() {
+    assertThat(issue.isPrioritizedRule()).isFalse();
+    issue.setPrioritizedRule(true);
+    assertThat(issue.isPrioritizedRule()).isTrue();
   }
 }

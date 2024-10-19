@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -97,7 +97,7 @@ public class GithubAppSecurityImpl implements GithubAppSecurity {
         }
       });
     } catch (Exception e) {
-      throw new IllegalArgumentException("Invalid Github Application private key", e);
+      throw new IllegalArgumentException("The Github App private key is not valid", e);
     } finally {
       Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
     }

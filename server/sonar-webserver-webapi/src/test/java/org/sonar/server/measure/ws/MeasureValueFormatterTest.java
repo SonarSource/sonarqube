@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.measure.ws;
 
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,11 +71,11 @@ public class MeasureValueFormatterTest {
     return newMetricDto().setValueType(valueType.name());
   }
 
-  private static MeasureDto newNumericMeasure(Double value) {
-    return new MeasureDto().setValue(value);
+  private static ProjectMeasureDto newNumericMeasure(Double value) {
+    return new ProjectMeasureDto().setValue(value);
   }
 
-  private static MeasureDto newTextMeasure(String data) {
-    return new MeasureDto().setData(data);
+  private static ProjectMeasureDto newTextMeasure(String data) {
+    return new ProjectMeasureDto().setData(data);
   }
 }

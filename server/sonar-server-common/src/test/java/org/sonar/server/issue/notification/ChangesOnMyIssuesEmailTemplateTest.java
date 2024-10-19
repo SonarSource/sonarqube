@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -52,8 +52,8 @@ import org.sonar.test.html.HtmlParagraphAssert;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -137,7 +137,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, changedIssues));
 
     Project project = changedIssues.iterator().next().getProject();
-    assertThat(emailMessage.getSubject()).isEqualTo("Analysis has changed some of your issues in " + project.getProjectName() + ", " + project.getBranchName().get());
+    assertThat(emailMessage.getSubject()).isEqualTo("Analysis has changed some of your issues in " + project.getProjectName() + " (" + project.getBranchName().get() + ")");
   }
 
   @Test
@@ -426,9 +426,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
     assertThat(emailMessage.getMessage())
       .doesNotContain(project.getProjectName())
-      .contains(escapeHtml(project.getProjectName()))
+      .contains(escapeHtml4(project.getProjectName()))
       .doesNotContain(ruleName)
-      .contains(escapeHtml(ruleName));
+      .contains(escapeHtml4(ruleName));
 
     String expectedHref = host + "/project/issues?id=" + project.getKey()
       + "&issues=" + changedIssues.stream().map(ChangedIssue::getKey).collect(joining("%2C"));

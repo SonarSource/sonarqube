@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableSet;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import org.junit.Test;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.ServiceLoaderWrapper;
@@ -229,7 +228,7 @@ public class ProcessPropertiesTest {
 
   @Test
   public void parseTimeoutMs_returns_long_from_value() {
-    long expected = 1 + new Random().nextInt(5_999_663);
+    long expected = 5_999_664;
 
     long res = parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, expected + "");
 
@@ -245,7 +244,7 @@ public class ProcessPropertiesTest {
 
   @Test
   public void parseTimeoutMs_throws_ISE_if_value_is_less_than_0() {
-    int timeoutValue = -(1 + new Random().nextInt(5_999_663));
+    int timeoutValue = -5_999_664;
     assertThatThrownBy(() -> parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, timeoutValue + ""))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("value of WEB_GRACEFUL_STOP_TIMEOUT must be >= 1");

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
@@ -35,9 +37,15 @@ import static java.util.Objects.requireNonNull;
  * A {@link org.junit.Rule} that implements the {@link CeTaskProcessorRepository} interface and
  * requires consumer to explicitly define if a specific Task type has an associated {@link CeTaskProcessor} or not.
  */
-public class CeTaskProcessorRepositoryRule extends ExternalResource implements CeTaskProcessorRepository {
+public class CeTaskProcessorRepositoryRule extends ExternalResource
+  implements CeTaskProcessorRepository, AfterEachCallback {
 
   private final Map<String, CeTaskProcessor> index = new HashMap<>();
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
+  }
 
   @Override
   protected void after() {

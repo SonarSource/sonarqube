@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,11 @@ package org.sonar.server.qualitygate.ws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -43,7 +44,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
 import static org.sonar.db.user.SearchPermissionQuery.ANY;
@@ -77,7 +77,6 @@ public class SearchGroupsAction implements QualityGatesWsAction {
         "  <li>Edit right on the specified quality gate</li>" +
         "</ul>")
       .setHandler(this)
-      .setInternal(true)
       .addSelectionModeParam()
       .addSearchQuery("sonar", "group names")
       .addPagingParams(25)
@@ -110,14 +109,14 @@ public class SearchGroupsAction implements QualityGatesWsAction {
       List<SearchGroupMembershipDto> groupMemberships = dbClient.qualityGateGroupPermissionsDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
       Map<String, GroupDto> groupsByUuid = dbClient.groupDao().selectByUuids(dbSession,
-          groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).collect(MoreCollectors.toList()))
+          groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).toList())
         .stream()
-        .collect(MoreCollectors.uniqueIndex(GroupDto::getUuid));
+        .collect(Collectors.toMap(GroupDto::getUuid, Function.identity()));
       writeProtobuf(
         Qualitygates.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()
             .map(groupsMembership -> toGroup(groupsByUuid.get(groupsMembership.getGroupUuid()), groupsMembership.isSelected()))
-            .collect(toList()))
+            .toList())
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

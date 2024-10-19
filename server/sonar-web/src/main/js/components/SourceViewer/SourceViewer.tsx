@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FlagMessage } from 'design-system';
 import { intersection } from 'lodash';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   getComponentData,
   getComponentForSourceViewer,
   getDuplications,
   getSources,
 } from '../../api/components';
-import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branch-like';
+import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
+import { isSameBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { BranchLike } from '../../types/branch-like';
@@ -40,8 +45,10 @@ import {
   SourceLine,
   SourceViewerFile,
 } from '../../types/types';
-import { Alert } from '../ui/Alert';
 import { WorkspaceContext } from '../workspace/context';
+import SourceViewerCode from './SourceViewerCode';
+import { SourceViewerContext } from './SourceViewerContext';
+import SourceViewerHeader from './SourceViewerHeader';
 import DuplicationPopup from './components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
@@ -57,9 +64,6 @@ import {
 } from './helpers/indexing';
 import { LINES_TO_LOAD } from './helpers/lines';
 import loadIssues from './helpers/loadIssues';
-import SourceViewerCode from './SourceViewerCode';
-import { SourceViewerContext } from './SourceViewerContext';
-import SourceViewerHeader from './SourceViewerHeader';
 import './styles.css';
 
 export interface Props {
@@ -68,22 +72,22 @@ export interface Props {
   component: string;
   componentMeasures?: Measure[];
   displayAllIssues?: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
+  hideHeader?: boolean;
+  hidePinOption?: boolean;
   highlightedLine?: number;
-  // `undefined` elements mean they are located in a different file,
-  // but kept to maintaint the location indexes
-  highlightedLocations?: (FlowLocation | undefined)[];
   highlightedLocationMessage?: { index: number; text: string | undefined };
-  onLoaded?: (component: SourceViewerFile, sources: SourceLine[], issues: Issue[]) => void;
-  onLocationSelect?: (index: number) => void;
-  onIssueChange?: (issue: Issue) => void;
+  // `undefined` elements mean they are located in a different file,
+  // but kept to maintain the location indexes
+  highlightedLocations?: (FlowLocation | undefined)[];
+  metricKey?: string;
+  needIssueSync?: boolean;
   onIssueSelect?: (issueKey: string) => void;
   onIssueUnselect?: () => void;
+  onLoaded?: (component: SourceViewerFile, sources: SourceLine[], issues: Issue[]) => void;
+  onLocationSelect?: (index: number) => void;
   selectedIssue?: string;
   showMeasures?: boolean;
-  metricKey?: string;
 }
 
 interface State {
@@ -109,7 +113,7 @@ interface State {
   symbolsByLine: { [line: number]: string[] };
 }
 
-export default class SourceViewer extends React.PureComponent<Props, State> {
+export class SourceViewerClass extends React.PureComponent<Props, State> {
   mounted = false;
 
   static defaultProps = {
@@ -152,6 +156,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     ) {
       this.setState({ selectedIssue: this.props.selectedIssue });
     }
+
     if (
       prevProps.component !== this.props.component ||
       !isSameBranchLike(prevProps.branchLike, this.props.branchLike)
@@ -163,8 +168,10 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       this.isLineOutsideOfRange(this.props.aroundLine)
     ) {
       const sources = await this.fetchSources().catch(() => []);
+
       if (this.mounted) {
         const finalSources = sources.slice(0, LINES_TO_LOAD);
+
         this.setState(
           {
             sources: sources.slice(0, LINES_TO_LOAD),
@@ -174,7 +181,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
             if (this.props.onLoaded && this.state.component && this.state.issues) {
               this.props.onLoaded(this.state.component, finalSources, this.state.issues);
             }
-          }
+          },
         );
       }
     }
@@ -198,7 +205,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     key: string,
     from: number | undefined,
     to: number | undefined,
-    branchLike: BranchLike | undefined
+    branchLike: BranchLike | undefined,
   ) {
     return getSources({ key, from, to, ...getBranchLikeQuery(branchLike) });
   }
@@ -209,6 +216,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
   isLineOutsideOfRange(lineNumber: number) {
     const { sources } = this.state;
+
     if (sources && sources.length > 0) {
       const firstLine = sources[0];
       const lastList = sources[sources.length - 1];
@@ -222,10 +230,11 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
 
     const loadIssuesCallback = (component: SourceViewerFile, sources: SourceLine[]) => {
-      loadIssues(this.props.component, this.props.branchLike).then(
+      loadIssues(this.props.component, this.props.branchLike, this.props.needIssueSync).then(
         (issues) => {
           if (this.mounted) {
             const finalSources = sources.slice(0, LINES_TO_LOAD);
+
             this.setState(
               {
                 component,
@@ -235,13 +244,13 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
                 hasSourcesAfter: sources.length > LINES_TO_LOAD,
                 highlightedSymbols: [],
                 issueLocationsByLine: locationsByLine(issues),
+                issuePopup: undefined,
                 issues,
                 issuesByLine: issuesByLine(issues),
                 loading: false,
                 notAccessible: false,
                 notExist: false,
                 openIssuesByLine: {},
-                issuePopup: undefined,
                 sourceRemoved: false,
                 sources: this.computeCoverageStatus(finalSources),
                 symbolsByLine: symbolsByLine(sources.slice(0, LINES_TO_LOAD)),
@@ -250,13 +259,13 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
                 if (this.props.onLoaded) {
                   this.props.onLoaded(component, finalSources, issues);
                 }
-              }
+              },
             );
           }
         },
         () => {
           /* no op */
-        }
+        },
       );
     };
 
@@ -282,16 +291,19 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
     const onResolve = (component: SourceViewerFile) => {
       const sourcesRequest =
-        component.q === 'FIL' || component.q === 'UTS' ? this.fetchSources() : Promise.resolve([]);
+        component.q === ComponentQualifier.File || component.q === ComponentQualifier.TestFile
+          ? this.fetchSources()
+          : Promise.resolve([]);
+
       sourcesRequest.then(
         (sources) => loadIssuesCallback(component, sources),
-        (response) => onFailLoadSources(response, component)
+        (response) => onFailLoadSources(response, component),
       );
     };
 
     this.loadComponent(this.props.component, this.props.branchLike).then(
       onResolve,
-      onFailLoadComponent
+      onFailLoadComponent,
     );
   }
 
@@ -314,10 +326,12 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       let to = this.props.aroundLine
         ? this.props.aroundLine + LINES_TO_LOAD / 2 + 1
         : LINES_TO_LOAD + 1;
+
       // make sure we try to download `LINES` lines
       if (from === 1 && to < LINES_TO_LOAD) {
         to = LINES_TO_LOAD;
       }
+
       // request one additional line to define `hasSourcesAfter`
       to++;
 
@@ -331,14 +345,18 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     if (!this.state.sources) {
       return;
     }
+
     const firstSourceLine = this.state.sources[0];
+
     this.setState({ loadingSourcesBefore: true });
+
     const from = Math.max(1, firstSourceLine.line - LINES_TO_LOAD);
+
     this.loadSources(
       this.props.component,
       from,
       firstSourceLine.line - 1,
-      this.props.branchLike
+      this.props.branchLike,
     ).then(
       (sources) => {
         if (this.mounted) {
@@ -353,7 +371,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       },
       () => {
         /* no op */
-      }
+      },
     );
   };
 
@@ -361,17 +379,23 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     if (!this.state.sources) {
       return;
     }
+
     const lastSourceLine = this.state.sources[this.state.sources.length - 1];
+
     this.setState({ loadingSourcesAfter: true });
+
     const fromLine = lastSourceLine.line + 1;
     const toLine = lastSourceLine.line + LINES_TO_LOAD + 1;
+
     this.loadSources(this.props.component, fromLine, toLine, this.props.branchLike).then(
       (sources) => {
         if (this.mounted) {
           const hasSourcesAfter = LINES_TO_LOAD < sources.length;
+
           if (hasSourcesAfter) {
             sources.pop();
           }
+
           this.setState((prevState) => {
             return {
               hasSourcesAfter,
@@ -387,7 +411,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       },
       () => {
         /* no op */
-      }
+      },
     );
   };
 
@@ -407,7 +431,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       },
       () => {
         /* no op */
-      }
+      },
     );
   };
 
@@ -415,11 +439,13 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     this.setState((state: State) => {
       const samePopup =
         state.issuePopup && state.issuePopup.name === popupName && state.issuePopup.issue === issue;
+
       if (open !== false && !samePopup) {
         return { issuePopup: { issue, name: popupName } };
       } else if (open !== true && samePopup) {
         return { issuePopup: undefined };
       }
+
       return null;
     });
   };
@@ -428,6 +454,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     this.setState((state) => {
       const shouldDisable = intersection(state.highlightedSymbols, symbols).length > 0;
       const highlightedSymbols = shouldDisable ? [] : symbols;
+
       return { highlightedSymbols };
     });
   };
@@ -463,13 +490,11 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
   handleIssueChange = (issue: Issue) => {
     this.setState(({ issues = [] }) => {
       const newIssues = issues.map((candidate) =>
-        candidate.key === issue.key ? issue : candidate
+        candidate.key === issue.key ? issue : candidate,
       );
+
       return { issues: newIssues, issuesByLine: issuesByLine(newIssues) };
     });
-    if (this.props.onIssueChange) {
-      this.props.onIssueChange(issue);
-    }
   };
 
   renderDuplicationPopup = (index: number, line: number) => {
@@ -488,6 +513,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
             blocks={filterDuplicationBlocksByLine(blocks, line)}
             branchLike={this.props.branchLike}
             duplicatedFiles={duplicatedFiles}
+            duplicationHeader={translate('component_viewer.transition.duplication')}
             inRemovedComponent={isDuplicationBlockInRemovedComponent(blocks)}
             openComponent={openComponent}
             sourceViewerFile={component}
@@ -499,12 +525,11 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
   renderCode(sources: SourceLine[]) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
+
     return (
       <SourceViewerCode
         branchLike={this.props.branchLike}
         displayAllIssues={this.props.displayAllIssues}
-        displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-        displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.state.duplications}
         duplicationsByLine={this.state.duplicationsByLine}
@@ -519,21 +544,21 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
         issues={this.state.issues}
         issuesByLine={this.state.issuesByLine}
         loadDuplications={this.loadDuplications}
-        loadSourcesAfter={this.loadSourcesAfter}
-        loadSourcesBefore={this.loadSourcesBefore}
         loadingSourcesAfter={this.state.loadingSourcesAfter}
         loadingSourcesBefore={this.state.loadingSourcesBefore}
+        loadSourcesAfter={this.loadSourcesAfter}
+        loadSourcesBefore={this.loadSourcesBefore}
+        metricKey={this.props.metricKey}
         onIssueChange={this.handleIssueChange}
         onIssuePopupToggle={this.handleIssuePopupToggle}
-        onIssueSelect={this.handleIssueSelect}
-        onIssueUnselect={this.handleIssueUnselect}
         onIssuesClose={this.handleCloseIssues}
+        onIssueSelect={this.handleIssueSelect}
         onIssuesOpen={this.handleOpenIssues}
+        onIssueUnselect={this.handleIssueUnselect}
         onLocationSelect={this.props.onLocationSelect}
         onSymbolClick={this.handleSymbolClick}
         openIssuesByLine={this.state.openIssuesByLine}
         renderDuplicationPopup={this.renderDuplicationPopup}
-        metricKey={this.props.metricKey}
         selectedIssue={this.state.selectedIssue}
         sources={sources}
         symbolsByLine={this.state.symbolsByLine}
@@ -548,6 +573,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
           <SourceViewerHeader
             branchLike={this.props.branchLike}
             componentMeasures={this.props.componentMeasures}
+            hidePinOption={this.props.hidePinOption}
             openComponent={openComponent}
             showMeasures={this.props.showMeasures}
             sourceViewerFile={sourceViewerFile}
@@ -559,6 +585,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
   render() {
     const { component, loading, sources, notAccessible, sourceRemoved } = this.state;
+    const { hideHeader } = this.props;
 
     if (loading) {
       return null;
@@ -566,17 +593,17 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
     if (this.state.notExist) {
       return (
-        <Alert className="spacer-top" variant="warning">
+        <FlagMessage className="sw-mt-2" variant="warning">
           {translate('component_viewer.no_component')}
-        </Alert>
+        </FlagMessage>
       );
     }
 
     if (notAccessible) {
       return (
-        <Alert className="spacer-top" variant="warning">
+        <FlagMessage className="sw-mt-2" variant="warning">
           {translate('code_viewer.no_source_code_displayed_due_to_security')}
-        </Alert>
+        </FlagMessage>
       );
     }
 
@@ -587,15 +614,26 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     return (
       <SourceViewerContext.Provider value={{ branchLike: this.props.branchLike, file: component }}>
         <div className="source-viewer">
-          {this.renderHeader(component)}
+          {!hideHeader && this.renderHeader(component)}
+
           {sourceRemoved && (
-            <Alert className="spacer-top" variant="warning">
+            <FlagMessage className="sw-mt-4 sw-ml-4" variant="warning">
               {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
-            </Alert>
+            </FlagMessage>
           )}
+
           {!sourceRemoved && sources !== undefined && this.renderCode(sources)}
         </div>
       </SourceViewerContext.Provider>
     );
   }
+}
+
+export default function SourceViewer(props: Props) {
+  return (
+    // we can't use withComponentContext as it would override the "component" prop
+    <ComponentContext.Consumer>
+      {({ component }) => <SourceViewerClass needIssueSync={component?.needIssueSync} {...props} />}
+    </ComponentContext.Consumer>
+  );
 }

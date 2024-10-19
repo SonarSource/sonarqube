@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,12 @@ public class IssueGroupDto {
   private String status;
   private double effort;
   private long count;
+  private long prioritizedRule;
   private boolean inLeak;
+
+  public IssueGroupDto() {
+    // nothing to do
+  }
 
   public int getRuleType() {
     return ruleType;
@@ -59,6 +64,10 @@ public class IssueGroupDto {
 
   public boolean isInLeak() {
     return inLeak;
+  }
+
+  public long getPrioritizedRule() {
+    return prioritizedRule;
   }
 
   public IssueGroupDto setRuleType(int ruleType) {
@@ -93,6 +102,11 @@ public class IssueGroupDto {
 
   public IssueGroupDto setInLeak(boolean inLeak) {
     this.inLeak = inLeak;
+    return this;
+  }
+
+  public IssueGroupDto setPrioritizedRule(long prioritizedRule) {
+    this.prioritizedRule = prioritizedRule;
     return this;
   }
 }

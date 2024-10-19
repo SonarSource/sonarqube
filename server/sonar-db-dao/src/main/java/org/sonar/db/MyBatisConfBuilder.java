@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ class MyBatisConfBuilder {
   MyBatisConfBuilder(Database database) {
     this.conf = new Configuration();
     this.conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
-    this.conf.setUseGeneratedKeys(true);
+    this.conf.setUseGeneratedKeys(false);
     this.conf.setLazyLoadingEnabled(false);
     this.conf.setJdbcTypeForNull(JdbcType.NULL);
     Dialect dialect = database.getDialect();

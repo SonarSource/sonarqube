@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 /* eslint-disable no-console */
 function getCustomProperties() {
   const customProperties = {};
-  const parseCustomProperties = theme => {
-    Object.keys(theme).forEach(key => {
+  const parseCustomProperties = (theme) => {
+    Object.keys(theme).forEach((key) => {
       if (typeof theme[key] === 'object') {
         parseCustomProperties(theme[key]);
       } else if (typeof theme[key] === 'string') {
@@ -45,45 +45,52 @@ function getCustomProperties() {
 
 // See https://github.com/evanw/esbuild/issues/337
 function importAsGlobals(mapping) {
-  const escRe = s => s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+  const escRe = (s) => s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
   const filter = new RegExp(
     Object.keys(mapping)
-      .map(moduleName => `^${escRe(moduleName)}$`)
+      .map((moduleName) => `^${escRe(moduleName)}$`)
       .join('|')
   );
 
   return {
     name: 'import-as-globals',
     setup(build) {
-      build.onResolve({ filter }, args => {
+      build.onResolve({ filter }, (args) => {
         if (!mapping[args.path]) {
           throw new Error('Unknown global: ' + args.path);
         }
         return {
           path: args.path,
-          namespace: 'external-global'
+          namespace: 'external-global',
         };
       });
 
       build.onLoad(
         {
           filter,
-          namespace: 'external-global'
+          namespace: 'external-global',
         },
-        args => {
+        (args) => {
           const globalName = mapping[args.path];
           return {
             contents: `module.exports = ${globalName};`,
-            loader: 'js'
+            loader: 'js',
           };
         }
       );
-    }
+    },
   };
 }
 
 module.exports = {
   getCustomProperties,
   importAsGlobals,
-  TARGET_BROWSERS: ['chrome58', 'firefox57', 'safari11', 'edge18']
+  // NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS understand.
+  // It will _not_, however, polyfill missing API methods, such as String.prototype.replaceAll
+  // This is why we also import core-js.
+  //
+  // This browser version list is based on our requirements to support ES6
+  // and javascript module via script tag (See https://caniuse.com/?search=modules%20es6)
+  ESBUILD_TARGET_BROWSERS: ['chrome61', 'firefox60', 'safari11', 'edge18'],
+  AUTOPREFIXER_BROWSER_LIST: ['chrome>=61', 'firefox>=60', 'safari>=11', 'edge>=18'],
 };

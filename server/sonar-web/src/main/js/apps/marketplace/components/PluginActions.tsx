@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { ButtonSecondary, CheckIcon, Checkbox, Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
-import Checkbox from '../../../components/controls/Checkbox';
 import Tooltip from '../../../components/controls/Tooltip';
-import CheckIcon from '../../../components/icons/CheckIcon';
 import { translate } from '../../../helpers/l10n';
-import { isAvailablePlugin, isInstalledPlugin, Plugin } from '../../../types/plugins';
+import { Plugin, isAvailablePlugin, isInstalledPlugin } from '../../../types/plugins';
 import PluginUpdateButton from './PluginUpdateButton';
 
 interface Props {
@@ -63,7 +61,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -76,12 +74,10 @@ export default class PluginActions extends React.PureComponent<Props, State> {
     const { plugin } = this.props;
 
     return (
-      <div className="js-actions">
+      <div className="it__js-actions">
         {isAvailablePlugin(plugin) && (
           <div>
-            <p className="little-spacer-bottom">
-              {translate('marketplace.available_under_commercial_license')}
-            </p>
+            <p className="sw-mb-1">{translate('marketplace.available_under_commercial_license')}</p>
             {plugin.homepageUrl && (
               <Link to={plugin.homepageUrl} target="_blank">
                 {translate('marketplace.learn_more')}
@@ -91,12 +87,12 @@ export default class PluginActions extends React.PureComponent<Props, State> {
         )}
         {isInstalledPlugin(plugin) && (
           <p>
-            <CheckIcon className="little-spacer-right" />
+            <CheckIcon className="sw-mr-1" />
             {translate('marketplace.installed')}
           </p>
         )}
         {isInstalledPlugin(plugin) && plugin.updates && plugin.updates.length > 0 && (
-          <div className="spacer-top">
+          <div className="sw-mt-2">
             {plugin.updates.map((update, idx) => (
               <PluginUpdateButton
                 disabled={this.state.loading}
@@ -120,46 +116,38 @@ export default class PluginActions extends React.PureComponent<Props, State> {
 
     const { loading } = this.state;
     return (
-      <div className="js-actions">
+      <div className="it__js-actions">
         {isAvailablePlugin(plugin) && plugin.termsAndConditionsUrl && (
-          <p className="little-spacer-bottom">
+          <div className="sw-flex sw-items-center sw-flex-wrap sw-mb-2">
             <Checkbox
               checked={this.state.acceptTerms}
-              className="js-terms"
               id={'plugin-terms-' + plugin.key}
               onCheck={this.handleTermsCheck}
             >
-              <label className="little-spacer-left" htmlFor={'plugin-terms-' + plugin.key}>
-                {translate('marketplace.i_accept_the')}
-              </label>
+              <span className="sw-ml-2">{translate('marketplace.i_accept_the')}</span>
             </Checkbox>
-            <a
-              className="js-plugin-terms nowrap little-spacer-left"
-              href={plugin.termsAndConditionsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link className="sw-whitespace-nowrap sw-ml-1" to={plugin.termsAndConditionsUrl}>
               {translate('marketplace.terms_and_conditions')}
-            </a>
-          </p>
+            </Link>
+          </div>
         )}
-        {loading && <i className="spinner spacer-right little-spacer-top little-spacer-bottom" />}
+        <Spinner className="sw-my-2" loading={loading} />
         {isInstalledPlugin(plugin) && (
           <>
-            {plugin.updates &&
-              plugin.updates.map((update, idx) => (
+            {plugin.updates?.map((update, idx) => (
+              <div className="sw-inline-block sw-mr-2 sw-mb-2" key={idx}>
                 <PluginUpdateButton
                   disabled={loading}
-                  key={idx}
                   onClick={this.handleUpdate}
                   update={update}
                 />
-              ))}
-            <Tooltip overlay={translate('marketplace.requires_restart')}>
+              </div>
+            ))}
+            <Tooltip content={translate('marketplace.requires_restart')}>
               <Button
-                className="js-uninstall button-red little-spacer-left"
-                disabled={loading}
+                isDisabled={loading}
                 onClick={this.handleUninstall}
+                variety={ButtonVariety.DangerOutline}
               >
                 {translate('marketplace.uninstall')}
               </Button>
@@ -167,16 +155,15 @@ export default class PluginActions extends React.PureComponent<Props, State> {
           </>
         )}
         {isAvailablePlugin(plugin) && (
-          <Tooltip overlay={translate('marketplace.requires_restart')}>
-            <Button
-              className="js-install"
+          <Tooltip content={translate('marketplace.requires_restart')}>
+            <ButtonSecondary
               disabled={
                 loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)
               }
               onClick={this.handleInstall}
             >
               {translate('marketplace.install')}
-            </Button>
+            </ButtonSecondary>
           </Tooltip>
         )}
       </div>

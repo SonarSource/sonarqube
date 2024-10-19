@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,40 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
+import classNames from 'classnames';
+import { FlagMessage, IssueMessageHighlighting, LineFinding, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getSources } from '../../../api/components';
-import IssueMessageBox from '../../../components/issue/IssueMessageBox';
+import { TabKeys } from '../../../components/rules/IssueTabViewer';
+import { TabSelectorContext } from '../../../components/rules/TabSelectorContext';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
-import { Alert } from '../../../components/ui/Alert';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import {
+  useGetFixSuggestionsIssuesQuery,
+  usePrefetchSuggestion,
+  useUnifiedSuggestionsQuery,
+} from '../../../queries/fix-suggestions';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isFile } from '../../../types/component';
-import { IssueStatus } from '../../../types/issues';
+import { isFile } from '../../../types/component';
+import { IssueDeprecatedStatus } from '../../../types/issues';
 import {
   Dict,
   Duplication,
   ExpandDirection,
   FlowLocation,
-  Issue as TypeIssue,
+  Issue,
   IssuesByLine,
   Snippet,
   SnippetGroup,
   SourceLine,
   SourceViewerFile,
+  Issue as TypeIssue,
 } from '../../../types/types';
 import { IssueSourceViewerScrollContext } from '../components/IssueSourceViewerScrollContext';
-import IssueSourceViewerHeader from './IssueSourceViewerHeader';
+import { IssueSourceViewerHeader } from './IssueSourceViewerHeader';
 import SnippetViewer from './SnippetViewer';
 import {
+  EXPAND_BY_LINES,
+  MERGE_DISTANCE,
   createSnippets,
   expandSnippet,
-  EXPAND_BY_LINES,
   getPrimaryLocation,
   linesForSnippets,
-  MERGE_DISTANCE,
 } from './utils';
 
 interface Props {
@@ -61,7 +71,6 @@ interface Props {
   isLastOccurenceOfPrimaryComponent: boolean;
   issue: TypeIssue;
   issuesByLine: IssuesByLine;
-  lastSnippetGroup: boolean;
   loadDuplications: (component: string, line: SourceLine) => void;
   locations: FlowLocation[];
   onIssueSelect: (issueKey: string) => void;
@@ -69,7 +78,7 @@ interface Props {
   renderDuplicationPopup: (
     component: SourceViewerFile,
     index: number,
-    line: number
+    line: number,
   ) => React.ReactNode;
   snippetGroup: SnippetGroup;
 }
@@ -81,10 +90,13 @@ interface State {
   snippets: Snippet[];
 }
 
-export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props, State> {
+export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<
+  Readonly<Props>,
+  State
+> {
   mounted = false;
 
-  constructor(props: Props) {
+  constructor(props: Readonly<Props>) {
     super(props);
     this.state = {
       additionalLines: {},
@@ -152,7 +164,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
           line.coverageStatus = getCoverageStatus(line);
           lineMap[line.line] = line;
           return lineMap;
-        }, {})
+        }, {}),
       )
       .then((newLinesMapped) => {
         const newSnippets = expandSnippet({
@@ -194,14 +206,14 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
   handleSymbolClick = (clickedSymbols: string[]) => {
     this.setState(({ highlightedSymbols }) => {
       const newHighlightedSymbols = clickedSymbols.filter(
-        (symb) => !highlightedSymbols.includes(symb)
+        (symb) => !highlightedSymbols.includes(symb),
       );
       return { highlightedSymbols: newHighlightedSymbols };
     });
@@ -228,7 +240,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     const issuesForLine = (issuesByLine[line.line] || []).filter(
       (issueForline) =>
         issue.key !== issueForline.key ||
-        (issue.key === issueForline.key && issueLocations.length > 0)
+        (issue.key === issueForline.key && issueLocations.length > 0),
     );
 
     return (
@@ -239,11 +251,22 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             return (
               <IssueSourceViewerScrollContext.Consumer key={issueToDisplay.key}>
                 {(ctx) => (
-                  <IssueMessageBox
+                  <LineFinding
+                    as={isSelectedIssue ? 'div' : undefined}
+                    className="sw-justify-between"
+                    issueKey={issueToDisplay.key}
+                    message={
+                      <IssueMessageHighlighting
+                        message={issueToDisplay.message}
+                        messageFormattings={issueToDisplay.messageFormattings}
+                      />
+                    }
                     selected={isSelectedIssue}
-                    issue={issueToDisplay}
-                    onClick={this.props.onIssueSelect}
                     ref={isSelectedIssue ? ctx?.registerPrimaryLocationRef : undefined}
+                    onIssueSelect={this.props.onIssueSelect}
+                    getFixButton={
+                      isSelectedIssue ? <GetFixButton issue={issueToDisplay} /> : undefined
+                    }
                   />
                 )}
               </IssueSourceViewerScrollContext.Consumer>
@@ -255,8 +278,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   render() {
-    const { branchLike, isLastOccurenceOfPrimaryComponent, issue, lastSnippetGroup, snippetGroup } =
-      this.props;
+    const { isLastOccurenceOfPrimaryComponent, issue, snippetGroup } = this.props;
     const { additionalLines, loading, snippets } = this.state;
 
     const snippetLines = linesForSnippets(snippets, {
@@ -264,36 +286,39 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       ...additionalLines,
     });
 
-    const issueIsClosed = issue.status === IssueStatus.Closed;
-    const issueIsFileLevel =
-      issue.componentQualifier === ComponentQualifier.File && issue.componentEnabled;
+    const issueIsClosed = issue.status === IssueDeprecatedStatus.Closed;
+    const issueIsFileLevel = isFile(issue.componentQualifier) && issue.componentEnabled;
     const closedIssueMessageKey = issueIsFileLevel
       ? 'issue.closed.file_level'
       : 'issue.closed.project_level';
 
+    const hideLocationIndex = issue.secondaryLocations.length !== 0;
+
     return (
       <>
         {issueIsClosed && (
-          <Alert variant="success">
-            <FormattedMessage
-              id={closedIssueMessageKey}
-              defaultMessage={translate(closedIssueMessageKey)}
-              values={{
-                status: (
-                  <strong>
-                    {translate('issue.status', issue.status)} (
-                    {issue.resolution ? translate('issue.resolution', issue.resolution) : '-'})
-                  </strong>
-                ),
-              }}
-            />
-          </Alert>
+          <FlagMessage className="sw-mb-2 sw-flex" variant="success">
+            <div className="sw-block">
+              <FormattedMessage
+                id={closedIssueMessageKey}
+                defaultMessage={translate(closedIssueMessageKey)}
+                values={{
+                  status: (
+                    <strong>
+                      {translate('issue.status', issue.status)} (
+                      {issue.resolution ? translate('issue.resolution', issue.resolution) : '-'})
+                    </strong>
+                  ),
+                }}
+              />
+            </div>
+          </FlagMessage>
         )}
 
         <IssueSourceViewerHeader
-          branchLike={branchLike}
-          className={issueIsClosed && !issueIsFileLevel ? 'null-spacer-bottom' : ''}
+          className={issueIsClosed && !issueIsFileLevel ? 'sw-mb-0' : ''}
           expandable={isExpandable(snippets, snippetGroup)}
+          issueKey={issue.key}
           loading={loading}
           onExpand={this.expandComponent}
           sourceViewerFile={snippetGroup.component}
@@ -302,19 +327,29 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         {issue.component === snippetGroup.component.key &&
           issue.textRange === undefined &&
           !issueIsClosed && (
-            <IssueSourceViewerScrollContext.Consumer>
-              {(ctx) => (
-                <IssueMessageBox
-                  selected={true}
-                  issue={issue}
-                  onClick={this.props.onIssueSelect}
-                  ref={ctx?.registerPrimaryLocationRef}
-                />
-              )}
-            </IssueSourceViewerScrollContext.Consumer>
+            <FileLevelIssueStyle className="sw-py-2">
+              <IssueSourceViewerScrollContext.Consumer>
+                {(ctx) => (
+                  <LineFinding
+                    issueKey={issue.key}
+                    message={
+                      <IssueMessageHighlighting
+                        message={issue.message}
+                        messageFormattings={issue.messageFormattings}
+                      />
+                    }
+                    selected
+                    ref={ctx?.registerPrimaryLocationRef}
+                    onIssueSelect={this.props.onIssueSelect}
+                    className="sw-m-0 sw-cursor-default sw-justify-between"
+                    getFixButton={<GetFixButton issue={issue} />}
+                  />
+                )}
+              </IssueSourceViewerScrollContext.Consumer>
+            </FileLevelIssueStyle>
           )}
 
-        {snippetLines.map((snippet, index) => (
+        {snippetLines.map(({ snippet, sourcesMap }, index) => (
           <SnippetViewer
             key={snippets[index].index}
             renderAdditionalChildInLine={this.renderIssuesList}
@@ -326,18 +361,19 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             highlightedLocationMessage={this.props.highlightedLocationMessage}
             highlightedSymbols={this.state.highlightedSymbols}
             index={snippets[index].index}
-            issue={this.props.issue}
-            lastSnippetOfLastGroup={lastSnippetGroup && index === snippets.length - 1}
             loadDuplications={this.loadDuplications}
             locations={this.props.locations}
             locationsByLine={getLocationsByLine(
               issue,
               snippetGroup,
-              isLastOccurenceOfPrimaryComponent
+              isLastOccurenceOfPrimaryComponent,
             )}
             onLocationSelect={this.props.onLocationSelect}
             renderDuplicationPopup={this.renderDuplicationPopup}
             snippet={snippet}
+            className={classNames({ 'sw-mt-2': index !== 0 })}
+            snippetSourcesMap={sourcesMap}
+            hideLocationIndex={hideLocationIndex}
           />
         ))}
       </>
@@ -348,7 +384,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 function getLocationsByLine(
   issue: TypeIssue,
   snippetGroup: SnippetGroup,
-  isLastOccurenceOfPrimaryComponent: boolean
+  isLastOccurenceOfPrimaryComponent: boolean,
 ) {
   const isFlow = issue.secondaryLocations.length === 0;
   const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
@@ -365,7 +401,50 @@ function isExpandable(snippets: Snippet[], snippetGroup: SnippetGroup) {
     snippets.length === 1 &&
     snippetGroup.component.measures &&
     snippets[0].end - snippets[0].start ===
-      parseInt(snippetGroup.component.measures.lines || '', 10);
+      parseInt(snippetGroup.component.measures.lines ?? '', 10);
 
   return !fullyShown && isFile(snippetGroup.component.q);
+}
+
+const FileLevelIssueStyle = styled.div`
+  border: 1px solid ${themeColor('codeLineBorder')};
+`;
+
+function GetFixButton({ issue }: Readonly<{ issue: Issue }>) {
+  const handler = React.useContext(TabSelectorContext);
+  const { data: suggestion, isLoading } = useUnifiedSuggestionsQuery(issue, false);
+  const prefetchSuggestion = usePrefetchSuggestion(issue.key);
+
+  const { data } = useGetFixSuggestionsIssuesQuery(issue);
+
+  if (data?.aiSuggestion !== 'AVAILABLE') {
+    return null;
+  }
+
+  return (
+    <Spinner ariaLabel={translate('issues.code_fix.fix_is_being_generated')} isLoading={isLoading}>
+      {suggestion !== undefined && (
+        <Button
+          className="sw-shrink-0"
+          onClick={() => {
+            handler(TabKeys.CodeFix);
+          }}
+        >
+          {translate('issues.code_fix.see_fix_suggestion')}
+        </Button>
+      )}
+      {suggestion === undefined && (
+        <Button
+          className="sw-ml-2 sw-shrink-0"
+          onClick={() => {
+            handler(TabKeys.CodeFix);
+            prefetchSuggestion();
+          }}
+          variety={ButtonVariety.Primary}
+        >
+          {translate('issues.code_fix.get_fix_suggestion')}
+        </Button>
+      )}
+    </Spinner>
+  );
 }

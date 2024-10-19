@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Status } from '~sonar-aligned/types/common';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+
 interface BaseAnalysis {
   buildString?: string;
   detectedCI?: string;
@@ -35,24 +38,29 @@ export interface ParsedAnalysis extends BaseAnalysis {
 }
 
 export interface AnalysisEvent {
-  category: string;
-  description?: string;
-  key: string;
-  name: string;
-  qualityGate?: {
-    failing: Array<{ branch: string; key: string; name: string }>;
-    status: string;
-    stillFailing: boolean;
-  };
+  category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory;
   definitionChange?: {
     projects: Array<{
       branch?: string;
-      changeType: string;
+      changeType: DefinitionChangeType;
       key: string;
       name: string;
       newBranch?: string;
       oldBranch?: string;
     }>;
+  };
+  description?: string;
+  key: string;
+  name: string;
+  qualityGate?: {
+    failing: Array<{ branch: string; key: string; name: string }>;
+    status: Status;
+    stillFailing: boolean;
+  };
+  qualityProfile?: {
+    key: string;
+    languageKey: string;
+    name: string;
   };
 }
 
@@ -63,14 +71,35 @@ export enum GraphType {
   custom = 'custom',
 }
 
+export enum ProjectAnalysisEventCategory {
+  Version = 'VERSION',
+  QualityGate = 'QUALITY_GATE',
+  QualityProfile = 'QUALITY_PROFILE',
+  SqUpgrade = 'SQ_UPGRADE',
+  Other = 'OTHER',
+}
+
+export enum ApplicationAnalysisEventCategory {
+  QualityGate = 'QUALITY_GATE',
+  DefinitionChange = 'DEFINITION_CHANGE',
+  Other = 'OTHER',
+}
+
+export enum DefinitionChangeType {
+  Added = 'ADDED',
+  Removed = 'REMOVED',
+  BranchChanged = 'BRANCH_CHANGED',
+}
+
 export interface HistoryItem {
   date: Date;
   value?: string;
 }
 
 export interface MeasureHistory {
-  metric: string;
   history: HistoryItem[];
+  metric: MetricKey;
+  splitPointDate?: Date;
 }
 
 export interface Serie {
@@ -84,3 +113,5 @@ export interface Point {
   x: Date;
   y: number | string | undefined;
 }
+
+export type AnalysisMeasuresVariations = Partial<Record<MetricKey, number>>;

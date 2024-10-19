@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.db.scim;
+
+import java.util.Objects;
 
 public class ScimUserDto {
 
@@ -38,4 +40,20 @@ public class ScimUserDto {
     return userUuid;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ScimUserDto that = (ScimUserDto) o;
+    return Objects.equals(scimUserUuid, that.scimUserUuid) && Objects.equals(userUuid, that.userUuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(scimUserUuid, userUuid);
+  }
 }

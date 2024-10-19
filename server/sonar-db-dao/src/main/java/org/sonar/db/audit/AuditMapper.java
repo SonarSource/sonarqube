@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.db.audit;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
@@ -31,5 +32,7 @@ public interface AuditMapper {
 
   List<AuditDto> selectOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
 
-  long purge(long threshold);
+  List<String> selectUuidsOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
+
+  void purgeUuids(@Param("uuids") Collection<String> uuids);
 }

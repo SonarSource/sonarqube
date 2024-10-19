@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ describe('sanitizeStringRestricted', () => {
     as well. This is <b>Amazing</b> and this <strong>bold</strong> <br>
     and <code>code.is.accepted too</code>
     </p>
-  `)
+  `),
     ).toBe(`
     Hi <a target="_blank" href="http://example.com">this</a> is <i>in italics</i> and <ul>
     <li> lists </li>
@@ -125,7 +125,7 @@ describe('sanitizeStringRestricted', () => {
     <span title=malformed attribs' do=don't id=foo checked onclick="a<b">Bar</span>`);
 
     expect(clean.replace(/\s+/g, '')).toBe(
-      `Clickyalert("&lt;b&gt;hi&lt;/b&gt;");&lt;divid=notarealtagonclick=notcode()&gt;&lt;notatag&lt;&lt;&lt;allinonetextblock&gt;&gt;&gt;&lt;%#somephpcodeherewrite("$horriblySyntacticConstruct1");%&gt;*/alert('hi');*/alert('hi');--&gt;*/alert('hi');--&gt;'}--&gt;--&gt;&lt;!--Zoicks--&gt;sectioninHTML]]&gt;<ahref=""></a><ahref="/">Bar</a>`
+      `Clickyalert("&lt;b&gt;hi&lt;/b&gt;");&lt;divid=notarealtagonclick=notcode()&gt;&lt;notatag&lt;&lt;&lt;allinonetextblock&gt;&gt;&gt;&lt;%#somephpcodeherewrite("$horriblySyntacticConstruct1");%&gt;*/alert('hi');*/alert('hi');--&gt;*/alert('hi');--&gt;'}--&gt;--&gt;&lt;!--Zoicks--&gt;sectioninHTML]]&gt;<ahref=""></a><ahref="/">Bar</a>`,
     );
   });
 });

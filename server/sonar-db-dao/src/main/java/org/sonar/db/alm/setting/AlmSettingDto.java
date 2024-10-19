@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -160,6 +160,10 @@ public class AlmSettingDto {
     return privateKey;
   }
 
+  public String getPrivateKey() {
+    return privateKey;
+  }
+
   public AlmSettingDto setPrivateKey(@Nullable String privateKey) {
     this.privateKey = privateKey;
     return this;
@@ -193,6 +197,10 @@ public class AlmSettingDto {
     if (!isNullOrEmpty(clientSecret) && encryption.isEncrypted(clientSecret)) {
       return encryption.decrypt(clientSecret);
     }
+    return clientSecret;
+  }
+
+  public String getClientSecret() {
     return clientSecret;
   }
 

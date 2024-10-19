@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -34,12 +35,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
@@ -69,13 +68,20 @@ public class TaskAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br />" +
-        "Requires 'Administer System' or 'Execute Analysis' permission.<br/>" +
+      .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br/>" +
+        "Requires one of the following permissions: " +
+        "<ul>" +
+        "<li>'Administer' at global or project level</li>" +
+        "<li>'Execute Analysis' at global or project level</li>" +
+        "</ul>" +
         "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
       .setChangelog(
-        new Change("6.6", "fields \"branch\" and \"branchType\" added"))
+        new Change("6.6", "fields \"branch\" and \"branchType\" added"),
+        new Change("10.1", "Warnings field will be now always be filled (it is not necessary to mention it explicitly in 'additionalFields'). "
+          + "'additionalFields' value `warning' is deprecated."),
+        new Change("10.1", "'Project Administrator' is added to the list of allowed permissions to access this endpoint"))
       .setHandler(this);
 
     action
@@ -109,8 +115,7 @@ public class TaskAction implements CeWsAction {
         maskErrorStacktrace(ceActivityDto, additionalFields);
         wsTaskResponse.setTask(
           wsTaskFormatter.formatActivity(dbSession, ceActivityDto,
-            extractScannerContext(dbSession, ceActivityDto, additionalFields),
-            extractWarnings(dbSession, ceActivityDto, additionalFields)));
+            extractScannerContext(dbSession, ceActivityDto, additionalFields)));
       }
       writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
     }
@@ -125,16 +130,20 @@ public class TaskAction implements CeWsAction {
 
   private void checkPermission(Optional<ComponentDto> component) {
     if (component.isPresent()) {
-      String orgUuid = component.get().getOrganizationUuid();
-      if (!userSession.hasPermission(OrganizationPermission.ADMINISTER, orgUuid) &&
-              !userSession.hasPermission(OrganizationPermission.SCAN, orgUuid) &&
-              !userSession.hasComponentPermission(UserRole.SCAN, component.get())) {
-        throw insufficientPrivilegesException();
-      }
-
+      checkComponentPermission(component.get());
     } else {
       userSession.checkIsSystemAdministrator();
     }
+  }
+
+  private void checkComponentPermission(ComponentDto component) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, component.getOrganizationUuid()) ||
+      userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid()) ||
+      userSession.hasComponentPermission(UserRole.ADMIN, component) ||
+      userSession.hasComponentPermission(UserRole.SCAN, component)) {
+      return;
+    }
+    throw insufficientPrivilegesException();
   }
 
   private static void maskErrorStacktrace(CeActivityDto ceActivityDto, Set<AdditionalField> additionalFields) {
@@ -152,19 +161,10 @@ public class TaskAction implements CeWsAction {
     return null;
   }
 
-  private List<String> extractWarnings(DbSession dbSession, CeActivityDto activityDto, Set<AdditionalField> additionalFields) {
-    if (additionalFields.contains(AdditionalField.WARNINGS)) {
-      List<CeTaskMessageDto> dtos = dbClient.ceTaskMessageDao().selectByTask(dbSession, activityDto.getUuid());
-      return dtos.stream()
-        .map(CeTaskMessageDto::getMessage)
-        .collect(MoreCollectors.toList(dtos.size()));
-    }
-    return Collections.emptyList();
-  }
-
   private enum AdditionalField {
     STACKTRACE("stacktrace"),
     SCANNER_CONTEXT("scannerContext"),
+    @Deprecated(forRemoval = true, since = "10.1")
     WARNINGS("warnings");
 
     private final String label;
@@ -192,13 +192,13 @@ public class TaskAction implements CeWsAction {
           return null;
         })
         .filter(Objects::nonNull)
-        .collect(MoreCollectors.toSet());
+        .collect(Collectors.toSet());
     }
 
     public static Collection<String> possibleValues() {
       return Arrays.stream(values())
         .map(AdditionalField::getLabel)
-        .collect(MoreCollectors.toList(values().length));
+        .toList();
     }
   }
 }

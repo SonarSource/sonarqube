@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
@@ -43,6 +44,7 @@ import org.sonarqube.ws.Common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
 import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
 import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
@@ -63,74 +65,82 @@ public class IssueChangeEventServiceImplTest {
   public final IssueChangeEventServiceImpl underTest = new IssueChangeEventServiceImpl(db.getDbClient());
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_severityChange() {
-    ComponentDto componentDto = db.components().insertPublicProject();
-    ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
-    BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldChangeSeverity() {
+    ProjectData projectData = db.components().insertPublicProject();
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
+    IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(project, branch, issue, BLOCKER.name(), null, null, null, 1);
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), null, null, null, 1);
   }
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_typeChange() {
-    ComponentDto componentDto = db.components().insertPublicProject();
-    ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
-    BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldChangeType() {
+    ProjectData projectData = db.components().insertPublicProject();
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
+    IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(project, branch, issue, null, Common.RuleType.BUG.name(), null, null, 1);
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, null, Common.RuleType.BUG.name(), null, null, 1);
   }
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_transitionChanges() {
-    ComponentDto componentDto = db.components().insertPublicProject();
-    ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
-    BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldExecuteTransitionChanges() {
+    ProjectData projectData = db.components().insertPublicProject();
+    ProjectDto project = projectData.getProjectDto();
+    BranchDto mainBranch = projectData.getMainBranchDto();
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
+    IssueDto issue = db.issues().insert(rule, mainBranch, projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(project, branch, issue, null, null, WONT_FIX, true, 1);
-    assertPushEventIsPersisted(project, branch, issue, null, null, REOPEN, false, 2);
-    assertPushEventIsPersisted(project, branch, issue, null, null, FALSE_POSITIVE, true, 3);
-    assertPushEventIsPersisted(project, branch, issue, null, null, REOPEN, false, 4);
-    assertPushEventIsPersisted(project, branch, issue, null, null, RESOLVE, false, 5);
-    assertPushEventIsPersisted(project, branch, issue, null, null, REOPEN, false, 6);
-    assertNoIssueDistribution(project, branch, issue, null, null, CONFIRM, 7);
-    assertNoIssueDistribution(project, branch, issue, null, null, UNCONFIRM, 8);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, ACCEPT, true, 1);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, WONT_FIX, true, 2);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 3);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, FALSE_POSITIVE, true, 4);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 5);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, RESOLVE, false, 6);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 7);
+    assertNoIssueDistribution(project, mainBranch, issue, null, null, CONFIRM, 8);
+    assertNoIssueDistribution(project, mainBranch, issue, null, null, UNCONFIRM, 9);
   }
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_severalChanges() {
-    ComponentDto componentDto = db.components().insertPublicProject();
-    ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
-    BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
+  public void distributeIssueChangeEvent_whenSingleIssueChangeOnABranch_shouldChangeSeverity() {
+    ProjectData projectData = db.components().insertPublicProject();
+    BranchDto featureBranch = db.components().insertProjectBranch(projectData.getProjectDto(), b -> b.setKey("feature1"));
+    ComponentDto branchComponent = db.components().insertFile(featureBranch);
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
-
-    assertPushEventIsPersisted(project, branch, issue, BLOCKER.name(), Common.RuleType.BUG.name(), WONT_FIX, true, 1);
+    IssueDto issue = db.issues().insert(rule, featureBranch, branchComponent, i -> i.setSeverity(MAJOR.name()));
+    assertPushEventIsPersisted(projectData.getProjectDto(), featureBranch, issue, BLOCKER.name(), null, null, null, 1);
   }
 
   @Test
-  public void distributeIssueChangeEvent_bulkIssueChange() {
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldExecuteSeveralChanges() {
+    ProjectData projectData = db.components().insertPublicProject();
+    RuleDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
+
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), Common.RuleType.BUG.name(), ACCEPT, true, 1);
+  }
+
+  @Test
+  public void distributeIssueChangeEvent_whenBulkIssueChange_shouldDistributesEvents() {
     RuleDto rule = db.rules().insert();
 
-    ComponentDto componentDto1 = db.components().insertPublicProject();
-    ProjectDto project1 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto1.uuid()).get();
-    BranchDto branch1 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project1.getUuid()).get();
-    IssueDto issue1 = db.issues().insert(rule, project1, componentDto1, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
+    ProjectData projectData1 = db.components().insertPublicProject();
+    ProjectDto project1 = projectData1.getProjectDto();
+    BranchDto branch1 = projectData1.getMainBranchDto();
+    ComponentDto componentDto1 = projectData1.getMainBranchComponent();
+    IssueDto issue1 = db.issues().insert(rule, branch1, componentDto1, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
-    ComponentDto componentDto2 = db.components().insertPublicProject();
-    ProjectDto project2 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto2.uuid()).get();
-    BranchDto branch2 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project2.getUuid()).get();
-    IssueDto issue2 = db.issues().insert(rule, project2, componentDto2, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
+    ProjectData projectData2 = db.components().insertPublicProject();
+    ProjectDto project2 = projectData2.getProjectDto();
+    BranchDto branch2 = projectData2.getMainBranchDto();
+    ComponentDto componentDto2 = projectData2.getMainBranchComponent();
+    IssueDto issue2 = db.issues().insert(rule, branch2, componentDto2, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
-    ComponentDto componentDto3 = db.components().insertPublicProject();
-    ProjectDto project3 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto3.uuid()).get();
-    BranchDto branch3 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project3.getUuid()).get();
-    IssueDto issue3 = db.issues().insert(rule, project3, componentDto3, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
+    ProjectData projectData3 = db.components().insertPublicProject();
+    ProjectDto project3 = projectData3.getProjectDto();
+    BranchDto branch3 = projectData3.getMainBranchDto();
+    ComponentDto componentDto3 = projectData3.getMainBranchComponent();
+    IssueDto issue3 = db.issues().insert(rule, branch3, componentDto3, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
     DefaultIssue defaultIssue1 = issue1.toDefaultIssue().setCurrentChangeWithoutAddChange(new FieldDiffs()
       .setDiff("resolution", null, null)
@@ -185,10 +195,10 @@ public class IssueChangeEventServiceImplTest {
   }
 
   @Test
-  public void doNotDistributeIssueChangeEvent_forPullRequestIssues() {
+  public void distributeIssueChangeEvent_whenPullRequestIssues_shouldNotDistributeEvents() {
     RuleDto rule = db.rules().insert();
 
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(project.uuid()));
@@ -245,7 +255,6 @@ public class IssueChangeEventServiceImplTest {
     if (resolved != null) {
       assertThat(payload).contains("\"resolved\":" + resolved);
     }
-
   }
 
 }

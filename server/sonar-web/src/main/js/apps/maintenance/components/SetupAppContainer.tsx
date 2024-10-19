@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,5 @@ import App from './App';
 export default function MaintenanceAppContainer() {
   const [searchParams] = useSearchParams();
 
-  return (
-    <App setup={true} location={{ query: omitNil({ return_to: searchParams.get('return_to') }) }} />
-  );
+  return <App setup location={{ query: omitNil({ return_to: searchParams.get('return_to') }) }} />;
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { searchProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { useLocation } from '../../../components/hoc/withRouter';
 import { get } from '../../../helpers/storage';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
@@ -86,7 +86,7 @@ export function DefaultPageSelector(props: DefaultPageSelectorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       /* run only once on mount*/
-    ]
+    ],
   );
 
   if (checking) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,10 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
+import org.sonar.server.common.health.DbConnectionNodeCheck;
+import org.sonar.server.common.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerSafemodeNodeCheck;
+import org.sonar.server.common.health.WebServerSafemodeNodeCheck;
 
 public class SafeModeHealthCheckerModule extends Module {
   @Override

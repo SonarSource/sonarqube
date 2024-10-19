@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, Spinner } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
 import { QualityProfilesContextProps } from '../qualityProfilesContext';
-import '../styles.css';
 import { Exporter, Profile } from '../types';
 import { sortProfiles } from '../utils';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
@@ -39,8 +40,8 @@ interface Props {
 
 interface State {
   actions?: Actions;
-  loading: boolean;
   exporters?: Exporter[];
+  loading: boolean;
   profiles?: Profile[];
 }
 
@@ -80,7 +81,7 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   }
 
@@ -96,15 +97,15 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
     const { actions, loading, profiles, exporters } = this.state;
 
     if (loading) {
-      return <i className="spinner" />;
+      return <Spinner />;
     }
     const finalLanguages = Object.values(this.props.languages);
 
     const context: QualityProfilesContextProps = {
-      actions: actions || {},
-      profiles: profiles || [],
+      actions: actions ?? {},
+      profiles: profiles ?? [],
       languages: finalLanguages,
-      exporters: exporters || [],
+      exporters: exporters ?? [],
       updateProfiles: this.updateProfiles,
       organization: this.props.organization.kee,
     };
@@ -114,12 +115,12 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <div className="page page-limited">
-        <Suggestions suggestions="quality_profiles" />
+      <LargeCenteredLayout className="sw-my-8">
+        <Suggestions suggestion={DocLink.InstanceAdminQualityProfiles} />
         <Helmet defer={false} title={translate('quality_profiles.page')} />
 
         {this.renderChild()}
-      </div>
+      </LargeCenteredLayout>
     );
   }
 }

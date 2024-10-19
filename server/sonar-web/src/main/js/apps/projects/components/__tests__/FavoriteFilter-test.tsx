@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ import {
   mockRouter,
 } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { ALL_PATHNAME, FavoriteFilter, FAVORITE_PATHNAME } from '../FavoriteFilter';
+import { ALL_PATHNAME, FAVORITE_PATHNAME, FavoriteFilter } from '../FavoriteFilter';
 
 jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn(),
@@ -56,7 +56,7 @@ it.each([
 
     await user.click(screen.getByText(optionTranslationId));
     expect(save).toHaveBeenLastCalledWith('sonarqube.projects.default', localStorageValue);
-  }
+  },
 );
 
 it('does not render for anonymous', () => {
@@ -74,6 +74,6 @@ function renderFavoriteFilter({
       location={location}
       router={mockRouter()}
       params={{}}
-    />
+    />,
   );
 }

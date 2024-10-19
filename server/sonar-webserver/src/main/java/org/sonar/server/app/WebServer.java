@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ public class WebServer implements Monitored {
       .checkWritableTempDir()
       .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
     this.sharedDir = getSharedDir(props);
-    this.tomcat = new EmbeddedTomcat(props);
+    this.tomcat = new EmbeddedTomcat(props, new TomcatHttpConnectorFactory());
   }
 
   private static File getSharedDir(Props props) {

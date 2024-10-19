@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,90 +19,76 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import ButtonToggle from '../../controls/ButtonToggle';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
+import BuildConfigSelection from '../components/BuildConfigSelection';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../components/RenderOptions';
-import { BuildTools, ManualTutorialConfig, OSs, TutorialModes } from '../types';
+import { Arch, OSs, TutorialConfig, TutorialModes } from '../types';
+import {
+  shouldShowArchSelector,
+  shouldShowGithubCFamilyExampleRepositories,
+  shouldShowOsSelector,
+} from '../utils';
 
 interface Props {
+  arch?: Arch;
+  config: TutorialConfig;
   hasCLanguageFeature: boolean;
-  config?: ManualTutorialConfig;
-  onDone: (config: ManualTutorialConfig) => void;
+  isLocal: boolean;
+  os?: OSs;
+  setArch: (arch: Arch) => void;
+  setConfig: (config: TutorialConfig) => void;
+  setOs: (os: OSs) => void;
 }
 
-interface State {
-  config: ManualTutorialConfig;
-}
+export function BuildToolForm(props: Readonly<Props>) {
+  const { config, setConfig, os, setOs, arch, setArch, isLocal, hasCLanguageFeature } = props;
 
-export class BuildToolForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      config: this.props.config || {},
-    };
-  }
-
-  handleBuildToolChange = (buildTool: BuildTools) => {
-    this.setState({ config: { buildTool } }, () => {
-      this.props.onDone(this.state.config);
+  function handleConfigChange(newConfig: TutorialConfig) {
+    setConfig({
+      ...config,
+      ...newConfig,
     });
-  };
-
-  handleOSChange = (os: OSs) => {
-    this.setState(
-      ({ config }) => ({ config: { buildTool: config.buildTool, os } }),
-      () => {
-        this.props.onDone(this.state.config);
-      }
-    );
-  };
-
-  render() {
-    const { config } = this.state;
-    const { hasCLanguageFeature } = this.props;
-    const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
-    if (hasCLanguageFeature) {
-      buildTools.push(BuildTools.CFamily);
-    }
-    buildTools.push(BuildTools.Other);
-
-    return (
-      <>
-        <div>
-          <h4 className="spacer-bottom">{translate('onboarding.build')}</h4>
-          <ButtonToggle
-            label={translate('onboarding.build')}
-            onCheck={this.handleBuildToolChange}
-            options={buildTools.map((tool) => ({
-              label: translate('onboarding.build', tool),
-              value: tool,
-            }))}
-            value={config.buildTool}
-          />
-        </div>
-
-        {(config.buildTool === BuildTools.Other || config.buildTool === BuildTools.CFamily) && (
-          <RenderOptions
-            label={translate('onboarding.build.other.os')}
-            checked={config.os}
-            onCheck={this.handleOSChange}
-            optionLabelKey="onboarding.build.other.os"
-            options={[OSs.Linux, OSs.Windows, OSs.MacOS]}
-            titleLabelKey="onboarding.build.other.os"
-          />
-        )}
-
-        {config.buildTool === BuildTools.CFamily && config.os && (
-          <GithubCFamilyExampleRepositories
-            className="big-spacer-top abs-width-600"
-            os={config.os}
-            ci={TutorialModes.Local}
-          />
-        )}
-      </>
-    );
   }
+
+  return (
+    <>
+      {config && (
+        <BuildConfigSelection
+          ci={TutorialModes.OtherCI}
+          config={config}
+          supportCFamily={hasCLanguageFeature}
+          onSetConfig={handleConfigChange}
+        />
+      )}
+      {shouldShowOsSelector(config) && (
+        <RenderOptions
+          label={translate('onboarding.build.other.os')}
+          checked={os}
+          onCheck={(value: OSs) => setOs(value)}
+          optionLabelKey="onboarding.build.other.os"
+          options={[OSs.Linux, OSs.Windows, OSs.MacOS]}
+          titleLabelKey="onboarding.build.other.os"
+        />
+      )}
+      {shouldShowArchSelector(os, config, !isLocal) && (
+        <RenderOptions
+          label={translate('onboarding.build.other.architecture')}
+          checked={arch}
+          onCheck={(value: Arch) => setArch(value)}
+          optionLabelKey="onboarding.build.other.architecture"
+          options={[Arch.X86_64, Arch.Arm64]}
+          titleLabelKey="onboarding.build.other.architecture"
+        />
+      )}
+      {shouldShowGithubCFamilyExampleRepositories(config) && (
+        <GithubCFamilyExampleRepositories
+          ci={TutorialModes.OtherCI}
+          className="sw-my-4 sw-w-abs-600"
+        />
+      )}
+    </>
+  );
 }
 
 export default withCLanguageFeature(BuildToolForm);

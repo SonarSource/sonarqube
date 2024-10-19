@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,14 +20,15 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
+import { IntlWrapper } from '../../../../helpers/testReactTestingUtils';
 import {
   QualityProfilesContextProps,
   withQualityProfilesContext,
 } from '../../qualityProfilesContext';
 import { Profile } from '../../types';
-import { ProfileContainer } from '../ProfileContainer';
+import ProfileContainer from '../ProfileContainer';
 
 it('should render the header and child', () => {
   const targetProfile = mockQualityProfile({ name: 'profile1' });
@@ -69,26 +70,32 @@ function Child(props: { profile?: Profile }) {
 const WrappedChild = withQualityProfilesContext(Child);
 
 function renderProfileContainer(path: string, overrides: Partial<QualityProfilesContextProps>) {
+  function ProfileOutlet(props: Partial<QualityProfilesContextProps>) {
+    const context = {
+      actions: {},
+      exporters: [],
+      languages: [],
+      profiles: [],
+      updateProfiles: jest.fn(),
+      ...props,
+    };
+
+    return <Outlet context={context} />;
+  }
+
   return render(
     <HelmetProvider context={{}}>
       <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route
-            element={
-              <ProfileContainer
-                actions={{}}
-                exporters={[]}
-                languages={[]}
-                profiles={[]}
-                updateProfiles={jest.fn()}
-                {...overrides}
-              />
-            }
-          >
-            <Route path="*" element={<WrappedChild />} />
-          </Route>
-        </Routes>
+        <IntlWrapper>
+          <Routes>
+            <Route element={<ProfileOutlet {...overrides} />}>
+              <Route element={<ProfileContainer />}>
+                <Route path="*" element={<WrappedChild />} />
+              </Route>
+            </Route>
+          </Routes>
+        </IntlWrapper>
       </MemoryRouter>
-    </HelmetProvider>
+    </HelmetProvider>,
   );
 }

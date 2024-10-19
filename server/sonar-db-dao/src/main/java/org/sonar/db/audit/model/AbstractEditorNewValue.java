@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public abstract class AbstractEditorNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   protected String qualityGateUuid;
   @Nullable
@@ -32,6 +37,10 @@ public abstract class AbstractEditorNewValue extends NewValue {
   @Nullable
   protected String qualityProfileName;
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getQualityGateUuid() {
     return this.qualityGateUuid;

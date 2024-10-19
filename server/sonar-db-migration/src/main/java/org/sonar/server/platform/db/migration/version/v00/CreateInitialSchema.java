@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,10 +43,10 @@ import static org.sonar.server.platform.db.migration.def.DecimalColumnDef.newDec
 import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.TimestampColumnDef.newTimestampColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.TinyIntColumnDef.newTinyIntColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.DESCRIPTION_SECTION_KEY_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateInitialSchema extends DdlChange {
@@ -67,6 +67,7 @@ public class CreateInitialSchema extends DdlChange {
   private static final String METRIC_UUID_COL_NAME = "metric_uuid";
   private static final String ORGANIZATION_UUID_COL_NAME = "organization_uuid";
   private static final String PROJECT_UUID_COL_NAME = "project_uuid";
+  private static final String BRANCH_UUID_COL_NAME = "branch_uuid";
   public static final String RULE_UUID_COL_NAME = "rule_uuid";
   private static final String STATUS_COL_NAME = "status";
   private static final String TASK_UUID_COL_NAME = "task_uuid";
@@ -75,8 +76,12 @@ public class CreateInitialSchema extends DdlChange {
   private static final String UPDATED_AT_COL_NAME = "updated_at";
   private static final String USER_UUID_COL_NAME = "user_uuid";
   private static final String VALUE_COL_NAME = "value";
+  private static final String PRIVATE_COL_NAME = "private";
   private static final String QPROFILE_UUID_COL_NAME = "qprofile_uuid";
-
+  private static final String EXPIRATION_DATE_COL_NAME = "expiration_date";
+  public static final String QUALITY_GATE_UUID_COL_NAME = "quality_gate_uuid";
+  public static final String CLOB_VALUE_COL_NAME = "clob_value";
+  public static final String IS_EMPTY_COL_NAME = "is_empty";
   private static final String UNIQUE_INDEX_SUFFIX = "_unique";
 
   // usual technical columns
@@ -103,6 +108,7 @@ public class CreateInitialSchema extends DdlChange {
     createAnalysisProperties(context);
     createAppBranchProjectBranch(context);
     createAppProjects(context);
+    createAudits(context);
     createCeActivity(context);
     createCeQueue(context);
     createCeScannerContext(context);
@@ -125,9 +131,9 @@ public class CreateInitialSchema extends DdlChange {
     createIssueChanges(context);
     createIssues(context);
     createLiveMeasures(context);
-    createManualMeasures(context);
     createMetrics(context);
     createNewCodePeriods(context);
+    createNewCodeReferenceIssues(context);
     createNotifications(context);
     createOrgQProfiles(context);
     createOrgQualityGates(context);
@@ -138,6 +144,11 @@ public class CreateInitialSchema extends DdlChange {
     createPermTemplatesCharacteristics(context);
     createPermissionTemplates(context);
     createPlugins(context);
+    createPortfolioProjBranches(context);
+    createPortfolioProjects(context);
+    createPortfolioReferences(context);
+    createPortfolios(context);
+    createProjectBadgeToken(context);
     createProjectBranches(context);
     createProjectLinks(context);
     createProjectMappings(context);
@@ -146,20 +157,24 @@ public class CreateInitialSchema extends DdlChange {
     createProjects(context);
     createProjectQGates(context);
     createProperties(context);
+    createPushEvents(context);
+    createQGateGroupPermissions(context);
+    createQGateUserPermissions(context);
     createQProfileChanges(context);
     createQProfileEditGroups(context);
     createQProfileEditUsers(context);
     createQualityGateConditions(context);
     createQualityGates(context);
+    createScimUsers(context);
     createSessionTokens(context);
     createRulesRepository(context);
+    createRuleDescSections(context);
     createRules(context);
-    createRulesMetadata(context);
     createRulesParameters(context);
     createRulesProfiles(context);
     createSamlMessageIds(context);
+    createScannerAnalysisCache(context);
     createSnapshots(context);
-    createUserProperties(context);
     createUserRoles(context);
     createUserDismissedMessage(context);
     createUserTokens(context);
@@ -226,12 +241,13 @@ public class CreateInitialSchema extends DdlChange {
       .addColumn(keeCol)
       .addColumn(newVarcharColumnDefBuilder("url").setIsNullable(true).setLimit(2000).build())
       .addColumn(newVarcharColumnDefBuilder("app_id").setIsNullable(true).setLimit(80).build())
-      .addColumn(newVarcharColumnDefBuilder("private_key").setIsNullable(true).setLimit(2000).build())
+      .addColumn(newVarcharColumnDefBuilder("private_key").setIsNullable(true).setLimit(2500).build())
       .addColumn(newVarcharColumnDefBuilder("pat").setIsNullable(true).setLimit(2000).build())
       .addColumn(TECHNICAL_UPDATED_AT_COL)
       .addColumn(TECHNICAL_CREATED_AT_COL)
       .addColumn(newVarcharColumnDefBuilder("client_id").setIsNullable(true).setLimit(80).build())
-      .addColumn(newVarcharColumnDefBuilder("client_secret").setIsNullable(true).setLimit(80).build())
+      .addColumn(newVarcharColumnDefBuilder("client_secret").setIsNullable(true).setLimit(160).build())
+      .addColumn(newVarcharColumnDefBuilder("webhook_secret").setIsNullable(true).setLimit(160).build())
       .build());
     addIndex(context, tableName, "uniq_alm_settings", true, keeCol);
   }
@@ -239,7 +255,7 @@ public class CreateInitialSchema extends DdlChange {
   private void createProjectAlmSettings(Context context) {
     String tableName = "project_alm_settings";
     VarcharColumnDef almSettingUuidCol = newVarcharColumnDefBuilder("alm_setting_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
-    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_VARCHAR_SIZE).build();
+    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setIsNullable(false).setLimit(OLD_UUID_VARCHAR_SIZE).build();
     VarcharColumnDef almRepoCol = newVarcharColumnDefBuilder("alm_repo").setIsNullable(true).setLimit(256).build();
     VarcharColumnDef almSlugCol = newVarcharColumnDefBuilder("alm_slug").setIsNullable(true).setLimit(256).build();
     BooleanColumnDef summaryCommentEnabledCol = newBooleanColumnDefBuilder("summary_comment_enabled").setIsNullable(true).build();
@@ -273,8 +289,8 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(snapshotUuidColumn)
         .addColumn(newVarcharColumnDefBuilder("kee").setIsNullable(false).setLimit(512).build())
         .addColumn(newVarcharColumnDefBuilder(TEXT_VALUE_COL_NAME).setIsNullable(true).setLimit(MAX_SIZE).build())
-        .addColumn(newClobColumnDefBuilder().setColumnName("clob_value").setIsNullable(true).build())
-        .addColumn(newBooleanColumnDefBuilder().setColumnName("is_empty").setIsNullable(false).build())
+        .addColumn(newClobColumnDefBuilder().setColumnName(CLOB_VALUE_COL_NAME).setIsNullable(true).build())
+        .addColumn(newBooleanColumnDefBuilder().setColumnName(IS_EMPTY_COL_NAME).setIsNullable(false).build())
         .addColumn(TECHNICAL_CREATED_AT_COL)
         .build());
     addIndex(context, tableName, "analysis_properties_analysis", false, snapshotUuidColumn);
@@ -319,6 +335,22 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "idx_app_proj_project_uuid", false, projectUuid);
   }
 
+  private void createAudits(Context context) {
+    String tableName = "audits";
+
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setIsNullable(false).setLimit(USER_UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder("user_login").setIsNullable(false).setLimit(USER_UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder("category").setIsNullable(false).setLimit(25).build())
+      .addColumn(newVarcharColumnDefBuilder("operation").setIsNullable(false).setLimit(50).build())
+      .addColumn(newVarcharColumnDefBuilder("new_value").setIsNullable(true).setLimit(4000).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(newBooleanColumnDefBuilder("user_triggered").setIsNullable(false).setDefaultValue(true).build())
+      .build());
+    addIndex(context, tableName, "audits_created_at", false, TECHNICAL_CREATED_AT_COL);
+  }
+
   private void createCeActivity(Context context) {
     String tableName = "ce_activity";
     VarcharColumnDef uuidCol = UUID_COL;
@@ -353,6 +385,7 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newVarcharColumnDefBuilder("worker_uuid").setLimit(UUID_SIZE).setIsNullable(true).build())
         .addColumn(TECHNICAL_CREATED_AT_COL)
         .addColumn(TECHNICAL_UPDATED_AT_COL)
+        .addColumn(newVarcharColumnDefBuilder("node_name").setLimit(100).setIsNullable(true).build())
         .build());
     addIndex(context, tableName, "ce_activity_component", false, componentUuidCol);
     addIndex(context, tableName, "ce_activity_islast", false, isLastCol, statusCol);
@@ -440,9 +473,9 @@ public class CreateInitialSchema extends DdlChange {
   private void createComponents(Context context) {
     String tableName = "components";
     VarcharColumnDef organizationUuidCol = newVarcharColumnDefBuilder(ORGANIZATION_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(true).build();
-    VarcharColumnDef keeCol = newVarcharColumnDefBuilder("kee").setIsNullable(true).setLimit(400).build();
+    VarcharColumnDef keeCol = newVarcharColumnDefBuilder("kee").setIsNullable(true).setLimit(1000).build();
     VarcharColumnDef moduleUuidCol = newVarcharColumnDefBuilder("module_uuid").setIsNullable(true).setLimit(50).build();
-    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setIsNullable(false).setLimit(50).build();
+    VarcharColumnDef branchUuidCol = newVarcharColumnDefBuilder(BRANCH_UUID_COL_NAME).setIsNullable(false).setLimit(50).build();
     VarcharColumnDef qualifierCol = newVarcharColumnDefBuilder("qualifier").setIsNullable(true).setLimit(10).build();
     VarcharColumnDef rootUuidCol = newVarcharColumnDefBuilder("root_uuid").setIsNullable(false).setLimit(50).build();
     VarcharColumnDef uuidCol = newVarcharColumnDefBuilder("uuid").setIsNullable(false).setLimit(50).build();
@@ -459,13 +492,13 @@ public class CreateInitialSchema extends DdlChange {
       .addColumn(newBooleanColumnDefBuilder().setColumnName("enabled").setIsNullable(false).setDefaultValue(true).build())
       .addColumn(newVarcharColumnDefBuilder("scope").setIsNullable(true).setLimit(3).build())
       .addColumn(qualifierCol)
-      .addColumn(newBooleanColumnDefBuilder().setColumnName("private").setIsNullable(false).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName(PRIVATE_COL_NAME).setIsNullable(false).build())
       .addColumn(rootUuidCol)
       .addColumn(newVarcharColumnDefBuilder(LANGUAGE_COL_NAME).setIsNullable(true).setLimit(20).build())
       .addColumn(newVarcharColumnDefBuilder("copy_component_uuid").setIsNullable(true).setLimit(50).build())
       .addColumn(newVarcharColumnDefBuilder("path").setIsNullable(true).setLimit(2000).build())
       .addColumn(newVarcharColumnDefBuilder("uuid_path").setIsNullable(false).setLimit(1500).build())
-      .addColumn(projectUuidCol)
+      .addColumn(branchUuidCol)
       .addColumn(moduleUuidCol)
       .addColumn(newVarcharColumnDefBuilder("module_uuid_path").setIsNullable(true).setLimit(1500).build())
       .addColumn(mainBranchProjectUuidCol)
@@ -487,11 +520,12 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "components_organization", false, organizationUuidCol);
     addIndex(context, tableName, "projects_kee", true, keeCol);
     addIndex(context, tableName, "projects_module_uuid", false, moduleUuidCol);
-    addIndex(context, tableName, "projects_project_uuid", false, projectUuidCol);
     addIndex(context, tableName, "projects_qualifier", false, qualifierCol);
     addIndex(context, tableName, "projects_root_uuid", false, rootUuidCol);
-    addIndex(context, tableName, "projects_uuid", false, uuidCol);
     addIndex(context, tableName, "idx_main_branch_prj_uuid", false, mainBranchProjectUuidCol);
+    addIndex(context, tableName, "components_uuid", true, uuidCol);
+    addIndex(context, tableName, "components_branch_uuid", false, branchUuidCol);
+    addIndex(context, tableName, "components_kee_branch_uuid", true, keeCol, branchUuidCol);
   }
 
   private void createDefaultQProfiles(Context context) {
@@ -700,9 +734,9 @@ public class CreateInitialSchema extends DdlChange {
     context.execute(
       newTableBuilder("internal_properties")
         .addPkColumn(newVarcharColumnDefBuilder("kee").setLimit(20).setIsNullable(false).build())
-        .addColumn(newBooleanColumnDefBuilder().setColumnName("is_empty").setIsNullable(false).build())
+        .addColumn(newBooleanColumnDefBuilder().setColumnName(IS_EMPTY_COL_NAME).setIsNullable(false).build())
         .addColumn(newVarcharColumnDefBuilder().setColumnName(TEXT_VALUE_COL_NAME).setLimit(MAX_SIZE).setIgnoreOracleUnit(true).build())
-        .addColumn(newClobColumnDefBuilder().setColumnName("clob_value").setIsNullable(true).build())
+        .addColumn(newClobColumnDefBuilder().setColumnName(CLOB_VALUE_COL_NAME).setIsNullable(true).build())
         .addColumn(TECHNICAL_CREATED_AT_COL)
         .build());
   }
@@ -712,13 +746,14 @@ public class CreateInitialSchema extends DdlChange {
     VarcharColumnDef issueKeyCol = newVarcharColumnDefBuilder("issue_key").setLimit(50).setIsNullable(false).build();
     VarcharColumnDef keeCol = newVarcharColumnDefBuilder("kee").setLimit(50).build();
     VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setLimit(50).setIsNullable(false).build();
+    VarcharColumnDef changeTypeCol = newVarcharColumnDefBuilder("change_type").setLimit(20).build();
     context.execute(
       newTableBuilder(tableName)
         .addPkColumn(UUID_COL)
         .addColumn(keeCol)
         .addColumn(issueKeyCol)
         .addColumn(newVarcharColumnDefBuilder("user_login").setLimit(USER_UUID_SIZE).build())
-        .addColumn(newVarcharColumnDefBuilder("change_type").setLimit(20).build())
+        .addColumn(changeTypeCol)
         .addColumn(newClobColumnDefBuilder().setColumnName("change_data").build())
         .addColumn(NULLABLE_TECHNICAL_CREATED_AT_COL)
         .addColumn(NULLABLE_TECHNICAL_UPDATED_AT_COL)
@@ -728,6 +763,7 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "issue_changes_issue_key", false, issueKeyCol);
     addIndex(context, tableName, "issue_changes_kee", false, keeCol);
     addIndex(context, tableName, "issue_changes_project_uuid", false, projectUuidCol);
+    addIndex(context, tableName, "issue_changes_issue_key_type", false, issueKeyCol, changeTypeCol);
   }
 
   private void createIssues(Context context) {
@@ -753,11 +789,8 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newVarcharColumnDefBuilder(STATUS_COL_NAME).setLimit(20).build())
         .addColumn(resolutionCol)
         .addColumn(newVarcharColumnDefBuilder("checksum").setLimit(1000).build())
-        .addColumn(newVarcharColumnDefBuilder("reporter").setLimit(USER_UUID_SIZE).build())
         .addColumn(assigneeCol)
         .addColumn(newVarcharColumnDefBuilder("author_login").setLimit(255).build())
-        .addColumn(newVarcharColumnDefBuilder("action_plan_key").setLimit(50).build())
-        .addColumn(newVarcharColumnDefBuilder("issue_attributes").setLimit(MAX_SIZE).build())
         .addColumn(newIntegerColumnDefBuilder().setColumnName("effort").build())
         .addColumn(NULLABLE_TECHNICAL_CREATED_AT_COL)
         .addColumn(updatedAtCol)
@@ -770,6 +803,9 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newBlobColumnDefBuilder().setColumnName("locations").build())
         .addColumn(new TinyIntColumnDef.Builder().setColumnName("issue_type").build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("from_hotspot").setIsNullable(true).build())
+        .addColumn(newBooleanColumnDefBuilder().setColumnName("quick_fix_available").setIsNullable(true).build())
+        .addColumn(newVarcharColumnDefBuilder("rule_description_context_key").setLimit(50).build())
+        .addColumn(newBlobColumnDefBuilder().setColumnName("message_formattings").build())
         .build());
 
     addIndex(context, tableName, "issues_assignee", false, assigneeCol);
@@ -793,7 +829,6 @@ public class CreateInitialSchema extends DdlChange {
       .addColumn(metricUuidCol)
       .addColumn(newDecimalColumnDefBuilder().setColumnName(VALUE_COL_NAME).setPrecision(38).setScale(20).build())
       .addColumn(newVarcharColumnDefBuilder(TEXT_VALUE_COL_NAME).setIsNullable(true).setLimit(MAX_SIZE).build())
-      .addColumn(newDecimalColumnDefBuilder().setColumnName("variation").setPrecision(38).setScale(20).build())
       .addColumn(newBlobColumnDefBuilder().setColumnName("measure_data").setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder("update_marker").setIsNullable(true).setLimit(UUID_SIZE).build())
       .addColumn(TECHNICAL_CREATED_AT_COL)
@@ -801,24 +836,6 @@ public class CreateInitialSchema extends DdlChange {
       .build());
     addIndex(context, tableName, "live_measures_project", false, projectUuidCol);
     addIndex(context, tableName, "live_measures_component", true, componentUuidCol, metricUuidCol);
-  }
-
-  private void createManualMeasures(Context context) {
-    String tableName = "manual_measures";
-    VarcharColumnDef componentUuidCol = newVarcharColumnDefBuilder(COMPONENT_UUID_COL_NAME).setLimit(OLD_UUID_VARCHAR_SIZE).setIsNullable(false).build();
-    context.execute(
-      newTableBuilder(tableName)
-        .addPkColumn(UUID_COL)
-        .addColumn(newDecimalColumnDefBuilder().setColumnName(VALUE_COL_NAME).setPrecision(38).setScale(20).build())
-        .addColumn(newVarcharColumnDefBuilder(TEXT_VALUE_COL_NAME).setLimit(MAX_SIZE).build())
-        .addColumn(newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setLimit(USER_UUID_SIZE).build())
-        .addColumn(newVarcharColumnDefBuilder(DESCRIPTION_COL_NAME).setLimit(MAX_SIZE).build())
-        .addColumn(NULLABLE_TECHNICAL_CREATED_AT_COL)
-        .addColumn(NULLABLE_TECHNICAL_UPDATED_AT_COL)
-        .addColumn(componentUuidCol)
-        .addColumn(newVarcharColumnDefBuilder(METRIC_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build())
-        .build());
-    addIndex(context, tableName, "manual_measures_component_uuid", false, componentUuidCol);
   }
 
   private void createMetrics(Context context) {
@@ -834,7 +851,6 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newVarcharColumnDefBuilder("short_name").setLimit(64).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("qualitative").setDefaultValue(false).setIsNullable(false).build())
         .addColumn(newVarcharColumnDefBuilder("val_type").setLimit(8).build())
-        .addColumn(newBooleanColumnDefBuilder().setColumnName("user_managed").setDefaultValue(false).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("enabled").setDefaultValue(true).build())
         .addColumn(newDecimalColumnDefBuilder().setColumnName("worst_value").setPrecision(38).setScale(20).build())
         .addColumn(newDecimalColumnDefBuilder().setColumnName("best_value").setPrecision(38).setScale(20).build())
@@ -849,7 +865,7 @@ public class CreateInitialSchema extends DdlChange {
   private void createNewCodePeriods(Context context) {
     String tableName = "new_code_periods";
     VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(true).build();
-    VarcharColumnDef branchUuidCol = newVarcharColumnDefBuilder("branch_uuid").setLimit(UUID_SIZE).setIsNullable(true).build();
+    VarcharColumnDef branchUuidCol = newVarcharColumnDefBuilder(BRANCH_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(true).build();
     VarcharColumnDef typeCol = newVarcharColumnDefBuilder("type").setLimit(30).setIsNullable(false).build();
     VarcharColumnDef valueCol = newVarcharColumnDefBuilder(VALUE_COL_NAME).setLimit(255).setIsNullable(true).build();
     context.execute(
@@ -866,6 +882,19 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "uniq_new_code_periods", true, projectUuidCol, branchUuidCol);
     addIndex(context, tableName, "idx_ncp_type", false, typeCol);
     addIndex(context, tableName, "idx_ncp_value", false, valueCol);
+  }
+
+  private void createNewCodeReferenceIssues(Context context) {
+    String tableName = "new_code_reference_issues";
+    VarcharColumnDef issueKeyCol = newVarcharColumnDefBuilder("issue_key").setLimit(50).setIsNullable(false).build();
+    context.execute(
+      newTableBuilder(tableName)
+        .addPkColumn(UUID_COL)
+        .addColumn(issueKeyCol)
+        .addColumn(TECHNICAL_CREATED_AT_COL)
+        .build());
+
+    addIndex(context, tableName, "uniq_new_code_reference_issues", true, issueKeyCol);
   }
 
   private void createNotifications(Context context) {
@@ -1013,8 +1042,81 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(TECHNICAL_CREATED_AT_COL)
         .addColumn(TECHNICAL_UPDATED_AT_COL)
         .addColumn(newVarcharColumnDefBuilder("type").setLimit(10).setIsNullable(false).build())
+        .addColumn(newBooleanColumnDefBuilder("removed").setDefaultValue(false).setIsNullable(false).build())
         .build());
     addIndex(context, tableName, "plugins_key", true, keyColumn);
+  }
+
+  private void createPortfolioProjBranches(Context context) {
+    String tableName = "portfolio_proj_branches";
+    context.execute(new CreateTableBuilder(getDialect(), tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("portfolio_project_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(BRANCH_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .build());
+  }
+
+  private void createPortfolioProjects(Context context) {
+    String tableName = "portfolio_projects";
+    VarcharColumnDef portfolioUuidColumn = newVarcharColumnDefBuilder().setColumnName("portfolio_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef projectUuidColumn = newVarcharColumnDefBuilder().setColumnName(PROJECT_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(new CreateTableBuilder(getDialect(), tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(portfolioUuidColumn)
+      .addColumn(projectUuidColumn)
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "uniq_portfolio_projects", true, portfolioUuidColumn, projectUuidColumn);
+  }
+
+  private void createPortfolioReferences(Context context) {
+    String tableName = "portfolio_references";
+    VarcharColumnDef portfolioUuidColumn = newVarcharColumnDefBuilder().setColumnName("portfolio_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef referenceUuidColumn = newVarcharColumnDefBuilder().setColumnName("reference_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef branchUuidColumn = newVarcharColumnDefBuilder().setColumnName(BRANCH_UUID_COL_NAME).setIsNullable(true).setLimit(255).build();
+    context.execute(new CreateTableBuilder(getDialect(), tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(portfolioUuidColumn)
+      .addColumn(referenceUuidColumn)
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(branchUuidColumn)
+      .build());
+    addIndex(context, tableName, "uniq_portfolio_references", true, portfolioUuidColumn, referenceUuidColumn, branchUuidColumn);
+  }
+
+  private void createPortfolios(Context context) {
+    String tableName = "portfolios";
+    VarcharColumnDef keeColumn = newVarcharColumnDefBuilder().setColumnName("kee").setIsNullable(false).setLimit(400).build();
+    context.execute(new CreateTableBuilder(getDialect(), tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(keeColumn)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setIsNullable(false).setLimit(2000).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(DESCRIPTION_COL_NAME).setIsNullable(true).setLimit(2000).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("root_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("parent_uuid").setIsNullable(true).setLimit(UUID_SIZE).build())
+      .addColumn(newBooleanColumnDefBuilder(PRIVATE_COL_NAME).setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("selection_mode").setIsNullable(false).setLimit(50).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("selection_expression").setIsNullable(true).setLimit(4000).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("branch_key").setIsNullable(true).setLimit(255).build())
+      .build());
+    addIndex(context, tableName, "uniq_portfolios_kee", true, keeColumn);
+  }
+
+  private void createProjectBadgeToken(Context context) {
+    String tableName = "project_badge_token";
+    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(
+      newTableBuilder(tableName)
+        .addPkColumn(UUID_COL)
+        .addColumn(newVarcharColumnDefBuilder("token").setIsNullable(false).setLimit(255).build())
+        .addColumn(projectUuidCol)
+        .addColumn(TECHNICAL_CREATED_AT_COL)
+        .addColumn(TECHNICAL_UPDATED_AT_COL)
+        .build());
+    addIndex(context, tableName, "uniq_project_badge_token", true, projectUuidCol);
   }
 
   private void createProjectBranches(Context context) {
@@ -1086,7 +1188,6 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newVarcharColumnDefBuilder("alert_status").setLimit(5).build())
         .addColumn(newVarcharColumnDefBuilder("alert_text").setLimit(MAX_SIZE).build())
         .addColumn(personIdCol)
-        .addColumn(newDecimalColumnDefBuilder().setColumnName("variation_value_1").setPrecision(38).setScale(20).build())
         .addColumn(newBlobColumnDefBuilder().setColumnName("measure_data").build())
         .addColumn(metricUuidCol)
         .build());
@@ -1122,7 +1223,7 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(qualifierCol)
         .addColumn(newVarcharColumnDefBuilder("name").setLimit(2_000).setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder(DESCRIPTION_COL_NAME).setLimit(2_000).setIsNullable(true).build())
-        .addColumn(newBooleanColumnDefBuilder().setColumnName("private").setIsNullable(false).build())
+        .addColumn(newBooleanColumnDefBuilder().setColumnName(PRIVATE_COL_NAME).setIsNullable(false).build())
         .addColumn(newVarcharColumnDefBuilder("tags").setLimit(500).setIsNullable(true).build())
         .addColumn(NULLABLE_TECHNICAL_CREATED_AT_COL)
         .addColumn(TECHNICAL_UPDATED_AT_COL)
@@ -1136,7 +1237,7 @@ public class CreateInitialSchema extends DdlChange {
   private void createProjectQGates(Context context) {
     String tableName = "project_qgates";
     VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build();
-    VarcharColumnDef qualityGateUuidCol = newVarcharColumnDefBuilder("quality_gate_uuid").setLimit(UUID_SIZE).setIsNullable(false).build();
+    VarcharColumnDef qualityGateUuidCol = newVarcharColumnDefBuilder(QUALITY_GATE_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build();
     context.execute(
       newTableBuilder(tableName)
         .addPkColumn(projectUuidCol)
@@ -1151,9 +1252,9 @@ public class CreateInitialSchema extends DdlChange {
     context.execute(newTableBuilder(tableName)
       .addPkColumn(UUID_COL)
       .addColumn(propKey)
-      .addColumn(newBooleanColumnDefBuilder().setColumnName("is_empty").setIsNullable(false).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName(IS_EMPTY_COL_NAME).setIsNullable(false).build())
       .addColumn(newVarcharColumnDefBuilder(TEXT_VALUE_COL_NAME).setLimit(MAX_SIZE).build())
-      .addColumn(newClobColumnDefBuilder().setColumnName("clob_value").setIsNullable(true).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName(CLOB_VALUE_COL_NAME).setIsNullable(true).build())
       .addColumn(TECHNICAL_CREATED_AT_COL)
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COMPONENT_UUID_COL_NAME).setIsNullable(true).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(USER_UUID_COL_NAME).setIsNullable(true).setLimit(USER_UUID_SIZE).build())
@@ -1161,6 +1262,44 @@ public class CreateInitialSchema extends DdlChange {
       .withPkConstraintName("pk_properties")
       .build());
     addIndex(context, tableName, "properties_key", false, propKey);
+  }
+
+  private void createPushEvents(Context context) {
+    String tableName = "push_events";
+    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(newVarcharColumnDefBuilder("name").setLimit(40).setIsNullable(false).build())
+      .addColumn(projectUuidCol)
+      .addColumn(newBlobColumnDefBuilder().setColumnName("payload").setIsNullable(false).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(newVarcharColumnDefBuilder(LANGUAGE_COL_NAME).setLimit(20).build())
+      .build());
+    addIndex(context, tableName, "idx_push_even_crea_uuid_proj", false, TECHNICAL_CREATED_AT_COL, UUID_COL, projectUuidCol);
+  }
+
+  private void createQGateGroupPermissions(Context context) {
+    String tableName = "qgate_group_permissions";
+    VarcharColumnDef qualityGateUuidColumn = newVarcharColumnDefBuilder(QUALITY_GATE_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(qualityGateUuidColumn)
+      .addColumn(newVarcharColumnDefBuilder(GROUP_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "qg_groups_uuid_idx", false, qualityGateUuidColumn);
+  }
+
+  private void createQGateUserPermissions(Context context) {
+    String tableName = "qgate_user_permissions";
+    VarcharColumnDef qualityGateUuidColumn = newVarcharColumnDefBuilder(QUALITY_GATE_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(qualityGateUuidColumn)
+      .addColumn(newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "quality_gate_uuid_idx", false, qualityGateUuidColumn);
   }
 
   private void createQProfileChanges(Context context) {
@@ -1229,6 +1368,18 @@ public class CreateInitialSchema extends DdlChange {
         .build());
   }
 
+  private void createScimUsers(Context context) {
+    String tableName = "scim_users";
+    VarcharColumnDef userUuidCol = newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build();
+    context.execute(
+      newTableBuilder(tableName)
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("scim_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+        .addColumn(userUuidCol)
+        .build());
+
+    addIndex(context, tableName, "uniq_scim_users_user_uuid", true, userUuidCol);
+  }
+
   private void createSessionTokens(Context context) {
     String tableName = "session_tokens";
     VarcharColumnDef userUuidCol = newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setLimit(255).setIsNullable(false).build();
@@ -1236,7 +1387,7 @@ public class CreateInitialSchema extends DdlChange {
       newTableBuilder(tableName)
         .addPkColumn(UUID_COL)
         .addColumn(userUuidCol)
-        .addColumn(newBigIntegerColumnDefBuilder().setColumnName("expiration_date").setIsNullable(false).build())
+        .addColumn(newBigIntegerColumnDefBuilder().setColumnName(EXPIRATION_DATE_COL_NAME).setIsNullable(false).build())
         .addColumn(TECHNICAL_CREATED_AT_COL)
         .addColumn(TECHNICAL_UPDATED_AT_COL)
         .build());
@@ -1254,6 +1405,23 @@ public class CreateInitialSchema extends DdlChange {
       .build());
   }
 
+  private void createRuleDescSections(Context context) {
+    String tableName = "rule_desc_sections";
+    VarcharColumnDef ruleUuidCol = newVarcharColumnDefBuilder().setColumnName(RULE_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef keeCol = newVarcharColumnDefBuilder().setColumnName("kee").setIsNullable(false).setLimit(DESCRIPTION_SECTION_KEY_SIZE).build();
+    VarcharColumnDef contextKeyCol = newVarcharColumnDefBuilder().setColumnName("context_key").setIsNullable(true).setLimit(DESCRIPTION_SECTION_KEY_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(ruleUuidCol)
+      .addColumn(keeCol)
+      .addColumn(newClobColumnDefBuilder().setColumnName("content").setIsNullable(false).build())
+      .addColumn(contextKeyCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("context_display_name").setIsNullable(true).setLimit(50).build())
+      .build());
+
+    addIndex(context, tableName, "uniq_rule_desc_sections", true, ruleUuidCol, keeCol, contextKeyCol);
+  }
+
   private void createRules(Context context) {
     VarcharColumnDef pluginRuleKeyCol = newVarcharColumnDefBuilder("plugin_rule_key").setLimit(200).setIsNullable(false).build();
     VarcharColumnDef pluginNameCol = newVarcharColumnDefBuilder("plugin_name").setLimit(255).setIsNullable(false).build();
@@ -1268,7 +1436,6 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newVarcharColumnDefBuilder("plugin_config_key").setLimit(200).setIsNullable(true).build())
         .addColumn(pluginNameCol)
         .addColumn(newVarcharColumnDefBuilder("scope").setLimit(20).setIsNullable(false).build())
-        .addColumn(newClobColumnDefBuilder().setColumnName(DESCRIPTION_COL_NAME).setIsNullable(true).build())
         .addColumn(newIntegerColumnDefBuilder().setColumnName("priority").setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder(STATUS_COL_NAME).setLimit(40).setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder(LANGUAGE_COL_NAME).setLimit(20).setIsNullable(true).build())
@@ -1286,6 +1453,7 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(NULLABLE_TECHNICAL_CREATED_AT_COL)
         .addColumn(NULLABLE_TECHNICAL_UPDATED_AT_COL)
         .addColumn(newVarcharColumnDefBuilder(TEMPLATE_UUID_COL_NAME).setIsNullable(true).setLimit(UUID_SIZE).build())
+        .addColumn(newVarcharColumnDefBuilder("education_principles").setLimit(255).setIsNullable(true).build())
         .build());
     addIndex(context, "rules", "rules_repo_key", true, pluginRuleKeyCol, pluginNameCol);
     addIndex(context, "rules", "rules_organization_uuid", false, organizationUuidCol, pluginNameCol);
@@ -1352,10 +1520,19 @@ public class CreateInitialSchema extends DdlChange {
       newTableBuilder(tableName)
         .addPkColumn(UUID_COL)
         .addColumn(messageIdCol)
-        .addColumn(newBigIntegerColumnDefBuilder().setColumnName("expiration_date").setIsNullable(false).build())
+        .addColumn(newBigIntegerColumnDefBuilder().setColumnName(EXPIRATION_DATE_COL_NAME).setIsNullable(false).build())
         .addColumn(TECHNICAL_CREATED_AT_COL)
         .build());
     addIndex(context, tableName, "saml_message_ids_unique", true, messageIdCol);
+  }
+
+  private void createScannerAnalysisCache(Context context) {
+    String tableName = "scanner_analysis_cache";
+    context.execute(
+      newTableBuilder(tableName)
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName(BRANCH_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+        .addColumn(newBlobColumnDefBuilder().setColumnName("data").setIsNullable(false).build())
+        .build());
   }
 
   private void createSnapshots(Context context) {
@@ -1379,21 +1556,6 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(NULLABLE_TECHNICAL_CREATED_AT_COL)
         .build());
     addIndex(context, tableName, "snapshot_component", false, componentUuidCol);
-  }
-
-  private void createUserProperties(Context context) {
-    String tableName = "user_properties";
-    VarcharColumnDef userUuidCol = newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setLimit(USER_UUID_SIZE).setIsNullable(false).build();
-    VarcharColumnDef keyCol = newVarcharColumnDefBuilder("kee").setLimit(100).setIsNullable(false).build();
-    context.execute(newTableBuilder(tableName)
-      .addPkColumn(UUID_COL)
-      .addColumn(userUuidCol)
-      .addColumn(keyCol)
-      .addColumn(newVarcharColumnDefBuilder(TEXT_VALUE_COL_NAME).setLimit(4_000).setIsNullable(false).build())
-      .addColumn(TECHNICAL_CREATED_AT_COL)
-      .addColumn(TECHNICAL_UPDATED_AT_COL)
-      .build());
-    addIndex(context, tableName, "user_properties_user_uuid_kee", true, userUuidCol, keyCol);
   }
 
   private void createUserRoles(Context context) {
@@ -1435,6 +1597,8 @@ public class CreateInitialSchema extends DdlChange {
     VarcharColumnDef userUuidCol = newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setLimit(USER_UUID_SIZE).setIsNullable(false).build();
     VarcharColumnDef nameCol = newVarcharColumnDefBuilder("name").setLimit(100).setIsNullable(false).build();
     VarcharColumnDef tokenHashCol = newVarcharColumnDefBuilder("token_hash").setLimit(255).setIsNullable(false).build();
+    VarcharColumnDef projectKeyCol = newVarcharColumnDefBuilder("project_key").setLimit(255).setIsNullable(true).build();
+    VarcharColumnDef typeCol = newVarcharColumnDefBuilder("type").setLimit(100).setIsNullable(false).build();
     context.execute(
       newTableBuilder(tableName)
         .addPkColumn(UUID_COL)
@@ -1443,6 +1607,9 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(tokenHashCol)
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("last_connection_date").setIsNullable(true).build())
         .addColumn(TECHNICAL_CREATED_AT_COL)
+        .addColumn(projectKeyCol)
+        .addColumn(typeCol)
+        .addColumn(newBigIntegerColumnDefBuilder().setColumnName(EXPIRATION_DATE_COL_NAME).setIsNullable(true).build())
         .build());
     addIndex(context, tableName, "user_tokens_user_uuid_name", true, userUuidCol, nameCol);
     addIndex(context, tableName, "user_tokens_token_hash", true, tokenHashCol);
@@ -1469,9 +1636,7 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(externalLoginCol)
         .addColumn(externalIdentityProviderCol)
         .addColumn(externalIdCol)
-        .addColumn(newBooleanColumnDefBuilder().setColumnName("is_root").setIsNullable(false).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("user_local").setIsNullable(true).build())
-        .addColumn(newBooleanColumnDefBuilder().setColumnName("onboarded").setIsNullable(false).build())
         .addColumn(newVarcharColumnDefBuilder("homepage_type").setLimit(40).setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder("homepage_parameter").setLimit(40).setIsNullable(true).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("last_connection_date").setIsNullable(true).build())
@@ -1528,15 +1693,14 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "organization_webhook", false, organizationUuidCol);
   }
 
-  private static void addIndex(Context context, String table, String index, boolean unique, ColumnDef firstColumn, ColumnDef... otherColumns) {
-    CreateIndexBuilder builder = new CreateIndexBuilder()
+  private void addIndex(Context context, String table, String index, boolean unique, ColumnDef firstColumn, ColumnDef... otherColumns) {
+    CreateIndexBuilder builder = new CreateIndexBuilder(getDialect())
       .setTable(table)
       .setName(index)
       .setUnique(unique);
     concat(of(firstColumn), stream(otherColumns)).forEach(builder::addColumn);
     context.execute(builder.build());
   }
-
 
   private CreateTableBuilder newTableBuilder(String tableName) {
     return new CreateTableBuilder(getDialect(), tableName);

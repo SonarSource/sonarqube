@@ -3,28 +3,36 @@
 
 <mapper namespace="org.sonar.db.user.RoleMapper">
 
-  <select id="selectComponentUuidsByPermissionAndUserUuid" parameterType="map" resultType="String">
-    select
-      ur.component_uuid
-    from
-      user_roles ur
-    where
-      ur.user_uuid = #{userUuid,jdbcType=VARCHAR}
-      and ur.role = #{permission,jdbcType=VARCHAR}
-      and ur.component_uuid is not null
-    union
-    select
-      gr.component_uuid
-    from
-      group_roles gr
-    inner join groups_users gu on
-      gr.group_uuid=gu.group_uuid
-    where
-      gr.role = #{permission,jdbcType=VARCHAR}
-      and gr.component_uuid is not null
-      and gu.user_uuid=#{userUuid,jdbcType=VARCHAR}
-    order by
-      component_uuid
+  <select id="selectEntityUuidsByPermissionAndUserUuidAndQualifier" parameterType="map" resultType="String">
+    select entity.uuid
+    from (select
+        ur.entity_uuid
+      from
+        user_roles ur
+      where
+        ur.user_uuid = #{userUuid,jdbcType=VARCHAR}
+        and ur.role = #{permission,jdbcType=VARCHAR}
+        and ur.entity_uuid is not null
+      union
+      select
+        gr.entity_uuid
+      from
+        group_roles gr
+      inner join groups_users gu on
+        gr.group_uuid=gu.group_uuid
+      where
+        gr.role = #{permission,jdbcType=VARCHAR}
+        and gr.entity_uuid is not null
+        and gu.user_uuid=#{userUuid,jdbcType=VARCHAR} ) permissions
+    inner join
+    ( select uuid, name from (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) e
+      where e.qualifier  in
+        <foreach collection="qualifiers" open="(" close=")" item="uuid" separator=",">
+          #{uuid,jdbcType=VARCHAR}
+        </foreach>
+    ) entity
+    on permissions.entity_uuid = entity.uuid
+    order by entity.name
   </select>
 
   <delete id="deleteGroupRolesByGroupUuid" parameterType="String">

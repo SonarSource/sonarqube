@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,11 +35,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
@@ -49,7 +53,7 @@ import static org.sonar.auth.saml.SamlStatusChecker.getSamlAuthenticationStatus;
 
 public class SamlAuthenticator {
 
-  private static final Logger LOGGER = Loggers.get(SamlAuthenticator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SamlAuthenticator.class);
 
   private static final String ANY_URL = "http://anyurl";
   private static final String STATE_REQUEST_PARAMETER = "RelayState";
@@ -62,8 +66,8 @@ public class SamlAuthenticator {
     this.samlMessageIdChecker = samlMessageIdChecker;
   }
 
-  public UserIdentity buildUserIdentity(OAuth2IdentityProvider.CallbackContext context, HttpServletRequest processedRequest) {
-    Auth auth = this.initSamlAuth(processedRequest, context.getResponse());
+  public UserIdentity buildUserIdentity(OAuth2IdentityProvider.CallbackContext context, HttpRequest processedRequest) {
+    Auth auth = this.initSamlAuth(processedRequest, context.getHttpResponse());
     processResponse(auth);
     context.verifyCsrfState(STATE_REQUEST_PARAMETER);
 
@@ -83,19 +87,23 @@ public class SamlAuthenticator {
     return userIdentityBuilder.build();
   }
 
-  public void initLogin(String callbackUrl, String relayState, HttpServletRequest request, HttpServletResponse response) {
+  public void initLogin(String callbackUrl, String relayState, HttpRequest request, HttpResponse response) {
     Auth auth = this.initSamlAuth(callbackUrl, request, response);
     login(auth, relayState);
   }
 
-  private Auth initSamlAuth(HttpServletRequest request, HttpServletResponse response) {
+  private Auth initSamlAuth(HttpRequest request, HttpResponse response) {
     return initSamlAuth(null, request, response);
   }
 
-  private Auth initSamlAuth(@Nullable String callbackUrl, HttpServletRequest request, HttpServletResponse response) {
+  private Auth initSamlAuth(@Nullable String callbackUrl, HttpRequest request, HttpResponse response) {
     try {
-      return new Auth(initSettings(callbackUrl), request, response);
-    } catch (SettingsException e) {
+      //no way around this as onelogin requires javax request/response
+      HttpServletRequest httpServletRequest = ((JavaxHttpRequest) request).getDelegate();
+      HttpServletResponse httpServletResponse = ((JavaxHttpResponse) response).getDelegate();
+
+      return new Auth(initSettings(callbackUrl), httpServletRequest, httpServletResponse);
+    } catch (Exception e) {
       throw new IllegalStateException("Failed to create a SAML Auth", e);
     }
   }
@@ -127,7 +135,12 @@ public class SamlAuthenticator {
 
     var saml2Settings = new SettingsBuilder().fromValues(samlData).build();
     if (samlSettings.getServiceProviderPrivateKey().isPresent() && saml2Settings.getSPkey() == null) {
-      LOGGER.error("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+      final String pkcs8ErrorMessage = "Error in parsing service provider private key, please make sure that it is in PKCS 8 format.";
+      LOGGER.error(pkcs8ErrorMessage);
+      // If signature is enabled then we need to throw an exception because the authentication will never work with a missing private key
+      if (samlSettings.isSignRequestsEnabled()) {
+        throw new IllegalStateException(pkcs8ErrorMessage);
+      }
     }
     return saml2Settings;
   }
@@ -208,13 +221,12 @@ public class SamlAuthenticator {
     samlMessageIdChecker.check(auth);
   }
 
-  public String getAuthenticationStatusPage(HttpServletRequest request, HttpServletResponse response) {
+  public String getAuthenticationStatusPage(HttpRequest request, HttpResponse response) {
     try {
-      Auth auth = this.initSamlAuth(request, response);
-      return getSamlAuthStatusHtml(getSamlAuthenticationStatus(auth, samlSettings));
+      Auth auth = initSamlAuth(request, response);
+      return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(request.getParameter("SAMLResponse"), auth, samlSettings));
     } catch (IllegalStateException e) {
-      return getSamlAuthStatusHtml(getSamlAuthenticationStatus(String.format("%s due to: %s", e.getMessage(), e.getCause().getMessage())));
+      return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(String.format("%s due to: %s", e.getMessage(), e.getCause().getMessage())));
     }
   }
 }
-

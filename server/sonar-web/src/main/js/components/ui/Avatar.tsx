@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,55 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { Avatar as BaseAvatar } from 'design-system';
 import * as React from 'react';
-import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import GenericAvatar from '../../components/ui/GenericAvatar';
-import { AppState } from '../../types/appstate';
+import { AppStateContext } from '../../app/components/app-state/AppStateContext';
+import { FCProps } from '../../types/misc';
 import { GlobalSettingKeys } from '../../types/settings';
 
-const GRAVATAR_SIZE_MULTIPLIER = 2;
+type ExcludedProps =
+  | 'enableGravatar'
+  | 'gravatarServerUrl'
+  | 'organizationAvatar'
+  | 'organizationName';
 
-interface Props {
-  appState: AppState;
-  className?: string;
-  hash?: string;
-  name?: string;
-  size: number;
-}
+type Props = Omit<FCProps<typeof BaseAvatar>, ExcludedProps>;
 
-export function Avatar(props: Props) {
-  const {
-    appState: { settings },
-    className,
-    hash,
-    name,
-    size,
-  } = props;
+export default function Avatar(props: Props) {
+  const { settings } = React.useContext(AppStateContext);
 
   const enableGravatar = settings[GlobalSettingKeys.EnableGravatar] === 'true';
-
-  if (!enableGravatar || !hash) {
-    if (!name) {
-      return null;
-    }
-    return <GenericAvatar className={className} name={name} size={size} />;
-  }
-
   const gravatarServerUrl = settings[GlobalSettingKeys.GravatarServerUrl] ?? '';
-  const url = gravatarServerUrl
-    .replace('{EMAIL_MD5}', hash)
-    .replace('{SIZE}', String(size * GRAVATAR_SIZE_MULTIPLIER));
 
   return (
-    <img
-      alt={name}
-      className={classNames(className, 'rounded')}
-      height={size}
-      src={url}
-      width={size}
-    />
+    <BaseAvatar enableGravatar={enableGravatar} gravatarServerUrl={gravatarServerUrl} {...props} />
   );
 }
-
-export default withAppStateContext(Avatar);

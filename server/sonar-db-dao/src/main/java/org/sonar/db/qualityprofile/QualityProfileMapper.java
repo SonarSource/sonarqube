@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -52,11 +52,13 @@ public interface QualityProfileMapper {
   @CheckForNull
   QProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
-  List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(@Param("languages") List<String> languages);
+  List<QProfileDto> selectDefaultProfilesWithoutActiveRules(@Param("languages") List<String> languages, @Param("builtIn") boolean builtIn);
 
   List<QProfileDto> selectDefaultProfiles(
     @Param("organizationUuid") String organizationUuid,
     @Param("languages") Collection<String> languages);
+
+  List<QProfileDto> selectAllDefaultProfiles();
 
   @CheckForNull
   List<String> selectDefaultProfileUuid(@Param("language") String language);
@@ -96,8 +98,6 @@ public interface QualityProfileMapper {
     @Param("projectUuid") String projectUuid,
     @Param("languages") Collection<String> languages);
 
-  List<String> selectQProfileUuidsByProjectUuid(@Param("projectUuid") String projectUuid);
-
   List<QProfileDto> selectQProfilesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void insertProjectProfileAssociation(
@@ -128,6 +128,8 @@ public interface QualityProfileMapper {
     @Param("organizationUuid") String organizationUuid,
     @Param("profileUuid") String profileUuid,
     @Param("nameOrKeyQuery") String nameOrKeyQuery);
+
+  List<ProjectQProfileLanguageAssociationDto> selectAllProjectAssociations();
 
   List<String> selectUuidsOfCustomRuleProfiles(@Param("language") String language, @Param("name") String name);
 

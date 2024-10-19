@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,21 +19,28 @@
  */
 package org.sonar.db.project;
 
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class ProjectDao implements Dao {
   private final System2 system2;
   private final AuditPersister auditPersister;
+
+  private final Function<String, Set<String>> languageFilters = language -> Set.of(language + "=%", "%;" + language + "=%");
 
   public ProjectDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
@@ -67,19 +74,23 @@ public class ProjectDao implements Dao {
     return mapper(session).selectAllApplications();
   }
 
-  public List<ProjectDto> selectProjectsByKeys(DbSession session, Set<String> keys) {
+  public List<ProjectDto> selectProjectsByKeys(DbSession session, Collection<String> keys) {
     if (keys.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     return mapper(session).selectProjectsByKeys(keys);
   }
 
   public List<ProjectDto> selectApplicationsByKeys(DbSession session, Set<String> keys) {
     if (keys.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
 
     return executeLargeInputs(keys, partition -> mapper(session).selectApplicationsByKeys(partition));
+  }
+
+  public Optional<ProjectDto> selectByBranchUuid(DbSession dbSession, String branchUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectByBranchUuid(branchUuid));
   }
 
   public List<ProjectDto> selectProjects(DbSession session) {
@@ -96,13 +107,24 @@ public class ProjectDao implements Dao {
 
   public List<ProjectDto> selectByUuids(DbSession session, Set<String> uuids) {
     if (uuids.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     return executeLargeInputs(uuids, partition -> mapper(session).selectByUuids(partition));
   }
 
+  public List<ProjectDto> selectByUuids(DbSession session, Set<String> uuids, Pagination pagination) {
+    if (uuids.isEmpty()) {
+      return emptyList();
+    }
+    return mapper(session).selectByUuidsWithPagination(uuids, pagination);
+  }
+
   public void updateVisibility(DbSession session, String uuid, boolean isPrivate) {
     mapper(session).updateVisibility(uuid, isPrivate, system2.now());
+  }
+
+  public void updateAiCodeAssurance(DbSession session, String uuid, boolean aiCodeAssurance) {
+    mapper(session).updateAiCodeAssurance(uuid, aiCodeAssurance, system2.now());
   }
 
   public void updateTags(DbSession session, ProjectDto project) {
@@ -118,13 +140,36 @@ public class ProjectDao implements Dao {
     return session.getMapper(ProjectMapper.class);
   }
 
-  public List<String> selectAllProjectUuids(DbSession session) {
-    return mapper(session).selectAllProjectUuids();
+  public Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(DbSession session, String language) {
+    return mapper(session).selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(languageFilters.apply(language));
   }
 
-  public Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(DbSession session, String language) {
-    Set<String> languageFilters = Set.of(language + "=%", "%;" + language + "=%");
-    return mapper(session).selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(languageFilters);
+  public void updateNcloc(DbSession dbSession, String projectUuid, long ncloc) {
+    mapper(dbSession).updateNcloc(projectUuid, ncloc);
+  }
+
+  public long getNclocSum(DbSession dbSession) {
+    return getNclocSum(dbSession, null);
+  }
+
+  public long getNclocSum(DbSession dbSession, @Nullable String projectUuidToExclude) {
+    return Optional.ofNullable(mapper(dbSession).getNclocSum(projectUuidToExclude)).orElse(0L);
+  }
+
+  public int countIndexedProjects(DbSession session) {
+    return mapper(session).countIndexedProjects();
+  }
+
+  public int countProjects(DbSession session) {
+    return mapper(session).countProjects();
+  }
+
+  public List<ProjectDto> selectProjectsByLanguage(DbSession dbSession, Set<String> setOfLanguages) {
+    Set<String> likeFilters = new HashSet<>();
+    for (String language : setOfLanguages) {
+      likeFilters.addAll(languageFilters.apply(language));
+    }
+    return mapper(dbSession).selectProjectsByLanguage(likeFilters);
   }
 
   public List<ProjectDto> selectProjectsByOrganizationUuids(DbSession session, List<String> orgUuids) {

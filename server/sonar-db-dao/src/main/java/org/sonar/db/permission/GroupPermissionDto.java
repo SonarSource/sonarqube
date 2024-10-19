@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,8 @@ public class GroupPermissionDto {
   private String organizationUuid;
   private String groupUuid;
   private String groupName;
-  private String componentUuid;
-  private String componentName;
+  private String entityUuid;
+  private String entityName;
 
   public String getUuid() {
     return uuid;
@@ -61,12 +61,12 @@ public class GroupPermissionDto {
   }
 
   @Nullable
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
-  public GroupPermissionDto setComponentUuid(@Nullable String componentUuid) {
-    this.componentUuid = componentUuid;
+  public GroupPermissionDto setEntityUuid(@Nullable String entityUuid) {
+    this.entityUuid = entityUuid;
     return this;
   }
 
@@ -90,12 +90,12 @@ public class GroupPermissionDto {
   }
 
   @Nullable
-  public String getComponentName() {
-    return componentName;
+  public String getEntityName() {
+    return entityName;
   }
 
-  public GroupPermissionDto setComponentName(@Nullable String componentName) {
-    this.componentName = componentName;
+  public GroupPermissionDto setEntityName(@Nullable String entityName) {
+    this.entityName = entityName;
     return this;
   }
 }

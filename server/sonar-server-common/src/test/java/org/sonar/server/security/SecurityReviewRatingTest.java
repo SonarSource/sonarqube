@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,12 @@
  */
 package org.sonar.server.security;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.List;
 import org.assertj.core.data.Offset;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,13 +36,11 @@ import static org.sonar.server.measure.Rating.E;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
-@RunWith(DataProviderRunner.class)
-public class SecurityReviewRatingTest {
+class SecurityReviewRatingTest {
 
   private static final Offset<Double> DOUBLE_OFFSET = Offset.offset(0.01d);
 
-  @DataProvider
-  public static Object[][] values() {
+  private static Object[][] values() {
     List<Object[]> res = new ArrayList<>();
     res.add(new Object[] {100.0, A});
     res.add(new Object[] {90.0, A});
@@ -59,14 +55,14 @@ public class SecurityReviewRatingTest {
     return res.toArray(new Object[res.size()][2]);
   }
 
-  @Test
-  @UseDataProvider("values")
-  public void compute_rating(double percent, Rating expectedRating) {
+  @ParameterizedTest
+  @MethodSource("values")
+  void compute_rating(double percent, Rating expectedRating) {
     assertThat(computeRating(percent)).isEqualTo(expectedRating);
   }
 
   @Test
-  public void compute_percent() {
+  void compute_percent() {
     assertThat(computePercent(0, 0)).isEmpty();
     assertThat(computePercent(0, 10)).contains(100.0);
     assertThat(computePercent(1, 3)).contains(75.0);

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.lang.String.format;
 
@@ -50,7 +49,7 @@ public class RedirectFilter implements Filter {
     Predicate<Redirect> match = redirect -> redirect.test(path);
     List<Redirect> redirects = REDIRECTS.stream()
       .filter(match)
-      .collect(MoreCollectors.toList());
+      .toList();
 
     switch (redirects.size()) {
       case 0:

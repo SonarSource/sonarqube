@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,14 @@ import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.developers.DevelopersService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
+import org.sonarqube.ws.client.emails.EmailConfigurationService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
+import org.sonarqube.ws.client.github.configuration.GithubConfigurationService;
+import org.sonarqube.ws.client.github.provisioning.permissions.GithubPermissionsService;
+import org.sonarqube.ws.client.gitlab.configuration.GitlabConfigurationService;
+import org.sonarqube.ws.client.gitlab.provisioning.permissions.GitlabPermissionService;
+import org.sonarqube.ws.client.gitlab.synchronization.run.GitlabSynchronizationRunService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.hotspots.HotspotsService;
 import org.sonarqube.ws.client.issues.IssuesService;
@@ -56,7 +62,6 @@ import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
 import org.sonarqube.ws.client.projects.ProjectsService;
 import org.sonarqube.ws.client.projecttags.ProjectTagsService;
-import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.push.SonarLintServerPushService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
@@ -69,7 +74,6 @@ import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.sources.SourcesService;
 import org.sonarqube.ws.client.support.SupportService;
 import org.sonarqube.ws.client.system.SystemService;
-import org.sonarqube.ws.client.timemachine.TimemachineService;
 import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
 import org.sonarqube.ws.client.users.UsersService;
@@ -100,6 +104,7 @@ class DefaultWsClient implements WsClient {
   private final DevelopersService developersService;
   private final DuplicationsService duplicationsService;
   private final EditionsService editionsService;
+  private final EmailConfigurationService emailConfigurationService;
   private final EmailsService emailsService;
   private final FavoritesService favoritesService;
   private final GovernanceReportsService governanceReportsService;
@@ -124,7 +129,6 @@ class DefaultWsClient implements WsClient {
   private final ProjectPullRequestsService projectPullRequestsService;
   private final ProjectTagsService projectTagsService;
   private final ProjectsService projectsService;
-  private final PropertiesService propertiesService;
   private final QualitygatesService qualitygatesService;
   private final QualityprofilesService qualityprofilesService;
   private final RootsService rootsService;
@@ -134,7 +138,6 @@ class DefaultWsClient implements WsClient {
   private final SourcesService sourcesService;
   private final SupportService supportService;
   private final SystemService systemService;
-  private final TimemachineService timemachineService;
   private final UpdatecenterService updatecenterService;
   private final UserGroupsService userGroupsService;
   private final UserTokensService userTokensService;
@@ -146,6 +149,12 @@ class DefaultWsClient implements WsClient {
   private final SecurityReportsService securityReportsService;
   private final RegulatoryReportsService regulatoryReportsService;
   private final SonarLintServerPushService sonarLintPushService;
+  private final GithubConfigurationService githubConfigurationService;
+  private final GithubPermissionsService githubPermissionsService;
+  private final GitlabConfigurationService gitlabConfigurationService;
+  private final GitlabPermissionService gitlabPermissionsService;
+
+  private final GitlabSynchronizationRunService gitlabSynchronizationRunService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -161,6 +170,7 @@ class DefaultWsClient implements WsClient {
     this.developersService = new DevelopersService(wsConnector);
     this.duplicationsService = new DuplicationsService(wsConnector);
     this.editionsService = new EditionsService(wsConnector);
+    this.emailConfigurationService = new EmailConfigurationService(wsConnector);
     this.emailsService = new EmailsService(wsConnector);
     this.favoritesService = new FavoritesService(wsConnector);
     this.governanceReportsService = new GovernanceReportsService(wsConnector);
@@ -185,7 +195,6 @@ class DefaultWsClient implements WsClient {
     this.projectPullRequestsService = new ProjectPullRequestsService(wsConnector);
     this.projectTagsService = new ProjectTagsService(wsConnector);
     this.projectsService = new ProjectsService(wsConnector);
-    this.propertiesService = new PropertiesService(wsConnector);
     this.qualitygatesService = new QualitygatesService(wsConnector);
     this.qualityprofilesService = new QualityprofilesService(wsConnector);
     this.rootsService = new RootsService(wsConnector);
@@ -195,7 +204,6 @@ class DefaultWsClient implements WsClient {
     this.sourcesService = new SourcesService(wsConnector);
     this.supportService = new SupportService(wsConnector);
     this.systemService = new SystemService(wsConnector);
-    this.timemachineService = new TimemachineService(wsConnector);
     this.updatecenterService = new UpdatecenterService(wsConnector);
     this.userGroupsService = new UserGroupsService(wsConnector);
     this.userTokensService = new UserTokensService(wsConnector);
@@ -207,6 +215,11 @@ class DefaultWsClient implements WsClient {
     this.securityReportsService = new SecurityReportsService(wsConnector);
     this.sonarLintPushService = new SonarLintServerPushService(wsConnector);
     this.regulatoryReportsService = new RegulatoryReportsService(wsConnector);
+    this.githubConfigurationService = new GithubConfigurationService(wsConnector);
+    this.githubPermissionsService = new GithubPermissionsService(wsConnector);
+    this.gitlabConfigurationService = new GitlabConfigurationService(wsConnector);
+    this.gitlabPermissionsService = new GitlabPermissionService(wsConnector);
+    this.gitlabSynchronizationRunService = new GitlabSynchronizationRunService(wsConnector);
   }
 
   @Override
@@ -276,6 +289,11 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
+  public EmailConfigurationService emailConfiguration() {
+    return emailConfigurationService;
+  }
+
+  @Override
   public EmailsService emails() {
     return emailsService;
   }
@@ -283,6 +301,31 @@ class DefaultWsClient implements WsClient {
   @Override
   public FavoritesService favorites() {
     return favoritesService;
+  }
+
+  @Override
+  public GithubConfigurationService githubConfigurationService() {
+    return githubConfigurationService;
+  }
+
+  @Override
+  public GithubPermissionsService githubPermissionsService() {
+    return githubPermissionsService;
+  }
+
+  @Override
+  public GitlabConfigurationService gitlabConfigurationService() {
+    return gitlabConfigurationService;
+  }
+
+  @Override
+  public GitlabPermissionService gitlabPermissionsService() {
+    return gitlabPermissionsService;
+  }
+
+  @Override
+  public GitlabSynchronizationRunService gitlabSynchronizationRunService() {
+    return gitlabSynchronizationRunService;
   }
 
   @Override
@@ -401,11 +444,6 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public PropertiesService properties() {
-    return propertiesService;
-  }
-
-  @Override
   public QualitygatesService qualitygates() {
     return qualitygatesService;
   }
@@ -448,11 +486,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public SystemService system() {
     return systemService;
-  }
-
-  @Override
-  public TimemachineService timemachine() {
-    return timemachineService;
   }
 
   @Override

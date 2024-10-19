@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
@@ -37,19 +38,17 @@ public class PullRequestTrackerExecution {
   private final TrackerBaseInputFactory baseInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
   private final NewLinesRepository newLinesRepository;
-  private final TrackerTargetBranchInputFactory targetInputFactory;
   private final ConfigurationRepository config;
 
-  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerTargetBranchInputFactory targetInputFactory,
+  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory,
     Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository, ConfigurationRepository config) {
     this.baseInputFactory = baseInputFactory;
-    this.targetInputFactory = targetInputFactory;
     this.tracker = tracker;
     this.newLinesRepository = newLinesRepository;
     this.config = config;
   }
 
-  public Tracking<DefaultIssue, DefaultIssue> track(Component component, Input<DefaultIssue> rawInput) {
+  public Tracking<DefaultIssue, DefaultIssue> track(Component component, Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput) {
     // Step 1: only keep issues on changed lines
     List<DefaultIssue> filteredRaws;
     boolean filterIssuesByChangedLines = config.getConfiguration().getBoolean("codescan.pullRequest.filterIssuesByChangedLines").orElse(Boolean.TRUE);
@@ -62,11 +61,10 @@ public class PullRequestTrackerExecution {
 
     // Step 2: remove issues that are resolved in the target branch
     Input<DefaultIssue> unmatchedRawsAfterTargetResolvedTracking;
-    if (targetInputFactory.hasTargetBranchAnalysis()) {
-      Input<DefaultIssue> targetInput = targetInputFactory.createForTargetBranch(component);
+    if (targetInput != null) {
       List<DefaultIssue> resolvedTargetIssues = targetInput.getIssues().stream()
-              .filter(i -> !filterIssuesByChangedLines || Issue.STATUS_RESOLVED.equals(i.status()))
-              .toList();
+          .filter(i -> !filterIssuesByChangedLines || Issue.STATUS_RESOLVED.equals(i.status()))
+          .toList();
       Input<DefaultIssue> resolvedTargetInput = createInput(targetInput, resolvedTargetIssues);
       Tracking<DefaultIssue, DefaultIssue> prResolvedTracking = tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, resolvedTargetInput);
       unmatchedRawsAfterTargetResolvedTracking = createInput(rawInput, prResolvedTracking.getUnmatchedRaws().toList());

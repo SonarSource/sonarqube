@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,7 @@ import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -37,12 +35,10 @@ import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
@@ -64,33 +60,13 @@ public class ValidateProjectStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      validateTargetBranch(dbSession);
       Component root = treeRootHolder.getRoot();
-      // FIXME if module have really be dropped, no more need to load them
-      String branchKey = analysisMetadataHolder.isBranch() ? analysisMetadataHolder.getBranch().getName() : null;
-      String prKey = analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getBranch().getPullRequestKey() : null;
-      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getKey(), branchKey, prKey);
-      Map<String, ComponentDto> baseModulesByKey = baseModules.stream().collect(Collectors.toMap(ComponentDto::getKey, x -> x));
-      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
+      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao());
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
       if (!visitor.validationMessages.isEmpty()) {
         throw MessageException.of("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));
       }
-    }
-  }
-
-  private void validateTargetBranch(DbSession session) {
-    if (!analysisMetadataHolder.isPullRequest()) {
-      return;
-    }
-    String referenceBranchUuid = analysisMetadataHolder.getBranch().getReferenceBranchUuid();
-    int moduleCount = dbClient.componentDao().countEnabledModulesByBranchUuid(session, referenceBranchUuid);
-    if (moduleCount > 0) {
-      Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(session, referenceBranchUuid);
-      checkState(opt.isPresent(), "Reference branch '%s' does not exist", referenceBranchUuid);
-      throw MessageException.of(String.format(
-        "Due to an upgrade, you need first to re-analyze the target branch '%s' before analyzing this pull request.", opt.get().getKey()));
     }
   }
 
@@ -102,14 +78,12 @@ public class ValidateProjectStep implements ComputationStep {
   private class ValidateProjectsVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
     private final ComponentDao componentDao;
-    private final Map<String, ComponentDto> baseModulesByKey;
     private final List<String> validationMessages = new ArrayList<>();
 
-    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, Map<String, ComponentDto> baseModulesByKey) {
+    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao) {
       super(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
-      this.baseModulesByKey = baseModulesByKey;
     }
 
     @Override
@@ -142,16 +116,12 @@ public class ValidateProjectStep implements ComputationStep {
     }
 
     private Optional<ComponentDto> loadBaseComponent(String rawComponentKey) {
-      ComponentDto baseComponent = baseModulesByKey.get(rawComponentKey);
-      if (baseComponent == null) {
-        // Load component from key to be able to detect issue (try to analyze a module, etc.)
-        if (analysisMetadataHolder.isBranch()) {
-          return componentDao.selectByKeyAndBranch(session, rawComponentKey, analysisMetadataHolder.getBranch().getName());
-        } else {
-          return componentDao.selectByKeyAndPullRequest(session, rawComponentKey, analysisMetadataHolder.getBranch().getPullRequestKey());
-        }
+      // Load component from key to be able to detect issue (try to analyze a module, etc.)
+      if (analysisMetadataHolder.isBranch()) {
+        return componentDao.selectByKeyAndBranch(session, rawComponentKey, analysisMetadataHolder.getBranch().getName());
+      } else {
+        return componentDao.selectByKeyAndPullRequest(session, rawComponentKey, analysisMetadataHolder.getBranch().getPullRequestKey());
       }
-      return Optional.of(baseComponent);
     }
   }
 }

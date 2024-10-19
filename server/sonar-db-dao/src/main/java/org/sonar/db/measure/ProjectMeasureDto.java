@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,47 +19,127 @@
  */
 package org.sonar.db.measure;
 
+import com.google.common.base.MoreObjects;
+import java.nio.charset.StandardCharsets;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class ProjectMeasureDto {
+  private static final int MAX_TEXT_VALUE_LENGTH = 4000;
 
-  private String projectUuid;
-  private Long lastAnalysis;
-  private long loc;
+  private String uuid;
+  private Double value;
   private String textValue;
+  private byte[] dataValue;
+  private String alertStatus;
+  private String alertText;
+  private String componentUuid;
+  private String analysisUuid;
+  private String metricUuid;
 
-  public String getProjectUuid() {
-    return projectUuid;
+  public ProjectMeasureDto() {
+    // empty constructor
   }
 
-  public ProjectMeasureDto setProjectUuid(String projectUuid) {
-    this.projectUuid = projectUuid;
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
+
+  @CheckForNull
+  public Double getValue() {
+    return value;
+  }
+
+  public ProjectMeasureDto setValue(@Nullable Double value) {
+    this.value = value;
     return this;
   }
 
-  public String getTextValue() {
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public ProjectMeasureDto setComponentUuid(String s) {
+    this.componentUuid = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String getData() {
+    if (dataValue != null) {
+      return new String(dataValue, StandardCharsets.UTF_8);
+    }
     return textValue;
   }
 
-  public ProjectMeasureDto setTextValue(String textValue) {
-    this.textValue = textValue;
+  public ProjectMeasureDto setData(@Nullable String data) {
+    if (data == null) {
+      this.textValue = null;
+      this.dataValue = null;
+    } else if (data.length() > MAX_TEXT_VALUE_LENGTH) {
+      this.textValue = null;
+      this.dataValue = data.getBytes(StandardCharsets.UTF_8);
+    } else {
+      this.textValue = data;
+      this.dataValue = null;
+    }
+
     return this;
   }
 
-  public long getLoc() {
-    return loc;
+  @CheckForNull
+  public String getAlertStatus() {
+    return alertStatus;
   }
 
-  public ProjectMeasureDto setLoc(long loc) {
-    this.loc = loc;
+  public ProjectMeasureDto setAlertStatus(@Nullable String alertStatus) {
+    this.alertStatus = alertStatus;
     return this;
   }
 
-  public Long getLastAnalysis() {
-    return lastAnalysis;
+  @CheckForNull
+  public String getAlertText() {
+    return alertText;
   }
 
-  public ProjectMeasureDto setLastAnalysis(Long lastAnalysis) {
-    this.lastAnalysis = lastAnalysis;
+  public ProjectMeasureDto setAlertText(@Nullable String alertText) {
+    this.alertText = alertText;
     return this;
   }
 
+  public String getMetricUuid() {
+    return metricUuid;
+  }
+
+  public ProjectMeasureDto setMetricUuid(String metricUuid) {
+    this.metricUuid = metricUuid;
+    return this;
+  }
+
+  public String getAnalysisUuid() {
+    return analysisUuid;
+  }
+
+  public ProjectMeasureDto setAnalysisUuid(String s) {
+    this.analysisUuid = s;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("value", value)
+      .add("textValue", textValue)
+      .add("dataValue", dataValue)
+      .add("alertStatus", alertStatus)
+      .add("alertText", alertText)
+      .add("componentUuid", componentUuid)
+      .add("analysisUuid", analysisUuid)
+      .add("metricUuid", metricUuid)
+      .toString();
+  }
 }

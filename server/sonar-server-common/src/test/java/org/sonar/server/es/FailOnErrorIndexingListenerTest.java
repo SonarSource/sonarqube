@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ public class FailOnErrorIndexingListenerTest {
 
     assertThatThrownBy(() -> FAIL_ON_ERROR.onFinish(indexingResult))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Unrecoverable indexation failures: 1 errors among 1 requests. "
+      .hasMessage("Unrecoverable indexing failures: 1 errors among 1 requests. "
         + "Check Elasticsearch logs for further details.");
   }
 

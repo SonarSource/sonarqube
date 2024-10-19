@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Highlight, StandoutLink } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
 import { translate } from '../../../helpers/l10n';
 
 export default function NoFavoriteProjects() {
   return (
-    <div className="projects-empty-list">
-      <h3>{translate('projects.no_favorite_projects')}</h3>
+    <div className="sw-py-8 sw-text-center">
+      <Highlight as="h3" className="sw-mb-2 sw-typo-lg-semibold">
+        {translate('projects.no_favorite_projects')}
+      </Highlight>
 
       <div>
-        <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
-        <p className="big-spacer-top">
-          <Link className="button" to="/projects/all">
+        <p className="sw-mt-2 sw-typo-default">
+          {translate('projects.no_favorite_projects.engagement')}
+        </p>
+        <p className="sw-mt-6">
+          <StandoutLink className="sw-mt-6 sw-typo-semibold" to="/projects/all">
             {translate('projects.explore_projects')}
-          </Link>
+          </StandoutLink>
         </p>
       </div>
     </div>

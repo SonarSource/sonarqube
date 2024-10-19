@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CardSeparator, CenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import { useState } from 'react';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
+import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
+import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { translate } from '../../../helpers/l10n';
+import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures';
+import { CodeScope } from '../../../helpers/urls';
+import { useProjectAiCodeAssuredQuery } from '../../../queries/ai-code-assurance';
+import { useDismissNoticeMutation } from '../../../queries/users';
+import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { isProject } from '../../../types/component';
+import { Feature } from '../../../types/features';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { Component, MeasureEnhanced, Metric, Period } from '../../../types/types';
+import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
+import { NoticeType } from '../../../types/users';
+import { AnalysisStatus } from '../components/AnalysisStatus';
+import LastAnalysisLabel from '../components/LastAnalysisLabel';
+import { Status } from '../utils';
 import ActivityPanel from './ActivityPanel';
+import { AiCodeAssuranceWarrning } from './AiCodeAssuranceWarrning';
+import BranchMetaTopBar from './BranchMetaTopBar';
+import CaycPromotionGuide from './CaycPromotionGuide';
+import DismissablePromotedSection from './DismissablePromotedSection';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
-import MeasuresPanel from './MeasuresPanel';
+import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
+import NewCodeMeasuresPanel from './NewCodeMeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
-import QualityGatePanel from './QualityGatePanel';
+import OverallCodeMeasuresPanel from './OverallCodeMeasuresPanel';
+import QGStatus from './QualityGateStatus';
+import ReplayTourGuide from './ReplayTour';
+import TabsPanel from './TabsPanel';
 
 export interface BranchOverviewRendererProps {
   analyses?: Analysis[];
@@ -48,9 +74,9 @@ export interface BranchOverviewRendererProps {
   metrics?: Metric[];
   onGraphChange: (graph: GraphType) => void;
   period?: Period;
-  projectBinding?: ProjectAlmBindingResponse;
   projectIsEmpty?: boolean;
   qgStatuses?: QualityGateStatus[];
+  qualityGate?: QualityGate;
   grc: boolean;
 }
 
@@ -65,51 +91,215 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     graph,
     loadingHistory,
     loadingStatus,
-    measures,
+    measures = [],
     measuresHistory = [],
     metrics = [],
     onGraphChange,
     period,
-    projectBinding,
     projectIsEmpty,
     qgStatuses,
-    grc
+    qualityGate,
+    grc,
   } = props;
 
+  const { query } = useLocation();
+  const router = useRouter();
+
+  const { currentUser } = React.useContext(CurrentUserContext);
+  const { hasFeature } = useAvailableFeatures();
+
+  const { mutateAsync: dismissNotice } = useDismissNoticeMutation();
+
+  const [startTour, setStartTour] = useState(false);
+  const [tourCompleted, setTourCompleted] = useState(false);
+  const [showReplay, setShowReplay] = useState(false);
+  const [dismissedTour, setDismissedTour] = useState(
+    currentUser.isLoggedIn &&
+      !!currentUser.dismissedNotices[NoticeType.ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE],
+  );
+  const { data: isAiCodeAssured } = useProjectAiCodeAssuredQuery(
+    { project: component.key },
+    { enabled: isProject(component.qualifier) && hasFeature(Feature.AiCodeAssurance) },
+  );
+
+  const tab = query.codeScope === CodeScope.Overall ? CodeScope.Overall : CodeScope.New;
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
+  const isNewCodeTab = tab === CodeScope.New;
+  const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
+  const hasOverallFindings = measures.some(
+    (m) =>
+      [MetricKey.violations, MetricKey.security_hotspots].includes(m.metric.key as MetricKey) &&
+      m.value !== '0',
+  );
+
+  // Check if any potentially missing uncomputed measure is not present
+  // const isMissingMeasures =
+  //   !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
+  const isMissingMeasures = !areCCTMeasuresComputed(measures);
+
+  const selectTab = (tab: CodeScope) => {
+    router.replace({ query: { ...query, codeScope: tab } });
+  };
+
+  React.useEffect(() => {
+    // Open Overall tab by default if there are no new measures.
+    if (loadingStatus === false && !hasNewCodeMeasures && isNewCodeTab) {
+      selectTab(CodeScope.Overall);
+    }
+    // In this case, we explicitly do NOT want to mark tab as a dependency, as
+    // it would prevent the user from selecting it, even if it's empty.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [loadingStatus, hasNewCodeMeasures]);
+
+  const analysisMissingInfo = isMissingMeasures && (
+    <AnalysisMissingInfoMessage
+      qualifier={component.qualifier}
+      hide={isPortfolioLike(component.qualifier)}
+      className="sw-mb-8"
+    />
+  );
+
+  const dismissPromotedSection = () => {
+    dismissNotice(NoticeType.ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE);
+
+    setDismissedTour(true);
+    setShowReplay(true);
+  };
+
+  const closeTour = (action: string) => {
+    setStartTour(false);
+    if (action === 'skip' && !dismissedTour) {
+      dismissPromotedSection();
+    }
+
+    if (action === 'close' && !dismissedTour) {
+      dismissPromotedSection();
+      setTourCompleted(true);
+    }
+  };
+
+  const startTourGuide = () => {
+    if (!isNewCodeTab) {
+      selectTab(CodeScope.New);
+    }
+    setShowReplay(false);
+    setStartTour(true);
+  };
+
+  const qgStatus = qgStatuses?.map((s) => s.status).includes('ERROR') ? Status.ERROR : Status.OK;
 
   return (
     <>
-      <div className="page page-limited">
-        <div className="overview">
-          <A11ySkipTarget anchor="overview_main" />
+      <FirstAnalysisNextStepsNotif
+        component={component}
+        branchesEnabled={branchesEnabled}
+        detectedCIOnLastAnalysis={detectedCIOnLastAnalysis}
+      />
+      <CenteredLayout>
+        <PageContentFontWrapper>
+          <CaycPromotionGuide closeTour={closeTour} run={startTour} />
+          {showReplay && (
+            <ReplayTourGuide
+              closeTour={() => setShowReplay(false)}
+              run={showReplay}
+              tourCompleted={tourCompleted}
+            />
+          )}
+          <div className="overview sw-my-6 sw-typo-default">
+            <A11ySkipTarget anchor="overview_main" />
 
-          {projectIsEmpty ? (
-            <NoCodeWarning branchLike={branch} component={component} measures={measures} />
-          ) : (
-            <div className="display-flex-row">
-              <div className="width-25 big-spacer-right">
-                <QualityGatePanel
-                  component={component}
-                  loading={loadingStatus}
-                  qgStatuses={qgStatuses}
-                  grc={grc}
-                />
-              </div>
+            {projectIsEmpty ? (
+              <NoCodeWarning branchLike={branch} component={component} measures={measures} />
+            ) : (
+              <div>
+                {branch && (
+                  <>
+                    <BranchMetaTopBar
+                      branch={branch}
+                      component={component}
+                      measures={measures}
+                      showTakeTheTourButton={
+                        dismissedTour && currentUser.isLoggedIn && hasNewCodeMeasures
+                      }
+                      startTour={startTourGuide}
+                    />
 
-              <div className="flex-1">
-                <div className="display-flex-column">
-                  <MeasuresPanel
-                    appLeak={appLeak}
-                    branch={branch}
+                    <CardSeparator />
+
+                    {currentUser.isLoggedIn && hasNewCodeMeasures && (
+                      <DismissablePromotedSection
+                        content={translate('overview.promoted_section.content')}
+                        dismissed={dismissedTour ?? false}
+                        onDismiss={dismissPromotedSection}
+                        onPrimaryButtonClick={startTourGuide}
+                        primaryButtonLabel={translate('overview.promoted_section.button_primary')}
+                        secondaryButtonLabel={translate(
+                          'overview.promoted_section.button_secondary',
+                        )}
+                        title={translate('overview.promoted_section.title')}
+                      />
+                    )}
+                  </>
+                )}
+                <div
+                  data-testid="overview__quality-gate-panel"
+                  className="sw-flex sw-justify-between sw-items-start sw-my-6"
+                >
+                  <QGStatus status={qgStatus} />
+                  <LastAnalysisLabel analysisDate={branch?.analysisDate} />
+                </div>
+                <AnalysisStatus component={component} />
+                {hasOverallFindings && isAiCodeAssured && (
+                  <AiCodeAssuranceWarrning projectKey={component.key} />
+                )}
+                <div className="sw-flex sw-flex-col sw-mt-6">
+                  <TabsPanel
+                    analyses={analyses}
                     component={component}
                     loading={loadingStatus}
-                    measures={measures}
-                    period={period}
-                    grc={grc}
-                  />
+                    qgStatuses={qgStatuses}
+                    isNewCode={isNewCodeTab}
+                    onTabSelect={selectTab}
+                  >
+                    {isNewCodeTab && (
+                      <>
+                        {hasNewCodeMeasures ? (
+                          <NewCodeMeasuresPanel
+                            qgStatuses={qgStatuses}
+                            branch={branch}
+                            component={component}
+                            measures={measures}
+                            appLeak={appLeak}
+                            period={period}
+                            loading={loadingStatus}
+                            qualityGate={qualityGate}
+                          />
+                        ) : (
+                          <MeasuresPanelNoNewCode
+                            branch={branch}
+                            component={component}
+                            period={period}
+                          />
+                        )}
+                      </>
+                    )}
 
-                  { !grc ? (<>      
+                    {!isNewCodeTab && (
+                      <>
+                        {analysisMissingInfo}
+                        <OverallCodeMeasuresPanel
+                          branch={branch}
+                          qgStatuses={qgStatuses}
+                          component={component}
+                          measures={measures}
+                          loading={loadingStatus}
+                          qualityGate={qualityGate}
+                        />
+                      </>
+                    )}
+                  </TabsPanel>
+
+                  { !grc && (
                     <ActivityPanel
                       analyses={analyses}
                       branchLike={branch}
@@ -120,13 +310,14 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                       measuresHistory={measuresHistory}
                       metrics={metrics}
                       onGraphChange={onGraphChange}
-                    /></>) :(<></>)}            
+                    />
+                  )}
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
+            )}
+          </div>
+        </PageContentFontWrapper>
+      </CenteredLayout>
     </>
   );
 }

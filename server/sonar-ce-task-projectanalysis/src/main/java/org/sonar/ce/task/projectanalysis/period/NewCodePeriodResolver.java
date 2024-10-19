@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,8 +29,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -49,7 +49,7 @@ import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 
 public class NewCodePeriodResolver {
-  private static final Logger LOG = Loggers.get(NewCodePeriodResolver.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NewCodePeriodResolver.class);
 
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -90,24 +90,24 @@ public class NewCodePeriodResolver {
 
   private Period resolveBySpecificAnalysis(DbSession dbSession, String rootUuid, String value) {
     SnapshotDto baseline = dbClient.snapshotDao().selectByUuid(dbSession, value)
-      .filter(t -> t.getComponentUuid().equals(rootUuid))
+      .filter(t -> t.getRootComponentUuid().equals(rootUuid))
       .orElseThrow(() -> new IllegalStateException("Analysis '" + value + "' of project '" + rootUuid
         + "' defined as the baseline does not exist"));
     LOG.debug("Resolving new code period with a specific analysis");
     return newPeriod(NewCodePeriodType.SPECIFIC_ANALYSIS, value, baseline.getCreatedAt());
   }
 
-  private Period resolveByPreviousVersion(DbSession dbSession, String projectUuid, String projectVersion) {
-    List<EventDto> versions = dbClient.eventDao().selectVersionsByMostRecentFirst(dbSession, projectUuid);
+  private Period resolveByPreviousVersion(DbSession dbSession, String rootComponentUuid, String projectVersion) {
+    List<EventDto> versions = dbClient.eventDao().selectVersionsByMostRecentFirst(dbSession, rootComponentUuid);
     if (versions.isEmpty()) {
-      return findOldestAnalysis(dbSession, projectUuid);
+      return findOldestAnalysis(dbSession, rootComponentUuid);
     }
 
     String mostRecentVersion = Optional.ofNullable(versions.iterator().next().getName())
       .orElseThrow(() -> new IllegalStateException("selectVersionsByMostRecentFirst returned a DTO which didn't have a name"));
 
     if (versions.size() == 1 && projectVersion.equals(mostRecentVersion)) {
-      return findOldestAnalysis(dbSession, projectUuid);
+      return findOldestAnalysis(dbSession, rootComponentUuid);
     }
 
     return resolvePreviousVersion(dbSession, projectVersion, versions, mostRecentVersion);
@@ -130,9 +130,9 @@ public class NewCodePeriodResolver {
     return newPeriod(dbSession, previousVersion);
   }
 
-  private Period findOldestAnalysis(DbSession dbSession, String projectUuid) {
+  private Period findOldestAnalysis(DbSession dbSession, String rootComponentUuid) {
     LOG.debug("Resolving first analysis as new code period as there is only one existing version");
-    Optional<Period> period = dbClient.snapshotDao().selectOldestAnalysis(dbSession, projectUuid)
+    Optional<Period> period = dbClient.snapshotDao().selectOldestAnalysis(dbSession, rootComponentUuid)
       .map(dto -> newPeriod(NewCodePeriodType.PREVIOUS_VERSION, null, dto.getCreatedAt()));
     ensureNotOnFirstAnalysis(period.isPresent());
     return period.get();
@@ -162,7 +162,7 @@ public class NewCodePeriodResolver {
   }
 
   private static SnapshotQuery createCommonQuery(String projectUuid) {
-    return new SnapshotQuery().setComponentUuid(projectUuid).setStatus(STATUS_PROCESSED);
+    return new SnapshotQuery().setRootComponentUuid(projectUuid).setStatus(STATUS_PROCESSED);
   }
 
   private static SnapshotDto findNearestSnapshotToTargetDate(List<SnapshotDto> snapshots, Instant targetDate) {

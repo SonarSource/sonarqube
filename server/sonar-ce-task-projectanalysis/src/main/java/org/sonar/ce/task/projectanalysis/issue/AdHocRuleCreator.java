@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,19 +20,25 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.base.Preconditions;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.substring;
+import static org.apache.commons.lang3.StringUtils.substring;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.db.rule.RuleDto.Scope.ALL;
 
@@ -62,8 +68,8 @@ public class AdHocRuleCreator {
 
     RuleDto ruleDtoToUpdate = findOrCreateRuleDto(dbSession, adHoc, dao, now);
 
+    boolean changed = false;
     if (adHoc.hasDetails()) {
-      boolean changed = false;
       if (!Objects.equals(ruleDtoToUpdate.getAdHocName(), adHoc.getName())) {
         ruleDtoToUpdate.setAdHocName(substring(adHoc.getName(), 0, MAX_LENGTH_AD_HOC_NAME));
         changed = true;
@@ -81,16 +87,35 @@ public class AdHocRuleCreator {
         ruleDtoToUpdate.setAdHocType(ruleType);
         changed = true;
       }
-      if (changed) {
-        ruleDtoToUpdate.setUpdatedAt(now);
-        dao.update(dbSession, ruleDtoToUpdate);
-      }
+    }
 
+    CleanCodeAttribute cleanCodeAttribute = adHoc.getCleanCodeAttribute();
+    if (!Objects.equals(ruleDtoToUpdate.getCleanCodeAttribute(), cleanCodeAttribute)) {
+      ruleDtoToUpdate.setCleanCodeAttribute(cleanCodeAttribute);
+      changed = true;
+    }
+
+    Map<SoftwareQuality, Severity> currentImpacts = ruleDtoToUpdate.getDefaultImpacts().stream()
+      .collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
+    if (!Objects.equals(currentImpacts, adHoc.getDefaultImpacts())) {
+      ruleDtoToUpdate.replaceAllDefaultImpacts(adHoc.getDefaultImpacts().entrySet().stream()
+        .map(i -> createImpactDto(i.getKey(), i.getValue()))
+        .toList());
+      changed = true;
+    }
+
+    if (changed) {
+      ruleDtoToUpdate.setUpdatedAt(now);
+      dao.update(dbSession, ruleDtoToUpdate);
     }
 
     RuleDto ruleDto = dao.selectOrFailByKey(dbSession, adHoc.getKey());
     ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());
     return ruleDto;
+  }
+
+  private static ImpactDto createImpactDto(SoftwareQuality softwareQuality, Severity severity) {
+    return new ImpactDto().setSoftwareQuality(softwareQuality).setSeverity(severity);
   }
 
   private RuleDto findOrCreateRuleDto(DbSession dbSession, NewAdHocRule adHoc, RuleDao dao, long now) {

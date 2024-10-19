@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import java.util.List;
 import org.sonar.api.server.ws.WebService;
 
 public class ProjectBadgesWs implements WebService {
+
+  static final String PROJECT_OR_APP_NOT_FOUND = "Project or Application not found";
 
   private final List<ProjectBadgesWsAction> actions;
 

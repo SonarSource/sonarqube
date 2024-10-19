@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,139 +17,108 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Project } from '../../api/components';
+import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel, Spinner } from 'design-system';
+import { noop } from 'lodash';
+import React, { useState } from 'react';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponentNavigation } from '../../api/navigation';
-import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
-import { translate } from '../../helpers/l10n';
+import { Project } from '../../api/project-management';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import { LoggedInUser } from '../../types/users';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import RestoreAccessModal from './RestoreAccessModal';
 
 export interface Props {
-  currentUser: Pick<LoggedInUser, 'login'>;
+  currentUser: Pick<LoggedInUser, 'login' | 'local'>;
   project: Project;
 }
 
-interface State {
-  applyTemplateModal: boolean;
-  hasAccess?: boolean;
-  loading: boolean;
-  restoreAccessModal: boolean;
-}
+export default function ProjectRowActions({ currentUser, project }: Props) {
+  const [applyTemplateModal, setApplyTemplateModal] = useState(false);
+  const [hasAccess, setHasAccess] = useState<boolean | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+  const [restoreAccessModal, setRestoreAccessModal] = useState(false);
 
-export default class ProjectRowActions extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { applyTemplateModal: false, loading: false, restoreAccessModal: false };
+  const fetchPermissions = async () => {
+    setLoading(true);
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchPermissions = () => {
-    this.setState({ loading: true });
-    getComponentNavigation({ component: this.props.project.key }).then(
-      ({ configuration }) => {
-        if (this.mounted) {
-          const hasAccess = Boolean(
-            configuration && configuration.showPermissions && configuration.canBrowseProject
-          );
-          this.setState({ hasAccess, loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  handleDropdownOpen = () => {
-    if (this.state.hasAccess === undefined && !this.state.loading) {
-      this.fetchPermissions();
+    try {
+      const { configuration } = await getComponentNavigation({ component: project.key });
+      const hasAccess = Boolean(configuration?.showPermissions && configuration?.canBrowseProject);
+      setHasAccess(hasAccess);
+      setLoading(false);
+    } catch (error) {
+      throwGlobalError(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  handleApplyTemplateClick = () => {
-    this.setState({ applyTemplateModal: true });
-  };
-
-  handleApplyTemplateClose = () => {
-    if (this.mounted) {
-      this.setState({ applyTemplateModal: false });
+  const handleDropdownOpen = () => {
+    if (hasAccess === undefined && !loading) {
+      fetchPermissions();
     }
   };
 
-  handleRestoreAccessClick = () => {
-    this.setState({ restoreAccessModal: true });
+  const handleRestoreAccessDone = () => {
+    setRestoreAccessModal(false);
+    setHasAccess(true);
   };
 
-  handleRestoreAccessClose = () => this.setState({ restoreAccessModal: false });
+  return (
+    <>
+      <ActionsDropdown
+        id="project-management-action-dropdown"
+        toggleClassName="it__user-actions-toggle"
+        onOpen={handleDropdownOpen}
+        allowResizing
+        ariaLabel={translateWithParameters('projects_management.show_actions_for_x', project.name)}
+        zLevel={PopupZLevel.Global}
+      >
+        <Spinner loading={loading} className="sw-flex sw-ml-3">
+          <>
+            {hasAccess === true && (
+              <ItemLink to={getComponentPermissionsUrl(project.key)}>
+                {translate(project.managed ? 'show_permissions' : 'edit_permissions')}
+              </ItemLink>
+            )}
+            {hasAccess === false && (!project.managed || currentUser.local) ? (
+              <ItemButton
+                className="it__restore-access"
+                onClick={() => setRestoreAccessModal(true)}
+              >
+                {translate('global_permissions.restore_access')}
+              </ItemButton>
+            ) : (
+              hasAccess === false && (
+                <ItemButton disabled onClick={noop}>
+                  {translate('global_permissions.no_actions_available')}
+                </ItemButton>
+              )
+            )}
+          </>
+        </Spinner>
 
-  handleRestoreAccessDone = () => {
-    this.setState({ hasAccess: true, restoreAccessModal: false });
-  };
-
-  render() {
-    const { hasAccess, loading } = this.state;
-
-    return (
-      <>
-        <ActionsDropdown onOpen={this.handleDropdownOpen}>
-          {loading ? (
-            <ActionsDropdownItem>
-              <DeferredSpinner />
-            </ActionsDropdownItem>
-          ) : (
-            <>
-              {hasAccess === true && (
-                <ActionsDropdownItem
-                  className="js-edit-permissions"
-                  to={getComponentPermissionsUrl(this.props.project.key)}
-                >
-                  {translate('edit_permissions')}
-                </ActionsDropdownItem>
-              )}
-
-              {hasAccess === false && (
-                <ActionsDropdownItem
-                  className="js-restore-access"
-                  onClick={this.handleRestoreAccessClick}
-                >
-                  {translate('global_permissions.restore_access')}
-                </ActionsDropdownItem>
-              )}
-            </>
-          )}
-
-          <ActionsDropdownItem
-            className="js-apply-template"
-            onClick={this.handleApplyTemplateClick}
-          >
+        {!project.managed && (
+          <ItemButton className="it__apply-template" onClick={() => setApplyTemplateModal(true)}>
             {translate('projects_role.apply_template')}
-          </ActionsDropdownItem>
-        </ActionsDropdown>
-
-        {this.state.restoreAccessModal && (
-          <RestoreAccessModal
-            currentUser={this.props.currentUser}
-            onClose={this.handleRestoreAccessClose}
-            onRestoreAccess={this.handleRestoreAccessDone}
-            project={this.props.project}
-          />
+          </ItemButton>
         )}
+      </ActionsDropdown>
 
-        {this.state.applyTemplateModal && (
-          <ApplyTemplate onClose={this.handleApplyTemplateClose} project={this.props.project} />
-        )}
-      </>
-    );
-  }
+      {restoreAccessModal && (
+        <RestoreAccessModal
+          currentUser={currentUser}
+          onClose={() => setRestoreAccessModal(false)}
+          onRestoreAccess={handleRestoreAccessDone}
+          project={project}
+        />
+      )}
+
+      {applyTemplateModal && (
+        <ApplyTemplate onClose={() => setApplyTemplateModal(false)} project={project} />
+      )}
+    </>
+  );
 }

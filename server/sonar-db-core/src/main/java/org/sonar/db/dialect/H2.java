@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 public class H2 extends AbstractDialect {
 
@@ -42,7 +42,12 @@ public class H2 extends AbstractDialect {
   }
 
   @Override
+  public boolean supportsNullNotDistinct() {
+    return true;
+  }
+
+  @Override
   public void init(DatabaseMetaData metaData) {
-    Loggers.get(getClass()).warn("H2 database should be used for evaluation purpose only.");
+    LoggerFactory.getLogger(getClass()).warn("H2 database should be used for evaluation purpose only.");
   }
 }

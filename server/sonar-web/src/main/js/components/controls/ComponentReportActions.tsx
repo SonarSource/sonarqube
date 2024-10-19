@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   getReportStatus,
   subscribeToEmailReport,
@@ -25,11 +28,9 @@ import {
 } from '../../api/component-report';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { Branch } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
 import { ComponentReportStatus } from '../../types/component-report';
 import { Component } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
@@ -37,8 +38,8 @@ import ComponentReportActionsRenderer from './ComponentReportActionsRenderer';
 
 interface Props {
   appState: AppState;
-  component: Component;
   branch?: Branch;
+  component: Component;
   currentUser: CurrentUser;
 }
 
@@ -54,6 +55,7 @@ export class ComponentReportActions extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     const governanceEnabled = this.props.appState.qualifiers.includes(ComponentQualifier.Portfolio);
+
     if (governanceEnabled) {
       this.loadReportStatus();
     }
@@ -80,14 +82,16 @@ export class ComponentReportActions extends React.PureComponent<Props, State> {
     const translationKey = subscribed
       ? 'component_report.subscribe_x_success'
       : 'component_report.unsubscribe_x_success';
+
     const frequencyTranslation = translate(
       'report.frequency',
-      status?.componentFrequency || status?.globalFrequency || ''
+      status?.componentFrequency ?? status?.globalFrequency ?? '',
     ).toLowerCase();
+
     const qualifierTranslation = translate('qualifier', component.qualifier).toLowerCase();
 
     addGlobalSuccessMessage(
-      translateWithParameters(translationKey, frequencyTranslation, qualifierTranslation)
+      translateWithParameters(translationKey, frequencyTranslation, qualifierTranslation),
     );
 
     this.loadReportStatus();

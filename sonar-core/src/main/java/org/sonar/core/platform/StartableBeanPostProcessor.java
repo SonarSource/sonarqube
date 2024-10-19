@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,8 @@
  */
 package org.sonar.core.platform;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Loggers;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.lang.Nullable;
@@ -29,8 +29,8 @@ public class StartableBeanPostProcessor implements DestructionAwareBeanPostProce
   @Override
   @Nullable
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-    if (bean instanceof Startable) {
-      ((Startable) bean).start();
+    if (bean instanceof Startable startable) {
+      startable.start();
     }
     return bean;
   }
@@ -44,11 +44,11 @@ public class StartableBeanPostProcessor implements DestructionAwareBeanPostProce
   public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
     try {
       // note: Spring will call close() on AutoCloseable beans.
-      if (bean instanceof Startable) {
-        ((Startable) bean).stop();
+      if (bean instanceof Startable startable) {
+        startable.stop();
       }
     } catch (Exception e) {
-      Loggers.get(StartableBeanPostProcessor.class)
+      LoggerFactory.getLogger(StartableBeanPostProcessor.class)
         .warn("Dispose of component {} failed", bean.getClass().getCanonicalName(), e);
     }
   }

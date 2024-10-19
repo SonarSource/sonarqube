@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import styled from '@emotion/styled';
+import { FacetBox, FacetItem, HelperHintIcon, Note, themeColor } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { Profile } from '../../../api/quality-profiles';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
+import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
 import { FacetKey, Query } from '../query';
 
 interface Props {
@@ -56,7 +56,6 @@ export default class ProfileFacet extends React.PureComponent<Props> {
   handleClear = () =>
     this.props.onChange({
       activation: undefined,
-      activationSeverities: [],
       compareToProfile: undefined,
       inheritance: undefined,
       profile: undefined,
@@ -84,9 +83,8 @@ export default class ProfileFacet extends React.PureComponent<Props> {
       const profile = referencedProfiles[value];
       const name = (profile && `${profile.name} ${profile.languageName}`) || value;
       return [name];
-    } else {
-      return [];
     }
+    return [];
   };
 
   getTooltip = (profile: Profile) => {
@@ -97,10 +95,10 @@ export default class ProfileFacet extends React.PureComponent<Props> {
   renderName = (profile: Profile) => (
     <>
       {profile.name}
-      <span className="note little-spacer-left">
+      <Note className="sw-ml-1">
         {profile.languageName}
         {profile.isBuiltIn && ` (${translate('quality_profiles.built_in')})`}
-      </span>
+      </Note>
     </>
   );
 
@@ -109,28 +107,26 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     const activation = isCompare ? true : this.props.activation;
     return (
       <>
-        <span
+        <FacetToggleActiveStyle
+          selected={!!activation}
           aria-checked={activation}
-          className={classNames('js-active', 'facet-toggle', 'facet-toggle-green', {
-            'facet-toggle-active': activation,
-          })}
+          className="js-active sw-typo-sm"
           onClick={isCompare ? this.stopPropagation : this.handleActiveClick}
           role="radio"
           tabIndex={-1}
         >
           active
-        </span>
-        <span
+        </FacetToggleActiveStyle>
+        <FacetToggleInActiveStyle
+          selected={!activation}
           aria-checked={!activation}
-          className={classNames('js-inactive', 'facet-toggle', 'facet-toggle-red', {
-            'facet-toggle-active': !activation,
-          })}
+          className="js-inactive sw-typo-sm sw-ml-1"
           onClick={isCompare ? this.stopPropagation : this.handleInactiveClick}
           role="radio"
           tabIndex={-1}
         >
           inactive
-        </span>
+        </FacetToggleInActiveStyle>
       </>
     );
   };
@@ -141,11 +137,11 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        className={this.props.compareToProfile === profile.key ? 'compare' : undefined}
+        className="it__search-navigator-facet"
         key={profile.key}
         name={this.renderName(profile)}
         onClick={this.handleItemClick}
-        stat={this.renderActivation(profile)}
+        stat={active ? this.renderActivation(profile) : null}
         tooltip={this.getTooltip(profile)}
         value={profile.key}
       />
@@ -153,7 +149,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { languages, referencedProfiles } = this.props;
+    const { languages, open, referencedProfiles, value } = this.props;
     let profiles = Object.values(referencedProfiles);
     if (languages.length > 0) {
       profiles = profiles.filter((profile) => languages.includes(profile.language));
@@ -161,32 +157,59 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     profiles = sortBy(
       profiles,
       (profile) => profile.name.toLowerCase(),
-      (profile) => profile.languageName
+      (profile) => profile.languageName,
     );
 
+    const property = 'profile';
+    const headerId = `facet_${property}`;
+
+    const count = value ? 1 : undefined;
+
     return (
-      <FacetBox property="profile">
-        <FacetHeader
-          name={translate('coding_rules.facet.qprofile')}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={this.getTextValue()}
-        >
-          <DocumentationTooltip
-            className="spacer-left"
+      <FacetBox
+        className="it__search-navigator-facet-box"
+        data-property={property}
+        id={headerId}
+        name={translate('coding_rules.facet.qprofile')}
+        onClear={this.handleClear}
+        onClick={this.handleHeaderClick}
+        open={open}
+        clearIconLabel={translate('clear')}
+        count={count}
+        help={
+          <DocHelpTooltip
             content={translate('coding_rules.facet.qprofile.help')}
             links={[
               {
-                href: 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles',
+                href: DocLink.InstanceAdminQualityProfiles,
                 label: translate('coding_rules.facet.qprofile.link'),
               },
             ]}
-          />
-        </FacetHeader>
-
-        {this.props.open && <FacetItemsList>{profiles.map(this.renderItem)}</FacetItemsList>}
+          >
+            <HelperHintIcon />
+          </DocHelpTooltip>
+        }
+      >
+        {open && (
+          <FacetItemsList labelledby={headerId}>{profiles.map(this.renderItem)}</FacetItemsList>
+        )}
       </FacetBox>
     );
   }
 }
+
+const FacetToggleActiveStyle = styled.span<{ selected: boolean }>`
+  background-color: ${(props) =>
+    props.selected ? themeColor('facetToggleActive') : 'transparent'};
+  color: ${(props) => (props.selected ? '#fff' : undefined)};
+  padding: 2px;
+  border-radius: 4px;
+`;
+
+const FacetToggleInActiveStyle = styled.span<{ selected: boolean }>`
+  background-color: ${(props) =>
+    props.selected ? themeColor('facetToggleInactive') : 'transparent'};
+  color: ${(props) => (props.selected ? '#fff' : undefined)};
+  padding: 2px;
+  border-radius: 4px;
+`;

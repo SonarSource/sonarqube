@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ public interface UserPermissionMapper {
   List<String> selectUserUuidsByQuery(@Param("query") PermissionQuery query);
 
   /**
-   * Fetch user ids based on permission query and only in a specific scope (global permissions only or project permissions only)
+   * Fetch user ids based on permission query and only in a specific scope (global permissions only or entity permissions only)
    */
   List<String> selectUserUuidsByQueryAndScope(@Param("query") PermissionQuery query);
 
@@ -43,30 +43,30 @@ public interface UserPermissionMapper {
   int countUsersByQuery(@Param("query") PermissionQuery query);
 
   /**
-   * Count the number of users per permission for a given list of projects.
-   * @param projectUuids a non-null and non-empty list of project ids
+   * Count the number of users per permission for a given list of entities.
+   * @param entityUuids a non-null and non-empty list of entities uuids
    */
-  List<CountPerProjectPermission> countUsersByProjectPermission(@Param("projectUuids") List<String> projectUuids);
+  List<CountPerEntityPermission> countUsersByEntityPermission(@Param("entityUuids") List<String> entityUuids);
 
   /**
-   * select id of users with at least one permission on the specified project but which do not have the specified permission.
+   * select id of users with at least one permission on the specified entity but which do not have the specified permission.
    */
-  Set<UserIdDto> selectUserIdsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
+  Set<UserIdDto> selectUserIdsWithPermissionOnEntityBut(@Param("entityUuid") String entityUuid, @Param("permission") String permission);
 
   void insert(@Param("dto")UserPermissionDto dto);
 
   int deleteGlobalPermission(@Param("userUuid") String userUuid, @Param("permission") String permission, @Param("organizationUuid") String organizationUuid);
 
-  int deleteProjectPermission(@Param("userUuid") String userUuid, @Param("permission") String permission,
-    @Param("projectUuid") String projectUuid);
+  int deleteEntityPermission(@Param("userUuid") String userUuid, @Param("permission") String permission,
+    @Param("entityUuid") String entityUuid);
 
-  int deleteProjectPermissions(@Param("projectUuid") String projectUuid);
+  int deleteEntityPermissions(@Param("entityUuid") String entityUuid);
 
-  int deleteProjectPermissionOfAnyUser(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
+  int deleteEntityPermissionOfAnyUser(@Param("entityUuid") String entityUuid, @Param("permission") String permission);
 
   List<String> selectGlobalPermissionsOfUser(@Param("userUuid") String userUuid, @Param("organizationUuid") String organizationUuid);
 
-  List<String> selectProjectPermissionsOfUser(@Param("userUuid") String userUuid, @Param("projectUuid") String projectUuid);
+  List<String> selectEntityPermissionsOfUser(@Param("userUuid") String userUuid, @Param("entityUuid") String entityUuid);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getInstance } from '../../../../helpers/system';
 
 export default function SystemRestartNotif() {
   return (
-    <Alert display="banner" variant="info">
-      <FormattedMessage
-        defaultMessage={translate('system.instance_restarting')}
-        id="system.instance_restarting"
-        values={{
-          instance: getInstance(),
-          link: <Link to="/admin/background_tasks">{translate('background_tasks.page')}</Link>,
-        }}
-      />
-    </Alert>
+    <FlagMessage variant="info" className="sw-w-full">
+      <span>
+        <FormattedMessage
+          defaultMessage={translate('system.instance_restarting')}
+          id="system.instance_restarting"
+          values={{
+            instance: getInstance(),
+            link: <Link to="/admin/background_tasks">{translate('background_tasks.page')}</Link>,
+          }}
+        />
+      </span>
+    </FlagMessage>
   );
 }

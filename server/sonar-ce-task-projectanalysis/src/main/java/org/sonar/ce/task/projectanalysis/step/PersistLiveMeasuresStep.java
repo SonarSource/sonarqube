@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,10 +39,12 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.LiveMeasureDto;
 
+import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
@@ -91,7 +93,6 @@ import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
-import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistLiveMeasuresStep implements ComputationStep {
@@ -108,7 +109,16 @@ public class PersistLiveMeasuresStep implements ComputationStep {
     MAJOR_VIOLATIONS_KEY, MINOR_VIOLATIONS_KEY, NCLOC_KEY, NCLOC_DATA_KEY, NCLOC_LANGUAGE_DISTRIBUTION_KEY, OPEN_ISSUES_KEY, RELIABILITY_RATING_KEY,
     RELIABILITY_REMEDIATION_EFFORT_KEY, REOPENED_ISSUES_KEY, SECURITY_HOTSPOTS_KEY, SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY,
     SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY, SECURITY_RATING_KEY, SECURITY_REMEDIATION_EFFORT_KEY, SECURITY_REVIEW_RATING_KEY, SQALE_DEBT_RATIO_KEY, TECHNICAL_DEBT_KEY,
-    SQALE_RATING_KEY, STATEMENTS_KEY, VIOLATIONS_KEY, VULNERABILITIES_KEY, WONT_FIX_ISSUES_KEY
+    SQALE_RATING_KEY, STATEMENTS_KEY, VIOLATIONS_KEY, VULNERABILITIES_KEY, ACCEPTED_ISSUES_KEY,
+
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY,
+    SoftwareQualitiesMetrics.EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY,
+    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY
   );
   private final DbClient dbClient;
   private final MetricRepository metricRepository;

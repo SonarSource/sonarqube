@@ -45,6 +45,7 @@ message Branch {
   optional bool isOrphan = 6;
   optional string analysisDate = 7;
   optional bool excludedFromPurge = 8;
+  optional string branchId = 9;
 }
 
 message Status {

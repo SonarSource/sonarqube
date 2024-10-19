@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@ import { IndexationNotificationType } from '../../../types/indexation';
 import { Permissions } from '../../../types/permissions';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
-import './IndexationNotification.css';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
 
@@ -67,6 +66,7 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
 
     if (!isCompleted) {
       IndexationNotificationHelper.markCompletedNotificationAsToDisplay();
+
       this.setState({
         notificationType: hasFailures
           ? IndexationNotificationType.InProgressWithFailure
@@ -78,6 +78,7 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
       this.setState({
         notificationType: IndexationNotificationType.Completed,
       });
+
       IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
 
       // Hide after some time
@@ -91,21 +92,18 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
 
   render() {
     const { notificationType } = this.state;
+
     const {
       indexationContext: {
-        status: { percentCompleted },
+        status: { completedCount, total },
       },
     } = this.props;
 
-    if (notificationType === undefined) {
-      return null;
-    }
-
-    return (
+    return !this.isSystemAdmin ? null : (
       <IndexationNotificationRenderer
+        completedCount={completedCount}
+        total={total}
         type={notificationType}
-        percentCompleted={percentCompleted}
-        isSystemAdmin={this.isSystemAdmin}
       />
     );
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,21 +22,9 @@ package org.sonar.db.component;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class KeyWithUuidDto {
-
-  private final String kee;
-  private final String uuid;
-
-  public KeyWithUuidDto(String kee, String uuid) {
-    this.kee = kee;
-    this.uuid = uuid;
-  }
+public record KeyWithUuidDto(String kee, String uuid) {
 
   public String key() {
     return kee;
-  }
-
-  public String uuid() {
-    return uuid;
   }
 }

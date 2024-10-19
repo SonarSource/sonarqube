@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ProjectCardLanguages } from '../ProjectCardLanguages';
 
 const languages = {
@@ -26,28 +27,30 @@ const languages = {
   js: { key: 'js', name: 'JavaScript' },
 };
 
-it('renders', () => {
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=137;js=15" languages={languages} />)
-  ).toMatchSnapshot();
+it('should render normally', () => {
+  renderProjectCardLanguages('java=137;js=15');
+  expect(screen.getByText('Java, JavaScript')).toBeInTheDocument();
 });
 
-it('sorts languages', () => {
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=13;js=152" languages={languages} />)
-  ).toMatchSnapshot();
+it('shoould sorts languages', () => {
+  renderProjectCardLanguages('java=13;js=152');
+  expect(screen.getByText('JavaScript, Java')).toBeInTheDocument();
 });
 
-it('handles unknown languages', () => {
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=13;cpp=18" languages={languages} />)
-  ).toMatchSnapshot();
-
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=13;<null>=18" languages={languages} />)
-  ).toMatchSnapshot();
+it('should handle unknown languages', () => {
+  renderProjectCardLanguages('java=13;cpp=18');
+  expect(screen.getByText('cpp, Java')).toBeInTheDocument();
 });
 
-it('does not render', () => {
-  expect(shallow(<ProjectCardLanguages languages={languages} />).type()).toBeNull();
+it('should handle more then 3 languages', async () => {
+  renderProjectCardLanguages('java=137;js=18;cpp=10;c=8;php=4');
+  await expect(screen.getByText('Java, JavaScript, ...')).toHaveATooltipWithContent(
+    'JavaJavaScriptcppcphp',
+  );
 });
+
+function renderProjectCardLanguages(distribution?: string) {
+  return renderComponent(
+    <ProjectCardLanguages languages={languages} distribution={distribution} />,
+  );
+}

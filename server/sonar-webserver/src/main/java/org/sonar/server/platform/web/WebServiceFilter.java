@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,21 +19,23 @@
  */
 package org.sonar.server.platform.web;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.ServletFilter;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
 import org.sonar.server.ws.WebServiceEngine;
 
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Stream.concat;
 import static org.sonar.server.platform.web.WebServiceReroutingFilter.MOVED_WEB_SERVICES;
 
@@ -45,7 +47,7 @@ import static org.sonar.server.platform.web.WebServiceReroutingFilter.MOVED_WEB_
  *   <li>web services that directly implemented with servlet filter, see {@link ServletFilterHandler})</li>
  * </ul>
  */
-public class WebServiceFilter extends ServletFilter {
+public class WebServiceFilter extends HttpFilter {
 
   private final WebServiceEngine webServiceEngine;
   private final Set<String> includeUrls;
@@ -58,13 +60,13 @@ public class WebServiceFilter extends ServletFilter {
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())
         .map(toPath()))
-          .collect(MoreCollectors.toSet());
+          .collect(Collectors.toSet());
     this.excludeUrls = concat(MOVED_WEB_SERVICES.stream(),
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())
         .filter(action -> action.handler() instanceof ServletFilterHandler)
-        .map(toPath()))
-          .collect(MoreCollectors.toSet());
+        .map(toPath())).collect(toCollection(HashSet::new));
+    excludeUrls.add("/api/v2/*");
   }
 
   @Override
@@ -76,22 +78,10 @@ public class WebServiceFilter extends ServletFilter {
   }
 
   @Override
-  public void doFilter(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse, FilterChain chain) {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain filterChain) {
     ServletRequest wsRequest = new ServletRequest(request);
     ServletResponse wsResponse = new ServletResponse(response);
     webServiceEngine.execute(wsRequest, wsResponse);
-  }
-
-  @Override
-  public void init(FilterConfig filterConfig) {
-    // Nothing to do
-  }
-
-  @Override
-  public void destroy() {
-    // Nothing to do
   }
 
   private static Function<WebService.Action, String> toPath() {

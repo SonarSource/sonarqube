@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from './component';
+import { HotspotRatingEnum } from 'design-system';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MessageFormatting } from './issues';
 import { FlowLocation, IssueChangelog, IssueChangelogDiff, Paging, TextRange } from './types';
 import { UserBase } from './users';
-
-export enum RiskExposure {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-}
 
 export enum HotspotStatus {
   TO_REVIEW = 'TO_REVIEW',
@@ -67,6 +62,10 @@ export interface RawHotspot {
   author?: string;
   component: string;
   creationDate: string;
+  cveId?: string;
+  flows?: Array<{
+    locations?: Array<Omit<FlowLocation, 'componentName'>>;
+  }>;
   key: string;
   line?: number;
   message: string;
@@ -77,10 +76,7 @@ export interface RawHotspot {
   securityCategory: string;
   status: HotspotStatus;
   updateDate: string;
-  vulnerabilityProbability: RiskExposure;
-  flows?: Array<{
-    locations?: Array<Omit<FlowLocation, 'componentName'>>;
-  }>;
+  vulnerabilityProbability: HotspotRatingEnum;
 }
 
 export interface Hotspot {
@@ -90,9 +86,11 @@ export interface Hotspot {
   authorUser: UserBase;
   canChangeStatus: boolean;
   changelog: IssueChangelog[];
+  codeVariants?: string[];
   comment: HotspotComment[];
   component: HotspotComponent;
   creationDate: string;
+  cveId?: string;
   flows: { locations: FlowLocation[] }[];
   key: string;
   line?: number;
@@ -108,18 +106,18 @@ export interface Hotspot {
 }
 
 export interface HotspotComponent {
-  key: string;
-  qualifier: ComponentQualifier;
-  name: string;
-  longName: string;
-  path: string;
   branch?: string;
+  key: string;
+  longName: string;
+  name: string;
+  path: string;
   pullRequest?: string;
+  qualifier: ComponentQualifier;
 }
 
 export interface HotspotUpdateFields {
-  status: HotspotStatus;
   resolution?: HotspotResolution;
+  status: HotspotStatus;
 }
 
 export interface HotspotUpdate extends HotspotUpdateFields {
@@ -130,28 +128,28 @@ export interface HotspotRule {
   key: string;
   name: string;
   securityCategory: string;
-  vulnerabilityProbability: RiskExposure;
+  vulnerabilityProbability: HotspotRatingEnum;
 }
 
 export interface HotspotComment {
-  key: string;
+  createdAt: string;
   htmlText: string;
+  key: string;
+  login: string;
   markdown: string;
   updatable: boolean;
-  createdAt: string;
-  login: string;
   user: UserBase;
 }
 
 export interface ReviewHistoryElement {
-  type: ReviewHistoryType;
   date: string;
-  user: Pick<UserBase, 'active' | 'avatar' | 'name'>;
   diffs?: IssueChangelogDiff[];
   html?: string;
   key?: string;
-  updatable?: boolean;
   markdown?: string;
+  type: ReviewHistoryType;
+  updatable?: boolean;
+  user: Pick<UserBase, 'active' | 'avatar' | 'name'>;
 }
 
 export enum ReviewHistoryType {
@@ -161,15 +159,15 @@ export enum ReviewHistoryType {
 }
 
 export interface HotspotSearchResponse {
-  components?: { key: string; qualifier: string; name: string }[];
+  components?: { key: string; name: string; qualifier: string }[];
   hotspots: RawHotspot[];
   paging: Paging;
 }
 
 export interface HotspotSetStatusRequest {
-  status: HotspotStatus;
-  resolution?: HotspotResolution;
   comment?: string;
+  resolution?: HotspotResolution;
+  status: HotspotStatus;
 }
 
 export interface HotspotAssignRequest {

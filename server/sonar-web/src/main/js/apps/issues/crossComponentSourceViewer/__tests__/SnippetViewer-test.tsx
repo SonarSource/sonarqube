@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,99 +17,81 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import { range } from 'lodash';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/mocks/sources';
-import { mockIssue } from '../../../../helpers/testMocks';
-import SnippetViewer from '../SnippetViewer';
-
-jest.mock('../../../../helpers/scrolling', () => ({
-  scrollHorizontally: jest.fn(),
-}));
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import SnippetViewer, { SnippetViewerProps } from '../SnippetViewer';
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const ui = {
+  expandAbove: byRole('button', { name: 'source_viewer.expand_above' }),
+  expandBelow: byRole('button', { name: 'source_viewer.expand_below' }),
+  scmInfo: byRole('button', {
+    name: 'source_viewer.author_X.simon.brandhof@sonarsource.com, source_viewer.click_for_scm_info.5',
+  }),
+};
+
 it('should render correctly', () => {
   const snippet = range(5, 8).map((line) => mockSourceLine({ line }));
-  const wrapper = shallowRender({
+  renderSnippetViewer({
     snippet,
   });
 
-  expect(wrapper).toMatchSnapshot();
+  expect(ui.expandAbove.get()).toBeInTheDocument();
+  expect(ui.expandBelow.get()).toBeInTheDocument();
+  expect(ui.scmInfo.get()).toBeInTheDocument();
+});
+
+it('should render correctly when at the top of the file', () => {
+  const snippet = range(1, 8).map((line) => mockSourceLine({ line }));
+  renderSnippetViewer({
+    snippet,
+  });
+
+  expect(ui.expandAbove.query()).not.toBeInTheDocument();
+  expect(ui.expandBelow.get()).toBeInTheDocument();
+});
+
+it('should render correctly when at the bottom of the file', () => {
+  const component = mockSourceViewerFile('foo/bar.ts', 'my-project', { measures: { lines: '14' } });
+  const snippet = range(10, 15).map((line) => mockSourceLine({ line }));
+  renderSnippetViewer({
+    component,
+    snippet,
+  });
+
+  expect(ui.expandAbove.get()).toBeInTheDocument();
+  expect(ui.expandBelow.query()).not.toBeInTheDocument();
 });
 
 it('should render correctly with no SCM', () => {
   const snippet = range(5, 8).map((line) => mockSourceLine({ line }));
-  const wrapper = shallowRender({
+  renderSnippetViewer({
     displaySCM: false,
     snippet,
   });
 
-  expect(wrapper).toMatchSnapshot();
+  expect(ui.scmInfo.query()).not.toBeInTheDocument();
 });
 
 it('should render additional child in line', () => {
   const sourceline = mockSourceLine({ line: 42 });
 
-  const child = <div>child</div>;
+  const child = <div data-testid="additional-child">child</div>;
   const renderAdditionalChildInLine = jest.fn().mockReturnValue(child);
-  const wrapper = shallowRender({ renderAdditionalChildInLine, snippet: [sourceline] });
+  renderSnippetViewer({ renderAdditionalChildInLine, snippet: [sourceline] });
 
-  wrapper.instance().renderLine({
-    displayDuplications: false,
-    index: 1,
-    issueLocations: [],
-    line: sourceline,
-    snippet: [sourceline],
-    symbols: [],
-    verticalBuffer: 5,
-  });
-
-  expect(renderAdditionalChildInLine).toHaveBeenCalledWith(sourceline);
+  expect(screen.getByTestId('additional-child')).toBeInTheDocument();
 });
 
-it('should render correctly when at the top of the file', () => {
-  const snippet = range(1, 8).map((line) => mockSourceLine({ line }));
-  const wrapper = shallowRender({
-    snippet,
-  });
-
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render correctly when at the bottom of the file', () => {
-  const component = mockSourceViewerFile('foo/bar.ts', 'my-project', { measures: { lines: '14' } });
-  const snippet = range(10, 14).map((line) => mockSourceLine({ line }));
-  const wrapper = shallowRender({
-    component,
-    snippet,
-  });
-
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should correctly handle expansion', () => {
-  const snippet = range(5, 8).map((line) => mockSourceLine({ line }));
-  const expandBlock = jest.fn(() => Promise.resolve());
-
-  const wrapper = shallowRender({
-    expandBlock,
-    index: 2,
-    snippet,
-  });
-
-  wrapper.find('.expand-block-above button').first().simulate('click');
-  expect(expandBlock).toHaveBeenCalledWith(2, 'up');
-
-  wrapper.find('.expand-block-below button').first().simulate('click');
-  expect(expandBlock).toHaveBeenCalledWith(2, 'down');
-});
-
-function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
-  return shallow<SnippetViewer>(
+function renderSnippetViewer(props: Partial<SnippetViewerProps> = {}) {
+  return renderComponent(
     <SnippetViewer
       component={mockSourceViewerFile()}
       duplications={undefined}
@@ -119,8 +101,6 @@ function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
       highlightedLocationMessage={{ index: 0, text: '' }}
       highlightedSymbols={[]}
       index={0}
-      issue={mockIssue()}
-      lastSnippetOfLastGroup={false}
       loadDuplications={jest.fn()}
       locations={[]}
       locationsByLine={{}}
@@ -128,6 +108,6 @@ function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
       renderDuplicationPopup={jest.fn()}
       snippet={[]}
       {...props}
-    />
+    />,
   );
 }

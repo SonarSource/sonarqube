@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,29 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { Button } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { Spinner, themeColor } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
-import DeferredSpinner from '../ui/DeferredSpinner';
-import { Button } from './buttons';
 
 export interface ListFooterProps {
-  accessibleLoadMoreLabel?: string;
-  count: number;
   className?: string;
-  loading?: boolean;
+  count: number;
   loadMore?: () => void;
+  loadMoreAriaLabel?: string;
+  loading?: boolean;
   needReload?: boolean;
   pageSize?: number;
-  reload?: () => void;
   ready?: boolean;
+  reload?: () => void;
   total?: number;
 }
 
 export default function ListFooter(props: ListFooterProps) {
   const {
-    accessibleLoadMoreLabel,
+    loadMoreAriaLabel,
     className,
     count,
     loadMore,
@@ -72,17 +74,22 @@ export default function ListFooter(props: ListFooterProps) {
   let button;
   if (needReload && props.reload) {
     button = (
-      <Button className="spacer-left" data-test="reload" disabled={loading} onClick={props.reload}>
+      <Button
+        data-test="reload"
+        className="sw-ml-2 sw-typo-default"
+        isDisabled={loading}
+        onClick={props.reload}
+      >
         {translate('reload')}
       </Button>
     );
   } else if (hasMore && props.loadMore) {
     button = (
       <Button
-        aria-label={accessibleLoadMoreLabel}
-        className="spacer-left"
-        disabled={loading}
+        aria-label={loadMoreAriaLabel}
         data-test="show-more"
+        className="sw-ml-2 sw-typo-default"
+        isDisabled={loading}
         onClick={onLoadMore}
       >
         {translate('show_more')}
@@ -91,26 +98,33 @@ export default function ListFooter(props: ListFooterProps) {
   }
 
   return (
-    <div
+    <StyledDiv
       tabIndex={-1}
       ref={rootNode}
       className={classNames(
-        'list-footer spacer-top note text-center',
-        { 'new-loading': !ready },
-        className
+        'list-footer', // .list-footer is only used by Selenium tests; we should find a way to remove it.
+        'sw-typo-default sw-flex sw-items-center sw-justify-center',
+        { 'sw-opacity-50 sw-duration-500 sw-ease-in-out': !ready },
+        className,
       )}
     >
       <span aria-live="polite" aria-busy={loading}>
         {total !== undefined
           ? translateWithParameters(
               'x_of_y_shown',
-              formatMeasure(count, 'INT', null),
-              formatMeasure(total, 'INT', null)
+              formatMeasure(count, MetricType.Integer),
+              formatMeasure(total, MetricType.Integer),
             )
-          : translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
+          : translateWithParameters('x_show', formatMeasure(count, MetricType.Integer))}
       </span>
       {button}
-      {<DeferredSpinner loading={loading} className="text-bottom spacer-left position-absolute" />}
-    </div>
+      <Spinner loading={loading} className="sw-ml-2" />
+    </StyledDiv>
   );
 }
+
+const StyledDiv = styled.div`
+  color: ${themeColor('pageContentLight')};
+
+  margin-top: 1rem /* 16px */;
+`;

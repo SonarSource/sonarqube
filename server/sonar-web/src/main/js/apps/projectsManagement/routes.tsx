@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import ProjectManagementApp from './ProjectManagementApp';
 
-export const routes = () => <Route path="projects_management" element={<ProjectManagementApp />} />;
+const routes = () => <Route path="projects_management" element={<ProjectManagementApp />} />;
 
 export default routes;

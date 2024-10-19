@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
@@ -47,9 +49,6 @@ import org.sonar.server.qualitygate.QualityGateEvaluator;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-
 public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
 
   private final DbClient dbClient;
@@ -66,8 +65,8 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   public QualityGate loadQualityGate(DbSession dbSession, OrganizationDto organization, ProjectDto project, BranchDto branch) {
     QualityGateData qg = qGateFinder.getEffectiveQualityGate(dbSession, organization, project);
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qg.getUuid());
-    Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid).collect(toHashSet(conditionDtos.size()));
-    Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().collect(uniqueIndex(MetricDto::getUuid));
+    Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid).collect(Collectors.toSet());
+    Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
 
     Stream<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
       String metricKey = metricsByUuid.get(conditionDto.getMetricUuid()).getKey();
@@ -79,7 +78,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       conditions = conditions.filter(Condition::isOnLeakPeriod);
     }
 
-    return new QualityGate(String.valueOf(qg.getUuid()), qg.getName(), conditions.collect(toHashSet(conditionDtos.size())));
+    return new QualityGate(String.valueOf(qg.getUuid()), qg.getName(), conditions.collect(Collectors.toSet()));
   }
 
   @Override

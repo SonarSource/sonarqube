@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,11 +23,12 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Durations;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -36,7 +37,6 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.IssuesChangesNotification;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
@@ -61,27 +61,25 @@ public class NotificationFactory {
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final RuleRepository ruleRepository;
-  private final Durations durations;
   private final IssuesChangesNotificationSerializer issuesChangesSerializer;
   private Map<String, Component> componentsByUuid;
 
   public NotificationFactory(TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    RuleRepository ruleRepository, Durations durations, IssuesChangesNotificationSerializer issuesChangesSerializer) {
+    RuleRepository ruleRepository, IssuesChangesNotificationSerializer issuesChangesSerializer) {
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.ruleRepository = ruleRepository;
-    this.durations = durations;
     this.issuesChangesSerializer = issuesChangesSerializer;
   }
 
   public MyNewIssuesNotification newMyNewIssuesNotification(Map<String, UserDto> assigneesByUuid) {
     verifyAssigneesByUuid(assigneesByUuid);
-    return new MyNewIssuesNotification(durations, new DetailsSupplierImpl(assigneesByUuid));
+    return new MyNewIssuesNotification(new DetailsSupplierImpl(assigneesByUuid));
   }
 
   public NewIssuesNotification newNewIssuesNotification(Map<String, UserDto> assigneesByUuid) {
     verifyAssigneesByUuid(assigneesByUuid);
-    return new NewIssuesNotification(durations, new DetailsSupplierImpl(assigneesByUuid));
+    return new NewIssuesNotification(new DetailsSupplierImpl(assigneesByUuid));
   }
 
   public IssuesChangesNotification newIssuesChangesNotification(Set<DefaultIssue> issues, Map<String, UserDto> assigneesByUuid) {
@@ -89,12 +87,12 @@ public class NotificationFactory {
     Set<ChangedIssue> changedIssues = issues.stream()
       .map(issue -> new ChangedIssue.Builder(issue.key())
         .setAssignee(getAssignee(issue.assignee(), assigneesByUuid))
-        .setNewResolution(issue.resolution())
         .setNewStatus(issue.status())
+        .setNewIssueStatus(issue.status() != null ? IssueStatus.of(issue.status(), issue.resolution()) : null)
         .setRule(getRuleByRuleKey(issue.ruleKey()))
         .setProject(getProject())
         .build())
-      .collect(MoreCollectors.toSet(issues.size()));
+      .collect(Collectors.toSet());
 
     return issuesChangesSerializer.serialize(new IssuesChangesNotificationBuilder(changedIssues, change));
   }

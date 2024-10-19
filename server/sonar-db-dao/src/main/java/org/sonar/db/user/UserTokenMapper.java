@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ public interface UserTokenMapper {
 
   int deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
 
-  int deleteByProjectKey(@Param("projectKey") String projectKey);
+  int deleteByProjectUuid(@Param("projectUuid") String projectUuid);
 
   List<UserTokenCount> countTokensByUserUuids(@Param("userUuids") List<String> userUuids);
 

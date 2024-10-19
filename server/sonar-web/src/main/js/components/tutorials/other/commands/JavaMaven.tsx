@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaMavenProps {
-  component: Component;
   baseUrl: string;
+  component: Component;
   token: string;
 }
 
@@ -37,31 +39,32 @@ export default function JavaMaven(props: JavaMavenProps) {
   const command = [
     'mvn clean verify sonar:sonar',
     `-Dsonar.projectKey=${component.key}`,
+    `-Dsonar.projectName='${component.name}'`,
     `-Dsonar.host.url=${baseUrl}`,
-    `-Dsonar.login=${token}`,
+    `-Dsonar.token=${token}`,
   ];
+
+  const docUrl = useDocUrl(DocLink.SonarScannerMaven);
 
   return (
     <div>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.java.maven.header')}</h4>
-      <p className="spacer-bottom markdown">
+      <SubHeading className="sw-mb-2">
+        {translate('onboarding.analysis.java.maven.header')}
+      </SubHeading>
+      <p className="sw-mb-2">
         <InstanceMessage message={translate('onboarding.analysis.java.maven.text')} />
       </p>
-      <CodeSnippet snippet={command} />
-      <p className="big-spacer-top markdown">
+      <CodeSnippet className="sw-p-4" snippet={command} />
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.docs')}
           id="onboarding.analysis.docs"
           values={{
-            link: (
-              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                {translate('onboarding.analysis.java.maven.docs_link')}
-              </DocLink>
-            ),
+            link: <Link to={docUrl}>{translate('onboarding.analysis.java.maven.docs_link')}</Link>,
           }}
         />
       </p>
-      <DoneNextSteps component={component} />
+      <DoneNextSteps />
     </div>
   );
 }

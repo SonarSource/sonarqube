@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,55 +17,59 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Checkbox, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { debounce, keyBy, omit, without } from 'lodash';
+import {
+  ButtonSecondary,
+  FlagMessage,
+  LAYOUT_FOOTER_HEIGHT,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  ToggleButton,
+  themeBorder,
+  themeColor,
+} from 'design-system';
+import { keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { searchIssues } from '../../../api/issues';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
+import { getCve } from '../../../api/cves';
+import { listIssues, searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
-import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { PageContext } from '../../../app/components/indexation/PageUnavailableDueToIndexation';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
-import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { Button } from '../../../components/controls/buttons';
-import ButtonToggle from '../../../components/controls/ButtonToggle';
-import Checkbox from '../../../components/controls/Checkbox';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import withIndexationContext, {
+  WithIndexationContextProps,
+} from '../../../components/hoc/withIndexationContext';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import RuleTabViewer from '../../../components/rules/RuleTabViewer';
+import { IssueSuggestionCodeTab } from '../../../components/rules/IssueSuggestionCodeTab';
+import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import {
-  fillBranchLike,
-  getBranchLikeQuery,
-  isPullRequest,
-  isSameBranchLike,
-} from '../../../helpers/branch-like';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
+import { fillBranchLike, isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
+import { isDropdown, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass,
-} from '../../../helpers/pages';
 import { serializeDate } from '../../../helpers/query';
+import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
+import { isProject } from '../../../types/component';
+import { Cve } from '../../../types/cves';
 import {
+  ASSIGNEE_ME,
   Facet,
   FetchIssuesPromise,
   ReferencedComponent,
@@ -73,59 +77,63 @@ import {
   ReferencedRule,
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
-import { Component, Dict, Issue, Organization, Paging, RawQuery, RuleDetails } from '../../../types/types';
+import { Component, Dict, Issue, Organization, Paging, RuleDetails } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
-import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
-import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
-import Sidebar from '../sidebar/Sidebar';
+import SubnavigationIssuesList from '../issues-subnavigation/SubnavigationIssuesList';
+import { FiltersHeader } from '../sidebar/FiltersHeader';
+import { Sidebar } from '../sidebar/Sidebar';
 import '../styles.css';
 import {
+  Query,
+  STANDARDS,
   areMyIssuesSelected,
   areQueriesEqual,
   getOpen,
   getOpenIssue,
   parseFacets,
   parseQuery,
-  Query,
   saveMyIssues,
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
-  STANDARDS,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
-import IssueHeader from './IssueHeader';
+import IssueGuide from './IssueGuide';
+import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
+import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
+import IssuesListTitle from './IssuesListTitle';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
+import { PSEUDO_SHADOW_HEIGHT } from './StyledHeader';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
-interface Props {
+interface Props extends WithIndexationContextProps {
   organization?: Organization;
   branchLike?: BranchLike;
+  branchLikes?: BranchLike[];
   component?: Component;
   currentUser: CurrentUser;
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
+  isFetchingBranch?: boolean;
   location: Location;
   router: Router;
 }
-
 export interface State {
   bulkChangeModal: boolean;
-  cannotShowOpenIssue?: boolean;
   checkAll?: boolean;
   checked: string[];
+  cve?: Cve;
   effortTotal?: number;
   facets: Dict<Facet>;
   issues: Issue[];
   loading: boolean;
-  loadingRule: boolean;
   loadingFacets: Dict<boolean>;
   loadingMore: boolean;
+  loadingRule: boolean;
   locationsNavigator: boolean;
   myIssues: boolean;
   openFacets: Dict<boolean>;
@@ -142,20 +150,24 @@ export interface State {
   selected?: string;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
+  showVariantsFilter: boolean;
 }
 
-const DEFAULT_QUERY = { resolved: 'false' };
-const MAX_INITAL_FETCH = 1000;
-const BRANCH_STATUS_REFRESH_INTERVAL = 1000;
+// When opening a specific issue, number of issues to fetch through pagination before loading it specifically
+const MAX_INITAL_FETCH = 400;
+const VARIANTS_FACET = 'codeVariants';
+const ISSUES_PAGE_SIZE = 100;
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
+  requiresInitialFetch = false;
   bulkButtonRef: React.RefObject<HTMLButtonElement>;
 
   constructor(props: Props) {
     super(props);
-    const query = parseQuery(props.location.query);
+    const query = parseQuery(props.location.query, props.component?.needIssueSync);
     this.bulkButtonRef = React.createRef();
+
     this.state = {
       bulkChangeModal: false,
       checked: [],
@@ -163,8 +175,8 @@ export class App extends React.PureComponent<Props, State> {
       issues: [],
       loading: true,
       loadingFacets: {},
-      loadingRule: false,
       loadingMore: false,
+      loadingRule: false,
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
       openFacets: {
@@ -172,13 +184,12 @@ export class App extends React.PureComponent<Props, State> {
         'owaspTop10-2021': shouldOpenStandardsChildFacet(
           {},
           query,
-          SecurityStandard.OWASP_TOP10_2021
+          SecurityStandard.OWASP_TOP10_2021,
         ),
-        sansTop25: shouldOpenStandardsChildFacet({}, query, SecurityStandard.SANS_TOP25),
-        severities: true,
+        cleanCodeAttributeCategories: true,
+        impactSoftwareQualities: true,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
-        types: true,
       },
       query,
       referencedComponentsById: {},
@@ -187,19 +198,20 @@ export class App extends React.PureComponent<Props, State> {
       referencedRules: {},
       referencedUsers: {},
       selected: getOpen(props.location.query),
+      showVariantsFilter: false,
     };
-    this.refreshBranchStatus = debounce(this.refreshBranchStatus, BRANCH_STATUS_REFRESH_INTERVAL);
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
     const {
       location: { query },
+      component: { needIssueSync } = {},
     } = props;
 
     return {
       myIssues: areMyIssuesSelected(query),
-      query: parseQuery(query),
       openIssue: getOpenIssue(props, state.issues),
+      query: parseQuery(query, needIssueSync),
     };
   }
 
@@ -211,10 +223,13 @@ export class App extends React.PureComponent<Props, State> {
       return;
     }
 
-    addWhitePageClass();
-    addSideBarClass();
     this.attachShortcuts();
-    this.fetchFirstIssues();
+
+    if (!this.props.isFetchingBranch) {
+      this.fetchFirstIssues(true).catch(() => undefined);
+    } else {
+      this.requiresInitialFetch = true;
+    }
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -222,13 +237,19 @@ export class App extends React.PureComponent<Props, State> {
     const { query: prevQuery } = prevProps.location;
     const { openIssue } = this.state;
 
+    if (this.requiresInitialFetch && !this.props.isFetchingBranch) {
+      this.requiresInitialFetch = false;
+      this.fetchFirstIssues(true).catch(() => undefined);
+      return;
+    }
+
     if (
       prevProps.component !== this.props.component ||
       !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
       !areQueriesEqual(prevQuery, query) ||
       areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
     ) {
-      this.fetchFirstIssues();
+      this.fetchFirstIssues(false).catch(() => undefined);
       this.setState({ checkAll: false });
     } else if (openIssue && openIssue.key !== this.state.selected) {
       this.setState({
@@ -238,16 +259,15 @@ export class App extends React.PureComponent<Props, State> {
         selectedLocationIndex: undefined,
       });
     }
+
     if (this.state.openIssue && this.state.openIssue.key !== prevState.openIssue?.key) {
-      this.loadRule();
+      this.loadRule().catch(() => undefined);
     }
   }
 
   componentWillUnmount() {
     this.detachShortcuts();
     this.mounted = false;
-    removeWhitePageClass();
-    removeSideBarClass();
   }
 
   attachShortcuts() {
@@ -266,51 +286,60 @@ export class App extends React.PureComponent<Props, State> {
       return;
     }
 
-    if (isInput(event) || isShortcut(event)) {
-      return true;
+    if (isInput(event) || isShortcut(event) || isDropdown(event)) {
+      return;
     }
 
     if (event.key === KeyboardKeys.Alt) {
       event.preventDefault();
       this.setState(actions.enableLocationsNavigator);
+
       return;
     }
 
     switch (event.key) {
       case KeyboardKeys.DownArrow: {
         event.preventDefault();
+
         if (event.altKey) {
           this.selectNextLocation();
         } else {
           this.selectNextIssue();
         }
+
         break;
       }
       case KeyboardKeys.UpArrow: {
         event.preventDefault();
+
         if (event.altKey) {
           this.selectPreviousLocation();
         } else {
           this.selectPreviousIssue();
         }
+
         break;
       }
       case KeyboardKeys.LeftArrow: {
         event.preventDefault();
+
         if (event.altKey) {
           this.selectPreviousFlow();
         } else {
           this.closeIssue();
         }
+
         break;
       }
       case KeyboardKeys.RightArrow: {
         event.preventDefault();
+
         if (event.altKey) {
           this.selectNextFlow();
         } else {
           this.openSelectedIssue();
         }
+
         break;
       }
     }
@@ -325,12 +354,14 @@ export class App extends React.PureComponent<Props, State> {
   getSelectedIndex() {
     const { issues = [], selected } = this.state;
     const index = issues.findIndex((issue) => issue.key === selected);
+
     return index !== -1 ? index : undefined;
   }
 
   selectNextIssue = () => {
     const { issues } = this.state;
     const selectedIndex = this.getSelectedIndex();
+
     if (selectedIndex !== undefined && selectedIndex < issues.length - 1) {
       if (this.state.openIssue) {
         this.openIssue(issues[selectedIndex + 1].key);
@@ -346,21 +377,31 @@ export class App extends React.PureComponent<Props, State> {
 
   async loadRule() {
     const { openIssue } = this.state;
+
     if (openIssue === undefined) {
       return;
     }
+
     this.setState({ loadingRule: true });
-    const openRuleDetails = await getRuleDetails({ key: openIssue.rule, organization: openIssue.organization})
+
+    const openRuleDetails = await getRuleDetails({ key: openIssue.rule, organization: openIssue.organization })
       .then((response) => response.rule)
       .catch(() => undefined);
+
+    let cve: Cve | undefined;
+    if (typeof openIssue.cveId === 'string') {
+      cve = await getCve(openIssue.cveId);
+    }
+
     if (this.mounted) {
-      this.setState({ loadingRule: false, openRuleDetails });
+      this.setState({ loadingRule: false, openRuleDetails, cve });
     }
   }
 
   selectPreviousIssue = () => {
     const { issues } = this.state;
     const selectedIndex = this.getSelectedIndex();
+
     if (selectedIndex !== undefined && selectedIndex > 0) {
       if (this.state.openIssue) {
         this.openIssue(issues[selectedIndex - 1].key);
@@ -380,11 +421,12 @@ export class App extends React.PureComponent<Props, State> {
       query: {
         ...serializeQuery(this.state.query),
         ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component && this.props.component.key,
+        id: this.props.component?.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
         open: issueKey,
       },
     };
+
     if (this.state.openIssue) {
       if (path.query.open && path.query.open === this.state.openIssue.key) {
         this.setState({
@@ -399,6 +441,14 @@ export class App extends React.PureComponent<Props, State> {
     }
   };
 
+  selectIssue = (issueKey: string) => {
+    this.setState({
+      selected: issueKey,
+      selectedFlowIndex: 0,
+      selectedLocationIndex: undefined,
+    });
+  };
+
   closeIssue = () => {
     if (this.state.query) {
       this.props.router.push({
@@ -406,7 +456,7 @@ export class App extends React.PureComponent<Props, State> {
         query: {
           ...serializeQuery(this.state.query),
           ...getBranchLikeQuery(this.props.branchLike),
-          id: this.props.component && this.props.component.key,
+          id: this.props.component?.key,
           myIssues: this.state.myIssues ? 'true' : undefined,
           open: undefined,
         },
@@ -416,6 +466,7 @@ export class App extends React.PureComponent<Props, State> {
 
   openSelectedIssue = () => {
     const { selected } = this.state;
+
     if (selected) {
       this.openIssue(selected);
     }
@@ -423,39 +474,63 @@ export class App extends React.PureComponent<Props, State> {
 
   createdAfterIncludesTime = () => Boolean(this.props.location.query.createdAfter?.includes('T'));
 
-  fetchIssuesHelper = (query: RawQuery) => {
-    return searchIssues({
+  fetchIssuesHelper = async (query: RawQuery) => {
+    if (this.props.component?.needIssueSync) {
+      const response = await listIssues(query);
+      const parsedIssues = response.issues.map((issue) =>
+        parseIssueFromResponse(issue, response.components, undefined, response.rules),
+      );
+      return { ...response, issues: parsedIssues } as FetchIssuesPromise;
+    }
+
+    const response = await searchIssues({
       ...query,
       additionalFields: '_all',
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    }).then((response) => {
-      const parsedIssues = response.issues.map((issue) =>
-        parseIssueFromResponse(issue, response.components, response.users, response.rules)
-      );
-      return { ...response, issues: parsedIssues } as FetchIssuesPromise;
     });
+    const parsedIssues = response.issues.map((issue) =>
+      parseIssueFromResponse(issue, response.components, response.users, response.rules),
+    );
+    return { ...response, issues: parsedIssues } as FetchIssuesPromise;
   };
 
-  fetchIssues = (additional: RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
+  fetchIssues = (
+    additional: RawQuery,
+    requestFacets = false,
+    firstRequest = false,
+  ): Promise<FetchIssuesPromise> => {
     const { component, organization } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
-    const facets = requestFacets
+    let facets = requestFacets
       ? Object.keys(openFacets)
           .filter((facet) => facet !== STANDARDS && openFacets[facet])
           .join(',')
       : undefined;
 
-    const parameters: Dict<string | undefined> = {
-      ...getBranchLikeQuery(this.props.branchLike),
-      organization: organization?.kee,
-      componentKeys: component && component.key,
-      s: 'FILE_LINE',
-      ...serializeQuery(query),
-      ps: '25',
-      facets,
-      ...additional,
-    };
+    if (firstRequest && isProject(component?.qualifier)) {
+      facets = facets ? `${facets},${VARIANTS_FACET}` : VARIANTS_FACET;
+    }
+
+    const parameters: Dict<string | undefined> = component?.needIssueSync
+      ? {
+          ...getBranchLikeQuery(this.props.branchLike, true),
+          organization: organization?.kee,
+          project: component?.key,
+          ...serializeQuery(query),
+          ps: `${ISSUES_PAGE_SIZE}`,
+          ...additional,
+        }
+      : {
+          ...getBranchLikeQuery(this.props.branchLike),
+          organization: organization?.kee,
+          components: component?.key,
+          s: 'FILE_LINE',
+          ...serializeQuery(query),
+          ps: `${ISSUES_PAGE_SIZE}`,
+          facets,
+          ...additional,
+        };
 
     if (query.createdAfter !== undefined && this.createdAfterIncludesTime()) {
       parameters.createdAfter = serializeDate(query.createdAfter);
@@ -467,116 +542,137 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     if (myIssues) {
-      Object.assign(parameters, { assignees: '__me__' });
+      Object.assign(parameters, { assignees: ASSIGNEE_ME });
     }
 
     return this.fetchIssuesHelper(parameters);
   };
 
-  fetchFirstIssues() {
+  async fetchFirstIssues(firstRequest: boolean) {
     const prevQuery = this.props.location.query;
     const openIssueKey = getOpen(this.props.location.query);
-    let fetchPromise;
 
     this.setState({ checked: [], loading: true });
+
+    let response: FetchIssuesPromise;
     if (openIssueKey !== undefined) {
-      fetchPromise = this.fetchIssuesUntil(1, (pageIssues: Issue[], paging: Paging) => {
-        if (
-          paging.total <= paging.pageIndex * paging.pageSize ||
-          paging.pageIndex * paging.pageSize >= MAX_INITAL_FETCH
-        ) {
-          return true;
-        }
-        return pageIssues.some((issue) => issue.key === openIssueKey);
-      });
+      response = await this.fetchIssuesUntil(openIssueKey);
     } else {
-      fetchPromise = this.fetchIssues({}, true);
+      response = await this.fetchIssues({}, true, firstRequest);
     }
 
-    return fetchPromise.then(
-      ({ effortTotal, facets, issues, paging, ...other }) => {
-        if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
-          const openIssue = getOpenIssue(this.props, issues);
-          let selected: string | undefined = undefined;
-          if (issues.length > 0) {
-            selected = openIssue ? openIssue.key : issues[0].key;
-          }
-          this.setState((state) => ({
-            cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
-            effortTotal,
-            facets: { ...state.facets, ...parseFacets(facets) },
-            loading: false,
-            locationsNavigator: true,
-            issues,
-            openIssue,
-            paging,
-            referencedComponentsById: keyBy(other.components, 'uuid'),
-            referencedComponentsByKey: keyBy(other.components, 'key'),
-            referencedLanguages: keyBy(other.languages, 'key'),
-            referencedRules: keyBy(other.rules, 'key'),
-            referencedUsers: keyBy(other.users, 'login'),
-            selected,
-            selectedFlowIndex: 0,
-            selectedLocationIndex: undefined,
-          }));
-        }
-        return issues;
-      },
-      () => {
-        if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
-          this.setState({ loading: false });
-        }
-        return [];
+    try {
+      return this.parseFirstIssues(response, firstRequest, prevQuery);
+    } catch (error) {
+      if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
+        this.setState({ loading: false });
       }
-    );
+      return [];
+    }
   }
 
-  fetchIssuesPage = (p: number) => {
-    return this.fetchIssues({ p });
-  };
+  parseFirstIssues = (response: FetchIssuesPromise, firstRequest: boolean, prevQuery: RawQuery) => {
+    const { effortTotal, facets, issues, paging, ...other } = response;
 
-  fetchIssuesUntil = (
-    page: number,
-    done: (pageIssues: Issue[], paging: Paging) => boolean
-  ): Promise<FetchIssuesPromise> => {
-    const recursiveFetch = (p: number, prevIssues: Issue[]): Promise<FetchIssuesPromise> => {
-      return this.fetchIssuesPage(p).then(({ issues: pageIssues, paging, ...other }) => {
-        const issues = [...prevIssues, ...pageIssues];
-        return done(pageIssues, paging)
-          ? { issues, paging, ...other }
-          : recursiveFetch(p + 1, issues);
-      });
-    };
+    if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
+      const openIssue = getOpenIssue(this.props, issues);
+      let selected: string | undefined = undefined;
 
-    return recursiveFetch(page, []);
-  };
+      if (issues.length > 0) {
+        selected = openIssue ? openIssue.key : issues[0].key;
+      }
 
-  fetchMoreIssues = () => {
-    const { paging } = this.state;
-
-    if (!paging) {
-      return Promise.reject();
+      this.setState(({ showVariantsFilter }) => ({
+        effortTotal,
+        facets: parseFacets(facets),
+        issues,
+        loading: false,
+        locationsNavigator: true,
+        openIssue,
+        paging,
+        referencedComponentsById: keyBy(other.components, 'uuid'),
+        referencedComponentsByKey: keyBy(other.components, 'key'),
+        referencedLanguages: keyBy(other.languages, 'key'),
+        referencedRules: keyBy(other.rules, 'key'),
+        referencedUsers: keyBy(other.users, 'login'),
+        selected,
+        selectedFlowIndex: 0,
+        selectedLocationIndex: undefined,
+        showVariantsFilter: firstRequest
+          ? Boolean(facets?.find((f) => f.property === VARIANTS_FACET)?.values.length)
+          : showVariantsFilter,
+      }));
     }
 
-    const p = paging.pageIndex + 1;
+    return issues;
+  };
+
+  fetchIssuesUntil = async (issueKey: string): Promise<FetchIssuesPromise> => {
+    let issueOfInterest: Issue | undefined;
+    const allIssues: Issue[] = [];
+
+    // Try and find issue of interest in the first pages of issues. Stop if we find it.
+    let currentPage = 1;
+    let lastResponse: FetchIssuesPromise;
+    do {
+      // eslint-disable-next-line no-await-in-loop
+      const response = await this.fetchIssues({ p: currentPage });
+      allIssues.push(...response.issues);
+      lastResponse = response;
+
+      issueOfInterest = response.issues.find((issue) => issue.key === issueKey);
+      if (issueOfInterest) {
+        return { ...response, issues: allIssues };
+      }
+
+      currentPage++;
+    } while (currentPage <= MAX_INITAL_FETCH / ISSUES_PAGE_SIZE);
+
+    // If we could not find the issue, we load it specifically and prepend it to the list
+    const {
+      issues: [issue],
+    } = await this.fetchIssuesHelper({ issues: issueKey });
+    return {
+      ...lastResponse,
+      issues: [issue, ...allIssues],
+      // Use last paging object we got from the previous requests and patch it with this issue
+      paging: {
+        ...lastResponse.paging,
+        total: lastResponse.paging.total + 1,
+      },
+    };
+  };
+
+  fetchMoreIssues = async () => {
+    const { paging, issues } = this.state;
+
+    if (!paging) {
+      throw new Error('Paging is not defined');
+    }
 
     this.setState({ checkAll: false, loadingMore: true });
-    return this.fetchIssuesPage(p).then(
-      (response) => {
-        if (this.mounted) {
-          this.setState((state) => ({
-            loadingMore: false,
-            issues: [...state.issues, ...response.issues],
-            paging: response.paging,
-          }));
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loadingMore: false });
-        }
+
+    try {
+      const response = await this.fetchIssues({ p: paging.pageIndex + 1 });
+
+      // In some cases, we can get an issue that we already have in the list as the first issue
+      // When this happens, we filter it out
+      // @see this.fetchIssuesUntil
+      const firstIssueKey = issues[0]?.key;
+      response.issues = response.issues.filter((issue) => issue.key !== firstIssueKey);
+
+      if (this.mounted) {
+        this.setState((state) => ({
+          issues: [...state.issues, ...response.issues],
+          loadingMore: false,
+          paging: response.paging,
+        }));
       }
-    );
+    } catch (error) {
+      if (this.mounted) {
+        this.setState({ loadingMore: false });
+      }
+    }
   };
 
   fetchFacet = (facet: string) => {
@@ -605,20 +701,23 @@ export class App extends React.PureComponent<Props, State> {
       },
       () => {
         /* Do nothing */
-      }
+      },
     );
   };
 
   isFiltered = () => {
     const serialized = serializeQuery(this.state.query);
-    return !areQueriesEqual(serialized, DEFAULT_QUERY);
+
+    return !areQueriesEqual(serialized, DEFAULT_ISSUES_QUERY);
   };
 
   getCheckedIssues = () => {
     const issues = this.state.checked
       .map((checked) => this.state.issues.find((issue) => issue.key === checked))
       .filter((issue): issue is Issue => issue !== undefined);
+
     const paging = { pageIndex: 1, pageSize: issues.length, total: issues.length };
+
     return Promise.resolve({ issues, paging });
   };
 
@@ -628,7 +727,8 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     let count;
-    if (checkAll && paging) {
+
+    if (checkAll && paging && !this.props.component?.needIssueSync) {
       count = paging.total > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : paging.total;
     } else {
       count = Math.min(checked.length, MAX_PAGE_SIZE);
@@ -643,10 +743,11 @@ export class App extends React.PureComponent<Props, State> {
       query: {
         ...serializeQuery({ ...this.state.query, ...changes }),
         ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component && this.props.component.key,
+        id: this.props.component?.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
       },
     });
+
     this.setState(({ openFacets }) => ({
       openFacets: {
         ...openFacets,
@@ -658,15 +759,17 @@ export class App extends React.PureComponent<Props, State> {
 
   handleMyIssuesChange = (myIssues: boolean) => {
     this.closeFacet('assignees');
+
     if (!this.props.component) {
       saveMyIssues(myIssues);
     }
+
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
         ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component && this.props.component.key,
+        id: this.props.component?.key,
         myIssues: myIssues ? 'true' : undefined,
       },
     });
@@ -679,7 +782,7 @@ export class App extends React.PureComponent<Props, State> {
     const parameters = {
       ...getBranchLikeQuery(this.props.branchLike),
       organization: organization?.kee,
-      componentKeys: component && component.key,
+      components: component?.key,
       facets: property,
       s: 'FILE_LINE',
       ...serializeQuery({ ...query, ...changes }),
@@ -687,7 +790,7 @@ export class App extends React.PureComponent<Props, State> {
     };
 
     if (myIssues) {
-      Object.assign(parameters, { assignees: '__me__' });
+      Object.assign(parameters, { assignees: ASSIGNEE_ME });
     }
 
     return this.fetchIssuesHelper(parameters).then(({ facets }) => parseFacets(facets)[property]);
@@ -702,6 +805,7 @@ export class App extends React.PureComponent<Props, State> {
   handleFacetToggle = (property: string) => {
     this.setState((state) => {
       const willOpenProperty = !state.openFacets[property];
+
       const newState = {
         loadingFacets: state.loadingFacets,
         openFacets: { ...state.openFacets, [property]: willOpenProperty },
@@ -711,8 +815,9 @@ export class App extends React.PureComponent<Props, State> {
       if (willOpenProperty && property === STANDARDS) {
         newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
           newState.openFacets,
-          state.query
+          state.query,
         );
+
         // Force loading of sonarsource security facet data
         property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
       }
@@ -720,7 +825,8 @@ export class App extends React.PureComponent<Props, State> {
       // No need to load facets data for standard facet
       if (property !== STANDARDS && !state.facets[property]) {
         newState.loadingFacets[property] = true;
-        this.fetchFacet(property);
+
+        this.fetchFacet(property).catch(() => undefined);
       }
 
       return newState;
@@ -731,9 +837,9 @@ export class App extends React.PureComponent<Props, State> {
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
-        ...DEFAULT_QUERY,
+        ...DEFAULT_ISSUES_QUERY,
         ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component && this.props.component.key,
+        id: this.props.component?.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
       },
     });
@@ -764,7 +870,16 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleIssueChange = (issue: Issue) => {
-    this.refreshBranchStatus();
+    const { openFacets } = this.state;
+    // The idea is once issue is handle by a react-query we would update only
+    // the facet affected by the issue change. Right now it is too complexe to do so.
+    Object.entries(openFacets)
+      .filter(([facet]) => facet !== STANDARDS)
+      .forEach(([facet, isOpen]) => {
+        if (isOpen) {
+          this.fetchFacet(facet);
+        }
+      });
     this.setState((state) => ({
       issues: state.issues.map((candidate) => (candidate.key === issue.key ? issue : candidate)),
     }));
@@ -784,13 +899,13 @@ export class App extends React.PureComponent<Props, State> {
 
   handleBulkChangeDone = () => {
     this.setState({ checkAll: false });
-    this.refreshBranchStatus();
-    this.fetchFirstIssues();
+    this.fetchFirstIssues(false).catch(() => undefined);
     this.handleCloseBulkChange();
   };
 
   selectLocation = (index: number) => {
     const { selectedLocationIndex } = this.state;
+
     if (index === selectedLocationIndex) {
       this.setState({ selectedLocationIndex: undefined }, () => {
         this.setState({ selectedLocationIndex: index });
@@ -800,6 +915,7 @@ export class App extends React.PureComponent<Props, State> {
         if (openIssue) {
           return { locationsNavigator: true, selectedLocationIndex: index };
         }
+
         return null;
       });
     }
@@ -836,13 +952,6 @@ export class App extends React.PureComponent<Props, State> {
     this.setState(actions.selectPreviousFlow);
   };
 
-  refreshBranchStatus = () => {
-    const { branchLike, component } = this.props;
-    if (branchLike && component && isPullRequest(branchLike)) {
-      this.props.fetchBranchStatus(branchLike, component.key);
-    }
-  };
-
   renderBulkChange() {
     const { component, currentUser } = this.props;
     const { checkAll, bulkChangeModal, checked, issues, paging } = this.state;
@@ -856,30 +965,32 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="pull-left">
+      <div className="sw-float-left sw-flex sw-items-center">
         <Checkbox
-          checked={isChecked}
-          className="spacer-right text-middle"
-          disabled={issues.length === 0}
+          ariaLabel={translate('issues.select_all_issues')}
+          checked={thirdState ? 'indeterminate' : isChecked}
+          className="sw-mr-2"
           id="issues-selection"
+          isDisabled={issues.length === 0}
           onCheck={this.handleCheckAll}
-          thirdState={thirdState}
           title={translate('issues.select_all_issues')}
         />
-        <Button
-          innerRef={this.bulkButtonRef}
+
+        <ButtonSecondary
           disabled={checked.length === 0}
           id="issues-bulk-change"
+          ref={this.bulkButtonRef}
           onClick={this.handleOpenBulkChange}
         >
           {this.getButtonLabel(checked, checkAll, paging)}
-        </Button>
+        </ButtonSecondary>
 
         {bulkChangeModal && (
           <BulkChangeModal
-            component={component}
-            currentUser={currentUser}
-            fetchIssues={checkAll ? this.fetchIssues : this.getCheckedIssues}
+            fetchIssues={
+              checkAll && !component?.needIssueSync ? this.fetchIssues : this.getCheckedIssues
+            }
+            needIssueSync={component?.needIssueSync}
             onClose={this.handleCloseBulkChange}
             onDone={this.handleBulkChangeDone}
           />
@@ -888,128 +999,147 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderFacets() {
+  renderFacets(warning?: React.ReactNode) {
     const { component, currentUser, branchLike } = this.props;
-    const { query } = this.state;
+    const {
+      facets,
+      loadingFacets,
+      myIssues,
+      openFacets,
+      query,
+      referencedComponentsById,
+      referencedComponentsByKey,
+      referencedLanguages,
+      referencedRules,
+      referencedUsers,
+      showVariantsFilter,
+    } = this.state;
 
     return (
-      <div className="layout-page-filters">
-        {currentUser.isLoggedIn && (
-          <div className="display-flex-justify-center big-spacer-bottom">
-            <ButtonToggle
+      <div
+        className={
+          'it__layout-page-filters sw-bg-white sw-box-border sw-h-full ' +
+          'sw-py-6 sw-pl-3 sw-pr-4 sw-w-[300px] lg:sw-w-[390px]'
+        }
+      >
+        {warning && <div className="sw-pb-6">{warning}</div>}
+
+        {currentUser.isLoggedIn && !component?.needIssueSync && (
+          <div className="sw-flex sw-justify-start sw-mb-8">
+            <ToggleButton
+              onChange={this.handleMyIssuesChange}
               options={[
                 { value: true, label: translate('issues.my_issues') },
                 { value: false, label: translate('all') },
               ]}
               value={this.state.myIssues}
-              onCheck={this.handleMyIssuesChange}
             />
           </div>
         )}
+
         <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
+
         <Sidebar
           branchLike={branchLike}
           component={component}
           organization={this.props.organization}
           createdAfterIncludesTime={this.createdAfterIncludesTime()}
-          facets={this.state.facets}
+          facets={facets}
+          loadingFacets={loadingFacets}
           loadSearchResultCount={this.loadSearchResultCount}
-          loadingFacets={this.state.loadingFacets}
-          myIssues={this.state.myIssues}
+          myIssues={myIssues}
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}
-          openFacets={this.state.openFacets}
+          openFacets={openFacets}
           query={query}
-          referencedComponentsById={this.state.referencedComponentsById}
-          referencedComponentsByKey={this.state.referencedComponentsByKey}
-          referencedLanguages={this.state.referencedLanguages}
-          referencedRules={this.state.referencedRules}
-          referencedUsers={this.state.referencedUsers}
+          referencedComponentsById={referencedComponentsById}
+          referencedComponentsByKey={referencedComponentsByKey}
+          referencedLanguages={referencedLanguages}
+          referencedRules={referencedRules}
+          referencedUsers={referencedUsers}
+          showVariantsFilter={showVariantsFilter}
         />
-      </div>
-    );
-  }
-
-  renderConciseIssuesList() {
-    const { issues, loadingMore, paging, query } = this.state;
-
-    return (
-      <div className="layout-page-filters">
-        <ConciseIssuesListHeader
-          displayBackButton={query.issues.length !== 1}
-          loading={this.state.loading}
-          onBackClick={this.closeIssue}
-        />
-        <ConciseIssuesList
-          issues={issues}
-          onFlowSelect={this.selectFlow}
-          onIssueSelect={this.openIssue}
-          onLocationSelect={this.selectLocation}
-          selected={this.state.selected}
-          selectedFlowIndex={this.state.selectedFlowIndex}
-          selectedLocationIndex={this.state.selectedLocationIndex}
-        />
-        {paging && paging.total > 0 && (
-          <ListFooter
-            count={issues.length}
-            loadMore={this.fetchMoreIssues}
-            loading={loadingMore}
-            total={paging.total}
-          />
-        )}
       </div>
     );
   }
 
   renderSide(openIssue: Issue | undefined) {
     const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
-      this.props.component || {};
-    return (
-      <ScreenPositionHelper className="layout-page-side-outer">
-        {({ top }) => (
-          <section
-            aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
-            className="layout-page-side"
-            style={{ top }}
-          >
-            <div className="layout-page-side-inner">
-              <A11ySkipTarget
-                anchor="issues_sidebar"
-                label={
-                  openIssue ? translate('issues.skip_to_list') : translate('issues.skip_to_filters')
-                }
-                weight={10}
-              />
-              {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-                <div
-                  className={classNames('not-all-issue-warning', {
-                    'open-issue-list': openIssue,
-                  })}
-                >
-                  <Alert className={classNames('it__portfolio_warning')} variant="warning">
-                    <AlertContent>
-                      {translate('issues.not_all_issue_show')}
-                      <HelpTooltip
-                        className="spacer-left"
-                        ariaLabel={translate('issues.not_all_issue_show_why')}
-                        overlay={translate('issues.not_all_issue_show_why')}
-                      />
-                    </AlertContent>
-                  </Alert>
-                </div>
-              )}
+      this.props.component ?? {};
 
-              {openIssue ? this.renderConciseIssuesList() : this.renderFacets()}
-            </div>
-          </section>
-        )}
-      </ScreenPositionHelper>
+    const {
+      issues,
+      loading,
+      loadingMore,
+      paging,
+      selected,
+      selectedFlowIndex,
+      selectedLocationIndex,
+    } = this.state;
+
+    const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+      <FlagMessage
+        className="it__portfolio_warning sw-flex"
+        title={translate('issues.not_all_issue_show_why')}
+        variant="warning"
+      >
+        {translate('issues.not_all_issue_show')}
+      </FlagMessage>
+    );
+
+    return (
+      <SideBarStyle>
+        <ScreenPositionHelper className="sw-z-filterbar">
+          {({ top }) => (
+            <StyledNav
+              aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
+              data-testid="issues-nav-bar"
+              className="issues-nav-bar sw-overflow-y-auto"
+              style={{ height: `calc((100vh - ${top}px) - ${LAYOUT_FOOTER_HEIGHT}px)` }}
+            >
+              <div className="sw-w-[300px] lg:sw-w-[390px] sw-h-full">
+                <A11ySkipTarget
+                  anchor="issues_sidebar"
+                  label={
+                    openIssue
+                      ? translate('issues.skip_to_list')
+                      : translate('issues.skip_to_filters')
+                  }
+                  weight={10}
+                />
+
+                {openIssue ? (
+                  <div className="sw-h-full">
+                    {warning && <div className="sw-py-4">{warning}</div>}
+
+                    <SubnavigationIssuesList
+                      fetchMoreIssues={this.fetchMoreIssues}
+                      issues={issues}
+                      loading={loading}
+                      loadingMore={loadingMore}
+                      onFlowSelect={this.selectFlow}
+                      onIssueSelect={this.openIssue}
+                      onLocationSelect={this.selectLocation}
+                      paging={paging}
+                      selected={selected}
+                      selectedFlowIndex={selectedFlowIndex}
+                      selectedLocationIndex={selectedLocationIndex}
+                    />
+                  </div>
+                ) : (
+                  this.renderFacets(warning)
+                )}
+              </div>
+            </StyledNav>
+          )}
+        </ScreenPositionHelper>
+      </SideBarStyle>
     );
   }
 
   renderList() {
-    const { branchLike, component, currentUser } = this.props;
-    const { issues, loading, loadingMore, openIssue, paging } = this.state;
+    const { branchLike, component, currentUser, branchLikes } = this.props;
+    const { issues, loading, loadingMore, openIssue, paging, query } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex !== undefined ? issues[selectedIndex] : undefined;
 
@@ -1018,7 +1148,8 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     let noIssuesMessage = null;
-    if (paging.total === 0 && !loading) {
+
+    if (issues.length === 0 && !loading) {
       if (this.isFiltered()) {
         noIssuesMessage = <EmptySearch />;
       } else if (this.state.myIssues) {
@@ -1030,28 +1161,35 @@ export class App extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        <h2 className="a11y-hidden">{translate('list_of_issues')}</h2>
-        {paging.total > 0 && (
+        <IssuesListTitle
+          fixedInPullRequest={query.fixedInPullRequest}
+          pullRequests={branchLikes?.filter(isPullRequest) ?? []}
+          component={component}
+        />
+
+        {issues.length > 0 && (
           <IssuesList
             branchLike={branchLike}
             checked={this.state.checked}
             component={component}
             issues={issues}
-            onFilterChange={this.handleFilterChange}
             onIssueChange={this.handleIssueChange}
             onIssueCheck={currentUser.isLoggedIn ? this.handleIssueCheck : undefined}
-            onIssueClick={this.openIssue}
+            onIssueSelect={this.selectIssue}
             onPopupToggle={this.handlePopupToggle}
             openPopup={this.state.openPopup}
             selectedIssue={selectedIssue}
           />
         )}
 
-        {paging.total > 0 && (
+        {issues.length > 0 && (
           <ListFooter
             count={issues.length}
-            loadMore={this.fetchMoreIssues}
+            loadMore={() => {
+              this.fetchMoreIssues().catch(() => undefined);
+            }}
             loading={loadingMore}
+            pageSize={ISSUES_PAGE_SIZE}
             total={paging.total}
           />
         )}
@@ -1064,135 +1202,211 @@ export class App extends React.PureComponent<Props, State> {
   renderHeader({
     openIssue,
     paging,
-    selectedIndex,
   }: {
     openIssue: Issue | undefined;
     paging: Paging | undefined;
-    selectedIndex: number | undefined;
   }) {
     return openIssue ? (
       <A11ySkipTarget anchor="issues_main" />
     ) : (
-      <div className="layout-page-header-panel layout-page-main-header issues-main-header">
-        <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-          <div className="layout-page-main-inner">
-            <A11ySkipTarget anchor="issues_main" />
+      <>
+        <A11ySkipTarget anchor="issues_main" />
+        <div className="sw-p-6 sw-flex sw-w-full sw-items-center sw-justify-between sw-box-border">
+          {this.renderBulkChange()}
 
-            {this.renderBulkChange()}
-            <PageActions
-              canSetHome={!this.props.organization && !this.props.component}
-              effortTotal={this.state.effortTotal}
-              paging={paging}
-              selectedIndex={selectedIndex}
-            />
-          </div>
+          <PageActions
+            canSetHome={!this.props.organization && !this.props.component}
+            effortTotal={this.state.effortTotal}
+            paging={this.props.component?.needIssueSync ? undefined : paging}
+          />
         </div>
-      </div>
+      </>
     );
   }
 
   renderPage() {
-    const {
-      cannotShowOpenIssue,
-      openRuleDetails,
-      checkAll,
-      issues,
-      loading,
-      openIssue,
-      paging,
-      loadingRule,
-    } = this.state;
-    const organization = this.props.organization?.kee;
+    const { openRuleDetails, cve, checkAll, issues, loading, openIssue, paging, loadingRule } =
+      this.state;
+
     return (
-      <div className="layout-page-main-inner">
-        <DeferredSpinner loading={loadingRule}>
-          {openIssue && openRuleDetails ? (
-            <>
-              <IssueHeader
-                organization={organization}
-                issue={openIssue}
-                ruleDetails={openRuleDetails}
-                branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                onIssueChange={this.handleIssueChange}
-              />
-              <RuleTabViewer
-                ruleDetails={openRuleDetails}
-                extendedDescription={openRuleDetails.htmlNote}
-                ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
-                codeTabContent={
-                  <IssuesSourceViewer
-                    branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                    issues={issues}
-                    locationsNavigator={this.state.locationsNavigator}
-                    onIssueSelect={this.openIssue}
-                    onLocationSelect={this.selectLocation}
-                    openIssue={openIssue}
-                    selectedFlowIndex={this.state.selectedFlowIndex}
-                    selectedLocationIndex={this.state.selectedLocationIndex}
-                  />
-                }
-                scrollInTab={true}
-              />
-            </>
-          ) : (
-            <DeferredSpinner loading={loading} ariaLabel={translate('issues.loading_issues')}>
-              {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
-                <Alert className="big-spacer-bottom" variant="warning">
-                  <FormattedMessage
-                    defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                    id="issue_bulk_change.max_issues_reached"
-                    values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-                  />
-                </Alert>
+      <ScreenPositionHelper>
+        {({ top }) => (
+          <StyledIssueWrapper
+            className={classNames('it__layout-page-main-inner sw-pt-0', {
+              'sw-overflow-y-auto sw-pl-12': !(openIssue && openRuleDetails),
+              'details-open sw-ml-12': openIssue && openRuleDetails,
+            })}
+            style={{ height: `calc((100vh - ${top + LAYOUT_FOOTER_HEIGHT}px)` }}
+          >
+            {this.renderHeader({ openIssue, paging })}
+
+            <Spinner isLoading={loadingRule}>
+              {openIssue && openRuleDetails ? (
+                <IssueTabViewer
+                  activityTabContent={
+                    <IssueReviewHistoryAndComments
+                      issue={openIssue}
+                      onChange={this.handleIssueChange}
+                    />
+                  }
+                  codeTabContent={
+                    <IssuesSourceViewer
+                      branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                      issues={issues}
+                      locationsNavigator={this.state.locationsNavigator}
+                      onIssueSelect={this.openIssue}
+                      onLocationSelect={this.selectLocation}
+                      openIssue={openIssue}
+                      selectedFlowIndex={this.state.selectedFlowIndex}
+                      selectedLocationIndex={this.state.selectedLocationIndex}
+                    />
+                  }
+                  suggestionTabContent={
+                    <IssueSuggestionCodeTab
+                      branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                      issue={openIssue}
+                      language={openRuleDetails.lang}
+                    />
+                  }
+                  extendedDescription={openRuleDetails.htmlNote}
+                  issue={openIssue}
+                  onIssueChange={this.handleIssueChange}
+                  ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
+                  ruleDetails={openRuleDetails}
+                  cve={cve}
+                  selectedFlowIndex={this.state.selectedFlowIndex}
+                  selectedLocationIndex={this.state.selectedLocationIndex}
+                />
+              ) : (
+                <div
+                  className="sw-px-6 sw-pb-6"
+                  style={{ marginTop: `-${PSEUDO_SHADOW_HEIGHT}px` }}
+                >
+                  <Spinner
+                    ariaLabel={translate('issues.loading_issues')}
+                    className="sw-mt-4"
+                    isLoading={loading}
+                  >
+                    {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
+                      <div className="sw-mt-3">
+                        <FlagMessage variant="warning">
+                          <span>
+                            <FormattedMessage
+                              defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                              id="issue_bulk_change.max_issues_reached"
+                              values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                            />
+                          </span>
+                        </FlagMessage>
+                      </div>
+                    )}
+
+                    {this.renderList()}
+                  </Spinner>
+                </div>
               )}
-              {cannotShowOpenIssue && (!paging || paging.total > 0) && (
-                <Alert className="big-spacer-bottom" variant="warning">
-                  {translateWithParameters(
-                    'issues.cannot_open_issue_max_initial_X_fetched',
-                    MAX_INITAL_FETCH
-                  )}
-                </Alert>
-              )}
-              {this.renderList()}
-            </DeferredSpinner>
-          )}
-        </DeferredSpinner>
-      </div>
+            </Spinner>
+          </StyledIssueWrapper>
+        )}
+      </ScreenPositionHelper>
     );
   }
 
   render() {
-    const { component } = this.props;
-    const { openIssue, paging } = this.state;
-    const selectedIndex = this.getSelectedIndex();
+    const { openIssue, issues } = this.state;
+    const { component, location } = this.props;
+    const open = getOpen(location.query);
+
     return (
-      <div
-        className={classNames('layout-page issues', { 'project-level': component !== undefined })}
-        id="issues-page"
-      >
-        <Suggestions suggestions="issues" />
-        <Helmet defer={false} title={openIssue ? openIssue.message : translate('issues.page')} />
+      <PageWrapperStyle id="issues-page">
+        <LargeCenteredLayout>
+          <PageContentFontWrapper className="sw-typo-default">
+            <div className="sw-w-full sw-flex" id="issues-page">
+              {openIssue ? (
+                <Helmet
+                  defer={false}
+                  title={openIssue.message}
+                  titleTemplate={translateWithParameters(
+                    'page_title.template.with_category',
+                    translate('issues.page'),
+                  )}
+                />
+              ) : (
+                <>
+                  <Helmet defer={false} title={translate('issues.page')} />
+                  <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
+                  <IssueNewStatusAndTransitionGuide
+                    run={!open && !component?.needIssueSync && issues.length > 0}
+                    togglePopup={this.handlePopupToggle}
+                    issues={issues}
+                  />
+                </>
+              )}
 
-        <h1 className="a11y-hidden">{translate('issues.page')}</h1>
+              <h1 className="sw-sr-only">{translate('issues.page')}</h1>
 
-        {this.renderSide(openIssue)}
+              {this.renderSide(openIssue)}
 
-        <div role="main" className={classNames('layout-page-main', { 'open-issue': !!openIssue })}>
-          {this.renderHeader({ openIssue, paging, selectedIndex })}
-
-          {this.renderPage()}
-        </div>
-      </div>
+              <main className="sw-relative sw-flex-1 sw-min-w-0">{this.renderPage()}</main>
+            </div>
+          </PageContentFontWrapper>
+        </LargeCenteredLayout>
+      </PageWrapperStyle>
     );
   }
 }
 
-const AlertContent = styled.div`
-  display: flex;
-  align-items: center;
+export default withRouter(withOrganizationContext(
+  withComponentContext(
+    withCurrentUserContext(
+      withBranchLikes(
+        withIndexationContext(
+          withIndexationGuard<Props & WithIndexationContextProps>({
+            Component: App,
+            showIndexationMessage: ({
+              component,
+              indexationContext: {
+                status: { completedCount, hasFailures, isCompleted, total },
+              },
+            }) =>
+              (!component &&
+                (isCompleted === false || hasFailures === true || completedCount !== total)) ||
+              (component?.qualifier !== ComponentQualifier.Project &&
+                component?.needIssueSync === true),
+          }),
+        ),
+      ),
+    ),
+  ),
+));
+
+const PageWrapperStyle = styled.div`
+  background-color: ${themeColor('backgroundPrimary')};
 `;
 
-export default withIndexationGuard(
-  withRouter(withCurrentUserContext(withBranchStatusActions(withComponentContext(withOrganizationContext(App))))),
-  PageContext.Issues
-);
+const SideBarStyle = styled.div`
+  border-left: ${themeBorder('default', 'filterbarBorder')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+  background-color: ${themeColor('backgroundSecondary')};
+`;
+
+const StyledIssueWrapper = styled.div`
+  &.details-open {
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: ${themeBorder('default', 'filterbarBorder')};
+    background-color: ${themeColor('filterbar')};
+    border-bottom: none;
+    border-top: none;
+  }
+`;
+
+const StyledNav = styled.nav`
+  /*
+* On Firefox on Windows, the scrollbar hides the sidebar's content.
+* Using 'scrollbar-gutter:stable' is a workaround to ensure consistency with other browsers.
+* @see https://bugzilla.mozilla.org/show_bug.cgi?id=764076
+* @see https://discuss.sonarsource.com/t/unnecessary-horizontal-scrollbar-on-issues-page/14889/4
+*/
+  scrollbar-gutter: stable;
+`;

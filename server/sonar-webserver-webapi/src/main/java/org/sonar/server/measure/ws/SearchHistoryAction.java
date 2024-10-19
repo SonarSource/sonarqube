@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,12 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.collect.Sets;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -35,7 +37,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -43,9 +44,10 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotQuery.SORT_FIELD;
 import org.sonar.db.component.SnapshotQuery.SORT_ORDER;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.measure.PastMeasureQuery;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.metric.RemovedMetricConverter;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
@@ -93,8 +95,23 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("10.7", "Added new accepted values for the 'metricKeys' param: %s".formatted(MeasuresWsModule.getNewMetricsInSonarQube107())),
+        new Change("10.5", String.format("The metrics %s are now deprecated " +
+                                         "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
+        new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues', 'new_security_issues'"),
+        new Change("10.4", String.format("The metrics %s are now deprecated " +
+            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
+        new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
+        new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now deprecated. Use 'violations' instead."),
+        new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
+        new Change("10.4", "The use of 'wont_fix_issues' value in 'metricKeys' param is now deprecated. Use 'accepted_issues' instead."),
+        new Change("10.4", "Added new accepted value for the 'metricKeys' param: 'accepted_issues'."),
+        new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),
         new Change("9.3", format("The use of the following metrics in 'metrics' parameter is deprecated: %s",
-          MeasuresWsModule.getDeprecatedMetrics())),
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
@@ -133,11 +150,11 @@ public class SearchHistoryAction implements MeasuresWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchHistoryResponse searchHistoryResponse = Stream.of(request)
+    SearchHistoryResponse searchHistoryResponse = Optional.of(request)
       .map(SearchHistoryAction::toWsRequest)
       .map(search())
       .map(result -> new SearchHistoryResponseFactory(result).apply())
-      .collect(MoreCollectors.toOneElement());
+      .orElseThrow();
 
     writeProtobuf(searchHistoryResponse, request, response);
   }
@@ -163,7 +180,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
         SearchHistoryResult result = new SearchHistoryResult(request.page, request.pageSize)
           .setComponent(component)
           .setAnalyses(searchAnalyses(dbSession, request, component))
-          .setMetrics(searchMetrics(dbSession, request));
+          .setMetrics(searchMetrics(dbSession, request))
+          .setRequestedMetrics(request.getMetrics());
         return result.setMeasures(searchMeasures(dbSession, request, result));
       }
     };
@@ -178,20 +196,20 @@ public class SearchHistoryAction implements MeasuresWsAction {
     return component;
   }
 
-  private List<MeasureDto> searchMeasures(DbSession dbSession, SearchHistoryRequest request, SearchHistoryResult result) {
+  private List<ProjectMeasureDto> searchMeasures(DbSession dbSession, SearchHistoryRequest request, SearchHistoryResult result) {
     Date from = parseStartingDateOrDateTime(request.getFrom());
     Date to = parseEndingDateOrDateTime(request.getTo());
     PastMeasureQuery dbQuery = new PastMeasureQuery(
       result.getComponent().uuid(),
-      result.getMetrics().stream().map(MetricDto::getUuid).collect(MoreCollectors.toList()),
+      result.getMetrics().stream().map(MetricDto::getUuid).toList(),
       from == null ? null : from.getTime(),
       to == null ? null : (to.getTime() + 1_000L));
-    return dbClient.measureDao().selectPastMeasures(dbSession, dbQuery);
+    return dbClient.projectMeasureDao().selectPastMeasures(dbSession, dbQuery);
   }
 
   private List<SnapshotDto> searchAnalyses(DbSession dbSession, SearchHistoryRequest request, ComponentDto component) {
     SnapshotQuery dbQuery = new SnapshotQuery()
-      .setComponentUuid(component.branchUuid())
+      .setRootComponentUuid(component.branchUuid())
       .setStatus(STATUS_PROCESSED)
       .setSort(SORT_FIELD.BY_DATE, SORT_ORDER.ASC);
     ofNullable(request.getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
@@ -201,10 +219,11 @@ public class SearchHistoryAction implements MeasuresWsAction {
   }
 
   private List<MetricDto> searchMetrics(DbSession dbSession, SearchHistoryRequest request) {
-    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetrics());
-    if (request.getMetrics().size() > metrics.size()) {
-      Set<String> requestedMetrics = request.getMetrics().stream().collect(MoreCollectors.toSet());
-      Set<String> foundMetrics = metrics.stream().map(MetricDto::getKey).collect(MoreCollectors.toSet());
+    List<String> upToDateRequestedMetrics = RemovedMetricConverter.withRemovedMetricAlias(request.getMetrics());
+    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, upToDateRequestedMetrics);
+    if (upToDateRequestedMetrics.size() > metrics.size()) {
+      Set<String> requestedMetrics = new HashSet<>(upToDateRequestedMetrics);
+      Set<String> foundMetrics = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
 
       Set<String> unfoundMetrics = Sets.difference(requestedMetrics, foundMetrics).immutableCopy();
       throw new IllegalArgumentException(format("Metrics %s are not found", String.join(", ", unfoundMetrics)));

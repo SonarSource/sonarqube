@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,10 +39,10 @@ public class UserSessionFactoryImpl implements UserSessionFactory {
   }
 
   @Override
-  public ServerUserSession create(UserDto user) {
+  public ServerUserSession create(UserDto user, boolean isAuthenticatedGuiSession) {
     requireNonNull(user, "UserDto must not be null");
     userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(user);
-    return new ServerUserSession(dbClient, user);
+    return new ServerUserSession(dbClient, user, isAuthenticatedGuiSession);
   }
 
   @Override
@@ -60,6 +60,6 @@ public class UserSessionFactoryImpl implements UserSessionFactory {
 
   @Override
   public ServerUserSession createAnonymous() {
-    return new ServerUserSession(dbClient, null);
+    return new ServerUserSession(dbClient, null, false);
   }
 }

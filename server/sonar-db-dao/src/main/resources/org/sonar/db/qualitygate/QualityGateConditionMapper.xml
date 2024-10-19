@@ -20,6 +20,13 @@
     order by created_at asc
   </select>
 
+  <select id="selectAll" resultType="QualityGateCondition">
+    select
+    <include refid="conditionColumns"/>
+    from quality_gate_conditions
+    order by qgate_uuid asc
+  </select>
+
   <select id="selectByUuid" parameterType="String" resultType="QualityGateCondition">
     select
     <include refid="conditionColumns"/>
@@ -28,6 +35,10 @@
 
   <update id="delete" parameterType="String">
     delete from quality_gate_conditions where uuid=#{uuid}
+  </update>
+
+  <update id="deleteForQualityGate" parameterType="String">
+    delete from quality_gate_conditions where qgate_uuid=#{qGateUuid}
   </update>
 
   <update id="update" parameterType="QualityGateCondition">

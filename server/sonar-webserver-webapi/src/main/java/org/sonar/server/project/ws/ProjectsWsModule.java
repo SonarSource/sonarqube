@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
 package org.sonar.server.project.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.ProjectLifeCycleListenersImpl;
 
@@ -32,11 +34,13 @@ public class ProjectsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      ImportProjectService.class,
       ProjectDefaultVisibility.class,
       ProjectFinder.class,
       ProjectLifeCycleListenersImpl.class,
       ProjectsWsSupport.class,
       ProjectsWs.class,
+      ProjectCreator.class,
       CreateAction.class,
       BulkDeleteAction.class,
       DeleteAction.class,

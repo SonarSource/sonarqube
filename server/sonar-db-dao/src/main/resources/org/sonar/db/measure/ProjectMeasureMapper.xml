@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.measure.ProjectMeasureMapper">
+
+  <sql id="measureColumns">
+    pm.uuid as uuid,
+    pm.metric_uuid as metricUuid,
+    pm.component_uuid as componentUuid,
+    pm.analysis_uuid as analysisUuid,
+    pm.value as value,
+    pm.text_value as textValue,
+    pm.alert_status as alertStatus,
+    pm.alert_text as alertText,
+    pm.measure_data as dataValue
+  </sql>
+
+  <select id="selectLastMeasure" parameterType="map" resultType="ProjectMeasure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join metrics m on m.uuid = pm.metric_uuid
+    inner join snapshots s on s.uuid = pm.analysis_uuid
+    where
+    pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+    m.name = #{metricKey,jdbcType=VARCHAR} and
+    s.islast= ${_true}
+  </select>
+
+  <select id="selectMeasure" parameterType="map" resultType="ProjectMeasure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join metrics m on m.uuid = pm.metric_uuid
+    inner join snapshots s on s.uuid = pm.analysis_uuid
+    where
+    pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+    m.name = #{metricKey,jdbcType=VARCHAR} and
+    s.uuid = #{analysisUuid,jdbcType=VARCHAR}
+  </select>
+
+  <sql id="selectByQueryCommonJoins">
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    <if test="query.getMetricKeys() != null">
+      inner join metrics m on m.uuid = pm.metric_uuid
+    </if>
+  </sql>
+
+  <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="ProjectMeasure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    where
+    pm.component_uuid = #{query.componentUuid, jdbcType=VARCHAR}
+    <if test="query.from!= null">
+      and analysis.created_at>=#{query.from, jdbcType=BIGINT}
+    </if>
+    <if test="query.to!=null">
+      and analysis.created_at&lt;#{query.to, jdbcType=BIGINT}
+    </if>
+    and pm.metric_uuid in <foreach item="metricUuid" collection="query.metricUuids" open="(" separator="," close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
+    and analysis.status=#{query.status, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="ProjectMeasure" useGeneratedKeys="false">
+    insert into project_measures (
+    uuid,
+    value,
+    metric_uuid,
+    component_uuid,
+    analysis_uuid,
+    text_value,
+    alert_status,
+    alert_text,
+    measure_data)
+    VALUES (
+    #{uuid, jdbcType=VARCHAR},
+    #{value, jdbcType=DOUBLE},
+    #{metricUuid, jdbcType=VARCHAR},
+    #{componentUuid, jdbcType=VARCHAR},
+    #{analysisUuid, jdbcType=VARCHAR},
+    #{textValue, jdbcType=VARCHAR},
+    #{alertStatus, jdbcType=VARCHAR},
+    #{alertText, jdbcType=VARCHAR},
+    #{dataValue, jdbcType=BINARY}
+    )
+  </insert>
+
+</mapper>

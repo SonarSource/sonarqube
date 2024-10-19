@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { Badge, ContentCell, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { AvailablePlugin, InstalledPlugin } from '../../../types/plugins';
@@ -35,50 +37,58 @@ export interface PluginAvailableProps {
   status?: string;
 }
 
-export default function PluginAvailable(props: PluginAvailableProps) {
+export default function PluginAvailable(props: Readonly<PluginAvailableProps>) {
   const { installedPlugins, plugin, readOnly, status } = props;
   const installedPluginKeys = installedPlugins.map(({ key }) => key);
   return (
-    <tr>
+    <>
       <PluginDescription plugin={plugin} />
-      <td className="text-top big-spacer-right">
-        <ul>
-          <li className="display-flex-row little-spacer-bottom">
-            <div className="pull-left spacer-right">
-              <span className="badge badge-success">{plugin.release.version}</span>
-            </div>
-            <div>
-              {plugin.release.description}
-              <PluginChangeLogButton release={plugin.release} update={plugin.update} />
-              {plugin.update.requires.length > 0 && (
-                <p className="little-spacer-top">
-                  <strong>
-                    {translateWithParameters(
-                      'marketplace.installing_this_plugin_will_also_install_x',
-                      plugin.update.requires
-                        .filter(({ key }) => !installedPluginKeys.includes(key))
-                        .map((requiredPlugin) => requiredPlugin.name)
-                        .join(', ')
-                    )}
-                  </strong>
-                </p>
+      <ContentCell>
+        <div className="sw-mr-2">
+          <Badge variant="new">{plugin.release.version}</Badge>
+        </div>
+        <div className="sw-mr-2">{plugin.release.description}</div>
+        <PluginChangeLogButton
+          pluginName={plugin.name}
+          release={plugin.release}
+          update={plugin.update}
+        />
+        {plugin.update.requires.length > 0 && (
+          <p className="sw-mt-2">
+            <strong className="sw-typo-semibold">
+              {translateWithParameters(
+                'marketplace.installing_this_plugin_will_also_install_x',
+                plugin.update.requires
+                  .filter(({ key }) => !installedPluginKeys.includes(key))
+                  .map((requiredPlugin) => requiredPlugin.name)
+                  .join(', '),
               )}
-            </div>
-          </li>
-        </ul>
-      </td>
+            </strong>
+          </p>
+        )}
+      </ContentCell>
 
-      <td className="text-top width-20">
-        <ul>
+      <ContentCell>
+        <StyledUnorderedList>
           <PluginUrls plugin={plugin} />
           <PluginLicense license={plugin.license} />
           <PluginOrganization plugin={plugin} />
-        </ul>
-      </td>
+        </StyledUnorderedList>
+      </ContentCell>
 
       {!readOnly && (
-        <PluginStatus plugin={plugin} refreshPending={props.refreshPending} status={status} />
+        <ContentCell>
+          <PluginStatus plugin={plugin} refreshPending={props.refreshPending} status={status} />
+        </ContentCell>
       )}
-    </tr>
+    </>
   );
 }
+
+const StyledUnorderedList = styled(UnorderedList)`
+  margin-top: 0;
+
+  & li:first {
+    margin-top: 0;
+  }
+`;

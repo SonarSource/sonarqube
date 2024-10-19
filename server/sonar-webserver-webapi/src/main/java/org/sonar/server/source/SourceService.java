@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.server.source;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
@@ -80,7 +79,7 @@ public class SourceService {
       .filter(line -> line.hasLine() && line.getLine() >= from)
       .limit((toInclusive - from) + 1L)
       .map(function)
-      .collect(MoreCollectors.toList()));
+      .toList());
   }
 
   private <E> Optional<Iterable<E>> getLines(DbSession dbSession, String fileUuid, Set<Integer> lines, Function<DbFileSources.Line, E> function) {
@@ -91,7 +90,7 @@ public class SourceService {
     return Optional.of(dto.getSourceData().getLinesList().stream()
       .filter(line -> line.hasLine() && lines.contains(line.getLine()))
       .map(function)
-      .collect(MoreCollectors.toList()));
+      .toList());
   }
 
   private static void verifyLine(int line) {

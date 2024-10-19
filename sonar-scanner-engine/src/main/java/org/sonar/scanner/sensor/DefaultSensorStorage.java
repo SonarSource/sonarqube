@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -55,10 +57,12 @@ import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.block.Block;
@@ -75,7 +79,6 @@ import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static java.lang.Math.max;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
@@ -83,7 +86,7 @@ import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
 
 public class DefaultSensorStorage implements SensorStorage {
 
-  private static final Logger LOG = Loggers.get(DefaultSensorStorage.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorStorage.class);
   private static final int DEFAULT_CPD_MIN_LINES = 10;
 
   /**
@@ -147,7 +150,7 @@ public class DefaultSensorStorage implements SensorStorage {
       defaultInputFile.setPublished(true);
     }
 
-    if (component instanceof InputDir || (component instanceof DefaultInputModule && ((DefaultInputModule) component).definition().getParent() != null)) {
+    if (component instanceof InputDir || (component instanceof DefaultInputModule defaultInputModule && defaultInputModule.definition().getParent() != null)) {
       logOnce(measure.metric().key(), "Storing measures on folders or modules is deprecated. Provided value of metric '{}' is ignored.", measure.metric().key());
       return;
     }
@@ -224,8 +227,7 @@ public class DefaultSensorStorage implements SensorStorage {
    */
   @Override
   public void store(Issue issue) {
-    if (issue.primaryLocation().inputComponent() instanceof DefaultInputFile) {
-      DefaultInputFile defaultInputFile = (DefaultInputFile) issue.primaryLocation().inputComponent();
+    if (issue.primaryLocation().inputComponent() instanceof DefaultInputFile defaultInputFile) {
       if (shouldSkipStorage(defaultInputFile)) {
         return;
       }
@@ -239,8 +241,7 @@ public class DefaultSensorStorage implements SensorStorage {
    */
   @Override
   public void store(ExternalIssue externalIssue) {
-    if (externalIssue.primaryLocation().inputComponent() instanceof DefaultInputFile) {
-      DefaultInputFile defaultInputFile = (DefaultInputFile) externalIssue.primaryLocation().inputComponent();
+    if (externalIssue.primaryLocation().inputComponent() instanceof DefaultInputFile defaultInputFile) {
       defaultInputFile.setPublished(true);
     }
     moduleIssues.initAndAddExternalIssue(externalIssue);
@@ -257,9 +258,32 @@ public class DefaultSensorStorage implements SensorStorage {
     if (description != null) {
       builder.setDescription(description);
     }
-    builder.setSeverity(Constants.Severity.valueOf(adHocRule.severity().name()));
-    builder.setType(ScannerReport.IssueType.valueOf(adHocRule.type().name()));
+
+
+    org.sonar.api.batch.rule.Severity severity = adHocRule.severity();
+    if (severity != null) {
+      builder.setSeverity(Constants.Severity.valueOf(severity.name()));
+    }
+
+    RuleType type = adHocRule.type();
+    if (type != null) {
+      builder.setType(ScannerReport.IssueType.valueOf(type.name()));
+    }
+    builder.addAllDefaultImpacts(mapImpacts(adHocRule.defaultImpacts()));
+
+    CleanCodeAttribute cleanCodeAttribute = adHocRule.cleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      builder.setCleanCodeAttribute(cleanCodeAttribute.name());
+    }
     writer.appendAdHocRule(builder.build());
+  }
+
+  private static List<ScannerReport.Impact> mapImpacts(Map<SoftwareQuality, Severity> impactsMap) {
+    return impactsMap.entrySet().stream()
+      .map(e -> ScannerReport.Impact.newBuilder()
+        .setSoftwareQuality(e.getKey().name())
+        .setSeverity(e.getValue().name()).build())
+      .toList();
   }
 
   @Override
@@ -288,7 +312,7 @@ public class DefaultSensorStorage implements SensorStorage {
             .build());
           builder.setType(ScannerReportUtils.toProtocolType(input.getTextType()));
           return builder.build();
-        }).collect(toList()));
+        }).toList());
   }
 
   @Override
@@ -325,7 +349,7 @@ public class DefaultSensorStorage implements SensorStorage {
               .build());
           }
           return builder.build();
-        }).collect(Collectors.toList()));
+        }).toList());
   }
 
   @Override
@@ -343,7 +367,7 @@ public class DefaultSensorStorage implements SensorStorage {
       (value, builder) -> builder.setCoveredConditions(max(value, builder.getCoveredConditions())));
 
     reportPublisher.getWriter().writeComponentCoverage(inputFile.scannerId(),
-      coveragePerLine.values().stream().map(ScannerReport.LineCoverage.Builder::build).collect(Collectors.toList()));
+      coveragePerLine.values().stream().map(ScannerReport.LineCoverage.Builder::build).toList());
 
   }
 
@@ -434,7 +458,7 @@ public class DefaultSensorStorage implements SensorStorage {
         .setStartOffset(range.start().lineOffset())
         .setEndOffset(range.end().lineOffset())
         .build())
-      .collect(Collectors.toList());
+      .toList();
 
     writer.writeComponentSignificantCode(componentRef, protobuf);
   }

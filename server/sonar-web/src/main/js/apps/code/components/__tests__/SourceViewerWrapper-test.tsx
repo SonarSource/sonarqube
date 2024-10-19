@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import ComponentsServiceMock from '../../../../api/mocks/ComponentsServiceMock';
@@ -25,13 +24,6 @@ import IssuesServiceMock from '../../../../api/mocks/IssuesServiceMock';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import SourceViewerWrapper, { SourceViewerWrapperProps } from '../SourceViewerWrapper';
-
-jest.mock('../../../../api/components');
-jest.mock('../../../../api/issues');
-// The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
-// This should be removed once IssuesServiceMock is cleaned up.
-jest.mock('../../../../api/rules');
-jest.mock('../../../../api/users');
 
 const issuesHandler = new IssuesServiceMock();
 const componentsHandler = new ComponentsServiceMock();
@@ -71,6 +63,6 @@ function renderSourceViewerWrapper(props: Partial<SourceViewerWrapperProps> = {}
       componentMeasures={[]}
       location={mockLocation({ query: { line: '2' } })}
       {...props}
-    />
+    />,
   );
 }

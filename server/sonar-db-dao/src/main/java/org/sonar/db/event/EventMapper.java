@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,8 @@ public interface EventMapper {
   List<EventDto> selectByAnalysisUuids(@Param("analysisUuids") List<String> list);
 
   List<EventDto> selectVersions(@Param("componentUuid") String componentUuid);
+
+  List<EventDto> selectSqUpgrades(@Param("componentUuid") String componentUuid);
 
   void insert(EventDto dto);
 

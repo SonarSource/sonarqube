@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,57 +20,72 @@
 package org.sonar.scanner.bootstrap;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.plugin.PluginType;
+import org.sonar.scanner.mediumtest.LocalPlugin;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.utils.Preconditions.checkState;
+import static org.sonar.core.config.ScannerProperties.PLUGIN_LOADING_OPTIMIZATION_KEY;
 
 /**
  * Orchestrates the installation and loading of plugins
  */
 public class ScannerPluginRepository implements PluginRepository, Startable {
-  private static final Logger LOG = Loggers.get(ScannerPluginRepository.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScannerPluginRepository.class);
 
   private final PluginInstaller installer;
   private final PluginJarExploder pluginJarExploder;
   private final PluginClassLoader loader;
 
+  private final Configuration properties;
+
   private Map<String, Plugin> pluginInstancesByKeys;
   private Map<String, ScannerPlugin> pluginsByKeys;
   private Map<ClassLoader, String> keysByClassLoader;
+  private boolean shouldLoadOnlyRequiredPluginsOnStart;
 
-  public ScannerPluginRepository(PluginInstaller installer, PluginJarExploder pluginJarExploder, PluginClassLoader loader) {
+  public ScannerPluginRepository(PluginInstaller installer, PluginJarExploder pluginJarExploder, PluginClassLoader loader, Configuration properties) {
     this.installer = installer;
     this.pluginJarExploder = pluginJarExploder;
     this.loader = loader;
+    this.properties = properties;
   }
 
   @Override
   public void start() {
-    pluginsByKeys = new HashMap<>(installer.installRemotes());
-    Map<String, ExplodedPlugin> explodedPLuginsByKey = pluginsByKeys.entrySet().stream()
-      .collect(Collectors.toMap(Map.Entry::getKey, e -> pluginJarExploder.explode(e.getValue().getInfo())));
-    pluginInstancesByKeys = new HashMap<>(loader.load(explodedPLuginsByKey));
+    shouldLoadOnlyRequiredPluginsOnStart = properties.getBoolean(PLUGIN_LOADING_OPTIMIZATION_KEY).orElse(true);
+    if (!shouldLoadOnlyRequiredPluginsOnStart) {
+      LOG.warn("{} is false, so ALL available plugins will be downloaded", PLUGIN_LOADING_OPTIMIZATION_KEY);
+      pluginsByKeys = new HashMap<>(installer.installAllPlugins());
+    } else {
+      pluginsByKeys = new HashMap<>(installer.installRequiredPlugins());
+    }
+
+    Map<String, ExplodedPlugin> explodedPluginsByKey = pluginsByKeys.entrySet().stream()
+      .collect(toMap(Map.Entry::getKey, e -> pluginJarExploder.explode(e.getValue().getInfo())));
+    pluginInstancesByKeys = new HashMap<>(loader.load(explodedPluginsByKey));
 
     // this part is only used by medium tests
-    for (Object[] localPlugin : installer.installLocals()) {
-      String pluginKey = (String) localPlugin[0];
-      PluginInfo pluginInfo = new PluginInfo(pluginKey);
-      pluginsByKeys.put(pluginKey, new ScannerPlugin(pluginInfo.getKey(), (long) localPlugin[2], PluginType.BUNDLED, pluginInfo));
-      pluginInstancesByKeys.put(pluginKey, (Plugin) localPlugin[1]);
+    for (LocalPlugin localPlugin : installer.installLocals()) {
+      ScannerPlugin scannerPlugin = localPlugin.toScannerPlugin();
+      String pluginKey = localPlugin.pluginKey();
+      pluginsByKeys.put(pluginKey, scannerPlugin);
+      pluginInstancesByKeys.put(pluginKey, localPlugin.pluginInstance());
     }
 
     keysByClassLoader = new HashMap<>();
@@ -78,7 +93,38 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
       keysByClassLoader.put(e.getValue().getClass().getClassLoader(), e.getKey());
     }
 
-    logPlugins();
+    logPlugins(pluginsByKeys.values());
+  }
+
+  public Collection<PluginInfo> installPluginsForLanguages(Set<String> languageKeys) {
+    if (!shouldLoadOnlyRequiredPluginsOnStart) {
+      return Collections.emptySet();
+    }
+
+    var languagePluginsByKeys = new HashMap<>(installer.installPluginsForLanguages(languageKeys));
+
+    pluginsByKeys.putAll(languagePluginsByKeys);
+
+    Map<String, ExplodedPlugin> explodedPluginsByKey = languagePluginsByKeys.entrySet().stream()
+      .collect(toMap(Map.Entry::getKey, e -> pluginJarExploder.explode(e.getValue().getInfo())));
+    pluginInstancesByKeys.putAll(new HashMap<>(loader.load(explodedPluginsByKey)));
+
+    // this part is only used by medium tests
+    for (LocalPlugin localPlugin : installer.installOptionalLocals(languageKeys)) {
+      ScannerPlugin scannerPlugin = localPlugin.toScannerPlugin();
+      String pluginKey = localPlugin.pluginKey();
+      languagePluginsByKeys.put(pluginKey, scannerPlugin);
+      pluginsByKeys.put(pluginKey, scannerPlugin);
+      pluginInstancesByKeys.put(pluginKey, localPlugin.pluginInstance());
+    }
+
+    keysByClassLoader = new HashMap<>();
+    for (Map.Entry<String, Plugin> e : pluginInstancesByKeys.entrySet()) {
+      keysByClassLoader.put(e.getValue().getClass().getClassLoader(), e.getKey());
+    }
+
+    logPlugins(languagePluginsByKeys.values());
+    return languagePluginsByKeys.values().stream().map(ScannerPlugin::getInfo).toList();
   }
 
   @CheckForNull
@@ -86,12 +132,12 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
     return keysByClassLoader.get(cl);
   }
 
-  private void logPlugins() {
-    if (pluginsByKeys.isEmpty()) {
+  private static void logPlugins(Collection<ScannerPlugin> plugins) {
+    if (plugins.isEmpty()) {
       LOG.debug("No plugins loaded");
     } else {
-      LOG.debug("Plugins:");
-      for (ScannerPlugin p : pluginsByKeys.values()) {
+      LOG.debug("Plugins loaded:");
+      for (ScannerPlugin p : plugins) {
         LOG.debug("  * {} {} ({})", p.getName(), p.getVersion(), p.getKey());
       }
     }
@@ -113,15 +159,15 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return pluginsByKeys.values().stream().map(ScannerPlugin::getInfo).collect(toList());
+    return pluginsByKeys.values().stream().map(ScannerPlugin::getInfo).toList();
   }
 
   public Collection<PluginInfo> getExternalPluginsInfos() {
-    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.EXTERNAL).map(ScannerPlugin::getInfo).collect(toList());
+    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.EXTERNAL).map(ScannerPlugin::getInfo).toList();
   }
 
   public Collection<PluginInfo> getBundledPluginsInfos() {
-    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.BUNDLED).map(ScannerPlugin::getInfo).collect(toList());
+    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.BUNDLED).map(ScannerPlugin::getInfo).toList();
   }
 
   @Override

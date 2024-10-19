@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -104,8 +104,8 @@ public class BitbucketSettings {
         .index(3)
         .build(),
       PropertyDefinition.builder(ALLOW_USERS_TO_SIGN_UP)
-        .name("Allow users to sign-up")
-        .description("Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate.")
+        .name("Allow users to sign up")
+        .description("Allow new users to authenticate. When set to disabled, only existing users will be able to authenticate.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)
@@ -114,7 +114,9 @@ public class BitbucketSettings {
         .build(),
       PropertyDefinition.builder(WORKSPACE_ALLOWED_LIST)
         .name("Workspaces")
-        .description("Only members of at least one of these workspace will be able to authenticate. Keep empty to disable workspace restriction. You can use either the workspace name, or the workspace slug (ex: https://bitbucket.org/{workspace-slug}).")
+        .description("Only members of at least one of these workspace will be able to authenticate. Keep empty to disable workspace restriction. " +
+          "You can use either the workspace name, or the workspace slug (ex: https://bitbucket.org/{workspace-slug}). " +
+          "⚠ if not set, any BitBucket user will be able to authenticate to the server.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .multiValues(true)

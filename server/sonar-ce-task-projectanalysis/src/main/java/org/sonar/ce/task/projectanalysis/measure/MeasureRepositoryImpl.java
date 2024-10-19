@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ import org.sonar.ce.task.projectanalysis.metric.ReportMetricValidator;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static java.util.Objects.requireNonNull;
@@ -42,11 +42,9 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final MapBasedRawMeasureRepository<String> delegate = new MapBasedRawMeasureRepository<>(toComponentUuid());
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
-  private final BatchMeasureToMeasure batchMeasureToMeasure;
   private final MetricRepository metricRepository;
   private final ReportMetricValidator reportMetricValidator;
 
-  private MeasureDtoToMeasure measureTransformer = new MeasureDtoToMeasure();
   private final Set<Integer> loadedComponents = new HashSet<>();
 
   public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository,
@@ -54,7 +52,6 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.reportMetricValidator = reportMetricValidator;
-    this.batchMeasureToMeasure = new BatchMeasureToMeasure();
     this.metricRepository = metricRepository;
   }
 
@@ -65,9 +62,9 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     requireNonNull(metric);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<MeasureDto> measureDto = dbClient.measureDao().selectLastMeasure(dbSession, component.getUuid(), metric.getKey());
+      Optional<ProjectMeasureDto> measureDto = dbClient.projectMeasureDao().selectLastMeasure(dbSession, component.getUuid(), metric.getKey());
       if (measureDto.isPresent()) {
-        return measureTransformer.toMeasure(measureDto.get(), metric);
+        return ProjectMeasureDtoToMeasure.toMeasure(measureDto.get(), metric);
       }
       return Optional.empty();
     }
@@ -113,7 +110,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
         String metricKey = batchMeasure.getMetricKey();
         if (reportMetricValidator.validate(metricKey)) {
           Metric metric = metricRepository.getByKey(metricKey);
-          batchMeasureToMeasure.toMeasure(batchMeasure, metric).ifPresent(measure -> delegate.add(component, metric, measure, OverridePolicy.DO_NOT_OVERRIDE));
+          BatchMeasureToMeasure.toMeasure(batchMeasure, metric).ifPresent(measure -> delegate.add(component, metric, measure, OverridePolicy.DO_NOT_OVERRIDE));
         }
       }
     }

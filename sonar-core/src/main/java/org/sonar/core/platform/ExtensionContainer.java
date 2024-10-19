@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
  */
 package org.sonar.core.platform;
 
+import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -30,6 +32,14 @@ public interface ExtensionContainer extends Container {
   ExtensionContainer declareExtension(@Nullable PluginInfo pluginInfo, Object extension);
 
   ExtensionContainer declareExtension(@Nullable String defaultCategory, Object extension);
+
+  void addWebApiV2ConfigurationClass(Class<?> clazz);
+
+  Set<Class<?>> getWebApiV2ConfigurationClasses();
+
+  <T> T getParentComponentByType(Class<T> type);
+
+  <T> List<T> getParentComponentsByType(Class<T> type);
 
   @CheckForNull
   ExtensionContainer getParent();

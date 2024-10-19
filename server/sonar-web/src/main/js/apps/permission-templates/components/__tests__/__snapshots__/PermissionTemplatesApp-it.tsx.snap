@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rendering should render the list of templates: Permission Template 1: admin 1`] = `"1  user(s)1 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 1: codeviewer 1`] = `"0  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 1: issueadmin 1`] = `"2  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 1: scan 1`] = `"0  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 1: securityhotspotadmin 1`] = `"1  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 1: user 1`] = `"3  user(s)2 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 2: admin 1`] = `"0  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 2: codeviewer 1`] = `"permission_templates.project_creators0  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 2: issueadmin 1`] = `"0  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 2: scan 1`] = `"0  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 2: securityhotspotadmin 1`] = `"0  user(s)0 group(s)"`;
+
+exports[`rendering should render the list of templates: Permission Template 2: user 1`] = `"permission_templates.project_creators0  user(s)0 group(s)"`;

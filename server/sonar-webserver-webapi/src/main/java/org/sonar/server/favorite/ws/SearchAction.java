@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,8 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -78,25 +77,25 @@ public class SearchAction implements FavoritesWsAction {
   private SearchResults toSearchResults(SearchRequest request) {
     userSession.checkLoggedIn();
 
-    List<ComponentDto> authorizedFavorites = getAuthorizedFavorites();
+    List<EntityDto> authorizedFavorites = getAuthorizedFavorites();
     Paging paging = Paging.forPageIndex(Integer.parseInt(request.getP())).withPageSize(Integer.parseInt(request.getPs())).andTotal(authorizedFavorites.size());
-    List<ComponentDto> displayedFavorites = authorizedFavorites.stream()
+    List<EntityDto> displayedFavorites = authorizedFavorites.stream()
       .skip(paging.offset())
       .limit(paging.pageSize())
-      .collect(MoreCollectors.toList());
+      .toList();
     return new SearchResults(paging, displayedFavorites);
   }
 
-  private List<ComponentDto> getAuthorizedFavorites() {
-    List<ComponentDto> componentDtos = favoriteFinder.list();
-    return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
+  private List<EntityDto> getAuthorizedFavorites() {
+    List<EntityDto> entities = favoriteFinder.list();
+    return userSession.keepAuthorizedEntities(UserRole.USER, entities);
   }
 
   private static class SearchResults {
-    private final List<ComponentDto> favorites;
+    private final List<EntityDto> favorites;
     private final Paging paging;
 
-    private SearchResults(Paging paging, List<ComponentDto> favorites) {
+    private SearchResults(Paging paging, List<EntityDto> favorites) {
       this.paging = paging;
       this.favorites = favorites;
     }
@@ -124,12 +123,12 @@ public class SearchAction implements FavoritesWsAction {
       .forEach(builder::addFavorites);
   }
 
-  private static Favorite toWsFavorite(Favorite.Builder builder, ComponentDto componentDto) {
+  private static Favorite toWsFavorite(Favorite.Builder builder, EntityDto entity) {
     builder
       .clear()
-      .setKey(componentDto.getKey());
-    ofNullable(componentDto.name()).ifPresent(builder::setName);
-    ofNullable(componentDto.qualifier()).ifPresent(builder::setQualifier);
+      .setKey(entity.getKey());
+    ofNullable(entity.getName()).ifPresent(builder::setName);
+    ofNullable(entity.getQualifier()).ifPresent(builder::setQualifier);
     return builder.build();
   }
 

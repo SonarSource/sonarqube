@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,27 +20,20 @@
 import { differenceInDays } from 'date-fns';
 import * as React from 'react';
 import { showLicense } from '../../api/editions';
-import LicensePromptModal from '../../apps/marketplace/components/LicensePromptModal';
-import { Location, Router, withRouter } from '../../components/hoc/withRouter';
-import { parseDate, toShortNotSoISOString } from '../../helpers/dates';
+import { parseDate, toShortISO8601String } from '../../helpers/dates';
 import { hasMessage } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
 import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
 import { CurrentUser, isLoggedIn } from '../../types/users';
+import LicensePromptModal from './LicensePromptModal';
 import withAppStateContext from './app-state/withAppStateContext';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
 
-interface StateProps {
+interface Props {
+  appState: AppState;
   currentUser: CurrentUser;
 }
-
-type Props = {
-  children?: React.ReactNode;
-  location: Location;
-  router: Router;
-  appState: AppState;
-};
 
 interface State {
   open?: boolean;
@@ -48,7 +41,7 @@ interface State {
 
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
-export class StartupModal extends React.PureComponent<Props & StateProps, State> {
+export class StartupModal extends React.PureComponent<React.PropsWithChildren<Props>, State> {
   state: State = {};
 
   componentDidMount() {
@@ -71,7 +64,7 @@ export class StartupModal extends React.PureComponent<Props & StateProps, State>
         showLicense()
           .then((license) => {
             if (!license || !license.isValidEdition) {
-              save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
+              save(LICENSE_PROMPT, toShortISO8601String(new Date()), currentUser.login);
               this.setState({ open: true });
             }
           })
@@ -82,13 +75,8 @@ export class StartupModal extends React.PureComponent<Props & StateProps, State>
 
   render() {
     const { open } = this.state;
-    return (
-      <>
-        {this.props.children}
-        {open && <LicensePromptModal onClose={this.closeLicense} />}
-      </>
-    );
+    return open ? <LicensePromptModal onClose={this.closeLicense} /> : null;
   }
 }
 
-export default withCurrentUserContext(withRouter(withAppStateContext(StartupModal)));
+export default withCurrentUserContext(withAppStateContext(StartupModal));

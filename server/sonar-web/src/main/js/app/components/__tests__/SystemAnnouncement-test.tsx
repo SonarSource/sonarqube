@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ import * as React from 'react';
 import { getValues } from '../../../api/settings';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../types/features';
-import { AvailableFeaturesContext } from '../available-features/AvailableFeaturesContext';
 import SystemAnnouncement from '../SystemAnnouncement';
+import { AvailableFeaturesContext } from '../available-features/AvailableFeaturesContext';
 
 jest.mock('../../../api/settings', () => ({
   getValues: jest.fn(),
@@ -36,7 +36,8 @@ jest.mock('lodash', () => {
 });
 
 it('should display system announcement', async () => {
-  (getValues as jest.Mock)
+  jest
+    .mocked(getValues)
     .mockResolvedValueOnce([
       {
         key: 'sonar.announcement.displayMessage',
@@ -96,6 +97,6 @@ function renderSystemAnnouncement() {
   return renderComponent(
     <AvailableFeaturesContext.Provider value={[Feature.Announcement]}>
       <SystemAnnouncement />
-    </AvailableFeaturesContext.Provider>
+    </AvailableFeaturesContext.Provider>,
   );
 }

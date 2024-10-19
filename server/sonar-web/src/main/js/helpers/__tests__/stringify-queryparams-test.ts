@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ describe('stringify', () => {
     };
 
     expect(stringify(obj)).toEqual(
-      'prop1=a%20string&prop2=123&prop3=true&prop4=&prop5=9&prop5=8&prop5=7&prop6='
+      'prop1=a%20string&prop2=123&prop3=true&prop4=&prop5=9&prop5=8&prop5=7&prop6=',
     );
   });
 

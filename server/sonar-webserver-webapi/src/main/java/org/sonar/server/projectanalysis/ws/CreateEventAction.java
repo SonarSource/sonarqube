@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -134,13 +134,13 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private ProjectDto getProjectOrApplication(DbSession dbSession, SnapshotDto analysis) {
-    return dbClient.branchDao().selectByUuid(dbSession, analysis.getComponentUuid())
+    return dbClient.branchDao().selectByUuid(dbSession, analysis.getRootComponentUuid())
       .flatMap(branch -> dbClient.projectDao().selectByUuid(dbSession, branch.getProjectUuid()))
       .orElseThrow(() -> new IllegalStateException(String.format("Project of analysis '%s' not found", analysis.getUuid())));
   }
 
   private void checkRequest(CreateEventRequest request, ProjectDto project) {
-    userSession.checkProjectPermission(UserRole.ADMIN, project);
+    userSession.checkEntityPermission(UserRole.ADMIN, project);
     checkArgument(EventCategory.VERSION != request.getCategory() || Qualifiers.PROJECT.equals(project.getQualifier()), "A version event must be created on a project");
     checkVersionName(request.getCategory(), request.getName());
   }
@@ -157,7 +157,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
     return new EventDto()
       .setUuid(uuidFactory.create())
       .setAnalysisUuid(analysis.getUuid())
-      .setComponentUuid(analysis.getComponentUuid())
+      .setComponentUuid(analysis.getRootComponentUuid())
       .setCategory(request.getCategory().getLabel())
       .setName(request.getName())
       .setCreatedAt(system.now())

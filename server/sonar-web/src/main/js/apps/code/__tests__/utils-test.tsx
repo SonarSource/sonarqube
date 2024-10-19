@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,130 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getBreadcrumbs, getChildren, getComponent } from '../../../api/components';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
-import {
-  addComponent,
-  addComponentBreadcrumbs,
-  addComponentChildren,
-  getComponentBreadcrumbs,
-} from '../bucket';
-import {
-  getCodeMetrics,
-  loadMoreChildren,
-  mostCommonPrefix,
-  retrieveComponent,
-  retrieveComponentChildren,
-} from '../utils';
-
-jest.mock('../../../api/components', () => ({
-  getBreadcrumbs: jest.fn().mockRejectedValue({}),
-  getChildren: jest.fn().mockRejectedValue({}),
-  getComponent: jest.fn().mockRejectedValue({}),
-}));
-
-jest.mock('../bucket', () => ({
-  addComponent: jest.fn(),
-  addComponentBreadcrumbs: jest.fn(),
-  addComponentChildren: jest.fn(),
-  getComponent: jest.fn(),
-  getComponentBreadcrumbs: jest.fn(),
-  getComponentChildren: jest.fn(),
-}));
-
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+import { getCodeMetrics, mostCommonPrefix } from '../utils';
 
 describe('getCodeMetrics', () => {
   it('should return the right metrics for portfolios', () => {
-    expect(getCodeMetrics('VW')).toMatchSnapshot();
-    expect(getCodeMetrics('VW', undefined, { includeQGStatus: true })).toMatchSnapshot();
+    expect(getCodeMetrics(ComponentQualifier.Portfolio)).toMatchSnapshot();
     expect(
-      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: true })
+      getCodeMetrics(ComponentQualifier.Portfolio, undefined, { includeQGStatus: true }),
     ).toMatchSnapshot();
     expect(
-      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: false })
+      getCodeMetrics(ComponentQualifier.Portfolio, undefined, {
+        includeQGStatus: true,
+        newCode: true,
+      }),
+    ).toMatchSnapshot();
+    expect(
+      getCodeMetrics(ComponentQualifier.Portfolio, undefined, {
+        includeQGStatus: true,
+        newCode: false,
+      }),
     ).toMatchSnapshot();
   });
 
   it('should return the right metrics for apps', () => {
-    expect(getCodeMetrics('APP')).toMatchSnapshot();
+    expect(getCodeMetrics(ComponentQualifier.Application)).toMatchSnapshot();
   });
 
   it('should return the right metrics for projects', () => {
-    expect(getCodeMetrics('TRK', mockMainBranch())).toMatchSnapshot();
-    expect(getCodeMetrics('TRK', mockPullRequest())).toMatchSnapshot();
-  });
-});
-
-describe('retrieveComponentChildren', () => {
-  it('should retrieve children correctly', async () => {
-    const components = [{}, {}];
-    (getChildren as jest.Mock).mockResolvedValueOnce({
-      components,
-      paging: { total: 2, pageIndex: 0 },
-    });
-
-    await retrieveComponentChildren('key', 'TRK', { mounted: true }, mockMainBranch());
-
-    expect(addComponentChildren).toHaveBeenCalledWith('key', components, 2, 0);
-    expect(addComponent).toHaveBeenCalledTimes(2);
-    expect(getComponentBreadcrumbs).toHaveBeenCalledWith('key');
-  });
-});
-
-describe('retrieveComponent', () => {
-  it('should update bucket when component is mounted', async () => {
-    const components = [{}, {}];
-    (getChildren as jest.Mock).mockResolvedValueOnce({
-      components,
-      paging: { total: 2, pageIndex: 0 },
-    });
-    (getComponent as jest.Mock).mockResolvedValueOnce({
-      component: {},
-    });
-    (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
-
-    await retrieveComponent('key', 'TRK', { mounted: true }, mockMainBranch());
-
-    expect(addComponentChildren).toHaveBeenCalled();
-    expect(addComponent).toHaveBeenCalledTimes(3);
-    expect(addComponentBreadcrumbs).toHaveBeenCalled();
-  });
-
-  it('should not update bucket when component is not mounted', async () => {
-    const components = [{}, {}];
-    (getChildren as jest.Mock).mockResolvedValueOnce({
-      components,
-      paging: { total: 2, pageIndex: 0 },
-    });
-    (getComponent as jest.Mock).mockResolvedValueOnce({
-      component: {},
-    });
-    (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
-
-    await retrieveComponent('key', 'TRK', { mounted: false }, mockMainBranch());
-
-    expect(addComponentChildren).not.toHaveBeenCalled();
-    expect(addComponent).not.toHaveBeenCalled();
-    expect(addComponentBreadcrumbs).not.toHaveBeenCalled();
-  });
-});
-
-describe('loadMoreChildren', () => {
-  it('should load more children', async () => {
-    const components = [{}, {}, {}];
-    (getChildren as jest.Mock).mockResolvedValueOnce({
-      components,
-      paging: { total: 6, pageIndex: 1 },
-    });
-
-    await loadMoreChildren('key', 1, 'TRK', { mounted: true }, mockMainBranch());
-
-    expect(addComponentChildren).toHaveBeenCalledWith('key', components, 6, 1);
-    expect(addComponent).toHaveBeenCalledTimes(3);
-    expect(getComponentBreadcrumbs).toHaveBeenCalledWith('key');
+    expect(getCodeMetrics(ComponentQualifier.Project, mockMainBranch())).toMatchSnapshot();
+    expect(getCodeMetrics(ComponentQualifier.Project, mockPullRequest())).toMatchSnapshot();
   });
 });
 

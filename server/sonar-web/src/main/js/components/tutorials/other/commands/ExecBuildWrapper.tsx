@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,48 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
-import { OSs } from '../../types';
+import { Arch, OSs } from '../../types';
+import { getBuildWrapperExecutable } from '../../utils';
 
 export interface ExecBuildWrapperProps {
+  arch: Arch;
   os: OSs;
 }
 
-const executables: { [x in OSs]: string } = {
-  linux: 'build-wrapper-linux-x86-64',
-  win: 'build-wrapper-win-x86-64.exe',
-  mac: 'build-wrapper-macosx-x86',
-};
-
 export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
-  const { os } = props;
+  const { os, arch } = props;
+
+  const docUrl = useDocUrl(DocLink.CFamilyBuildWrapper);
 
   return (
     <>
-      <h4 className="huge-spacer-top spacer-bottom">
+      <SubHeading className="sw-mt-8 sw-mb-2">
         {translate('onboarding.analysis.build_wrapper.execute')}
-      </h4>
-      <p className="spacer-bottom markdown">
-        {translate('onboarding.analysis.build_wrapper.execute_text')}
-      </p>
+      </SubHeading>
+      <p className="sw-mb-2">{translate('onboarding.analysis.build_wrapper.execute_text')}</p>
       <CodeSnippet
-        snippet={`${executables[os]} --out-dir bw-output ${translate(
-          'onboarding.analysis.build_wrapper.execute_build_command'
+        className="sw-px-4"
+        isOneLine
+        snippet={`${getBuildWrapperExecutable(os, arch)} --out-dir bw-output ${translate(
+          'onboarding.analysis.build_wrapper.execute_build_command',
         )}`}
       />
-      <p className="big-spacer-top markdown">
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.build_wrapper.docs')}
           id="onboarding.analysis.build_wrapper.docs"
           values={{
             link: (
-              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                {translate('onboarding.analysis.build_wrapper.docs_link')}
-              </DocLink>
+              <Link to={docUrl}>{translate('onboarding.analysis.build_wrapper.docs_link')}</Link>
             ),
           }}
         />

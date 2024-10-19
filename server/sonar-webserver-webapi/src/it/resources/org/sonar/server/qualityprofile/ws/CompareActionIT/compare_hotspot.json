@@ -1,0 +1,34 @@
+{
+  "left": {
+    "key": "xoo-profile-1-01234",
+    "name": "Profile 1"
+  },
+  "right": {
+    "key": "xoo-profile-2-12345",
+    "name": "Profile 2"
+  },
+  "inLeft": [
+    {
+      "key": "blah:rule1",
+      "name": "Rule1",
+      "pluginKey": "blah",
+      "pluginName": "Blah",
+      "languageKey": "xoo",
+      "languageName": "Xoo",
+      "impacts": []
+    }
+  ],
+  "inRight": [
+    {
+      "key": "blah:rule2",
+      "name": "Rule2",
+      "pluginKey": "blah",
+      "pluginName": "Blah",
+      "languageKey": "xoo",
+      "languageName": "Xoo",
+      "impacts": []
+    }
+  ],
+  "modified": [],
+  "same": []
+}

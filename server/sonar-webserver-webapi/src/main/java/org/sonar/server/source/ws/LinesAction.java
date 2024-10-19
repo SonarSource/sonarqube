@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -158,13 +158,13 @@ public class LinesAction implements SourcesWsAction {
 
   private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
     String componentKey = wsRequest.param(PARAM_KEY);
-    String componentId = wsRequest.param(PARAM_UUID);
+    String componentUuid = wsRequest.param(PARAM_UUID);
     String branch = wsRequest.param(PARAM_BRANCH);
     String pullRequest = wsRequest.param(PARAM_PULL_REQUEST);
-    checkArgument(componentId == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'",
+    checkArgument(componentUuid == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'",
       PARAM_UUID, PARAM_BRANCH, PARAM_PULL_REQUEST);
     if (branch == null && pullRequest == null) {
-      return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, UUID_AND_KEY);
+      return componentFinder.getByUuidOrKey(dbSession, componentUuid, componentKey, UUID_AND_KEY);
     }
 
     checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_KEY);

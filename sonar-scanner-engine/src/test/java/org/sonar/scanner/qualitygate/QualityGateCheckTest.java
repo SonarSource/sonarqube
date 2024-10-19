@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,21 @@
  */
 package org.sonar.scanner.qualitygate;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Answers;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.scan.ScanProperties;
@@ -47,29 +50,34 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
-public class QualityGateCheckTest {
-  private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
-  private GlobalAnalysisMode analysisMode = mock(GlobalAnalysisMode.class);
-  private CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
-  private ScanProperties properties = mock(ScanProperties.class);
+@ExtendWith(MockitoExtension.class)
+class QualityGateCheckTest {
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private DefaultScannerWsClient wsClient;
+  @Mock
+  private GlobalAnalysisMode analysisMode;
+  @Mock
+  private CeTaskReportDataHolder reportMetadataHolder;
+  @Mock
+  private ScanProperties properties;
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  QualityGateCheck underTest = new QualityGateCheck(wsClient, analysisMode, reportMetadataHolder, properties);
+  private QualityGateCheck underTest;
 
-  @Before
-  public void before() {
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
-    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
+  @BeforeEach
+  void before() {
+    underTest = new QualityGateCheck(wsClient, analysisMode, reportMetadataHolder, properties);
+    logTester.setLevel(Level.DEBUG);
   }
 
   @Test
-  public void should_pass_if_quality_gate_ok() {
+  void should_pass_if_quality_gate_ok() {
+    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -85,14 +93,16 @@ public class QualityGateCheckTest {
 
     underTest.stop();
 
-    assertThat(logTester.logs())
-      .containsOnly(
+    assertThat(logTester.logs(Level.INFO))
+      .contains(
         "Waiting for the analysis report to be processed (max 5s)",
         "QUALITY GATE STATUS: PASSED - View details on http://dashboard-url.com");
   }
 
   @Test
-  public void should_wait_and_then_pass_if_quality_gate_ok() {
+  void should_wait_and_then_pass_if_quality_gate_ok() {
+    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(10);
 
@@ -112,7 +122,9 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_quality_gate_none() {
+  void should_fail_if_quality_gate_none() {
+    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -130,7 +142,9 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_quality_gate_error() {
+  void should_fail_if_quality_gate_error() {
+    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -148,7 +162,9 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_wait_and_then_fail_if_quality_gate_error() {
+  void should_wait_and_then_fail_if_quality_gate_error() {
+    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(10);
 
@@ -167,7 +183,9 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_quality_gate_timeout_exceeded() {
+  void should_fail_if_quality_gate_timeout_exceeded() {
+    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(1);
 
@@ -182,7 +200,7 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_cant_call_ws_for_quality_gate() {
+  void should_fail_if_cant_call_ws_for_quality_gate() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -199,7 +217,7 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_invalid_response_from_quality_gate_ws() {
+  void should_fail_if_invalid_response_from_quality_gate_ws() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -219,7 +237,7 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_cant_call_ws_for_task() {
+  void should_fail_if_cant_call_ws_for_task() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -233,7 +251,7 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_invalid_response_from_ws_task() {
+  void should_fail_if_invalid_response_from_ws_task() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -250,9 +268,9 @@ public class QualityGateCheckTest {
       .hasMessage("Failed to parse response from ce-task-url");
   }
 
-  @Test
-  @UseDataProvider("ceTaskNotSucceededStatuses")
-  public void should_fail_if_task_not_succeeded(TaskStatus taskStatus) {
+  @ParameterizedTest
+  @MethodSource("ceTaskNotSucceededStatuses")
+  void should_fail_if_task_not_succeeded(TaskStatus taskStatus) {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
@@ -280,7 +298,7 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_skip_wait_if_disabled() {
+  void should_skip_wait_if_disabled() {
     when(properties.shouldWaitForQualityGate()).thenReturn(false);
 
     underTest.start();
@@ -292,7 +310,7 @@ public class QualityGateCheckTest {
   }
 
   @Test
-  public void should_fail_if_enabled_with_medium_test() {
+  void should_fail_if_enabled_with_medium_test() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(analysisMode.isMediumTest()).thenReturn(true);
 
@@ -317,12 +335,11 @@ public class QualityGateCheckTest {
     return qualityGateWsResponse;
   }
 
-  @DataProvider
-  public static Object[][] ceTaskNotSucceededStatuses() {
-    return new Object[][] {
-      {TaskStatus.CANCELED},
-      {TaskStatus.FAILED},
-    };
+  private static Stream<TaskStatus> ceTaskNotSucceededStatuses() {
+    return Stream.of(
+      TaskStatus.CANCELED,
+      TaskStatus.FAILED
+    );
   }
 
   private static class WsRequestPathMatcher implements ArgumentMatcher<WsRequest> {

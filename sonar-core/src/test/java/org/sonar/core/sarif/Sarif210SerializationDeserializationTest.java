@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,12 @@
  */
 package org.sonar.core.sarif;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.sonar.core.sarif.Sarif210;
+import org.sonar.sarif.pojo.SarifSchema210;
 import org.sonar.test.JsonAssert;
 
 import static java.util.Objects.requireNonNull;
@@ -36,11 +35,9 @@ public class Sarif210SerializationDeserializationTest {
 
   @Test
   public void verify_json_serialization_of_sarif210() throws IOException {
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
     String expectedJson = IOUtils.toString(requireNonNull(getClass().getResource(VALID_SARIF_210_FILE_JSON)), StandardCharsets.UTF_8);
-    Sarif210 deserializedJson = gson.fromJson(expectedJson, Sarif210.class);
-    String reserializedJson = gson.toJson(deserializedJson);
+    SarifSchema210 deserializedJson = new ObjectMapper().readValue(expectedJson, SarifSchema210.class);
+    String reserializedJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(deserializedJson);
 
     JsonAssert.assertJson(reserializedJson).isSimilarTo(expectedJson);
   }

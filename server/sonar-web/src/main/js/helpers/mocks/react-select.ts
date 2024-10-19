@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,21 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  ClearIndicatorProps,
   ControlProps,
-  GroupTypeBase,
-  IndicatorProps,
+  DropdownIndicatorProps,
+  GroupBase,
   InputProps,
   OptionProps,
-  OptionTypeBase,
 } from 'react-select';
 
 export function mockReactSelectOptionProps<
-  OptionType extends OptionTypeBase,
-  IsMulti extends boolean,
-  GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
+  OptionType = unknown,
+  IsMulti extends boolean = boolean,
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
 >(
   data: OptionType,
-  overrides?: OptionProps<OptionType, IsMulti, GroupType>
+  overrides?: OptionProps<OptionType, IsMulti, GroupType>,
 ): OptionProps<OptionType, IsMulti, GroupType> {
   return {
     ...overrides,
@@ -45,17 +45,25 @@ export function mockReactSelectInputProps(): InputProps {
 }
 
 export function mockReactSelectControlProps<
-  OptionType extends OptionTypeBase,
-  IsMulti extends boolean,
-  GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
+  OptionType = unknown,
+  IsMulti extends boolean = boolean,
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
 >(): ControlProps<OptionType, IsMulti, GroupType> {
   return {} as ControlProps<OptionType, IsMulti, GroupType>;
 }
 
-export function mockReactSelectIndicatorProps<
-  OptionType extends OptionTypeBase,
-  IsMulti extends boolean,
-  GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
->(_option: OptionType): IndicatorProps<OptionType, IsMulti, GroupType> {
-  return {} as IndicatorProps<OptionType, IsMulti, GroupType>;
+export function mockReactSelectClearIndicatorProps<
+  OptionType = unknown,
+  IsMulti extends boolean = boolean,
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
+>(_option: OptionType): ClearIndicatorProps<OptionType, IsMulti, GroupType> {
+  return { getStyles: () => {} } as unknown as ClearIndicatorProps<OptionType, IsMulti, GroupType>;
+}
+
+export function mockReactSelectDropdownIndicatorProps<
+  OptionType = unknown,
+  IsMulti extends boolean = boolean,
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
+>(_option: OptionType): DropdownIndicatorProps<OptionType, IsMulti, GroupType> {
+  return {} as DropdownIndicatorProps<OptionType, IsMulti, GroupType>;
 }

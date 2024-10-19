@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,27 +29,46 @@ export interface SearchRulesQuery {
   active_severities?: string;
   asc?: boolean | string;
   available_since?: string;
+  cleanCodeAttributeCategories?: string;
   cwe?: string;
   f?: string;
   facets?: string;
+  impactSeverities?: string;
+  impactSoftwareQualities?: string;
   include_external?: boolean | string;
   inheritance?: string;
   is_template?: boolean | string;
   languages?: string;
   owaspTop10?: string;
+  ['owaspTop10-2021']?: string;
   p?: number;
+  prioritizedRule?: boolean | string;
   ps?: number;
   q?: string;
   qprofile?: string;
   repositories?: string;
   rule_key?: string;
   s?: string;
-  sansTop25?: string;
-  severities?: string;
   sonarsourceSecurity?: string;
   statuses?: string;
   tags?: string;
   template_key?: string;
   types?: string;
   organization?: string | null;
+}
+
+export enum RulesFacetName {
+  AvailableSince = 'availableSince',
+  CleanCodeAttributeCategories = 'cleanCodeAttributeCategories',
+  Cwe = 'cwe',
+  Inheritance = 'inheritance',
+  ImpactSoftwareQualities = 'impactSoftwareQualities',
+  ImpactSeverities = 'impactSeverities',
+  Languages = 'languages',
+  Profile = 'profile',
+  Repositories = 'repositories',
+  Statuses = 'statuses',
+  Tags = 'tags',
+  Template = 'template',
+  Types = 'types',
 }

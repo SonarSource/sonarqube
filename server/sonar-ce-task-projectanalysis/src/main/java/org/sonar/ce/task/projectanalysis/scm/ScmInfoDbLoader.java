@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 package org.sonar.ce.task.projectanalysis.scm;
 
 import java.util.Optional;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -35,7 +35,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.source.FileSourceDto;
 
 public class ScmInfoDbLoader {
-  private static final Logger LOGGER = Loggers.get(ScmInfoDbLoader.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ScmInfoDbLoader.class);
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MovedFilesRepository movedFilesRepository;

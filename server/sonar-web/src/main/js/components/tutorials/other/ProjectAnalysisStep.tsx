@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,77 +17,69 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import Step from '../components/Step';
-import { ManualTutorialConfig } from '../types';
+import { Arch, OSs, TutorialConfig } from '../types';
 import BuildToolForm from './BuildToolForm';
 import AnalysisCommand from './commands/AnalysisCommand';
 
 interface Props {
-  component: Component;
-  onFinish?: (projectKey?: string) => void;
-  open: boolean;
   baseUrl: string;
-  stepNumber: number;
+  component: Component;
   isLocal: boolean;
+  open: boolean;
+  stepNumber: number;
   token?: string;
 }
 
-interface State {
-  config?: ManualTutorialConfig;
-}
+export default function ProjectAnalysisStep(props: Readonly<Props>) {
+  const { component, open, stepNumber, baseUrl, isLocal, token } = props;
 
-export default class ProjectAnalysisStep extends React.PureComponent<Props, State> {
-  state: State = {};
+  const [config, setConfig] = React.useState<TutorialConfig>({});
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
-  handleBuildToolSelect = (config: ManualTutorialConfig) => {
-    const { component } = this.props;
-    this.setState({ config });
-    if (this.props.onFinish) {
-      this.props.onFinish(component.key);
-    }
-  };
-
-  renderForm = () => {
-    const { component, baseUrl, isLocal, token } = this.props;
+  function renderForm() {
     return (
-      <div className="boxed-group-inner">
-        <div className="display-flex-column">
-          <BuildToolForm onDone={this.handleBuildToolSelect} />
+      <div className="sw-pb-4">
+        <BuildToolForm
+          config={config}
+          isLocal={isLocal}
+          setConfig={setConfig}
+          os={os}
+          setOs={setOs}
+          arch={arch}
+          setArch={setArch}
+        />
 
-          {this.state.config && (
-            <div className="big-spacer-top">
-              <AnalysisCommand
-                component={component}
-                baseUrl={baseUrl}
-                isLocal={isLocal}
-                languageConfig={this.state.config}
-                token={token}
-              />
-            </div>
-          )}
-        </div>
+        {config && (
+          <div className="sw-mt-4">
+            <AnalysisCommand
+              config={config}
+              os={os}
+              arch={arch}
+              component={component}
+              baseUrl={baseUrl}
+              isLocal={isLocal}
+              token={token}
+            />
+          </div>
+        )}
       </div>
     );
-  };
-
-  renderResult = () => null;
-
-  render() {
-    return (
-      <Step
-        finished={false}
-        onOpen={() => {
-          /* noop */
-        }}
-        open={this.props.open}
-        renderForm={this.renderForm}
-        renderResult={this.renderResult}
-        stepNumber={this.props.stepNumber}
-        stepTitle={translate('onboarding.analysis.header')}
-      />
-    );
   }
+
+  return (
+    <Step
+      finished={false}
+      onOpen={noop}
+      open={open}
+      renderForm={renderForm}
+      stepNumber={stepNumber}
+      stepTitle={translate('onboarding.analysis.header')}
+    />
+  );
 }

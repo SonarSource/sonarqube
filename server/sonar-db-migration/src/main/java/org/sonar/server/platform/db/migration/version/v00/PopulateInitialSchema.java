@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.sonar.api.utils.System2;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
@@ -89,10 +90,10 @@ public class PopulateInitialSchema extends DataChange {
 
     long now = system2.now();
     context.prepareUpsert("insert into users " +
-      "(uuid, login, name, email, external_id, external_login, external_identity_provider, user_local, crypted_password, salt, hash_method, is_root, onboarded, reset_password, " +
+      "(uuid, login, name, email, external_id, external_login, external_identity_provider, user_local, crypted_password, salt, hash_method, reset_password, " +
       "created_at, updated_at)" +
       " values " +
-      "(?, ?, 'Administrator', null, 'admin', 'admin', 'sonarqube', ?, ?, null, 'BCRYPT', ?, ?, ?, ?, ?)")
+      "(?, ?, 'Administrator', null, 'admin', 'admin', 'sonarqube', ?, ?, null, 'BCRYPT', ?, ?, ?)")
       .setString(1, uuidFactory.create())
       .setString(2, ADMIN_USER)
       .setBoolean(3, true)
@@ -155,12 +156,19 @@ public class PopulateInitialSchema extends DataChange {
       .setLong(5, now)
       .addBatch();
 
+    upsert.setString(1, uuidFactory.create())
+      .setString(2, CorePropertyDefinitions.ALLOW_DISABLE_INHERITED_RULES)
+      .setBoolean(3, false)
+      .setString(4, "true")
+      .setLong(5, now)
+      .addBatch();
+
     upsert
       .setString(1, uuidFactory.create())
       .setString(2, "projects.default.visibility")
       .setBoolean(3, false)
       .setString(4, "public")
-      .setLong(5, system2.now())
+      .setLong(5, now)
       .addBatch();
 
     upsert

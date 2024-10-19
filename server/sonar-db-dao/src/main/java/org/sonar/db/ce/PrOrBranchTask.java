@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
 package org.sonar.db.ce;
 
 public class PrOrBranchTask extends CeTaskDtoLight {
-  private String mainComponentUuid;
+  private String entityUuid;
   private String taskType;
   private String branchType;
   private String componentUuid;
 
-  public String getMainComponentUuid() {
-    return mainComponentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   public String getBranchType() {

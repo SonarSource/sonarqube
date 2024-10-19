@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,16 +29,23 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY;
 
 /**
  * Compute new effort related measures :
  * {@link CoreMetrics#NEW_TECHNICAL_DEBT_KEY}
  * {@link CoreMetrics#NEW_RELIABILITY_REMEDIATION_EFFORT_KEY}
  * {@link CoreMetrics#NEW_SECURITY_REMEDIATION_EFFORT_KEY}
+ * {@link SoftwareQualitiesMetrics#NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY}
+ * {@link SoftwareQualitiesMetrics#NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY}
+ * {@link SoftwareQualitiesMetrics#NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY}
  */
 public class NewEffortAggregator extends IssueVisitor {
   private final Map<String, NewEffortCounter> counterByComponentUuid = new HashMap<>();
@@ -48,15 +55,25 @@ public class NewEffortAggregator extends IssueVisitor {
   private final Metric newReliabilityEffortMetric;
   private final Metric newSecurityEffortMetric;
   private final NewIssueClassifier newIssueClassifier;
+  private final Metric newSoftwareQualityMaintainabilityEffortMetric;
+  private final Metric newSoftwareQualityReliabilityEffortMetric;
+  private final Metric newSoftwareQualitySecurityEffortMetric;
 
   private NewEffortCounter counter = null;
 
   public NewEffortAggregator(MetricRepository metricRepository, MeasureRepository measureRepository, NewIssueClassifier newIssueClassifier) {
     this.measureRepository = measureRepository;
 
+    // Based on issue Type and Severity
     this.newMaintainabilityEffortMetric = metricRepository.getByKey(NEW_TECHNICAL_DEBT_KEY);
     this.newReliabilityEffortMetric = metricRepository.getByKey(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY);
     this.newSecurityEffortMetric = metricRepository.getByKey(NEW_SECURITY_REMEDIATION_EFFORT_KEY);
+
+    // Based on software qualities
+    this.newSoftwareQualityMaintainabilityEffortMetric = metricRepository.getByKey(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY);
+    this.newSoftwareQualityReliabilityEffortMetric = metricRepository.getByKey(NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY);
+    this.newSoftwareQualitySecurityEffortMetric = metricRepository.getByKey(NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY);
+
     this.newIssueClassifier = newIssueClassifier;
   }
 
@@ -85,6 +102,10 @@ public class NewEffortAggregator extends IssueVisitor {
       computeMeasure(component, newMaintainabilityEffortMetric, counter.maintainabilitySum);
       computeMeasure(component, newReliabilityEffortMetric, counter.reliabilitySum);
       computeMeasure(component, newSecurityEffortMetric, counter.securitySum);
+
+      computeMeasure(component, newSoftwareQualityMaintainabilityEffortMetric, counter.softwareQualityMaintainabilitySum);
+      computeMeasure(component, newSoftwareQualityReliabilityEffortMetric, counter.softwareQualityReliabilitySum);
+      computeMeasure(component, newSoftwareQualitySecurityEffortMetric, counter.softwareQualitySecuritySum);
     }
     counter = null;
   }
@@ -99,14 +120,45 @@ public class NewEffortAggregator extends IssueVisitor {
     private final EffortSum reliabilitySum = new EffortSum();
     private final EffortSum securitySum = new EffortSum();
 
+    private final EffortSum softwareQualityMaintainabilitySum = new EffortSum();
+    private final EffortSum softwareQualityReliabilitySum = new EffortSum();
+    private final EffortSum softwareQualitySecuritySum = new EffortSum();
+
     void add(NewEffortCounter otherCounter) {
       maintainabilitySum.add(otherCounter.maintainabilitySum);
       reliabilitySum.add(otherCounter.reliabilitySum);
       securitySum.add(otherCounter.securitySum);
+
+      softwareQualityMaintainabilitySum.add(otherCounter.softwareQualityMaintainabilitySum);
+      softwareQualityReliabilitySum.add(otherCounter.softwareQualityReliabilitySum);
+      softwareQualitySecuritySum.add(otherCounter.softwareQualitySecuritySum);
     }
 
     void add(Component component, DefaultIssue issue) {
       long newEffort = calculate(component, issue);
+      computeTypeEffort(issue, newEffort);
+      computeSoftwareQualityEffort(issue, newEffort);
+    }
+
+    private void computeSoftwareQualityEffort(DefaultIssue issue, long newEffort) {
+      issue.impacts().forEach((sq, severity) -> {
+        switch (sq) {
+          case MAINTAINABILITY:
+            softwareQualityMaintainabilitySum.add(newEffort);
+            break;
+          case RELIABILITY:
+            softwareQualityReliabilitySum.add(newEffort);
+            break;
+          case SECURITY:
+            softwareQualitySecuritySum.add(newEffort);
+            break;
+          default:
+            throw new IllegalStateException(String.format("Unknown software quality '%s'", sq));
+        }
+      });
+    }
+
+    private void computeTypeEffort(DefaultIssue issue, long newEffort) {
       switch (issue.type()) {
         case CODE_SMELL:
           maintainabilitySum.add(newEffort);

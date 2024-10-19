@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptyList;
@@ -45,12 +46,20 @@ public class Project {
     this.tags = tags;
   }
 
+  /**
+   * Should use {@link org.sonar.server.project.Project#fromProjectDtoWithTags(org.sonar.db.project.ProjectDto)} instead
+   */
+  @Deprecated(since = "10.2")
   public static Project from(ComponentDto project) {
     return new Project(project.uuid(), project.getKey(), project.name(), project.description(), emptyList());
   }
 
-  public static Project from(ProjectDto project) {
+  public static Project fromProjectDtoWithTags(ProjectDto project) {
     return new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(), project.getTags());
+  }
+
+  public static Project from(EntityDto entityDto) {
+    return new Project(entityDto.getUuid(), entityDto.getKey(), entityDto.getName(), entityDto.getDescription(), emptyList());
   }
 
   /**

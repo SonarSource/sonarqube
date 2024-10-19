@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,11 +23,18 @@ import com.google.common.base.Joiner;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.issue.IssueStatus;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
@@ -37,9 +44,11 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserIdDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Updates issue fields and chooses if changes must be kept in history.
@@ -51,9 +60,20 @@ public class IssueFieldsSetter {
   public static final String UNUSED = "";
   public static final String SEVERITY = "severity";
   public static final String TYPE = "type";
+  public static final String CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
   public static final String ASSIGNEE = "assignee";
+
+  /**
+   * @deprecated use {@link IssueFieldsSetter#ISSUE_STATUS} instead
+   */
+  @Deprecated(since = "10.4")
   public static final String RESOLUTION = "resolution";
+  /**
+   * @deprecated use {@link IssueFieldsSetter#ISSUE_STATUS} instead
+   */
+  @Deprecated(since = "10.4")
   public static final String STATUS = "status";
+  public static final String ISSUE_STATUS = "issueStatus";
   public static final String AUTHOR = "author";
   public static final String FILE = "file";
   public static final String FROM_BRANCH = "from_branch";
@@ -64,8 +84,9 @@ public class IssueFieldsSetter {
   public static final String TECHNICAL_DEBT = "technicalDebt";
   public static final String LINE = "line";
   public static final String TAGS = "tags";
+  public static final String CODE_VARIANTS = "code_variants";
 
-  private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
+  private static final Joiner CHANGELOG_LIST_JOINER = Joiner.on(" ").skipNulls();
 
   public boolean setType(DefaultIssue issue, RuleType type, IssueChangeContext context) {
     if (!Objects.equals(type, issue.type())) {
@@ -126,13 +147,14 @@ public class IssueFieldsSetter {
   /**
    * Used to set the assignee when it was null
    */
-  public boolean setNewAssignee(DefaultIssue issue, @Nullable String newAssigneeUuid, IssueChangeContext context) {
-    if (newAssigneeUuid == null) {
+  public boolean setNewAssignee(DefaultIssue issue, @Nullable UserIdDto userId, IssueChangeContext context) {
+    if (userId == null) {
       return false;
     }
     checkState(issue.assignee() == null, "It's not possible to update the assignee with this method, please use assign()");
-    issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeUuid);
-    issue.setAssigneeUuid(newAssigneeUuid);
+    issue.setFieldChange(context, ASSIGNEE, UNUSED, userId.getUuid());
+    issue.setAssigneeUuid(userId.getUuid());
+    issue.setAssigneeLogin(userId.getLogin());
     issue.setUpdateDate(context.date());
     issue.setChanged(true);
     issue.setSendNotifications(true);
@@ -238,6 +260,15 @@ public class IssueFieldsSetter {
     return false;
   }
 
+  public boolean setIssueStatus(DefaultIssue issue, @Nullable IssueStatus previousIssueStatus, @Nullable IssueStatus newIssueStatus, IssueChangeContext context) {
+    if (!Objects.equals(newIssueStatus, previousIssueStatus)) {
+      //Currently, issue status is not persisted in database, but is considered as an issue change
+      issue.setFieldChange(context, ISSUE_STATUS, previousIssueStatus, issue.issueStatus());
+      return true;
+    }
+    return false;
+  }
+
   public boolean setStatus(DefaultIssue issue, String status, IssueChangeContext context) {
     if (!Objects.equals(status, issue.status())) {
       issue.setFieldChange(context, STATUS, issue.status(), status);
@@ -315,8 +346,8 @@ public class IssueFieldsSetter {
 
     for (int i = 0; i < l1c.getMessageFormattingCount(); i++) {
       if (l1c.getMessageFormatting(i).getStart() != l2.getMessageFormatting(i).getStart()
-        || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
-        || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
+          || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
+          || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
         return false;
       }
     }
@@ -329,13 +360,23 @@ public class IssueFieldsSetter {
     issue.setMessage(previousMessage);
     issue.setMessageFormattings(previousMessageFormattings);
     boolean changed = setMessage(issue, currentMessage, context);
-    return setMessageFormattings(issue, currentMessageFormattings, context)  || changed;
+    return setMessageFormattings(issue, currentMessageFormattings, context) || changed;
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
     issue.addComment(DefaultIssueComment.create(issue.key(), context.userUuid(), text));
     issue.setUpdateDate(context.date());
     issue.setChanged(true);
+  }
+
+  public void setPrioritizedRule(DefaultIssue issue, boolean prioritizedRule, IssueChangeContext context) {
+    if (!Objects.equals(prioritizedRule, issue.isPrioritizedRule())) {
+      issue.setPrioritizedRule(prioritizedRule);
+      if (!issue.isNew()){
+        issue.setUpdateDate(context.date());
+        issue.setChanged(true);
+      }
+    }
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
@@ -396,8 +437,8 @@ public class IssueFieldsSetter {
     Set<String> oldTags = new HashSet<>(issue.tags());
     if (!oldTags.equals(newTags)) {
       issue.setFieldChange(context, TAGS,
-        oldTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(oldTags),
-        newTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(newTags));
+        oldTags.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(oldTags),
+        newTags.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(newTags));
       issue.setTags(newTags);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -405,6 +446,56 @@ public class IssueFieldsSetter {
       return true;
     }
     return false;
+  }
+
+  public boolean setCodeVariants(DefaultIssue issue, Set<String> currentCodeVariants, IssueChangeContext context) {
+    Set<String> newCodeVariants = getNewCodeVariants(issue);
+    if (!currentCodeVariants.equals(newCodeVariants)) {
+      issue.setFieldChange(context, CODE_VARIANTS,
+        currentCodeVariants.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(currentCodeVariants),
+        newCodeVariants.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(newCodeVariants));
+      issue.setCodeVariants(newCodeVariants);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      issue.setSendNotifications(true);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setImpacts(DefaultIssue issue, Map<SoftwareQuality, Severity> previousImpacts, IssueChangeContext context) {
+    Map<SoftwareQuality, Severity> currentImpacts = new EnumMap<>(issue.impacts());
+    if (!previousImpacts.equals(currentImpacts)) {
+      issue.replaceImpacts(currentImpacts);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setCleanCodeAttribute(DefaultIssue raw, @Nullable CleanCodeAttribute previousCleanCodeAttribute, IssueChangeContext changeContext) {
+    CleanCodeAttribute newCleanCodeAttribute = requireNonNull(raw.getCleanCodeAttribute());
+    if (Objects.equals(previousCleanCodeAttribute, newCleanCodeAttribute)) {
+      return false;
+    }
+    raw.setFieldChange(changeContext, CLEAN_CODE_ATTRIBUTE, previousCleanCodeAttribute, newCleanCodeAttribute.name());
+    raw.setCleanCodeAttribute(newCleanCodeAttribute);
+    raw.setUpdateDate(changeContext.date());
+    raw.setChanged(true);
+    return true;
+
+  }
+
+  private static Set<String> getNewCodeVariants(DefaultIssue issue) {
+    Set<String> issueCodeVariants = issue.codeVariants();
+    if (issueCodeVariants == null) {
+      return Set.of();
+    }
+    return issueCodeVariants.stream()
+      .map(String::trim)
+      .filter(s -> !s.isEmpty())
+      .collect(Collectors.toSet());
   }
 
   public void setIssueComponent(DefaultIssue issue, String newComponentUuid, String newComponentKey, Date updateDate) {
@@ -416,7 +507,6 @@ public class IssueFieldsSetter {
 
     // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
     issue.setComponentKey(newComponentKey);
-    issue.setModuleUuidPath(null);
   }
 
   private static boolean relevantDateDifference(@Nullable Date left, @Nullable Date right) {

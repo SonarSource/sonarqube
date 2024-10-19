@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.util.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,14 +27,16 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -51,17 +52,19 @@ public class AddUserAction implements PermissionsWsAction {
 
   public static final String ACTION = "add_user";
 
+  private static final Logger logger = LoggerFactory.getLogger(AddUserAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionUpdater permissionUpdater;
+  private final PermissionUpdater<UserPermissionChange> permissionUpdater;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
   private final Configuration configuration;
-  private static final Logger logger = Loggers.get(AddUserAction.class);
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-    WsParameters wsParameters, PermissionService permissionService, Configuration configuration) {
+  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionWsSupport wsSupport,
+    WsParameters wsParameters, PermissionService permissionService, Configuration configuration, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
@@ -69,6 +72,7 @@ public class AddUserAction implements PermissionsWsAction {
     this.wsParameters = wsParameters;
     this.permissionService = permissionService;
     this.configuration = configuration;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -95,26 +99,32 @@ public class AddUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
-      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
+      EntityDto entityDto = wsSupport.findEntity(dbSession, request);
+      checkProjectAdmin(userSession, configuration, entityDto);
+      if (!userSession.isSystemAdministrator() && entityDto != null && entityDto.isProject()) {
+        managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
+      }
+
       String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
       OrganizationDto org = project
-              .map(dto -> dbClient.organizationDao().selectByUuid(dbSession, dto.getOrganizationUuid()))
-              .orElseGet(() -> Optional.ofNullable(wsSupport.findOrganization(dbSession, organizationKey)))
-              .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
+          .map(dto -> dbClient.organizationDao().selectByUuid(dbSession, dto.getOrganizationUuid()))
+          .orElseGet(() -> Optional.ofNullable(wsSupport.findOrganization(dbSession, organizationKey)))
+          .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
       checkArgument(organizationKey == null || org.getKey().equals(organizationKey), "Organization key is incorrect.");
 
       UserId user = wsSupport.findUser(dbSession, userLogin);
       checkProjectAdmin(userSession, configuration, org.getUuid(), project.orElse(null));
       wsSupport.checkMembership(dbSession, org, user);
 
-      PermissionChange change = new UserPermissionChange(
-        PermissionChange.Operation.ADD,
+      UserPermissionChange change = new UserPermissionChange(
+        Operation.ADD,
         org.getUuid(),
         request.mandatoryParam(PARAM_PERMISSION),
-        project.orElse(null),
-        user, permissionService);
+        entityDto,
+        user,
+        permissionService);
       logger.info("Granting permissions for user: {} and permission type: {}, organization: {}, orgId: {}", userLogin,
-              change.getPermission(), org.getKey(), org.getUuid());
+          change.getPermission(), org.getKey(), org.getUuid());
       permissionUpdater.apply(dbSession, singletonList(change));
     }
     response.noContent();

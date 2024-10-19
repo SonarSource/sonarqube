@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.db.alm.setting;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentDto;
 
 public class ProjectAlmSettingDto {
 
@@ -31,8 +30,8 @@ public class ProjectAlmSettingDto {
   private String uuid;
 
   /**
-   * Non-null UUID of project. Max size is 50.
-   * @see ComponentDto#uuid()
+   * Non-null UUID of project. Max size is 40.
+   * @see org.sonar.db.entity.EntityDto#getUuid()
    */
   private String projectUuid;
 
@@ -71,7 +70,7 @@ public class ProjectAlmSettingDto {
   private long updatedAt;
   private long createdAt;
 
-  String getUuid() {
+  public String getUuid() {
     return uuid;
   }
 

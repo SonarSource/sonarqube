@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ export async function getAvailableExpirationOptions() {
     return EXPIRATION_OPTIONS.filter(
       (option) =>
         option.value <= SETTINGS_EXPIRATION_MAP[maxTokenLifetime] &&
-        option.value !== TokenExpiration.NoExpiration
+        option.value !== TokenExpiration.NoExpiration,
     );
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,19 @@ import org.sonar.db.component.KeyWithUuidDto;
 public class ComponentUuidFactoryImpl implements ComponentUuidFactory {
   private final Map<String, String> uuidsByKey = new HashMap<>();
 
+  /** For the sake of consistency it is important that sub-portfolios have the same uuid as the associated component.
+   * As sub-portfolio have no component associated with their creation, it is necessary to look search for their uuid.
+   * see SONAR-19407 for more info
+   *
+   * @param dbClient
+   * @param dbSession
+   * @param rootKey
+   */
   public ComponentUuidFactoryImpl(DbClient dbClient, DbSession dbSession, String rootKey) {
-    List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
-    keys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
+    List<KeyWithUuidDto> projectKeys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    List<KeyWithUuidDto> portFolioKeys = dbClient.portfolioDao().selectUuidsByKey(dbSession, rootKey);
+    projectKeys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
+    portFolioKeys.forEach(dto -> uuidsByKey.putIfAbsent(dto.key(), dto.uuid()));
   }
 
   public ComponentUuidFactoryImpl(DbClient dbClient, DbSession dbSession, String rootKey, Branch branch) {

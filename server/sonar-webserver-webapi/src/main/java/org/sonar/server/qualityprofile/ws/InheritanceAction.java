@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,12 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -58,6 +61,7 @@ public class InheritanceAction implements QProfileWsAction {
     NewAction inheritance = context.createAction("inheritance")
       .setSince("5.2")
       .setDescription("Show a quality profile's ancestors and children.")
+      .setChangelog(new Change("10.3", "Field 'inactiveRuleCount' added to the response"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("inheritance-example.json"));
 
@@ -78,7 +82,7 @@ public class InheritanceAction implements QProfileWsAction {
       allProfiles.add(profile);
       allProfiles.addAll(ancestors);
       allProfiles.addAll(children);
-      Statistics statistics = new Statistics(dbSession, organization, allProfiles);
+      Statistics statistics = new Statistics(dbSession, organization, allProfiles, profile.getLanguage());
 
       writeProtobuf(buildResponse(profile, ancestors, children, statistics), request, response);
     }
@@ -135,6 +139,7 @@ public class InheritanceAction implements QProfileWsAction {
       .setName(qualityProfile.getName())
       .setActiveRuleCount(statistics.countRulesByProfileKey.getOrDefault(key, 0L))
       .setOverridingRuleCount(statistics.countOverridingRulesByProfileKey.getOrDefault(key, 0L))
+      .setInactiveRuleCount(statistics.countInactiveRuleByProfileKey.get(key))
       .setIsBuiltIn(qualityProfile.isBuiltIn());
     ofNullable(qualityProfile.getParentKee()).ifPresent(builder::setParent);
     return builder.build();
@@ -143,12 +148,15 @@ public class InheritanceAction implements QProfileWsAction {
   private class Statistics {
     private final Map<String, Long> countRulesByProfileKey;
     private final Map<String, Long> countOverridingRulesByProfileKey;
+    private final Map<String, Long> countInactiveRuleByProfileKey = new HashMap<>();
 
-    private Statistics(DbSession dbSession, OrganizationDto organization, List<QProfileDto> profiles) {
+    private Statistics(DbSession dbSession, OrganizationDto organization, List<QProfileDto> profiles, String language) {
       ActiveRuleDao dao = dbClient.activeRuleDao();
       ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
       countRulesByProfileKey = dao.countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).build());
       countOverridingRulesByProfileKey = dao.countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setInheritance(OVERRIDES).build());
+      long totalRuleAvailable = dbClient.ruleDao().countByLanguage(dbSession, language);
+      profiles.forEach(p -> countInactiveRuleByProfileKey.put(p.getKee(), totalRuleAvailable - Optional.ofNullable(countRulesByProfileKey.get(p.getKee())).orElse(0L)));
     }
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.scanner.sensor.ProjectSensor;
@@ -43,7 +43,6 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 /**
  * Special case for Java that use a dedicated block indexer.
@@ -76,7 +75,7 @@ public class JavaCpdBlockIndexerSensor implements ProjectSensor {
         )
       ).spliterator(), false)
       .filter(f -> !((DefaultInputFile) f).isExcludedForDuplication())
-      .collect(Collectors.toList());
+      .toList();
     if (sourceFiles.isEmpty()) {
       return;
     }

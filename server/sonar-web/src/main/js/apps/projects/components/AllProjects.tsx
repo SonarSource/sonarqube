@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,40 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omitBy } from 'lodash';
+
+import styled from '@emotion/styled';
+import { Heading, Spinner } from '@sonarsource/echoes-react';
+import {
+  LAYOUT_FOOTER_HEIGHT,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  themeBorder,
+  themeColor,
+} from 'design-system';
+import { keyBy, mapValues, omitBy, pick } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
+import { searchProjects } from '../../../api/components';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import ListFooter from '../../../components/controls/ListFooter';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { get, save } from '../../../helpers/storage';
+import { isDefined } from '../../../helpers/types';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { AppState } from '../../../types/appstate';
-import { ComponentQualifier } from '../../../types/component';
-import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
-import { hasFilterParams, parseUrlQuery, Query } from '../query';
+import { Query, hasFilterParams, parseUrlQuery } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
-import { fetchProjectsByOrg, parseSorting, SORTING_SWITCH } from '../utils';
+import { SORTING_SWITCH, convertToQueryData, fetchProjects, parseSorting } from '../utils';
 import PageHeader from './PageHeader';
 import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
 
 interface Props {
+  appState: AppState;
   currentUser: CurrentUser;
   isFavorite: boolean;
+  isLegacy: boolean;
   location: Location;
-  appState: AppState;
   router: Router;
   organization: string;
 }
@@ -59,7 +69,7 @@ interface State {
   facets?: Facets;
   loading: boolean;
   pageIndex?: number;
-  projects?: Project[];
+  projects?: Omit<Project, 'measures'>[];
   query: Query;
   total?: number;
 }
@@ -82,45 +92,28 @@ export class AllProjects extends React.PureComponent<Props, State> {
       handleRequiredAuthentication();
       return;
     }
-    this.handleQueryChange(true, this.props.organization);
-    addSideBarClass();
+
+    this.handleQueryChange();
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query !== this.props.location.query) {
-      this.handleQueryChange(false, this.props.organization);
-    }
-
-    if (prevProps.organization && this.props.organization && prevProps.organization !== this.props.organization) {
-      this.setState({ loading: true });
+      this.handleQueryChange();
     }
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    removeSideBarClass();
   }
 
-  fetchProjects = (query: Query, organization: string) => {
-    this.setState({ loading: true, query });
-    fetchProjectsByOrg(query, this.props.isFavorite, organization).then((response) => {
-      if (this.mounted) {
-        this.setState({
-          facets: response.facets,
-          loading: false,
-          pageIndex: 1,
-          projects: response.projects,
-          total: response.total,
-        });
-      }
-    }, this.stopLoading);
-  };
-
   fetchMoreProjects = () => {
+    const { isFavorite, isLegacy } = this.props;
     const { pageIndex, projects, query } = this.state;
-    if (pageIndex && projects && query) {
+
+    if (isDefined(pageIndex) && pageIndex !== 0 && projects && Object.keys(query).length !== 0) {
       this.setState({ loading: true });
-      fetchProjectsByOrg(query, this.props.isFavorite, this.props.organization, pageIndex + 1).then((response) => {
+
+      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isLegacy }).then((response) => {
         if (this.mounted) {
           this.setState({
             loading: false,
@@ -132,12 +125,16 @@ export class AllProjects extends React.PureComponent<Props, State> {
     }
   };
 
-  getSort = () => this.state.query.sort || 'name';
+  getSort = () => this.state.query.sort ?? 'name';
 
-  getView = () => this.state.query.view || 'overall';
+  getView = () => this.state.query.view ?? 'overall';
 
   handleClearAll = () => {
-    this.props.router.push({ pathname: this.props.location.pathname });
+    const { pathname, query } = this.props.location;
+
+    const queryWithoutFilters = pick(query, ['view', 'sort']);
+
+    this.props.router.push({ pathname, query: queryWithoutFilters });
   };
 
   handleFavorite = (key: string, isFavorite: boolean) => {
@@ -152,21 +149,23 @@ export class AllProjects extends React.PureComponent<Props, State> {
     });
   };
 
-  handlePerspectiveChange = ({ view }: { view: string }) => {
+  handlePerspectiveChange = ({ view }: { view?: string }) => {
     const query: {
+      sort?: string;
       view: string | undefined;
-      sort?: string | undefined;
     } = {
       view: view === 'overall' ? undefined : view,
     };
 
     if (this.state.query.view === 'leak' || view === 'leak') {
-      if (this.state.query.sort) {
+      if (isDefined(this.state.query.sort)) {
         const sort = parseSorting(this.state.query.sort);
-        if (SORTING_SWITCH[sort.sortValue]) {
+
+        if (isDefined(SORTING_SWITCH[sort.sortValue])) {
           query.sort = (sort.sortDesc ? '-' : '') + SORTING_SWITCH[sort.sortValue];
         }
       }
+
       this.props.router.push({ pathname: this.props.location.pathname, query });
     } else {
       this.updateLocationQuery(query);
@@ -176,23 +175,49 @@ export class AllProjects extends React.PureComponent<Props, State> {
     save(LS_PROJECTS_VIEW, query.view);
   };
 
-  handleQueryChange(initialMount: boolean, organization: string) {
-    const query = parseUrlQuery(this.props.location.query);
-    const savedOptions = getStorageOptions();
-    const savedOptionsSet = savedOptions.sort || savedOptions.view;
+  handleQueryChange() {
+    const { isFavorite, isLegacy } = this.props;
 
-    // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
-    if (initialMount && savedOptionsSet) {
-      this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
-      //this.setState({ loading: false });
-    }
-    this.fetchProjects(query, organization);
+    const queryRaw = this.props.location.query;
+    const query = parseUrlQuery(queryRaw);
+
+    this.setState({ loading: true, query });
+
+    fetchProjects({ isFavorite, query, isLegacy }).then((response) => {
+      // We ignore the request if the query changed since the time it was initiated
+      // If that happened, another query will be initiated anyway
+      if (this.mounted && queryRaw === this.props.location.query) {
+        this.setState({
+          facets: response.facets,
+          loading: false,
+          pageIndex: 1,
+          projects: response.projects,
+          total: response.total,
+        });
+      }
+    }, this.stopLoading);
   }
 
   handleSortChange = (sort: string, desc: boolean) => {
     const asString = (desc ? '-' : '') + sort;
     this.updateLocationQuery({ sort: asString });
     save(LS_PROJECTS_SORT, asString);
+  };
+
+  loadSearchResultCount = (property: string, values: string[]) => {
+    const { isFavorite, isLegacy } = this.props;
+    const { query = {} } = this.state;
+
+    const data = convertToQueryData({ ...query, [property]: values }, isFavorite, isLegacy, {
+      ps: 1,
+      facets: property,
+    });
+
+    return searchProjects(data).then(({ facets }) => {
+      const values = facets.find((facet) => facet.property === property)?.values ?? [];
+
+      return mapValues(keyBy(values, 'val'), 'count');
+    });
   };
 
   stopLoading = () => {
@@ -207,15 +232,15 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   renderSide = () => (
-    <ScreenPositionHelper className="layout-page-side-outer">
-      {({ top }) => (
-        <section
-          aria-label={translate('filters')}
-          className="layout-page-side projects-page-side"
-          style={{ top }}
-        >
-          <div className="layout-page-side-inner">
-            <div className="layout-page-filters">
+    <SideBarStyle>
+      <ScreenPositionHelper className="sw-z-filterbar">
+        {({ top }) => (
+          <section
+            aria-label={translate('filters')}
+            className="sw-overflow-y-auto project-filters-list"
+            style={{ height: `calc((100vh - ${top}px) - ${LAYOUT_FOOTER_HEIGHT}px)` }}
+          >
+            <div className="sw-w-[300px] lg:sw-w-[390px]">
               <A11ySkipTarget
                 anchor="projects_filters"
                 label={translate('projects.skip_to_filters')}
@@ -224,49 +249,44 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
               <PageSidebar
                 applicationsEnabled={this.props.appState.qualifiers.includes(
-                  ComponentQualifier.Application
+                  ComponentQualifier.Application,
                 )}
                 facets={this.state.facets}
+                loadSearchResultCount={this.loadSearchResultCount}
                 onClearAll={this.handleClearAll}
                 onQueryChange={this.updateLocationQuery}
                 query={this.state.query}
                 view={this.getView()}
               />
             </div>
-          </div>
-        </section>
-      )}
-    </ScreenPositionHelper>
+          </section>
+        )}
+      </ScreenPositionHelper>
+    </SideBarStyle>
   );
 
   renderHeader = () => (
-    <div className="layout-page-header-panel layout-page-main-header">
-      <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-        <div className="layout-page-main-inner">
-          <PageHeader
-            currentUser={this.props.currentUser}
-            showHomepageIcon={!this.props.organization}
-            loading={this.state.loading}
-            onPerspectiveChange={this.handlePerspectiveChange}
-            onQueryChange={this.updateLocationQuery}
-            onSortChange={this.handleSortChange}
-            query={this.state.query}
-            selectedSort={this.getSort()}
-            total={this.state.total}
-            view={this.getView()}
-          />
-        </div>
-      </div>
-    </div>
+    <PageHeaderWrapper className="sw-w-full">
+      <PageHeader
+        currentUser={this.props.currentUser}
+        onPerspectiveChange={this.handlePerspectiveChange}
+        onQueryChange={this.updateLocationQuery}
+        onSortChange={this.handleSortChange}
+        query={this.state.query}
+        selectedSort={this.getSort()}
+        total={this.state.total}
+        view={this.getView()}
+      />
+    </PageHeaderWrapper>
   );
 
   renderMain = () => {
     if (this.state.loading && this.state.projects === undefined) {
-      return <DeferredSpinner />;
+      return <Spinner />;
     }
 
     return (
-      <div className="layout-page-main-inner">
+      <div className="it__layout-page-main-inner it__projects-list sw-h-full">
         {this.state.projects && (
           <ProjectsList
             cardType={this.getView()}
@@ -274,42 +294,44 @@ export class AllProjects extends React.PureComponent<Props, State> {
             handleFavorite={this.handleFavorite}
             isFavorite={this.props.isFavorite}
             isFiltered={hasFilterParams(this.state.query)}
+            loading={this.state.loading}
+            loadMore={this.fetchMoreProjects}
             projects={this.state.projects}
             query={this.state.query}
+            total={this.state.total}
           />
         )}
-        <ListFooter
-          accessibleLoadMoreLabel={translate('projects.show_more')}
-          count={this.state.projects !== undefined ? this.state.projects.length : 0}
-          loading={this.state.loading}
-          loadMore={this.fetchMoreProjects}
-          ready={!this.state.loading}
-          total={this.state.total !== undefined ? this.state.total : 0}
-        />
       </div>
     );
   };
 
   render() {
     return (
-      <div className="layout-page projects-page" id="projects-page">
-        <Suggestions suggestions="projects" />
+      <StyledWrapper id="projects-page">
         <Helmet defer={false} title={translate('projects.page')} />
 
-        <h1 className="a11y-hidden">{translate('projects.page')}</h1>
+        <Heading as="h1" className="sw-sr-only">
+          {translate('projects.page')}
+        </Heading>
 
-        {this.renderSide()}
+        <LargeCenteredLayout>
+          <PageContentFontWrapper className="sw-flex sw-w-full sw-typo-lg">
+            {this.renderSide()}
 
-        <div className="layout-page-main">
-          <A11ySkipTarget anchor="projects_main" />
+            <main className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1">
+              <A11ySkipTarget anchor="projects_main" />
 
-          <div role="main">
-            <h2 className="a11y-hidden">{translate('list_of_projects')}</h2>
-            {this.renderHeader()}
-            {this.renderMain()}
-          </div>
-        </div>
-      </div>
+              <Heading as="h2" className="sw-sr-only">
+                {translate('list_of_projects')}
+              </Heading>
+
+              {this.renderHeader()}
+
+              {this.renderMain()}
+            </main>
+          </PageContentFontWrapper>
+        </LargeCenteredLayout>
+      </StyledWrapper>
     );
   }
 }
@@ -319,35 +341,58 @@ function getStorageOptions() {
     sort?: string;
     view?: string;
   } = {};
-  if (get(LS_PROJECTS_SORT)) {
-    options.sort = get(LS_PROJECTS_SORT) || undefined;
+
+  if (get(LS_PROJECTS_SORT) !== null) {
+    options.sort = get(LS_PROJECTS_SORT) ?? undefined;
   }
-  if (get(LS_PROJECTS_VIEW)) {
-    options.view = get(LS_PROJECTS_VIEW) || undefined;
+
+  if (get(LS_PROJECTS_VIEW) !== null) {
+    options.view = get(LS_PROJECTS_VIEW) ?? undefined;
   }
+
   return options;
 }
 
-function SetSearchParamsWrapper(props: Props) {
+function AllProjectsWrapper(props: Readonly<Omit<Props, 'isLegacy'>>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const savedOptions = getStorageOptions();
+  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
 
   React.useEffect(
     () => {
-      const hasViewParams = searchParams.get('sort') || searchParams.get('view');
-      const hasSavedOptions = savedOptions.sort || savedOptions.view;
+      const hasViewParams = searchParams.get('sort') ?? searchParams.get('view');
+      const hasSavedOptions = savedOptions.sort ?? savedOptions.view;
 
-      if (!hasViewParams && hasSavedOptions) {
+      if (!isDefined(hasViewParams) && isDefined(hasSavedOptions)) {
         setSearchParams(savedOptions);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       /* Run once on mount only */
-    ]
+    ],
   );
 
-  return <AllProjects {...props} />;
+  return (
+    <Spinner isLoading={isLoading}>
+      <AllProjects {...props} isLegacy={isLegacy ?? false} />
+    </Spinner>
+  );
 }
 
-export default withRouter(withCurrentUserContext(withAppStateContext(SetSearchParamsWrapper)));
+export default withRouter(withCurrentUserContext(withAppStateContext(AllProjectsWrapper)));
+
+const StyledWrapper = styled.div`
+  background-color: ${themeColor('backgroundPrimary')};
+`;
+
+const SideBarStyle = styled.div`
+  border-left: ${themeBorder('default', 'filterbarBorder')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+  background-color: ${themeColor('backgroundSecondary')};
+`;
+
+const PageHeaderWrapper = styled.div`
+  height: 7.5rem;
+  border-bottom: ${themeBorder('default', 'filterbarBorder')};
+`;

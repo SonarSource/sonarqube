@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,9 +26,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Collections.singleton;
@@ -52,6 +52,7 @@ public class PluginClassLoader {
   private static final Version COMPATIBILITY_MODE_MAX_VERSION = Version.create("5.2");
 
   private final PluginClassloaderFactory classloaderFactory;
+  private final Map<PluginClassLoaderDef, ClassLoader> classLoaders = new HashMap<>();
 
   public PluginClassLoader(PluginClassloaderFactory classloaderFactory) {
     this.classloaderFactory = classloaderFactory;
@@ -63,8 +64,9 @@ public class PluginClassLoader {
 
   public Map<String, Plugin> load(Map<String, ExplodedPlugin> pluginsByKey) {
     Collection<PluginClassLoaderDef> defs = defineClassloaders(pluginsByKey);
-    Map<PluginClassLoaderDef, ClassLoader> classloaders = classloaderFactory.create(defs);
-    return instantiatePluginClasses(classloaders);
+    Map<PluginClassLoaderDef, ClassLoader> newClassloaders = classloaderFactory.create(classLoaders, defs);
+    classLoaders.putAll(newClassloaders);
+    return instantiatePluginClasses(newClassloaders);
   }
 
   /**
@@ -88,20 +90,22 @@ public class PluginClassLoader {
       def.addMainClass(info.getKey(), info.getMainClass());
 
       for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
-        def.getExportMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
+        def.getExportMask().include(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
       }
 
       // The plugins that extend other plugins can only add some files to classloader.
       // They can't change metadata like ordering strategy or compatibility mode.
       if (Strings.isNullOrEmpty(info.getBasePlugin())) {
         if (info.isUseChildFirstClassLoader()) {
-          Loggers.get(getClass()).warn("Plugin {} [{}] uses a child first classloader which is deprecated", info.getName(), info.getKey());
+          LoggerFactory.getLogger(getClass()).warn("Plugin {} [{}] uses a child first classloader which is deprecated", info.getName(),
+            info.getKey());
         }
         def.setSelfFirstStrategy(info.isUseChildFirstClassLoader());
         Version minSonarPluginApiVersion = info.getMinimalSonarPluginApiVersion();
         boolean compatibilityMode = minSonarPluginApiVersion != null && minSonarPluginApiVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         if (compatibilityMode) {
-          Loggers.get(getClass()).warn("API compatibility mode is no longer supported. In case of error, plugin {} [{}] should package its dependencies.",
+          LoggerFactory.getLogger(getClass()).warn("API compatibility mode is no longer supported. In case of error, plugin {} [{}] " +
+              "should package its dependencies.",
             info.getName(), info.getKey());
         }
       }
@@ -130,7 +134,7 @@ public class PluginClassLoader {
         try {
           instancesByPluginKey.put(pluginKey, (Plugin) classLoader.loadClass(mainClass).getDeclaredConstructor().newInstance());
         } catch (UnsupportedClassVersionError e) {
-          throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s", pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
+          throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s", pluginKey, SystemUtils.JAVA_VERSION), e);
         } catch (Throwable e) {
           throw new IllegalStateException(String.format("Fail to instantiate class [%s] of plugin [%s]", mainClass, pluginKey), e);
         }
@@ -142,11 +146,11 @@ public class PluginClassLoader {
   public void unload(Collection<Plugin> plugins) {
     for (Plugin plugin : plugins) {
       ClassLoader classLoader = plugin.getClass().getClassLoader();
-      if (classLoader instanceof Closeable && classLoader != classloaderFactory.baseClassLoader()) {
+      if (classLoader instanceof Closeable closeable && classLoader != classloaderFactory.baseClassLoader()) {
         try {
-          ((Closeable) classLoader).close();
+          closeable.close();
         } catch (Exception e) {
-          Loggers.get(getClass()).error("Fail to close classloader " + classLoader.toString(), e);
+          LoggerFactory.getLogger(getClass()).error("Fail to close classloader " + classLoader.toString(), e);
         }
       }
     }

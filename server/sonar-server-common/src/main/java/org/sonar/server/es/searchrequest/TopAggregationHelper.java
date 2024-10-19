@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -82,9 +82,13 @@ public class TopAggregationHelper {
    * top-term sub aggregation based field defined by {@link TopAggregationDefinition.FilterScope#getFieldName()} of
    * {@link TopAggregationDefinition#getFilterScope()}.
    */
-  public FilterAggregationBuilder buildTermTopAggregation(String topAggregationName,
-    TopAggregationDefinition<?> topAggregation, @Nullable Integer numberOfTerms,
-    Consumer<BoolQueryBuilder> extraFilters, Consumer<FilterAggregationBuilder> otherSubAggregations) {
+  public FilterAggregationBuilder buildTermTopAggregation(
+    String topAggregationName,
+    TopAggregationDefinition<?> topAggregation,
+    @Nullable Integer numberOfTerms,
+    Consumer<BoolQueryBuilder> extraFilters,
+    Consumer<FilterAggregationBuilder> otherSubAggregations
+  ) {
     Consumer<FilterAggregationBuilder> subAggregations = t -> {
       t.subAggregation(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, numberOfTerms));
       otherSubAggregations.accept(t);

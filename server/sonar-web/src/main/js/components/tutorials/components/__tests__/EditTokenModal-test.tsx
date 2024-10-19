@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,8 +31,6 @@ import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
 import EditTokenModal from '../EditTokenModal';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));
@@ -53,7 +51,7 @@ it('should behave correctly', async () => {
   const user = userEvent.setup();
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.token.generate.PROJECT_ANALYSIS_TOKEN' })
+    screen.getByRole('heading', { name: 'onboarding.token.generate.PROJECT_ANALYSIS_TOKEN' }),
   ).toBeInTheDocument();
   expect(screen.getByText('onboarding.token.text.PROJECT_ANALYSIS_TOKEN')).toBeInTheDocument();
 
@@ -81,20 +79,18 @@ it('should behave correctly', async () => {
 
   expect(lastToken.type).toBe(TokenType.Project);
   expect(lastToken.expirationDate).toBe(computeTokenExpirationDate(365));
-  expect(screen.getByRole('alert')).toHaveTextContent(
-    `users.tokens.new_token_created.${lastToken.token}`
-  );
+  expect(screen.getByText(`users.tokens.new_token_created.${lastToken.token}`)).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
 
   // Revoke token.
-  await clickButton(user, 'users.tokens.revoke_token');
+  await clickButton(user, 'onboarding.token.delete');
   expect(tokenMock.tokens.map((t) => t.name)).not.toContain(lastToken.name);
 
   // Generate a new token.
   await typeInField(
     user,
     screen.getByLabelText('onboarding.token.name.label'),
-    'another token name'
+    'another token name',
   );
   await clickButton(user, 'onboarding.token.generate');
 
@@ -104,9 +100,7 @@ it('should behave correctly', async () => {
   }
   expect(lastToken.type).toBe(TokenType.Project);
   expect(lastToken.expirationDate).toBe(computeTokenExpirationDate(365));
-  expect(screen.getByRole('alert')).toHaveTextContent(
-    `users.tokens.new_token_created.${lastToken.token}`
-  );
+  expect(screen.getByText(`users.tokens.new_token_created.${lastToken.token}`)).toBeInTheDocument();
 });
 
 it('should allow setting a preferred token type', async () => {
@@ -149,7 +143,7 @@ function renderEditTokenModal(props: Partial<EditTokenModal['props']> = {}) {
       currentUser={mockLoggedInUser()}
       onClose={jest.fn()}
       {...props}
-    />
+    />,
   );
 }
 

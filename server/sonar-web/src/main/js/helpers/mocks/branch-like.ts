@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -59,6 +59,22 @@ export function mockSetOfBranchAndPullRequest(): BranchLike[] {
     mockPullRequest({ key: '2', title: 'PR-2' }),
     mockBranch({ name: 'branch-3' }),
     mockBranch({ name: 'branch-2' }),
-    mockPullRequest({ key: '2', title: 'PR-2', target: 'llb-100', isOrphan: true }),
+    mockPullRequest({
+      key: '2',
+      title: 'PR-2',
+      target: 'llb-100',
+      isOrphan: true,
+    }),
+  ];
+}
+
+export function mockSetOfBranchAndPullRequestForBranchSelector(): BranchLike[] {
+  return [
+    mockBranch({ name: 'branch-1', status: { qualityGateStatus: 'OK' } }),
+    mockMainBranch(),
+    mockPullRequest({ key: '1', title: 'PR-1', status: { qualityGateStatus: 'OK' } }),
+    mockBranch({ name: 'branch-2', status: { qualityGateStatus: 'OK' } }),
+    mockPullRequest({ key: '2', title: 'PR-2', status: { qualityGateStatus: 'OK' } }),
+    mockBranch({ name: 'branch-3', status: { qualityGateStatus: 'OK' } }),
   ];
 }

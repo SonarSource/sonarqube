@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -66,6 +66,7 @@ public class LocalWsConnectorTest {
     assertThat(IOUtils.toString(wsResponse.contentStream())).isEqualTo("{}");
     assertThat(wsResponse.contentType()).isEqualTo(MediaTypes.JSON);
     assertThat(wsResponse.requestUrl()).isEqualTo("api/issues/search");
+    assertThat(wsResponse.headers()).isEmpty();
   }
 
   @Test

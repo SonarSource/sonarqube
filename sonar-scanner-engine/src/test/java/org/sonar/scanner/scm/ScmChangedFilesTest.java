@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,12 +21,14 @@ package org.sonar.scanner.scm;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Test;
 import org.sonar.scm.git.ChangedFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ScmChangedFilesTest {
@@ -36,7 +38,7 @@ public class ScmChangedFilesTest {
   public void testGetter() {
     Path filePath = Paths.get("files");
     ChangedFile file = ChangedFile.of(filePath);
-    Collection<ChangedFile> files = Collections.singletonList(file);
+    Set<ChangedFile> files = Set.of(file);
     scmChangedFiles = new ScmChangedFiles(files);
     assertThat(scmChangedFiles.get()).containsOnly(file);
   }
@@ -54,10 +56,22 @@ public class ScmChangedFilesTest {
   @Test
   public void testConfirm() {
     Path filePath = Paths.get("files");
-    Collection<ChangedFile> files = Collections.singletonList(ChangedFile.of(filePath));
+    Set<ChangedFile> files = Set.of(ChangedFile.of(filePath));
     scmChangedFiles = new ScmChangedFiles(files);
     assertThat(scmChangedFiles.isValid()).isTrue();
     assertThat(scmChangedFiles.isChanged(Paths.get("files"))).isTrue();
     assertThat(scmChangedFiles.isChanged(Paths.get("files2"))).isFalse();
+  }
+
+  /**
+   * On Windows the Path object (WindowsPath) is the same for file.js and for File.js. We just want to make sure we don't fail in this case.
+   */
+  @Test
+  public void constructor_givenTwoSimiliarFileNames_shouldNotThrowException() {
+    ChangedFile first = ChangedFile.of(Path.of("file.js"));
+    ChangedFile second = ChangedFile.of(Path.of("File.js"));
+    Set<ChangedFile> changedFiles = Stream.of(first, second).collect(Collectors.toSet());
+
+    assertThatNoException().isThrownBy(() -> new ScmChangedFiles(changedFiles));
   }
 }

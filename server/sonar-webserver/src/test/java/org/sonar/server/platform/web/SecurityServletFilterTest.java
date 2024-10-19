@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,6 +39,15 @@ public class SecurityServletFilterTest {
   private SecurityServletFilter underTest = new SecurityServletFilter();
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private FilterChain chain = mock(FilterChain.class);
+
+  @Test
+  public void ifRequestUriIsNull_returnBadRequest() throws ServletException, IOException {
+    HttpServletRequest request = newRequest("GET", "/");
+    when(request.getRequestURI()).thenReturn(null);
+
+    underTest.doFilter(request, response, chain);
+    verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+  }
 
   @Test
   public void allow_GET_method() throws IOException, ServletException {
@@ -90,7 +99,7 @@ public class SecurityServletFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
-    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-XSS-Protection", "0");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
     assertNull(response.getHeader("Strict-Transport-Security"));
   }
@@ -103,7 +112,7 @@ public class SecurityServletFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
-    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-XSS-Protection", "0");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
     verify(response).setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains;");
     verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -118,7 +127,7 @@ public class SecurityServletFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response, never()).setHeader(eq("X-Frame-Options"), anyString());
-    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-XSS-Protection", "0");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
     verify(response).addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -136,7 +145,7 @@ public class SecurityServletFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response, never()).setHeader(eq("X-Frame-Options"), anyString());
-    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-XSS-Protection", "0");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
     verify(response).addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");

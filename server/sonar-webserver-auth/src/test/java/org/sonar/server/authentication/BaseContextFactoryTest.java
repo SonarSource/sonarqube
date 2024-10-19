@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.server.authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +28,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -51,30 +52,34 @@ public class BaseContextFactoryTest {
     .setEmail("john@email.com")
     .build();
 
-  private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
+  private final ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
 
-  private TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
-  private Server server = mock(Server.class);
+  private final TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
+  private final Server server = mock(Server.class);
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private BaseIdentityProvider identityProvider = mock(BaseIdentityProvider.class);
-  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final BaseIdentityProvider identityProvider = mock(BaseIdentityProvider.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
 
-  private BaseContextFactory underTest = new BaseContextFactory(userIdentityAuthenticator, server, jwtHttpHandler, threadLocalUserSession, userSessionFactory);
+  private final BaseContextFactory underTest = new BaseContextFactory(userIdentityAuthenticator, server, jwtHttpHandler, threadLocalUserSession, userSessionFactory);
 
   @Before
   public void setUp() {
     when(server.getPublicRootUrl()).thenReturn(PUBLIC_ROOT_URL);
     when(identityProvider.getName()).thenReturn("GitHub");
     when(identityProvider.getKey()).thenReturn("github");
-    when(request.getSession()).thenReturn(mock(HttpSession.class));
   }
 
   @Test
   public void create_context() {
-    BaseIdentityProvider.Context context = underTest.newContext(request, response, identityProvider);
+    JavaxHttpRequest httpRequest = new JavaxHttpRequest(request);
+    JavaxHttpResponse httpResponse = new JavaxHttpResponse(response);
+    BaseIdentityProvider.Context context = underTest.newContext(httpRequest, httpResponse, identityProvider);
+
+    assertThat(context.getHttpRequest()).isEqualTo(httpRequest);
+    assertThat(context.getHttpResponse()).isEqualTo(httpResponse);
 
     assertThat(context.getRequest()).isEqualTo(request);
     assertThat(context.getResponse()).isEqualTo(response);
@@ -83,14 +88,17 @@ public class BaseContextFactoryTest {
 
   @Test
   public void authenticate() {
-    BaseIdentityProvider.Context context = underTest.newContext(request, response, identityProvider);
+    JavaxHttpRequest httpRequest = new JavaxHttpRequest(request);
+    JavaxHttpResponse httpResponse = new JavaxHttpResponse(response);
+
+    BaseIdentityProvider.Context context = underTest.newContext(httpRequest, httpResponse, identityProvider);
     ArgumentCaptor<UserDto> userArgumentCaptor = ArgumentCaptor.forClass(UserDto.class);
 
     context.authenticate(USER_IDENTITY);
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     verify(threadLocalUserSession).set(any(UserSession.class));
-    verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(request), eq(response));
+    verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(httpRequest), eq(httpResponse));
     assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
     assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo("github");

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,8 +34,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -51,7 +51,6 @@ import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 /**
@@ -60,7 +59,6 @@ import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 public class ProjectReactorBuilder {
 
   private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
-
 
   private static final Logger LOG = Loggers.get(ProjectReactorBuilder.class);
 
@@ -110,7 +108,7 @@ public class ProjectReactorBuilder {
    * Properties that must not be passed from the parent project to its children.
    */
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Stream.concat(Stream.of(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
-    CoreProperties.PROJECT_DESCRIPTION_PROPERTY), UNSUPPORTED_PROPS_FOR_MODULES.stream()).collect(toList());
+    CoreProperties.PROJECT_DESCRIPTION_PROPERTY), UNSUPPORTED_PROPS_FOR_MODULES.stream()).toList();
 
   private final ScannerProperties scannerProps;
   private final AnalysisWarnings analysisWarnings;
@@ -126,12 +124,21 @@ public class ProjectReactorBuilder {
     Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
     Map<String, Map<String, String>> propertiesByModuleIdPath = new HashMap<>();
     extractPropertiesByModule(propertiesByModuleIdPath, "", "", new HashMap<>(scannerProps.properties()));
-    ProjectDefinition rootProject = createModuleDefinition(propertiesByModuleIdPath.get(""), null);
+    var rootModuleProperties = propertiesByModuleIdPath.get("");
+    setBaseDirIfNeeded(rootModuleProperties);
+    ProjectDefinition rootProject = createModuleDefinition(rootModuleProperties, null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleIdPath, "");
     cleanAndCheckProjectDefinitions(rootProject);
     profiler.stopInfo();
     return new ProjectReactor(rootProject);
+  }
+
+  private static void setBaseDirIfNeeded(Map<String, String> rootModuleProperties) {
+    var baseDir = rootModuleProperties.get(PROPERTY_PROJECT_BASEDIR);
+    if (StringUtils.isBlank(baseDir)) {
+      rootModuleProperties.put(PROPERTY_PROJECT_BASEDIR, Paths.get("").toAbsolutePath().toString());
+    }
   }
 
   private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleIdPath, String currentModuleId, String currentModuleIdPath,

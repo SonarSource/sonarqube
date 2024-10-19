@@ -1,0 +1,369 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+.emotion-0 {
+  fill: rgb(93,108,208);
+}
+
+<div>
+  <svg
+    height="75"
+    width="100"
+  >
+    <g
+      transform="translate(10, 10)"
+    >
+      <g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="54"
+            x="0"
+            y="10"
+          />
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="41"
+            x="0"
+            y="28"
+          />
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="81"
+            x="0"
+            y="46"
+          />
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+`;
+
+exports[`renders correctly with yValues 1`] = `
+.emotion-0 {
+  fill: rgb(93,108,208);
+}
+
+.emotion-2 {
+  font: var(--echoes-typography-text-default-regular);
+  fill: rgb(106,117,144);
+}
+
+.e1vbniy52 .emotion-2 {
+  fill: rgb(255,255,255);
+}
+
+<div>
+  <svg
+    height="75"
+    width="100"
+  >
+    <g
+      transform="translate(10, 10)"
+    >
+      <g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="54"
+            x="0"
+            y="10"
+          />
+          <text
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="53.33333333333333"
+            y="15"
+          >
+            100.0
+          </text>
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="41"
+            x="0"
+            y="28"
+          />
+          <text
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="40"
+            y="33"
+          >
+            75.0
+          </text>
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="81"
+            x="0"
+            y="46"
+          />
+          <text
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="80"
+            y="51"
+          >
+            150.0
+          </text>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+`;
+
+exports[`renders correctly with yValues and yTicks 1`] = `
+.emotion-0 {
+  fill: rgb(93,108,208);
+}
+
+.emotion-2 {
+  font: var(--echoes-typography-text-default-regular);
+  fill: rgb(106,117,144);
+}
+
+.e1vbniy52 .emotion-2 {
+  fill: rgb(255,255,255);
+}
+
+<div>
+  <svg
+    height="75"
+    width="100"
+  >
+    <g
+      transform="translate(10, 10)"
+    >
+      <g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="54"
+            x="0"
+            y="10"
+          />
+          <text
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="53.33333333333333"
+            y="15"
+          >
+            100.0
+          </text>
+          <text
+            class="emotion-2 emotion-3"
+            dx="-1em"
+            dy="0.3em"
+            text-anchor="end"
+            x="0"
+            y="15"
+          >
+            a
+          </text>
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="41"
+            x="0"
+            y="28"
+          />
+          <text
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="40"
+            y="33"
+          >
+            75.0
+          </text>
+          <text
+            class="emotion-2 emotion-3"
+            dx="-1em"
+            dy="0.3em"
+            text-anchor="end"
+            x="0"
+            y="33"
+          >
+            b
+          </text>
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="81"
+            x="0"
+            y="46"
+          />
+          <text
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="80"
+            y="51"
+          >
+            150.0
+          </text>
+          <text
+            class="emotion-2 emotion-3"
+            dx="-1em"
+            dy="0.3em"
+            text-anchor="end"
+            x="0"
+            y="51"
+          >
+            c
+          </text>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+`;
+
+exports[`renders correctly with yValues, yTicks, and yTooltips 1`] = `
+.emotion-0 {
+  fill: rgb(93,108,208);
+}
+
+.emotion-2 {
+  font: var(--echoes-typography-text-default-regular);
+  fill: rgb(106,117,144);
+}
+
+.e1vbniy52 .emotion-2 {
+  fill: rgb(255,255,255);
+}
+
+<div>
+  <svg
+    height="75"
+    width="100"
+  >
+    <g
+      transform="translate(10, 10)"
+    >
+      <g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="54"
+            x="0"
+            y="10"
+          />
+          <text
+            aria-describedby="tooltip-1"
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="53.33333333333333"
+            y="15"
+          >
+            100.0
+          </text>
+          <text
+            class="emotion-2 emotion-3"
+            dx="-1em"
+            dy="0.3em"
+            text-anchor="end"
+            x="0"
+            y="15"
+          >
+            a
+          </text>
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="41"
+            x="0"
+            y="28"
+          />
+          <text
+            aria-describedby="tooltip-2"
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="40"
+            y="33"
+          >
+            75.0
+          </text>
+          <text
+            class="emotion-2 emotion-3"
+            dx="-1em"
+            dy="0.3em"
+            text-anchor="end"
+            x="0"
+            y="33"
+          >
+            b
+          </text>
+        </g>
+        <g>
+          <rect
+            class="emotion-0 emotion-1"
+            height="10"
+            width="81"
+            x="0"
+            y="46"
+          />
+          <text
+            aria-describedby="tooltip-3"
+            class="emotion-2 emotion-3"
+            dx="1em"
+            dy="0.3em"
+            text-anchor="start"
+            x="80"
+            y="51"
+          >
+            150.0
+          </text>
+          <text
+            class="emotion-2 emotion-3"
+            dx="-1em"
+            dy="0.3em"
+            text-anchor="end"
+            x="0"
+            y="51"
+          >
+            c
+          </text>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+`;

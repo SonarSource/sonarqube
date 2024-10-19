@@ -19,22 +19,35 @@ dependencies {
   api project(':server:sonar-auth-saml')
   api project(':server:sonar-ce-task-projectanalysis')
   api project(':server:sonar-process')
+  api project(':server:sonar-telemetry')
   api project(':server:sonar-webserver-core')
   api project(':server:sonar-webserver-webapi')
+  api project(':server:sonar-webserver-webapi-v2')
   api project(':server:sonar-webserver-pushapi')
   api project(':server:sonar-webserver-monitoring')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.eclipse.jetty:jetty-server'
   testImplementation 'org.eclipse.jetty:jetty-servlet'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation testFixtures(project(':server:sonar-webserver-auth'))
   testImplementation testFixtures(project(':server:sonar-webserver-es'))
   testImplementation project(':sonar-testing-harness')
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

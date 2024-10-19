@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ describe('sortUpgrades', () => {
         { version: '5.10' },
         { version: '5.1' },
         { version: '5.4' },
-      ] as SystemUpgrade[])
+      ] as SystemUpgrade[]),
     ).toEqual([{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }]);
     expect(
       u.sortUpgrades([
@@ -36,7 +36,7 @@ describe('sortUpgrades', () => {
         { version: '5.1.2' },
         { version: '6.0' },
         { version: '6.9' },
-      ] as SystemUpgrade[])
+      ] as SystemUpgrade[]),
     ).toEqual([{ version: '6.9' }, { version: '6.0' }, { version: '5.10' }, { version: '5.1.2' }]);
   });
 });
@@ -49,7 +49,7 @@ describe('groupUpgrades', () => {
         { version: '5.4.2' },
         { version: '5.4' },
         { version: '5.1' },
-      ] as SystemUpgrade[])
+      ] as SystemUpgrade[]),
     ).toEqual([
       [{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }],
     ]);
@@ -60,7 +60,7 @@ describe('groupUpgrades', () => {
         { version: '6.0' },
         { version: '5.10' },
         { version: '5.4.2' },
-      ] as SystemUpgrade[])
+      ] as SystemUpgrade[]),
     ).toEqual([
       [{ version: '6.9' }, { version: '6.7' }, { version: '6.0' }],
       [{ version: '5.10' }, { version: '5.4.2' }],

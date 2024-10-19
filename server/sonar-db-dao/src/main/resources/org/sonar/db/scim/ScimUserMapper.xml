@@ -4,28 +4,44 @@
 <mapper namespace="org.sonar.db.scim.ScimUserMapper">
 
   <sql id="scimUsersColumns">
-      scim_uuid as scimUserUuid,
-      user_uuid as userUuid
+      s.scim_uuid as scimUserUuid,
+      s.user_uuid as userUuid
+  </sql>
+
+  <sql id="scimUsersWithUsernameColumns">
+      <include refid="scimUsersColumns"/>,
+      u.external_id as userName
   </sql>
 
   <select id="findAll" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
-      from scim_users
+      from scim_users s
   </select>
 
   <select id="findByScimUuid" parameterType="String" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
-      from scim_users
+      from scim_users s
     where
       scim_uuid = #{scimUserUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByLogins" parameterType="string" resultType="User">
+    select
+    <include refid="scimUsersColumns"/>
+      from scim_users s
+    where
+      scim_uuid in
+        <foreach collection="list" open="(" close=")" item="login" separator=",">
+            #{scimUserUuid, jdbcType=VARCHAR}
+        </foreach>
   </select>
 
   <select id="findByUserUuid" parameterType="String" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
-      from scim_users
+      from scim_users s
     where
       user_uuid = #{userUuid,jdbcType=VARCHAR}
   </select>
@@ -40,29 +56,57 @@
     )
   </insert>
 
-  <select id="findScimUsers" resultType="org.sonar.db.scim.ScimUserDto">
+  <select id="findScimUsers" resultType="org.sonar.db.scim.ScimUserWithUsernameDto">
     select
-    <include refid="scimUsersColumns"/>
+    <include refid="scimUsersWithUsernameColumns"/>
     <include refid="sqlSelectByQuery"/>
     order by s.scim_uuid asc
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
-  <select id="countScimUsers" resultType="int">
+  <select id="countScimUsers" parameterType="map" resultType="int">
     select count(1)
     <include refid="sqlSelectByQuery"/>
   </select>
 
   <sql id="sqlSelectByQuery">
     from scim_users s
+    inner join users u on u.uuid=s.user_uuid
+    <if test="query.groupUuid != null">
+      left join groups_users gu on gu.user_uuid = u.uuid
+    </if>
+    where 1=1
     <if test="query.userName != null">
-      inner join users u on u.uuid=s.user_uuid
-        where lower(u.external_id) like lower(#{query.userName,jdbcType=VARCHAR}) escape '/'
+        and lower(u.external_id) like lower(#{query.userName,jdbcType=VARCHAR}) escape '/'
+    </if>
+    <if test="query.scimUserUuids != null">
+        and s.scim_uuid in
+        <foreach collection="query.scimUserUuids" open="(" close=")" item="scimUserUuid" separator=",">
+            #{scimUserUuid, jdbcType=VARCHAR}
+        </foreach>
+    </if>
+    <if test="query.userUuids != null">
+        and s.user_uuid in
+        <foreach collection="query.userUuids" open="(" close=")" item="userUuid" separator=",">
+            #{userUuid, jdbcType=VARCHAR}
+        </foreach>
+    </if>
+    <if test="query.groupUuid != null">
+        and gu.group_uuid = #{query.groupUuid, jdbcType=VARCHAR}
     </if>
   </sql>
 
   <delete id="deleteByUserUuid" parameterType="String">
     delete from scim_users where user_uuid = #{userUuid, jdbcType=VARCHAR}
   </delete>
+
+  <delete id="deleteByScimUuid" parameterType="String">
+    delete from scim_users where scim_uuid = #{scimUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <update id="deleteAll">
+    delete from scim_users
+  </update>
 
 </mapper>
 

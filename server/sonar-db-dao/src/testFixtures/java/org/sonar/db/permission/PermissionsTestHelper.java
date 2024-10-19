@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +19,17 @@
  */
 package org.sonar.db.permission;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
+
+import static org.sonar.db.permission.GlobalPermission.APPLICATION_CREATOR;
+import static org.sonar.db.permission.GlobalPermission.PORTFOLIO_CREATOR;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class PermissionsTestHelper {
 
-  public static final Set<String> ALL_PERMISSIONS = ImmutableSet.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN,
-    GlobalPermissions.SCAN_EXECUTION, UserRole.USER, GlobalPermission.APPLICATION_CREATOR.getKey(), GlobalPermission.PORTFOLIO_CREATOR.getKey());
+  public static final Set<String> ALL_PERMISSIONS = Set.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN,
+    SCAN.getKey(), UserRole.USER, APPLICATION_CREATOR.getKey(), PORTFOLIO_CREATOR.getKey());
 
   private PermissionsTestHelper() {
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { Spinner } from 'design-system';
 import * as React from 'react';
-import { getProfileChangelog } from '../../../api/quality-profiles';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
+import { ChangelogResponse, getProfileChangelog } from '../../../api/quality-profiles';
+import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Profile, ProfileChangelogEvent } from '../types';
@@ -31,8 +33,8 @@ import ChangelogEmpty from './ChangelogEmpty';
 import ChangelogSearch from './ChangelogSearch';
 
 interface Props {
-  profile: Profile;
   location: Location;
+  profile: Profile;
   router: Router;
   organization: string;
 }
@@ -44,7 +46,7 @@ interface State {
   total?: number;
 }
 
-export class ChangelogContainer extends React.PureComponent<Props, State> {
+class ChangelogContainer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -77,12 +79,12 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
     } = this.props;
 
     getProfileChangelog(query.since, query.to, profile)
-      .then((r: any) => {
+      .then((r: ChangelogResponse) => {
         if (this.mounted) {
           this.setState({
             events: r.events,
-            total: r.total,
-            page: r.p,
+            total: r.paging.total,
+            page: r.paging.pageIndex,
             loading: false,
           });
         }
@@ -102,12 +104,12 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
       } = this.props;
 
       getProfileChangelog(query.since, query.to, profile, this.state.page + 1)
-        .then((r: any) => {
+        .then((r: ChangelogResponse) => {
           if (this.mounted && this.state.events) {
             this.setState(({ events = [] }) => ({
               events: [...events, ...r.events],
-              total: r.total,
-              page: r.p,
+              total: r.paging.total,
+              page: r.paging.pageIndex,
               loading: false,
             }));
           }
@@ -117,9 +119,9 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
   }
 
   handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
-    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, this.props.organization, {
-      since: from && toShortNotSoISOString(from),
-      to: to && toShortNotSoISOString(to),
+    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, {
+      since: from && toISO8601WithOffsetString(from),
+      to: to && toISO8601WithOffsetString(to),
     });
     this.props.router.push(path);
   };
@@ -138,8 +140,8 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
       this.state.events.length < this.state.total;
 
     return (
-      <div className="boxed-group boxed-group-inner js-profile-changelog">
-        <div className="spacer-bottom">
+      <div className="sw-mt-4">
+        <div className="sw-mb-2 sw-flex sw-gap-4 sw-items-center">
           <ChangelogSearch
             dateRange={{
               from: query.since ? parseDate(query.since) : undefined,
@@ -148,7 +150,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
             onDateRangeChange={this.handleDateRangeChange}
             onReset={this.handleReset}
           />
-          <DeferredSpinner loading={this.state.loading} className="spacer-left" />
+          <Spinner loading={this.state.loading} />
         </div>
 
         {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}
@@ -158,10 +160,8 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
         )}
 
         {shouldDisplayFooter && (
-          <footer className="text-center spacer-top small">
-            <a href="#" onClick={this.loadMore.bind(this)}>
-              {translate('show_more')}
-            </a>
+          <footer className="sw-text-center sw-mt-2">
+            <Button onClick={this.loadMore.bind(this)}>{translate('show_more')}</Button>
           </footer>
         )}
       </div>

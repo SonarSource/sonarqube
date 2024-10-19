@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,30 +30,17 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ActivityStatusRequest {
 
-  private String componentId;
-  private String componentKey;
-
-  /**
-   * Example value: "AU-TpxcA-iU5OvuD2FL0"
-   */
-  public ActivityStatusRequest setComponentId(String componentId) {
-    this.componentId = componentId;
-    return this;
-  }
-
-  public String getComponentId() {
-    return componentId;
-  }
+  private String component;
 
   /**
    * Example value: "my_project"
    */
-  public ActivityStatusRequest setComponentKey(String componentKey) {
-    this.componentKey = componentKey;
+  public ActivityStatusRequest setComponent(String component) {
+    this.component = component;
     return this;
   }
 
-  public String getComponentKey() {
-    return componentKey;
+  public String getComponent() {
+    return component;
   }
 }

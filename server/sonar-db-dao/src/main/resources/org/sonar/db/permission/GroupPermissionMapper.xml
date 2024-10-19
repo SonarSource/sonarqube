@@ -3,17 +3,17 @@
 
 <mapper namespace="org.sonar.db.permission.GroupPermissionMapper">
 
-  <select id="groupsCountByProjectUuidAndPermission" parameterType="map"
-          resultType="org.sonar.db.permission.CountPerProjectPermission">
+  <select id="groupsCountByEntityUuidAndPermission" parameterType="map"
+          resultType="org.sonar.db.permission.CountPerEntityPermission">
     SELECT
       count(1) as count,
       permission,
-      componentUuid
+      entityUuid
     FROM (
       SELECT
         g.name as name,
         group_role.role as permission,
-        group_role.component_uuid as componentUuid
+        group_role.entity_uuid as entityUuid
       FROM
         groups g
       INNER JOIN group_roles group_role ON
@@ -23,32 +23,59 @@
       SELECT
         #{anyoneGroup} as name,
         group_role.role as permission,
-        group_role.component_uuid as componentUuid
+        group_role.entity_uuid as entityUuid
       FROM
         group_roles group_role
       where
         group_role.group_uuid IS NULL
     ) groups
     where
-      groups.componentUuid in
-      <foreach collection="componentUuids" open="(" close=")" item="id" separator=",">
+      groups.entityUuid in
+      <foreach collection="entityUuids" open="(" close=")" item="id" separator=",">
         #{id,jdbcType=VARCHAR}
       </foreach>
     GROUP BY
       groups.permission,
-      groups.componentUuid
+      groups.entityUuid
   </select>
 
-  <select id="countProjectsWithAnyonePermissions" resultType="int">
-    select count(distinct(gr.component_uuid))
-    from group_roles gr where gr.group_uuid is null and gr.component_uuid is not null
+  <select id="selectProjectKeysWithAnyonePermissions" parameterType="int" resultType="string">
+    select distinct(p.kee) as kee from group_roles gr
+    left join projects p on gr.entity_uuid = p.uuid
+    where gr.group_uuid is null and gr.entity_uuid is not null
+    ORDER BY kee ASC
+    limit #{max}
   </select>
 
-  <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
+  <!-- Oracle -->
+  <select id="selectProjectKeysWithAnyonePermissions" parameterType="int" resultType="string" databaseId="oracle">
+    select * from (select distinct p.kee as kee from group_roles gr
+    left join projects p on gr.entity_uuid = p.uuid
+    where gr.group_uuid is null and gr.entity_uuid is not null
+    ORDER BY kee ASC
+    )
+    where rownum &lt;= #{max}
+  </select>
+
+  <!-- SQL Server -->
+  <select id="selectProjectKeysWithAnyonePermissions" parameterType="int" resultType="string" databaseId="mssql">
+    select distinct top(#{max}) p.kee as kee from group_roles gr
+    left join projects p on gr.entity_uuid = p.uuid
+    where gr.group_uuid is null and gr.entity_uuid is not null
+    ORDER BY kee ASC
+  </select>
+
+  <select id="countEntitiesWithAnyonePermissions" resultType="int">
+    select count(distinct(gr.entity_uuid))
+    from group_roles gr where gr.group_uuid is null and gr.entity_uuid is not null
+  </select>
+
+  <select id="selectGroupNamesByQuery" resultType="string">
     select sub.name, lower(sub.name), sub.groupUuid
     <include refid="groupsByQuery"/>
     group by sub.name, lower(sub.name), sub.groupUuid
     order by case when (count(sub.permission) > 0) then 1 else 2 end asc, lower(sub.name), sub.name, sub.groupUuid
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countGroupsByQuery" parameterType="map" resultType="int">
@@ -60,28 +87,28 @@
 
   <sql id="groupsByQuery">
     from (
-      select g.uuid as groupUuid, g.name as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
+      select g.uuid as groupUuid, g.name as name, gr.role as permission, gr.entity_uuid as entityUuid, gr.uuid as uuid
       from groups g
       left join group_roles gr on g.uuid = gr.group_uuid
-      <if test="query.componentUuid == null">
-        and gr.component_uuid is null
+      <if test="query.entityUuid == null">
+        and gr.entity_uuid is null
       </if>
-      <if test="query.componentUuid != null">
-        and gr.component_uuid = #{query.componentUuid,jdbcType=VARCHAR}
+      <if test="query.entityUuid != null">
+        and gr.entity_uuid = #{query.entityUuid,jdbcType=VARCHAR}
       </if>
     where
     g.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
 
     union all
 
-    select 'Anyone' as groupUuid, 'Anyone' as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
+    select 'Anyone' as groupUuid, 'Anyone' as name, gr.role as permission, gr.entity_uuid as entityUuid, gr.uuid as uuid
     from group_roles gr
     <where>
-      <if test="query.componentUuid == null">
-        and gr.component_uuid is null
+      <if test="query.entityUuid == null">
+        and gr.entity_uuid is null
       </if>
-      <if test="query.componentUuid != null">
-        and gr.component_uuid = #{query.componentUuid,jdbcType=VARCHAR}
+      <if test="query.entityUuid != null">
+        and gr.entity_uuid = #{query.entityUuid,jdbcType=VARCHAR}
       </if>
       <if test="query.withAtLeastOnePermission()">
         and gr.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR} and
@@ -90,7 +117,7 @@
     </where>
 
     ) sub
-    left join components p on sub.componentUuid = p.uuid
+    left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on sub.entityUuid = entity.uuid
     <where>
       <if test="query.searchQueryToSql != null">
         and lower(sub.name) like #{query.searchQueryToSqlLowercase,jdbcType=VARCHAR} ESCAPE '/'
@@ -98,11 +125,11 @@
       <!-- filter rows with group permissions -->
       <if test="query.withAtLeastOnePermission()">
         and sub.permission is not null
-        <if test="query.componentUuid==null">
-          and sub.componentUuid is null
+        <if test="query.entityUuid==null">
+          and sub.entityUuid is null
         </if>
-        <if test="query.componentUuid!=null">
-          and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
+        <if test="query.entityUuid!=null">
+          and entity.uuid = #{query.entityUuid,jdbcType=VARCHAR}
         </if>
         <if test="query.permission!=null">
           and sub.permission = #{query.permission,jdbcType=VARCHAR}
@@ -112,10 +139,10 @@
   </sql>
 
   <select id="selectByGroupUuids" parameterType="map" resultType="GroupPermission">
-    select sub.groupUuid as groupUuid, sub.componentUuid as componentUuid, sub.permission as role, sub.organizationUuid as organizationUuid
+    select sub.groupUuid as groupUuid, sub.entityUuid as entityUuid, sub.permission as role, sub.organizationUuid as organizationUuid
     from
       (
-      select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, g.name as name, gr.organization_uuid as organizationUuid
+      select gr.group_uuid as groupUuid, gr.entity_uuid as entityUuid, gr.role as permission, g.name as name, gr.organization_uuid as organizationUuid
       from group_roles gr
       inner join groups g ON g.uuid = gr.group_uuid
       where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
@@ -123,7 +150,7 @@
 
       union all
 
-      select 'Anyone' as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, 'Anyone' as name, gr.organization_uuid as organizationUuid
+      select 'Anyone' as groupUuid, gr.entity_uuid as entityUuid, gr.role as permission, 'Anyone' as name, gr.organization_uuid as organizationUuid
       from group_roles gr
       where
       gr.group_uuid is null and
@@ -134,11 +161,11 @@
       <foreach collection="groupUuids" open="(" close=")" item="groupUuid" separator=",">
         #{groupUuid,jdbcType=VARCHAR}
       </foreach>
-      <if test="projectUuid != null">
-        and sub.componentUuid=#{projectUuid,jdbcType=VARCHAR}
+      <if test="entityUuid != null">
+        and sub.entityUuid = #{entityUuid,jdbcType=VARCHAR}
       </if>
-      <if test="projectUuid==null">
-        and sub.componentUuid is null
+      <if test="entityUuid==null">
+        and sub.entityUuid is null
       </if>
   </select>
 
@@ -162,7 +189,7 @@
     from group_roles gr
     where
     gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     <choose>
       <when test="groupUuid != null">
         gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
@@ -173,12 +200,12 @@
     </choose>
   </select>
 
-  <select id="selectProjectPermissionsOfGroup" parameterType="map" resultType="String">
+  <select id="selectEntityPermissionsOfGroup" parameterType="map" resultType="String">
     select gr.role
     from group_roles gr
     where
     gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-    gr.component_uuid = #{projectUuid,jdbcType=VARCHAR} and
+    gr.entity_uuid = #{entityUuid,jdbcType=VARCHAR} and
     <choose>
       <when test="groupUuid != null">
         gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
@@ -196,13 +223,13 @@
     and gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectGroupUuidsWithPermissionOnProjectBut" resultType="string">
+  <select id="selectGroupUuidsWithPermissionOnEntityBut" resultType="string">
     select
       distinct gr1.group_uuid
     from
       group_roles gr1
     where
-      gr1.component_uuid = #{projectUuid,jdbcType=VARCHAR}
+      gr1.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
       and gr1.group_uuid is not null
       and not exists (
         select
@@ -210,10 +237,27 @@
         from
           group_roles gr2
         where
-          gr2.component_uuid = gr1.component_uuid
+          gr2.entity_uuid = gr1.entity_uuid
           and gr2.group_uuid = gr1.group_uuid
           and gr2.role = #{role,jdbcType=VARCHAR}
       )
+  </select>
+
+   <select id="selectGroupUuidsWithPermissionOnEntity" resultType="string">
+    select
+      distinct gr1.group_uuid
+    from
+      group_roles gr1
+    where
+      gr1.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
+      and gr1.group_uuid is not null
+      and gr1.role = #{role,jdbcType=VARCHAR}
+  </select>
+
+ <select id="selectGroupPermissionsOnEntity" resultType="GroupPermission">
+    select gr.group_uuid as groupUuid, gr.entity_uuid as entityUuid, gr.role as role
+    from group_roles gr
+    where gr.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </select>
 
   <insert id="insert" parameterType="GroupPermission">
@@ -221,27 +265,27 @@
     uuid,
     organization_uuid,
     group_uuid,
-    component_uuid,
+    entity_uuid,
     role
     ) values (
     #{uuid,jdbcType=VARCHAR},
     #{organizationUuid,jdbcType=VARCHAR},
     #{groupUuid,jdbcType=VARCHAR},
-    #{componentUuid,jdbcType=BIGINT},
+    #{entityUuid,jdbcType=BIGINT},<!--Why big int?-->
     #{role,jdbcType=VARCHAR}
     )
   </insert>
 
-  <delete id="deleteByRootComponentUuid" parameterType="String">
+  <delete id="deleteByEntityUuid" parameterType="String">
     delete from group_roles
-    where component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
+    where entity_uuid=#{entityUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByRootComponentUuidAndGroupUuid">
+  <delete id="deleteByEntityUuidAndGroupUuid">
     delete from
       group_roles
     where
-      component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
+      entity_uuid=#{entityUuid,jdbcType=VARCHAR}
       <choose>
         <when test="groupUuid != null">
           and group_uuid = #{groupUuid,jdbcType=VARCHAR}
@@ -252,11 +296,11 @@
       </choose>
   </delete>
 
-  <delete id="deleteByRootComponentUuidAndPermission">
+  <delete id="deleteByEntityUuidAndPermission">
     delete from
       group_roles
     where
-      component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
+      entity_uuid=#{entityUuid,jdbcType=VARCHAR}
       and role=#{permission,jdbcType=VARCHAR}
   </delete>
 
@@ -266,11 +310,11 @@
     role=#{permission,jdbcType=VARCHAR} and
     organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
     <choose>
-      <when test="rootComponentUuid != null">
-        component_uuid=#{rootComponentUuid,jdbcType=BIGINT}
+      <when test="entityUuid != null">
+        entity_uuid=#{entityUuid,jdbcType=BIGINT}
       </when>
       <otherwise>
-        component_uuid is null
+        entity_uuid is null
       </otherwise>
     </choose>
     and

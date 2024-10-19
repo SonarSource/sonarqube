@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,67 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { IssueChangelogDiff as TypeIssueChangelogDiff } from '../../../../types/types';
-import IssueChangelogDiff from '../IssueChangelogDiff';
+import { mockIssueChangelogDiff } from '../../../../helpers/mocks/issues';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import IssueChangelogDiff, { IssueChangelogDiffProps } from '../IssueChangelogDiff';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+jest.mock('~sonar-aligned/helpers/measures', () => ({
+  formatMeasure: jest
+    .fn()
+    .mockImplementation((value: string, type: string) => `formatted.${value}.as.${type}`),
+}));
 
-it('should render correctly file diff', () => {
-  expect(
-    shallowRender({ diff: { key: 'file', oldValue: 'foo/bar.js', newValue: 'bar/baz.js' } })
-  ).toMatchSnapshot();
-});
+it.each([
+  ['file', 'issue.change.file_move.oldValue.newValue', undefined],
+  ['from_branch', 'issue.change.from_branch.oldValue.newValue', undefined],
+  ['line', 'issue.changelog.line_removed_X.oldValue', undefined],
+  [
+    'effort',
+    'issue.changelog.changed_to.issue.changelog.field.effort.formatted.12.as.WORK_DUR',
+    { newValue: '12', oldValue: undefined },
+  ],
+  [
+    'effort',
+    'issue.changelog.removed.issue.changelog.field.effort (issue.changelog.was.formatted.14.as.WORK_DUR)',
+    { newValue: undefined, oldValue: '14' },
+  ],
+  [
+    'effort',
+    'issue.changelog.removed.issue.changelog.field.effort',
+    { newValue: undefined, oldValue: undefined },
+  ],
+  [
+    'assign',
+    'issue.changelog.changed_to.issue.changelog.field.assign.newValue (issue.changelog.was.oldValue)',
+    undefined,
+  ],
+  ['from_short_branch', 'issue.change.from_non_branch.oldValue.newValue', undefined],
 
-it('should render correctly branch diff', () => {
-  expect(
-    shallowRender({
-      diff: {
-        // Legacy key
-        key: 'from_long_branch',
-        oldValue: 'foo',
-        newValue: 'bar',
-      },
-    })
-  ).toMatchSnapshot();
+  // This should be deprecated. Can this still happen?
+  ['from_long_branch', 'issue.change.from_branch.oldValue.newValue', undefined],
+])(
+  'should render correctly for "%s" diff types',
+  (key, expected, diff?: Partial<IssueChangelogDiffProps['diff']>) => {
+    renderIssueChangelogDiff({
+      diff: mockIssueChangelogDiff({ key, newValue: 'newValue', oldValue: 'oldValue', ...diff }),
+    });
+    expect(screen.getByText(expected)).toBeInTheDocument();
+  },
+);
 
-  expect(
-    shallowRender({
-      diff: {
-        // Legacy key
-        key: 'from_short_branch',
-        oldValue: 'foo',
-        newValue: 'bar',
-      },
-    })
-  ).toMatchSnapshot();
-
-  expect(
-    shallowRender({
-      diff: {
-        key: 'from_branch',
-        oldValue: 'foo',
-        newValue: 'bar',
-      },
-    })
-  ).toMatchSnapshot();
-});
-
-it('should render correctly line diff', () => {
-  expect(shallowRender({ diff: { key: 'line', oldValue: '80' } })).toMatchSnapshot();
-});
-
-it('should render correctly effort diff', () => {
-  expect(shallowRender({ diff: { key: 'effort', newValue: '12' } })).toMatchSnapshot();
-  expect(
-    shallowRender({ diff: { key: 'effort', newValue: '12', oldValue: '10' } })
-  ).toMatchSnapshot();
-  expect(shallowRender({ diff: { key: 'effort', oldValue: '10' } })).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<{ diff: TypeIssueChangelogDiff }> = {}) {
-  return shallow(<IssueChangelogDiff diff={{ key: 'foo' }} {...props} />);
+function renderIssueChangelogDiff(props: Partial<IssueChangelogDiffProps> = {}) {
+  return renderComponent(<IssueChangelogDiff diff={mockIssueChangelogDiff()} {...props} />);
 }

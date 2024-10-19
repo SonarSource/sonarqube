@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,11 @@ package org.sonar.server.permission;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
+
+import java.util.Objects;
 
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
@@ -45,17 +47,18 @@ public class PermissionPrivilegeChecker {
    * Checks that user is administrator of the specified project
    * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
    */
-  public static void checkProjectAdmin(UserSession userSession, Configuration config, String organizationUuid, @Nullable ComponentDto componentDto) {
+  public static void checkProjectAdmin(UserSession userSession, Configuration config, @Nullable EntityDto entity) {
     userSession.checkLoggedIn();
+    Objects.requireNonNull(entity.getOrganizationUuid());
 
-    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organizationUuid)) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, entity.getOrganizationUuid())) {
       return;
     }
 
     boolean allowChangingPermissionsByProjectAdmins = config.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)
       .orElse(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE);
-    if (componentDto != null && allowChangingPermissionsByProjectAdmins) {
-      userSession.checkComponentPermission(UserRole.ADMIN, componentDto);
+    if (entity != null && allowChangingPermissionsByProjectAdmins) {
+      userSession.checkEntityPermission(UserRole.ADMIN, entity);
     } else {
       throw insufficientPrivilegesException();
     }

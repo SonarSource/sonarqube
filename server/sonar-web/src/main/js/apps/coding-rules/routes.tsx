@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,8 @@
  */
 import React, { useEffect } from 'react';
 import { Route, useLocation, useNavigate } from 'react-router-dom';
-import { RawQuery } from '../../types/types';
-import App from './components/App';
+import { RawQuery } from '~sonar-aligned/types/router';
+import CodingRulesApp from './components/CodingRulesApp';
 import { parseQuery, serializeQuery } from './query';
 
 const EXPECTED_SPLIT_PARTS = 2;
@@ -44,19 +44,19 @@ function HashEditWrapper() {
   useEffect(() => {
     const { hash } = location;
     if (hash.length > 1) {
-      const query = parseHash(hash.substr(1));
+      const query = parseHash(hash.substring(1));
       const normalizedQuery = {
         ...serializeQuery(parseQuery(query)),
         open: query.open,
       };
       navigate(
         { pathname: location.pathname, search: new URLSearchParams(normalizedQuery).toString() },
-        { replace: true }
+        { replace: true },
       );
     }
   }, [location, navigate]);
 
-  return <App />;
+  return <CodingRulesApp />;
 }
 
 const routes = () => <Route path="coding_rules" element={<HashEditWrapper />} />;

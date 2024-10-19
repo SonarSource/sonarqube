@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -113,6 +113,17 @@ public final class PurgeProperties {
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(6)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.DAYS_BEFORE_DELETING_ANTICIPATED_TRANSITIONS)
+        .defaultValue("30")
+        .name("Delete anticipated transitions after")
+        .description("Anticipated transitions that have not been applied for more than this number of days will be deleted.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
+        .index(7)
         .build(),
 
       PropertyDefinition.builder(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS)

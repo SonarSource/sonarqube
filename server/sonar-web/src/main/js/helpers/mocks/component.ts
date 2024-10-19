@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier, TreeComponent, Visibility } from '../../types/component';
-import { MetricKey } from '../../types/metrics';
+import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { TreeComponent } from '../../types/component';
 import { Component, ComponentMeasure, ComponentMeasureEnhanced } from '../../types/types';
 import { mockMeasureEnhanced } from '../testMocks';
 
@@ -54,7 +55,7 @@ export function mockTreeComponent(overrides: Partial<TreeComponent>): TreeCompon
 
 export function mockComponentMeasure(
   file = false,
-  overrides: Partial<ComponentMeasure> = {}
+  overrides: Partial<ComponentMeasure> = {},
 ): ComponentMeasure {
   if (file) {
     return {
@@ -76,7 +77,7 @@ export function mockComponentMeasure(
 }
 
 export function mockComponentMeasureEnhanced(
-  overrides: Partial<ComponentMeasureEnhanced> = {}
+  overrides: Partial<ComponentMeasureEnhanced> = {},
 ): ComponentMeasureEnhanced {
   return {
     ...mockComponentMeasure(false, overrides as ComponentMeasure),

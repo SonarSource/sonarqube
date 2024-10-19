@@ -5,7 +5,7 @@ sonar {
 }
 dependencies {
 
-    api 'javax.servlet:javax.servlet-api'
+    api 'jakarta.servlet:jakarta.servlet-api'
     api 'org.json:json'
 
     api project(':server:sonar-webserver-ws')
@@ -13,6 +13,7 @@ dependencies {
 
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.awaitility:awaitility'
     testImplementation testFixtures(project(':server:sonar-webserver-ws'))
@@ -20,4 +21,12 @@ dependencies {
 
     testFixturesApi project(':sonar-testing-harness')
     testFixturesCompileOnly testFixtures(project(':server:sonar-webserver-ws'))
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+    // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+    useJUnitPlatform()
 }

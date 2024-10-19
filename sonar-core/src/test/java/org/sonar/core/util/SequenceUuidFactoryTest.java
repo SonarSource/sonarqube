@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SequenceUuidFactoryTest {
 
-  private SequenceUuidFactory underTest = new SequenceUuidFactory();
+  private final SequenceUuidFactory underTest = new SequenceUuidFactory();
 
   @Test
   public void generate_sequence_of_integer_ids() {
-    for (int i = 1; i < 10; i++) {
-      assertThat(underTest.create()).isEqualTo(String.valueOf(i));
-    }
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000001");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000002");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000003");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000004");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000005");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000006");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000007");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000008");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000009");
+    assertThat(underTest.create()).isEqualTo("00000000-0000-0000-0000-000000000010");
   }
+
 }

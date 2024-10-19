@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,13 @@ import { getRelativeTimeProps } from './dateUtils';
 
 export interface DateFromNowProps {
   children?: (formattedDate: string) => React.ReactNode;
+  className?: string;
   date?: ParsableDate;
   hourPrecision?: boolean;
 }
 
 export default function DateFromNow(props: DateFromNowProps) {
-  const { children: originalChildren = (f: string) => f, date, hourPrecision } = props;
+  const { children: originalChildren = (f: string) => f, date, hourPrecision, className } = props;
   let children = originalChildren;
 
   if (!date) {
@@ -56,9 +57,9 @@ export default function DateFromNow(props: DateFromNowProps) {
   return (
     <DateTimeFormatter date={parsedDate}>
       {(formattedDate) => (
-        <span title={formattedDate}>
+        <span className={className} title={formattedDate}>
           <FormattedRelativeTime {...relativeTimeProps}>
-            {children as FormattedRelativeTime['props']['children']}
+            {(d) => <>{children(d)}</>}
           </FormattedRelativeTime>
         </span>
       )}

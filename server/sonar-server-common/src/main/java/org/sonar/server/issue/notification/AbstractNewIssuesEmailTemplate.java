@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,17 +21,12 @@ package org.sonar.server.issue.notification;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -57,11 +52,9 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
   static final String FIELD_PULL_REQUEST = "pullRequest";
 
   protected final EmailSettings settings;
-  protected final I18n i18n;
 
-  public AbstractNewIssuesEmailTemplate(EmailSettings settings, I18n i18n) {
+  protected AbstractNewIssuesEmailTemplate(EmailSettings settings) {
     this.settings = settings;
-    this.i18n = i18n;
   }
 
   public static String encode(String toEncode) {
@@ -95,7 +88,7 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
       message.append("Version: ").append(version).append(NEW_LINE);
     }
     message.append(NEW_LINE);
-    appendRuleType(message, notification);
+    appendIssueCount(message, notification);
     appendAssignees(message, notification);
     appendRules(message, notification);
     appendTags(message, notification);
@@ -118,12 +111,11 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
   protected abstract boolean shouldNotFormat(Notification notification);
 
   protected String subject(Notification notification, String fullProjectName) {
-    int issueCount = Integer.parseInt(notification.getFieldValue(Metric.RULE_TYPE + COUNT));
-    return String.format("%s: %s new issue%s (new debt: %s)",
+    String issueCount = notification.getFieldValue(Metric.ISSUE + COUNT);
+    return String.format("%s: %s new issue%s",
       fullProjectName,
       issueCount,
-      issueCount > 1 ? "s" : "",
-      notification.getFieldValue(Metric.EFFORT + COUNT));
+      "1".equals(issueCount) ? "" : "s");
   }
 
   private static boolean doNotHaveValue(Notification notification, Metric metric) {
@@ -170,30 +162,10 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
     genericAppendOfMetric(Metric.RULE, "Rules", message, notification);
   }
 
-  protected void appendRuleType(StringBuilder message, Notification notification) {
-    String count = notification.getFieldValue(Metric.RULE_TYPE + COUNT);
+  protected void appendIssueCount(StringBuilder message, Notification notification) {
+    String issueCount = notification.getFieldValue(Metric.ISSUE + COUNT);
     message
-      .append(String.format("%s new issue%s (new debt: %s)",
-        count,
-        Integer.valueOf(count) > 1 ? "s" : "",
-        notification.getFieldValue(Metric.EFFORT + COUNT)))
-      .append(NEW_LINE).append(NEW_LINE)
-      .append(TAB)
-      .append("Type")
-      .append(NEW_LINE)
-      .append(TAB)
-      .append(TAB);
-
-    for (Iterator<RuleType> ruleTypeIterator = Arrays.asList(RuleType.BUG, RuleType.VULNERABILITY, RuleType.CODE_SMELL).iterator(); ruleTypeIterator.hasNext();) {
-      RuleType ruleType = ruleTypeIterator.next();
-      String ruleTypeLabel = i18n.message(getLocale(), "issue.type." + ruleType, ruleType.name());
-      message.append(ruleTypeLabel).append(": ").append(notification.getFieldValue(Metric.RULE_TYPE + DOT + ruleType + COUNT));
-      if (ruleTypeIterator.hasNext()) {
-        message.append(TAB);
-      }
-    }
-
-    message
+      .append(String.format("%s new issue%s", issueCount, "1".equals(issueCount) ? "" : "s"))
       .append(NEW_LINE)
       .append(NEW_LINE);
   }
@@ -220,9 +192,4 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
         .append(NEW_LINE);
     }
   }
-
-  private static Locale getLocale() {
-    return Locale.ENGLISH;
-  }
-
 }

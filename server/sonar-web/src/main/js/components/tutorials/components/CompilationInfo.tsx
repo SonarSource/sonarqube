@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,45 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone as Link } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from '../../../components/ui/Alert';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
-import DocLink from '../../common/DocLink';
 
 export interface CompilationInfoProps {
   className?: string;
 }
 
-export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: CompilationInfoProps) {
+export function CompilationInfo({ className = 'sw-my-2' }: CompilationInfoProps) {
+  const docUrl = useDocUrl();
+
   return (
-    <Alert className={className} variant="info">
-      <p className="spacer-bottom">
-        <FormattedMessage
-          id="onboarding.tutorial.cfamilly.compilation_database_info"
-          defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
-          values={{
-            link: (
-              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
-              </DocLink>
-            ),
-          }}
-        />
-      </p>
-      <p>
-        <FormattedMessage
-          id="onboarding.tutorial.cfamilly.speed_caching"
-          defaultMessage={translate('onboarding.tutorial.cfamilly.speed_caching')}
-          values={{
-            link: (
-              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
-              </DocLink>
-            ),
-          }}
-        />
-      </p>
-    </Alert>
+    <FlagMessage className={className} variant="info">
+      <div>
+        <p className="sw-mb-2">
+          <FormattedMessage
+            id="onboarding.tutorial.cfamilly.compilation_database_info"
+            defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
+            values={{
+              link: (
+                <Link to={docUrl(DocLink.CFamilyCompilationDatabase)}>
+                  {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
+                </Link>
+              ),
+            }}
+          />
+        </p>
+      </div>
+    </FlagMessage>
   );
 }

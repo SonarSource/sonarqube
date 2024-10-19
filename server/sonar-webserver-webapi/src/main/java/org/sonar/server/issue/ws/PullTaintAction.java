@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,17 +27,19 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueQueryParams;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.ws.pull.PullTaintActionProtobufObjectGenerator;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common.RuleType;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_PULL_TAINT;
 
-public class PullTaintAction extends BasePullAction {
+public class PullTaintAction extends BasePullAction implements IssuesWsAction {
   private static final String ISSUE_TYPE = "taint vulnerabilities";
   private static final String RESOURCE_EXAMPLE = "pull-taint-example.proto";
   private static final String SINCE_VERSION = "9.6";
@@ -66,7 +68,7 @@ public class PullTaintAction extends BasePullAction {
 
       return dbClient.issueDao().selectIssueKeysByComponentUuid(dbSession, issueQueryParams.getBranchUuid(),
         issueQueryParams.getRuleRepositories(),
-        emptyList(), issueQueryParams.getLanguages(),page);
+        emptyList(), issueQueryParams.getLanguages(), page);
 
     }
   }
@@ -78,6 +80,7 @@ public class PullTaintAction extends BasePullAction {
   }
 
   @Override
-  protected void validateRuleRepositories(List<String> ruleRepositories) {
+  protected boolean filterNonClosedIssues(IssueDto issueDto, IssueQueryParams queryParams) {
+    return issueDto.getType() != RuleType.SECURITY_HOTSPOT_VALUE;
   }
 }

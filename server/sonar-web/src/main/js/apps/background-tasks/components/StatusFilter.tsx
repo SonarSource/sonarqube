@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSelect, LabelValueSelectOption } from 'design-system';
 import * as React from 'react';
-import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { TaskStatuses } from '../../../types/tasks';
 import { STATUSES } from '../constants';
 
 interface StatusFilterProps {
-  value?: string;
   id: string;
   onChange: (value?: string) => void;
+  value?: string;
 }
 
-export default function StatusFilter(props: StatusFilterProps) {
+export default function StatusFilter(props: Readonly<StatusFilterProps>) {
   const { id, value, onChange } = props;
 
-  const options: BasicSelectOption[] = [
+  const options: LabelValueSelectOption[] = [
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
     {
       value: STATUSES.ALL_EXCEPT_PENDING,
@@ -46,21 +46,21 @@ export default function StatusFilter(props: StatusFilterProps) {
   ];
 
   const handleChange = React.useCallback(
-    ({ value }: BasicSelectOption) => {
+    ({ value }: LabelValueSelectOption) => {
       onChange(value);
     },
-    [onChange]
+    [onChange],
   );
 
   return (
-    <Select
+    <InputSelect
       aria-labelledby="background-task-status-filter-label"
-      className="input-medium"
+      className="sw-w-abs-200"
       id={id}
       onChange={handleChange}
       options={options}
+      size="medium"
       value={options.find((o) => o.value === value)}
-      isSearchable={false}
     />
   );
 }

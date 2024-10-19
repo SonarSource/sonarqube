@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,6 @@ import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
-import static java.util.stream.Collectors.toList;
-
 public class ActiveRulesPublisher implements ReportPublisherStep {
 
   private final ActiveRules activeRules;
@@ -50,7 +48,7 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
         builder.setQProfileKey(input.qpKey());
         builder.getMutableParamsByKey().putAll(input.params());
         return builder.build();
-      }).collect(toList()));
+      }).toList());
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Facet, { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
 import { RuleInheritance } from '../../../types/types';
-import Facet, { BasicProps } from './Facet';
 
 interface Props extends Omit<BasicProps, 'values'> {
   disabled: boolean;
@@ -43,7 +43,7 @@ export default class InheritanceFacet extends React.PureComponent<Props> {
         property="inheritance"
         renderName={this.renderName}
         renderTextName={this.renderName}
-        singleSelection={true}
+        singleSelection
         values={value ? [value] : []}
       />
     );

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { IconChevronDown } from '@sonarsource/echoes-react';
+import {
+  ButtonSecondary,
+  Dropdown,
+  ItemDivider,
+  ItemLink,
+  PopupPlacement,
+  PopupZLevel,
+} from 'design-system';
 import * as React from 'react';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
@@ -31,7 +41,6 @@ import { LoggedInUser } from '../../../types/users';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 
 interface Props {
-  className?: string;
   currentUser: LoggedInUser;
   location: Location;
   router: Router;
@@ -43,11 +52,11 @@ interface State {
 }
 
 const almSettingsValidators = {
-  [AlmKeys.Azure]: (settings: AlmSettingsInstance) => !!settings.url,
-  [AlmKeys.BitbucketServer]: (_: AlmSettingsInstance) => true,
+  [AlmKeys.Azure]: (settings: AlmSettingsInstance) => Boolean(settings.url),
   [AlmKeys.BitbucketCloud]: (_: AlmSettingsInstance) => true,
+  [AlmKeys.BitbucketServer]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitHub]: (_: AlmSettingsInstance) => true,
-  [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url,
+  [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => Boolean(settings.url),
 };
 
 export class ProjectCreationMenu extends React.PureComponent<Props, State> {
@@ -85,6 +94,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
     const boundAlms = IMPORT_COMPATIBLE_ALMS.filter((key) => {
       const currentAlmSettings = almSettings.filter((s) => s.alm === key);
+
       return (
         currentAlmSettings.length > 0 &&
         key === currentAlmSettings[0].alm &&
@@ -111,18 +121,23 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   render() {
     const { currentUser } = this.props;
     const { showProjectsLink } = this.state;
+
     const canCreateProject = hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
     if (!canCreateProject) {
       return null;
     }
 
+    if (!showProjectsLink) {
+      return null;
+    }
+
     return (
-      showProjectsLink ? (
-        <Button className="button-primary" onClick={this.handleProjectCreate}>
-          {translate('projects.add')}
-        </Button>):
-        (<></>)
+      <Button className="button-primary" onClick={this.handleProjectCreate}>
+        {translate('projects.add')}
+
+        <IconChevronDown className="sw-ml-1" />
+      </Button>
     );
   }
 }

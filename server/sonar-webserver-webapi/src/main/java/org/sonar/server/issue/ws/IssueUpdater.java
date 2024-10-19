@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +19,16 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -50,7 +51,8 @@ import org.sonar.server.notification.NotificationManager;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class IssueUpdater {
@@ -70,24 +72,25 @@ public class IssueUpdater {
     this.notificationSerializer = notificationSerializer;
   }
 
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context) {
-    BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
-    return saveIssueAndPreloadSearchResponseData(dbSession, issue, context, branch);
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, IssueDto originalIssue, DefaultIssue newIssue, IssueChangeContext context) {
+    BranchDto branch = getBranch(dbSession, newIssue);
+    return saveIssueAndPreloadSearchResponseData(dbSession, originalIssue, newIssue, context, branch);
   }
 
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context, BranchDto branch) {
-    Optional<RuleDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
-    ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
-    IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule.orElse(null), project, branch);
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, IssueDto originalIssue,
+    DefaultIssue newIssue, IssueChangeContext context, BranchDto branch) {
+    Optional<RuleDto> rule = getRuleByKey(dbSession, newIssue.getRuleKey());
+    ComponentDto branchComponent = dbClient.componentDao().selectOrFailByUuid(dbSession, newIssue.projectUuid());
+    ComponentDto component = getComponent(dbSession, newIssue, newIssue.componentUuid());
+    IssueDto issueDto = doSaveIssue(dbSession, originalIssue, newIssue, context, rule.orElse(null), branchComponent, branch);
 
     SearchResponseData result = new SearchResponseData(issueDto);
     rule.ifPresent(r -> result.addRules(singletonList(r)));
-    result.addComponents(singleton(project));
+    result.addComponents(singleton(branchComponent));
     result.addComponents(singleton(component));
 
     if (context.refreshMeasures()) {
-      List<DefaultIssue> changedIssues = result.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(result.getIssues().size()));
+      List<DefaultIssue> changedIssues = result.getIssues().stream().map(IssueDto::toDefaultIssue).toList();
       boolean isChangeFromWebhook = isNotEmpty(context.getWebhookSource());
       issueChangePostProcessor.process(dbSession, changedIssues, singleton(component), isChangeFromWebhook);
     }
@@ -95,37 +98,42 @@ public class IssueUpdater {
     return result;
   }
 
-  protected BranchDto getBranch(DbSession dbSession, DefaultIssue issue, @Nullable String projectUuid) {
+  public BranchDto getBranch(DbSession dbSession, DefaultIssue issue) {
     String issueKey = issue.key();
-    checkState(projectUuid != null, "Issue '%s' has no project", issueKey);
-    BranchDto component = dbClient.branchDao().selectByUuid(dbSession, projectUuid).orElse(null);
-    checkState(component != null, "Branch uuid '%s' for issue key '%s' cannot be found", projectUuid, issueKey);
-    return component;
+    String componentUuid = issue.componentUuid();
+    checkState(componentUuid != null, "Component uuid for issue key '%s' cannot be null", issueKey);
+    Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+    checkState(componentDto.isPresent(), "Component not found for issue with key '%s'", issueKey);
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, componentDto.get().branchUuid()).orElse(null);
+    checkState(branchDto != null, "Branch not found for issue with key '%s'", issueKey);
+    return branchDto;
   }
 
-  private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context,
+  private IssueDto doSaveIssue(DbSession session, IssueDto originalIssue, DefaultIssue issue, IssueChangeContext context,
     @Nullable RuleDto ruleDto, ComponentDto project, BranchDto branchDto) {
     IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
+    Date updateDate = issue.updateDate();
     if (
       // since this method is called after an update of the issue, date should never be null
-      issue.updateDate() == null
-        // name of rule is displayed in notification, rule must therefor be present
-        || ruleDto == null
-        // notification are not supported on PRs
-        || !hasNotificationSupport(branchDto)
-        || context.getWebhookSource() != null) {
+      updateDate == null
+      // name of rule is displayed in notification, rule must therefor be present
+      || ruleDto == null
+      // notification are not supported on PRs
+      || !hasNotificationSupport(branchDto)
+      || context.getWebhookSource() != null) {
       return issueDto;
     }
 
-    Optional<UserDto> assignee = Optional.ofNullable(issue.assignee())
+    Optional<UserDto> assignee = ofNullable(issue.assignee())
       .map(assigneeUuid -> dbClient.userDao().selectByUuid(session, assigneeUuid));
-    UserDto author = Optional.ofNullable(context.userUuid())
+    UserDto author = ofNullable(context.userUuid())
       .map(authorUuid -> dbClient.userDao().selectByUuid(session, authorUuid))
       .orElseThrow(() -> new IllegalStateException("Can not find dto for change author " + context.userUuid()));
     IssuesChangesNotificationBuilder notificationBuilder = new IssuesChangesNotificationBuilder(singleton(
       new ChangedIssue.Builder(issue.key())
-        .setNewResolution(issue.resolution())
         .setNewStatus(issue.status())
+        .setNewIssueStatus(IssueStatus.of(issue.status(), issue.resolution()))
+        .setOldIssueStatus(originalIssue.getIssueStatus())
         .setAssignee(assignee.map(assigneeDto -> new User(assigneeDto.getUuid(), assigneeDto.getLogin(), assigneeDto.getName())).orElse(null))
         .setRule(new Rule(ruleDto.getKey(), RuleType.valueOfNullable(ruleDto.getType()), ruleDto.getName()))
         .setProject(new Project.Builder(project.uuid())
@@ -134,7 +142,7 @@ public class IssueUpdater {
           .setBranchName(branchDto.isMain() ? null : branchDto.getKey())
           .build())
         .build()),
-      new UserChange(issue.updateDate().getTime(), new User(author.getUuid(), author.getLogin(), author.getName())));
+      new UserChange(updateDate.getTime(), new User(author.getUuid(), author.getLogin(), author.getName())));
     notificationService.scheduleForSending(notificationSerializer.serialize(notificationBuilder));
     return issueDto;
   }

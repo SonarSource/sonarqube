@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '../../types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   DuplicatedFile,
   Duplication,
@@ -30,7 +30,7 @@ import {
 export function mockSourceViewerFile(
   name = 'foo/bar.ts',
   project = 'project',
-  override?: Partial<SourceViewerFile>
+  override?: Partial<SourceViewerFile>,
 ): SourceViewerFile {
   return {
     measures: {
@@ -71,7 +71,7 @@ export function mockSourceLine(overrides: Partial<SourceLine> = {}): SourceLine 
 export function mockSnippetsByComponent(
   file = 'main.js',
   project = 'project',
-  lines: number[] = [16]
+  lines: number[] = [16],
 ): SnippetsByComponent {
   const sources = lines.reduce((lines: { [key: number]: SourceLine }, line) => {
     lines[line] = mockSourceLine({ line });

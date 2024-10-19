@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagErrorIcon, FlagSuccessIcon, TextAccordion } from 'design-system';
 import * as React from 'react';
+import { useState } from 'react';
+import { useIntl } from 'react-intl';
 import { getDelivery } from '../../../api/webhooks';
-import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
-import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
+import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { WebhookDelivery } from '../../../types/webhook';
@@ -31,79 +32,56 @@ interface Props {
   delivery: WebhookDelivery;
 }
 
-interface State {
-  loading: boolean;
-  open: boolean;
-  payload?: string;
-}
+export default function DeliveryAccordion({ delivery }: Props) {
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [payload, setPayload] = useState<string | undefined>(undefined);
 
-export default class DeliveryAccordion extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false, open: false };
+  const intl = useIntl();
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchPayload = ({ delivery } = this.props) => {
-    this.setState({ loading: true });
-    return getDelivery({ deliveryId: delivery.id }).then(
-      ({ delivery }) => {
-        if (this.mounted) {
-          this.setState({ payload: delivery.payload, loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  formatPayload = (payload: string) => {
+  async function fetchPayload() {
+    setLoading(true);
     try {
-      return JSON.stringify(JSON.parse(payload), undefined, 2);
-    } catch (error) {
-      return payload;
+      const response = await getDelivery({ deliveryId: delivery.id });
+      setPayload(response.delivery.payload);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  handleClick = () => {
-    if (!this.state.payload) {
-      this.fetchPayload();
-    }
-    this.setState(({ open }) => ({ open: !open }));
-  };
-
-  render() {
-    const { delivery } = this.props;
-    const { loading, open, payload } = this.state;
-
-    return (
-      <BoxedGroupAccordion
-        onClick={this.handleClick}
-        open={open}
-        renderHeader={() =>
-          delivery.success ? (
-            <AlertSuccessIcon aria-label={translate('success')} className="js-success" />
-          ) : (
-            <AlertErrorIcon aria-label={translate('error')} className="js-error" />
-          )
-        }
-        title={<DateTimeFormatter date={delivery.at} />}
-      >
-        <DeliveryItem
-          className="big-spacer-left"
-          delivery={delivery}
-          loading={loading}
-          payload={payload}
-        />
-      </BoxedGroupAccordion>
-    );
   }
+
+  function handleClick() {
+    if (!payload) {
+      fetchPayload();
+    }
+    setOpen(!open);
+  }
+
+  return (
+    <TextAccordion
+      ariaLabel={intl.formatDate(delivery.at, longFormatterOption)}
+      onClick={handleClick}
+      open={open}
+      renderHeader={() =>
+        delivery.success ? (
+          <FlagSuccessIcon
+            aria-label={translate('success')}
+            className="sw-pt-4 sw-pb-2 sw-pr-4 sw-float-right it__success"
+          />
+        ) : (
+          <FlagErrorIcon
+            aria-label={translate('error')}
+            className="sw-pt-4 sw-pb-2 sw-pr-4 sw-float-right js-error"
+          />
+        )
+      }
+      title={<DateTimeFormatter date={delivery.at} />}
+    >
+      <DeliveryItem
+        className="it__accordion-content sw-ml-4"
+        delivery={delivery}
+        loading={loading}
+        payload={payload}
+      />
+    </TextAccordion>
+  );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
 import static org.sonar.api.measures.CoreMetrics.FILES;
 import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
@@ -88,7 +87,7 @@ public class ViewsSizeMeasuresStepTest {
                 builder(PROJECT_VIEW, PROJECTVIEW_3_REF).build())
               .build(),
             builder(SUBVIEW, SUB_SUBVIEW_3_REF).addChildren(
-              builder(PROJECT_VIEW, PROJECTVIEW_4_REF).build())
+                builder(PROJECT_VIEW, PROJECTVIEW_4_REF).build())
               .build())
           .build(),
         builder(SUBVIEW, SUBVIEW_2_REF).build(),
@@ -97,7 +96,6 @@ public class ViewsSizeMeasuresStepTest {
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(FILES)
-    .add(DIRECTORIES)
     .add(LINES)
     .add(GENERATED_LINES)
     .add(NCLOC)

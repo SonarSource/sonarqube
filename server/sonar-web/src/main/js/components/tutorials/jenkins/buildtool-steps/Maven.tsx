@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FinishButton from '../../components/FinishButton';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
-function jenkinsfileSnippet(projectKey: string) {
+function jenkinsfileSnippet(projectKey: string, projectName: string) {
   return `node {
   stage('SCM') {
     checkout scm
@@ -30,20 +29,17 @@ function jenkinsfileSnippet(projectKey: string) {
   stage('SonarQube Analysis') {
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
-      sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=${projectKey}"
+      sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'"
     }
   }
 }`;
 }
 
-export default function Maven({ component, onDone }: LanguageProps) {
+export default function Maven({ component }: LanguageProps) {
   return (
-    <>
-      <CreateJenkinsfileBulletPoint
-        alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
-        snippet={jenkinsfileSnippet(component.key)}
-      />
-      <FinishButton onClick={onDone} />
-    </>
+    <CreateJenkinsfileBulletPoint
+      alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
+      snippet={jenkinsfileSnippet(component.key, component.name)}
+    />
   );
 }

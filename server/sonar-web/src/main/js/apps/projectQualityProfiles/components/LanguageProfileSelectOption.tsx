@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
 import { components, OptionProps } from 'react-select';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
-import Link from '../../../components/common/Link';
-import { BasicSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
+import { LabelValueSelectOption } from '../../../helpers/search';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 
-export interface ProfileOption extends BasicSelectOption {
-  language: string;
+export interface ProfileOption extends LabelValueSelectOption {
   isDisabled: boolean;
+  language: string;
 }
 
 export type LanguageProfileSelectOptionProps = OptionProps<ProfileOption, false>;
@@ -35,26 +35,35 @@ export type LanguageProfileSelectOptionProps = OptionProps<ProfileOption, false>
 export default function LanguageProfileSelectOption(props: LanguageProfileSelectOptionProps) {
   const option = props.data;
 
+  const SelectOptionDisableTooltipOverlay = React.useCallback(
+    () => (
+      <>
+        <p>
+          {translate(
+            'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules',
+          )}
+        </p>
+        {option.label && option.language && (
+          <Link to={getQualityProfileUrl(option.label, option.language)}>
+            {translate('project_quality_profile.add_language_modal.go_to_profile')}
+          </Link>
+        )}
+      </>
+    ),
+    [option.label, option.language],
+  );
+
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
   return (
     <components.Option {...props}>
       <div>
         <DisableableSelectOption
           option={option}
           disabledReason={translate('project_quality_profile.add_language_modal.no_active_rules')}
-          disableTooltipOverlay={() => (
-            <>
-              <p>
-                {translate(
-                  'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules'
-                )}
-              </p>
-              {option.label && option.language && (
-                <Link to={getQualityProfileUrl(option.label, option.language)}>
-                  {translate('project_quality_profile.add_language_modal.go_to_profile')}
-                </Link>
-              )}
-            </>
-          )}
+          disableTooltipOverlay={SelectOptionDisableTooltipOverlay}
         />
       </div>
     </components.Option>

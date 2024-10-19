@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class MigrationHistoryImpl implements MigrationHistory {
   private static final String SCHEMA_MIGRATIONS_TABLE = "schema_migrations";
@@ -101,7 +100,7 @@ public class MigrationHistoryImpl implements MigrationHistory {
       }
       return res.stream()
         .sorted(Comparator.naturalOrder())
-        .collect(toList());
+        .toList();
     }
   }
 }

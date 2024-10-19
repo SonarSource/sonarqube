@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,53 +20,51 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Ordering;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.util.cache.CacheLoader;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserIdDto;
 
 /**
  * Loads the association between a SCM account and a SQ user
  */
-public class ScmAccountToUserLoader implements CacheLoader<String, String> {
+public class ScmAccountToUserLoader implements CacheLoader<String, UserIdDto> {
 
-  private static final Logger LOGGER = Loggers.get(ScmAccountToUserLoader.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ScmAccountToUserLoader.class);
 
-  private final UserIndex index;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final DbClient dbClient;
 
-  public ScmAccountToUserLoader(UserIndex index, AnalysisMetadataHolder analysisMetadataHolder) {
-    this.index = index;
-    this.analysisMetadataHolder = analysisMetadataHolder;
+  public ScmAccountToUserLoader(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
-  public String load(String scmAccount) {
-    List<UserDoc> users = index.getAtMostThreeActiveUsersForScmAccount(scmAccount, analysisMetadataHolder.getOrganization().getUuid());
-    if (users.size() == 1) {
-      return users.get(0).uuid();
+  public UserIdDto load(String scmAccount) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<UserIdDto> users = dbClient.userDao().selectActiveUsersByScmAccountOrLoginOrEmail(dbSession, scmAccount);
+      if (users.size() == 1) {
+        return users.iterator().next();
+      }
+      if (!users.isEmpty()) {
+        Collection<String> logins = users.stream()
+          .map(UserIdDto::getLogin)
+          .sorted()
+          .toList();
+        if (LOGGER.isWarnEnabled()) {
+          LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+        }
+      }
+      return null;
     }
-    if (!users.isEmpty()) {
-      // multiple users are associated to the same SCM account, for example
-      // the same email
-      Collection<String> logins = users.stream()
-        .map(UserDoc::login)
-        .sorted(Ordering.natural())
-        .collect(MoreCollectors.toList(users.size()));
-      LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
-    }
-    return null;
   }
 
   @Override
-  public Map<String, String> loadAll(Collection<? extends String> scmAccounts) {
+  public Map<String, UserIdDto> loadAll(Collection<? extends String> scmAccounts) {
     throw new UnsupportedOperationException("Loading by multiple scm accounts is not supported yet");
   }
 }

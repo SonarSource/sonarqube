@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,25 +23,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ProcessWrapperFactory {
-  private static final Logger LOG = Loggers.get(ProcessWrapperFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProcessWrapperFactory.class);
 
   public ProcessWrapperFactory() {
     // nothing to do
   }
 
   public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) {
-    return new ProcessWrapper(baseDir, stdOutLineConsumer, command);
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, Map.of(), command);
+  }
+
+  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariables, String... command) {
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, envVariables, command);
   }
 
   static class ProcessWrapper {
@@ -49,10 +55,12 @@ public class ProcessWrapperFactory {
     private final Path baseDir;
     private final Consumer<String> stdOutLineConsumer;
     private final String[] command;
+    private final Map<String, String> envVariables = new HashMap<>();
 
-    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) {
+    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariables, String... command) {
       this.baseDir = baseDir;
       this.stdOutLineConsumer = stdOutLineConsumer;
+      this.envVariables.putAll(envVariables);
       this.command = command;
     }
 
@@ -60,17 +68,17 @@ public class ProcessWrapperFactory {
       ProcessBuilder pb = new ProcessBuilder()
         .command(command)
         .directory(baseDir != null ? baseDir.toFile() : null);
+      envVariables.forEach(pb.environment()::put);
 
       Process p = pb.start();
       try {
-        InputStream processStdOutput = p.getInputStream();
-        // don't use BufferedReader#readLine because it will also parse CR, which may be part of the actual source code line
-        try (Scanner scanner = new Scanner(new InputStreamReader(processStdOutput, UTF_8))) {
-          scanner.useDelimiter("\n");
-          while (scanner.hasNext()) {
-            stdOutLineConsumer.accept(scanner.next());
+        processInputStream(p.getInputStream(), stdOutLineConsumer);
+
+        processInputStream(p.getErrorStream(), line -> {
+          if (!line.isBlank()) {
+            LOG.debug(line);
           }
-        }
+        });
 
         int exit = p.waitFor();
         if (exit != 0) {
@@ -81,6 +89,15 @@ public class ProcessWrapperFactory {
         Thread.currentThread().interrupt();
       } finally {
         p.destroy();
+      }
+    }
+
+    private static void processInputStream(InputStream inputStream, Consumer<String> stringConsumer) {
+      try (Scanner scanner = new Scanner(new InputStreamReader(inputStream, UTF_8))) {
+        scanner.useDelimiter("\n");
+        while (scanner.hasNext()) {
+          stringConsumer.accept(scanner.next());
+        }
       }
     }
   }

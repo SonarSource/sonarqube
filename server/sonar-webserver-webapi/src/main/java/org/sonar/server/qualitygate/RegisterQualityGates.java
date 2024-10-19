@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,21 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
@@ -40,6 +43,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.measure.Rating;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
@@ -48,17 +52,24 @@ import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
+import static org.sonar.server.qualitygate.QualityGate.BUILTIN_QUALITY_GATE_NAME;
+import static org.sonar.server.qualitygate.QualityGate.SONAR_WAY_LEGACY_QUALITY_GATE_NAME;
 
 public class RegisterQualityGates implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(RegisterQualityGates.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityGates.class);
 
-  private static final String BUILTIN_QUALITY_GATE_NAME = "Sonar way";
   private static final String A_RATING = Integer.toString(Rating.A.getIndex());
+  private static final List<QualityGateCondition> BUILT_IN_QUALITY_GATE_CONDITIONS = asList(
+    new QualityGateCondition().setMetricKey(NEW_VIOLATIONS_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("0"),
+    new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("80"),
+    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3"),
+    new QualityGateCondition().setMetricKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("100"));
 
-  private static final List<QualityGateCondition> QUALITY_GATE_CONDITIONS = asList(
+  private static final List<QualityGateCondition> SONAR_WAY_LEGACY_QUALITY_GATE_CONDITIONS = asList(
     new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
     new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
     new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
@@ -85,22 +96,30 @@ public class RegisterQualityGates implements Startable {
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto builtin = qualityGateDao.selectByName(dbSession, BUILTIN_QUALITY_GATE_NAME);
+      QualityGateDto builtinQualityGate = qualityGateDao.selectByName(dbSession, BUILTIN_QUALITY_GATE_NAME);
 
-      // Create builtin if not present
-      if (builtin == null) {
+      // Create builtinQualityGate if not present
+      if (builtinQualityGate == null) {
         LOGGER.info("Built-in quality gate [{}] has been created", BUILTIN_QUALITY_GATE_NAME);
-        builtin = createQualityGate(dbSession, BUILTIN_QUALITY_GATE_NAME);
+        builtinQualityGate = createQualityGate(dbSession, BUILTIN_QUALITY_GATE_NAME, true);
+      }
+      List<QualityGateCondition> builtInQualityGateConditions = getQualityGateConditions(dbSession, builtinQualityGate);
+
+      // Create sonar way (legacy) only if it is not a new instance (a new instance has a Sonar way QG and no conditions) and if it is
+      // not already present
+      if (!builtInQualityGateConditions.isEmpty()) {
+        createSonarWayLegacyQualityGateIfMissing(dbSession);
       }
 
-      // Set builtin if missing
-      if (!builtin.isBuiltIn()) {
-        builtin.setBuiltIn(true);
-        dbClient.qualityGateDao().update(builtin, dbSession);
+
+      // Set builtinQualityGate if missing
+      if (!builtinQualityGate.isBuiltIn()) {
+        builtinQualityGate.setBuiltIn(true);
+        dbClient.qualityGateDao().update(builtinQualityGate, dbSession);
         LOGGER.info("Quality gate [{}] has been set as built-in", BUILTIN_QUALITY_GATE_NAME);
       }
 
-      updateQualityConditionsIfRequired(dbSession, builtin);
+      updateQualityConditionsIfRequired(dbSession, builtinQualityGate, builtInQualityGateConditions);
 
       qualityGateDao.ensureOneBuiltInQualityGate(dbSession, BUILTIN_QUALITY_GATE_NAME);
 
@@ -108,33 +127,75 @@ public class RegisterQualityGates implements Startable {
     }
   }
 
-  private void updateQualityConditionsIfRequired(DbSession dbSession, QualityGateDto builtin) {
+  private void createSonarWayLegacyQualityGateIfMissing(DbSession dbSession) {
+    QualityGateDto sonarWayLegacyQualityGate = qualityGateDao.selectByName(dbSession, SONAR_WAY_LEGACY_QUALITY_GATE_NAME);
+    LOGGER.info("Sonar way legacy Gate: {} ", sonarWayLegacyQualityGate);
+    if (sonarWayLegacyQualityGate == null) {
+      sonarWayLegacyQualityGate = createQualityGate(dbSession, SONAR_WAY_LEGACY_QUALITY_GATE_NAME, false);
+      addConditionsToQualityGate(dbSession, sonarWayLegacyQualityGate, SONAR_WAY_LEGACY_QUALITY_GATE_CONDITIONS);
+      LOGGER.info("Sonar way (legacy) quality gate has been created");
+    }
+  }
+
+  private void updateQualityConditionsIfRequired(DbSession dbSession, QualityGateDto builtinQualityGate,
+    List<QualityGateCondition> qualityGateConditions) {
+
+    List<QualityGateCondition> qgConditionsDeleted = removeExtraConditions(dbSession, builtinQualityGate, qualityGateConditions);
+    qgConditionsDeleted.addAll(removeDuplicatedConditions(dbSession, builtinQualityGate, qualityGateConditions));
+
+    List<QualityGateCondition> qgConditionsAdded = addMissingConditions(dbSession, builtinQualityGate, qualityGateConditions);
+
+    if (!qgConditionsAdded.isEmpty() || !qgConditionsDeleted.isEmpty()) {
+      LOGGER.info("Built-in quality gate's conditions of [{}] has been updated", BUILTIN_QUALITY_GATE_NAME);
+    }
+  }
+
+  private ImmutableList<QualityGateCondition> getQualityGateConditions(DbSession dbSession, QualityGateDto builtinQualityGate) {
     Map<String, String> uuidToKeyMetric = dbClient.metricDao().selectAll(dbSession).stream()
       .collect(toMap(MetricDto::getUuid, MetricDto::getKey));
 
-    List<QualityGateCondition> qualityGateConditions = qualityGateConditionDao.selectForQualityGate(dbSession, builtin.getUuid())
+    return qualityGateConditionDao.selectForQualityGate(dbSession, builtinQualityGate.getUuid())
       .stream()
       .map(dto -> QualityGateCondition.from(dto, uuidToKeyMetric))
-      .collect(MoreCollectors.toList());
+      .collect(toImmutableList());
+  }
 
+  private List<QualityGateCondition> removeExtraConditions(DbSession dbSession, QualityGateDto builtinQualityGate, List<QualityGateCondition> qualityGateConditions) {
     // Find all conditions that are not present in QUALITY_GATE_CONDITIONS
     // Those conditions must be deleted
     List<QualityGateCondition> qgConditionsToBeDeleted = new ArrayList<>(qualityGateConditions);
-    qgConditionsToBeDeleted.removeAll(QUALITY_GATE_CONDITIONS);
+    qgConditionsToBeDeleted.removeAll(BUILT_IN_QUALITY_GATE_CONDITIONS);
     qgConditionsToBeDeleted
-      .forEach(qgc -> qualityGateConditionDao.delete(qgc.toQualityGateDto(builtin.getUuid()), dbSession));
+      .forEach(qgc -> qualityGateConditionDao.delete(qgc.toQualityGateDto(builtinQualityGate.getUuid()), dbSession));
+    return qgConditionsToBeDeleted;
+  }
 
+  private Set<QualityGateCondition> removeDuplicatedConditions(DbSession dbSession, QualityGateDto builtinQualityGate, List<QualityGateCondition> qualityGateConditions) {
+    Set<QualityGateCondition> qgConditionsDuplicated = qualityGateConditions
+      .stream()
+      .filter(qualityGateCondition -> Collections.frequency(qualityGateConditions, qualityGateCondition) > 1)
+      .collect(Collectors.toSet());
+
+    qgConditionsDuplicated
+      .forEach(qgc -> qualityGateConditionDao.delete(qgc.toQualityGateDto(builtinQualityGate.getUuid()), dbSession));
+
+    return qgConditionsDuplicated;
+  }
+
+  private List<QualityGateCondition> addMissingConditions(DbSession dbSession, QualityGateDto builtinQualityGate,
+    List<QualityGateCondition> qualityGateConditions) {
     // Find all conditions that are not present in qualityGateConditions
-    // Those conditions must be created
-    List<QualityGateCondition> qgConditionsToBeCreated = new ArrayList<>(QUALITY_GATE_CONDITIONS);
-    qgConditionsToBeCreated.removeAll(qualityGateConditions);
-    qgConditionsToBeCreated
-      .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(),
-        qgc.getErrorThreshold()));
+    // Those conditions must be added to the built-in quality gate
+    List<QualityGateCondition> qgConditionsToBeAdded = new ArrayList<>(BUILT_IN_QUALITY_GATE_CONDITIONS);
+    qgConditionsToBeAdded.removeAll(qualityGateConditions);
+    addConditionsToQualityGate(dbSession, builtinQualityGate, qgConditionsToBeAdded);
+    return qgConditionsToBeAdded;
+  }
 
-    if (!qgConditionsToBeCreated.isEmpty() || !qgConditionsToBeDeleted.isEmpty()) {
-      LOGGER.info("Built-in quality gate's conditions of [{}] has been updated", BUILTIN_QUALITY_GATE_NAME);
-    }
+  private void addConditionsToQualityGate(DbSession dbSession, QualityGateDto qualityGate, List<QualityGateCondition> conditions) {
+    conditions.forEach(condition -> qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, condition.getMetricKey(),
+      condition.getOperator(),
+      condition.getErrorThreshold()));
   }
 
   @Override
@@ -142,10 +203,10 @@ public class RegisterQualityGates implements Startable {
     // do nothing
   }
 
-  private QualityGateDto createQualityGate(DbSession dbSession, String name) {
+  private QualityGateDto createQualityGate(DbSession dbSession, String name, boolean isBuiltIn) {
     QualityGateDto qualityGate = new QualityGateDto()
       .setName(name)
-      .setBuiltIn(true)
+      .setBuiltIn(isBuiltIn)
       .setUuid(uuidFactory.create())
       .setCreatedAt(new Date(system2.now()));
     return dbClient.qualityGateDao().insert(dbSession, qualityGate);

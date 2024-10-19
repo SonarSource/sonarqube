@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,19 +19,19 @@
  */
 package org.sonar.db.ce;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeTaskDtoLightTest {
+class CeTaskDtoLightTest {
   private final CeTaskDtoLight task1 = new CeTaskDtoLight();
   private final CeTaskDtoLight task2 = new CeTaskDtoLight();
   private final CeTaskDtoLight task3 = new CeTaskDtoLight();
   private final CeTaskDtoLight task4 = new CeTaskDtoLight();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     task1.setCeTaskUuid("id1");
     task1.setCreatedAt(1);
     task2.setCeTaskUuid("id1");
@@ -43,7 +43,7 @@ public class CeTaskDtoLightTest {
   }
 
   @Test
-  public void equals_is_based_on_created_date_and_uuid() {
+  void equals_is_based_on_created_date_and_uuid() {
     assertThat(task1)
       .isEqualTo(task2)
       .isNotEqualTo(task3)
@@ -51,12 +51,12 @@ public class CeTaskDtoLightTest {
   }
 
   @Test
-  public void hashCode_is_based_on_created_date_and_uuid() {
+  void hashCode_is_based_on_created_date_and_uuid() {
     assertThat(task1).hasSameHashCodeAs(task2);
   }
 
   @Test
-  public void compareTo_is_based_on_created_date_and_uuid() {
+  void compareTo_is_based_on_created_date_and_uuid() {
     assertThat(task1)
       .isEqualByComparingTo(task2)
       .isLessThan(task3)

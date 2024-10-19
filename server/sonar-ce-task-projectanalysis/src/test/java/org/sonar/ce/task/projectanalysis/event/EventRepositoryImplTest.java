@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,77 +19,36 @@
  */
 package org.sonar.ce.task.projectanalysis.event;
 
-import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
-import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
 
 public class EventRepositoryImplTest {
-  private static final Component COMPONENT_1 = newComponent(1);
-  private static final Component COMPONENT_2 = newComponent(2);
   private static final Event EVENT_1 = Event.createProfile("event_1", null, null);
   private static final Event EVENT_2 = Event.createProfile("event_2", null, null);
 
-  private EventRepositoryImpl underTest = new EventRepositoryImpl();
+  private final EventRepositoryImpl underTest = new EventRepositoryImpl();
 
   @Test
   public void getEvents_returns_empty_iterable_when_repository_is_empty() {
-    assertThat(underTest.getEvents(COMPONENT_1)).isEmpty();
-  }
-
-  @Test
-  public void getEvents_discriminates_per_component() {
-    underTest.add(COMPONENT_1, EVENT_1);
-    underTest.add(COMPONENT_2, EVENT_2);
-
-    assertThat(underTest.getEvents(COMPONENT_1)).extracting("name").containsExactly(EVENT_1.getName());
-    assertThat(underTest.getEvents(COMPONENT_2)).extracting("name").containsExactly(EVENT_2.getName());
-  }
-
-  @Test
-  public void add_throws_NPE_if_component_arg_is_null() {
-    assertThatThrownBy(() -> underTest.add(null, EVENT_1))
-      .isInstanceOf(NullPointerException.class);
+    assertThat(underTest.getEvents()).isEmpty();
   }
 
   @Test
   public void add_throws_NPE_if_even_arg_is_null() {
-    assertThatThrownBy(() -> underTest.add(COMPONENT_1, null))
+    assertThatThrownBy(() -> underTest.add(null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
-  public void add_throws_IAE_for_any_component_type_but_PROJECT() {
-    Arrays.stream(Component.Type.values())
-      .filter(type -> type != Component.Type.PROJECT)
-      .map(type -> {
-        if (type.isReportType()) {
-          return ReportComponent.builder(type, 1).build();
-        } else {
-          return ViewsComponent.builder(type, 1).build();
-        }
-      })
-      .forEach(component -> {
-        try {
-          underTest.add(component, EVENT_1);
-          fail("should have raised an IAE");
-        } catch (IllegalArgumentException e) {
-          assertThat(e).hasMessage("Component must be of type PROJECT");
-        }
-      });
-  }
+  public void can_add_and_retrieve_many_events() {
+    underTest.add(EVENT_1);
+    underTest.add(EVENT_2);
 
-  @Test
-  public void can_add_and_retrieve_many_events_per_component() {
-    underTest.add(COMPONENT_1, EVENT_1);
-    underTest.add(COMPONENT_1, EVENT_2);
-
-    assertThat(underTest.getEvents(COMPONENT_1)).extracting("name").containsOnly(EVENT_1.getName(), EVENT_2.getName());
+    assertThat(underTest.getEvents()).extracting("name").containsOnly(EVENT_1.getName(), EVENT_2.getName());
   }
 
   private static Component newComponent(int i) {

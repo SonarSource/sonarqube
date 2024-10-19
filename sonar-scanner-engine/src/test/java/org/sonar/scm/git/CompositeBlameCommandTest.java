@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,9 @@
  */
 package org.sonar.scm.git;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,10 +33,15 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -42,30 +50,36 @@ import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.scm.git.strategy.BlameStrategy;
+import org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.intThat;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.scm.git.Utils.javaUnzip;
+import static org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum.GIT_FILES_BLAME;
+import static org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum.GIT_NATIVE_BLAME;
 
+@RunWith(DataProviderRunner.class)
 public class CompositeBlameCommandTest {
   private static final String DUMMY_JAVA = "src/main/java/org/dummy/Dummy.java";
-  private final PathResolver pathResolver = new PathResolver();
   private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
   private final JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
-  private final GitBlameCommand gitBlameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+  private final NativeGitBlameCommand nativeGitBlameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-  private final CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitBlameCommand);
+
+  private final PathResolver pathResolver = new PathResolver();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -74,10 +88,16 @@ public class CompositeBlameCommandTest {
   public LogTester logTester = new LogTester();
   private final BlameCommand.BlameInput input = mock(BlameCommand.BlameInput.class);
 
+  @DataProvider
+  public static List<Object> blameAlgorithms() {
+    return Arrays.stream(BlameAlgorithmEnum.values()).collect(Collectors.toList());
+  }
+
   @Test
   public void use_jgit_if_native_git_disabled() throws IOException {
-    GitBlameCommand gitCmd = new GitBlameCommand("invalidcommandnotfound", System2.INSTANCE, processWrapperFactory);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd);
+    logTester.setLevel(Level.DEBUG);
+    NativeGitBlameCommand gitCmd = new NativeGitBlameCommand("invalidcommandnotfound", System2.INSTANCE, processWrapperFactory);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd, (p, f) -> GIT_NATIVE_BLAME);
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -85,14 +105,34 @@ public class CompositeBlameCommandTest {
     setUpBlameInputWithFile(baseDir.toPath());
     TestBlameOutput output = new TestBlameOutput();
     blameCmd.blame(input, output);
+
+    assertThat(logTester.logs(Level.DEBUG)).contains("Using GIT_NATIVE_BLAME strategy to blame files");
     assertThat(output.blame).hasSize(1);
     assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
   }
 
   @Test
+  public void blame_shouldCallStrategyWithCorrectSpecifications() throws IOException {
+
+    BlameStrategy strategyMock = mock(BlameStrategy.class);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, nativeGitBlameCommand, strategyMock);
+
+    File projectDir = createNewTempFolder();
+    javaUnzip("dummy-git.zip", projectDir);
+
+    File baseDir = new File(projectDir, "dummy-git");
+    setUpBlameInputWithFile(baseDir.toPath());
+    TestBlameOutput output = new TestBlameOutput();
+    blameCmd.blame(input, output);
+
+    verify(strategyMock).getBlameAlgorithm(intThat((i) -> i > 0), intThat(i -> i == 1));
+  }
+
+  @Test
   public void fallback_to_jgit_if_native_git_fails() throws Exception {
-    GitBlameCommand gitCmd = mock(GitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd);
+    logTester.setLevel(Level.DEBUG);
+    NativeGitBlameCommand gitCmd = mock(NativeGitBlameCommand.class);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd, (p, f) -> GIT_NATIVE_BLAME);
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -102,6 +142,8 @@ public class CompositeBlameCommandTest {
     setUpBlameInputWithFile(baseDir.toPath());
     TestBlameOutput output = new TestBlameOutput();
     blameCmd.blame(input, output);
+
+    assertThat(logTester.logs(Level.DEBUG)).contains("Using GIT_NATIVE_BLAME strategy to blame files");
     assertThat(output.blame).hasSize(1);
     assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
 
@@ -111,12 +153,15 @@ public class CompositeBlameCommandTest {
   }
 
   @Test
-  public void skip_files_not_committed() throws Exception {
+  @UseDataProvider("blameAlgorithms")
+  public void skip_files_not_committed(BlameAlgorithmEnum strategy) throws Exception {
     // skip if git not installed
-    assumeTrue(gitBlameCommand.checkIfEnabled());
+    if (strategy == GIT_NATIVE_BLAME) {
+      assumeTrue(nativeGitBlameCommand.checkIfEnabled());
+    }
 
     JGitBlameCommand jgit = mock(JGitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, nativeGitBlameCommand, (p, f) -> strategy);
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -126,18 +171,16 @@ public class CompositeBlameCommandTest {
     blameCmd.blame(input, output);
     assertThat(output.blame).hasSize(1);
     assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
-
-    // never had to fall back to jgit
-    verifyNoInteractions(jgit);
   }
 
   @Test
-  public void skip_files_when_head_commit_is_missing() throws IOException {
+  @UseDataProvider("blameAlgorithms")
+  public void skip_files_when_head_commit_is_missing(BlameAlgorithmEnum strategy) throws IOException {
     // skip if git not installed
-    assumeTrue(gitBlameCommand.checkIfEnabled());
+    assumeTrue(nativeGitBlameCommand.checkIfEnabled());
 
     JGitBlameCommand jgit = mock(JGitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, nativeGitBlameCommand, (p, f) -> strategy);
     File projectDir = createNewTempFolder();
     javaUnzip("no-head-git.zip", projectDir);
 
@@ -149,31 +192,15 @@ public class CompositeBlameCommandTest {
     assertThat(output.blame).isEmpty();
     verifyNoInteractions(jgit);
 
-    assertThat(logTester.logs())
+    assertThat(logTester.logs(Level.WARN))
       .contains("Could not find HEAD commit");
   }
 
   @Test
-  public void use_native_git_by_default() throws IOException {
-    // skip test if git is not installed
-    assumeTrue(gitBlameCommand.checkIfEnabled());
-    File projectDir = createNewTempFolder();
-    javaUnzip("dummy-git.zip", projectDir);
-    File baseDir = new File(projectDir, "dummy-git");
+  @UseDataProvider("blameAlgorithms")
+  public void return_early_when_shallow_clone_detected(BlameAlgorithmEnum strategy) throws IOException {
+    CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, nativeGitBlameCommand, (p, f) -> strategy);
 
-    JGitBlameCommand jgit = mock(JGitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
-
-    setUpBlameInputWithFile(baseDir.toPath());
-    TestBlameOutput output = new TestBlameOutput();
-    blameCmd.blame(input, output);
-    assertThat(output.blame).hasSize(1);
-    assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
-    verifyNoInteractions(jgit);
-  }
-
-  @Test
-  public void return_early_when_shallow_clone_detected() throws IOException {
     File projectDir = createNewTempFolder();
     javaUnzip("shallow-git.zip", projectDir);
 
@@ -189,6 +216,8 @@ public class CompositeBlameCommandTest {
 
   @Test
   public void fail_if_not_git_project() throws IOException {
+    CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, nativeGitBlameCommand, (p, f) -> GIT_FILES_BLAME);
+
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -207,7 +236,10 @@ public class CompositeBlameCommandTest {
   }
 
   @Test
-  public void dont_fail_with_symlink() throws IOException {
+  @UseDataProvider("blameAlgorithms")
+  public void dont_fail_with_symlink(BlameAlgorithmEnum strategy) throws IOException {
+    CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, nativeGitBlameCommand, (p, f) -> strategy);
+
     assumeTrue(!System2.INSTANCE.isOsWindows());
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
@@ -229,10 +261,13 @@ public class CompositeBlameCommandTest {
     when(input.filesToBlame()).thenReturn(Arrays.asList(inputFile, inputFile2));
     TestBlameOutput output = new TestBlameOutput();
     blameCommand.blame(input, output);
+    assertThat(output.blame).isNotEmpty();
   }
 
   @Test
   public void return_early_when_clone_with_reference_detected() throws IOException {
+    CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, nativeGitBlameCommand, (p, f) -> GIT_FILES_BLAME);
+
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git-reference-clone.zip", projectDir);
 
@@ -248,8 +283,9 @@ public class CompositeBlameCommandTest {
     TestBlameOutput output = new TestBlameOutput();
     blameCommand.blame(input, output);
 
-    assertThat(logTester.logs()).first()
-      .matches(s -> s.contains("This git repository references another local repository which is not well supported"));
+    assertThat(logTester.logs())
+      .haveAtLeastOne(new Condition<>(s -> s.startsWith("This git repository references another local repository which is not well supported"),
+        "log for reference detected"));
 
     // contains commits referenced from the old clone and commits in the new clone
     assertThat(output.blame).containsKey(inputFile);
@@ -259,7 +295,9 @@ public class CompositeBlameCommandTest {
   }
 
   @Test
-  public void blame_on_nested_module() throws IOException {
+  @UseDataProvider("blameAlgorithms")
+  public void blame_on_nested_module(BlameAlgorithmEnum strategy) throws IOException {
+    CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, nativeGitBlameCommand, (p, f) -> strategy);
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git-nested.zip", projectDir);
     File baseDir = new File(projectDir, "dummy-git-nested/dummy-project");
@@ -271,40 +309,16 @@ public class CompositeBlameCommandTest {
     fs.add(inputFile);
 
     BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
-    when(input.filesToBlame()).thenReturn(Arrays.asList(inputFile));
+    when(input.filesToBlame()).thenReturn(List.of(inputFile));
     blameCommand.blame(input, blameResult);
 
     Date revisionDate = DateUtils.parseDateTime("2012-07-17T16:12:48+0200");
     String revision = "6b3aab35a3ea32c1636fee56f996e677653c48ea";
     String author = "david@gageot.net";
     verify(blameResult).blameResult(inputFile,
-      Arrays.asList(
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author)));
+      IntStream.range(0, 26)
+        .mapToObj(i -> new BlameLine().revision(revision).date(revisionDate).author(author))
+        .collect(Collectors.toList()));
   }
 
   private BlameCommand.BlameInput setUpBlameInputWithFile(Path baseDir) {
@@ -317,7 +331,7 @@ public class CompositeBlameCommandTest {
   }
 
   private File createNewTempFolder() throws IOException {
-    // This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
+    // This is needed for Windows, otherwise the created File points to invalid (shortened by Windows) temp folder path
     return temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
   }
 

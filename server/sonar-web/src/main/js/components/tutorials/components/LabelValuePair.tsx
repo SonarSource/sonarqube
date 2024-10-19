@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ClipboardIconButton } from 'design-system';
 import * as React from 'react';
-import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
 
 export interface LabelValuePairProps {
@@ -28,9 +28,9 @@ export interface LabelValuePairProps {
 
 export default function LabelValuePair({ translationKey, value }: LabelValuePairProps) {
   return (
-    <div className="display-flex-center">
-      <strong className="little-spacer-right">{translate(translationKey, 'label')}:</strong> {value}
-      <ClipboardIconButton className="little-spacer-left" copyValue={value} />
+    <div className="sw-flex sw-items-center">
+      <b className="sw-mr-1 sw-font-semibold">{translate(translationKey, 'label')}:</b> {value}
+      <ClipboardIconButton className="sw-ml-1" copyValue={value} />
     </div>
   );
 }

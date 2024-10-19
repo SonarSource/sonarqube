@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.setting;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 
 public interface ProjectConfigurationLoader {
   /**
@@ -30,7 +30,8 @@ public interface ProjectConfigurationLoader {
    * Returns the applicable component configuration with most specific configuration overriding more global ones
    * (eg. global > project > branch).
    * <p>
-   * Any component is accepted but SQ only supports specific properties for projects and branches.
    */
-  Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto project);
+  Configuration loadBranchConfiguration(DbSession dbSession, BranchDto branch);
+
+  Configuration loadProjectConfiguration(DbSession dbSession, String projectUuid);
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;

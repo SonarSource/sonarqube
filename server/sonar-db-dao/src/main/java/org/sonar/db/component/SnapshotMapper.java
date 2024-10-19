@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
-import org.sonar.db.component.SnapshotDao.ComponentUuidFromDatePair;
+import org.sonar.db.Pagination;
+import org.sonar.db.component.SnapshotDao.ProjectUuidFromDatePair;
 
 public interface SnapshotMapper {
 
@@ -36,26 +36,26 @@ public interface SnapshotMapper {
   SnapshotDto selectLastSnapshotByComponentUuid(@Param("componentUuid") String componentUuid);
 
   @CheckForNull
-  SnapshotDto selectLastSnapshotByRootComponentUuid(@Param("componentUuid") String componentUuid);
+  SnapshotDto selectLastSnapshotByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
-  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("componentUuids") Collection<String> componentIds);
+  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("rootComponentUuids") Collection<String> rootComponentUuids);
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
-  List<SnapshotDto> selectOldestSnapshots(@Param("componentUuid") String componentUuid, @Param("status") String status, RowBounds rowBounds);
+  List<SnapshotDto> selectOldestSnapshots(@Param("rootComponentUuid") String rootComponentUuid, @Param("status") String status, @Param("pagination") Pagination pagination);
 
-  List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentUuid") String componentUuid, @Param("date") long date);
+  List<ViewsSnapshotDto> selectSnapshotBefore(@Param("rootComponentUuid") String rootComponentUuid, @Param("date") long date);
 
-  void unsetIsLastFlagForComponentUuid(@Param("componentUuid") String componentUuid);
+  void unsetIsLastFlagForRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
   void setIsLastFlagForAnalysisUuid(@Param("analysisUuid") String analysisUuid);
 
   void update(SnapshotDto analysis);
 
-  List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(@Param("componentUuidFromDatePairs") List<ComponentUuidFromDatePair> pairs);
+  List<SnapshotDto> selectFinishedByProjectUuidsAndFromDates(@Param("projectUuidFromDatePairs") List<ProjectUuidFromDatePair> pairs);
 
   @CheckForNull
   Long selectLastAnalysisDateByProject(String projectUuid);
 
-  List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjects(@Param("projectUuids") Collection<String> projectUuids);
+  List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
 }

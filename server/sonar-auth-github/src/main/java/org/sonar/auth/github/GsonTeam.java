@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +21,6 @@ package org.sonar.auth.github;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -52,10 +50,9 @@ public class GsonTeam {
   }
 
   public static List<GsonTeam> parse(String json) {
-    Type collectionType = new TypeToken<Collection<GsonTeam>>() {
-    }.getType();
     Gson gson = new Gson();
-    return gson.fromJson(json, collectionType);
+    return gson.fromJson(json, new TypeToken<List<GsonTeam>>() {
+    });
   }
 
   public static class GsonOrganization {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,81 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { setIssueType } from '../../../api/issues';
-import { colors } from '../../../app/theme';
-import { ButtonLink } from '../../../components/controls/buttons';
-import Toggler from '../../../components/controls/Toggler';
-import DropdownIcon from '../../../components/icons/DropdownIcon';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IssueResponse } from '../../../types/issues';
-import { Issue, RawQuery } from '../../../types/types';
-import SetTypePopup from '../popups/SetTypePopup';
 
-interface Props {
-  canSetType: boolean;
-  isOpen: boolean;
+import { IconProps, TextSubdued } from 'design-system';
+import * as React from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
+import { DocLink } from '../../../helpers/doc-links';
+import { translate } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
+import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
+import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
+
+interface Props extends IconProps {
   issue: Pick<Issue, 'type'>;
-  setIssueProperty: (
-    property: keyof Issue,
-    popup: string,
-    apiCall: (query: RawQuery) => Promise<IssueResponse>,
-    value: string
-  ) => void;
-  togglePopup: (popup: string, show?: boolean) => void;
 }
 
-export default class IssueType extends React.PureComponent<Props> {
-  toggleSetType = (open?: boolean) => {
-    this.props.togglePopup('set-type', open);
-  };
-
-  setType = (type: string) => {
-    this.props.setIssueProperty('type', 'set-type', setIssueType, type);
-  };
-
-  handleClose = () => {
-    this.toggleSetType(false);
-  };
-
-  render() {
-    const { issue } = this.props;
-    if (this.props.canSetType) {
-      return (
-        <div className="dropdown">
-          <Toggler
-            onRequestClose={this.handleClose}
-            open={this.props.isOpen && this.props.canSetType}
-            overlay={<SetTypePopup issue={issue} onSelect={this.setType} />}
-          >
-            <ButtonLink
-              aria-label={translateWithParameters(
-                'issue.type.type_x_click_to_change',
-                translate('issue.type', issue.type)
-              )}
-              aria-expanded={this.props.isOpen}
-              className="issue-action issue-action-with-options js-issue-set-type"
-              onClick={this.toggleSetType}
-            >
-              <IssueTypeIcon
-                className="little-spacer-right"
-                fill={colors.baseFontColor}
-                query={issue.type}
-              />
-              {translate('issue.type', issue.type)}
-              <DropdownIcon className="little-spacer-left" />
-            </ButtonLink>
-          </Toggler>
-        </div>
-      );
-    }
-
-    return (
-      <span>
-        <IssueTypeIcon className="little-spacer-right" query={issue.type} />
+export default function IssueType({ issue, ...iconProps }: Readonly<Props>) {
+  return (
+    <DocHelpTooltip
+      content={<DeprecatedFieldTooltip field="type" />}
+      links={[
+        {
+          href: DocLink.Issues,
+          label: translate('learn_more'),
+        },
+      ]}
+    >
+      <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
+        <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden {...iconProps} />
         {translate('issue.type', issue.type)}
-      </span>
-    );
-  }
+      </TextSubdued>
+    </DocHelpTooltip>
+  );
 }

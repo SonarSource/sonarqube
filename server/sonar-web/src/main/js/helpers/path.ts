@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ export function collapsePath(path: string, limit = 30): string {
  * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
  */
 export function collapsedDirFromPath(path: string | null): string | null {
-  const limit = 30;
+  const limit = 25;
   if (typeof path === 'string') {
     const tokens = path.split('/').slice(0, -1);
     if (tokens.length > 2) {

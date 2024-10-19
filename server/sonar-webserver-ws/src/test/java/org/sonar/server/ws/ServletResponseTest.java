@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,11 +20,11 @@
 package org.sonar.server.ws;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.server.http.JavaxHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,11 +36,10 @@ import static org.sonarqube.ws.MediaTypes.XML;
 
 public class ServletResponseTest {
 
+  private final ServletOutputStream output = mock(ServletOutputStream.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
 
-  private ServletOutputStream output = mock(ServletOutputStream.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-
-  private ServletResponse underTest = new ServletResponse(response);
+  private final ServletResponse underTest = new ServletResponse(new JavaxHttpResponse(response));
 
   @Before
   public void setUp() throws Exception {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,6 +56,21 @@ public class ProtobufJsonFormatTest {
 
     assertThat(toJson(protobuf)).isEqualTo(
       "{\"stringField\":\"foo\",\"intField\":10,\"longField\":100,\"doubleField\":3.14,\"booleanField\":true,\"enumField\":\"GREEN\"}");
+  }
+
+  @Test
+  public void toJson_whenPrefixedEnum_shouldConvertToExpectedEnumValue() {
+    PrimitiveTypeMsg protobuf = PrimitiveTypeMsg.newBuilder()
+      .setStringField("foo")
+      .setIntField(10)
+      .setLongField(100L)
+      .setDoubleField(3.14)
+      .setBooleanField(true)
+      .setEnumField(org.sonar.core.test.Test.FakeEnum.FakeEnum_YELLOW)
+      .build();
+
+    assertThat(toJson(protobuf)).isEqualTo(
+      "{\"stringField\":\"foo\",\"intField\":10,\"longField\":100,\"doubleField\":3.14,\"booleanField\":true,\"enumField\":\"YELLOW\"}");
   }
 
   @Test

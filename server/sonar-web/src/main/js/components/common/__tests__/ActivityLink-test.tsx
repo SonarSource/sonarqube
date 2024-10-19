@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { GraphType } from '../../../types/project-activity';
 import ActivityLink, { ActivityLinkProps } from '../ActivityLink';
 
-it('renders correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ label: 'Foo', branchLike: mockBranch() })).toMatchSnapshot();
-  expect(shallowRender({ graph: GraphType.coverage })).toMatchSnapshot();
-  expect(shallowRender({ graph: GraphType.custom, metric: 'new_bugs,bugs' })).toMatchSnapshot();
+it('renders correctly without props', () => {
+  renderActivityLink();
+  expect(screen.getByText('portfolio.activity_link')).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<ActivityLinkProps> = {}) {
-  return shallow(<ActivityLink component="foo" {...props} />);
+it('renders correctly with props label and branch', () => {
+  renderActivityLink({ label: 'Foo', branchLike: mockBranch() });
+  expect(screen.getByText('Foo')).toBeInTheDocument();
+});
+
+it('renders correctly with graph', () => {
+  renderActivityLink({ graph: GraphType.coverage });
+  const anchorElement = screen.getByRole('link');
+
+  expect(anchorElement).toBeInTheDocument();
+  expect(anchorElement).toHaveAttribute('href', '/project/activity?id=foo&graph=coverage');
+});
+
+it('renders correctly with graph and metric', () => {
+  renderActivityLink({ graph: GraphType.custom, metric: 'new_bugs,bugs' });
+  const anchorElement = screen.getByRole('link');
+
+  expect(anchorElement).toBeInTheDocument();
+  expect(anchorElement).toHaveAttribute(
+    'href',
+    '/project/activity?id=foo&graph=custom&custom_metrics=new_bugs%2Cbugs',
+  );
+});
+
+function renderActivityLink(props: Partial<ActivityLinkProps> = {}) {
+  return renderComponent(<ActivityLink component="foo" {...props} />);
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,18 +20,21 @@
 package org.sonar.server.authentication;
 
 import com.google.common.base.Strings;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -52,11 +55,11 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
    */
   private static final String RETURN_TO_PARAMETER = "return_to";
 
-  private static final Type JSON_MAP_TYPE = new TypeToken<HashMap<String, String>>() {
-  }.getType();
+  private static final TypeToken<Map<String, String>> JSON_MAP_TYPE = new TypeToken<>() {
+  };
 
   @Override
-  public void init(HttpServletRequest request, HttpServletResponse response) {
+  public void init(HttpRequest request, HttpResponse response) {
     String returnTo = request.getParameter(RETURN_TO_PARAMETER);
     Map<String, String> parameters = new HashMap<>();
     Optional<String> sanitizeRedirectUrl = sanitizeRedirectUrl(returnTo);
@@ -73,14 +76,14 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   }
 
   @Override
-  public Optional<String> getReturnTo(HttpServletRequest request) {
+  public Optional<String> getReturnTo(HttpRequest request) {
     return getParameter(request, RETURN_TO_PARAMETER)
       .flatMap(OAuth2AuthenticationParametersImpl::sanitizeRedirectUrl);
   }
 
-  private static Optional<String> getParameter(HttpServletRequest request, String parameterKey) {
-    Optional<javax.servlet.http.Cookie> cookie = findCookie(AUTHENTICATION_COOKIE_NAME, request);
-    if (!cookie.isPresent()) {
+  private static Optional<String> getParameter(HttpRequest request, String parameterKey) {
+    Optional<Cookie> cookie = findCookie(AUTHENTICATION_COOKIE_NAME, request);
+    if (cookie.isEmpty()) {
       return empty();
     }
 
@@ -92,7 +95,7 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   }
 
   @Override
-  public void delete(HttpServletRequest request, HttpServletResponse response) {
+  public void delete(HttpRequest request, HttpResponse response) {
     response.addCookie(newCookieBuilder(request)
       .setName(AUTHENTICATION_COOKIE_NAME)
       .setValue(null)
@@ -124,12 +127,23 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
       return empty();
     }
 
-    String sanitizedUrl = url.trim();
-    boolean isValidUrl = VALID_RETURN_TO.matcher(sanitizedUrl).matches();
+    String trimmedUrl = url.trim();
+    boolean isValidUrl = VALID_RETURN_TO.matcher(trimmedUrl).matches();
     if (!isValidUrl) {
       return empty();
     }
 
-    return Optional.of(sanitizedUrl);
+    try {
+      URI uri = new URI(trimmedUrl);
+      String sanitizedPath = escapePathTraversalChars(uri.getPath());
+      URI sanitizedUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), sanitizedPath, uri.getQuery(), uri.getFragment());
+      return Optional.of(sanitizedUri.toString());
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private static String escapePathTraversalChars(String path) {
+    return Path.of(path).normalize().toString();
   }
 }

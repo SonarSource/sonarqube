@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.H2;
@@ -62,7 +62,7 @@ class TestDbImpl extends CoreTestDb {
       if (dialect != null && !"h2".equals(dialect)) {
         return new DefaultDatabase(new LogbackHelper(), settings);
       }
-      return SQDatabase.newH2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
+      return new SQDatabase.Builder().asH2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath))).createSchema(schemaPath == null).build();
     };
     Consumer<Database> schemaPathExecutor = database -> {
       if (schemaPath == null) {

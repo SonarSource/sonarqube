@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,127 +17,105 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
+
+import { Heading } from '@sonarsource/echoes-react';
+import { DiscreetLink, Link, Note } from 'design-system';
+import { noop, sortBy } from 'lodash';
 import * as React from 'react';
-import { searchRules } from '../../../api/rules';
-import Link from '../../../components/common/Link';
-import { toShortNotSoISOString } from '../../../helpers/dates';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { useIntl } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
+import { listRules } from '../../../api/rules';
+import { toShortISO8601String } from '../../../helpers/dates';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
-import { Dict, Rule, RuleActivation } from '../../../types/types';
+import { Rule, RuleActivation } from '../../../types/types';
 
 const RULES_LIMIT = 10;
-
-function parseRules(rules: Rule[], actives?: Dict<RuleActivation[]>): ExtendedRule[] {
-  return rules.map((rule) => {
-    const activations = actives && actives[rule.key];
-    return { ...rule, activations: activations ? activations.length : 0 };
-  });
-}
 
 interface ExtendedRule extends Rule {
   activations: number;
 }
 
-interface Props {
-  organization: string | null;
-}
+export default function EvolutionRules({ organization }) {
+  const intl = useIntl();
+  const [latestRules, setLatestRules] = React.useState<ExtendedRule[]>();
+  const [latestRulesTotal, setLatestRulesTotal] = React.useState<number>();
 
-interface State {
-  latestRules?: ExtendedRule[];
-  latestRulesTotal?: number;
-}
-
-export default class EvolutionRules extends React.PureComponent<{}, State> {
-  periodStartDate: string;
-  mounted = false;
-
-  constructor(props: {}) {
-    super(props);
-    this.state = {};
+  const periodStartDate = React.useMemo(() => {
     const startDate = new Date();
     startDate.setFullYear(startDate.getFullYear() - 1);
-    this.periodStartDate = toShortNotSoISOString(startDate);
-  }
+    return toShortISO8601String(startDate);
+  }, []);
 
-  componentDidMount() {
-    this.mounted = true;
-    this.loadLatestRules();
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  loadLatestRules() {
+  React.useEffect(() => {
     const data = {
+      organization,
       asc: false,
-      available_since: this.periodStartDate,
+      available_since: periodStartDate,
       f: 'name,langName,actives',
       ps: RULES_LIMIT,
       s: 'createdAt',
-      organization: this.props.organization,
     };
-    searchRules(data).then(
-      ({ actives, rules, total }) => {
-        if (this.mounted) {
-          this.setState({
-            latestRules: sortBy(parseRules(rules, actives), 'langName'),
-            latestRulesTotal: total,
-          });
-        }
-      },
-      () => {
-        /*noop*/
-      }
-    );
+
+    listRules(data).then(({ actives, rules, paging: { total } }) => {
+      setLatestRules(sortBy(parseRules(rules, actives), 'langName'));
+      setLatestRulesTotal(total);
+    }, noop);
+  }, [periodStartDate]);
+
+  if (!(isDefined(latestRulesTotal) && latestRulesTotal !== 0) || !latestRules) {
+    return null;
   }
 
-  render() {
-    if (!this.state.latestRulesTotal || !this.state.latestRules) {
-      return null;
-    }
+  return (
+    <section aria-label={intl.formatMessage({ id: 'quality_profiles.latest_new_rules' })}>
+      <Heading as="h2" hasMarginBottom>
+        {intl.formatMessage({ id: 'quality_profiles.latest_new_rules' })}
+      </Heading>
 
-    const newRulesUrl = getRulesUrl({ available_since: this.periodStartDate }, this.props.organization);
+      <ul className="sw-flex sw-flex-col sw-gap-4 sw-typo-default">
+        {latestRules.map((rule) => (
+          <li className="sw-flex sw-flex-col sw-gap-1" key={rule.key}>
+            <div className="sw-truncate">
+              <DiscreetLink to={getRulesUrl({ rule_key: rule.key }, organization)}>{rule.name}</DiscreetLink>
+            </div>
 
-    return (
-      <div className="boxed-group boxed-group-inner quality-profiles-evolution-rules">
-        <div className="clearfix">
-          <strong className="pull-left">{translate('quality_profiles.latest_new_rules')}</strong>
+            <Note className="sw-truncate">
+              {rule.activations
+                ? translateWithParameters(
+                    'quality_profiles.latest_new_rules.activated',
+                    rule.langName!,
+                    rule.activations,
+                  )
+                : translateWithParameters(
+                    'quality_profiles.latest_new_rules.not_activated',
+                    rule.langName!,
+                  )}
+            </Note>
+          </li>
+        ))}
+      </ul>
+
+      {latestRulesTotal > RULES_LIMIT && (
+        <div className="sw-mt-6 sw-typo-semibold">
+          <Link to={getRulesUrl({ available_since: periodStartDate }, organization)}>
+            {intl.formatMessage(
+              { id: 'quality_profiles.latest_new_rules.see_all_x' },
+              { count: formatMeasure(latestRulesTotal, MetricType.ShortInteger) },
+            )}
+          </Link>
         </div>
-        <ul>
-          {this.state.latestRules.map((rule) => (
-            <li className="spacer-top" key={rule.key}>
-              <div className="text-ellipsis">
-                <Link className="link-no-underline" to={getRulesUrl({ rule_key: rule.key },this.props.organization)}>
-                  {' '}
-                  {rule.name}
-                </Link>
-                <div className="note">
-                  {rule.activations
-                    ? translateWithParameters(
-                        'quality_profiles.latest_new_rules.activated',
-                        rule.langName!,
-                        rule.activations
-                      )
-                    : translateWithParameters(
-                        'quality_profiles.latest_new_rules.not_activated',
-                        rule.langName!
-                      )}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {this.state.latestRulesTotal > RULES_LIMIT && (
-          <div className="spacer-top">
-            <Link className="small" to={newRulesUrl}>
-              {translate('see_all')} {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT', null)}
-            </Link>
-          </div>
-        )}
-      </div>
-    );
-  }
+      )}
+    </section>
+  );
+}
+
+function parseRules(rules: Rule[], actives?: Record<string, RuleActivation[]>): ExtendedRule[] {
+  return rules.map((rule) => {
+    const activations = actives?.[rule.key]?.length ?? 0;
+
+    return { ...rule, activations };
+  });
 }

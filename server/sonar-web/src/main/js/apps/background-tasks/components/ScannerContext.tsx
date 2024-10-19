@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
+import { noop } from 'lodash';
 import * as React from 'react';
 import { getTask } from '../../../api/ce';
-import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { Task } from '../../../types/tasks';
 
 interface Props {
@@ -50,45 +54,28 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState({ scannerContext: task.scannerContext });
       }
-    });
+    }, noop);
   }
-
-  handleCloseClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   render() {
     const { task } = this.props;
     const { scannerContext } = this.state;
 
     return (
-      <Modal contentLabel="scanner context" onRequestClose={this.props.onClose} size="large">
-        <div className="modal-head">
-          <h2>
-            {translate('background_tasks.scanner_context')}
-            {': '}
-            {task.componentName}
-            {' ['}
-            {translate('background_task.type', task.type)}
-            {']'}
-          </h2>
-        </div>
-
-        <div className="modal-body modal-container">
-          {scannerContext != null ? (
-            <pre className="js-task-scanner-context">{scannerContext}</pre>
-          ) : (
-            <i className="spinner" />
-          )}
-        </div>
-
-        <div className="modal-foot">
-          <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
-            {translate('close')}
-          </a>
-        </div>
-      </Modal>
+      <Modal
+        body={
+          <Spinner isLoading={!isDefined(scannerContext)}>
+            <pre className="it__task-scanner-context">{scannerContext}</pre>
+          </Spinner>
+        }
+        headerTitle={`${translate('background_tasks.scanner_context')}: ${
+          task.componentName
+        } [${translate('background_task.type', task.type)}]`}
+        isLarge
+        isScrollable
+        onClose={this.props.onClose}
+        secondaryButtonLabel={translate('close')}
+      />
     );
   }
 }

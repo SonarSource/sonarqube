@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,112 +17,84 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  DangerButtonPrimary,
+  DestructiveIcon,
+  GenericAvatar,
+  Modal,
+  TrashIcon,
+  UserGroupIcon,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { removeGroup } from '../../../api/quality-profiles';
-import { Button, DeleteButton, ResetButtonLink } from '../../../components/controls/buttons';
-import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import GroupIcon from '../../../components/icons/GroupIcon';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Group } from './ProfilePermissions';
 
 interface Props {
+  organization: string;
   group: Group;
   onDelete: (group: Group) => void;
   profile: { language: string; name: string };
-  organization: string;
 }
 
-interface State {
-  deleteModal: boolean;
-}
+export default function ProfilePermissionsGroup(props: Readonly<Props>) {
+  const { organization, group, profile } = props;
+  const [deleteDialogOpened, setDeleteDialogOpened] = React.useState(false);
 
-export default class ProfilePermissionsGroup extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { deleteModal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleDeleteClick = () => {
-    this.setState({ deleteModal: true });
-  };
-
-  handleDeleteModalClose = () => {
-    if (this.mounted) {
-      this.setState({ deleteModal: false });
-    }
-  };
-
-  handleDelete = () => {
-    const { group, organization, profile } = this.props;
-
+  const handleDelete = () => {
     return removeGroup({
+      organization,
       group: group.name,
       language: profile.language,
-      qualityProfile: profile.name,
-      organization
+      qualityProfile: profile.name
     }).then(() => {
-      this.handleDeleteModalClose();
-      this.props.onDelete(group);
+      setDeleteDialogOpened(false);
+      props.onDelete(group);
     });
   };
 
-  renderDeleteModal = (props: ChildrenProps) => (
-    <div>
-      <header className="modal-head">
-        <h2>{translate('quality_profiles.permissions.remove.group')}</h2>
-      </header>
-
-      <div className="modal-body">
-        <FormattedMessage
-          defaultMessage={translate('quality_profiles.permissions.remove.group.confirmation')}
-          id="quality_profiles.permissions.remove.group.confirmation"
-          values={{
-            user: <strong>{this.props.group.name}</strong>,
-          }}
+  return (
+    <div className="sw-flex sw-items-center sw-justify-between">
+      <div className="sw-flex sw-truncate">
+        <GenericAvatar
+          Icon={UserGroupIcon}
+          className="sw-mt-1/2 sw-mr-3 sw-grow-0 sw-shrink-0"
+          name={group.name}
+          size="xs"
         />
+        <strong className="sw-typo-semibold sw-truncate fs-mask">{group.name}</strong>
       </div>
+      <DestructiveIcon
+        Icon={TrashIcon}
+        aria-label={translateWithParameters(
+          'quality_profiles.permissions.remove.group_x',
+          group.name,
+        )}
+        onClick={() => setDeleteDialogOpened(true)}
+      />
 
-      <footer className="modal-foot">
-        {props.submitting && <i className="spinner spacer-right" />}
-        <Button className="button-red" disabled={props.submitting} onClick={props.onSubmitClick}>
-          {translate('remove')}
-        </Button>
-        <ResetButtonLink onClick={props.onCloseClick}>{translate('cancel')}</ResetButtonLink>
-      </footer>
+      {deleteDialogOpened && (
+        <Modal
+          headerTitle={translate('quality_profiles.permissions.remove.group')}
+          onClose={() => setDeleteDialogOpened(false)}
+          body={
+            <FormattedMessage
+              defaultMessage={translate('quality_profiles.permissions.remove.group.confirmation')}
+              id="quality_profiles.permissions.remove.group.confirmation"
+              values={{
+                user: <strong>{group.name}</strong>,
+              }}
+            />
+          }
+          primaryButton={
+            <DangerButtonPrimary autoFocus onClick={handleDelete}>
+              {translate('remove')}
+            </DangerButtonPrimary>
+          }
+          secondaryButtonLabel={translate('cancel')}
+        />
+      )}
     </div>
   );
-
-  render() {
-    const { group } = this.props;
-
-    return (
-      <div className="clearfix big-spacer-bottom">
-        <DeleteButton
-          className="pull-right spacer-top spacer-left spacer-right button-small"
-          onClick={this.handleDeleteClick}
-        />
-        <GroupIcon className="pull-left spacer-right" size={32} />
-        <div className="overflow-hidden" style={{ lineHeight: '32px' }}>
-          <strong>{group.name}</strong>
-        </div>
-
-        {this.state.deleteModal && (
-          <SimpleModal
-            header={translate('quality_profiles.permissions.remove.group')}
-            onClose={this.handleDeleteModalClose}
-            onSubmit={this.handleDelete}
-          >
-            {this.renderDeleteModal}
-          </SimpleModal>
-        )}
-      </div>
-    );
-  }
 }

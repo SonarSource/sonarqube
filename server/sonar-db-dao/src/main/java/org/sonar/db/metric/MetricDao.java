@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,9 +25,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -56,11 +56,11 @@ public class MetricDao implements Dao {
   }
 
   public List<MetricDto> selectEnabled(DbSession session) {
-    return mapper(session).selectAllEnabled();
+    return mapper(session).selectAllEnabled(Pagination.all());
   }
 
-  public List<MetricDto> selectEnabled(DbSession session, int offset, int limit) {
-    return mapper(session).selectAllEnabled(new RowBounds(offset, limit));
+  public List<MetricDto> selectEnabled(DbSession session, int page, int limit) {
+    return mapper(session).selectAllEnabled(Pagination.forPage(page).andSize(limit));
   }
 
   public int countEnabled(DbSession session) {

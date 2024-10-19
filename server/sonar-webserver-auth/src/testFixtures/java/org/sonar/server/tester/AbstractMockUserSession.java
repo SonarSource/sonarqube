@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.portfolio.PortfolioDto;
@@ -38,12 +41,15 @@ import org.sonar.server.user.AbstractUserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMockUserSession.class);
   private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
 
   private final Class<T> clazz;
   private final HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private final Set<GlobalPermission> permissions = new HashSet<>();
   private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
+  private final Map<String, String> projectUuidByBranchUuid = new HashMap<>();
   private final Map<String, Set<String>> applicationProjects = new HashMap<>();
   private final Map<String, Set<String>> portfolioProjects = new HashMap<>();
   private final Set<String> projectPermissions = new HashSet<>();
@@ -96,18 +102,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
-  public T registerApplication(ComponentDto application, ComponentDto... appProjects) {
-    registerComponents(application);
-    registerComponents(appProjects);
-
-    var appProjectsUuid = Arrays.stream(appProjects)
-      .map(ComponentDto::uuid)
-      .collect(Collectors.toSet());
-    this.applicationProjects.put(application.uuid(), appProjectsUuid);
-
-    return clazz.cast(this);
-  }
-
   public T registerApplication(ProjectDto application, ProjectDto... appProjects) {
     registerProjects(application);
     registerProjects(appProjects);
@@ -134,16 +128,18 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
-  public T registerPortfolioProjects(PortfolioDto portfolio, ProjectDto... portfolioProjects) {
-    registerPortfolios(portfolio);
-    registerProjects(portfolioProjects);
+  public T registerBranches(BranchDto ...branchDtos){
+    Arrays.stream(branchDtos)
+      .forEach(branch -> projectUuidByBranchUuid.put(branch.getUuid(), branch.getProjectUuid()));
+    return clazz.cast(this);
+  }
 
-    Set<String> portfolioProjectsUuid = Arrays.stream(portfolioProjects)
-      .map(ProjectDto::getUuid)
-      .collect(Collectors.toSet());
-
-    this.portfolioProjects.put(portfolio.getUuid(), portfolioProjectsUuid);
-
+  /**
+   * Branches need to be registered in order to save the mapping between branch and project.
+   */
+  public T addProjectBranchMapping(String projectUuid, ComponentDto... componentDtos) {
+    Arrays.stream(componentDtos)
+      .forEach(componentDto -> projectUuidByBranchUuid.put(componentDto.uuid(), projectUuid));
     return clazz.cast(this);
   }
 
@@ -187,13 +183,24 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   @Override
-  protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
-    return Optional.ofNullable(projectUuidByComponentUuid.get(componentUuid));
+  protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
+    return Optional.ofNullable(Optional.ofNullable(projectUuidByBranchUuid.get(componentUuid))
+      .orElse(projectUuidByComponentUuid.get(componentUuid)));
   }
 
   @Override
-  protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
-    return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
+  public boolean hasComponentPermission(String permission, ComponentDto component) {
+    return componentUuidToEntityUuid(component.uuid())
+      .or(() -> componentUuidToEntityUuid(component.branchUuid()))
+      .map(projectUuid -> hasEntityUuidPermission(permission, projectUuid)).orElseGet(() -> {
+        LOGGER.warn("No project uuid for branchUuid : {}", component.branchUuid());
+        return false;
+      });
+  }
+
+  @Override
+  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+    return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(entityUuid);
   }
 
   @Override
@@ -229,4 +236,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   public boolean shouldResetPassword() {
     return resetPassword;
   }
+
+  public abstract void flagAsBrowserSession();
 }

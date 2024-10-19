@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,11 +32,10 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
   private final Supplier<Configuration> configuration;
 
-  public ConfigurationRepositoryImpl(TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, ProjectConfigurationFactory f) {
+  public ConfigurationRepositoryImpl(AnalysisMetadataHolder analysisMetadataHolder, ProjectConfigurationFactory f) {
     this.configuration = Suppliers.memoize(() -> {
-      String branchUuid = treeRootHolder.getRoot().getUuid();
       String projectUuid = analysisMetadataHolder.getProject().getUuid();
-      return f.newProjectConfiguration(projectUuid, branchUuid);
+      return f.newProjectConfiguration(projectUuid);
     });
   }
 

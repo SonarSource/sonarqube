@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
  * This notification is never serialized to DB.
  * <p>
  * It is derived from {@link IssuesChangesNotification} by
- * {@link FPOrWontFixNotificationHandler} and extends {@link Notification} only to comply with
+ * {@link FPOrAcceptedNotificationHandler} and extends {@link Notification} only to comply with
  * {@link org.sonar.server.issue.notification.EmailTemplate#format(Notification)} API.
  */
 class ChangesOnMyIssuesNotification extends Notification {

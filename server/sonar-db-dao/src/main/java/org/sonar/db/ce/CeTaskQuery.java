@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,7 @@ public class CeTaskQuery {
   private boolean onlyCurrents = false;
   // SONAR-7681 a public implementation of List must be used in MyBatis - potential concurrency exceptions otherwise
   @Nullable
-  private ArrayList<String> mainComponentUuids;
+  private ArrayList<String> entityUuids;
   @Nullable
   private ArrayList<String> statuses;
   @Nullable
@@ -52,24 +52,24 @@ public class CeTaskQuery {
   private ArrayList<String> errorTypes;
 
   @CheckForNull
-  public List<String> getMainComponentUuids() {
-    return mainComponentUuids;
+  public List<String> getEntityUuids() {
+    return entityUuids;
   }
 
-  public CeTaskQuery setMainComponentUuids(@Nullable List<String> l) {
-    this.mainComponentUuids = l == null ? null : newArrayList(l);
+  public CeTaskQuery setEntityUuids(@Nullable List<String> l) {
+    this.entityUuids = l == null ? null : newArrayList(l);
     return this;
   }
 
-  public boolean isShortCircuitedByMainComponentUuids() {
-    return mainComponentUuids != null && (mainComponentUuids.isEmpty() || mainComponentUuids.size() > MAX_COMPONENT_UUIDS);
+  public boolean isShortCircuitedByEntityUuids() {
+    return entityUuids != null && (entityUuids.isEmpty() || entityUuids.size() > MAX_COMPONENT_UUIDS);
   }
 
-  public CeTaskQuery setMainComponentUuid(@Nullable String s) {
+  public CeTaskQuery setEntityUuid(@Nullable String s) {
     if (s == null) {
-      this.mainComponentUuids = null;
+      this.entityUuids = null;
     } else {
-      this.mainComponentUuids = newArrayList(s);
+      this.entityUuids = newArrayList(s);
     }
     return this;
   }

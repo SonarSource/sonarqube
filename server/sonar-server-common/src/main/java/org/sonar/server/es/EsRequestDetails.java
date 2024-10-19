@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,9 @@
 package org.sonar.server.es;
 
 import java.util.Arrays;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequest;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -32,10 +31,11 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.PutMappingRequest;
+import org.elasticsearch.common.bytes.BytesReference;
 
 final class EsRequestDetails {
   private static final String ON_INDICES_MESSAGE = " on indices '%s'";
-  private static final String ON_TYPE_MESSAGE = " on type '%s'";
 
   private EsRequestDetails() {
     // this is utility class only
@@ -46,9 +46,6 @@ final class EsRequestDetails {
     message.append(String.format("ES search request '%s'", searchRequest));
     if (searchRequest.indices().length > 0) {
       message.append(String.format(ON_INDICES_MESSAGE, Arrays.toString(searchRequest.indices())));
-    }
-    if (searchRequest.types().length > 0) {
-      message.append(String.format(" on types '%s'", Arrays.toString(searchRequest.types())));
     }
     return message.toString();
   }
@@ -63,8 +60,6 @@ final class EsRequestDetails {
       .append(deleteRequest.id())
       .append(" in index ")
       .append(deleteRequest.index())
-      .append("/")
-      .append(deleteRequest.type())
       .toString();
   }
 
@@ -103,7 +98,6 @@ final class EsRequestDetails {
     return new StringBuilder().append("ES index request")
       .append(String.format(" for key '%s'", indexRequest.id()))
       .append(String.format(" on index '%s'", indexRequest.index()))
-      .append(String.format(ON_TYPE_MESSAGE, indexRequest.type()))
       .toString();
   }
 
@@ -111,7 +105,6 @@ final class EsRequestDetails {
     return new StringBuilder().append("ES get request")
       .append(String.format(" for key '%s'", request.id()))
       .append(String.format(" on index '%s'", request.index()))
-      .append(String.format(ON_TYPE_MESSAGE, request.type()))
       .toString();
   }
 
@@ -134,13 +127,9 @@ final class EsRequestDetails {
     if (request.indices().length > 0) {
       message.append(String.format(ON_INDICES_MESSAGE, StringUtils.join(request.indices(), ",")));
     }
-    String type = request.type();
-    if (type != null) {
-      message.append(String.format(ON_TYPE_MESSAGE, type));
-    }
-    String source = request.source();
+    BytesReference source = request.source();
     if (source != null) {
-      message.append(String.format(" with source '%s'", source));
+      message.append(String.format(" with source '%s'", source.utf8ToString()));
     }
 
     return message.toString();

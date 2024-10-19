@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,27 +30,24 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DestroyRequest {
 
-  private String id;
+  private String name;
   private String organization;
+
+  public String getName() {
+    return name;
+  }
+
+  public DestroyRequest setName(String name) {
+    this.name = name;
+    return this;
+  }
 
   public String getOrganization() {
     return organization;
   }
 
-  public void setOrganization(String organization) {
+  public DestroyRequest setOrganization(String organization) {
     this.organization = organization;
-  }
-
-  /**
-   * This is a mandatory parameter.
-   * Example value: "1"
-   */
-  public DestroyRequest setId(String id) {
-    this.id = id;
     return this;
-  }
-
-  public String getId() {
-    return id;
   }
 }

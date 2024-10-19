@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -53,9 +53,11 @@ public class ChangelogAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_CHANGELOG)
       .setDescription("Display changelog of an issue.<br/>" +
-        "Requires the 'Browse' permission on the project of the specified issue.")
+                      "Requires the 'Browse' permission on the project of the specified issue.")
       .setSince("4.1")
       .setChangelog(
+        new Change("10.4", "'issueStatus' key is added in the differences"),
+        new Change("10.4", "'status', 'resolution', 'severity' and 'type' keys are now deprecated in the differences"),
         new Change("9.7", "'externalUser' and 'webhookSource' information added to the answer"),
         new Change("6.3", "changes on effort is expressed with the raw value in minutes (instead of the duration previously)"))
       .setHandler(this)

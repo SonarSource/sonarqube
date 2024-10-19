@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,8 @@ package org.sonar.server.permission.ws.template;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -35,10 +37,13 @@ import org.sonar.core.i18n.I18n;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.management.ManagedProjectService;
+import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -50,12 +55,13 @@ import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifiersParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -73,21 +79,23 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
+  private final ManagedProjectService managedProjectService;
 
   public BulkApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionTemplateService permissionTemplateService, PermissionWsSupport wsSupport, I18n i18n,
-    ResourceTypes resourceTypes) {
+    ResourceTypes resourceTypes, ManagedProjectService managedProjectService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionTemplateService = permissionTemplateService;
     this.wsSupport = wsSupport;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
+    this.managedProjectService = managedProjectService;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("bulk_apply_template")
-      .setDescription("Apply a permission template to several projects.<br />" +
+      .setDescription("Apply a permission template to several components. Managed projects will be ignored.<br />" +
         "The template id or name must be provided.<br />" +
         "Requires the following permission: 'Administer System'.")
       .setPost(true)
@@ -118,7 +126,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-        "If no visibility is specified, the default project visibility will be used.",
+          "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -151,9 +159,16 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       ComponentQuery componentQuery = buildDbQuery(request);
-      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, template.getOrganizationUuid(), componentQuery, 0, Integer.MAX_VALUE);
+      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, template.getOrganizationUuid(), componentQuery, forPage(1).andSize(CeTaskQuery.MAX_COMPONENT_UUIDS));
 
-      permissionTemplateService.applyAndCommit(dbSession, template, projects);
+      Set<String> entityUuids = components.stream()
+        .map(ComponentDto::getKey)
+        .collect(Collectors.toSet());
+      List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, entityUuids).stream()
+        .filter(entity -> !managedProjectService.isProjectManaged(dbSession, entity.getUuid()))
+        .toList();
+
+      permissionTemplateService.applyAndCommit(dbSession, template, entities);
     }
   }
 

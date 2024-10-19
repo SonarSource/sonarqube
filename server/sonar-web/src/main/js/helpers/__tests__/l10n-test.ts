@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -104,7 +104,7 @@ describe('translateWithParameters', () => {
       x_apples: '{0}: I have {2} apples in my {1} baskets - {3}',
     });
     expect(translateWithParameters('x_apples', 1, 2, 3, 4)).toBe(
-      '1: I have 3 apples in my 2 baskets - 4'
+      '1: I have 3 apples in my 2 baskets - 4',
     );
   });
 
@@ -155,7 +155,7 @@ describe('getLocalizedCategoryMetricName', () => {
       'metric.new_code.extra_short_name': 'metric.new_code.extra_short_name_t',
     });
     expect(getLocalizedCategoryMetricName({ key: 'new_code' })).toBe(
-      'metric.new_code.extra_short_name_t'
+      'metric.new_code.extra_short_name_t',
     );
   });
 

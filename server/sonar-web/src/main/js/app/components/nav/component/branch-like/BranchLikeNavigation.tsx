@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,94 +17,126 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import styled from '@emotion/styled';
+import { Button } from '@sonarsource/echoes-react';
+import { Popup, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
-import { ButtonPlain } from '../../../../../components/controls/buttons';
-import Toggler from '../../../../../components/controls/Toggler';
-import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
-import { BranchLike } from '../../../../../types/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
+import FocusOutHandler from '../../../../../components/controls/FocusOutHandler';
+import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
+import { useBranchesQuery, useCurrentBranchQuery } from '../../../../../queries/branch';
 import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../available-features/withAvailableFeatures';
-import './BranchLikeNavigation.css';
+import BranchHelpTooltip from './BranchHelpTooltip';
 import CurrentBranchLike from './CurrentBranchLike';
 import Menu from './Menu';
+import PRLink from './PRLink';
 
 export interface BranchLikeNavigationProps extends WithAvailableFeaturesProps {
-  branchLikes: BranchLike[];
   component: Component;
-  currentBranchLike: BranchLike;
-  projectBinding?: ProjectAlmBindingResponse;
   comparisonBranchesEnabled: boolean;
 }
 
 export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   const {
-    branchLikes,
     component,
     component: { configuration },
-    currentBranchLike,
-    projectBinding,
+    comparisonBranchesEnabled,
   } = props;
 
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
+  const { data: branchLikes } = useBranchesQuery(component);
+  const { data: currentBranchLike } = useCurrentBranchQuery(component);
 
-  const canAdminComponent = configuration && configuration.showSettings;
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  if (currentBranchLike === undefined) {
+    return null;
+  }
+
+  const isApplication = component.qualifier === ComponentQualifier.Application;
+
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
+  const canAdminComponent = configuration?.showSettings;
   const hasManyBranches = branchLikes.length >= 2;
   const isMenuEnabled = branchSupportEnabled && hasManyBranches;
 
-  const currentBranchLikeElement = (
-    <CurrentBranchLike
-      branchesEnabled={branchSupportEnabled}
-      component={component}
-      currentBranchLike={currentBranchLike}
-      hasManyBranches={hasManyBranches}
-      projectBinding={projectBinding}
-      comparisonBranchesEnabled={props.comparisonBranchesEnabled}
-    />
-  );
+  const currentBranchLikeElement = <CurrentBranchLike currentBranchLike={currentBranchLike} />;
+
+  const handleOutsideClick = () => {
+    setIsMenuOpen(false);
+  };
 
   return (
-    <span
-      className={classNames(
-        'big-spacer-left flex-0 branch-like-navigation-toggler-container display-flex-center',
-        {
-          dropdown: isMenuEnabled,
-        }
-      )}
-    >
-      {isMenuEnabled ? (
-        <Toggler
-          onRequestClose={() => setIsMenuOpen(false)}
-          open={isMenuOpen}
+    <>
+      <SlashSeparator className=" sw-mx-2" />
+      <div
+        className="sw-flex sw-items-center it__branch-like-navigation-toggler-container"
+        data-spotlight-id="cayc-promotion-4"
+      >
+        <Popup
+          allowResizing
           overlay={
-            <Menu
-              branchLikes={branchLikes}
-              canAdminComponent={canAdminComponent}
-              component={component}
-              currentBranchLike={currentBranchLike}
-              onClose={() => setIsMenuOpen(false)}
-              comparisonBranchesEnabled={props.comparisonBranchesEnabled}
-            />
+            isMenuOpen && (
+              <FocusOutHandler onFocusOut={handleOutsideClick}>
+                <EscKeydownHandler onKeydown={handleOutsideClick}>
+                  <OutsideClickHandler onClickOutside={handleOutsideClick}>
+                    <Menu
+                      branchLikes={branchLikes}
+                      canAdminComponent={canAdminComponent}
+                      component={component}
+                      currentBranchLike={currentBranchLike}
+                      comparisonBranchesEnabled={comparisonBranchesEnabled}
+                      onClose={() => {
+                        setIsMenuOpen(false);
+                      }}
+                    />
+                  </OutsideClickHandler>
+                </EscKeydownHandler>
+              </FocusOutHandler>
+            )
           }
+          placement={PopupPlacement.BottomLeft}
+          zLevel={PopupZLevel.Global}
         >
-          <ButtonPlain
-            className={classNames('branch-like-navigation-toggler', { open: isMenuOpen })}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          <Button
+            className="sw-max-w-abs-800 sw-px-3"
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+            }}
+            isDisabled={!isMenuEnabled}
             aria-expanded={isMenuOpen}
             aria-haspopup="menu"
           >
             {currentBranchLikeElement}
-          </ButtonPlain>
-        </Toggler>
-      ) : (
-        currentBranchLikeElement
-      )}
-    </span>
+          </Button>
+        </Popup>
+
+        <div className="sw-ml-2">
+          <BranchHelpTooltip
+            component={component}
+            isApplication={isApplication}
+            hasManyBranches={hasManyBranches}
+            canAdminComponent={canAdminComponent}
+            branchSupportEnabled={branchSupportEnabled}
+            comparisonBranchesEnabled={comparisonBranchesEnabled}
+          />
+        </div>
+
+        <PRLink currentBranchLike={currentBranchLike} component={component} />
+      </div>
+    </>
   );
 }
 
 export default withAvailableFeatures(React.memo(BranchLikeNavigation));
+
+const SlashSeparator = styled.span`
+  &:after {
+    content: '/';
+    color: rgba(68, 68, 68, 0.3);
+  }
+`;

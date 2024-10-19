@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public final class SnapshotDto {
 
@@ -38,9 +38,9 @@ public final class SnapshotDto {
   public static final int MAX_BUILD_STRING_LENGTH = 100;
 
   private String uuid;
-  private String componentUuid;
+  private String rootComponentUuid;
   private Long createdAt;
-  private Long buildDate;
+  private Long analysisDate;
   private String status = STATUS_UNPROCESSED;
   private Boolean last;
   // maps to "version" column in the table
@@ -65,21 +65,21 @@ public final class SnapshotDto {
     return this.uuid;
   }
 
-  public Long getBuildDate() {
-    return buildDate;
+  public Long getAnalysisDate() {
+    return analysisDate;
   }
 
-  public SnapshotDto setBuildDate(Long buildDate) {
-    this.buildDate = buildDate;
+  public SnapshotDto setAnalysisDate(Long analysisDate) {
+    this.analysisDate = analysisDate;
     return this;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getRootComponentUuid() {
+    return rootComponentUuid;
   }
 
-  public SnapshotDto setComponentUuid(String componentUuid) {
-    this.componentUuid = componentUuid;
+  public SnapshotDto setRootComponentUuid(String rootComponentUuid) {
+    this.rootComponentUuid = rootComponentUuid;
     return this;
   }
 
@@ -207,9 +207,9 @@ public final class SnapshotDto {
     }
     SnapshotDto that = (SnapshotDto) o;
     return Objects.equals(uuid, that.uuid) &&
-      Objects.equals(componentUuid, that.componentUuid) &&
+      Objects.equals(rootComponentUuid, that.rootComponentUuid) &&
       Objects.equals(createdAt, that.createdAt) &&
-      Objects.equals(buildDate, that.buildDate) &&
+      Objects.equals(analysisDate, that.analysisDate) &&
       Objects.equals(status, that.status) &&
       Objects.equals(last, that.last) &&
       Objects.equals(projectVersion, that.projectVersion) &&
@@ -221,16 +221,16 @@ public final class SnapshotDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, componentUuid, createdAt, buildDate, status, last, projectVersion, buildString, periodMode, periodParam, periodDate);
+    return Objects.hash(uuid, rootComponentUuid, createdAt, analysisDate, status, last, projectVersion, buildString, periodMode, periodParam, periodDate);
   }
 
   @Override
   public String toString() {
     return "SnapshotDto{" +
       "uuid='" + uuid + '\'' +
-      ", componentUuid='" + componentUuid + '\'' +
+      ", componentUuid='" + rootComponentUuid + '\'' +
       ", createdAt=" + createdAt +
-      ", buildDate=" + buildDate +
+      ", analysisDate=" + analysisDate +
       ", status='" + status + '\'' +
       ", last=" + last +
       ", projectVersion='" + projectVersion + '\'' +

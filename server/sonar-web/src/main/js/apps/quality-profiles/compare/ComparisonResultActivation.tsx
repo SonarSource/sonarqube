@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { Spinner } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails } from '../../../api/rules';
-import { Button } from '../../../components/controls/buttons';
 import Tooltip from '../../../components/controls/Tooltip';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RuleDetails } from '../../../types/types';
 import ActivationFormModal from '../../coding-rules/components/ActivationFormModal';
 
@@ -34,86 +34,57 @@ interface Props {
   ruleKey: string;
 }
 
-interface State {
-  rule?: RuleDetails;
-  state: 'closed' | 'opening' | 'open';
-}
+export default function ComparisonResultActivation(props: React.PropsWithChildren<Props>) {
+  const { profile, ruleKey } = props;
+  const [state, setState] = React.useState<'closed' | 'opening' | 'open'>('closed');
+  const [rule, setRule] = React.useState<RuleDetails>();
+  const intl = useIntl();
 
-export default class ComparisonResultActivation extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { state: 'closed' };
+  const isOpen = state === 'open' && !!rule;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const activateRuleMsg = intl.formatMessage(
+    { id: 'quality_profiles.comparison.activate_rule' },
+    { profile: profile.name },
+  );
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleButtonClick = () => {
-    this.setState({ state: 'opening' });
-    getRuleDetails({ key: this.props.ruleKey, organization: this.props.organization }).then(
+  const handleButtonClick = () => {
+    setState('opening');
+    getRuleDetails({ key: ruleKey }).then(
       ({ rule }) => {
-        if (this.mounted) {
-          this.setState({ rule, state: 'open' });
-        }
+        setState('open');
+        setRule(rule);
       },
       () => {
-        if (this.mounted) {
-          this.setState({ state: 'closed' });
-        }
-      }
+        setState('closed');
+      },
     );
   };
 
-  handleCloseModal = () => {
-    this.setState({ state: 'closed' });
-  };
-
-  isOpen(state: State): state is { state: 'open'; rule: RuleDetails } {
-    return state.state === 'open';
-  }
-
-  render() {
-    const { profile } = this.props;
-
-    const canActivate = !profile.isBuiltIn && profile.actions && profile.actions.edit;
-    if (!canActivate) {
-      return null;
-    }
-
-    return (
-      <DeferredSpinner loading={this.state.state === 'opening'}>
-        <Tooltip
-          placement="bottom"
-          overlay={translateWithParameters(
-            'quality_profiles.comparison.activate_rule',
-            profile.name
-          )}
+  return (
+    <Spinner loading={state === 'opening'}>
+      <Tooltip side="bottom" content={activateRuleMsg}>
+        <Button
+          isDisabled={state !== 'closed'}
+          aria-label={activateRuleMsg}
+          onClick={handleButtonClick}
         >
-          <Button
-            disabled={this.state.state !== 'closed'}
-            aria-label={translateWithParameters(
-              'quality_profiles.comparison.activate_rule',
-              profile.name
-            )}
-            onClick={this.handleButtonClick}
-          >
-            {this.props.children}
-          </Button>
-        </Tooltip>
+          {intl.formatMessage({ id: 'activate' })}
+        </Button>
+      </Tooltip>
 
-        {this.isOpen(this.state) && (
-          <ActivationFormModal
-            modalHeader={translate('coding_rules.activate_in_quality_profile')}
-            onClose={this.handleCloseModal}
-            onDone={this.props.onDone}
-            profiles={[profile]}
-            rule={this.state.rule}
-          />
-        )}
-      </DeferredSpinner>
-    );
-  }
+      {rule && (
+        <ActivationFormModal
+          isOpen={isOpen}
+          onOpenChange={(open) => setState(open ? 'open' : 'closed')}
+          modalHeader={intl.formatMessage({ id: 'coding_rules.activate_in_quality_profile' })}
+          onClose={() => {
+            setState('closed');
+          }}
+          onDone={props.onDone}
+          profiles={[profile]}
+          rule={rule}
+        />
+      )}
+    </Spinner>
+  );
 }

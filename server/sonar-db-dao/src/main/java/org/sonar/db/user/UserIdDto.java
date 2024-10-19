@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -50,5 +50,10 @@ public class UserIdDto implements UserId {
 
   public static UserIdDto from(UserDto dto) {
     return new UserIdDto(dto.getUuid(), dto.getLogin());
+  }
+
+  @Override
+  public String toString() {
+    return "login='" + login + "'";
   }
 }

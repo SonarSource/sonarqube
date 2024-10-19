@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@ import static java.util.Arrays.asList;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.rule.RuleTesting.newDeprecatedRuleKey;
 import static org.sonar.db.rule.RuleTesting.newRule;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class RuleDbTester {
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Arrays.stream(RuleType.values())
@@ -143,13 +142,13 @@ public class RuleDbTester {
 
   @SafeVarargs
   public final RuleDto insertRule(Consumer<RuleDto>... populaters) {
-    RuleDto ruleDto = newRuleDto();
+    RuleDto ruleDto = RuleTesting.newRule();
     asList(populaters).forEach(populater -> populater.accept(ruleDto));
     return insert(ruleDto);
   }
 
   public RuleDto insertRule(Consumer<RuleDto> populateRuleDto) {
-    RuleDto ruleDto = newRuleDto();
+    RuleDto ruleDto = RuleTesting.newRule();
     populateRuleDto.accept(ruleDto);
 
     if (ruleDto.getUuid() == null) {

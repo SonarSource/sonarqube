@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal, Note } from 'design-system';
 import * as React from 'react';
-import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import { translate } from '../../../helpers/l10n';
-import { Setting } from '../../../types/settings';
-import { getDefaultValue, isEmptyValue } from '../utils';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { ExtendedSettingDefinition, Setting } from '../../../types/settings';
+import { getDefaultValue, getPropertyName, isEmptyValue } from '../utils';
 
 type Props = {
-  changedValue?: string;
+  changedValue?: string | string[] | boolean;
+  definition: ExtendedSettingDefinition;
   hasError: boolean;
   hasValueChanged: boolean;
   isDefault: boolean;
@@ -38,6 +39,8 @@ type Props = {
 
 type State = { reseting: boolean };
 
+const MODAL_FORM_ID = 'SETTINGS.RESET_CONFIRM.FORM';
+
 export default class DefinitionActions extends React.PureComponent<Props, State> {
   state: State = { reseting: false };
 
@@ -49,7 +52,8 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
     this.setState({ reseting: true });
   };
 
-  handleSubmit = () => {
+  handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     this.props.onReset();
     this.handleClose();
   };
@@ -57,71 +61,78 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   renderModal() {
     const header = translate('settings.reset_confirm.title');
     return (
-      <Modal contentLabel={header} onRequestClose={this.handleClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
+      <Modal
+        headerTitle={header}
+        onClose={this.handleClose}
+        body={
+          <form id={MODAL_FORM_ID} onSubmit={this.handleSubmit}>
             <p>{translate('settings.reset_confirm.description')}</p>
-          </div>
-          <footer className="modal-foot">
-            <SubmitButton className="button-red">{translate('reset_verb')}</SubmitButton>
-            <ResetButtonLink onClick={this.handleClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
+          </form>
+        }
+        primaryButton={
+          <Button type="submit" form={MODAL_FORM_ID} variety={ButtonVariety.Danger}>
+            {translate('reset_verb')}
+          </Button>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 
   render() {
-    const { setting, changedValue, isDefault, isEditing, hasValueChanged } = this.props;
+    const { definition, setting, changedValue, isDefault, isEditing, hasValueChanged, hasError } =
+      this.props;
     const hasBeenChangedToEmptyValue =
       changedValue !== undefined && isEmptyValue(setting.definition, changedValue);
     const showReset = hasBeenChangedToEmptyValue || (!isDefault && setting.hasValue);
     const showCancel = hasValueChanged || isEditing;
+    const propertyName = getPropertyName(definition);
+    const saveButtonLabel = `${translate('save')} ${propertyName}`;
+    const cancelButtonLabel = `${translate('cancel')} ${propertyName}`;
 
     return (
-      <>
-        {isDefault && !hasValueChanged && (
-          <div className="spacer-top note" style={{ lineHeight: '24px' }}>
-            {translate('settings._default')}
-          </div>
-        )}
-        <div className="settings-definition-changes nowrap">
+      <div className="sw-mt-8">
+        <ButtonGroup className="sw-mr-3">
           {hasValueChanged && (
             <Button
-              className="spacer-right button-success"
-              disabled={this.props.hasError}
+              aria-label={saveButtonLabel}
+              isDisabled={hasError}
               onClick={this.props.onSave}
+              variety={ButtonVariety.Primary}
             >
               {translate('save')}
             </Button>
           )}
 
           {showReset && (
-            <Button className="spacer-right" onClick={this.handleReset}>
+            <Button
+              aria-label={translateWithParameters(
+                'settings.definition.reset',
+                getPropertyName(setting.definition),
+              )}
+              onClick={this.handleReset}
+            >
               {translate('reset_verb')}
             </Button>
           )}
 
           {showCancel && (
-            <ResetButtonLink className="spacer-right" onClick={this.props.onCancel}>
+            <Button aria-label={cancelButtonLabel} onClick={this.props.onCancel}>
               {translate('cancel')}
-            </ResetButtonLink>
+            </Button>
           )}
+        </ButtonGroup>
 
-          {showReset && (
-            <span className="note">
-              {translate('default')}
-              {': '}
-              {getDefaultValue(setting)}
-            </span>
-          )}
+        {showReset && (
+          <Note>
+            {translate('default')}
+            {': '}
+            {getDefaultValue(setting)}
+          </Note>
+        )}
 
-          {this.state.reseting && this.renderModal()}
-        </div>
-      </>
+        {this.state.reseting && this.renderModal()}
+      </div>
     );
   }
 }

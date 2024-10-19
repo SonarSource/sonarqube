@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
+import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
 import { logOut } from '../../../../api/auth';
 import RecentHistory from '../../../../app/components/RecentHistory';
-import { addGlobalErrorMessage } from '../../../../helpers/globalMessages';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import Logout from '../Logout';
 
@@ -29,7 +30,8 @@ jest.mock('../../../../api/auth', () => ({
   logOut: jest.fn().mockResolvedValue(true),
 }));
 
-jest.mock('../../../../helpers/globalMessages', () => ({
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
   addGlobalErrorMessage: jest.fn(),
 }));
 
@@ -78,7 +80,7 @@ it('should behave correctly', async () => {
 });
 
 it('should correctly handle a failing log out', async () => {
-  (logOut as jest.Mock).mockRejectedValueOnce(false);
+  jest.mocked(logOut).mockRejectedValueOnce(false);
   renderLogout();
 
   await waitFor(() => {

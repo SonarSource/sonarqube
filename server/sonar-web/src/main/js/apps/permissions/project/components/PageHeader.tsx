@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,90 +17,124 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Title } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../../components/controls/buttons';
-import { translate } from '../../../../helpers/l10n';
-import { isApplication, isPortfolioLike } from '../../../../types/component';
+import { Image } from '~sonar-aligned/components/common/Image';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
+import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { isDefined } from '../../../../helpers/types';
+import {
+  useIsGitHubProjectQuery,
+  useIsGitLabProjectQuery,
+} from '../../../../queries/devops-integration';
+import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
+import { isApplication, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
   component: Component;
+  isProjectManaged: boolean;
   loadHolders: () => void;
-  loading: boolean;
 }
 
-interface State {
-  applyTemplateModal: boolean;
-}
+export default function PageHeader(props: Readonly<Props>) {
+  const { component, loadHolders, isProjectManaged } = props;
+  const { configuration, key, qualifier, visibility } = component;
+  const [applyTemplateModal, setApplyTemplateModal] = React.useState(false);
+  const { data: isGitHubProject } = useIsGitHubProjectQuery(key);
+  const { data: isGitLabProject } = useIsGitLabProjectQuery(key);
+  const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
+  // to know if we are provisioning with GitLab: managed + GitLab project
 
-export default class PageHeader extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { applyTemplateModal: false };
+  const provisionedByGitHub = isGitHubProject && !!githubProvisioningStatus;
+  const provisionedByGitLab = isGitLabProject && isProjectManaged;
+  const provisioned = provisionedByGitHub || provisionedByGitLab;
+  const canApplyPermissionTemplate = configuration?.canApplyPermissionTemplate && !provisioned;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleApplyTemplate = () => {
-    this.setState({ applyTemplateModal: true });
+  const handleApplyTemplate = () => {
+    setApplyTemplateModal(true);
   };
 
-  handleApplyTemplateClose = () => {
-    if (this.mounted) {
-      this.setState({ applyTemplateModal: false });
-    }
+  const handleApplyTemplateClose = () => {
+    setApplyTemplateModal(false);
   };
 
-  render() {
-    const { component } = this.props;
-    const { configuration } = component;
-    const canApplyPermissionTemplate =
-      configuration != null && configuration.canApplyPermissionTemplate;
+  let description = translate('roles.page.description2');
+  if (isPortfolioLike(qualifier)) {
+    description = translate('roles.page.description_portfolio');
+  } else if (isApplication(qualifier)) {
+    description = translate('roles.page.description_application');
+  }
 
-    let description = translate('roles.page.description2');
-    if (isPortfolioLike(component.qualifier)) {
-      description = translate('roles.page.description_portfolio');
-    } else if (isApplication(component.qualifier)) {
-      description = translate('roles.page.description_application');
-    }
+  const visibilityDescription =
+    isProject(qualifier) && visibility
+      ? translate('visibility', visibility, 'description', qualifier)
+      : undefined;
 
-    const visibilityDescription =
-      component.qualifier === 'TRK' && component.visibility
-        ? translate('visibility', component.visibility, 'description', component.qualifier)
-        : undefined;
+  return (
+    <header className="sw-mb-2 sw-flex sw-items-center sw-justify-between">
+      <div>
+        <Title>
+          {translate('permissions.page')}
+          {provisioned && (
+            <Image
+              alt={provisionedByGitHub ? 'github' : 'gitlab'}
+              className="sw-mx-2 sw-align-baseline"
+              aria-label={translateWithParameters(
+                'project_permission.managed',
+                provisionedByGitHub ? translate('alm.github') : translate('alm.gitlab'),
+              )}
+              height={16}
+              src={`/images/alm/${provisionedByGitHub ? 'github' : 'gitlab'}.svg`}
+            />
+          )}
+        </Title>
 
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('permissions.page')}</h1>
-
-        {this.props.loading && <i className="spinner" />}
-
-        {canApplyPermissionTemplate && (
-          <div className="page-actions">
-            <Button className="js-apply-template" onClick={this.handleApplyTemplate}>
-              {translate('projects_role.apply_template')}
-            </Button>
-
-            {this.state.applyTemplateModal && (
-              <ApplyTemplate
-                onApply={this.props.loadHolders}
-                onClose={this.handleApplyTemplateClose}
-                project={component}
-              />
-            )}
-          </div>
-        )}
-
-        <div className="page-description">
+        <div>
           <p>{description}</p>
-          {visibilityDescription && <p>{visibilityDescription}</p>}
+          {isDefined(visibilityDescription) && <p>{visibilityDescription}</p>}
+          {provisioned && (
+            <>
+              <p>
+                {provisionedByGitHub
+                  ? translate('roles.page.description.github')
+                  : translate('roles.page.description.gitlab')}
+              </p>
+              <div className="sw-mt-2">
+                {provisionedByGitHub && <GitHubSynchronisationWarning short />}
+              </div>
+            </>
+          )}
+          {githubProvisioningStatus && !isGitHubProject && isProject(component.qualifier) && (
+            <FlagMessage variant="warning" className="sw-mt-2">
+              {translate('project_permission.local_project_with_github_provisioning')}
+            </FlagMessage>
+          )}
         </div>
-      </header>
-    );
-  }
+      </div>
+      {canApplyPermissionTemplate && (
+        <div>
+          <Button
+            className="js-apply-template"
+            onClick={handleApplyTemplate}
+            variety={ButtonVariety.Primary}
+          >
+            {translate('projects_role.apply_template')}
+          </Button>
+
+          {applyTemplateModal && (
+            <ApplyTemplate
+              onApply={loadHolders}
+              onClose={handleApplyTemplateClose}
+              project={component}
+            />
+          )}
+        </div>
+      )}
+    </header>
+  );
 }

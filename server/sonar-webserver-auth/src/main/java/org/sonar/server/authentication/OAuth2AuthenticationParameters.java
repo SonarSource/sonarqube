@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ package org.sonar.server.authentication;
 
 import java.util.Optional;
 import javax.servlet.FilterConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 
 /**
  * This class is used to store some parameters during the OAuth2 authentication process, by using a cookie.
@@ -33,10 +33,10 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
  */
 public interface OAuth2AuthenticationParameters {
 
-  void init(HttpServletRequest request, HttpServletResponse response);
+  void init(HttpRequest request, HttpResponse response);
 
-  Optional<String> getReturnTo(HttpServletRequest request);
+  Optional<String> getReturnTo(HttpRequest request);
 
-  void delete(HttpServletRequest request, HttpServletResponse response);
+  void delete(HttpRequest request, HttpResponse response);
 
 }

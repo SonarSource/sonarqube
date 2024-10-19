@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { post, postJSON } from '../helpers/request';
 import { NewUserToken, UserToken } from '../types/token';
 
 /** List tokens for given user login */
@@ -27,15 +28,15 @@ export function getTokens(login: string): Promise<UserToken[]> {
 }
 
 export function generateToken(data: {
+  expirationDate?: string;
+  login?: string;
   name: string;
   projectKey?: string;
   type?: string;
-  login?: string;
-  expirationDate?: string;
 }): Promise<NewUserToken> {
   return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
 }
 
-export function revokeToken(data: { name: string; login?: string }) {
+export function revokeToken(data: { login?: string; name: string }) {
   return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
 }

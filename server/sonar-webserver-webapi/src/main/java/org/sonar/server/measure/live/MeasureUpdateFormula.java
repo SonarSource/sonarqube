@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.stream.DoubleStream;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.measure.DebtRatingGrid;
@@ -35,6 +34,7 @@ class MeasureUpdateFormula {
 
   private final Metric metric;
   private final boolean onLeak;
+  private final boolean onlyIfComputedOnBranch;
   private final BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula;
   private final BiConsumer<Context, IssueCounter> formula;
   private final Collection<Metric> dependentMetrics;
@@ -45,13 +45,19 @@ class MeasureUpdateFormula {
    * @param formula          Used to calculate new values for a metric for each component, based on the issue counts
    */
   MeasureUpdateFormula(Metric metric, boolean onLeak, BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula, BiConsumer<Context, IssueCounter> formula) {
-    this(metric, onLeak, hierarchyFormula, formula, emptyList());
+    this(metric, onLeak, false, hierarchyFormula, formula, emptyList());
   }
 
-  MeasureUpdateFormula(Metric metric, boolean onLeak, BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula, BiConsumer<Context, IssueCounter> formula,
-    Collection<Metric> dependentMetrics) {
+  MeasureUpdateFormula(Metric metric, boolean onLeak, boolean onlyIfComputedOnBranch, BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula,
+                       BiConsumer<Context, IssueCounter> formula) {
+    this(metric, onLeak, onlyIfComputedOnBranch, hierarchyFormula, formula, emptyList());
+  }
+
+  MeasureUpdateFormula(Metric metric, boolean onLeak, boolean onlyIfComputedOnBranch, BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula,
+                       BiConsumer<Context, IssueCounter> formula, Collection<Metric> dependentMetrics) {
     this.metric = metric;
     this.onLeak = onLeak;
+    this.onlyIfComputedOnBranch = onlyIfComputedOnBranch;
     this.hierarchyFormula = hierarchyFormula;
     this.formula = formula;
     this.dependentMetrics = dependentMetrics;
@@ -63,6 +69,10 @@ class MeasureUpdateFormula {
 
   boolean isOnLeak() {
     return onLeak;
+  }
+
+  public boolean isOnlyIfComputedOnBranch() {
+    return onlyIfComputedOnBranch;
   }
 
   Collection<Metric> getDependentMetrics() {
@@ -79,6 +89,8 @@ class MeasureUpdateFormula {
 
   interface Context {
     List<Double> getChildrenValues();
+
+    List<String> getChildrenTextValues();
 
     long getChildrenHotspotsReviewed();
 
@@ -105,5 +117,7 @@ class MeasureUpdateFormula {
     void setValue(double value);
 
     void setValue(Rating value);
+
+    void setValue(String value);
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,14 +27,15 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
@@ -45,12 +46,15 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Impact;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.server.rule.CommonRuleKeys;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 
@@ -58,18 +62,16 @@ public class TrackerRawInputFactory {
   private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0L;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-  private final CommonRuleEngine commonRuleEngine;
   private final IssueFilter issueFilter;
   private final SourceLinesHashRepository sourceLinesHash;
   private final RuleRepository ruleRepository;
   private final ActiveRulesHolder activeRulesHolder;
 
-  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesHashRepository sourceLinesHash, CommonRuleEngine commonRuleEngine,
+  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesHashRepository sourceLinesHash,
     IssueFilter issueFilter, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesHash = sourceLinesHash;
-    this.commonRuleEngine = commonRuleEngine;
     this.issueFilter = issueFilter;
     this.ruleRepository = ruleRepository;
     this.activeRulesHolder = activeRulesHolder;
@@ -99,12 +101,6 @@ public class TrackerRawInputFactory {
     protected List<DefaultIssue> loadIssues() {
       List<DefaultIssue> result = new ArrayList<>();
 
-      for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
-        if (issueFilter.accept(commonRuleIssue, component)) {
-          result.add(init(commonRuleIssue, STATUS_OPEN));
-        }
-      }
-
       if (component.getReportAttributes().getRef() == null) {
         return result;
       }
@@ -118,7 +114,7 @@ public class TrackerRawInputFactory {
             continue;
           }
           if (!isIssueOnUnsupportedCommonRule(reportIssue)) {
-            Loggers.get(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
+            LoggerFactory.getLogger(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
             continue;
           }
           DefaultIssue issue = toIssue(getLineHashSequence(), reportIssue);
@@ -200,7 +196,26 @@ public class TrackerRawInputFactory {
       issue.setLocations(dbLocationsBuilder.build());
       issue.setQuickFixAvailable(reportIssue.getQuickFixAvailable());
       issue.setRuleDescriptionContextKey(reportIssue.hasRuleDescriptionContextKey() ? reportIssue.getRuleDescriptionContextKey() : null);
+      issue.setCodeVariants(reportIssue.getCodeVariantsList());
+
+      issue.replaceImpacts(replaceDefaultWithOverridenImpacts(issue.ruleKey(), reportIssue.getOverridenImpactsList()));
       return issue;
+    }
+
+    private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> replaceDefaultWithOverridenImpacts(RuleKey ruleKey, List<Impact> overridenImpactsList) {
+      Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpactMap = getOverridenImpactMap(overridenImpactsList);
+      return ruleRepository.getByKey(ruleKey).getDefaultImpacts().entrySet()
+        .stream()
+        .collect(toMap(
+          Map.Entry::getKey,
+          entry -> overridenImpactMap.containsKey(entry.getKey()) ? overridenImpactMap.get(entry.getKey()) : entry.getValue()));
+    }
+
+    private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> getOverridenImpactMap(List<Impact> overridenImpactsList) {
+      return overridenImpactsList.stream()
+        .collect(toMap(
+          impact -> SoftwareQuality.valueOf(impact.getSoftwareQuality()),
+          impact -> org.sonar.api.issue.impact.Severity.valueOf(impact.getSeverity())));
     }
 
     private DbIssues.Flow.Builder convertLocations(ScannerReport.Flow flow) {
@@ -215,13 +230,20 @@ public class TrackerRawInputFactory {
       return dbFlowBuilder;
     }
 
+
     private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue, Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap) {
       DefaultIssue issue = new DefaultIssue();
-      RuleType type = toRuleType(reportExternalIssue.getType());
-      init(issue, type == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
-
       RuleKey ruleKey = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportExternalIssue.getEngineId(), reportExternalIssue.getRuleId());
       issue.setRuleKey(ruleKey);
+      ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> toAdHocRule(reportExternalIssue, adHocRuleMap.get(issue.ruleKey())));
+
+      Rule existingRule = ruleRepository.getByKey(ruleKey);
+      issue.setSeverity(determineDeprecatedSeverity(reportExternalIssue, existingRule));
+      issue.setType(determineDeprecatedType(reportExternalIssue, existingRule));
+      issue.replaceImpacts(replaceDefaultWithOverridenImpacts(issue.ruleKey(), reportExternalIssue.getImpactsList()));
+
+      init(issue, issue.type() == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
+
       if (reportExternalIssue.hasTextRange()) {
         int startLine = reportExternalIssue.getTextRange().getStartLine();
         issue.setLine(startLine);
@@ -234,9 +256,6 @@ public class TrackerRawInputFactory {
         if (!reportExternalIssue.getMsgFormattingList().isEmpty()) {
           issue.setMessageFormattings(convertMessageFormattings(reportExternalIssue.getMsgFormattingList()));
         }
-      }
-      if (reportExternalIssue.getSeverity() != Severity.UNSET_SEVERITY) {
-        issue.setSeverity(reportExternalIssue.getSeverity().name());
       }
       issue.setEffort(Duration.create(reportExternalIssue.getEffort() != 0 ? reportExternalIssue.getEffort() : DEFAULT_EXTERNAL_ISSUE_EFFORT));
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
@@ -251,9 +270,10 @@ public class TrackerRawInputFactory {
       }
       issue.setIsFromExternalRuleEngine(true);
       issue.setLocations(dbLocationsBuilder.build());
-      issue.setType(type);
+      if (reportExternalIssue.hasCveId()) {
+        issue.setCveId(reportExternalIssue.getCveId());
+      }
 
-      ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> toAdHocRule(reportExternalIssue, adHocRuleMap.get(issue.ruleKey())));
       return issue;
     }
 
@@ -334,7 +354,35 @@ public class TrackerRawInputFactory {
       targetRange.setEndOffset(sourceRange.getEndOffset());
       return targetRange;
     }
+
+    private RuleType determineDeprecatedType(ScannerReport.ExternalIssue reportExternalIssue, Rule rule) {
+      if (reportExternalIssue.getType() != ScannerReport.IssueType.UNSET) {
+        return toRuleType(reportExternalIssue.getType());
+      } else if (rule.getType() != null) {
+        return rule.getType();
+      } else if (!rule.getDefaultImpacts().isEmpty()) {
+        SoftwareQuality impactSoftwareQuality = ImpactMapper.getBestImpactForBackmapping(rule.getDefaultImpacts()).getKey();
+        return ImpactMapper.convertToRuleType(impactSoftwareQuality);
+      } else {
+        throw new IllegalArgumentException("Cannot determine the type for issue of rule %s".formatted(reportExternalIssue.getRuleId()));
+      }
+    }
+
+    private static String determineDeprecatedSeverity(ScannerReport.ExternalIssue reportExternalIssue, Rule rule) {
+      if (reportExternalIssue.getSeverity() != Constants.Severity.UNSET_SEVERITY) {
+        return reportExternalIssue.getSeverity().name();
+      } else if (rule.getSeverity() != null) {
+        return rule.getSeverity();
+      } else if (!rule.getDefaultImpacts().isEmpty()) {
+        org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.getBestImpactForBackmapping(rule.getDefaultImpacts()).getValue();
+        return ImpactMapper.convertToDeprecatedSeverity(impactSeverity);
+      } else {
+        throw new IllegalArgumentException("Cannot determine the severity for issue of rule %s".formatted(reportExternalIssue.getRuleId()));
+      }
+    }
+
   }
+
 
   private static DbIssues.MessageFormattings convertMessageFormattings(List<ScannerReport.MessageFormatting> msgFormattings) {
     DbIssues.MessageFormattings.Builder builder = DbIssues.MessageFormattings.newBuilder();

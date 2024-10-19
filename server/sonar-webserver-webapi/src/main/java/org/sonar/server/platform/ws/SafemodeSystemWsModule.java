@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.common.platform.SafeModeLivenessCheckerImpl;
 import org.sonar.server.monitoring.MonitoringWs;
 import org.sonar.server.user.BearerPasscode;
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,19 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byRole, byText } from 'testing-library-selector';
+import { Route } from 'react-router-dom';
+import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
+import { mockBranch, mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockAnalysisEvent } from '../../../helpers/mocks/project-activity';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import { Branch, BranchLike } from '../../../types/branch-like';
+import {
+  ApplicationAnalysisEventCategory,
+  DefinitionChangeType,
+  ProjectAnalysisEventCategory,
+} from '../../../types/project-activity';
 import EventInner, { EventInnerProps } from '../EventInner';
 
 const ui = {
@@ -31,28 +41,108 @@ const ui = {
   projectLink: (name: string) => byRole('link', { name }),
 
   definitionChangeLabel: byText('event.category.DEFINITION_CHANGE', { exact: false }),
-  projectAddedTxt: byText('event.definition_change.added'),
-  projectRemovedTxt: byText('event.definition_change.removed'),
+  projectAddedTxt: (branch: BranchLike) =>
+    isMainBranch(branch)
+      ? byText(/event\.definition_change\.added/)
+      : byText(/event\.definition_change\.branch_added/),
+  projectRemovedTxt: (branch: BranchLike) =>
+    isMainBranch(branch)
+      ? byText('event.definition_change.removed')
+      : byText('event.definition_change.branch_removed'),
   branchReplacedTxt: byText('event.definition_change.branch_replaced'),
 
   qualityGateLabel: byText('event.category.QUALITY_GATE', { exact: false }),
   stillFailingTxt: byText('event.quality_gate.still_x'),
 
   versionLabel: byText('event.category.VERSION', { exact: false }),
+
+  sqUpgradeLabel: (sqVersion: string) => byText(`event.sqUpgrade${sqVersion}`),
 };
 
+const handler = new BranchesServiceMock();
+
+beforeEach(() => {
+  handler.reset();
+});
+
 describe('DEFINITION_CHANGE events', () => {
-  it('should render correctly for "DEFINITION_CHANGE" events', async () => {
+  it.each([mockMainBranch(), mockBranch()])(
+    'should render correctly for "ADDED" events',
+    async (branchLike: Branch) => {
+      handler.addBranch(branchLike);
+      const user = userEvent.setup();
+      renderEventInner(
+        {
+          event: mockAnalysisEvent({
+            category: ApplicationAnalysisEventCategory.DefinitionChange,
+            definitionChange: {
+              projects: [
+                {
+                  changeType: DefinitionChangeType.Added,
+                  key: 'foo',
+                  name: 'Foo',
+                  branch: 'master-foo',
+                },
+              ],
+            },
+          }),
+        },
+        `branch=${branchLike.name}&id=my-project`,
+      );
+
+      expect(await ui.definitionChangeLabel.find()).toBeInTheDocument();
+
+      await user.click(ui.showMoreBtn.get());
+
+      expect(await ui.projectAddedTxt(branchLike).find()).toBeInTheDocument();
+      expect(ui.projectLink('Foo').get()).toBeInTheDocument();
+      expect(screen.getByText('master-foo')).toBeInTheDocument();
+    },
+  );
+
+  it.each([mockMainBranch(), mockBranch()])(
+    'should render correctly for "REMOVED" events',
+    async (branchLike: Branch) => {
+      const user = userEvent.setup();
+      handler.addBranch(branchLike);
+      renderEventInner(
+        {
+          event: mockAnalysisEvent({
+            category: ApplicationAnalysisEventCategory.DefinitionChange,
+            definitionChange: {
+              projects: [
+                {
+                  changeType: DefinitionChangeType.Removed,
+                  key: 'bar',
+                  name: 'Bar',
+                  branch: 'master-bar',
+                },
+              ],
+            },
+          }),
+        },
+        `branch=${branchLike.name}&id=my-project`,
+      );
+
+      expect(ui.definitionChangeLabel.get()).toBeInTheDocument();
+
+      await user.click(ui.showMoreBtn.get());
+
+      expect(await ui.projectRemovedTxt(branchLike).find()).toBeInTheDocument();
+      expect(ui.projectLink('Bar').get()).toBeInTheDocument();
+      expect(screen.getByText('master-bar')).toBeInTheDocument();
+    },
+  );
+
+  it('should render correctly for "BRANCH_CHANGED" events', async () => {
     const user = userEvent.setup();
     renderEventInner({
       event: mockAnalysisEvent({
-        category: 'DEFINITION_CHANGE',
+        category: ApplicationAnalysisEventCategory.DefinitionChange,
         definitionChange: {
           projects: [
-            { changeType: 'ADDED', key: 'foo', name: 'Foo', branch: 'master-foo' },
-            { changeType: 'REMOVED', key: 'bar', name: 'Bar', branch: 'master-bar' },
             {
-              changeType: 'BRANCH_CHANGED',
+              changeType: DefinitionChangeType.BranchChanged,
               key: 'baz',
               name: 'Baz',
               oldBranch: 'old-branch',
@@ -67,17 +157,6 @@ describe('DEFINITION_CHANGE events', () => {
 
     await user.click(ui.showMoreBtn.get());
 
-    // ADDED.
-    expect(ui.projectAddedTxt.get()).toBeInTheDocument();
-    expect(ui.projectLink('Foo').get()).toBeInTheDocument();
-    expect(screen.getByText('master-foo')).toBeInTheDocument();
-
-    // REMOVED.
-    expect(ui.projectRemovedTxt.get()).toBeInTheDocument();
-    expect(ui.projectLink('Bar').get()).toBeInTheDocument();
-    expect(screen.getByText('master-bar')).toBeInTheDocument();
-
-    // BRANCH_CHANGED
     expect(ui.branchReplacedTxt.get()).toBeInTheDocument();
     expect(ui.projectLink('Baz').get()).toBeInTheDocument();
     expect(screen.getByText('old-branch')).toBeInTheDocument();
@@ -89,7 +168,7 @@ describe('QUALITY_GATE events', () => {
   it('should render correctly for simple "QUALITY_GATE" events', () => {
     renderEventInner({
       event: mockAnalysisEvent({
-        category: 'QUALITY_GATE',
+        category: ProjectAnalysisEventCategory.QualityGate,
         qualityGate: { status: 'ERROR', stillFailing: false, failing: [] },
       }),
     });
@@ -100,7 +179,7 @@ describe('QUALITY_GATE events', () => {
   it('should render correctly for "still failing" "QUALITY_GATE" events', () => {
     renderEventInner({
       event: mockAnalysisEvent({
-        category: 'QUALITY_GATE',
+        category: ProjectAnalysisEventCategory.QualityGate,
         qualityGate: { status: 'ERROR', stillFailing: true, failing: [] },
       }),
     });
@@ -113,7 +192,7 @@ describe('QUALITY_GATE events', () => {
     const user = userEvent.setup();
     renderEventInner({
       event: mockAnalysisEvent({
-        category: 'QUALITY_GATE',
+        category: ProjectAnalysisEventCategory.QualityGate,
         qualityGate: {
           status: 'ERROR',
           stillFailing: true,
@@ -149,7 +228,7 @@ describe('VERSION events', () => {
   it('should render correctly', () => {
     renderEventInner({
       event: mockAnalysisEvent({
-        category: 'VERSION',
+        category: ProjectAnalysisEventCategory.Version,
         name: '1.0',
       }),
     });
@@ -159,6 +238,23 @@ describe('VERSION events', () => {
   });
 });
 
-function renderEventInner(props: Partial<EventInnerProps> = {}) {
-  return renderComponent(<EventInner event={mockAnalysisEvent()} {...props} />);
+describe('SQ_UPGRADE events', () => {
+  it('should render correctly', () => {
+    renderEventInner({
+      event: mockAnalysisEvent({
+        category: ProjectAnalysisEventCategory.SqUpgrade,
+        name: '10.0',
+      }),
+    });
+
+    expect(ui.sqUpgradeLabel('10.0').get()).toBeInTheDocument();
+  });
+});
+
+function renderEventInner(props: Partial<EventInnerProps> = {}, params?: string) {
+  return renderAppWithComponentContext(
+    '/',
+    () => <Route path="*" element={<EventInner event={mockAnalysisEvent()} {...props} />} />,
+    { navigateTo: params ? `/?id=my-project&${params}` : '/?id=my-project' },
+  );
 }

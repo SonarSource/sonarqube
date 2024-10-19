@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CheckIcon, CloseIcon, Link } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import Link from '../common/Link';
-import CheckIcon from '../icons/CheckIcon';
-import ClearIcon from '../icons/ClearIcon';
 
 export default function OtherContextOption() {
   return (
@@ -30,12 +28,12 @@ export default function OtherContextOption() {
       <p>{translate('coding_rules.context.others.description.first')}</p>
       <p>{translate('coding_rules.context.others.description.second')}</p>
       <p>
-        <span className="display-block big-spacer-left">
-          <CheckIcon className="spacer-right" fill="green" />
+        <span className="sw-flex sw-items-center sw-ml-4">
+          <CheckIcon className="sw-mr-2" fill="iconSuccess" />
           {translate('coding_rules.context.others.description.do')}
         </span>
-        <span className="display-block big-spacer-left">
-          <ClearIcon className="spacer-right" fill="red" />
+        <span className="sw-flex sw-items-center sw-ml-4">
+          <CloseIcon className="sw-mr-2" fill="iconError" />
           {translate('coding_rules.context.others.description.dont')}
         </span>
       </p>

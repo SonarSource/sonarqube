@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -74,8 +74,8 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     // res.put("-XX:HeapDumpPath", "data");
     // specify an alternative path for JVM fatal error logs (ES 6.6.1 default is "logs/hs_err_pid%p.log")
     var path = Paths.get(props.value("sonar.path.logs", "logs"), "es_hs_err_pid%p.log");
-    res.put("-XX:ErrorFile=",  path.toAbsolutePath().toString());
-
+    res.put("-XX:ErrorFile=", path.toAbsolutePath().toString());
+    res.put("-Xlog:disable", "");
   }
 
   /**
@@ -118,12 +118,11 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     res.put("-Dlog4j2.disable.jmx=", "true");
     res.put("-Dlog4j2.formatMsgNoLookups=", "true");
     /*
-     * Due to internationalization enhancements in JDK 9 Elasticsearch need to set the provider to COMPAT otherwise time/date
+     * Due to internationalization enhancements in JDK 9 org.sonarqube.ws.tester.Elasticsearch need to set the provider to COMPAT otherwise
+     * time/date
      * parsing will break in an incompatible way for some date patterns and locales.
      */
     res.put("-Djava.locale.providers=", "COMPAT");
-    // disable FIPS mode for the JVM so SonarQube can use certain algorithms
-    res.put("-Dcom.redhat.fips=", "false");
   }
 
   public void writeToJvmOptionFile(File file) {

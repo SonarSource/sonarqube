@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,75 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Title } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../components/controls/buttons';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from '../../types/types';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 
 export interface Props {
   defaultProjectVisibility?: Visibility;
   hasProvisionPermission?: boolean;
-  onProjectCreate: () => void;
   onChangeDefaultProjectVisibility: (visibility: Visibility) => void;
 }
 
-interface State {
-  visibilityForm: boolean;
-}
+export default function Header(props: Readonly<Props>) {
+  const [visibilityForm, setVisibilityForm] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-export default class Header extends React.PureComponent<Props, State> {
-  state: State = { visibilityForm: false };
+  const { defaultProjectVisibility, hasProvisionPermission } = props;
 
-  handleChangeVisibilityClick = () => {
-    this.setState({ visibilityForm: true });
-  };
-
-  closeVisiblityForm = () => {
-    this.setState({ visibilityForm: false });
-  };
-
-  render() {
-    const { defaultProjectVisibility, hasProvisionPermission } = this.props;
-    const { visibilityForm } = this.state;
-
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('projects_management')}</h1>
-
-        <div className="page-actions">
-          {/* Should be disabled in Cloud version (Codescan)
-          <span className="big-spacer-right">
-            <span className="text-middle">
-              {translate('settings.projects.default_visibility_of_new_projects')}{' '}
-              <strong>
-                {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
-              </strong>
-            </span>
-            <EditButton
-              className="js-change-visibility spacer-left button-small"
-              onClick={this.handleChangeVisibilityClick}
-            />
-          </span>
-          */ }
-
+  return (
+    <header className="sw-mb-5">
+      <div className="sw-flex sw-items-center sw-justify-between">
+        <Title className="sw-m-0">{translate('projects_management')}</Title>
+        <div className="sw-flex sw-items-center it__page-actions">
           {hasProvisionPermission && (
-            <Button id="create-project" onClick={this.props.onProjectCreate}>
+            <Button
+              id="create-project"
+              onClick={() =>
+                navigate('/projects/create?mode=manual', {
+                  state: { from: location.pathname },
+                })
+              }
+              variety={ButtonVariety.Primary}
+            >
               {translate('qualifiers.create.TRK')}
             </Button>
           )}
         </div>
+      </div>
 
-        <p className="page-description">{translate('projects_management.page.description')}</p>
+      <p className="sw-mt-4">{translate('projects_management.page.description')}</p>
 
-        {visibilityForm && (
-          <ChangeDefaultVisibilityForm
-            defaultVisibility={defaultProjectVisibility || 'public'}
-            onClose={this.closeVisiblityForm}
-            onConfirm={this.props.onChangeDefaultProjectVisibility}
-          />
-        )}
-      </header>
-    );
-  }
+      {visibilityForm && (
+        <ChangeDefaultVisibilityForm
+          defaultVisibility={defaultProjectVisibility ?? Visibility.Public}
+          onClose={() => setVisibilityForm(false)}
+          onConfirm={props.onChangeDefaultProjectVisibility}
+        />
+      )}
+    </header>
+  );
 }

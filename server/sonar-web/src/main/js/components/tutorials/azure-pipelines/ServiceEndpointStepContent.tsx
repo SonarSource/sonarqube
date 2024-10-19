@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  ClipboardIconButton,
+  NumberedList,
+  NumberedListItem,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button } from '../../../components/controls/buttons';
-import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
 import { TokenType } from '../../../types/token';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import EditTokenModal from '../components/EditTokenModal';
+import { InlineSnippet } from '../components/InlineSnippet';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 
 export interface ServiceEndpointStepProps {
@@ -41,46 +46,50 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
 
   return (
     <>
-      <ol className="list-styled">
-        <li>
+      <NumberedList>
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step1"
             highlightKeys={['menu']}
           />
-        </li>
-        <li>
+        </NumberedListItem>
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step2"
             highlightKeys={['type']}
           />
-        </li>
-        <li>
+        </NumberedListItem>
+        <NumberedListItem className="sw-flex sw-items-center">
           <FormattedMessage
             defaultMessage={translate(
-              'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence'
+              'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence',
             )}
             id="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence"
             values={{
-              url: <code className="rule">{baseUrl}</code>,
-              button: <ClipboardIconButton copyValue={baseUrl} />,
+              url: (
+                <span className="sw-ml-1">
+                  <InlineSnippet snippet={baseUrl} />
+                </span>
+              ),
+              button: <ClipboardIconButton className="sw-ml-2" copyValue={baseUrl} />,
             }}
           />
-        </li>
-        <li>
+        </NumberedListItem>
+        <NumberedListItem>
           <span>
             {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence')}:
           </span>
-          <Button className="spacer-left" onClick={() => toggleModal(true)}>
+          <ButtonSecondary className="sw-ml-2" onClick={() => toggleModal(true)}>
             {translate('onboarding.token.generate.long')}
-          </Button>
-        </li>
-        <li>
+          </ButtonSecondary>
+        </NumberedListItem>
+        <NumberedListItem>
           {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step5.sentence')}
-        </li>
-        <li>
+        </NumberedListItem>
+        <NumberedListItem>
           {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step6.sentence')}
-        </li>
-      </ol>
+        </NumberedListItem>
+      </NumberedList>
 
       {isModalVisible && (
         <EditTokenModal

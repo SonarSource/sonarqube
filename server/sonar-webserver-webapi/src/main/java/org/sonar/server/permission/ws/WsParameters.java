@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,13 +21,12 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Joiner;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.permission.PermissionService;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
@@ -52,7 +51,7 @@ public class WsParameters {
       "<li>Possible values for global permissions: %s</li>" +
       "<li>Possible values for project permissions %s</li>" +
       "</ul>",
-      GlobalPermissions.ALL_ON_ONE_LINE,
+      GlobalPermission.ALL_ON_ONE_LINE,
       allProjectsPermissionsOnOneLine);
     projectPermissionParamDescription = String.format("Permission" +
       "<ul>" +
@@ -91,15 +90,9 @@ public class WsParameters {
 
   public static void createGroupNameParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
+      .setRequired(true)
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setExampleValue("sonar-administrators");
-  }
-
-  public static void createGroupIdParameter(WebService.NewAction action) {
-    action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group id, use 'name' param instead")
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
   }
 
   public static void createProjectParameters(WebService.NewAction action) {

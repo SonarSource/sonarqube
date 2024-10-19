@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,15 +24,15 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.defaults.DefaultSqlSession;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 
 public class DBSessionsImpl implements DBSessions {
-  private static final Logger LOG = Loggers.get(DBSessionsImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DBSessionsImpl.class);
 
   private static final ThreadLocal<Boolean> CACHING_ENABLED = ThreadLocal.withInitial(() -> Boolean.FALSE);
   private final ThreadLocal<DelegatingDbSessionSupplier> regularDbSession = ThreadLocal.withInitial(this::buildRegularDbSessionSupplier);
@@ -69,7 +69,7 @@ public class DBSessionsImpl implements DBSessions {
         checkState(!((boolean) f.get(sqlSession)), "Autocommit must be false");
       }
     } catch (NoSuchFieldException | IllegalAccessException e) {
-      LOG.debug("Failed to check the autocommit status of SqlSession: {}", e);
+      LOG.debug("Failed to check the autocommit status of SqlSession: {}", e.getMessage(), e);
     }
   }
 

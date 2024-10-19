@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,11 @@
  */
 package org.sonar.core.component;
 
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 @ScannerSide
@@ -33,6 +33,7 @@ public final class DefaultResourceTypes {
 
   private static final String CONFIGURABLE = "configurable";
   private static final String UPDATABLE_KEY = "updatable_key";
+  public static final String IGNORED = "ignored";
 
   private DefaultResourceTypes() {
     // only static methods
@@ -51,6 +52,7 @@ public final class DefaultResourceTypes {
       .addType(ResourceType.builder(Qualifiers.MODULE)
         .setProperty(UPDATABLE_KEY, true)
         .setProperty(CONFIGURABLE, true)
+        .setProperty(IGNORED, true)
         .build())
       .addType(ResourceType.builder(Qualifiers.DIRECTORY)
         .build())
@@ -61,8 +63,7 @@ public final class DefaultResourceTypes {
         .hasSourceCode()
         .build())
 
-      .addRelations(Qualifiers.PROJECT, Qualifiers.MODULE)
-      .addRelations(Qualifiers.MODULE, Qualifiers.DIRECTORY)
+      .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
       .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE)
 
       .build();

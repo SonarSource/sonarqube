@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@ public class IndexedActiveRuleDto {
   private String repository;
   private String key;
   private String ruleProfileUuid;
+  private Boolean prioritizedRule;
 
   public IndexedActiveRuleDto() {
     // nothing to do here
@@ -61,5 +62,9 @@ public class IndexedActiveRuleDto {
 
   public String getRuleProfileUuid() {
     return ruleProfileUuid;
+  }
+
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
   }
 }

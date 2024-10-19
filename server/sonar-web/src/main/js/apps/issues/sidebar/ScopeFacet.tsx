@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { IconFile, IconFileCode } from '@sonarsource/echoes-react';
+import { FacetBox, FacetItem } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { SOURCE_SCOPES } from '../../../helpers/constants';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
-import { formatFacetStat, Query } from '../utils';
+import { Query, formatFacetStat } from '../utils';
+import { FacetItemsList } from './FacetItemsList';
+import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 export interface ScopeFacetProps {
   fetching: boolean;
@@ -39,62 +38,69 @@ export interface ScopeFacetProps {
   stats: Dict<number> | undefined;
 }
 
-export default function ScopeFacet(props: ScopeFacetProps) {
+export function ScopeFacet(props: ScopeFacetProps) {
   const { fetching, open, scopes = [], stats = {} } = props;
-  const values = scopes.map((scope) => translate('issue.scope', scope));
+
+  const nbSelectableItems = SOURCE_SCOPES.filter(({ scope }) => stats[scope]).length;
+  const nbSelectedItems = scopes.length;
+  const property = 'scopes';
+  const headerId = `facet_${property}`;
 
   return (
-    <FacetBox property="scopes">
-      <FacetHeader
-        fetching={fetching}
-        name={translate('issues.facet.scopes')}
-        onClear={() => props.onChange({ scopes: [] })}
-        onClick={() => props.onToggle('scopes')}
-        open={open}
-        values={values}
-      />
+    <FacetBox
+      className="it__search-navigator-facet-box it__search-navigator-facet-header"
+      clearIconLabel={translate('clear')}
+      count={nbSelectedItems}
+      countLabel={translateWithParameters('x_selected', nbSelectedItems)}
+      data-property={property}
+      id={headerId}
+      loading={fetching}
+      name={translate('issues.facet.scopes')}
+      onClear={() => props.onChange({ scopes: [] })}
+      onClick={() => props.onToggle('scopes')}
+      open={open}
+    >
+      <>
+        <FacetItemsList labelledby={headerId}>
+          {SOURCE_SCOPES.map(({ scope }) => {
+            const active = scopes.includes(scope);
+            const stat = stats[scope];
 
-      {open && (
-        <>
-          <FacetItemsList>
-            {SOURCE_SCOPES.map(({ scope, qualifier }) => {
-              const active = scopes.includes(scope);
-              const stat = stats[scope];
-
-              return (
-                <FacetItem
-                  active={active}
-                  key={scope}
-                  name={
-                    <span className="display-flex-center">
-                      <QualifierIcon
-                        className="little-spacer-right"
-                        qualifier={qualifier}
-                        aria-hidden={true}
-                      />{' '}
-                      {translate('issue.scope', scope)}
-                    </span>
+            return (
+              <FacetItem
+                active={active}
+                className="it__search-navigator-facet"
+                icon={
+                  {
+                    MAIN: <IconFile className="sw-mr-1" />,
+                    TEST: <IconFileCode className="sw-mr-1" />,
+                  }[scope]
+                }
+                key={scope}
+                name={translate('issue.scope', scope)}
+                onClick={(itemValue: string, multiple: boolean) => {
+                  if (multiple) {
+                    props.onChange({
+                      scopes: active ? without(scopes, itemValue) : [...scopes, itemValue],
+                    });
+                  } else {
+                    props.onChange({
+                      scopes: active && scopes.length === 1 ? [] : [itemValue],
+                    });
                   }
-                  onClick={(itemValue: string, multiple: boolean) => {
-                    if (multiple) {
-                      props.onChange({
-                        scopes: active ? without(scopes, itemValue) : [...scopes, itemValue],
-                      });
-                    } else {
-                      props.onChange({
-                        scopes: active && scopes.length === 1 ? [] : [itemValue],
-                      });
-                    }
-                  }}
-                  stat={formatFacetStat(stat)}
-                  value={scope}
-                />
-              );
-            })}
-          </FacetItemsList>
-          <MultipleSelectionHint options={Object.keys(stats).length} values={scopes.length} />
-        </>
-      )}
+                }}
+                stat={formatFacetStat(stat) ?? 0}
+                value={scope}
+              />
+            );
+          })}
+        </FacetItemsList>
+
+        <MultipleSelectionHint
+          nbSelectableItems={nbSelectableItems}
+          nbSelectedItems={nbSelectedItems}
+        />
+      </>
     </FacetBox>
   );
 }

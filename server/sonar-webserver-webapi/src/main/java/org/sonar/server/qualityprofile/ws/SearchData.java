@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.core.util.stream.MoreCollectors;
+import java.util.stream.Collectors;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
@@ -90,7 +90,7 @@ class SearchData {
   }
 
   SearchData setDefaultProfileKeys(List<QProfileDto> s) {
-    this.defaultProfileKeys = s.stream().map(QProfileDto::getKee).collect(MoreCollectors.toSet());
+    this.defaultProfileKeys = s.stream().map(QProfileDto::getKee).collect(Collectors.toSet());
     return this;
   }
 

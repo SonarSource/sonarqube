@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ package org.sonar.server.usertoken.notification;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.util.GlobalLockManager;
 
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -33,7 +33,7 @@ public class TokenExpirationNotificationSchedulerImpl implements TokenExpiration
   // Lock 23 hours in case of server restart or multiple nodes in data center edition
   private static int LOCK_DURATION = 23 * 60 * 60;
   private static String LOCK_NAME = "token-notif";
-  private static final Logger LOG = Loggers.get(TokenExpirationNotificationSchedulerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TokenExpirationNotificationSchedulerImpl.class);
   private final TokenExpirationNotificationExecutorService executorService;
   private final GlobalLockManager lockManager;
   private final TokenExpirationNotificationSender notificationSender;

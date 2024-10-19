@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,86 +17,107 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CodeSnippet, Link, Note, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { GRADLE_SCANNER_VERSION } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
+import GradleBuildSelection from '../../components/GradleBuildSelection';
+import { InlineSnippet } from '../../components/InlineSnippet';
+import { GradleBuildDSL } from '../../types';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaGradleProps {
-  component: Component;
   baseUrl: string;
+  component: Component;
   token: string;
 }
 
+const config = {
+  [GradleBuildDSL.Groovy]: {
+    lang: 'groovy',
+    snippet: `plugins {
+  id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
+}`,
+  },
+  [GradleBuildDSL.Kotlin]: {
+    lang: 'kts',
+    snippet: `plugins {
+  id("org.sonarqube") version "${GRADLE_SCANNER_VERSION}"
+}`,
+  },
+};
+
 export default function JavaGradle(props: JavaGradleProps) {
   const { baseUrl, component, token } = props;
-  const config = `plugins {
-  id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
-}`;
+
+  const docUrl = useDocUrl(DocLink.SonarScannerGradle);
 
   const command = [
     './gradlew sonar',
     `-Dsonar.projectKey=${component.key}`,
+    `-Dsonar.projectName='${component.name}'`,
     `-Dsonar.host.url=${baseUrl}`,
-    `-Dsonar.login=${token}`,
+    `-Dsonar.token=${token}`,
   ];
 
   return (
     <div>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.java.gradle.header')}</h4>
+      <SubHeading className="sw-mb-2">
+        {translate('onboarding.analysis.java.gradle.header')}
+      </SubHeading>
       <InstanceMessage message={translate('onboarding.analysis.java.gradle.text.1')}>
         {(transformedMessage) => (
-          <p className="spacer-bottom markdown">
+          <p className="sw-mb-2">
             <FormattedMessage
               defaultMessage={transformedMessage}
               id="onboarding.analysis.java.gradle.text.1"
               values={{
-                plugin_code: <code>org.sonarqube</code>,
-                filename: <code>build.gradle</code>,
+                plugin_code: <InlineSnippet snippet="org.sonarqube" />,
+                groovy: <InlineSnippet snippet={GradleBuildDSL.Groovy} />,
+                kotlin: <InlineSnippet snippet={GradleBuildDSL.Kotlin} />,
               }}
             />
           </p>
         )}
       </InstanceMessage>
-      <CodeSnippet snippet={config} />
-      <p className="big-spacer-bottom markdown">
-        <em className="small text-muted">
+      <GradleBuildSelection className="sw-mt-4 sw-mb-4">
+        {(build) => (
+          <CodeSnippet
+            language={config[build].lang}
+            className="sw-p-4"
+            snippet={config[build].snippet}
+          />
+        )}
+      </GradleBuildSelection>
+      <p className="sw-mb-4">
+        <Note as="em">
           <FormattedMessage
             defaultMessage={translate('onboarding.analysis.java.gradle.latest_version')}
             id="onboarding.analysis.java.gradle.latest_version"
             values={{
-              link: (
-                <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                  {translate('here')}
-                </DocLink>
-              ),
+              link: <Link to={docUrl}>{translate('here')}</Link>,
             }}
           />
-        </em>
+        </Note>
       </p>
-      <p className="spacer-top spacer-bottom markdown">
-        {translate('onboarding.analysis.java.gradle.text.2')}
-      </p>
-      <CodeSnippet snippet={command} />
-      <p className="big-spacer-top markdown">
+      <p className="sw-mt-2 sw-mb-2">{translate('onboarding.analysis.java.gradle.text.2')}</p>
+      <CodeSnippet className="sw-p-4" snippet={command} />
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.docs')}
           id="onboarding.analysis.docs"
           values={{
-            link: (
-              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                {translate('onboarding.analysis.java.gradle.docs_link')}
-              </DocLink>
-            ),
+            link: <Link to={docUrl}>{translate('onboarding.analysis.java.gradle.docs_link')}</Link>,
           }}
         />
       </p>
-      <DoneNextSteps component={component} />
+      <DoneNextSteps />
     </div>
   );
 }

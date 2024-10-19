@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,79 +17,111 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { difference, sortBy } from 'lodash';
+import { uniqBy } from 'lodash';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Languages } from '../../../types/languages';
-import { Dict, RawQuery } from '../../../types/types';
+import { translate } from '../../../helpers/l10n';
+import { highlightTerm } from '../../../helpers/search';
+import { Language, Languages } from '../../../types/languages';
+import { Dict } from '../../../types/types';
+import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
-import SearchableFilterFooter from './SearchableFilterFooter';
-import SearchableFilterOption from './SearchableFilterOption';
 
 interface Props {
   facet?: Facet;
   languages: Languages;
-  maxFacetValue?: number;
+  loadSearchResultCount: (property: string, values: string[]) => Promise<Dict<number>>;
   onQueryChange: (change: RawQuery) => void;
-  property?: string;
   query: Dict<any>;
   value?: string[];
 }
 
-export class LanguagesFilter extends React.Component<Props> {
-  getSearchOptions = () => {
-    const { facet, languages } = this.props;
-    let languageKeys = Object.keys(languages);
-    if (facet) {
-      languageKeys = difference(languageKeys, Object.keys(facet));
-    }
-    return languageKeys.map((key) => ({ label: languages[key].name, value: key }));
-  };
+export function LanguagesFilter(props: Props) {
+  const { facet, languages, loadSearchResultCount, query, onQueryChange, value = [] } = props;
 
-  getSortedOptions = (facet: Facet = {}) =>
-    sortBy(Object.keys(facet), [(option: string) => -facet[option], (option: string) => option]);
-
-  renderAccessibleLabel = (option: string) => {
-    const { languages } = this.props;
-    return translateWithParameters(
-      'projects.facets.label_text_x',
-      translate('projects.facets.languages'),
-      languages[option]?.name || option
+  const searchOptions = React.useMemo(() => {
+    // add any language that presents in the facet, but might not be installed
+    // for such language we don't know their display name, so let's just use their key
+    // and make sure we reference each language only once
+    return uniqBy(
+      [...Object.values(languages), ...Object.keys(facet ?? {}).map((key) => ({ key, name: key }))],
+      (language) => language.key,
     );
-  };
+  }, [languages, facet]);
 
-  renderOption = (option: string) => (
-    <SearchableFilterOption option={this.props.languages[option]} optionKey={option} />
+  const handleChange = React.useCallback(
+    (newValue: Dict<string[]>) => {
+      const { languages } = newValue;
+      onQueryChange({ languages: languages.join(',') });
+    },
+    [onQueryChange],
   );
 
-  render() {
-    const { property = 'languages' } = this.props;
+  const handleSearch = React.useCallback(
+    (query: string) => {
+      const results = searchOptions.filter((lang) =>
+        lang.name.toLowerCase().includes(query.toLowerCase()),
+      );
 
-    return (
-      <Filter
-        facet={this.props.facet}
-        footer={
-          <SearchableFilterFooter
-            onQueryChange={this.props.onQueryChange}
-            options={this.getSearchOptions()}
-            property={property}
-            query={this.props.query}
-          />
-        }
-        header={<FilterHeader name={translate('projects.facets.languages')} />}
-        maxFacetValue={this.props.maxFacetValue}
-        onQueryChange={this.props.onQueryChange}
-        options={this.getSortedOptions(this.props.facet)}
-        property={property}
-        renderAccessibleLabel={this.renderAccessibleLabel}
-        renderOption={this.renderOption}
-        value={this.props.value}
-      />
-    );
-  }
+      const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
+
+      return Promise.resolve({
+        paging,
+        results,
+      });
+    },
+    [searchOptions],
+  );
+
+  const handleSearchResultCount = React.useCallback(
+    (languages: Language[]) => {
+      return loadSearchResultCount(
+        'languages',
+        languages.map((l) => l.key),
+      );
+    },
+    [loadSearchResultCount],
+  );
+
+  const renderSearchResults = React.useCallback(
+    (lang: Language, term: string) => highlightTerm(lang.name, term),
+    [],
+  );
+
+  const renderLanguageName = React.useCallback(
+    (key: string) => {
+      if (key === '<null>') {
+        return translate('unknown');
+      }
+
+      return languages[key]?.name || key;
+    },
+    [languages],
+  );
+
+  return (
+    <ListStyleFacet<Language>
+      facetHeader={translate('projects.facets.languages')}
+      fetching={false}
+      getFacetItemText={renderLanguageName}
+      getSearchResultKey={(language) => language.key}
+      getSearchResultText={(language) => language.name}
+      loadSearchResultCount={handleSearchResultCount}
+      minSearchLength={1}
+      onChange={handleChange}
+      onSearch={handleSearch}
+      query={query}
+      open
+      property="languages"
+      renderFacetItem={renderLanguageName}
+      renderSearchResult={renderSearchResults}
+      searchPlaceholder={translate('search.search_for_languages')}
+      showStatBar
+      stats={facet}
+      values={value}
+    />
+  );
 }
 
 export default withLanguagesContext(LanguagesFilter);

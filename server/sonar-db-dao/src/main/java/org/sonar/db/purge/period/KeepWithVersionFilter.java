@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,8 @@ package org.sonar.db.purge.period;
 import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
 class KeepWithVersionFilter implements Filter {
@@ -40,12 +39,12 @@ class KeepWithVersionFilter implements Filter {
     return history.stream()
       .filter(analysis -> analysis.getDate().before(before))
       .filter(KeepWithVersionFilter::isDeletable)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   @Override
   public void log() {
-    Loggers.get(getClass()).debug("-> Keep analyses with a version prior to {}", DateUtils.formatDate(before));
+    LoggerFactory.getLogger(getClass()).debug("-> Keep analyses with a version prior to {}", DateUtils.formatDate(before));
   }
 
   private static boolean isDeletable(PurgeableAnalysisDto snapshot) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,44 @@
  */
 package org.sonar.db.permission;
 
-import org.junit.Test;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class GlobalPermissionTest {
+class GlobalPermissionTest {
 
   @Test
-  public void fromKey_returns_enum_with_specified_key() {
+  void fromKey_returns_enum_with_specified_key() {
     for (GlobalPermission p : GlobalPermission.values()) {
       assertThat(GlobalPermission.fromKey(p.getKey())).isEqualTo(p);
     }
+  }
+
+  @Test
+  void fromKey_throws_exception_for_non_existing_keys() {
+    String non_existing_permission = "non_existing";
+    assertThatThrownBy(() -> GlobalPermission.fromKey(non_existing_permission))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void contains_returns_true_for_existing_permissions() {
+    Arrays.stream(GlobalPermission.values())
+      .map(GlobalPermission::getKey)
+      .forEach(key -> assertThat(GlobalPermission.contains(key)).isTrue());
+  }
+
+  @Test
+  void contains_returns_false_for_non_existing_permissions() {
+    String non_existing_permission = "non_existing";
+    assertThat(GlobalPermission.contains(non_existing_permission)).isFalse();
+  }
+
+  @Test
+  void all_in_one_line_contains_all_permissions() {
+    assertThat("admin, gateadmin, profileadmin, provisioning, scan, applicationcreator, " +
+      "portfoliocreator").isEqualTo(GlobalPermission.ALL_ON_ONE_LINE);
   }
 }

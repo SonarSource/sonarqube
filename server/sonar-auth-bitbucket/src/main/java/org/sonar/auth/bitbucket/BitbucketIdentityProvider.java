@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,14 +33,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.CheckForNull;
-import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.server.http.HttpRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -50,7 +50,7 @@ import static java.util.stream.Collectors.toSet;
 @ServerSide
 public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
 
-  private static final Logger LOGGER = Loggers.get(BitbucketIdentityProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(BitbucketIdentityProvider.class);
 
   public static final String REQUIRED_SCOPE = "account";
   public static final String KEY = "bitbucket";
@@ -78,7 +78,7 @@ public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public Display getDisplay() {
     return Display.builder()
-      .setIconPath("/images/alm/bitbucket-white.svg")
+      .setIconPath("/images/alm/bitbucket.svg")
       .setBackgroundColor("#0052cc")
       .build();
   }
@@ -122,7 +122,7 @@ public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
   }
 
   private void onCallback(CallbackContext context) throws InterruptedException, ExecutionException, IOException {
-    HttpServletRequest request = context.getRequest();
+    HttpRequest request = context.getHttpRequest();
     OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
     String code = request.getParameter(OAuthConstants.CODE);
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);

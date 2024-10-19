@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,30 @@ public class GitUtils {
     Path newFile = worktree.resolve(relativePath);
     Files.createDirectories(newFile.getParent());
     Files.write(newFile, content.getBytes(), StandardOpenOption.CREATE);
+  }
+
+  public static void createFile(Path worktree, String relativePath, String... lines) throws IOException {
+    Path newFile = worktree.resolve(relativePath);
+    Files.createDirectories(newFile.getParent());
+    String content = String.join(System.lineSeparator(), lines) + System.lineSeparator();
+    Files.write(newFile, content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+  }
+
+  public static void deleteFile(Path worktree, String relativePath) throws IOException {
+    Path fileToDelete = worktree.resolve(relativePath);
+    Files.delete(fileToDelete);
+  }
+
+  public static void copyFile(Path worktree, String origin, String dest) throws IOException {
+    Path originPath = worktree.resolve(origin);
+    Path destPath = worktree.resolve(dest);
+    Files.copy(originPath, destPath);
+  }
+
+  public static void moveFile(Path worktree, String origin, String dest) throws IOException {
+    Path originPath = worktree.resolve(origin);
+    Path destPath = worktree.resolve(dest);
+    Files.move(originPath, destPath);
   }
 
 

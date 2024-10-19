@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -118,8 +118,8 @@ public class SearchAction implements ProjectLinksWsAction {
       request.getProjectId(),
       request.getProjectKey(),
       ComponentFinder.ParamNames.PROJECT_ID_AND_KEY);
-    if (!userSession.hasProjectPermission(UserRole.ADMIN, project) &&
-      !userSession.hasProjectPermission(UserRole.USER, project)) {
+    if (!userSession.hasEntityPermission(UserRole.ADMIN, project) &&
+        !userSession.hasEntityPermission(UserRole.USER, project)) {
       throw insufficientPrivilegesException();
     }
     return project;

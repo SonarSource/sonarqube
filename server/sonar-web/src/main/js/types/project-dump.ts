@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ import { TaskStatuses } from './tasks';
 export interface DumpStatus {
   canBeExported: boolean;
   canBeImported: boolean;
-  dumpToImport: string;
-  exportedDump: string;
+  dumpToImport?: string;
+  exportedDump?: string;
 }
 
 export interface DumpTask {

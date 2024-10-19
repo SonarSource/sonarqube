@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,11 +27,13 @@ public interface UserDismissedMessagesMapper {
   void insert(@Param("dto") UserDismissedMessageDto dto);
 
   Optional<UserDismissedMessageDto> selectByUserUuidAndProjectUuidAndMessageType(@Param("userUuid") String userUuid, @Param("projectUuid") String projectUuid,
-    @Param("ceMessageType") String ceMessageType);
+    @Param("messageType") String messageType);
+
+  Optional<UserDismissedMessageDto> selectByUserUuidAndMessageType(@Param("userUuid") String userUuid, @Param("messageType") String messageType);
 
   List<UserDismissedMessageDto> selectByUserUuid(@Param("userUuid") String userUuid);
 
   void deleteByUserUuid(@Param("userUuid") String userUuid);
 
-  void deleteByType(@Param("ceMessageType") String ceMessageType);
+  void deleteByType(@Param("messageType") String messageType);
 }

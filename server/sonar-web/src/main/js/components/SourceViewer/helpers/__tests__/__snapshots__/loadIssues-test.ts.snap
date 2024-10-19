@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`loadIssues should load issues 1`] = `
+exports[`loadIssues should load issues with listIssues if re-indexing 1`] = `
 [
   {
     "actions": [
@@ -9,11 +9,9 @@ exports[`loadIssues should load issues 1`] = `
       "assign",
     ],
     "assignee": "luke",
-    "assigneeActive": true,
-    "assigneeAvatar": "lukavatar",
-    "assigneeLogin": "luke",
-    "assigneeName": "Luke",
     "author": "luke@sonarsource.com",
+    "cleanCodeAttribute": "RESPECTFUL",
+    "cleanCodeAttributeCategory": "RESPONSIBLE",
     "comments": [],
     "component": "foo.java",
     "componentEnabled": true,
@@ -25,10 +23,17 @@ exports[`loadIssues should load issues 1`] = `
     "creationDate": "2016-08-15T15:25:38+0200",
     "flows": [],
     "flowsWithType": [],
-    "hash": "78417dcee7ba927b7e7c9161e29e02b8",
+    "impacts": [
+      {
+        "severity": "MEDIUM",
+        "softwareQuality": "MAINTAINABILITY",
+      },
+    ],
+    "issueStatus": "OPEN",
     "key": "AWaqVGl3tut9VbnJvk6M",
     "line": 62,
     "message": "Make sure this file handling is safe here.",
+    "prioritizedRule": false,
     "project": "org.sonarsource.java:java",
     "projectEnabled": true,
     "projectKey": "org.sonarsource.java:java",
@@ -36,12 +41,9 @@ exports[`loadIssues should load issues 1`] = `
     "projectName": "SonarJava",
     "projectQualifier": "TRK",
     "rule": "squid:S4797",
-    "ruleKey": "squid:S4797",
-    "ruleLang": "java",
-    "ruleLangName": "Java",
-    "ruleName": "Handling files is security-sensitive",
-    "ruleStatus": "READY",
+    "scope": "MAIN",
     "secondaryLocations": [],
+    "severity": "MAJOR",
     "status": "OPEN",
     "tags": [
       "cert",
@@ -57,7 +59,78 @@ exports[`loadIssues should load issues 1`] = `
     },
     "transitions": [],
     "type": "SECURITY_HOTSPOT",
-    "updateDate": "2018-10-25T10:23:08+0200",
+  },
+]
+`;
+
+exports[`loadIssues should load issues with searchIssues if not re-indexing 1`] = `
+[
+  {
+    "actions": [
+      "set_tags",
+      "comment",
+      "assign",
+    ],
+    "assignee": "luke",
+    "assigneeActive": true,
+    "assigneeAvatar": "lukavatar",
+    "assigneeLogin": "luke",
+    "assigneeName": "Luke",
+    "author": "luke@sonarsource.com",
+    "cleanCodeAttribute": "RESPECTFUL",
+    "cleanCodeAttributeCategory": "RESPONSIBLE",
+    "comments": [],
+    "component": "foo.java",
+    "componentEnabled": true,
+    "componentKey": "foo.java",
+    "componentLongName": "Foo.java",
+    "componentName": "foo.java",
+    "componentPath": "/foo.java",
+    "componentQualifier": "FIL",
+    "creationDate": "2016-08-15T15:25:38+0200",
+    "flows": [],
+    "flowsWithType": [],
+    "impacts": [
+      {
+        "severity": "MEDIUM",
+        "softwareQuality": "MAINTAINABILITY",
+      },
+    ],
+    "issueStatus": "OPEN",
+    "key": "AWaqVGl3tut9VbnJvk6M",
+    "line": 62,
+    "message": "Make sure this file handling is safe here.",
+    "prioritizedRule": false,
+    "project": "org.sonarsource.java:java",
+    "projectEnabled": true,
+    "projectKey": "org.sonarsource.java:java",
+    "projectLongName": "SonarJava",
+    "projectName": "SonarJava",
+    "projectQualifier": "TRK",
+    "rule": "squid:S4797",
+    "ruleKey": "squid:S4797",
+    "ruleLang": "java",
+    "ruleLangName": "Java",
+    "ruleName": "Handling files is security-sensitive",
+    "ruleStatus": "READY",
+    "scope": "MAIN",
+    "secondaryLocations": [],
+    "severity": "MAJOR",
+    "status": "OPEN",
+    "tags": [
+      "cert",
+      "cwe",
+      "owasp-a1",
+      "owasp-a3",
+    ],
+    "textRange": {
+      "endLine": 62,
+      "endOffset": 96,
+      "startLine": 62,
+      "startOffset": 93,
+    },
+    "transitions": [],
+    "type": "SECURITY_HOTSPOT",
   },
 ]
 `;

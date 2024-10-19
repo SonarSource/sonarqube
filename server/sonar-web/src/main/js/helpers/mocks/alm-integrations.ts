@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@ import {
   GithubRepository,
   GitlabProject,
 } from '../../types/alm-integration';
+import { GitlabConfiguration, ProvisioningType } from '../../types/provisioning';
 
 export function mockAzureProject(overrides: Partial<AzureProject> = {}): AzureProject {
   return {
@@ -53,7 +54,7 @@ export function mockBitbucketProject(overrides: Partial<BitbucketProject> = {}):
 }
 
 export function mockBitbucketRepository(
-  overrides: Partial<BitbucketRepository> = {}
+  overrides: Partial<BitbucketRepository> = {},
 ): BitbucketRepository {
   return {
     id: 1,
@@ -65,7 +66,7 @@ export function mockBitbucketRepository(
 }
 
 export function mockBitbucketCloudRepository(
-  overrides: Partial<BitbucketCloudRepository> = {}
+  overrides: Partial<BitbucketCloudRepository> = {},
 ): BitbucketCloudRepository {
   return {
     uuid: 1,
@@ -82,7 +83,6 @@ export function mockGitHubRepository(overrides: Partial<GithubRepository> = {}):
     id: 'id1234',
     key: 'key3456',
     name: 'repository 1',
-    sqProjectKey: '',
     url: 'https://github.com/owner/repo1',
     ...overrides,
   };
@@ -95,8 +95,24 @@ export function mockGitlabProject(overrides: Partial<GitlabProject> = {}): Gitla
     slug: 'awesome-project-exclamation',
     pathName: 'Company / Best Projects',
     pathSlug: 'company/best-projects',
-    sqProjectKey: '',
     url: 'https://gitlab.company.com/best-projects/awesome-project-exclamation',
+    ...overrides,
+  };
+}
+
+export function mockGitlabConfiguration(
+  overrides: Partial<GitlabConfiguration> = {},
+): GitlabConfiguration {
+  return {
+    id: Math.random().toString(),
+    enabled: false,
+    url: 'URL',
+    applicationId: '123',
+    allowUsersToSignUp: false,
+    synchronizeGroups: true,
+    provisioningType: ProvisioningType.jit,
+    allowedGroups: ['Cypress Hill'],
+    isProvisioningTokenSet: false,
     ...overrides,
   };
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,77 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import classNames from 'classnames';
+import { BasicSeparator, ThirdPartyButton } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import IdentityProviderLink from '../../../components/controls/IdentityProviderLink';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { IdentityProvider } from '../../../types/types';
-import './OAuthProviders.css';
 
 interface Props {
-  className?: string;
-  formatLabel?: (name: string) => React.ReactNode;
   identityProviders: IdentityProvider[];
   returnTo: string;
 }
 
-export default function OAuthProviders(props: Props) {
-  const formatFunction = props.formatLabel || defaultFormatLabel;
+export default function OAuthProviders({ identityProviders, returnTo }: Readonly<Props>) {
+  const authenticate = React.useCallback(
+    (key: string) => {
+      // We need a real page refresh, as the login mechanism is handled on the server
+      window.location.replace(
+        `${getBaseUrl()}/sessions/init/${key}?return_to=${encodeURIComponent(returnTo)}`,
+      );
+    },
+    [returnTo],
+  );
+
   return (
-    <Container className={classNames('oauth-providers', props.className)}>
-      {props.identityProviders.map((identityProvider) => (
-        <OAuthProvider
-          format={formatFunction}
-          identityProvider={identityProvider}
-          key={identityProvider.key}
-          returnTo={props.returnTo}
-        />
-      ))}
-    </Container>
+    <>
+      <div className="sw-w-full sw-flex sw-flex-col sw-gap-4" id="oauth-providers">
+        {identityProviders.map((identityProvider) => (
+          <div key={identityProvider.key}>
+            <ThirdPartyButton
+              className="sw-w-full sw-justify-center"
+              name={identityProvider.name}
+              iconPath={`${getBaseUrl()}${identityProvider.iconPath}`}
+              onClick={() => authenticate(identityProvider.key)}
+            >
+              <span>{translateWithParameters('login.login_with_x', identityProvider.name)}</span>
+            </ThirdPartyButton>
+            {identityProvider.helpMessage && (
+              <HelpTooltip
+                className="oauth-providers-help"
+                overlay={identityProvider.helpMessage}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      <BasicSeparator className="sw-my-6 sw-w-full" />
+    </>
   );
 }
-
-interface ItemProps {
-  format: (name: string) => React.ReactNode;
-  identityProvider: IdentityProvider;
-  returnTo: string;
-}
-
-function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
-  return (
-    <IdentityProviderWrapper>
-      <IdentityProviderLink
-        backgroundColor={identityProvider.backgroundColor}
-        iconPath={identityProvider.iconPath}
-        name={identityProvider.name}
-        url={
-          identityProvider.key === 'saml2'
-            ? `/sessions/sso?return_to=${encodeURIComponent(returnTo)}`
-            : `${getBaseUrl()}/sessions/init/${identityProvider.key}?return_to=${encodeURIComponent(returnTo)}`
-        }
-      >
-        <span>{format(identityProvider.name)}</span>
-      </IdentityProviderLink>
-      {identityProvider.helpMessage && (
-        <HelpTooltip className="oauth-providers-help" overlay={identityProvider.helpMessage} />
-      )}
-    </IdentityProviderWrapper>
-  );
-}
-
-function defaultFormatLabel(name: string) {
-  return translateWithParameters('login.login_with_x', name);
-}
-
-const Container = styled.div`
-  display: inline-flex;
-  flex-direction: column;
-  align-items: stretch;
-`;
-
-const IdentityProviderWrapper = styled.div`
-  margin-bottom: 30px;
-`;

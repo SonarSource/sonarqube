@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,10 @@
  */
 package org.sonar.server.notification;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -34,7 +33,7 @@ import org.sonar.api.server.ServerSide;
  * For example:
  * <ul>
  * <li>notify me by email when someone comments an issue reported by me</li>
- * <li>notify me by twitter when someone comments an issue assigned to me</li>
+ * <li>notify me by X when someone comments an issue assigned to me</li>
  * <li>notify me by Jabber when someone mentions me in an issue comment</li>
  * <li>send me by SMS when there are system notifications (like password reset, account creation, ...)</li>
  * </ul> 

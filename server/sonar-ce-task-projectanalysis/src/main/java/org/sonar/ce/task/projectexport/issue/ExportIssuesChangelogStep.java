@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -41,11 +41,10 @@ public class ExportIssuesChangelogStep implements ComputationStep {
   private static final String STATUS_CLOSED = "CLOSED";
   private static final String QUERY = "select" +
     " ic.kee, ic.issue_key, ic.change_type, ic.change_data, ic.user_login," +
-    " ic.issue_change_creation_date, ic.created_at, p.uuid" +
+    " ic.issue_change_creation_date, ic.created_at, pb.uuid" +
     " from issue_changes ic" +
     " join issues i on i.kee = ic.issue_key" +
-    " join projects p on p.uuid = i.project_uuid" +
-    " join project_branches pb on pb.uuid = p.uuid" +
+    " join project_branches pb on pb.uuid = i.project_uuid" +
     " where pb.project_uuid = ? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge = ? " +
     " and i.status <> ?" +
     " order by ic.created_at asc";
@@ -79,7 +78,7 @@ public class ExportIssuesChangelogStep implements ComputationStep {
         output.write(issue);
         count++;
       }
-      Loggers.get(getClass()).debug("{} issue changes exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} issue changes exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Issues changelog export failed after processing %d issue changes successfully", count), e);
     }

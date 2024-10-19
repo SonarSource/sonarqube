@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,7 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -53,18 +52,23 @@ public class ResourceTypesRule extends ResourceTypes {
     return rootResourceTypes;
   }
 
+  public ResourceTypesRule setRootQualifiers(Collection<ResourceType> qualifiers) {
+    rootResourceTypes = Set.copyOf(qualifiers);
+    return this;
+  }
+
   public ResourceTypesRule setRootQualifiers(String... qualifiers) {
     Set<ResourceType> resourceTypes = new LinkedHashSet<>();
     for (String qualifier : qualifiers) {
       resourceTypes.add(ResourceType.builder(qualifier).setProperty("deletable", true).build());
     }
-    rootResourceTypes = ImmutableSet.copyOf(resourceTypes);
+    rootResourceTypes = Set.copyOf(resourceTypes);
 
     return this;
   }
 
   public ResourceTypesRule setLeavesQualifiers(String... qualifiers) {
-    leavesQualifiers = ImmutableList.copyOf(qualifiers);
+    leavesQualifiers = List.copyOf(Arrays.asList(qualifiers));
     return this;
   }
 
@@ -73,8 +77,13 @@ public class ResourceTypesRule extends ResourceTypes {
     for (String qualifier : qualifiers) {
       resourceTypes.add(ResourceType.builder(qualifier).setProperty("deletable", true).build());
     }
-    allResourceTypes = ImmutableSet.copyOf(resourceTypes);
+    allResourceTypes = Set.copyOf(resourceTypes);
 
+    return this;
+  }
+
+  public ResourceTypesRule setAllQualifiers(Collection<ResourceType> qualifiers) {
+    allResourceTypes = Set.copyOf(qualifiers);
     return this;
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,15 +25,17 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.project.DeletedProject;
+import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singleton;
-import static org.sonar.server.project.Project.from;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 
@@ -80,16 +82,17 @@ public class DeleteAction implements ProjectsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
+      BranchDto mainBranch = componentFinder.getMainBranch(dbSession, project);
       checkPermission(project);
-      componentCleanerService.delete(dbSession, project, userSession.getLogin());
-      projectLifeCycleListeners.onProjectsDeleted(singleton(from(project)));
+      componentCleanerService.deleteEntity(dbSession, project, userSession.getLogin());
+      projectLifeCycleListeners.onProjectsDeleted(singleton(new DeletedProject(Project.fromProjectDtoWithTags(project), mainBranch.getUuid())));
     }
 
     response.noContent();
   }
 
   private void checkPermission(ProjectDto project) {
-    if (!userSession.hasProjectPermission(UserRole.ADMIN, project)) {
+    if (!userSession.hasEntityPermission(UserRole.ADMIN, project)) {
       userSession.checkPermission(OrganizationPermission.ADMINISTER, project.getOrganizationUuid());
     }
   }

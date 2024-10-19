@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,9 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
+
 public class SearchRequest {
   private List<String> additionalFields;
   private Boolean asc;
@@ -33,7 +36,7 @@ public class SearchRequest {
   private List<String> assigneesUuid;
   private List<String> authors;
   private List<String> componentUuids;
-  private List<String> components;
+  private List<String> componentKeys;
   private String createdAfter;
   private String createdAt;
   private String createdBefore;
@@ -51,14 +54,18 @@ public class SearchRequest {
   private String pullRequest;
   private int page;
   private int pageSize;
-  private List<String> projects;
+  private List<String> projectKeys;
   private List<String> resolutions;
   private Boolean resolved;
+  private Boolean prioritizedRule;
   private List<String> rules;
-  private Boolean sinceLeakPeriod;
   private String sort;
   private List<String> severities;
+  private List<String> impactSeverities;
+  private List<String> impactSoftwareQualities;
+  private List<String> cleanCodeAttributesCategories;
   private List<String> statuses;
+  private List<String> issueStatuses;
   private List<String> tags;
   private Set<String> types;
   private List<String> pciDss32;
@@ -66,13 +73,16 @@ public class SearchRequest {
   private List<String> owaspTop10;
   private List<String> owaspAsvs40;
   private List<String> owaspTop10For2021;
+  private List<String> stigAsdV5R3;
+  private List<String> casa;
   private List<String> sansTop25;
   private List<String> sonarsourceSecurity;
   private List<String> cwe;
   private String searchAfter;
   private String timeZone;
-
   private Integer owaspAsvsLevel;
+  private List<String> codeVariants;
+  private String fixedInPullRequest;
 
   private String organization;
 
@@ -236,6 +246,9 @@ public class SearchRequest {
   }
 
   public SearchRequest setIssues(@Nullable List<String> issues) {
+    if (issues != null) {
+      checkArgument(issues.size() <= MAX_PAGE_SIZE, "Number of issue keys must be less than " + MAX_PAGE_SIZE + " (got " + issues.size() + ")");
+    }
     this.issues = issues;
     return this;
   }
@@ -309,30 +322,22 @@ public class SearchRequest {
   }
 
   @CheckForNull
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public SearchRequest setPrioritizedRule(@Nullable Boolean prioritizedRule) {
+    this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  @CheckForNull
   public List<String> getRules() {
     return rules;
   }
 
   public SearchRequest setRules(@Nullable List<String> rules) {
     this.rules = rules;
-    return this;
-  }
-
-  /**
-   * @deprecated since 9.4 - replaced by getInNewCodePeriod()
-   */
-  @Deprecated(since = "9.4")
-  @CheckForNull
-  public Boolean getSinceLeakPeriod() {
-    return sinceLeakPeriod;
-  }
-
-  /**
-   * @deprecated since 9.4 - replaced by setInNewCodePeriod()
-   */
-  @Deprecated(since = "9.4")
-  public SearchRequest setSinceLeakPeriod(@Nullable Boolean sinceLeakPeriod) {
-    this.sinceLeakPeriod = sinceLeakPeriod;
     return this;
   }
 
@@ -364,6 +369,16 @@ public class SearchRequest {
   public SearchRequest setStatuses(@Nullable List<String> statuses) {
     this.statuses = statuses;
     return this;
+  }
+
+  public SearchRequest setIssueStatuses(@Nullable List<String> issueStatuses) {
+    this.issueStatuses = issueStatuses;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getIssueStatuses() {
+    return issueStatuses;
   }
 
   @CheckForNull
@@ -437,6 +452,26 @@ public class SearchRequest {
   }
 
   @CheckForNull
+  public List<String> getStigAsdV5R3() {
+    return stigAsdV5R3;
+  }
+
+  public SearchRequest setStigAsdV5R3(@Nullable List<String> stigAsdV5R3) {
+    this.stigAsdV5R3 = stigAsdV5R3;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getCasa() {
+    return casa;
+  }
+
+  public SearchRequest setCasa(@Nullable List<String> casa) {
+    this.casa = casa;
+    return this;
+  }
+
+  @CheckForNull
   public List<String> getSansTop25() {
     return sansTop25;
   }
@@ -467,22 +502,22 @@ public class SearchRequest {
   }
 
   @CheckForNull
-  public List<String> getComponents() {
-    return components;
+  public List<String> getComponentKeys() {
+    return componentKeys;
   }
 
-  public SearchRequest setComponents(@Nullable List<String> components) {
-    this.components = components;
+  public SearchRequest setComponentKeys(@Nullable List<String> componentKeys) {
+    this.componentKeys = componentKeys;
     return this;
   }
 
   @CheckForNull
-  public List<String> getProjects() {
-    return projects;
+  public List<String> getProjectKeys() {
+    return projectKeys;
   }
 
-  public SearchRequest setProjects(@Nullable List<String> projects) {
-    this.projects = projects;
+  public SearchRequest setProjectKeys(@Nullable List<String> projectKeys) {
+    this.projectKeys = projectKeys;
     return this;
   }
 
@@ -542,5 +577,52 @@ public class SearchRequest {
 
   public String getOrganization() {
     return organization;
+  }
+
+  @CheckForNull
+  public List<String> getCodeVariants() {
+    return codeVariants;
+  }
+
+  public SearchRequest setCodeVariants(@Nullable List<String> codeVariants) {
+    this.codeVariants = codeVariants;
+    return this;
+  }
+
+  public List<String> getImpactSeverities() {
+    return impactSeverities;
+  }
+
+  public SearchRequest setImpactSeverities(@Nullable List<String> impactSeverities) {
+    this.impactSeverities = impactSeverities;
+    return this;
+  }
+
+  public List<String> getImpactSoftwareQualities() {
+    return impactSoftwareQualities;
+  }
+
+  public SearchRequest setImpactSoftwareQualities(@Nullable List<String> impactSoftwareQualities) {
+    this.impactSoftwareQualities = impactSoftwareQualities;
+    return this;
+  }
+
+  public List<String> getCleanCodeAttributesCategories() {
+    return cleanCodeAttributesCategories;
+  }
+
+  public SearchRequest setCleanCodeAttributesCategories(@Nullable List<String> cleanCodeAttributesCategories) {
+    this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
+    return this;
+  }
+
+  @CheckForNull
+  public String getFixedInPullRequest() {
+    return fixedInPullRequest;
+  }
+
+  public SearchRequest setFixedInPullRequest(@Nullable String fixedInPullRequest) {
+    this.fixedInPullRequest = fixedInPullRequest;
+    return this;
   }
 }

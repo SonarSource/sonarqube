@@ -10,7 +10,17 @@
     pb.merge_branch_uuid as mergeBranchUuid,
     pb.pull_request_binary as pullRequestBinary,
     pb.exclude_from_purge as excludeFromPurge,
-    pb.need_issue_sync as needIssueSync
+    pb.need_issue_sync as needIssueSync,
+    pb.is_main as isMain
+  </sql>
+
+  <sql id="telemetryColumns">
+    pb.uuid as branchUuid,
+    pb.project_uuid as projectUuid,
+    pb.kee as branchKey,
+    pb.exclude_from_purge as excludeFromPurge,
+    coalesce(ag.greenQualityGateCount, 0) as greenQualityGateCount,
+    coalesce(ag.analysisCount, 0) as analysisCount
   </sql>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
@@ -24,7 +34,8 @@
     created_at,
     updated_at,
     exclude_from_purge,
-    need_issue_sync
+    need_issue_sync,
+    is_main
     ) values (
     #{dto.uuid, jdbcType=VARCHAR},
     #{dto.projectUuid, jdbcType=VARCHAR},
@@ -35,7 +46,8 @@
     #{now, jdbcType=BIGINT},
     #{now, jdbcType=BIGINT},
     #{dto.excludeFromPurge, jdbcType=BOOLEAN},
-    #{dto.needIssueSync, jdbcType=BOOLEAN}
+    #{dto.needIssueSync, jdbcType=BOOLEAN},
+    #{dto.isMain, jdbcType=BOOLEAN}
     )
   </insert>
 
@@ -95,6 +107,35 @@
     <foreach collection="branchKeyByProjectUuid" index="key" item="value" open="" separator=" or " close="">
         (pb.project_uuid=#{key,jdbcType=VARCHAR} and pb.kee=#{value,jdbcType=VARCHAR})
     </foreach>
+    and pb.branch_type='BRANCH'
+  </select>
+
+    <select id="selectByPullRequestKeys" resultType="org.sonar.db.component.BranchDto">
+    select
+    <include refid="columns"/>
+    from project_branches pb
+    where
+    <foreach collection="prKeyByProjectUuid" index="key" item="value" open="" separator=" or " close="">
+        (pb.project_uuid=#{key,jdbcType=VARCHAR} and pb.kee=#{value,jdbcType=VARCHAR})
+    </foreach>
+    and pb.branch_type='PULL_REQUEST'
+  </select>
+
+
+  <select id="selectBranchMeasuresWithCaycMetric" resultType="org.sonar.db.component.BranchMeasuresDto">
+    select
+    <include refid="telemetryColumns"/>
+    from project_branches pb
+    left join (
+      select pm.component_uuid as branchUuid, count(case when pm.text_value ='OK' then 1 end) as greenQualityGateCount, count(1) as analysisCount
+      from project_measures pm
+      inner join metrics m on m.uuid = pm.metric_uuid
+      inner join snapshots s on s.uuid = pm.analysis_uuid
+      where m.name = 'alert_status' and s.created_at >= #{yesterday, jdbcType=BIGINT}
+      group by pm.component_uuid
+    ) ag
+    on ag.branchUuid = pb.uuid
+    where pb.branch_type='BRANCH'
   </select>
 
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">
@@ -102,6 +143,25 @@
     from project_branches pb
     where
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+  </select>
+
+
+  <select id="selectMainBranchByProjectUuid" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns"/>
+    from project_branches pb
+    where
+    pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+    and is_main = ${_true}
+  </select>
+
+  <select id="selectMainBranchesByProjectUuids" parameterType="string" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns"/>
+    from project_branches pb
+    where pb.project_uuid in
+    <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
+    and is_main = ${_true}
   </select>
 
   <select id="countPrBranchAnalyzedLanguageByProjectUuid" resultType="org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto">
@@ -168,20 +228,6 @@
     from dual
   </select>
 
-  <select id="countByNeedIssueSync" parameterType="map" resultType="int">
-    select
-    count(pb.uuid)
-    from project_branches pb
-    where
-    pb.need_issue_sync = #{needIssueSync, jdbcType=BOOLEAN}
-  </select>
-
-  <select id="countAll" parameterType="map" resultType="int">
-    select
-    count(pb.uuid)
-    from project_branches pb
-  </select>
-
   <select id="selectBranchNeedingIssueSync" resultType="org.sonar.db.component.BranchDto">
     select
     <include refid="columns"/>
@@ -223,11 +269,21 @@
       uuid = #{uuid, jdbcType=VARCHAR}
   </update>
 
+    <update id="updateIsMain">
+    update project_branches
+    set
+      is_main = #{isMain, jdbcType=BOOLEAN},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+
   <sql id="doAnyOfComponentsNeedIssueSyncSql">
     select
     case when exists
     (
-    select pb.project_uuid, pb.need_issue_sync from project_branches pb join components c on pb.project_uuid = c.branch_uuid
+    select pb.project_uuid, pb.need_issue_sync from project_branches pb
+      join components c on pb.uuid = c.branch_uuid
     where c.kee in
     <foreach collection="componentKeys" open="(" close=")" item="componentKey" separator=",">
       #{componentKey,jdbcType=VARCHAR}

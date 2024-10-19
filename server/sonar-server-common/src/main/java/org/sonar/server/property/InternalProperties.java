@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -73,4 +73,10 @@ public interface InternalProperties {
    * @throws IllegalArgumentException if {@code propertyKey} is {@code null} or empty
    */
   void write(String propertyKey, @Nullable String value);
+
+  /**
+   * Delete the specified property.
+   *
+   */
+  void delete(String propertyKey);
 }

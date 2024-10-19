@@ -17,12 +17,22 @@
       "internalKey": "S1067",
       "isTemplate": false,
       "tags": [],
-      "sysTags": ["brain-overload"],
+      "sysTags": [
+        "brain-overload"
+      ],
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
       "isExternal": false,
       "type": "CODE_SMELL",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "cleanCodeAttribute": "CLEAR",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
+        }
+      ],
       "descriptionSections": [
         {
           "key": "root_cause",
@@ -65,12 +75,22 @@
       "internalKey": "ClassCyclomaticComplexity",
       "isTemplate": false,
       "tags": [],
-      "sysTags": ["brain-overload"],
+      "sysTags": [
+        "brain-overload"
+      ],
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
       "isExternal": false,
       "type": "BUG",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "cleanCodeAttribute": "CLEAR",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "HIGH"
+        }
+      ],
       "params": [
         {
           "key": "max",
@@ -91,12 +111,22 @@
       "internalKey": "MethodCyclomaticComplexity",
       "isTemplate": false,
       "tags": [],
-      "sysTags": ["brain-overload"],
+      "sysTags": [
+        "brain-overload"
+      ],
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
       "isExternal": false,
       "type": "VULNERABILITY",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "cleanCodeAttribute": "CLEAR",
+      "impacts": [
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "HIGH"
+        }
+      ],
       "params": [
         {
           "key": "max",
@@ -116,8 +146,8 @@
       "status": "READY",
       "internalKey": "XPath",
       "isTemplate": true,
-      "tags": [ ],
-      "sysTags": [ ],
+      "tags": [],
+      "sysTags": [],
       "mdNote": "<p>\nThe tree produced by the <code>firstOf()</code> matcher is hard to work with from checks when alternatives are not named.\n</p>\n\n<p>\nConsider the following rule:\n</p>\n\n<pre>\nb.rule(COMPILATION_UNIT).is(\n b.firstOf( /* Non-Compliant */\n \"FOO\",\n \"BAR\"));\n</pre>\n\n<p>\nIf, from a check, one wants to forbid the usage of the \"BAR\" alternative,\nthe easiest option will be to verify that the value of the first token is \"BAR\",\ni.e. <code>\"BAR\".equals(compilationUnitNode.getTokenValue())</code>.\n</p>\n\n<p>\nThis is not maintainable, for at least two reasons:\n</p>\n\n<ul>\n <li>The grammar might evolve to also accept \"bar\" in lowercase, which will break <code>\"BAR\".equals(...)</code></li>\n <li>The grammar might evolve to optionally accept \"hello\" before the <code>firstOf()</code>, which will break <code>compilationUnitNode.getTokenValue()</code></li>\n</ul>\n\n<p>\nInstead, it is much better to rewrite the grammar as:\n</p>\n\n<pre>\nb.rule(COMPILATION_UNIT).is(\n firstOf( /* Compliant */\n FOO,\n BAR));\nb.rule(FOO).is(\"FOO\");\nb.rule(BAR).is(\"BAR\");\n</pre>\n\n<p>\nThe same check which forbids \"BAR\" would be written as: <code>compilationUnitNode.hasDirectChildren(BAR)</code>.\nThis allows both of the previous grammar evolutions to be made without impacting the check at all.\n</p>",
       "htmlNote": "&lt;p&gt;<br/>The tree produced by the &lt;code&gt;firstOf()&lt;/code&gt; matcher is hard to work with from checks when alternatives are not named.<br/>&lt;/p&gt;<br/><br/>&lt;p&gt;<br/>Consider the following rule:<br/>&lt;/p&gt;<br/><br/>&lt;pre&gt;<br/>b.rule(COMPILATION_UNIT).is(<br/> b.firstOf( /* Non-Compliant */<br/> &quot;FOO&quot;,<br/> &quot;BAR&quot;));<br/>&lt;/pre&gt;<br/><br/>&lt;p&gt;<br/>If, from a check, one wants to forbid the usage of the &quot;BAR&quot; alternative,<br/>the easiest option will be to verify that the value of the first token is &quot;BAR&quot;,<br/>i.e. &lt;code&gt;&quot;BAR&quot;.equals(compilationUnitNode.getTokenValue())&lt;/code&gt;.<br/>&lt;/p&gt;<br/><br/>&lt;p&gt;<br/>This is not maintainable, for at least two reasons:<br/>&lt;/p&gt;<br/><br/>&lt;ul&gt;<br/> &lt;li&gt;The grammar might evolve to also accept &quot;bar&quot; in lowercase, which will break &lt;code&gt;&quot;BAR&quot;.equals(...)&lt;/code&gt;&lt;/li&gt;<br/> &lt;li&gt;The grammar might evolve to optionally accept &quot;hello&quot; before the &lt;code&gt;firstOf()&lt;/code&gt;, which will break &lt;code&gt;compilationUnitNode.getTokenValue()&lt;/code&gt;&lt;/li&gt;<br/>&lt;/ul&gt;<br/><br/>&lt;p&gt;<br/>Instead, it is much better to rewrite the grammar as:<br/>&lt;/p&gt;<br/><br/>&lt;pre&gt;<br/>b.rule(COMPILATION_UNIT).is(<br/> firstOf( /* Compliant */<br/> FOO,<br/> BAR));<br/>b.rule(FOO).is(&quot;FOO&quot;);<br/>b.rule(BAR).is(&quot;BAR&quot;);<br/>&lt;/pre&gt;<br/><br/>&lt;p&gt;<br/>The same check which forbids &quot;BAR&quot; would be written as: &lt;code&gt;compilationUnitNode.hasDirectChildren(BAR)&lt;/code&gt;.<br/>This allows both of the previous grammar evolutions to be made without impacting the check at all.<br/>&lt;/p&gt;",
       "noteLogin": "eric.hartmann",
@@ -151,13 +181,21 @@
       "internalKey": "XPath",
       "isTemplate": false,
       "templateKey": "squid:XPath",
-      "tags": [ ],
-      "sysTags": [ ],
+      "tags": [],
+      "sysTags": [],
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
       "isExternal": false,
       "type": "CODE_SMELL",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "cleanCodeAttribute": "CLEAR",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
+        }
+      ],
       "params": [
         {
           "key": "xpathQuery",
@@ -290,6 +328,5 @@
         }
       ]
     }
-
   ]
 }

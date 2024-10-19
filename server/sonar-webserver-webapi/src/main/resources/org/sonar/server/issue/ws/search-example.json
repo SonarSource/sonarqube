@@ -10,9 +10,16 @@
       "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
       "project": "com.github.kevinsawicki:http-request",
       "rule": "java:S1144",
-      "status": "RESOLVED",
-      "resolution": "WONTFIX",
-      "severity": "MAJOR",
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "issueStatus": "ACCEPTED",
+      "prioritizedRule": false,
+      "impacts": [
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "HIGH"
+        }
+      ],
       "message": "Remove this unused private \"getKee\" method.",
       "messageFormattings": [
         {
@@ -30,7 +37,6 @@
       "tags": [
         "bug"
       ],
-      "type": "CODE_SMELL",
       "comments": [
         {
           "key": "7d7c56f5-7b5a-41b9-87f8-36fa70caa5ba",
@@ -93,7 +99,11 @@
         }
       ],
       "quickFixAvailable": false,
-      "ruleDescriptionContextKey": "spring"
+      "ruleDescriptionContextKey": "spring",
+      "codeVariants": [
+        "windows",
+        "linux"
+      ]
     }
   ],
   "components": [
@@ -128,6 +138,46 @@
       "name": "Administrator",
       "active": true,
       "avatar": "ab0ec6adc38ad44a15105f207394946f"
+    }
+  ],
+  "facets": [
+    {
+      "property": "cleanCodeAttributeCategories",
+      "values": [
+        {
+          "val": "INTENTIONAL",
+          "count": 6912
+        },
+        {
+          "val": "CONSISTENT",
+          "count": 4950
+        },
+        {
+          "val": "ADAPTABLE",
+          "count": 899
+        },
+        {
+          "val": "RESPONSIBLE",
+          "count": 27
+        }
+      ]
+    },
+    {
+      "property": "impactSeverities",
+      "values": [
+        {
+          "val": "HIGH",
+          "count": 435
+        },
+        {
+          "val": "LOW",
+          "count": 7858
+        },
+        {
+          "val": "MEDIUM",
+          "count": 4495
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
@@ -50,7 +50,7 @@ public class InternalPropertiesDao implements Dao {
    */
   private static final String LOCK_PREFIX = "lock.";
 
-  private static final int KEY_MAX_LENGTH = 20;
+  private static final int KEY_MAX_LENGTH = 40;
   public static final int LOCK_NAME_MAX_LENGTH = KEY_MAX_LENGTH - LOCK_PREFIX.length();
 
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;
@@ -188,7 +188,7 @@ public class InternalPropertiesDao implements Dao {
     }
     res = enforceSingleElement(key, mapper.selectAsClob(singletonList(key)));
     if (res == null) {
-      Loggers.get(InternalPropertiesDao.class)
+      LoggerFactory.getLogger(InternalPropertiesDao.class)
         .debug("Internal property {} has been found in db but has neither text value nor is empty. " +
           "Still it couldn't be retrieved with clob value. Ignoring the property.", key);
       return Optional.empty();

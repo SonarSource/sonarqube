@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
@@ -32,10 +34,12 @@ export default function App() {
   }
 
   return (
-    <div className="page page-limited">
+    <CenteredLayout>
       <Helmet defer={false} title={translate('deletion.page')} />
-      <Header component={component} />
-      <Form component={component} />
-    </div>
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
+        <Header component={component} />
+        <Form component={component} />
+      </PageContentFontWrapper>
+    </CenteredLayout>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, Link, Spinner, SubTitle, Table, TableRow } from 'design-system';
+import { keyBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
+import { getComponentData } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
-import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 import { getOrgIssuesUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
-import { RuleDetails } from '../../../types/types';
+import { FacetName } from '../../../types/issues';
+import { Dict, RuleDetails } from '../../../types/types';
 
 interface Props extends WithAvailableFeaturesProps {
   ruleDetails: Pick<RuleDetails, 'key' | 'type'>;
@@ -45,8 +50,11 @@ interface Project {
 interface State {
   loading: boolean;
   projects?: Project[];
-  total?: number;
+  totalIssues?: number;
+  totalProjects?: number;
 }
+
+const MAX_VIOLATING_PROJECTS = 10;
 
 export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   mounted = false;
@@ -76,31 +84,54 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     getFacet(
       {
-        resolved: 'false',
+        ...DEFAULT_ISSUES_QUERY,
         organization,
         rules: key,
       },
-      'projects'
+      FacetName.Projects,
     ).then(
-      ({ facet, response }) => {
+      async ({ facet, response }) => {
         if (this.mounted) {
-          const { components = [], paging } = response;
-          const projects = [];
-          for (const item of facet) {
-            const project = components.find((component) => component.key === item.val);
-            if (project) {
-              projects.push({ count: item.count, key: project.key, name: project.name });
-            }
-          }
-          this.setState({ projects, loading: false, total: paging.total });
+          const { paging } = response;
+
+          this.setState({
+            projects: await this.getProjects(facet.slice(0, MAX_VIOLATING_PROJECTS)),
+            loading: false,
+            totalIssues: paging.total,
+            totalProjects: facet.length,
+          });
         }
       },
       () => {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
+  };
+
+  /**
+   * Retrieve the names of the projects, to display nicely
+   * (The facet only contains key & count)
+   */
+  getProjects = async (facet: { count: number; val: string }[]) => {
+    const projects: Dict<{ key: string; name: string }> = keyBy(
+      await Promise.all(
+        facet.map((item) =>
+          getComponentData({ component: item.val })
+            .then((response) => ({
+              key: item.val,
+              name: response.component.name,
+            }))
+            .catch(() => ({ key: item.val, name: item.val })),
+        ),
+      ),
+      'key',
+    );
+
+    return facet.map((item) => {
+      return { count: item.count, key: item.val, name: projects[item.val].name };
+    });
   };
 
   renderTotal = () => {
@@ -109,14 +140,14 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
       organization
     } = this.props;
 
-    const { total } = this.state;
+    const { totalIssues: total } = this.state;
     if (total === undefined) {
       return null;
     }
-    const path = getOrgIssuesUrl({ resolved: 'false', rules: key }, organization);
+    const path = getOrgIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key });
 
     const totalItem = (
-      <span className="little-spacer-left">
+      <span className="sw-ml-1">
         {'('}
         <Link to={path}>{total}</Link>
         {')'}
@@ -128,54 +159,76 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Tooltip overlay={translate('coding_rules.issues.only_main_branches')}>{totalItem}</Tooltip>
+      <Tooltip content={translate('coding_rules.issues.only_main_branches')}>{totalItem}</Tooltip>
     );
   };
 
   renderProject = (project: Project) => {
     const {
+      organization,
       ruleDetails: { key },
-      organization
     } = this.props;
-    const path = getOrgIssuesUrl({ resolved: 'false', rules: key, projects: project.key }, organization);
+
+    const path = getOrgIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key, projects: project.key }, organization);
     return (
-      <tr key={project.key}>
-        <td className="coding-rules-detail-list-name">{project.name}</td>
-        <td className="coding-rules-detail-list-parameters">
-          <Link to={path}>{formatMeasure(project.count, 'INT')}</Link>
-        </td>
-      </tr>
+      <TableRow key={project.key}>
+        <ContentCell>{project.name}</ContentCell>
+        <ContentCell>
+          <Link to={path}>{formatMeasure(project.count, MetricType.Integer)}</Link>
+        </ContentCell>
+      </TableRow>
     );
   };
 
   render() {
-    const { loading, projects = [] } = this.state;
+    const { ruleDetails } = this.props;
+    const { loading, projects = [], totalProjects } = this.state;
 
     return (
-      <div className="js-rule-issues coding-rule-section">
-        <DeferredSpinner loading={loading}>
-          <h2 className="coding-rules-detail-title">
+      <div className="sw-mb-8">
+        <Spinner loading={loading}>
+          <SubTitle>
             {translate('coding_rules.issues')}
             {this.renderTotal()}
-          </h2>
+          </SubTitle>
 
           {projects.length > 0 ? (
-            <table className="coding-rules-detail-list coding-rules-most-violated-projects">
-              <tbody>
-                <tr>
-                  <td className="coding-rules-detail-list-name" colSpan={2}>
-                    {translate('coding_rules.most_violating_projects')}
-                  </td>
-                </tr>
+            <>
+              <Table
+                className="sw-mt-6"
+                columnCount={2}
+                header={
+                  <TableRow>
+                    <ContentCell colSpan={2}>
+                      {translate('coding_rules.most_violating_projects')}
+                    </ContentCell>
+                  </TableRow>
+                }
+              >
                 {projects.map(this.renderProject)}
-              </tbody>
-            </table>
+              </Table>
+              {totalProjects !== undefined && totalProjects > projects.length && (
+                <div className="sw-text-center sw-mt-4">
+                  <FormattedMessage
+                    id="coding_rules.most_violating_projects.more_x"
+                    values={{
+                      count: totalProjects - projects.length,
+                      link: (
+                        <Link to={getIssuesUrl({ resolved: 'false', rules: ruleDetails.key })}>
+                          <FormattedMessage id="coding_rules.most_violating_projects.link" />
+                        </Link>
+                      ),
+                    }}
+                  />
+                </div>
+              )}
+            </>
           ) : (
-            <div className="big-padded-bottom">
+            <div className="sw-mb-6">
               {translate('coding_rules.no_issue_detected_for_projects')}
             </div>
           )}
-        </DeferredSpinner>
+        </Spinner>
       </div>
     );
   }

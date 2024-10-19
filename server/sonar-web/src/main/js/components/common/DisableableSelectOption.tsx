@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,21 +22,19 @@ import Tooltip from '../../components/controls/Tooltip';
 
 export interface DisableableSelectOptionProps {
   className?: string;
-  disabledReason?: string;
-  option: { label?: string; value?: string | number | boolean; isDisabled?: boolean };
   disableTooltipOverlay: () => React.ReactNode;
+  disabledReason?: string;
+  option: { isDisabled?: boolean; label?: string; value?: string | number | boolean };
 }
 
 export default function DisableableSelectOption(props: DisableableSelectOptionProps) {
   const { option, disableTooltipOverlay, disabledReason, className = '' } = props;
   const label = option.label || option.value;
   return option.isDisabled ? (
-    <Tooltip overlay={disableTooltipOverlay()} placement="left">
+    <Tooltip content={disableTooltipOverlay()} side="left">
       <span className={className}>
         {label}
-        {disabledReason !== undefined && (
-          <em className="small little-spacer-left">({disabledReason})</em>
-        )}
+        {disabledReason !== undefined && <em className="small sw-ml-1">({disabledReason})</em>}
       </span>
     </Tooltip>
   ) : (

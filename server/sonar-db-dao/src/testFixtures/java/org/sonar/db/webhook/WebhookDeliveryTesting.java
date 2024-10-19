@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,17 +19,18 @@
  */
 package org.sonar.db.webhook;
 
+import java.security.SecureRandom;
 import java.util.List;
+import java.util.Random;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class WebhookDeliveryTesting {
+
+  private static final Random RANDOM = new SecureRandom();
 
   private WebhookDeliveryTesting() {
     // only statics
@@ -39,11 +40,11 @@ public class WebhookDeliveryTesting {
    * Build a {@link WebhookDeliveryDto} with all mandatory fields.
    * Optional fields are kept null.
    */
-  public static WebhookDeliveryDto newDto(String uuid, String webhookUuid, String componentUuid, String ceTaskUuid) {
+  public static WebhookDeliveryDto newDto(String uuid, String webhookUuid, String projectUuid, String ceTaskUuid) {
     return newDto()
       .setUuid(uuid)
       .setWebhookUuid(webhookUuid)
-      .setComponentUuid(componentUuid)
+      .setProjectUuid(projectUuid)
       .setCeTaskUuid(ceTaskUuid);
   }
 
@@ -51,16 +52,16 @@ public class WebhookDeliveryTesting {
     return new WebhookDeliveryDto()
       .setUuid(Uuids.createFast())
       .setWebhookUuid(randomAlphanumeric(40))
-      .setComponentUuid(randomAlphanumeric(40))
+      .setProjectUuid(randomAlphanumeric(40))
       .setCeTaskUuid(randomAlphanumeric(40))
       .setAnalysisUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(10))
       .setUrl(randomAlphanumeric(10))
-      .setDurationMs(nextInt())
-      .setHttpStatus(nextInt())
-      .setSuccess(nextBoolean())
+      .setDurationMs(RANDOM.nextInt(Integer.MAX_VALUE))
+      .setHttpStatus(RANDOM.nextInt(Integer.MAX_VALUE))
+      .setSuccess(RANDOM.nextBoolean())
       .setPayload(randomAlphanumeric(10))
-      .setCreatedAt(nextLong());
+      .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }
 
   public static List<String> selectAllDeliveryUuids(DbTester dbTester, DbSession dbSession) {

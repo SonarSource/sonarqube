@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,15 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.google.common.base.Throwables;
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.Props;
 
 import static org.sonar.core.util.FileUtils.deleteQuietly;
@@ -36,13 +35,17 @@ import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 class EmbeddedTomcat {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedTomcat.class);
+
   private final Props props;
+  private final TomcatHttpConnectorFactory tomcatHttpConnectorFactory;
   private Tomcat tomcat = null;
   private volatile StandardContext webappContext;
   private final CountDownLatch stopLatch = new CountDownLatch(1);
 
-  EmbeddedTomcat(Props props) {
+  EmbeddedTomcat(Props props, TomcatHttpConnectorFactory tomcatHttpConnectorFactory) {
     this.props = props;
+    this.tomcatHttpConnectorFactory = tomcatHttpConnectorFactory;
   }
 
   void start() {
@@ -63,18 +66,27 @@ class EmbeddedTomcat {
     tomcat.getHost().setDeployOnStartup(true);
     new TomcatErrorHandling().configure(tomcat);
     new TomcatAccessLog().configure(tomcat, props);
-    TomcatConnectors.configure(tomcat, props);
+    tomcat.getService().addConnector(tomcatHttpConnectorFactory.createConnector(props));
     webappContext = new TomcatContexts().configure(tomcat, props);
     try {
-      // let Tomcat temporarily log errors at start up - for example, port in use
-      Logger logger = (Logger) LoggerFactory.getLogger("org.apache.catalina.core.StandardService");
-      logger.setLevel(Level.ERROR);
       tomcat.start();
-      logger.setLevel(Level.OFF);
-      new TomcatStartupLogs(Loggers.get(getClass())).log(tomcat);
+      validateConnectorScheme();
     } catch (LifecycleException e) {
-      Loggers.get(EmbeddedTomcat.class).error("Fail to start web server", e);
+      LOGGER.error("Failed to start web server", e);
       Throwables.propagate(e);
+    }
+  }
+
+  private File tomcatBasedir() {
+    return new File(props.value(PATH_TEMP.getKey()), "tc");
+  }
+
+  private void validateConnectorScheme() {
+    Connector[] connectors = tomcat.getService().findConnectors();
+    for (Connector connector : connectors) {
+      if (!connector.getScheme().equals("http")) {
+        throw new IllegalArgumentException("Unsupported connector: " + connector);
+      }
     }
   }
 
@@ -95,10 +107,6 @@ class EmbeddedTomcat {
     DOWN, UP, FAILED
   }
 
-  private File tomcatBasedir() {
-    return new File(props.value(PATH_TEMP.getKey()), "tc");
-  }
-
   void terminate() {
     try {
       if (tomcat.getServer().getState().isAvailable()) {
@@ -106,7 +114,7 @@ class EmbeddedTomcat {
           tomcat.stop();
           tomcat.destroy();
         } catch (Exception e) {
-          Loggers.get(EmbeddedTomcat.class).warn("Failed to stop web server", e);
+          LOGGER.warn("Failed to stop web server", e);
         }
       }
       deleteQuietly(tomcatBasedir());

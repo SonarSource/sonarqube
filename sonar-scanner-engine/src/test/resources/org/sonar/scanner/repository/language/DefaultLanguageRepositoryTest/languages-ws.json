@@ -1,0 +1,16 @@
+{
+  "languages": [
+    {
+      "key": "java",
+      "name": "Java"
+    },
+    {
+      "key" : "xoo",
+      "name": "Xoo"
+    },
+    {
+      "key": "python",
+      "name": "Python"
+    }
+  ]
+}

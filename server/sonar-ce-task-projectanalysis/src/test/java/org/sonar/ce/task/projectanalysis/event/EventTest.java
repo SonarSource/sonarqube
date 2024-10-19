@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -67,5 +67,14 @@ public class EventTest {
       .isEqualTo(Event.createAlert(SOME_NAME, null, null))
       .isEqualTo(source)
       .isNotNull();
+  }
+
+  @Test
+  public void createSqUpgradeEvents_verify_fields() {
+    Event event = Event.createSqUpgrade(SOME_NAME);
+    assertThat(event.getName()).isEqualTo(SOME_NAME);
+    assertThat(event.getCategory()).isEqualTo(Event.Category.SQ_UPGRADE);
+    assertThat(event.getData()).isNull();
+    assertThat(event.getDescription()).isNull();
   }
 }

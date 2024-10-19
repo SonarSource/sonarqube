@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import { findLastIndex, keyBy } from 'lodash';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponentForSourceViewer, getDuplications, getSources } from '../../../api/components';
 import { getIssueFlowSnippets } from '../../../api/issues';
+import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
@@ -31,17 +37,12 @@ import {
   duplicationsByLine as getDuplicationsByLine,
   issuesByComponentAndLine,
 } from '../../../components/SourceViewer/helpers/indexing';
-import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { WorkspaceContext } from '../../../components/workspace/context';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
 import { HttpStatus } from '../../../helpers/request';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
-import { IssueStatus } from '../../../types/issues';
+import { IssueDeprecatedStatus } from '../../../types/issues';
 import {
   Dict,
   DuplicatedFile,
@@ -114,7 +115,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
       },
       () => {
         /* No error hanlding here  */
-      }
+      },
     );
   };
 
@@ -124,7 +125,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
 
     try {
       const components =
-        issue.status === IssueStatus.Closed ? {} : await getIssueFlowSnippets(issue.key);
+        issue.status === IssueDeprecatedStatus.Closed ? {} : await getIssueFlowSnippets(issue.key);
       if (components[issue.component] === undefined) {
         const issueComponent = await getComponentForSourceViewer({
           // If the issue's component doesn't exist anymore (typically a deleted file), use the project
@@ -175,10 +176,11 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
           <DuplicationPopup
             blocks={filterDuplicationBlocksByLine(blocks, line)}
             branchLike={this.props.branchLike}
-            duplicatedFiles={duplicatedFiles}
             inRemovedComponent={isDuplicationBlockInRemovedComponent(blocks)}
+            duplicatedFiles={duplicatedFiles}
             openComponent={openComponent}
             sourceViewerFile={component}
+            duplicationHeader={translate('component_viewer.transition.duplication')}
           />
         )}
       </WorkspaceContext.Consumer>
@@ -191,16 +193,16 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     if (loading) {
       return (
         <div>
-          <DeferredSpinner ariaLabel={translate('code_viewer.loading')} />
+          <Spinner ariaLabel={translate('code_viewer.loading')} />
         </div>
       );
     }
 
     if (notAccessible) {
       return (
-        <Alert className="spacer-top" variant="warning">
+        <FlagMessage className="sw-mt-2" variant="warning">
           {translate('code_viewer.no_source_code_displayed_due_to_security')}
-        </Alert>
+        </FlagMessage>
       );
     }
 
@@ -210,7 +212,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     const locationsByComponent = groupLocationsByComponent(issue, locations, components);
 
     const lastOccurenceOfPrimaryComponent = findLastIndex(locationsByComponent, ({ component }) =>
-      component ? component.key === issue.component : true
+      component ? component.key === issue.component : true,
     );
 
     if (components[issue.component] === undefined) {
@@ -222,8 +224,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
         {locationsByComponent.map((snippetGroup, i) => {
           return (
             <SourceViewerContext.Provider
-              // eslint-disable-next-line react/no-array-index-key
-              key={`${issue.key}-${this.props.selectedFlowIndex || 0}-${i}`}
+              key={`${issue.key}-${this.props.selectedFlowIndex}-${snippetGroup.component.key}`}
               value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}
             >
               <ComponentSourceSnippetGroupViewer
@@ -234,7 +235,6 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
                 issue={issue}
                 issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
                 isLastOccurenceOfPrimaryComponent={i === lastOccurenceOfPrimaryComponent}
-                lastSnippetGroup={i === locationsByComponent.length - 1}
                 loadDuplications={this.fetchDuplications}
                 locations={snippetGroup.locations || []}
                 onIssueSelect={this.props.onIssueSelect}

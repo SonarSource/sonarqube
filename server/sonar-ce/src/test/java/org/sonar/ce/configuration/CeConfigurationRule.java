@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Mutable implementation of {@link CeConfiguration} as {@link org.junit.Rule}.
  */
-public class CeConfigurationRule extends ExternalResource implements CeConfiguration {
+public class CeConfigurationRule implements CeConfiguration {
   private int workerThreadCount = 1;
   private int workerCount = 1;
   private long queuePollingDelay = 2 * 1000L;

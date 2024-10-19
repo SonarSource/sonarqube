@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,54 +21,43 @@ package org.sonar.server.issue.index;
 
 import java.util.Date;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.db.component.ComponentDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
-public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
+class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
 
   @Test
-  public void searchProjectStatistics_returns_empty_list_if_no_input() {
+  void searchProjectStatistics_returns_empty_list_if_no_input() {
     List<ProjectStatistics> result = underTest.searchProjectStatistics(emptyList(), emptyList(), "unknownUser");
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void searchProjectStatistics_returns_empty_list_if_the_input_does_not_match_anything() {
+  void searchProjectStatistics_returns_empty_list_if_the_input_does_not_match_anything() {
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList("unknownProjectUuid"), singletonList(1_111_234_567_890L), "unknownUser");
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void searchProjectStatistics_returns_something() {
-    ComponentDto project = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
-    long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
-
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
-
-    assertThat(result).extracting(ProjectStatistics::getProjectUuid).containsExactly(project.uuid());
-  }
-
-  @Test
-  public void searchProjectStatistics_does_not_return_results_if_assignee_does_not_match() {
+  void searchProjectStatistics_does_not_return_results_if_assignee_does_not_match() {
     ComponentDto project = newPrivateProjectDto();
     String user1Uuid = randomAlphanumeric(40);
     String user2Uuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
+    indexIssues(newDocForProject("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), user2Uuid);
 
@@ -76,11 +65,11 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_returns_results_if_assignee_matches() {
+  void searchProjectStatistics_returns_results_if_assignee_matches() {
     ComponentDto project = newPrivateProjectDto();
     String user1Uuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
+    indexIssues(newDocForProject("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), user1Uuid);
 
@@ -88,11 +77,11 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_returns_results_if_functional_date_is_strictly_after_from_date() {
+  void searchProjectStatistics_returns_results_if_functional_date_is_strictly_after_from_date() {
     ComponentDto project = newPrivateProjectDto();
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
+    indexIssues(newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
@@ -100,11 +89,11 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_does_not_return_results_if_functional_date_is_same_as_from_date() {
+  void searchProjectStatistics_does_not_return_results_if_functional_date_is_same_as_from_date() {
     ComponentDto project = newPrivateProjectDto();
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from)));
+    indexIssues(newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
@@ -112,15 +101,15 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_does_not_return_resolved_issues() {
+  void searchProjectStatistics_does_not_return_resolved_issues() {
     ComponentDto project = newPrivateProjectDto();
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_REMOVED),
-      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_WONT_FIX));
+      newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FIXED),
+      newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_REMOVED),
+      newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_WONT_FIX));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
@@ -128,11 +117,11 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_does_not_return_results_if_functional_date_is_before_from_date() {
+  void searchProjectStatistics_does_not_return_results_if_functional_date_is_before_from_date() {
     ComponentDto project = newPrivateProjectDto();
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from - 1000L)));
+    indexIssues(newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from - 1000L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
@@ -140,14 +129,14 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_returns_issue_count() {
+  void searchProjectStatistics_returns_issue_count() {
     ComponentDto project = newPrivateProjectDto();
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue2", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue3", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
+      newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDocForProject("issue2", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDocForProject("issue3", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
@@ -155,19 +144,19 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_returns_issue_count_for_multiple_projects() {
+  void searchProjectStatistics_returns_issue_count_for_multiple_projects() {
     ComponentDto project1 = newPrivateProjectDto();
     ComponentDto project2 = newPrivateProjectDto();
     ComponentDto project3 = newPrivateProjectDto();
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue2", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue3", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDocForProject("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDocForProject("issue2", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDocForProject("issue3", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
 
-      newDoc("issue4", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue5", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
+      newDocForProject("issue4", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDocForProject("issue5", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(
       asList(project1.uuid(), project2.uuid(), project3.uuid()),
@@ -182,19 +171,19 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_returns_max_date_for_multiple_projects() {
+  void searchProjectStatistics_returns_max_date_for_multiple_projects() {
     ComponentDto project1 = newPrivateProjectDto();
     ComponentDto project2 = newPrivateProjectDto();
     ComponentDto project3 = newPrivateProjectDto();
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_000L;
     indexIssues(
-      newDoc("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1_000L)),
-      newDoc("issue2", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 2_000L)),
-      newDoc("issue3", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 3_000L)),
+      newDocForProject("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1_000L)),
+      newDocForProject("issue2", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 2_000L)),
+      newDocForProject("issue3", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 3_000L)),
 
-      newDoc("issue4", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 4_000L)),
-      newDoc("issue5", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 5_000L)));
+      newDocForProject("issue4", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 4_000L)),
+      newDocForProject("issue5", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 5_000L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(
       asList(project1.uuid(), project2.uuid(), project3.uuid()),
@@ -209,15 +198,15 @@ public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchProjectStatistics_return_branch_issues() {
+  void searchProjectStatistics_return_branch_issues() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey("branch"));
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", branch).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue2", branch).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 2L)),
-      newDoc("issue3", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
+      newDoc("issue1", project.uuid(), branch).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue2", project.uuid(), branch).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 2L)),
+      newDocForProject("issue3", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 

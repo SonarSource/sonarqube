@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,17 +20,17 @@
 package org.sonar.scanner.scan;
 
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
 import org.springframework.context.annotation.Bean;
 
 public class ProjectServerSettingsProvider {
 
-  private static final Logger LOG = Loggers.get(ProjectServerSettingsProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectServerSettingsProvider.class);
 
   private static final String MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING = "Settings that were previously configured at " +
     "sub-project level are not used anymore. Transition the settings listed in ‘General Settings -> General -> " +

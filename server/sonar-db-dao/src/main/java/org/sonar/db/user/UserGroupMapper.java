@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,10 @@
  */
 package org.sonar.db.user;
 
+import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
 public interface UserGroupMapper {
 
@@ -35,4 +37,7 @@ public interface UserGroupMapper {
   void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
   int deleteByUserUuid(@Param("userUuid") String userUuid);
+
+  List<UserGroupDto> selectByQuery(@Param("query") UserGroupQuery query, @Param("pagination") Pagination pagination);
+  int countByQuery(@Param("query") UserGroupQuery query);
 }

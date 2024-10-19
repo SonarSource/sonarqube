@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import com.google.common.base.Strings;
 import org.sonar.api.Startable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.property.PropertiesDao;
 
 /**
@@ -41,7 +41,7 @@ public class RenameDeprecatedPropertyKeys implements Startable {
 
   @Override
   public void start() {
-    Loggers.get(RenameDeprecatedPropertyKeys.class).info("Rename deprecated property keys");
+    LoggerFactory.getLogger(RenameDeprecatedPropertyKeys.class).info("Rename deprecated property keys");
     for (PropertyDefinition definition : definitions.getAll()) {
       if (!Strings.isNullOrEmpty(definition.deprecatedKey())) {
         dao.renamePropertyKey(definition.deprecatedKey(), definition.key());

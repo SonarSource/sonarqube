@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -399,7 +399,7 @@ const diacriticsMap: Dict<string> = {};
 defaultDiacriticsRemovalap.forEach((defaultDiacritic) =>
   defaultDiacritic.letters.split('').forEach((letter) => {
     diacriticsMap[letter] = defaultDiacritic.base;
-  })
+  }),
 );
 
 // "what?" version ... http://jsperf.com/diacritics/12
@@ -413,4 +413,10 @@ export function decodeJwt(token: string) {
   const base64Url = segments.length > 1 ? segments[1] : segments[0];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   return JSON.parse(window.atob(base64));
+}
+
+const VERSION_BUILD = 'build ';
+export function getInstanceVersionNumber(version: string) {
+  // e.g. "10.5 (build 12345)" => "10.5 (12345)"
+  return version.replace(VERSION_BUILD, '');
 }

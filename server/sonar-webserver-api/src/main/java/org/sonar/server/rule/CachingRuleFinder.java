@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -45,7 +44,6 @@ import org.sonar.db.rule.RuleParamDto;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableMap;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * A {@link RuleFinder} implementation that retrieves all rule definitions and their parameter when instantiated, cache
@@ -69,7 +67,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
       this.ruleDtosByUuid = dtos.stream().collect(Collectors.toMap(RuleDto::getUuid, d -> d));
       this.ruleByRuleDto = buildRulesByRuleDefinitionDto(dbClient, dbSession, dtos);
       this.rulesByKey = this.ruleByRuleDto.entrySet().stream()
-        .collect(uniqueIndex(entry -> entry.getKey().getKey(), Map.Entry::getValue));
+        .collect(Collectors.toMap(entry -> entry.getKey().getKey(), Map.Entry::getValue));
     }
   }
 
@@ -126,7 +124,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
       .filter(entry -> matchQuery(entry.getKey(), query))
       .sorted(FIND_BY_QUERY_ORDER)
       .map(Map.Entry::getValue)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   private static boolean matchQuery(RuleDto ruleDto, RuleQuery ruleQuery) {
@@ -164,12 +162,13 @@ public class CachingRuleFinder implements ServerRuleFinder {
     Optional.ofNullable(ruleDescriptionFormatter.getDescriptionAsHtml(ruleDto)).ifPresent(apiRule::setDescription);
     Optional.ofNullable(ruleDto.getLanguage()).ifPresent(apiRule::setLanguage);
 
-    List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {
-      apiParams.add(new org.sonar.api.rules.RuleParam(apiRule, param.getName(), param.getDescription(), param.getType())
-        .setDefaultValue(param.getDefaultValue()));
+      apiRule.createParameter()
+        .setDescription(param.getDescription())
+        .setKey(param.getName())
+        .setType(param.getType())
+        .setDefaultValue(param.getDefaultValue());
     }
-    apiRule.setParams(apiParams);
 
     return apiRule;
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,12 +24,12 @@ import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class UnchangedFilesHandler {
-  private static final Logger LOG = Loggers.get(UnchangedFilesHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UnchangedFilesHandler.class);
   private static final Set<SensorId> ENABLED_SENSORS = Set.of(
     new SensorId("cpp", "CFamily"),
     new SensorId("cobol", "CobolSquidSensor"),

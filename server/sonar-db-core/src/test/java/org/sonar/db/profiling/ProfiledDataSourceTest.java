@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -70,8 +71,8 @@ public class ProfiledDataSourceTest {
     assertThat(statementProxy.getConnection()).isNull();
     assertThat(statementProxy.execute(sql)).isTrue();
 
-    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).get(0))
+    assertThat(logTester.logs(Level.TRACE)).hasSize(1);
+    assertThat(logTester.logs(Level.TRACE).get(0))
       .contains("sql=select from dual");
   }
 
@@ -106,8 +107,8 @@ public class ProfiledDataSourceTest {
     assertThat(preparedStatementProxy.getConnection()).isNull();
     assertThat(preparedStatementProxy.execute()).isTrue();
 
-    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).get(0))
+    assertThat(logTester.logs(Level.TRACE)).hasSize(1);
+    assertThat(logTester.logs(Level.TRACE).get(0))
       .contains("sql=insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?)")
       .contains("params=42, plouf");
   }
@@ -132,8 +133,8 @@ public class ProfiledDataSourceTest {
     assertThat(preparedStatementProxy.getConnection()).isNull();
     assertThat(preparedStatementProxy.execute()).isTrue();
 
-    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).get(0))
+    assertThat(logTester.logs(Level.TRACE)).hasSize(1);
+    assertThat(logTester.logs(Level.TRACE).get(0))
       .contains("sql=select from dual")
       .doesNotContain("params=");
   }

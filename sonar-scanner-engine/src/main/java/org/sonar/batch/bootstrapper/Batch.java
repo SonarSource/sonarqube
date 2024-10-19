@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
 package org.sonar.batch.bootstrapper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.bootstrap.EnvironmentConfig;
 import org.sonar.scanner.bootstrap.SpringGlobalContainer;
 
 /**
@@ -48,6 +48,7 @@ public final class Batch {
     }
     if (builder.globalProperties != null) {
       globalProperties.putAll(builder.globalProperties);
+      EnvironmentConfig.processEnvVariables(globalProperties);
     }
     if (builder.isEnableLoggingConfiguration()) {
       loggingConfig = new LoggingConfiguration(builder.environment).setProperties(globalProperties);
@@ -76,50 +77,20 @@ public final class Batch {
     return this;
   }
 
-  /**
-   * @since 4.4
-   * @deprecated since 6.6 use {@link #execute()}
-   */
-  @Deprecated
-  public synchronized Batch start() {
-    return this;
-  }
-
-  /**
-   * @since 4.4
-   * @deprecated since 6.6 use {@link #execute()}
-   */
-  @Deprecated
-  public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
-    Map<String, String> mergedProps = new HashMap<>(this.globalProperties);
-    mergedProps.putAll(analysisProperties);
-    List<Object> mergedComponents = new ArrayList<>(this.components);
-    mergedComponents.addAll(Arrays.asList(components));
-    return doExecute(mergedProps, mergedComponents);
-  }
-
   private RuntimeException handleException(RuntimeException t) {
-    if (loggingConfig.isVerbose()) {
+    if (loggingConfig != null && loggingConfig.isVerbose()) {
       return t;
     }
 
     Throwable y = t;
     do {
-      if (y instanceof MessageException) {
-        return (MessageException) y;
+      if (y instanceof MessageException messageException) {
+        return messageException;
       }
       y = y.getCause();
     } while (y != null);
 
     return t;
-  }
-
-  /**
-   * @since 4.4
-   * @deprecated since 6.6 use {@link #execute()}
-   */
-  @Deprecated
-  public synchronized void stop() {
   }
 
   private void configureLogging() {
@@ -160,15 +131,6 @@ public final class Batch {
 
     public Builder setGlobalProperties(Map<String, String> globalProperties) {
       this.globalProperties = globalProperties;
-      return this;
-    }
-
-    /**
-     * @deprecated since 6.6 use {@link #setGlobalProperties(Map)}
-     */
-    @Deprecated
-    public Builder setBootstrapProperties(Map<String, String> bootstrapProperties) {
-      this.globalProperties = bootstrapProperties;
       return this;
     }
 

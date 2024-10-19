@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,9 @@
  */
 package org.sonar.server.measure.ws;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.Module;
 
 public class MeasuresWsModule extends Module {
@@ -32,10 +35,41 @@ public class MeasuresWsModule extends Module {
       SearchHistoryAction.class);
   }
 
-
-  public static String getDeprecatedMetrics() {
-    return String.join(", ", "releasability_effort", "security_rating_effort", "reliability_rating_effort", "security_review_rating_effort",
+  public static String getDeprecatedMetricsInSonarQube93() {
+    return "'" + String.join("', '", "releasability_effort", "security_rating_effort", "reliability_rating_effort", "security_review_rating_effort",
       "maintainability_rating_effort", "last_change_on_maintainability_rating", "last_change_on_releasability_rating", "last_change_on_reliability_rating",
-      "last_change_on_security_rating", "last_change_on_security_review_rating");
+      "last_change_on_security_rating", "last_change_on_security_review_rating") + "'";
+  }
+
+  public static String getDeprecatedMetricsInSonarQube104() {
+    return "'" + String.join("', '", "bugs", "new_bugs", "vulnerabilities", "new_vulnerabilities",
+      "code_smells", "new_code_smells", "high_impact_accepted_issues") + "'";
+  }
+
+  public static String getDeprecatedMetricsInSonarQube105() {
+    return "'" + String.join("', '", "new_blocker_violations", "new_critical_violations", "new_major_violations", "new_minor_violations",
+      "new_info_violations", "blocker_violations", "critical_violations", "major_violations", "minor_violations", "info_violations") + "'";
+  }
+
+  public static String getNewMetricsInSonarQube107() {
+    return Stream.of(
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A,
+
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT)
+      .map(e -> "'" + e.getKey() + "'")
+      .collect(Collectors.joining(", "));
   }
 }

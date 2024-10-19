@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FishVisual, Highlight } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import './EmptySearch.css';
 
 export default function EmptySearch() {
   return (
-    <div aria-live="assertive" className="empty-search">
-      <h3>{translate('no_results_search')}</h3>
-      <p className="big-spacer-top">{translate('no_results_search.2')}</p>
+    <div aria-live="assertive" className="sw-text-center sw-py-8">
+      <FishVisual />
+      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
+        {translate('no_results_search')}
+      </Highlight>
+      <p className="sw-typo-default sw-mt-2">{translate('no_results_search.2')}</p>
     </div>
   );
 }

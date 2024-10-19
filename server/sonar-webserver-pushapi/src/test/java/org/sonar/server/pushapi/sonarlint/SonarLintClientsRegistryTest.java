@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,12 +56,18 @@ public class SonarLintClientsRegistryTest {
   private final ServletOutputStream outputStream = mock(ServletOutputStream.class);
 
   private final SonarLintClientPermissionsValidator permissionsValidator = mock(SonarLintClientPermissionsValidator.class);
+  private final SonarLintPushEventExecutorService sonarLintPushEventExecutorService = new SonarLintPushEventExecutorServiceImpl();
 
   private SonarLintClientsRegistry underTest;
 
   @Before
   public void before() {
     underTest = new SonarLintClientsRegistry(permissionsValidator);
+  }
+
+  @After
+  public void after() {
+    this.sonarLintPushEventExecutorService.shutdown();
   }
 
   @Test
@@ -83,7 +90,7 @@ public class SonarLintClientsRegistryTest {
   public void registering10Clients_10ClientsAreRegistered() {
     for (int i = 0; i < 10; i++) {
       AsyncContext newAsyncContext = mock(AsyncContext.class);
-      SonarLintClient sonarLintClient = new SonarLintClient(newAsyncContext, exampleProjectUuids, languageKeys, USER_UUID);
+      SonarLintClient sonarLintClient = new SonarLintClient(sonarLintPushEventExecutorService, newAsyncContext, exampleProjectUuids, languageKeys, USER_UUID);
       underTest.registerClient(sonarLintClient);
     }
 
@@ -95,7 +102,7 @@ public class SonarLintClientsRegistryTest {
     Set<String> javaLanguageKey = Set.of("java");
     when(defaultAsyncContext.getResponse()).thenReturn(response);
     when(response.getOutputStream()).thenReturn(outputStream);
-    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleProjectUuids, javaLanguageKey, USER_UUID);
+    SonarLintClient sonarLintClient = new SonarLintClient(sonarLintPushEventExecutorService, defaultAsyncContext, exampleProjectUuids, javaLanguageKey, USER_UUID);
 
     underTest.registerClient(sonarLintClient);
 
@@ -136,7 +143,7 @@ public class SonarLintClientsRegistryTest {
     Set<String> jsLanguageKey = Set.of("js");
     when(defaultAsyncContext.getResponse()).thenReturn(response);
     when(response.getOutputStream()).thenReturn(outputStream);
-    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleProjectUuids, jsLanguageKey, USER_UUID);
+    SonarLintClient sonarLintClient = new SonarLintClient(sonarLintPushEventExecutorService, defaultAsyncContext, exampleProjectUuids, jsLanguageKey, USER_UUID);
 
     underTest.registerClient(sonarLintClient);
 
@@ -151,7 +158,7 @@ public class SonarLintClientsRegistryTest {
   public void listen_givenOneClientInterestedInProjA_DontCheckPermissionsForProjB() throws IOException {
     when(defaultAsyncContext.getResponse()).thenReturn(response);
     when(response.getOutputStream()).thenReturn(outputStream);
-    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, Set.of("projA"), Set.of("java"), USER_UUID);
+    SonarLintClient sonarLintClient = new SonarLintClient(sonarLintPushEventExecutorService, defaultAsyncContext, Set.of("projA"), Set.of("java"), USER_UUID);
 
     underTest.registerClient(sonarLintClient);
 

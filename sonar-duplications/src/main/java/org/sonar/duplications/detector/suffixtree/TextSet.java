@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -69,8 +69,8 @@ public final class TextSet extends AbstractText {
   @Override
   public Object symbolAt(int index) {
     Object obj = super.symbolAt(index);
-    if (obj instanceof Block) {
-      return ((Block) obj).getBlockHash();
+    if (obj instanceof Block block) {
+      return block.getBlockHash();
     }
     return obj;
   }

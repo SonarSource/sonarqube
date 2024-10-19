@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.batch.bootstrapper;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @since 2.14
@@ -74,13 +74,16 @@ public final class LoggingConfiguration {
   }
 
   public LoggingConfiguration setVerbose(Map<String, String> props) {
+    verbose = isVerboseEnabled(props);
+    return setVerbose(verbose);
+  }
+
+  public static boolean isVerboseEnabled(Map<String, String> props) {
     String logLevel = props.get("sonar.log.level");
     String deprecatedProfilingLevel = props.get("sonar.log.profilingLevel");
-    verbose = "true".equals(props.get("sonar.verbose")) ||
+    return "true".equals(props.get("sonar.verbose")) ||
       "DEBUG".equals(logLevel) || "TRACE".equals(logLevel) ||
       "BASIC".equals(deprecatedProfilingLevel) || "FULL".equals(deprecatedProfilingLevel);
-
-    return setVerbose(verbose);
   }
 
   public LoggingConfiguration setRootLevel(String level) {

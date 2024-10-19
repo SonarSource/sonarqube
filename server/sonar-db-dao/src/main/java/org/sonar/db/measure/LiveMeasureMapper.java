@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.db.measure;
 
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 
@@ -32,6 +32,9 @@ public interface LiveMeasureMapper {
     @Param("metricUuids") Collection<String> metricUuids);
 
   List<LiveMeasureDto> selectForProjectsByMetricUuids(
+    @Param("metricUuids") Collection<String> metricUuids);
+
+  List<ProjectMainBranchLiveMeasureDto> selectForProjectMainBranchesByMetricUuids(
     @Param("metricUuids") Collection<String> metricUuids);
 
   List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(
@@ -57,12 +60,12 @@ public interface LiveMeasureMapper {
     @Param("baseUuidPath") String baseUuidPath,
     ResultHandler<LiveMeasureDto> resultHandler);
 
-  Long sumNclocOfBiggestBranch(
-    @Param("ncloc") String nclocKey,
-    @Param("private") Boolean privateProject,
-    @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
+  @CheckForNull
+  Long findNclocOfBiggestBranchForProject(@Param("projectUuid") String projectUuid, @Param("ncloc") String nclocKey);
 
-  List<LargestBranchNclocDto> getLargestBranchNclocPerProject();
+  List<LargestBranchNclocDto> getLargestBranchNclocPerProject(@Param("nclocUuid") String nclocUuid);
+
+  List<ProjectLocDistributionDto> selectLargestBranchesLocDistribution(@Param("nclocUuid") String nclocUuid, @Param("nclocDistributionUuid") String nclocDistributionUuid);
 
   Long countProjectsHavingMeasure(
     @Param("metric") String metric);

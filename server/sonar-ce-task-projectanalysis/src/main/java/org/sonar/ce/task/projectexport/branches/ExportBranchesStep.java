@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectexport.branches;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -30,10 +30,9 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.project.ProjectExportMapper;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 public class ExportBranchesStep implements ComputationStep {
 
@@ -54,19 +53,21 @@ public class ExportBranchesStep implements ComputationStep {
       try (DbSession dbSession = dbClient.openSession(false);
         StreamWriter<ProjectDump.Branch> output = dumpWriter.newStreamWriter(DumpElement.BRANCHES)) {
         ProjectDump.Branch.Builder builder = ProjectDump.Branch.newBuilder();
-        List<BranchDto> branches = dbSession.getMapper(ProjectExportMapper.class).selectBranchesForExport(projectHolder.projectDto().getUuid());
+        List<BranchDto> branches = dbClient.projectExportDao()
+          .selectBranchesForExport(dbSession, projectHolder.projectDto().getUuid());
         for (BranchDto branch : branches) {
           builder
             .clear()
             .setUuid(branch.getUuid())
             .setProjectUuid(branch.getProjectUuid())
             .setKee(branch.getKey())
+            .setIsMain(branch.isMain())
             .setBranchType(branch.getBranchType().name())
             .setMergeBranchUuid(defaultString(branch.getMergeBranchUuid()));
           output.write(builder.build());
           ++count;
         }
-        Loggers.get(getClass()).debug("{} branches exported", count);
+        LoggerFactory.getLogger(getClass()).debug("{} branches exported", count);
       }
     } catch (Exception e) {
       throw new IllegalStateException(format("Branch export failed after processing %d branch(es) successfully", count), e);

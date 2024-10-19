@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +19,21 @@
  */
 package org.sonar.core.config;
 
-public interface PurgeConstants {
+public class PurgeConstants {
 
-  String HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY = "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay";
-  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek";
-  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth";
-  String WEEKS_BEFORE_KEEPING_ONLY_ANALYSES_WITH_VERSION = "sonar.dbcleaner.weeksBeforeKeepingOnlyAnalysesWithVersion";
-  String WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.weeksBeforeDeletingAllSnapshots";
-  String DAYS_BEFORE_DELETING_CLOSED_ISSUES = "sonar.dbcleaner.daysBeforeDeletingClosedIssues";
-  String DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS = "sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs";
-  String BRANCHES_TO_KEEP_WHEN_INACTIVE = "sonar.dbcleaner.branchesToKeepWhenInactive";
-  String AUDIT_HOUSEKEEPING_FREQUENCY = "sonar.dbcleaner.auditHousekeeping";
+  public static final String HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY = "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay";
+  public static final String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek";
+  public static final String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth";
+  public static final String WEEKS_BEFORE_KEEPING_ONLY_ANALYSES_WITH_VERSION = "sonar.dbcleaner.weeksBeforeKeepingOnlyAnalysesWithVersion";
+  public static final String WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.weeksBeforeDeletingAllSnapshots";
+  public static final String DAYS_BEFORE_DELETING_CLOSED_ISSUES = "sonar.dbcleaner.daysBeforeDeletingClosedIssues";
+  public static final String DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS = "sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs";
+  public static final String BRANCHES_TO_KEEP_WHEN_INACTIVE = "sonar.dbcleaner.branchesToKeepWhenInactive";
+  public static final String AUDIT_HOUSEKEEPING_FREQUENCY = "sonar.dbcleaner.auditHousekeeping";
+  public static final String DAYS_BEFORE_DELETING_ANTICIPATED_TRANSITIONS = "sonar.dbcleaner.daysBeforeDeletingAnticipatedTransitions";
+
+  private PurgeConstants() {
+    //class cannot be instantiated
+  }
+
 }

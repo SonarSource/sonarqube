@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -59,7 +59,7 @@ public class SonarLintClientPermissionsValidator {
     if (userDto == null) {
       throw new ForbiddenException("User does not exist");
     }
-    UserSession userSession = userSessionFactory.create(userDto);
+    UserSession userSession = userSessionFactory.create(userDto, false);
     List<ProjectDto> projectDtos;
     try (DbSession dbSession = dbClient.openSession(false)) {
       projectDtos = dbClient.projectDao().selectByUuids(dbSession, projectUuids);
@@ -70,7 +70,7 @@ public class SonarLintClientPermissionsValidator {
   private static void validateProjectPermissions(UserSession userSession, List<ProjectDto> projectDtos) {
     validateUsersDeactivationStatus(userSession);
     for (ProjectDto projectDto : projectDtos) {
-      userSession.checkProjectPermission(UserRole.USER, projectDto);
+      userSession.checkEntityPermission(UserRole.USER, projectDto);
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,12 @@ package org.sonar.ce.task.projectanalysis.source;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
@@ -43,38 +41,36 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
-public class SourceHashRepositoryImplTest {
+class SourceHashRepositoryImplTest {
   private static final int FILE_REF = 112;
   private static final String FILE_KEY = "file key";
   private static final Component FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, FILE_REF).setKey(FILE_KEY).build();
   private static final String[] SOME_LINES = {"line 1", "line after line 1", "line 4 minus 1", "line 100 by 10"};
 
-  @Rule
-  public SourceLinesRepositoryRule sourceLinesRepository = new SourceLinesRepositoryRule();
+  @RegisterExtension
+  private final SourceLinesRepositoryRule sourceLinesRepository = new SourceLinesRepositoryRule();
 
-  private SourceLinesRepository mockedSourceLinesRepository = mock(SourceLinesRepository.class);
+  private final SourceLinesRepository mockedSourceLinesRepository = mock(SourceLinesRepository.class);
 
-  private SourceHashRepositoryImpl underTest = new SourceHashRepositoryImpl(sourceLinesRepository);
-  private SourceHashRepositoryImpl mockedUnderTest = new SourceHashRepositoryImpl(mockedSourceLinesRepository);
+  private final SourceHashRepositoryImpl underTest = new SourceHashRepositoryImpl(sourceLinesRepository);
+  private final SourceHashRepositoryImpl mockedUnderTest = new SourceHashRepositoryImpl(mockedSourceLinesRepository);
 
   @Test
-  public void getRawSourceHash_throws_NPE_if_Component_argument_is_null() {
+  void getRawSourceHash_throws_NPE_if_Component_argument_is_null() {
     assertThatThrownBy(() -> underTest.getRawSourceHash(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Specified component can not be null");
   }
 
-  @Test
-  @UseDataProvider("componentsOfAllTypesButFile")
-  public void getRawSourceHash_throws_IAE_if_Component_argument_is_not_FILE(Component component) {
+  @ParameterizedTest
+  @MethodSource("componentsOfAllTypesButFile")
+  void getRawSourceHash_throws_IAE_if_Component_argument_is_not_FILE(Component component) {
     assertThatThrownBy(() -> underTest.getRawSourceHash(component))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("File source information can only be retrieved from FILE components (got " + component.getType() + ")");
   }
 
-  @DataProvider
-  public static Object[][] componentsOfAllTypesButFile() {
+  private static Object[][] componentsOfAllTypesButFile() {
     return FluentIterable.from(Arrays.asList(Component.Type.values()))
       .filter(new Predicate<Component.Type>() {
         @Override
@@ -108,7 +104,7 @@ public class SourceHashRepositoryImplTest {
   }
 
   @Test
-  public void getRawSourceHash_returns_hash_of_lines_from_SourceLinesRepository() {
+  void getRawSourceHash_returns_hash_of_lines_from_SourceLinesRepository() {
     sourceLinesRepository.addLines(FILE_REF, SOME_LINES);
 
     String rawSourceHash = underTest.getRawSourceHash(FILE_COMPONENT);
@@ -122,7 +118,7 @@ public class SourceHashRepositoryImplTest {
   }
 
   @Test
-  public void getRawSourceHash_reads_lines_from_SourceLinesRepository_only_the_first_time() {
+  void getRawSourceHash_reads_lines_from_SourceLinesRepository_only_the_first_time() {
     when(mockedSourceLinesRepository.readLines(FILE_COMPONENT)).thenReturn(CloseableIterator.from(Arrays.asList(SOME_LINES).iterator()));
 
     String rawSourceHash = mockedUnderTest.getRawSourceHash(FILE_COMPONENT);
@@ -133,7 +129,7 @@ public class SourceHashRepositoryImplTest {
   }
 
   @Test
-  public void getRawSourceHash_let_exception_go_through() {
+  void getRawSourceHash_let_exception_go_through() {
     IllegalArgumentException thrown = new IllegalArgumentException("this IAE will cause the hash computation to fail");
     when(mockedSourceLinesRepository.readLines(FILE_COMPONENT)).thenThrow(thrown);
 

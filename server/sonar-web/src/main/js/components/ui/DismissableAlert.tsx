@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,29 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { Banner, Variant } from 'design-system';
 import * as React from 'react';
-import { ButtonIcon } from '../../components/controls/buttons';
-import ClearIcon from '../../components/icons/ClearIcon';
-import { Alert, AlertProps } from '../../components/ui/Alert';
-import { translate } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
-import './DismissableAlert.css';
 
-export interface DismissableAlertProps extends AlertProps {
+export interface DismissableAlertProps {
   alertKey: string;
   children?: React.ReactNode;
   className?: string;
+  variant: Variant;
 }
 
 export const DISMISSED_ALERT_STORAGE_KEY = 'sonarqube.dismissed_alert';
 
 export default function DismissableAlert(props: DismissableAlertProps) {
-  const { alertKey, children, className, display = 'banner', variant } = props;
+  const { alertKey, children, className, variant } = props;
   const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
     if (get(DISMISSED_ALERT_STORAGE_KEY, alertKey) !== 'true') {
       setShow(true);
+    } else {
+      setShow(false);
     }
   }, [alertKey]);
 
@@ -50,21 +49,15 @@ export default function DismissableAlert(props: DismissableAlertProps) {
   };
 
   return !show ? null : (
-    <div className={classNames('dismissable-alert-wrapper', className)}>
-      <Alert className={`dismissable-alert-${display}`} display={display} variant={variant}>
-        <div className="display-flex-center dismissable-alert-content">
-          <div className="flex-1">{children}</div>
-          <ButtonIcon
-            aria-label={translate('alert.dismiss')}
-            onClick={() => {
-              hideAlert();
-              setShow(false);
-            }}
-          >
-            <ClearIcon size={12} thin={true} />
-          </ButtonIcon>
-        </div>
-      </Alert>
-    </div>
+    <Banner
+      onDismiss={() => {
+        hideAlert();
+        setShow(false);
+      }}
+      className={classNames('sw-w-full', className)}
+      variant={variant}
+    >
+      {children}
+    </Banner>
   );
 }

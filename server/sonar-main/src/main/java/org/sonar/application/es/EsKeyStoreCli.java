@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.application.es;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -40,20 +41,20 @@ public class EsKeyStoreCli {
   public static final String BOOTSTRAP_PASSWORD_PROPERTY_KEY = "bootstrap.password";
   public static final String KEYSTORE_PASSWORD_PROPERTY_KEY = "xpack.security.transport.ssl.keystore.secure_password";
   public static final String TRUSTSTORE_PASSWORD_PROPERTY_KEY = "xpack.security.transport.ssl.truststore.secure_password";
+  public static final String HTTP_KEYSTORE_PASSWORD_PROPERTY_KEY = "xpack.security.http.ssl.keystore.secure_password";
 
-  private static final String MAIN_CLASS_NAME = "org.elasticsearch.common.settings.KeyStoreCli";
+  private static final String MAIN_CLASS_NAME = "org.elasticsearch.launcher.CliToolLauncher";
 
   private final Map<String, String> properties = new LinkedHashMap<>();
   private final JavaCommand<EsKeyStoreJvmOptions> command;
 
   private EsKeyStoreCli(EsInstallation esInstallation) {
     String esHomeAbsolutePath = esInstallation.getHomeDirectory().getAbsolutePath();
-    command = new JavaCommand<EsKeyStoreJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getConfDirectory())
+    command = new JavaCommand<EsKeyStoreJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
       .setClassName(MAIN_CLASS_NAME)
       .setJvmOptions(new EsKeyStoreJvmOptions(esInstallation))
-      .addClasspath(Paths.get(esHomeAbsolutePath, "lib").toAbsolutePath() + "/*")
-      .addClasspath(Paths.get(esHomeAbsolutePath, "lib", "tools", "keystore-cli")
-        .toAbsolutePath() + "/*")
+      .addClasspath(Paths.get(esHomeAbsolutePath, "lib", "").toAbsolutePath() + File.separator + "*")
+      .addClasspath(Paths.get(esHomeAbsolutePath, "lib", "cli-launcher", "").toAbsolutePath() + File.separator + "*")
       .addParameter("add")
       .addParameter("-x")
       .addParameter("-f");
@@ -118,13 +119,14 @@ public class EsKeyStoreCli {
 
     private static Map<String, String> mandatoryOptions(EsInstallation esInstallation) {
       Map<String, String> res = new LinkedHashMap<>(7);
-      res.put("-Xshare:auto", "");
       res.put("-Xms4m", "");
       res.put("-Xmx64m", "");
+      res.put("-XX:+UseSerialGC", "");
+      res.put("-Dcli.name=", "");
+      res.put("-Dcli.script=", "bin/elasticsearch-keystore");
+      res.put("-Dcli.libs=", "lib/tools/keystore-cli");
       res.put("-Des.path.home=", esInstallation.getHomeDirectory().getAbsolutePath());
       res.put("-Des.path.conf=", esInstallation.getConfDirectory().getAbsolutePath());
-      res.put("-Des.distribution=", "default");
-      res.put("-Des.distribution.type=", "tar");
       return res;
     }
   }

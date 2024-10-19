@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,8 +31,8 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.NO_CONNECTION_TO_DB;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.UNSUPPORTED_DATABASE_MIGRATION_STATUS;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.NO_CONNECTION_TO_DB;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.UNSUPPORTED_DATABASE_MIGRATION_STATUS;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.statusDescription;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.write;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeMigrationRequiredResponse;
@@ -55,11 +56,14 @@ public class DbMigrationStatusAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("db_migration_status")
+      .setHandler(this)
       .setDescription("Display the database migration status of SonarQube." +
         "<br/>" +
         statusDescription())
       .setSince("5.2")
-      .setHandler(this)
+      .setDeprecatedSince("10.6")
+      .setChangelog(
+        new Change("10.6", "This endpoint is deprecated, please use its API v2 version /api/v2/system/migrations-status instead."))
       .setResponseExample(Resources.getResource(this.getClass(), "example-migrate_db.json"));
   }
 

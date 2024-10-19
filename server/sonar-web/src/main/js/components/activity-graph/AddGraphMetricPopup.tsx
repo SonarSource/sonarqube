@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Badge, FlagMessage, MultiSelectMenu } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../components/ui/Alert';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import MultiSelect from '../common/MultiSelect';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
+import { getLocalizedMetricName, translate, translateWithParameters } from '../../helpers/l10n';
+import { getDeprecatedTranslationKeyForTooltip } from './utils';
 
 export interface AddGraphMetricPopupProps {
   elements: string[];
@@ -30,7 +34,6 @@ export interface AddGraphMetricPopupProps {
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
   popupPosition?: any;
-  renderLabel: (element: string) => React.ReactNode;
   selectedElements: string[];
 }
 
@@ -38,45 +41,81 @@ export default function AddGraphMetricPopup({
   elements,
   metricsTypeFilter,
   ...props
-}: AddGraphMetricPopupProps) {
+}: Readonly<AddGraphMetricPopupProps>) {
+  const intl = useIntl();
   let footerNode: React.ReactNode = '';
 
   if (props.selectedElements.length >= 6) {
     footerNode = (
-      <Alert className="spacer-left spacer-right spacer-top" variant="info">
+      <FlagMessage className="sw-m-2" variant="info">
         {translate('project_activity.graphs.custom.add_metric_info')}
-      </Alert>
+      </FlagMessage>
     );
   } else if (metricsTypeFilter && metricsTypeFilter.length > 0) {
     footerNode = (
-      <Alert className="spacer-left spacer-right spacer-top" variant="info">
+      <FlagMessage className="sw-m-2" variant="info">
         {translateWithParameters(
           'project_activity.graphs.custom.type_x_message',
           metricsTypeFilter
             .map((type: string) => translate('metric.type', type))
-            .sort()
-            .join(', ')
+            .sort((a, b) => a.localeCompare(b))
+            .join(', '),
         )}
-      </Alert>
+      </FlagMessage>
     );
   }
 
+  const renderAriaLabel = (key: MetricKey) => {
+    const metricName = getLocalizedMetricName({ key });
+    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
+
+    return isDeprecated
+      ? `${metricName} (${intl.formatMessage({ id: 'deprecated' })})`
+      : metricName;
+  };
+
+  const renderLabel = (key: MetricKey) => {
+    const metricName = getLocalizedMetricName({ key });
+    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
+
+    return (
+      <>
+        {metricName}
+        {isDeprecated && (
+          <Badge className="sw-ml-1">{intl.formatMessage({ id: 'deprecated' })}</Badge>
+        )}
+      </>
+    );
+  };
+
+  const renderTooltip = (key: MetricKey) => {
+    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
+    if (isDeprecated) {
+      return <FormattedMessage id={getDeprecatedTranslationKeyForTooltip(key)} tagName="div" />;
+    }
+
+    return null;
+  };
+
   return (
-    <div className="menu abs-width-300">
-      <MultiSelect
-        allowNewElements={false}
-        allowSelection={props.selectedElements.length < 6}
-        elements={elements}
-        filterSelected={props.filterSelected}
-        footerNode={footerNode}
-        legend={translate('project_activity.graphs.custom.select_metric')}
-        onSearch={props.onSearch}
-        onSelect={(item: string) => elements.includes(item) && props.onSelect(item)}
-        onUnselect={props.onUnselect}
-        placeholder={translate('search.search_for_metrics')}
-        renderLabel={props.renderLabel}
-        selectedElements={props.selectedElements}
-      />
-    </div>
+    <MultiSelectMenu
+      createElementLabel=""
+      searchInputAriaLabel={translate('project_activity.graphs.custom.select_metric')}
+      allowNewElements={false}
+      allowSelection={props.selectedElements.length < 6}
+      elements={elements}
+      filterSelected={props.filterSelected}
+      footerNode={footerNode}
+      noResultsLabel={translateWithParameters('no_results')}
+      onSearch={props.onSearch}
+      onSelect={(item: string) => elements.includes(item) && props.onSelect(item)}
+      onUnselect={props.onUnselect}
+      placeholder={translate('search.search_for_metrics')}
+      renderAriaLabel={renderAriaLabel}
+      renderLabel={renderLabel}
+      renderTooltip={renderTooltip}
+      selectedElements={props.selectedElements}
+      listSize={0}
+    />
   );
 }

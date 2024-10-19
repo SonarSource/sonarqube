@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner, Text } from '@sonarsource/echoes-react';
 import { isEqual, uniqBy } from 'lodash';
 import * as React from 'react';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { getBaseUrl } from '../../helpers/system';
 import { GraphType, MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
 import GraphHistory from './GraphHistory';
-import './styles.css';
 import { getSeriesMetricType, hasHistoryData, isCustomGraph } from './utils';
 
 interface Props {
@@ -32,9 +30,9 @@ interface Props {
   ariaLabel?: string;
   canShowDataAsTable?: boolean;
   graph: GraphType;
-  graphs: Serie[][];
   graphEndDate?: Date;
   graphStartDate?: Date;
+  graphs: Serie[][];
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];
@@ -73,9 +71,9 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
 
     if (loading) {
       return (
-        <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
-          <div className="text-center">
-            <DeferredSpinner ariaLabel={translate('loading')} loading={loading} />
+        <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
+          <div className="sw-text-center">
+            <Spinner isLoading={loading} />
           </div>
         </div>
       );
@@ -83,28 +81,20 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
 
     if (!hasHistoryData(series)) {
       return (
-        <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
-          <div className="display-flex-center display-flex-justify-center">
-            <img
-              alt="" /* Make screen readers ignore this image; it's purely eye candy. */
-              className="spacer-right"
-              height={52}
-              src={`${getBaseUrl()}/images/activity-chart.svg`}
-            />
-            <div className="big-spacer-left big text-muted" style={{ maxWidth: 300 }}>
-              {translate(
-                isCustom
-                  ? 'project_activity.graphs.custom.no_history'
-                  : 'component_measures.no_history'
-              )}
-            </div>
-          </div>
+        <div className="sw-flex sw-items-center sw-justify-center sw-h-full">
+          <Text isSubdued>
+            {translate(
+              isCustom
+                ? 'project_activity.graphs.custom.no_history'
+                : 'component_measures.no_history',
+            )}
+          </Text>
         </div>
       );
     }
     const showAreas = [GraphType.coverage, GraphType.duplications].includes(graph);
     return (
-      <div className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow">
+      <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
         {this.props.graphs.map((graphSeries, idx) => {
           return (
             <GraphHistory
@@ -122,12 +112,12 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
               selectedDate={this.state.selectedDate}
               series={graphSeries}
               graphDescription={
-                ariaLabel ||
+                ariaLabel ??
                 translateWithParameters(
                   'project_activity.graphs.explanation_x',
                   uniqBy(graphSeries, 'name')
                     .map(({ translatedName }) => translatedName)
-                    .join(', ')
+                    .join(', '),
                 )
               }
               showAreas={showAreas}

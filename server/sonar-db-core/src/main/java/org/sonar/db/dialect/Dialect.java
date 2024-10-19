@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -63,11 +63,16 @@ public interface Dialect {
   boolean supportsUpsert();
 
   /**
+   * Indicates whether the dialect supports the NULLS NOT DISTINCT clause in unique indexes
+   */
+  boolean supportsNullNotDistinct();
+
+  /**
    * This method is called when connecting for the first
    * time to the database.
    *
    * @throws MessageException when validation error must be displayed to user
-   * @throws SQLException in case of error to run the validations
+   * @throws SQLException     in case of error to run the validations
    */
   void init(DatabaseMetaData metaData) throws SQLException;
 }

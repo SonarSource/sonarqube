@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,33 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, InputField, TrashIcon } from 'design-system';
 import * as React from 'react';
-import { DeleteButton } from '../../../components/controls/buttons';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   idx: number;
-  scmAccount: string;
   onChange: (idx: number, scmAccount: string) => void;
   onRemove: (idx: number) => void;
+  scmAccount: string;
 }
 
-export default class UserScmAccountInput extends React.PureComponent<Props> {
-  handleChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.props.onChange(this.props.idx, event.currentTarget.value);
+export default function UserScmAccountInput(props: Props) {
+  const { idx, scmAccount } = props;
 
-  handleRemove = () => this.props.onRemove(this.props.idx);
+  const inputAriaLabel = scmAccount.trim()
+    ? translateWithParameters('users.create_user.scm_account_x', scmAccount)
+    : translate('users.create_user.scm_account_new');
 
-  render() {
-    return (
-      <div className="js-scm-account display-flex-row spacer-bottom">
-        <input
-          maxLength={255}
-          onChange={this.handleChange}
-          type="text"
-          value={this.props.scmAccount}
-        />
-        <DeleteButton onClick={this.handleRemove} />
-      </div>
-    );
-  }
+  return (
+    <div className="it__scm-account sw-flex sw-mb-2">
+      <InputField
+        className="sw-mr-1"
+        size="full"
+        maxLength={255}
+        onChange={(event) => {
+          props.onChange(idx, event.currentTarget.value);
+        }}
+        type="text"
+        aria-label={inputAriaLabel}
+        value={scmAccount}
+      />
+      <DestructiveIcon
+        Icon={TrashIcon}
+        aria-label={translateWithParameters('remove_x', inputAriaLabel)}
+        onClick={() => props.onRemove(idx)}
+        stopPropagation={false}
+      />
+    </div>
+  );
 }

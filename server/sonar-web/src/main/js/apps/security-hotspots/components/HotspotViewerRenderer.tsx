@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,16 @@
  */
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { fillBranchLike } from '../../../helpers/branch-like';
+import { Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
+import { HotspotHeader } from './HotspotHeader';
+
+import { Spinner } from 'design-system';
+import { Cve } from '../../../types/cves';
 import { CurrentUser } from '../../../types/users';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
-import { HotspotHeader } from './HotspotHeader';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import './HotspotViewer.css';
@@ -35,19 +38,20 @@ import StatusUpdateSuccessModal from './StatusUpdateSuccessModal';
 export interface HotspotViewerRendererProps {
   component: Component;
   currentUser: CurrentUser;
+  cve?: Cve;
   hotspot?: Hotspot;
-  ruleDescriptionSections?: RuleDescriptionSection[];
   hotspotsReviewedMeasure?: string;
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
-  commentTextRef: React.RefObject<HTMLTextAreaElement>;
   onCloseStatusUpdateSuccessModal: () => void;
-  onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
-  onShowCommentForm: () => void;
-  onSwitchFilterToStatusOfUpdatedHotspot: () => void;
   onLocationClick: (index: number) => void;
-  showStatusUpdateSuccessModal: boolean;
+  onSwitchFilterToStatusOfUpdatedHotspot: () => void;
+  onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  ruleDescriptionSections?: RuleDescriptionSection[];
+  ruleLanguage?: string;
   selectedHotspotLocation?: number;
+  showStatusUpdateSuccessModal: boolean;
+  standards?: Standards;
 }
 
 export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
@@ -56,16 +60,22 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     currentUser,
     hotspot,
     hotspotsReviewedMeasure,
-    loading,
     lastStatusChangedTo,
-    showStatusUpdateSuccessModal,
-    commentTextRef,
-    selectedHotspotLocation,
+    loading,
     ruleDescriptionSections,
+    ruleLanguage,
+    cve,
+    selectedHotspotLocation,
+    showStatusUpdateSuccessModal,
+    standards,
   } = props;
 
+  const branchLike = hotspot && fillBranchLike(hotspot.project.branch, hotspot.project.pullRequest);
+
   return (
-    <DeferredSpinner className="big-spacer-left big-spacer-top" loading={loading}>
+    <>
+      <Spinner className="sw-ml-4 sw-mt-4" loading={loading} />
+
       {showStatusUpdateSuccessModal && (
         <StatusUpdateSuccessModal
           hotspotsReviewedMeasure={hotspotsReviewedMeasure}
@@ -76,32 +86,40 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
       )}
 
       {hotspot && (
-        <div className="big-padded hotspot-content">
-          <HotspotHeader component={component} hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />
+        <div className="sw-box-border sw-p-6">
+          <HotspotHeader
+            branchLike={branchLike}
+            component={component}
+            hotspot={hotspot}
+            onUpdateHotspot={props.onUpdateHotspot}
+            standards={standards}
+          />
           <HotspotViewerTabs
+            activityTabContent={
+              <HotspotReviewHistoryAndComments
+                currentUser={currentUser}
+                hotspot={hotspot}
+                onCommentUpdate={props.onUpdateHotspot}
+              />
+            }
             codeTabContent={
               <HotspotSnippetContainer
-                branchLike={fillBranchLike(hotspot.project.branch, hotspot.project.pullRequest)}
+                branchLike={branchLike}
                 component={component}
                 hotspot={hotspot}
-                onCommentButtonClick={props.onShowCommentForm}
                 onLocationSelect={props.onLocationClick}
                 selectedHotspotLocation={selectedHotspotLocation}
               />
             }
             hotspot={hotspot}
+            onUpdateHotspot={props.onUpdateHotspot}
             ruleDescriptionSections={ruleDescriptionSections}
-            selectedHotspotLocation={selectedHotspotLocation}
-          />
-          <HotspotReviewHistoryAndComments
-            commentTextRef={commentTextRef}
-            currentUser={currentUser}
-            hotspot={hotspot}
-            onCommentUpdate={props.onUpdateHotspot}
+            ruleLanguage={ruleLanguage}
+            cve={cve}
           />
         </div>
       )}
-    </DeferredSpinner>
+    </>
   );
 }
 

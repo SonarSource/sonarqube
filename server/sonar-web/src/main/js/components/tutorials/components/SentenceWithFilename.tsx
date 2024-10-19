@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import { InlineSnippet } from './InlineSnippet';
 
 export interface SentenceWithFilenameProps {
   filename: string;
@@ -31,12 +32,12 @@ export default function SentenceWithFilename({
   translationKey,
 }: SentenceWithFilenameProps) {
   return (
-    <span className="markdown">
+    <span>
       <FormattedMessage
         defaultMessage={translate(translationKey, 'sentence')}
         id={`${translationKey}.sentence`}
         values={{
-          file: <code>{filename}</code>,
+          file: <InlineSnippet snippet={filename} />,
         }}
       />
     </span>

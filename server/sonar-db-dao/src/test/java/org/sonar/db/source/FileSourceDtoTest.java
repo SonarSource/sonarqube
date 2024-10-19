@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,29 +23,30 @@ import com.google.common.base.Joiner;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.protobuf.DbFileSources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class FileSourceDtoTest {
+class FileSourceDtoTest {
   private static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ac magna libero. " +
     "Integer eu quam vulputate, interdum ante quis, sodales mauris. Nam mollis ornare dolor at maximus. Cras pharetra aliquam fringilla. " +
-    "Nunc hendrerit, elit eu mattis fermentum, ligula metus malesuada nunc, non fermentum augue tellus eu odio. Praesent ut vestibulum nibh. " +
-    "Curabitur sit amet dignissim magna, at efficitur dolor. Ut non felis aliquam justo euismod gravida. Morbi eleifend vitae ante eu pulvinar. " +
+    "Nunc hendrerit, elit eu mattis fermentum, ligula metus malesuada nunc, non fermentum augue tellus eu odio. Praesent ut vestibulum " +
+    "nibh. " +
+    "Curabitur sit amet dignissim magna, at efficitur dolor. Ut non felis aliquam justo euismod gravida. Morbi eleifend vitae ante eu " +
+    "pulvinar. " +
     "Aliquam rhoncus magna quis lorem posuere semper.";
 
 
   @Test
-  public void getSourceData_throws_ISE_with_id_fileUuid_and_projectUuid_in_message_when_data_cant_be_read() {
+  void getSourceData_throws_ISE_with_id_fileUuid_and_projectUuid_in_message_when_data_cant_be_read() {
     String uuid = "uuid";
     String fileUuid = "file uuid";
     String projectUuid = "project uuid";
     FileSourceDto underTest = new FileSourceDto()
-      .setBinaryData(new byte[] {1, 2, 3, 4, 5})
+      .setBinaryData(new byte[]{1, 2, 3, 4, 5})
       .setUuid(uuid)
       .setFileUuid(fileUuid)
       .setProjectUuid(projectUuid);
@@ -56,7 +57,7 @@ public class FileSourceDtoTest {
   }
 
   @Test
-  public void getSourceData_reads_Data_object_bigger_than_default_size_limit() {
+  void getSourceData_reads_Data_object_bigger_than_default_size_limit() {
     DbFileSources.Data build = createOver64MBDataStructure();
     byte[] bytes = FileSourceDto.encodeSourceData(build);
 
@@ -77,7 +78,7 @@ public class FileSourceDtoTest {
   }
 
   @Test
-  public void new_FileSourceDto_as_lineCount_0_and_rawLineHashes_to_null() {
+  void new_FileSourceDto_as_lineCount_0_and_rawLineHashes_to_null() {
     FileSourceDto underTest = new FileSourceDto();
 
     assertThat(underTest.getLineCount()).isZero();
@@ -86,7 +87,7 @@ public class FileSourceDtoTest {
   }
 
   @Test
-  public void setLineHashes_null_sets_lineCount_to_0_and_rawLineHashes_to_null() {
+  void setLineHashes_null_sets_lineCount_to_0_and_rawLineHashes_to_null() {
     FileSourceDto underTest = new FileSourceDto();
     underTest.setLineHashes(null);
 
@@ -96,7 +97,7 @@ public class FileSourceDtoTest {
   }
 
   @Test
-  public void setLineHashes_empty_sets_lineCount_to_1_and_rawLineHashes_to_null() {
+  void setLineHashes_empty_sets_lineCount_to_1_and_rawLineHashes_to_null() {
     FileSourceDto underTest = new FileSourceDto();
     underTest.setLineHashes(Collections.emptyList());
 
@@ -106,10 +107,10 @@ public class FileSourceDtoTest {
   }
 
   @Test
-  public void setLineHashes_sets_lineCount_to_size_of_list_and_rawLineHashes_to_join_by_line_return() {
+  void setLineHashes_sets_lineCount_to_size_of_list_and_rawLineHashes_to_join_by_line_return() {
     FileSourceDto underTest = new FileSourceDto();
     int expected = 1 + new Random().nextInt(96);
-    List<String> lineHashes = IntStream.range(0, expected).mapToObj(String::valueOf).collect(Collectors.toList());
+    List<String> lineHashes = IntStream.range(0, expected).mapToObj(String::valueOf).toList();
     underTest.setLineHashes(lineHashes);
 
     assertThat(underTest.getLineCount()).isEqualTo(expected);

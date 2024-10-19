@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { screen } from '@testing-library/react';
 import { differenceInDays } from 'date-fns';
-import { shallow } from 'enzyme';
 import * as React from 'react';
 import { IntlShape } from 'react-intl';
 import { mockPeriod } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import { Period } from '../../../../types/types';
 import { ProjectLeakPeriodInfo } from '../ProjectLeakPeriodInfo';
 
@@ -30,44 +32,67 @@ jest.mock('date-fns', () => {
   return { ...actual, differenceInDays: jest.fn().mockReturnValue(10) };
 });
 
-it('should render correctly for 10 days', () => {
-  expect(shallowRender({ mode: 'days', parameter: '10' })).toMatchSnapshot();
+it('should render correctly for 10 days', async () => {
+  renderProjectLeakPeriodInfo({ mode: 'days', parameter: '10' });
+  expect(await screen.findByText('overview.period.days.10')).toBeInTheDocument();
 });
 
-it('should render correctly for a specific date', () => {
-  expect(shallowRender({ mode: 'date', parameter: '2013-01-01' })).toMatchSnapshot();
+it('should render correctly for a specific date', async () => {
+  renderProjectLeakPeriodInfo({ mode: 'date', parameter: '2013-01-01' });
+  expect(await screen.findByText('overview.period.date.formatted.2013-01-01')).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*ago/)).toBeInTheDocument();
 });
 
-it('should render correctly for a specific version', () => {
-  expect(shallowRender({ mode: 'version', parameter: '0.1' })).toMatchSnapshot();
+it('should render correctly for a specific version', async () => {
+  renderProjectLeakPeriodInfo({ mode: 'version', parameter: '0.1' });
+  expect(await screen.findByText('overview.period.version.0.1')).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*ago/)).toBeInTheDocument();
 });
 
-it('should render correctly for "previous_version"', () => {
-  expect(shallowRender({ mode: 'previous_version' })).toMatchSnapshot();
+it('should render correctly for "previous_version"', async () => {
+  renderProjectLeakPeriodInfo({ mode: 'previous_version' });
+  expect(await screen.findByText('overview.period.previous_version_only_date')).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*ago/)).toBeInTheDocument();
 });
 
-it('should render correctly for "previous_analysis"', () => {
-  expect(shallowRender({ mode: 'previous_analysis' })).toMatchSnapshot();
+it('should render correctly for "previous_analysis"', async () => {
+  renderProjectLeakPeriodInfo({ mode: 'previous_analysis' });
+  expect(await screen.findByText('overview.period.previous_analysis.')).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.previous_analysis_x\..*ago/)).toBeInTheDocument();
 });
 
-it('should render correctly for "REFERENCE_BRANCH"', () => {
-  expect(shallowRender({ mode: 'REFERENCE_BRANCH', parameter: 'master' })).toMatchSnapshot();
+it('should render correctly for "REFERENCE_BRANCH"', async () => {
+  renderProjectLeakPeriodInfo({
+    mode: NewCodeDefinitionType.ReferenceBranch,
+    parameter: 'master',
+  });
+  expect(await screen.findByText('overview.period.reference_branch.master')).toBeInTheDocument();
 });
 
-it('should render correctly for "manual_baseline"', () => {
-  expect(shallowRender({ mode: 'manual_baseline' })).toMatchSnapshot();
-  expect(shallowRender({ mode: 'manual_baseline', parameter: '1.1.2' })).toMatchSnapshot();
-});
+it('should render correctly for "manual_baseline"', async () => {
+  const rtl = renderProjectLeakPeriodInfo({ mode: 'manual_baseline' });
 
-it('should render a more precise date', () => {
-  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
   expect(
-    shallowRender({ date: '2018-08-17T00:00:00+0200', mode: 'previous_version' })
-  ).toMatchSnapshot();
+    await screen.findByText(/overview\.period\.manual_baseline\.formattedTime\..*/),
+  ).toBeInTheDocument();
+  rtl.unmount();
+  renderProjectLeakPeriodInfo({ mode: 'manual_baseline', parameter: '1.1.2' });
+  expect(await screen.findByText('overview.period.manual_baseline.1.1.2')).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*ago/)).toBeInTheDocument();
 });
 
-function shallowRender(period: Partial<Period> = {}) {
-  return shallow(
+it('should render a more precise date', async () => {
+  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
+  renderProjectLeakPeriodInfo({
+    date: '2018-08-17T00:00:00+0200',
+    mode: 'previous_version',
+  });
+  expect(await screen.findByText('overview.period.previous_version_only_date')).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*ago/)).toBeInTheDocument();
+});
+
+function renderProjectLeakPeriodInfo(period: Partial<Period> = {}) {
+  return renderComponent(
     <ProjectLeakPeriodInfo
       intl={
         {
@@ -76,6 +101,6 @@ function shallowRender(period: Partial<Period> = {}) {
         } as IntlShape
       }
       leakPeriod={mockPeriod({ ...period })}
-    />
+    />,
   );
 }

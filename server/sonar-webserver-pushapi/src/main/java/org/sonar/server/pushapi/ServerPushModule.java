@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.server.pushapi;
 import org.sonar.core.platform.Module;
 import org.sonar.server.pushapi.scheduler.polling.PushEventPollExecutorServiceImpl;
 import org.sonar.server.pushapi.scheduler.polling.PushEventPollScheduler;
+import org.sonar.server.pushapi.sonarlint.SonarLintPushEventExecutorServiceImpl;
 import org.sonar.server.pushapi.scheduler.purge.PushEventsPurgeExecutorServiceImpl;
 import org.sonar.server.pushapi.scheduler.purge.PushEventsPurgeScheduler;
 import org.sonar.server.pushapi.sonarlint.SonarLintClientPermissionsValidator;
@@ -37,6 +38,7 @@ public class ServerPushModule extends Module {
       SonarLintClientPermissionsValidator.class,
       SonarLintClientsRegistry.class,
       SonarLintPushAction.class,
+      SonarLintPushEventExecutorServiceImpl.class,
 
       PushEventPollExecutorServiceImpl.class,
       PushEventPollScheduler.class,

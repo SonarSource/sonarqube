@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,57 +25,47 @@ import org.sonar.server.plugins.ServerPluginRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RuleDefinitionsLoaderTest {
 
   @Test
   public void no_definitions() {
-    CommonRuleDefinitions commonRulesDefinitions = mock(CommonRuleDefinitions.class);
-    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class)).load();
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(ServerPluginRepository.class)).loadFromPlugins();
 
     assertThat(context.repositories()).isEmpty();
   }
 
   @Test
-  public void load_definitions() {
-    CommonRuleDefinitions commonRulesDefinitions = mock(CommonRuleDefinitions.class);
-    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
+  public void load_FromPlugins_definitions_only_returns_from_plugins() {
+    var serverPluginRepository = mock(ServerPluginRepository.class);
+    var findbugsDefinitions = new FindbugsDefinitions();
+    var builtInJavaDefinitions = new JavaDefinitions();
+    when(serverPluginRepository.getPluginKey(findbugsDefinitions)).thenReturn("findbugs");
+    when(serverPluginRepository.getPluginKey(builtInJavaDefinitions)).thenReturn(null);
+    RulesDefinition.Context context = new RuleDefinitionsLoader(serverPluginRepository,
       new RulesDefinition[] {
-        new FindbugsDefinitions(), new JavaDefinitions()
-      }).load();
+        findbugsDefinitions, builtInJavaDefinitions
+      }).loadFromPlugins();
 
-    assertThat(context.repositories()).hasSize(2);
+    assertThat(context.repositories()).hasSize(1);
     assertThat(context.repository("findbugs")).isNotNull();
+  }
+
+  @Test
+  public void load_builtin_definitions_only_returns_builtin() {
+    var serverPluginRepository = mock(ServerPluginRepository.class);
+    var findbugsDefinitions = new FindbugsDefinitions();
+    var builtInJavaDefinitions = new JavaDefinitions();
+    when(serverPluginRepository.getPluginKey(findbugsDefinitions)).thenReturn("findbugs");
+    when(serverPluginRepository.getPluginKey(builtInJavaDefinitions)).thenReturn(null);
+    RulesDefinition.Context context = new RuleDefinitionsLoader(serverPluginRepository,
+      new RulesDefinition[] {
+        findbugsDefinitions, builtInJavaDefinitions
+      }).loadBuiltIn();
+
+    assertThat(context.repositories()).hasSize(1);
     assertThat(context.repository("java")).isNotNull();
-  }
-
-  @Test
-  public void define_common_rules() {
-    CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
-    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
-      new RulesDefinition[] {
-        new JavaDefinitions()
-      }).load();
-
-    assertThat(context.repositories()).extracting("key").containsOnly("java", "common-java");
-    assertThat(context.repository("common-java").rules()).extracting("key").containsOnly("InsufficientBranchCoverage");
-  }
-
-  /**
-   * "common-rules" are merged into core 5.2. Previously they were embedded by some plugins. Only the core definition
-   * is taken into account. Others are ignored.
-   */
-  @Test
-  public void plugin_common_rules_are_overridden() {
-    CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
-    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
-      new RulesDefinition[] {
-        new PluginCommonRuleDefinitions()
-      }).load();
-
-    assertThat(context.repositories()).extracting("key").containsOnly("common-java");
-    assertThat(context.repository("common-java").rules()).extracting("key").containsOnly("InsufficientBranchCoverage");
-    assertThat(context.repository("common-java").rule("InsufficientBranchCoverage").name()).isEqualTo("The name as defined by core");
   }
 
   static class FindbugsDefinitions implements RulesDefinition {
@@ -98,28 +88,6 @@ public class RuleDefinitionsLoaderTest {
       repo.createRule("DEF")
         .setName("DEF")
         .setHtmlDescription("Description of DEF");
-      repo.done();
-    }
-  }
-
-  static class PluginCommonRuleDefinitions implements RulesDefinition {
-    @Override
-    public void define(RulesDefinition.Context context) {
-      RulesDefinition.NewRepository repo = context.createRepository("common-java", "java");
-      repo.createRule("InsufficientBranchCoverage")
-        .setName("The name as defined by plugin")
-        .setHtmlDescription("The description as defined by plugin");
-      repo.done();
-    }
-  }
-
-  static class FakeCommonRuleDefinitions implements CommonRuleDefinitions {
-    @Override
-    public void define(RulesDefinition.Context context) {
-      RulesDefinition.NewRepository repo = context.createRepository("common-java", "java");
-      repo.createRule("InsufficientBranchCoverage")
-        .setName("The name as defined by core")
-        .setHtmlDescription("The description as defined by core");
       repo.done();
     }
   }

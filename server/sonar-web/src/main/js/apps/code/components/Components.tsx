@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
+import { ContentCell, Table, TableRow } from 'design-system';
+import { sortBy, times } from 'lodash';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
+import { isDefined } from '../../../helpers/types';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { ComponentMeasure, Metric } from '../../../types/types';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
@@ -33,13 +35,13 @@ interface ComponentsProps {
   branchLike?: BranchLike;
   components: ComponentMeasure[];
   metrics: Metric[];
+  newCodeSelected?: boolean;
   rootComponent: ComponentMeasure;
   selected?: ComponentMeasure;
-  newCodeSelected?: boolean;
   showAnalysisDate?: boolean;
 }
 
-export function Components(props: ComponentsProps) {
+function Components(props: ComponentsProps) {
   const {
     baseComponent,
     branchLike,
@@ -52,78 +54,84 @@ export function Components(props: ComponentsProps) {
   } = props;
 
   const canBePinned =
-    baseComponent &&
+    baseComponent !== undefined &&
     ![
       ComponentQualifier.Application,
       ComponentQualifier.Portfolio,
       ComponentQualifier.SubPortfolio,
     ].includes(baseComponent.qualifier as ComponentQualifier);
 
+  const columnCount = metrics.length + Number(canBePinned) + Number(showAnalysisDate) + 1;
   return (
-    <div className="big-spacer-bottom table-wrapper">
-      <table className="data zebra">
+    <div className="sw-mb-4">
+      <Table
+        columnCount={columnCount}
+        columnWidths={[
+          canBePinned ? '1%' : undefined,
+          'auto',
+          ...times(columnCount - 1, () => '1%'),
+        ].filter(isDefined)}
+        header={
+          baseComponent && (
+            <TableRow>
+              <ComponentsHeader
+                baseComponent={baseComponent}
+                canBePinned={canBePinned}
+                metrics={metrics.map((metric) => metric.key)}
+                rootComponent={rootComponent}
+                showAnalysisDate={showAnalysisDate}
+              />
+            </TableRow>
+          )
+        }
+      >
         {baseComponent && (
-          <ComponentsHeader
-            baseComponent={baseComponent}
-            canBePinned={canBePinned}
-            metrics={metrics.map((metric) => metric.key)}
-            rootComponent={rootComponent}
-            showAnalysisDate={showAnalysisDate}
-          />
+          <>
+            <Component
+              branchLike={branchLike}
+              canBePinned={canBePinned}
+              component={baseComponent}
+              isBaseComponent
+              key={baseComponent.key}
+              metrics={metrics}
+              rootComponent={rootComponent}
+              newCodeSelected={newCodeSelected}
+              showAnalysisDate={showAnalysisDate}
+            />
+            <TableRow>
+              <ContentCell colSpan={columnCount} />
+            </TableRow>
+          </>
         )}
-        <tbody>
-          {baseComponent && (
-            <>
-              <Component
-                branchLike={branchLike}
-                canBePinned={canBePinned}
-                component={baseComponent}
-                hasBaseComponent={false}
-                isBaseComponent={true}
-                key={baseComponent.key}
-                metrics={metrics}
-                rootComponent={rootComponent}
-                newCodeSelected={newCodeSelected}
-                showAnalysisDate={showAnalysisDate}
-              />
-              <tr className="blank">
-                <td
-                  colSpan={metrics.length + 1 + (canBePinned ? 1 : 0) + (showAnalysisDate ? 1 : 0)}
-                />
-              </tr>
-            </>
-          )}
 
-          {components.length ? (
-            sortBy(
-              components,
-              (c) => c.qualifier,
-              (c) => c.name.toLowerCase(),
-              (c) => (c.branch ? c.branch.toLowerCase() : '')
-            ).map((component, index, list) => (
-              <Component
-                branchLike={branchLike}
-                canBePinned={canBePinned}
-                canBrowse={true}
-                component={component}
-                hasBaseComponent={baseComponent !== undefined}
-                key={getComponentMeasureUniqueKey(component)}
-                metrics={metrics}
-                previous={index > 0 ? list[index - 1] : undefined}
-                rootComponent={rootComponent}
-                newCodeSelected={newCodeSelected}
-                showAnalysisDate={showAnalysisDate}
-                selected={
-                  selected &&
-                  getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
-                }
-              />
-            ))
-          ) : (
-            <ComponentsEmpty canBePinned={canBePinned} />
-          )}
-        </tbody>
-      </table>
+        {components.length ? (
+          sortBy(
+            components,
+            (c) => c.qualifier,
+            (c) => c.name.toLowerCase(),
+            (c) => (c.branch ? c.branch.toLowerCase() : ''),
+          ).map((component, index, list) => (
+            <Component
+              branchLike={branchLike}
+              canBePinned={canBePinned}
+              canBrowse
+              component={component}
+              key={getComponentMeasureUniqueKey(component)}
+              metrics={metrics}
+              previous={index > 0 ? list[index - 1] : undefined}
+              rootComponent={rootComponent}
+              newCodeSelected={newCodeSelected}
+              showAnalysisDate={showAnalysisDate}
+              selected={
+                selected &&
+                getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
+              }
+            />
+          ))
+        ) : (
+          <ComponentsEmpty />
+        )}
+      </Table>
     </div>
   );
 }

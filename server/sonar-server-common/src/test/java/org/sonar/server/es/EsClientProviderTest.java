@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,21 +19,26 @@
  */
 package org.sonar.server.es;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
 import org.assertj.core.api.Condition;
 import org.elasticsearch.client.Node;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
@@ -44,6 +49,8 @@ import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 public class EsClientProviderTest {
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private MapSettings settings = new MapSettings();
   private EsClientProvider underTest = new EsClientProvider();
@@ -71,7 +78,7 @@ public class EsClientProviderTest {
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(9000);
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [http://" + localhostHostname + ":9000]"), ""));
+    assertThat(logTester.logs(Level.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [http://" + localhostHostname + ":9000]"), ""));
   }
 
   @Test
@@ -92,7 +99,7 @@ public class EsClientProviderTest {
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [http://" + localhostHostname + ":8080, http://" + localhostHostname + ":8081]"), ""));
   }
 
@@ -137,7 +144,26 @@ public class EsClientProviderTest {
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [http://" + localhostHostname + ":9001, http://" + localhostHostname + ":8081]"), ""));
+  }
+
+  @Test
+  public void provide_whenHttpEncryptionEnabled_shouldUseHttps() throws GeneralSecurityException, IOException {
+    settings.setProperty(CLUSTER_ENABLED.getKey(), true);
+    Path keyStorePath = temp.newFile("keystore.p12").toPath();
+    EsClientTest.createCertificate("localhost", keyStorePath, "password");
+    settings.setProperty(CLUSTER_ES_HTTP_KEYSTORE.getKey(), keyStorePath.toString());
+    settings.setProperty(CLUSTER_NODE_TYPE.getKey(), "application");
+    settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s,%s:8081", localhostHostname, localhostHostname));
+
+    EsClient client = underTest.provide(settings.asConfig());
+    RestHighLevelClient nativeClient = client.nativeClient();
+
+    Node node = nativeClient.getLowLevelClient().getNodes().get(0);
+    assertThat(node.getHost().getSchemeName()).isEqualTo("https");
+
+    assertThat(logTester.logs(Level.INFO))
+      .has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [https://" + localhostHostname + ":9001, https://" + localhostHostname + ":8081]"), ""));
   }
 }

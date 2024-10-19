@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -47,29 +47,29 @@ import { Dict } from '../../../../types/types';
 import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
 import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer';
 
-interface Props {
+export interface AlmBindingDefinitionFormProps {
+  afterSubmit: (data: AlmBindingDefinitionBase) => void;
   alm: AlmKeys;
   bindingDefinition?: AlmBindingDefinition;
-  onCancel: () => void;
-  afterSubmit: (data: AlmBindingDefinitionBase) => void;
   enforceValidation?: boolean;
+  onCancel: () => void;
 }
 
 interface State {
-  formData: AlmBindingDefinition;
-  touched: boolean;
-  submitting: boolean;
-  bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
   alreadySavedFormData?: AlmBindingDefinition;
+  bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
+  formData: AlmBindingDefinition;
+  submitting: boolean;
+  touched: boolean;
   validationError?: string;
 }
 
 const BINDING_PER_ALM: {
   [key in AlmKeys]: {
     createApi: (def: AlmBindingDefinition) => Promise<void>;
-    updateApi: (def: AlmBindingDefinition) => Promise<void>;
     defaultBinding: AlmBindingDefinition;
     optionalFields: Dict<boolean>;
+    updateApi: (def: AlmBindingDefinition) => Promise<void>;
   };
 } = {
   [AlmKeys.Azure]: {
@@ -121,9 +121,14 @@ const BINDING_PER_ALM: {
   },
 };
 
-export default class AlmBindingDefinitionForm extends React.PureComponent<Props, State> {
+export default class AlmBindingDefinitionForm extends React.PureComponent<
+  AlmBindingDefinitionFormProps,
+  State
+> {
   mounted = false;
-  constructor(props: Props) {
+  errorListElement = React.createRef<HTMLDivElement>();
+
+  constructor(props: AlmBindingDefinitionFormProps) {
     super(props);
 
     let bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud | undefined = undefined;
@@ -208,6 +213,9 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
 
       if (error) {
         this.setState({ validationError: error });
+        if (this.errorListElement?.current) {
+          this.errorListElement.current.scrollIntoView({ block: 'start' });
+        }
       } else {
         this.props.afterSubmit(formData);
       }
@@ -229,7 +237,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
   };
 
   handleBitbucketVariantChange = (
-    bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud
+    bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud,
   ) => {
     this.setState({
       bitbucketVariant,
@@ -277,6 +285,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
         bitbucketVariant={bitbucketVariant}
         onBitbucketVariantChange={this.handleBitbucketVariantChange}
         validationError={validationError}
+        errorListElementRef={this.errorListElement}
       />
     );
   }

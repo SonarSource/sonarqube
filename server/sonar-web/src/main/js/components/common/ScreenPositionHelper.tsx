@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,11 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 
 interface Props {
+  children: (position: { left: number; top: number }) => React.ReactElement<any>;
   className?: string;
-  children: (position: { top: number; left: number }) => React.ReactElement<any>;
 }
+
+export const SCREEN_POSITION_COMPUTE_DELAY = 250;
 
 export default class ScreenPositionHelper extends React.PureComponent<Props> {
   container?: HTMLDivElement;
@@ -31,7 +33,7 @@ export default class ScreenPositionHelper extends React.PureComponent<Props> {
 
   constructor(props: Props) {
     super(props);
-    this.debouncedOnResize = debounce(() => this.forceUpdate(), 250);
+    this.debouncedOnResize = debounce(() => this.forceUpdate(), SCREEN_POSITION_COMPUTE_DELAY);
   }
 
   componentDidMount() {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,15 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,25 +35,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
 
 import static java.lang.String.format;
@@ -68,7 +66,10 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CWE;
+import static org.sonar.server.rule.index.RuleIndex.FACET_IMPACT_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndex.FACET_IMPACT_SOFTWARE_QUALITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OLD_DEFAULT;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OWASP_TOP_10;
@@ -80,13 +81,16 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_SONARSOURCE_SECURITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
@@ -99,8 +103,8 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
   private static final String PARAM_ORGANIZATION = "organization";
-  private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
-  private static final String[] POSSIBLE_FACETS = new String[]{
+  private static final Collection<String> DEFAULT_FACETS = Set.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
+  private static final String[] POSSIBLE_FACETS = new String[] {
     FACET_LANGUAGES,
     FACET_REPOSITORIES,
     FACET_TAGS,
@@ -113,23 +117,22 @@ public class SearchAction implements RulesWsAction {
     FACET_OWASP_TOP_10,
     FACET_OWASP_TOP_10_2021,
     FACET_SANS_TOP_25,
-    FACET_SONARSOURCE_SECURITY};
+    FACET_SONARSOURCE_SECURITY,
+    FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY,
+    FACET_IMPACT_SEVERITY,
+    FACET_IMPACT_SOFTWARE_QUALITY
+  };
 
   private final RuleQueryFactory ruleQueryFactory;
   private final DbClient dbClient;
   private final RuleIndex ruleIndex;
-  private final ActiveRuleCompleter activeRuleCompleter;
-  private final RuleMapper mapper;
-  private final RuleWsSupport ruleWsSupport;
+  private final RulesResponseFormatter rulesResponseFormatter;
 
-  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper,
-    RuleWsSupport ruleWsSupport) {
+  public SearchAction(RuleIndex ruleIndex, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RulesResponseFormatter rulesResponseFormatter) {
     this.ruleIndex = ruleIndex;
-    this.activeRuleCompleter = activeRuleCompleter;
     this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
-    this.mapper = mapper;
-    this.ruleWsSupport = ruleWsSupport;
+    this.rulesResponseFormatter = rulesResponseFormatter;
   }
 
   @Override
@@ -138,24 +141,49 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this)
       .setChangelog(
-        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
-        new Change("9.8", "The field 'paging' has been added to the response"),
-        new Change("5.5", "The field 'effortToFixDescription' has been deprecated use 'gapDescription' instead"),
-        new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated use 'remFnGapMultiplier' instead"),
-        new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated use 'defaultRemFnGapMultiplier' instead"),
-        new Change("5.5", "The field 'debtRemFnOffset' has been deprecated use 'remFnBaseEffort' instead"),
-        new Change("5.5", "The field 'defaultDebtRemFnOffset' has been deprecated use 'defaultRemFnBaseEffort' instead"),
+        new Change("10.6", format("Parameter '%s has been added", PARAM_PRIORITIZED_RULE)),
+        new Change("5.5", "The field 'effortToFixDescription' has been deprecated, use 'gapDescription' instead"),
+        new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated, use 'remFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated, use 'defaultRemFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'debtRemFnOffset' has been deprecated, use 'remFnBaseEffort' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnOffset' has been deprecated, use 'defaultRemFnBaseEffort' instead"),
+        new Change("5.5", "The field 'debtOverloaded' has been deprecated, use 'remFnOverloaded' instead"),
         new Change("7.1", "The field 'scope' has been added to the response"),
         new Change("7.1", "The field 'scope' has been added to the 'f' parameter"),
         new Change("7.2", "The field 'isExternal' has been added to the response"),
         new Change("7.2", "The field 'includeExternal' has been added to the 'f' parameter"),
         new Change("7.5", "The field 'updatedAt' has been added to the 'f' parameter"),
-        new Change("9.5", "The field 'htmlDesc' has been deprecated use 'descriptionSections' instead"),
+        new Change("9.5", "The field 'htmlDesc' has been deprecated, use 'descriptionSections' instead"),
         new Change("9.5", "The field 'descriptionSections' has been added to the payload"),
         new Change("9.5", "The field 'descriptionSections' has been added to the 'f' parameter"),
         new Change("9.6", "'descriptionSections' can optionally embed a context field"),
-        new Change("9.6", "The field 'educationPrinciples' has been added to the 'f' parameter")
-      );
+        new Change("9.6", "The field 'educationPrinciples' has been added to the 'f' parameter"),
+        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
+        new Change("9.8", "The field 'paging' has been added to the response"),
+        new Change("10.0", "The deprecated field 'effortToFixDescription' has been removed, use 'gapDescription' instead."),
+        new Change("10.0", "The deprecated field 'debtRemFnCoeff' has been removed, use 'remFnGapMultiplier' instead."),
+        new Change("10.0", "The deprecated field 'defaultDebtRemFnCoeff' has been removed, use 'defaultRemFnGapMultiplier' instead."),
+        new Change("10.0", "The deprecated field 'debtRemFnOffset' has been removed, use 'remFnBaseEffort' instead."),
+        new Change("10.0", "The deprecated field 'defaultDebtRemFnOffset' has been removed, use 'defaultRemFnBaseEffort' instead."),
+        new Change("10.0", "The deprecated field 'debtOverloaded' has been removed, use 'remFnOverloaded' instead."),
+        new Change("10.0", "The field 'defaultDebtRemFnType' has been deprecated, use 'defaultRemFnType' instead"),
+        new Change("10.0", "The field 'debtRemFnType' has been deprecated, use 'remFnType' instead"),
+        new Change("10.0", "The value 'debtRemFn' for the 'f' parameter has been deprecated, use 'remFn' instead"),
+        new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead"),
+        new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
+        new Change("10.0", "Parameter 'sansTop25' is deprecated"),
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
+        new Change("10.2", "The fields 'type' and 'severity' are deprecated in the response. Use 'impacts' instead."),
+        new Change("10.2", "The field 'cleanCodeAttribute' has been added to the 'f' parameter."),
+        new Change("10.2", "The value 'severity' for the 'f' parameter has been deprecated."),
+        new Change("10.2",
+          format("The values '%s', '%s' and '%s' have been added to the 'facets' parameter.", FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_IMPACT_SOFTWARE_QUALITY,
+            FACET_IMPACT_SEVERITY)),
+        new Change("10.2", format("The values 'severity' and 'types' for the 'facets' parameter have been deprecated. Use '%s' and '%s' instead.", FACET_IMPACT_SEVERITY,
+          FACET_IMPACT_SOFTWARE_QUALITY)),
+        new Change("10.2",
+          format("Parameters '%s', '%s', and '%s' are now deprecated. Use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES,
+            PARAM_IMPACT_SOFTWARE_QUALITIES, PARAM_IMPACT_SEVERITIES)));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -180,6 +208,7 @@ public class SearchAction implements RulesWsAction {
     // Rule-specific search parameters
     RuleWsSupport.defineGenericRuleSearchParameters(action);
     RuleWsSupport.defineIsExternalParam(action);
+    RuleWsSupport.definePrioritizedRuleParam(action);
   }
   @Override
   public void handle(Request request, Response response) throws Exception {
@@ -204,10 +233,10 @@ public class SearchAction implements RulesWsAction {
   }
 
   private static void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, SearchOptions context) {
-    response.setTotal(searchResult.total);
+    response.setTotal(searchResult.getTotal());
     response.setP(context.getPage());
     response.setPs(context.getLimit());
-    response.setPaging(formatPaging(searchResult.total, context.getPage(), context.getLimit()));
+    response.setPaging(formatPaging(searchResult.getTotal(), context.getPage(), context.getLimit()));
   }
 
   private static Common.Paging.Builder formatPaging(Long total, int pageIndex, int limit) {
@@ -215,29 +244,6 @@ public class SearchAction implements RulesWsAction {
       .setPageIndex(pageIndex)
       .setPageSize(limit)
       .setTotal(total.intValue());
-  }
-
-  private void writeRules(DbSession dbSession, SearchResponse.Builder response, SearchResult result, SearchOptions context) {
-    Map<String, UserDto> usersByUuid = ruleWsSupport.getUsersByUuid(dbSession, result.rules);
-    Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid = getDeprecatedRuleKeysByRuleUuid(dbSession, result.rules, context);
-    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule, result, context.getFields(), usersByUuid,
-      deprecatedRuleKeysByRuleUuid)));
-  }
-
-  private Map<String, List<DeprecatedRuleKeyDto>> getDeprecatedRuleKeysByRuleUuid(DbSession dbSession, List<RuleDto> rules, SearchOptions context) {
-    if (!RuleMapper.shouldReturnField(context.getFields(), FIELD_DEPRECATED_KEYS)) {
-      return Collections.emptyMap();
-    }
-
-    Set<String> ruleUuidsSet = rules.stream()
-      .map(RuleDto::getUuid)
-      .collect(Collectors.toSet());
-    if (ruleUuidsSet.isEmpty()) {
-      return Collections.emptyMap();
-    } else {
-      return dbClient.ruleDao().selectDeprecatedRuleKeysByRuleUuids(dbSession, ruleUuidsSet).stream()
-        .collect(Collectors.groupingBy(DeprecatedRuleKeyDto::getRuleUuid));
-    }
   }
 
   private static SearchOptions buildSearchOptions(SearchRequest request) {
@@ -271,8 +277,8 @@ public class SearchAction implements RulesWsAction {
     SearchIdResult<String> result = ruleIndex.search(query, context);
     List<String> ruleUuids = result.getUuids();
     // rule order is managed by ES, this order by must be kept when fetching rule details
-    Map<String, RuleDto> rulesByRuleKey = Maps.uniqueIndex(dbClient.ruleDao().selectByUuids(dbSession,  query.getOrganization().getUuid(), ruleUuids), RuleDto::getUuid);
-    List<RuleDto> rules = new ArrayList<>();
+    Map<String, RuleDto> rulesByRuleKey = Maps.uniqueIndex(dbClient.ruleDao().selectByUuids(dbSession, query.getOrganization().getUuid(), ruleUuids), RuleDto::getUuid);
+    List<RuleDto> rules = new LinkedList<>();
     for (String ruleUuid : ruleUuids) {
       RuleDto rule = rulesByRuleKey.get(ruleUuid);
       if (rule != null) {
@@ -283,7 +289,7 @@ public class SearchAction implements RulesWsAction {
     List<String> templateRuleUuids = rules.stream()
       .map(RuleDto::getTemplateUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList());
+      .toList();
     List<RuleDto> templateRules = dbClient.ruleDao().selectByUuids(dbSession, templateRuleUuids);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, ruleUuids);
     return new SearchResult()
@@ -296,13 +302,27 @@ public class SearchAction implements RulesWsAction {
 
   private void doContextResponse(DbSession dbSession, SearchRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
-    writeRules(dbSession, response, result, contextForResponse);
+    response.addAllRules(rulesResponseFormatter.formatRulesSearch(dbSession, result, contextForResponse.getFields()));
     if (contextForResponse.getFields().contains("actives")) {
-      activeRuleCompleter.completeSearch(dbSession, query, result.rules, response);
+      Rules.Actives actives = rulesResponseFormatter.formatActiveRules(dbSession, query.getQProfile(), result.getRules());
+      Set<String> qProfiles = actives.getActivesMap().values()
+        .stream()
+        .map(Rules.ActiveList::getActiveListList)
+        .flatMap(List::stream)
+        .map(Rules.Active::getQProfile)
+        .collect(Collectors.toSet());
+
+      Rules.QProfiles profiles = rulesResponseFormatter.formatQualityProfiles(dbSession, qProfiles);
+      response.setActives(actives);
+      response.setQProfiles(profiles);
     }
   }
 
   private static void writeFacets(SearchResponse.Builder response, SearchRequest request, SearchOptions context, SearchResult results) {
+    Facets resultsFacets = results.getFacets();
+    if (resultsFacets == null) {
+      return;
+    }
     addMandatoryFacetValues(results, FACET_LANGUAGES, request.getLanguages());
     addMandatoryFacetValues(results, FACET_REPOSITORIES, request.getRepositories());
     addMandatoryFacetValues(results, FACET_STATUSES, ALL_STATUSES_EXCEPT_REMOVED);
@@ -315,6 +335,9 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryFacetValues(results, FACET_SANS_TOP_25, request.getSansTop25());
     addMandatoryFacetValues(results, FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
+    addMandatoryFacetValues(results, PARAM_IMPACT_SOFTWARE_QUALITIES, enumToStringCollection(SoftwareQuality.values()));
+    addMandatoryFacetValues(results, PARAM_IMPACT_SEVERITIES, enumToStringCollection(org.sonar.api.issue.impact.Severity.values()));
+    addMandatoryFacetValues(results, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, enumToStringCollection(CleanCodeAttributeCategory.values()));
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
@@ -331,10 +354,13 @@ public class SearchAction implements RulesWsAction {
     facetValuesByFacetKey.put(FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     facetValuesByFacetKey.put(FACET_SANS_TOP_25, request.getSansTop25());
     facetValuesByFacetKey.put(FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
+    facetValuesByFacetKey.put(FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, request.getCleanCodeAttributesCategories());
+    facetValuesByFacetKey.put(FACET_IMPACT_SOFTWARE_QUALITY, request.getImpactSoftwareQualities());
+    facetValuesByFacetKey.put(FACET_IMPACT_SEVERITY, request.getImpactSeverities());
 
     for (String facetName : context.getFacets()) {
       facet.clear().setProperty(facetName);
-      Map<String, Long> facets = results.facets.get(facetName);
+      Map<String, Long> facets = resultsFacets.get(facetName);
       if (facets != null) {
         Set<String> itemsFromFacets = new HashSet<>();
         for (Map.Entry<String, Long> facetValue : facets.entrySet()) {
@@ -348,6 +374,10 @@ public class SearchAction implements RulesWsAction {
       }
       response.getFacetsBuilder().addFacets(facet);
     }
+  }
+
+  private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
+    return Arrays.stream(enumValues).map(Enum::name).toList();
   }
 
   private static void addZeroFacetsForSelectedItems(Common.Facet.Builder facet, @Nullable List<String> requestParams, Set<String> itemsFromFacets) {
@@ -364,7 +394,11 @@ public class SearchAction implements RulesWsAction {
   }
 
   private static void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable Collection<String> mandatoryValues) {
-    Map<String, Long> facetValues = results.facets.get(facetName);
+    Facets facets = results.getFacets();
+    if (facets == null) {
+      return;
+    }
+    Map<String, Long> facetValues = facets.get(facetName);
     if (facetValues != null) {
       Collection<String> valuesToAdd = mandatoryValues == null ? Lists.newArrayList() : mandatoryValues;
       for (String item : valuesToAdd) {
@@ -378,90 +412,26 @@ public class SearchAction implements RulesWsAction {
   private static SearchRequest toSearchWsRequest(Request request) {
     request.mandatoryParamAsBoolean(ASCENDING);
     return new SearchRequest()
-            .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
-            .setF(request.paramAsStrings(FIELDS))
-            .setFacets(request.paramAsStrings(FACETS))
-            .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
-            .setP("" + request.mandatoryParamAsInt(PAGE))
-            .setPs("" + request.mandatoryParamAsInt(PAGE_SIZE))
-            .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
-            .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
-            .setStatuses(request.paramAsStrings(PARAM_STATUSES))
-            .setTags(request.paramAsStrings(PARAM_TAGS))
-            .setTypes(request.paramAsStrings(PARAM_TYPES))
-            .setCwe(request.paramAsStrings(PARAM_CWE))
-            .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
-            .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
-            .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
-            .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
-
-  }
-
-  static class SearchResult {
-    private List<RuleDto> rules;
-    private final ListMultimap<String, RuleParamDto> ruleParamsByRuleUuid;
-    private final Map<String, RuleDto> templateRulesByRuleUuid;
-    private Long total;
-    private Facets facets;
-
-    public SearchResult() {
-      this.rules = new ArrayList<>();
-      this.ruleParamsByRuleUuid = ArrayListMultimap.create();
-      this.templateRulesByRuleUuid = new HashMap<>();
-    }
-
-    public List<RuleDto> getRules() {
-      return rules;
-    }
-
-    public SearchResult setRules(List<RuleDto> rules) {
-      this.rules = rules;
-      return this;
-    }
-
-    public ListMultimap<String, RuleParamDto> getRuleParamsByRuleUuid() {
-      return ruleParamsByRuleUuid;
-    }
-
-    public SearchResult setRuleParameters(List<RuleParamDto> ruleParams) {
-      ruleParamsByRuleUuid.clear();
-      for (RuleParamDto ruleParam : ruleParams) {
-        ruleParamsByRuleUuid.put(ruleParam.getRuleUuid(), ruleParam);
-      }
-      return this;
-    }
-
-    public Map<String, RuleDto> getTemplateRulesByRuleUuid() {
-      return templateRulesByRuleUuid;
-    }
-
-    public SearchResult setTemplateRules(List<RuleDto> templateRules) {
-      templateRulesByRuleUuid.clear();
-      for (RuleDto templateRule : templateRules) {
-        templateRulesByRuleUuid.put(templateRule.getUuid(), templateRule);
-      }
-      return this;
-    }
-
-    @CheckForNull
-    public Long getTotal() {
-      return total;
-    }
-
-    public SearchResult setTotal(Long total) {
-      this.total = total;
-      return this;
-    }
-
-    @CheckForNull
-    public Facets getFacets() {
-      return facets;
-    }
-
-    public SearchResult setFacets(Facets facets) {
-      this.facets = facets;
-      return this;
-    }
+      .setImpactSeverities(request.paramAsStrings(PARAM_IMPACT_SEVERITIES))
+      .setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES))
+      .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
+      .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
+      .setF(request.paramAsStrings(FIELDS))
+      .setFacets(request.paramAsStrings(FACETS))
+      .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
+      .setP("" + request.mandatoryParamAsInt(PAGE))
+      .setPs("" + request.mandatoryParamAsInt(PAGE_SIZE))
+      .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
+      .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
+      .setStatuses(request.paramAsStrings(PARAM_STATUSES))
+      .setTags(request.paramAsStrings(PARAM_TAGS))
+      .setTypes(request.paramAsStrings(PARAM_TYPES))
+      .setCwe(request.paramAsStrings(PARAM_CWE))
+      .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
+      .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
+      .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
+      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
+      .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
   }
 
   private static class SearchRequest {
@@ -482,6 +452,10 @@ public class SearchAction implements RulesWsAction {
     private List<String> owaspTop10For2021;
     private List<String> sansTop25;
     private List<String> sonarsourceSecurity;
+    private List<String> impactSeverities;
+    private List<String> impactSoftwareQualities;
+    private List<String> cleanCodeAttributesCategories;
+    private Boolean prioritizedRule;
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
       this.activeSeverities = activeSeverities;
@@ -609,10 +583,15 @@ public class SearchAction implements RulesWsAction {
       return this;
     }
 
+    /**
+     * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
+     */
+    @Deprecated(since = "10.0", forRemoval = true)
     public List<String> getSansTop25() {
       return sansTop25;
     }
 
+    @Deprecated(since = "10.0", forRemoval = true)
     public SearchRequest setSansTop25(@Nullable List<String> sansTop25) {
       this.sansTop25 = sansTop25;
       return this;
@@ -624,6 +603,43 @@ public class SearchAction implements RulesWsAction {
 
     public SearchRequest setSonarsourceSecurity(@Nullable List<String> sonarsourceSecurity) {
       this.sonarsourceSecurity = sonarsourceSecurity;
+      return this;
+    }
+
+    public List<String> getImpactSeverities() {
+      return impactSeverities;
+    }
+
+    public SearchRequest setImpactSeverities(@Nullable List<String> impactSeverities) {
+      this.impactSeverities = impactSeverities;
+      return this;
+    }
+
+    public List<String> getImpactSoftwareQualities() {
+      return impactSoftwareQualities;
+    }
+
+    public SearchRequest setImpactSoftwareQualities(@Nullable List<String> impactSoftwareQualities) {
+      this.impactSoftwareQualities = impactSoftwareQualities;
+      return this;
+    }
+
+    public List<String> getCleanCodeAttributesCategories() {
+      return cleanCodeAttributesCategories;
+    }
+
+    public SearchRequest setCleanCodeAttributesCategories(@Nullable List<String> cleanCodeAttributesCategories) {
+      this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
+      return this;
+    }
+
+    @CheckForNull
+    public Boolean getPrioritizedRule() {
+      return prioritizedRule;
+    }
+
+    public SearchRequest setPrioritizedRule(@Nullable Boolean prioritizedRule) {
+      this.prioritizedRule = prioritizedRule;
       return this;
     }
   }

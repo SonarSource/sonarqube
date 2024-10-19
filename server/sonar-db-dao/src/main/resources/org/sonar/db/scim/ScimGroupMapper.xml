@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.scim.ScimGroupMapper">
+
+  <sql id="scimGroupsColumns">
+      scim_uuid as scimGroupUuid,
+      group_uuid as groupUuid
+  </sql>
+
+  <select id="findAll" resultType="org.sonar.db.scim.ScimGroupDto">
+    select
+    <include refid="scimGroupsColumns"/>
+      from scim_groups
+  </select>
+
+  <select id="findByScimUuid" parameterType="String" resultType="org.sonar.db.scim.ScimGroupDto">
+    select
+    <include refid="scimGroupsColumns"/>
+      from scim_groups
+    where
+      scim_uuid = #{scimGroupUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="findByGroupUuid" parameterType="String" resultType="org.sonar.db.scim.ScimGroupDto">
+    select
+    <include refid="scimGroupsColumns"/>
+      from scim_groups
+    where
+      group_uuid = #{groupUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="findScimGroups" resultType="org.sonar.db.scim.ScimGroupDto">
+    select
+    <include refid="scimGroupsColumns"/>
+    from scim_groups s
+    <if test="query.displayName != null">
+      inner join groups g on g.uuid=s.group_uuid
+      where g.name = #{query.displayName,jdbcType=VARCHAR}
+    </if>
+    order by s.scim_uuid asc
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countScimGroups" resultType="int">
+    select count(1)
+    from scim_groups s
+    <if test="query.displayName != null">
+      inner join groups g on g.uuid=s.group_uuid
+      where g.name = #{query.displayName,jdbcType=VARCHAR}
+    </if>
+  </select>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    insert into scim_groups (
+      scim_uuid,
+      group_uuid
+    ) values (
+      #{scimGroupDto.scimGroupUuid,jdbcType=VARCHAR},
+      #{scimGroupDto.groupUuid,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <delete id="deleteByGroupUuid" parameterType="String">
+    delete from scim_groups where group_uuid = #{groupUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByScimUuid" parameterType="String">
+    delete from scim_groups where scim_uuid = #{scimUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <update id="deleteAll">
+    delete from scim_groups
+  </update>
+
+</mapper>
+

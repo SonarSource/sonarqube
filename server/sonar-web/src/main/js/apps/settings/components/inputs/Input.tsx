@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,12 +32,14 @@ import MultiValueInput from './MultiValueInput';
 import PrimitiveInput from './PrimitiveInput';
 import PropertySetInput from './PropertySetInput';
 
-export default function Input(props: DefaultInputProps) {
+function Input(props: Readonly<DefaultInputProps>, ref: React.ForwardedRef<HTMLElement>) {
   const { setting } = props;
   const { definition } = setting;
   const name = getUniqueName(definition);
 
-  let Input: React.ComponentType<DefaultSpecializedInputProps> = PrimitiveInput;
+  let Input: React.ComponentType<
+    React.PropsWithChildren<DefaultSpecializedInputProps> & React.RefAttributes<HTMLElement>
+  > = PrimitiveInput;
 
   if (isCategoryDefinition(definition) && definition.multiValues) {
     Input = MultiValueInput;
@@ -48,8 +50,10 @@ export default function Input(props: DefaultInputProps) {
   }
 
   if (isSecuredDefinition(definition)) {
-    return <InputForSecured input={Input} {...props} />;
+    return <InputForSecured input={Input} ref={ref} {...props} />;
   }
 
-  return <Input {...props} name={name} isDefault={isDefaultOrInherited(setting)} />;
+  return <Input {...props} name={name} ref={ref} isDefault={isDefaultOrInherited(setting)} />;
 }
+
+export default React.forwardRef(Input);

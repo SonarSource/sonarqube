@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,6 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeselectRequest {
 
-  private String projectId;
   private String projectKey;
   private String organization;
 
@@ -40,20 +39,6 @@ public class DeselectRequest {
 
   public void setOrganization(String organization) {
     this.organization = organization;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.1
-   */
-  @Deprecated
-  public DeselectRequest setProjectId(String projectId) {
-    this.projectId = projectId;
-    return this;
-  }
-
-  public String getProjectId() {
-    return projectId;
   }
 
   /**

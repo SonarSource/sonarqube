@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,11 @@
 package org.sonar.process;
 
 import java.util.concurrent.TimeUnit;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -72,7 +74,15 @@ public class AbstractStopperThreadTest {
     verify(monitored, timeout(3_000)).hardStop();
 
     stopper.stopIt();
-    await().atMost(3, TimeUnit.SECONDS).until(() -> !stopper.isAlive());
-    assertThat(stopper.isAlive()).isFalse();
+
+    int timeout = 10;
+    try {
+      await()
+        .atMost(timeout, TimeUnit.SECONDS)
+        .until(() -> !stopper.isAlive());
+    } catch (ConditionTimeoutException conditionTimeoutException) {
+      fail(String.format("Thread was still alive after %d seconds.", timeout));
+    }
+
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -60,39 +60,40 @@ public class ModuleSensorContextTest {
   private final UnchangedFilesHandler unchangedFilesHandler = mock(UnchangedFilesHandler.class);
   private final SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   private DefaultFileSystem fs;
-  private ModuleSensorContext adaptor;
+  private ModuleSensorContext underTest;
 
   @Before
   public void prepare() throws Exception {
     fs = new DefaultFileSystem(temp.newFolder().toPath());
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
+    underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
       branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler);
   }
 
   @Test
-  public void shouldProvideComponents() {
-    assertThat(adaptor.activeRules()).isEqualTo(activeRules);
-    assertThat(adaptor.fileSystem()).isEqualTo(fs);
-    assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
-    assertThat(adaptor.runtime()).isEqualTo(runtime);
-    assertThat(adaptor.canSkipUnchangedFiles()).isFalse();
+  public void shouldProvideComponents_returnsNotNull() {
+    assertThat(underTest.activeRules()).isEqualTo(activeRules);
+    assertThat(underTest.fileSystem()).isEqualTo(fs);
+    assertThat(underTest.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
+    assertThat(underTest.runtime()).isEqualTo(runtime);
+    assertThat(underTest.canSkipUnchangedFiles()).isFalse();
 
-    assertThat(adaptor.nextCache()).isEqualTo(writeCache);
-    assertThat(adaptor.previousCache()).isEqualTo(readCache);
+    assertThat(underTest.nextCache()).isEqualTo(writeCache);
+    assertThat(underTest.previousCache()).isEqualTo(readCache);
 
-    assertThat(adaptor.newIssue()).isNotNull();
-    assertThat(adaptor.newExternalIssue()).isNotNull();
-    assertThat(adaptor.newAdHocRule()).isNotNull();
-    assertThat(adaptor.newMeasure()).isNotNull();
-    assertThat(adaptor.newAnalysisError()).isEqualTo(ModuleSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
-    assertThat(adaptor.isCancelled()).isFalse();
-    assertThat(adaptor.newSignificantCode()).isNotNull();
+    assertThat(underTest.newIssue()).isNotNull();
+    assertThat(underTest.newExternalIssue()).isNotNull();
+    assertThat(underTest.newAdHocRule()).isNotNull();
+    assertThat(underTest.newMeasure()).isNotNull();
+    assertThat(underTest.newAnalysisError()).isEqualTo(ModuleSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
+    assertThat(underTest.isCancelled()).isFalse();
+    assertThat(underTest.newSignificantCode()).isNotNull();
   }
 
   @Test
   public void should_delegate_to_unchanged_files_handler() {
     DefaultInputFile defaultInputFile = mock(DefaultInputFile.class);
-    adaptor.markAsUnchanged(defaultInputFile);
+
+    underTest.markAsUnchanged(defaultInputFile);
 
     verify(unchangedFilesHandler).markAsUnchanged(defaultInputFile);
   }
@@ -100,9 +101,9 @@ public class ModuleSensorContextTest {
   @Test
   public void pull_request_can_skip_unchanged_files() {
     when(branchConfiguration.isPullRequest()).thenReturn(true);
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
+    underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
       branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler);
-    assertThat(adaptor.canSkipUnchangedFiles()).isTrue();
+    assertThat(underTest.canSkipUnchangedFiles()).isTrue();
   }
 
 }

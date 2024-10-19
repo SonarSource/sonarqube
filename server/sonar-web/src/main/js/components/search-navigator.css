@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -228,10 +228,6 @@ button.search-navigator-facet:focus,
   color: var(--darkBlue);
 }
 
-.search-navigator-facet-header > .note {
-  font-weight: 400;
-}
-
 .search-navigator-facet-header > h3,
 .search-navigator-facet-header > h4 {
   line-height: inherit;
@@ -255,6 +251,10 @@ button.search-navigator-facet:focus,
 .search-navigator-facet-header-wrapper {
   display: flex;
   align-items: center;
+}
+
+.search-navigator-facet-header-wrapper:not(.expandable-header) .search-navigator-facet-header {
+  padding-left: 21px;
 }
 
 .search-navigator-facet-list {
@@ -289,51 +289,6 @@ button.search-navigator-facet:focus,
 .search-navigator-facet-container {
   margin-top: 6px;
   padding: 0 10px 16px;
-}
-
-.search-navigator-date-facet-selection {
-  position: relative;
-  padding-left: var(--gridSize);
-  font-size: var(--smallFontSize);
-}
-
-.search-navigator-date-facet-selection:before,
-.search-navigator-date-facet-selection:after {
-  display: table;
-  content: '';
-  line-height: 0;
-}
-
-.search-navigator-date-facet-selection:after {
-  clear: both;
-}
-
-.search-navigator-date-facet-selection .date-input-control-input {
-  width: 115px !important;
-}
-
-.search-navigator-date-facet-selection-dropdown-left {
-  float: left;
-  border-bottom: none;
-}
-
-.search-navigator-date-facet-selection-dropdown-right {
-  float: right;
-  border-bottom: none;
-}
-
-.search-navigator-date-facet-selection-input-left {
-  position: absolute;
-  left: 0;
-  width: 100px;
-  visibility: hidden;
-}
-
-.search-navigator-date-facet-selection-input-right {
-  position: absolute;
-  right: 0;
-  width: 100px;
-  visibility: hidden;
 }
 
 .search-navigator-filters {

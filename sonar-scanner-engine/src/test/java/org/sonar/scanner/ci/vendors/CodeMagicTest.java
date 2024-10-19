@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiVendor;
 
@@ -71,7 +71,7 @@ public class CodeMagicTest {
     setEnvVariable("FCI_BUILD_ID", "1");
 
     CiConfiguration ciConfiguration = underTest.loadConfiguration();
-    List<String> logs = logTester.logs(LoggerLevel.WARN);
+    List<String> logs = logTester.logs(Level.WARN);
 
     assertThat(ciConfiguration.getScmRevision()).isEmpty();
     assertThat(logs).hasSize(1);

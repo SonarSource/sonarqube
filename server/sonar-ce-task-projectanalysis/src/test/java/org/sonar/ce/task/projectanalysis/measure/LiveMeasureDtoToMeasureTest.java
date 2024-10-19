@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ import org.sonar.db.measure.LiveMeasureDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.ce.task.projectanalysis.measure.LiveMeasureDtoToMeasure.*;
 
 @RunWith(DataProviderRunner.class)
 public class LiveMeasureDtoToMeasureTest {
@@ -42,63 +43,61 @@ public class LiveMeasureDtoToMeasureTest {
   private static final Metric SOME_LEVEL_METRIC = new MetricImpl("42", "level", "name", Metric.MetricType.LEVEL);
   private static final LiveMeasureDto EMPTY_MEASURE_DTO = new LiveMeasureDto();
 
-  private LiveMeasureDtoToMeasure underTest = new LiveMeasureDtoToMeasure();
-
   @Test
   public void toMeasure_returns_absent_for_null_argument() {
-    assertThat(underTest.toMeasure(null, SOME_INT_METRIC)).isNotPresent();
+    assertThat(toMeasure(null, SOME_INT_METRIC)).isNotPresent();
   }
 
   @Test
   public void toMeasure_throws_NPE_if_metric_argument_is_null() {
-    assertThatThrownBy(() -> underTest.toMeasure(EMPTY_MEASURE_DTO, null))
+    assertThatThrownBy(() -> toMeasure(EMPTY_MEASURE_DTO, null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void toMeasure_throws_NPE_if_both_arguments_are_null() {
-    assertThatThrownBy(() -> underTest.toMeasure(null, null))
+    assertThatThrownBy(() -> toMeasure(null, null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_no_data_for_Level_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_LEVEL_METRIC);
+    Optional<Measure> measure = toMeasure(EMPTY_MEASURE_DTO, SOME_LEVEL_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_invalid_data_for_Level_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setData("trololo"), SOME_LEVEL_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setData("trololo"), SOME_LEVEL_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
   @Test
   public void toMeasure_returns_no_value_if_dta_has_data_in_wrong_case_for_Level_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setData("waRn"), SOME_LEVEL_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setData("waRn"), SOME_LEVEL_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
   @Test
   public void toMeasure_returns_no_QualityGateStatus_if_dto_has_no_alertStatus_for_Level_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_STRING_METRIC);
+    Optional<Measure> measure = toMeasure(EMPTY_MEASURE_DTO, SOME_STRING_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().hasQualityGateStatus()).isFalse();
   }
 
   @Test
   public void toMeasure_returns_no_QualityGateStatus_if_alertStatus_has_invalid_data_for_Level_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setData("trololo"), SOME_STRING_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setData("trololo"), SOME_STRING_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().hasQualityGateStatus()).isFalse();
   }
 
   @Test
   public void toMeasure_returns_no_QualityGateStatus_if_alertStatus_has_data_in_wrong_case_for_Level_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setData("waRn"), SOME_STRING_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setData("waRn"), SOME_STRING_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().hasQualityGateStatus()).isFalse();
   }
@@ -111,7 +110,7 @@ public class LiveMeasureDtoToMeasureTest {
   }
 
   private void verify_toMeasure_returns_value_for_LEVEL_Metric(Level expectedLevel) {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setData(expectedLevel.name()), SOME_LEVEL_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setData(expectedLevel.name()), SOME_LEVEL_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LEVEL);
     assertThat(measure.get().getLevelValue()).isEqualTo(expectedLevel);
@@ -119,7 +118,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Int_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_INT_METRIC);
+    Optional<Measure> measure = toMeasure(EMPTY_MEASURE_DTO, SOME_INT_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
@@ -127,7 +126,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_int_part_of_value_in_dto_for_Int_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setValue(1.5d), SOME_INT_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setValue(1.5d), SOME_INT_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.INT);
@@ -136,7 +135,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Long_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_LONG_METRIC);
+    Optional<Measure> measure = toMeasure(EMPTY_MEASURE_DTO, SOME_LONG_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
@@ -144,7 +143,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_long_part_of_value_in_dto_for_Long_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setValue(1.5d), SOME_LONG_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setValue(1.5d), SOME_LONG_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LONG);
@@ -153,7 +152,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Double_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_DOUBLE_METRIC);
+    Optional<Measure> measure = toMeasure(EMPTY_MEASURE_DTO, SOME_DOUBLE_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
@@ -161,7 +160,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Boolean_metric() {
-    Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_BOOLEAN_METRIC);
+    Optional<Measure> measure = toMeasure(EMPTY_MEASURE_DTO, SOME_BOOLEAN_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
@@ -169,7 +168,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_false_value_if_dto_has_invalid_value_for_Boolean_metric() {
-    Optional<Measure> measure = underTest.toMeasure(new LiveMeasureDto().setValue(1.987d), SOME_BOOLEAN_METRIC);
+    Optional<Measure> measure = toMeasure(new LiveMeasureDto().setValue(1.987d), SOME_BOOLEAN_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.BOOLEAN);
@@ -178,7 +177,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_String_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_STRING_METRIC);
+    Optional<Measure> measure = toMeasure(EMPTY_MEASURE_DTO, SOME_STRING_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
@@ -190,7 +189,7 @@ public class LiveMeasureDtoToMeasureTest {
     LiveMeasureDto LiveMeasureDto = new LiveMeasureDto()
       .setValue(0.12345);
 
-    Optional<Measure> measure = underTest.toMeasure(LiveMeasureDto, metric);
+    Optional<Measure> measure = toMeasure(LiveMeasureDto, metric);
 
     assertThat(measure.get().getDoubleValue()).isEqualTo(0.12345, Offset.offset(0.000001));
   }

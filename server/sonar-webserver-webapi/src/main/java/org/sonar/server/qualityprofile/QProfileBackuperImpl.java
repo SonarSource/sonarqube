@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -44,9 +44,9 @@ import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.common.rule.RuleCreator;
+import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
-import org.sonar.server.rule.NewCustomRule;
-import org.sonar.server.rule.RuleCreator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.function.Function.identity;
@@ -203,7 +203,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .toList();
 
     if (!customRulesToCreate.isEmpty()) {
-      return db.ruleDao().selectByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate))
+      return db.ruleDao().selectByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate).stream().map(RuleDto::getKey).toList())
         .stream()
         .collect(Collectors.toMap(RuleDto::getKey, identity()));
     }
@@ -211,7 +211,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   private static NewCustomRule importedRuleToNewCustomRule(ImportedRule r) {
-    return NewCustomRule.createForCustomRule(r.getRuleKey().rule(), r.getTemplateKey())
+    return NewCustomRule.createForCustomRule(r.getRuleKey(), r.getTemplateKey())
       .setName(r.getName())
       .setSeverity(r.getSeverity())
       .setStatus(RuleStatus.READY)
@@ -229,7 +229,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       if (ruleDto == null) {
         continue;
       }
-      activatedRule.add(RuleActivation.create(ruleDto.getUuid(), r.getSeverity(), r.getParameters()));
+      activatedRule.add(RuleActivation.create(ruleDto.getUuid(), r.getSeverity(), r.getPrioritizedRule(), r.getParameters()));
     }
     return activatedRule;
   }

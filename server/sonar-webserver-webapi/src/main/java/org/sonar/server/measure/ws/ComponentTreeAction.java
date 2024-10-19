@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSortedSet;
@@ -38,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -54,7 +54,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.i18n.I18n;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -71,21 +70,25 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
+import org.sonarqube.ws.client.component.ComponentsWsParameters;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.*;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
+import static org.sonar.db.metric.RemovedMetricConverter.includeRenamedMetrics;
+import static org.sonar.db.metric.RemovedMetricConverter.withRemovedMetricAlias;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
-import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
@@ -98,16 +101,17 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_QUALIFIER
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_STRATEGY;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.measure.ws.ComponentResponseCommon.addMeasureIncludingRenamedMetric;
+import static org.sonar.server.measure.ws.ComponentResponseCommon.addMetricToResponseIncludingRenamedMetric;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
-import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeriods;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -147,9 +151,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String ALL_METRIC_SORT_FILTER = "all";
   static final String WITH_MEASURES_ONLY_METRIC_SORT_FILTER = "withMeasuresOnly";
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
-  static final Set<String> FORBIDDEN_METRIC_TYPES = Set.of(DISTRIB.name(), DATA.name());
-  private static final int MAX_METRIC_KEYS = 15;
-  private static final Joiner COMMA_JOINER = Joiner.on(", ");
+  private static final int MAX_METRIC_KEYS = 25;
+  private static final String COMMA_JOIN_SEPARATOR = ", ";
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = Set.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
 
   private final DbClient dbClient;
@@ -179,8 +182,35 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.7", format("Number of metric keys is limited to %s", 25)),
+        new Change("10.7",
+          "Added new accepted values for the 'metricKeys' param: %s".formatted(MeasuresWsModule.getNewMetricsInSonarQube107())),
+        new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues'," +
+          " 'new_security_issues'"),
+        new Change("10.5", format("The metrics %s are now deprecated " +
+            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
+        new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', " +
+          "'security_issues'"),
+        new Change("10.4", format("The metrics %s are now deprecated " +
+            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
+        new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. " +
+          "Consume 'violations' instead."),
+        new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now " +
+          "deprecated. Use 'violations' instead."),
+        new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
+        new Change("10.4", "The use of 'wont_fix_issues' value in 'metricKeys' and 'metricSort' params is now deprecated. Use " +
+          "'accepted_issues' instead."),
+        new Change("10.4", "Added new accepted value for the 'metricKeys' and 'metricSort' param: 'accepted_issues'."),
+        new Change("10.1", format("The use of 'BRC' as value for parameter '%s' is removed",
+          ComponentsWsParameters.PARAM_QUALIFIERS)),
+        new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),
+        new Change("10.0", "the response field periods under measures field is removed."),
+        new Change("10.0", "the option `periods` of 'additionalFields' request field is removed."),
         new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
-          MeasuresWsModule.getDeprecatedMetrics())),
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),
         new Change("8.8", "parameter 'component' is now required"),
         new Change("8.8", "deprecated parameter 'baseComponentId' has been removed"),
         new Change("8.8", "deprecated parameter 'baseComponentKey' has been removed."),
@@ -190,7 +220,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
         new Change("8.1", "the response field periods is deprecated. Use period instead."),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.2", "field 'bestValue' is added to the response"),
-        new Change("6.3", format("Number of metric keys is limited to %s", MAX_METRIC_KEYS)),
+        new Change("6.3", format("Number of metric keys is limited to %s", 15)),
         new Change("6.6", "the response field 'id' is deprecated. Use 'key' instead."),
         new Change("6.6", "the response field 'refId' is deprecated. Use 'refKey' instead."));
 
@@ -223,12 +253,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     action.createParam(PARAM_METRIC_SORT)
       .setDescription(
-        format("Metric key to sort by. The '%s' parameter must contain the '%s' or '%s' value. It must be part of the '%s' parameter", Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT,
+        format("Metric key to sort by. The '%s' parameter must contain the '%s' or '%s' value. It must be part of the '%s' parameter",
+          Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT,
           PARAM_METRIC_KEYS))
       .setExampleValue("ncloc");
 
     action.createParam(PARAM_METRIC_PERIOD_SORT)
-      .setDescription(format("Sort measures by leak period or not ?. The '%s' parameter must contain the '%s' value.", Param.SORT, METRIC_PERIOD_SORT))
+      .setDescription(format("Sort measures by leak period or not ?. The '%s' parameter must contain the '%s' value.", Param.SORT,
+        METRIC_PERIOD_SORT))
       .setSince("5.5")
       .setPossibleValues(1);
 
@@ -242,7 +274,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPossibleValues(METRIC_SORT_FILTERS);
 
     createMetricKeysParameter(action)
-      .setDescription("Comma-separated list of metric keys. Types %s are not allowed.", COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES))
+      .setDescription("Comma-separated list of metric keys. Types %s are not allowed. For type %s only %s metrics are supported",
+        join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.FORBIDDEN_METRIC_TYPES),
+        DATA.name(),
+        join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.PARTIALLY_SUPPORTED_METRICS.get(DATA.name())))
       .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
@@ -252,7 +287,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
         "<ul>" +
         "<li>children: return the children components of the base component. Grandchildren components are not returned</li>" +
         "<li>all: return all the descendants components of the base component. Grandchildren are returned.</li>" +
-        "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
+        "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the" +
+        " component tree.</li>" +
         "</ul>")
       .setPossibleValues(STRATEGIES.keySet())
       .setDefaultValue(ALL_STRATEGY);
@@ -267,19 +303,21 @@ public class ComponentTreeAction implements MeasuresWsAction {
   private ComponentTreeWsResponse doHandle(ComponentTreeRequest request) {
     ComponentTreeData data = load(request);
     if (data.getComponents() == null) {
-      return emptyResponse(data.getBaseComponent(), request);
+      return emptyResponse(data.getBaseComponent(), data.getBranch(), request);
     }
 
     return buildResponse(
       request,
       data,
       Paging.forPageIndex(
-        request.getPage())
+          request.getPage())
         .withPageSize(request.getPageSize())
-        .andTotal(data.getComponentCount()));
+        .andTotal(data.getComponentCount()),
+      request.getMetricKeys());
   }
 
-  private static ComponentTreeWsResponse buildResponse(ComponentTreeRequest request, ComponentTreeData data, Paging paging) {
+  private static ComponentTreeWsResponse buildResponse(ComponentTreeRequest request, ComponentTreeData data, Paging paging,
+    List<String> requestedMetrics) {
     ComponentTreeWsResponse.Builder response = ComponentTreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -287,12 +325,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setTotal(paging.total())
       .build();
 
-    boolean isMainBranch = data.getBaseComponent().getMainBranchProjectUuid() == null;
+    boolean isMainBranch = data.getBranch() == null || data.getBranch().isMain();
     response.setBaseComponent(
       toWsComponent(
         data.getBaseComponent(),
         data.getMeasuresByComponentUuidAndMetric().row(data.getBaseComponent().uuid()),
-        data.getReferenceComponentsByUuid(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
+        data.getReferenceComponentsByUuid(), isMainBranch ? null : request.getBranch(), request.getPullRequest(), requestedMetrics));
 
     for (ComponentDto componentDto : data.getComponents()) {
       if (componentDto.getCopyComponentUuid() != null) {
@@ -300,27 +338,22 @@ public class ComponentTreeAction implements MeasuresWsAction {
         response.addComponents(toWsComponent(
           componentDto,
           data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
-          data.getReferenceComponentsByUuid(), refBranch, null));
+          data.getReferenceComponentsByUuid(), refBranch, null, requestedMetrics));
       } else {
         response.addComponents(toWsComponent(
           componentDto,
           data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
-          data.getReferenceComponentsByUuid(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
+          data.getReferenceComponentsByUuid(), isMainBranch ? null : request.getBranch(), request.getPullRequest(), requestedMetrics));
       }
     }
 
     if (areMetricsInResponse(request)) {
-      Measures.Metrics.Builder metricsBuilder = response.getMetricsBuilder();
       for (MetricDto metricDto : data.getMetrics()) {
-        metricsBuilder.addMetrics(metricDtoToWsMetric(metricDto));
+        addMetricToResponseIncludingRenamedMetric(metric -> response.getMetricsBuilder().addMetrics(metric), requestedMetrics, metricDto);
       }
     }
 
-    List<String> additionalFields = Optional.ofNullable(request.getAdditionalFields()).orElse(Collections.emptyList());
-    // backward compatibility
-    if (additionalFields.contains(DEPRECATED_ADDITIONAL_PERIODS) && data.getPeriod() != null) {
-      response.getPeriodsBuilder().addPeriods(data.getPeriod());
-    }
+    List<String> additionalFields = ofNullable(request.getAdditionalFields()).orElse(Collections.emptyList());
 
     if (additionalFields.contains(ADDITIONAL_PERIOD) && data.getPeriod() != null) {
       response.setPeriod(data.getPeriod());
@@ -334,22 +367,25 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return additionalFields != null && additionalFields.contains(ADDITIONAL_METRICS);
   }
 
-  private static ComponentTreeWsResponse emptyResponse(@Nullable ComponentDto baseComponent, ComponentTreeRequest request) {
+  private static ComponentTreeWsResponse emptyResponse(@Nullable ComponentDto baseComponent, @Nullable BranchDto branch,
+    ComponentTreeRequest request) {
     ComponentTreeWsResponse.Builder response = ComponentTreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(request.getPage())
       .setPageSize(request.getPageSize())
       .setTotal(0);
     if (baseComponent != null) {
-      boolean isMainBranch = baseComponent.getMainBranchProjectUuid() == null;
-      response.setBaseComponent(componentDtoToWsComponent(baseComponent, isMainBranch ? null : request.getBranch(), request.getPullRequest()));
+      boolean isMainBranch = branch == null || branch.isMain();
+      response.setBaseComponent(componentDtoToWsComponent(baseComponent, isMainBranch ? null : request.getBranch(),
+        request.getPullRequest()));
     }
     return response.build();
   }
 
   private static ComponentTreeRequest toComponentTreeWsRequest(Request request) {
     List<String> metricKeys = request.mandatoryParamAsStrings(PARAM_METRIC_KEYS);
-    checkArgument(metricKeys.size() <= MAX_METRIC_KEYS, "Number of metrics keys is limited to %s, got %s", MAX_METRIC_KEYS, metricKeys.size());
+    checkArgument(metricKeys.size() <= MAX_METRIC_KEYS, "Number of metrics keys is limited to %s, got %s", MAX_METRIC_KEYS,
+      metricKeys.size());
     ComponentTreeRequest componentTreeRequest = new ComponentTreeRequest()
       .setComponent(request.mandatoryParam(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
@@ -360,22 +396,24 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
       .setSort(request.paramAsStrings(Param.SORT))
       .setAsc(request.paramAsBoolean(Param.ASCENDING))
-      .setMetricSort(request.param(PARAM_METRIC_SORT))
+      .setMetricSort(includeRenamedMetrics(request.param(PARAM_METRIC_SORT)))
       .setMetricSortFilter(request.mandatoryParam(PARAM_METRIC_SORT_FILTER))
       .setMetricPeriodSort(request.paramAsInt(PARAM_METRIC_PERIOD_SORT))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
     String metricSortValue = componentTreeRequest.getMetricSort();
-    checkRequest(!componentTreeRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
-    List<String> sorts = Optional.ofNullable(componentTreeRequest.getSort()).orElse(emptyList());
+    checkRequest(!componentTreeRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key",
+      PARAM_METRIC_KEYS);
+    List<String> sorts = ofNullable(componentTreeRequest.getSort()).orElse(emptyList());
     checkRequest(metricSortValue == null ^ sorts.contains(METRIC_SORT) ^ sorts.contains(METRIC_PERIOD_SORT),
       "To sort by a metric, the '%s' parameter must contain '%s' or '%s', and a metric key must be provided in the '%s' parameter",
       Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
     checkRequest(metricSortValue == null ^ componentTreeRequest.getMetricKeys().contains(metricSortValue),
       "To sort by the '%s' metric, it must be in the list of metric keys in the '%s' parameter", metricSortValue, PARAM_METRIC_KEYS);
     checkRequest(componentTreeRequest.getMetricPeriodSort() == null ^ sorts.contains(METRIC_PERIOD_SORT),
-      "To sort by a metric period, the '%s' parameter must contain '%s' and the '%s' must be provided.", Param.SORT, METRIC_PERIOD_SORT, PARAM_METRIC_PERIOD_SORT);
+      "To sort by a metric period, the '%s' parameter must contain '%s' and the '%s' must be provided.", Param.SORT, METRIC_PERIOD_SORT,
+      PARAM_METRIC_PERIOD_SORT);
     checkRequest(ALL_METRIC_SORT_FILTER.equals(componentTreeRequest.getMetricSortFilter()) || metricSortValue != null,
       "To filter components based on the sort metric, the '%s' parameter must contain '%s' or '%s' and the '%s' parameter must be provided",
       Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
@@ -383,7 +421,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static Measures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
-    Map<String, ComponentDto> referenceComponentsByUuid, @Nullable String branch, @Nullable String pullRequest) {
+    Map<String, ComponentDto> referenceComponentsByUuid, @Nullable String branch, @Nullable String pullRequest,
+    List<String> requestedMetrics) {
     Measures.Component.Builder wsComponent = componentDtoToWsComponent(component, branch, pullRequest);
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
@@ -396,7 +435,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       ComponentTreeData.Measure measure = entry.getValue();
       boolean onNewCode = entry.getKey().getKey().startsWith("new_");
       updateMeasureBuilder(measureBuilder, entry.getKey(), measure.getValue(), measure.getData(), onNewCode);
-      wsComponent.addMeasures(measureBuilder);
+      addMeasureIncludingRenamedMetric(requestedMetrics, wsComponent, measureBuilder);
       measureBuilder.clear();
     }
     return wsComponent;
@@ -416,33 +455,26 @@ public class ComponentTreeAction implements MeasuresWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto baseComponent = loadComponent(dbSession, wsRequest);
       checkPermissions(baseComponent);
-      Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.branchUuid());
+      // portfolios don't have branches
+      BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, baseComponent.branchUuid()).orElse(null);
+
+      Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession,
+        baseComponent.branchUuid());
       if (baseSnapshot.isEmpty()) {
         return ComponentTreeData.builder()
+          .setBranch(branchDto)
           .setBaseComponent(baseComponent)
           .build();
-      }
-
-      Set<String> requestedMetricKeys = new HashSet<>(wsRequest.getMetricKeys());
-      Set<String> metricKeysToSearch = new HashSet<>(requestedMetricKeys);
-
-      boolean isPR = isPR(wsRequest.getPullRequest());
-      if (isPR) {
-        PrMeasureFix.addReplacementMetricKeys(metricKeysToSearch);
       }
 
       ComponentTreeQuery componentTreeQuery = toComponentTreeQuery(wsRequest, baseComponent);
       List<ComponentDto> components = searchComponents(dbSession, componentTreeQuery);
 
-      List<MetricDto> metrics = searchMetrics(dbSession, metricKeysToSearch);
-      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
-        components,
-        metrics);
-
-      if (isPR) {
-        PrMeasureFix.removeMetricsNotRequested(metrics, requestedMetricKeys);
-        PrMeasureFix.createReplacementMeasures(metrics, measuresByComponentUuidAndMetric, requestedMetricKeys);
-      }
+      List<MetricDto> metrics = searchMetrics(dbSession,
+        new HashSet<>(withRemovedMetricAlias(ofNullable(wsRequest.getMetricKeys()).orElse(List.of()))));
+      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric =
+        searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
+        components, metrics);
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
       components = filterAuthorizedComponents(components);
@@ -456,6 +488,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
       return ComponentTreeData.builder()
         .setBaseComponent(baseComponent)
+        .setBranch(branchDto)
         .setComponentsFromDb(components)
         .setComponentCount(componentCount)
         .setBranchByReferenceUuid(branchByReferenceUuid)
@@ -473,10 +506,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
   }
 
-  private static boolean isPR(@Nullable String pullRequest) {
-    return pullRequest != null;
-  }
-
   private ComponentDto loadComponent(DbSession dbSession, ComponentTreeRequest request) {
     String componentKey = request.getComponent();
     String branch = request.getBranch();
@@ -488,7 +517,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<String> referenceComponentUUids = components.stream()
       .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList(components.size()));
+      .toList();
     if (referenceComponentUUids.isEmpty()) {
       return emptyMap();
     }
@@ -513,18 +542,21 @@ public class ComponentTreeAction implements MeasuresWsAction {
         new LinkedHashSet<>(metricKeys),
         new LinkedHashSet<>(foundMetricKeys));
 
-      throw new NotFoundException(format("The following metric keys are not found: %s", COMMA_JOINER.join(missingMetricKeys)));
+      throw new NotFoundException(format("The following metric keys are not found: %s", join(COMMA_JOIN_SEPARATOR,
+        missingMetricKeys)));
     }
     String forbiddenMetrics = metrics.stream()
-      .filter(metric -> ComponentTreeAction.FORBIDDEN_METRIC_TYPES.contains(metric.getValueType()))
+      .filter(UnsupportedMetrics.INSTANCE)
       .map(MetricDto::getKey)
       .sorted()
-      .collect(MoreCollectors.join(COMMA_JOINER));
-    checkArgument(forbiddenMetrics.isEmpty(), "Metrics %s can't be requested in this web service. Please use api/measures/component", forbiddenMetrics);
+      .collect(Collectors.joining(COMMA_JOIN_SEPARATOR));
+    checkArgument(forbiddenMetrics.isEmpty(), "Metrics %s can't be requested in this web service. Please use api/measures/component",
+      forbiddenMetrics);
     return metrics;
   }
 
-  private Table<String, MetricDto, ComponentTreeData.Measure> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent,
+  private Table<String, MetricDto, ComponentTreeData.Measure> searchMeasuresByComponentUuidAndMetric(DbSession dbSession,
+    ComponentDto baseComponent,
     ComponentTreeQuery componentTreeQuery, List<ComponentDto> components, List<MetricDto> metrics) {
 
     Map<String, MetricDto> metricsByUuid = Maps.uniqueIndex(metrics, MetricDto::getUuid);
@@ -535,7 +567,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setMetricUuids(new ArrayList<>(metricsByUuid.keySet()))
       .build();
 
-    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), metrics.size());
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(),
+      metrics.size());
     dbClient.liveMeasureDao().selectTreeByQuery(dbSession, baseComponent, measureQuery, result -> {
       LiveMeasureDto measureDto = result.getResultObject();
       measuresByComponentUuidAndMetric.put(
@@ -556,12 +589,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
    * <li>metric is optimized for best value</li>
    * </ul>
    */
-  private static void addBestValuesToMeasures(Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, List<ComponentDto> components,
+  private static void addBestValuesToMeasures(Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric,
+    List<ComponentDto> components,
     List<MetricDto> metrics) {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(new MetricDtoToMetricDtoWithBestValue())
-      .collect(MoreCollectors.toList(metrics.size()));
+      .toList();
     if (metricDtosWithBestValueMeasure.isEmpty()) {
       return;
     }
@@ -578,7 +612,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static List<ComponentDto> filterComponents(List<ComponentDto> components,
-    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeRequest wsRequest) {
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, List<MetricDto> metrics,
+    ComponentTreeRequest wsRequest) {
     if (!componentWithMeasuresOnly(wsRequest)) {
       return components;
     }
@@ -590,7 +625,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return components
       .stream()
       .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get()))
-      .collect(MoreCollectors.toList(components.size()));
+      .toList();
   }
 
   private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
@@ -610,7 +645,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return components.stream()
       .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize())
-      .collect(MoreCollectors.toList(wsRequest.getPageSize()));
+      .toList();
   }
 
   @CheckForNull
@@ -629,7 +664,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       return requestQualifiers;
     }
 
-    Sets.SetView<String> qualifiersIntersection = Sets.intersection(new HashSet<>(childrenQualifiers), new HashSet<Object>(requestQualifiers));
+    Sets.SetView<String> qualifiersIntersection = Sets.intersection(new HashSet<>(childrenQualifiers),
+      new HashSet<Object>(requestQualifiers));
 
     return new ArrayList<>(qualifiersIntersection);
   }
@@ -668,4 +704,27 @@ public class ComponentTreeAction implements MeasuresWsAction {
       return new MetricDtoWithBestValue(input);
     }
   }
+
+  private enum UnsupportedMetrics implements Predicate<MetricDto> {
+    INSTANCE;
+
+    static final Set<String> FORBIDDEN_METRIC_TYPES = Set.of(DISTRIB.name());
+    static final Map<String, Set<String>> PARTIALLY_SUPPORTED_METRICS = Map.of(
+      DATA.name(),
+      DataSupportedMetrics.IMPACTS_SUPPORTED_METRICS);
+
+    @Override
+    public boolean test(@Nonnull MetricDto input) {
+      if (FORBIDDEN_METRIC_TYPES.contains(input.getValueType())) {
+        return true;
+      }
+      Set<String> partialSupport = PARTIALLY_SUPPORTED_METRICS.get(input.getValueType());
+      if (partialSupport == null) {
+        return false;
+      } else {
+        return !partialSupport.contains(input.getKey());
+      }
+    }
+  }
+
 }

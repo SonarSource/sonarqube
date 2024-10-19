@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -99,7 +99,7 @@ public class MetadataGeneratorTest {
     DefaultInputFile inputFile = createInputFileWithMetadata(tempFile);
     assertThat(inputFile.lines()).isEqualTo(3);
     assertThat(inputFile.nonBlankLines()).isEqualTo(3);
-    assertThat(inputFile.hash()).isEqualTo(md5Hex("foo\nbar\nbaz"));
+    assertThat(inputFile.md5Hash()).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(inputFile.originalLineStartOffsets()).containsOnly(0, 4, 9);
     assertThat(inputFile.originalLineEndOffsets()).containsOnly(3, 7, 12);
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,29 +21,29 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Iterator;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.cursor.Cursor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RulesDefinition.StigVersion;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ResultSetIterator;
+import org.sonar.db.issue.IndexedIssueDto;
 import org.sonar.server.security.SecurityStandards;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.longToDate;
-import static org.sonar.db.DatabaseUtils.getLong;
 import static org.sonar.db.rule.RuleDto.deserializeSecurityStandardsString;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 
@@ -52,86 +52,24 @@ import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
  * the issues index
  */
 class IssueIteratorForSingleChunk implements IssueIterator {
+  private static final Logger LOG = LoggerFactory.getLogger(IssueIteratorForSingleChunk.class);
 
-  private static final String[] FIELDS = {
-    // column 1
-    "i.kee",
-    "i.assignee",
-    "i.line",
-    "i.resolution",
-    "i.severity",
-    "i.status",
-    "i.effort",
-    "i.author_login",
-    "i.issue_close_date",
-    "i.issue_creation_date",
-
-    // column 11
-    "i.issue_update_date",
-    "r.uuid",
-    "r.language",
-    "c.uuid",
-    "c.module_uuid_path",
-    "c.path",
-    "c.scope",
-    "c.branch_uuid",
-    "c.main_branch_project_uuid",
-
-    // column 21
-    "i.tags",
-    "i.issue_type",
-    "r.security_standards",
-    "c.qualifier",
-    "n.uuid",
-    "c.organization_uuid"
-  };
-
-  private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
-    "inner join rules r on r.uuid = i.rule_uuid " +
-    "inner join components c on c.uuid = i.component_uuid ";
-
-  private static final String SQL_NEW_CODE_JOIN = "left join new_code_reference_issues n on n.issue_key = i.kee ";
-
-  private static final String BRANCH_FILTER = " and c.branch_uuid = ? and i.project_uuid = ? ";
-  private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";
-  private static final String ISSUE_KEY_FILTER_SUFFIX = ") ";
-
-  static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private final DbSession session;
 
-  @CheckForNull
-  private final String branchUuid;
-
-  @CheckForNull
-  private final Collection<String> issueKeys;
-
-  private final PreparedStatement stmt;
-  private final ResultSetIterator<IssueDoc> iterator;
+  private final Cursor<IndexedIssueDto> indexCursor;
+  private final Iterator<IndexedIssueDto> iterator;
 
   IssueIteratorForSingleChunk(DbClient dbClient, @Nullable String branchUuid, @Nullable Collection<String> issueKeys) {
     checkArgument(issueKeys == null || issueKeys.size() <= DatabaseUtils.PARTITION_SIZE_FOR_ORACLE,
       "Cannot search for more than " + DatabaseUtils.PARTITION_SIZE_FOR_ORACLE + " issue keys at once. Please provide the keys in smaller chunks.");
-    this.branchUuid = branchUuid;
-    this.issueKeys = issueKeys;
     this.session = dbClient.openSession(false);
-
     try {
-      String sql = createSql();
-      stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
-      iterator = createIterator();
+      indexCursor = dbClient.issueDao().scrollIssuesForIndexation(session, branchUuid, issueKeys);
+      iterator = indexCursor.iterator();
     } catch (Exception e) {
       session.close();
-      throw new IllegalStateException("Fail to prepare SQL request to select all issues", e);
-    }
-  }
-
-  private IssueIteratorInternal createIterator() {
-    try {
-      setParameters(stmt);
-      return new IssueIteratorInternal(stmt);
-    } catch (SQLException e) {
-      DatabaseUtils.closeQuietly(stmt);
       throw new IllegalStateException("Fail to prepare SQL request to select all issues", e);
     }
   }
@@ -143,138 +81,111 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   @Override
   public IssueDoc next() {
-    return iterator.next();
+
+    return toIssueDoc(iterator.next());
   }
 
-  private String createSql() {
-    String sql = SQL_ALL;
-    sql += branchUuid == null ? "" : BRANCH_FILTER;
-    if (issueKeys != null && !issueKeys.isEmpty()) {
-      sql += ISSUE_KEY_FILTER_PREFIX;
-      sql += IntStream.range(0, issueKeys.size()).mapToObj(i -> "?").collect(Collectors.joining(","));
-      sql += ISSUE_KEY_FILTER_SUFFIX;
-    }
-    sql += SQL_NEW_CODE_JOIN;
-    return sql;
+  private static IssueDoc toIssueDoc(IndexedIssueDto indexedIssueDto) {
+    IssueDoc doc = new IssueDoc(new HashMap<>(30));
+
+    String key = indexedIssueDto.getIssueKey();
+
+    // all the fields must be present, even if value is null
+    doc.setKey(key);
+    doc.setAssigneeUuid(indexedIssueDto.getAssignee());
+    doc.setLine(indexedIssueDto.getLine());
+    doc.setResolution(indexedIssueDto.getResolution());
+    doc.setSeverity(indexedIssueDto.getSeverity());
+    String cleanCodeAttributeCategory = Optional.ofNullable(indexedIssueDto.getCleanCodeAttribute())
+      .map(CleanCodeAttribute::valueOf)
+      .map(CleanCodeAttribute::getAttributeCategory)
+      .map(Enum::name)
+      .orElse(null);
+    doc.setCleanCodeAttributeCategory(cleanCodeAttributeCategory);
+    doc.setStatus(indexedIssueDto.getStatus());
+    doc.setIssueStatus(indexedIssueDto.getIssueStatus());
+    doc.setEffort(indexedIssueDto.getEffort());
+    doc.setAuthorLogin(indexedIssueDto.getAuthorLogin());
+
+    doc.setFuncCloseDate(longToDate(indexedIssueDto.getIssueCloseDate()));
+    doc.setFuncCreationDate(longToDate(indexedIssueDto.getIssueCreationDate()));
+    doc.setFuncUpdateDate(longToDate(indexedIssueDto.getIssueUpdateDate()));
+
+    doc.setRuleUuid(indexedIssueDto.getRuleUuid());
+    doc.setLanguage(indexedIssueDto.getLanguage());
+    doc.setComponentUuid(indexedIssueDto.getComponentUuid());
+    String scope = indexedIssueDto.getScope();
+    String filePath = extractFilePath(indexedIssueDto.getPath(), scope);
+    doc.setFilePath(filePath);
+    doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
+    String branchUuid = indexedIssueDto.getBranchUuid();
+    boolean isMainBranch = indexedIssueDto.isMain();
+    String projectUuid = indexedIssueDto.getProjectUuid();
+    doc.setBranchUuid(branchUuid);
+    doc.setIsMainBranch(isMainBranch);
+    doc.setProjectUuid(projectUuid);
+    String tags = indexedIssueDto.getTags();
+    doc.setTags(STRING_LIST_SPLITTER.splitToList(tags == null ? "" : tags));
+    doc.setType(RuleType.valueOf(indexedIssueDto.getIssueType()));
+    doc.setImpacts(indexedIssueDto.getEffectiveImpacts());
+    SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(indexedIssueDto.getSecurityStandards()));
+    SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
+    doc.setOwaspTop10(securityStandards.getOwaspTop10());
+    doc.setOwaspTop10For2021(securityStandards.getOwaspTop10For2021());
+    doc.setStigAsdV5R3(securityStandards.getStig(StigVersion.ASD_V5R3));
+    doc.setCasa(securityStandards.getCasa());
+    doc.setPciDss32(securityStandards.getPciDss32());
+    doc.setPciDss40(securityStandards.getPciDss40());
+    doc.setOwaspAsvs40(securityStandards.getOwaspAsvs40());
+    doc.setCwe(securityStandards.getCwe());
+    doc.setSansTop25(securityStandards.getSansTop25());
+    doc.setSonarSourceSecurityCategory(sqCategory);
+    doc.setVulnerabilityProbability(sqCategory.getVulnerability());
+
+    doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(indexedIssueDto.getQualifier()) ? IssueScope.TEST : IssueScope.MAIN);
+    doc.setIsNewCodeReference(indexedIssueDto.isNewCodeReferenceIssue());
+    String codeVariants = indexedIssueDto.getCodeVariants();
+    doc.setCodeVariants(STRING_LIST_SPLITTER.splitToList(codeVariants == null ? "" : codeVariants));
+    doc.setPrioritizedRule(indexedIssueDto.isPrioritizedRule());
+    doc.setOrganizationUuid(indexedIssueDto.getO);
+    return doc;
+
   }
 
-  private void setParameters(PreparedStatement stmt) throws SQLException {
-    int index = 1;
-    if (branchUuid != null) {
-      stmt.setString(index, branchUuid);
-      index++;
-      stmt.setString(index, branchUuid);
-      index++;
-    }
-    if (issueKeys != null) {
-      for (String key : issueKeys) {
-        stmt.setString(index, key);
-        index++;
+  @CheckForNull
+  private static String extractDirPath(@Nullable String filePath, String scope) {
+    if (filePath != null) {
+      if (Scopes.DIRECTORY.equals(scope)) {
+        return filePath;
       }
+      int lastSlashIndex = CharMatcher.anyOf("/").lastIndexIn(filePath);
+      if (lastSlashIndex > 0) {
+        return filePath.substring(0, lastSlashIndex);
+      }
+      return "/";
     }
+    return null;
+  }
+
+  @CheckForNull
+  private static String extractFilePath(@Nullable String filePath, String scope) {
+    // On modules, the path contains the relative path of the module starting from its parent, and in E/S we're only interested in the
+    // path
+    // of files and directories.
+    // That's why the file path should be null on modules and projects.
+    if (filePath != null && !Scopes.PROJECT.equals(scope)) {
+      return filePath;
+    }
+    return null;
   }
 
   @Override
   public void close() {
     try {
-      iterator.close();
-    } finally {
-      DatabaseUtils.closeQuietly(stmt);
-      session.close();
+      indexCursor.close();
+    } catch (IOException e) {
+      LOG.atWarn().setMessage("unable to close the cursor, this may lead to database connexion leak. error is : {}").addArgument(e).log();
     }
-  }
-
-  private static final class IssueIteratorInternal extends ResultSetIterator<IssueDoc> {
-
-    public IssueIteratorInternal(PreparedStatement stmt) throws SQLException {
-      super(stmt);
-    }
-
-    @Override
-    protected IssueDoc read(ResultSet rs) throws SQLException {
-      IssueDoc doc = new IssueDoc(new HashMap<>(30));
-
-      String key = rs.getString(1);
-
-      // all the fields must be present, even if value is null
-      doc.setKey(key);
-      doc.setAssigneeUuid(rs.getString(2));
-      doc.setLine(DatabaseUtils.getInt(rs, 3));
-      doc.setResolution(rs.getString(4));
-      doc.setSeverity(rs.getString(5));
-      doc.setStatus(rs.getString(6));
-      doc.setEffort(getLong(rs, 7));
-      doc.setAuthorLogin(rs.getString(8));
-      doc.setFuncCloseDate(longToDate(getLong(rs, 9)));
-      doc.setFuncCreationDate(longToDate(getLong(rs, 10)));
-      doc.setFuncUpdateDate(longToDate(getLong(rs, 11)));
-      doc.setRuleUuid(rs.getString(12));
-      doc.setLanguage(rs.getString(13));
-      doc.setComponentUuid(rs.getString(14));
-      String moduleUuidPath = rs.getString(15);
-      doc.setModuleUuidPath(moduleUuidPath);
-      String scope = rs.getString(17);
-      String filePath = extractFilePath(rs.getString(16), scope);
-      doc.setFilePath(filePath);
-      doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-      String branchUuid = rs.getString(18);
-      String mainBranchProjectUuid = DatabaseUtils.getString(rs, 19);
-      doc.setBranchUuid(branchUuid);
-      if (mainBranchProjectUuid == null) {
-        doc.setProjectUuid(branchUuid);
-        doc.setIsMainBranch(true);
-      } else {
-        doc.setProjectUuid(mainBranchProjectUuid);
-        doc.setIsMainBranch(false);
-      }
-      String tags = rs.getString(20);
-      doc.setTags(IssueIteratorForSingleChunk.TAGS_SPLITTER.splitToList(tags == null ? "" : tags));
-      doc.setType(RuleType.valueOf(rs.getInt(21)));
-
-      SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(22)));
-      SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
-      doc.setOwaspTop10(securityStandards.getOwaspTop10());
-      doc.setOwaspTop10For2021(securityStandards.getOwaspTop10For2021());
-      doc.setPciDss32(securityStandards.getPciDss32());
-      doc.setPciDss40(securityStandards.getPciDss40());
-      doc.setOwaspAsvs40(securityStandards.getOwaspAsvs40());
-      doc.setCwe(securityStandards.getCwe());
-      doc.setSansTop25(securityStandards.getSansTop25());
-      doc.setSonarSourceSecurityCategory(sqCategory);
-      doc.setVulnerabilityProbability(sqCategory.getVulnerability());
-
-      doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(23)) ? IssueScope.TEST : IssueScope.MAIN);
-      doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(24)));
-      doc.setOrganizationUuid(rs.getString(25));
-      return doc;
-    }
-
-    @CheckForNull
-    private static String extractDirPath(@Nullable String filePath, String scope) {
-      if (filePath != null) {
-        if (Scopes.DIRECTORY.equals(scope)) {
-          return filePath;
-        }
-        int lastSlashIndex = CharMatcher.anyOf("/").lastIndexIn(filePath);
-        if (lastSlashIndex > 0) {
-          return filePath.substring(0, lastSlashIndex);
-        }
-        return "/";
-      }
-      return null;
-    }
-
-    @CheckForNull
-    private static String extractFilePath(@Nullable String filePath, String scope) {
-      // On modules, the path contains the relative path of the module starting from its parent, and in E/S we're only interested in the
-      // path
-      // of files and directories.
-      // That's why the file path should be null on modules and projects.
-      if (filePath != null && !Scopes.PROJECT.equals(scope)) {
-        return filePath;
-      }
-      return null;
-    }
-
+    session.close();
   }
 }

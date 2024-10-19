@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function othersExample(branchesEnabled: boolean, mainBranchName: string) {
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+
+const othersExample: BuildToolExampleBuilder = ({ branchesEnabled, mainBranchName }) => {
   return `image: maven:3.3.9
 
 definitions:
@@ -25,7 +27,7 @@ definitions:
     - step: &build-step
         name: SonarQube analysis
         script:
-          - pipe: sonarsource/sonarqube-scan:1.0.0
+          - pipe: sonarsource/sonarqube-scan:2.0.1
             variables:
               SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
               SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
@@ -48,4 +50,6 @@ ${
 `
     : ''
 }`;
-}
+};
+
+export default othersExample;

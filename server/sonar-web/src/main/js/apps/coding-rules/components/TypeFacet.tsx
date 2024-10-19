@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
+import Facet, { BasicProps } from '../../../components/facets/Facet';
+import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
+import { RULE_TYPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 
 export default class TypeFacet extends React.PureComponent<BasicProps> {
   renderName = (type: string) => (
     <>
-      <IssueTypeIcon className="little-spacer-right" query={type} />
+      <IssueTypeIcon className="sw-mr-1" type={type} />
       {translate('issue.type', type)}
     </>
   );
@@ -33,12 +34,10 @@ export default class TypeFacet extends React.PureComponent<BasicProps> {
   renderTextName = (type: string) => translate('issue.type', type);
 
   render() {
-    const options = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
-
     return (
       <Facet
         {...this.props}
-        options={options}
+        options={RULE_TYPES}
         property="types"
         renderName={this.renderName}
         renderTextName={this.renderTextName}

@@ -10,9 +10,9 @@ dependencies {
     api 'com.github.scribejava:scribejava-apis'
     api 'com.github.scribejava:scribejava-core'
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-    testImplementation 'commons-lang:commons-lang'
+    testImplementation 'org.apache.commons:commons-lang3'
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'

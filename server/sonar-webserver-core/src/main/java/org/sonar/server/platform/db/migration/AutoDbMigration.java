@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,31 +19,31 @@
  */
 package org.sonar.server.platform.db.migration;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
+import org.sonar.server.platform.db.migration.step.MigrationStatusListenerImpl;
 
 public class AutoDbMigration implements Startable {
   private final DefaultServerUpgradeStatus serverUpgradeStatus;
   private final MigrationEngine migrationEngine;
+  private final MutableDatabaseMigrationState databaseMigrationState;
 
-  public AutoDbMigration(DefaultServerUpgradeStatus serverUpgradeStatus, MigrationEngine migrationEngine) {
+  public AutoDbMigration(DefaultServerUpgradeStatus serverUpgradeStatus, MigrationEngine migrationEngine, MutableDatabaseMigrationState databaseMigrationState) {
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.migrationEngine = migrationEngine;
+    this.databaseMigrationState = databaseMigrationState;
   }
 
   @Override
   public void start() {
     if (serverUpgradeStatus.isFreshInstall()) {
-      Loggers.get(getClass()).info("Automatically perform DB migration on fresh install");
-      migrationEngine.execute();
+      LoggerFactory.getLogger(getClass()).info("Automatically perform DB migration on fresh install");
+      migrationEngine.execute(new MigrationStatusListenerImpl(databaseMigrationState));
     } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isAutoDbUpgrade()) {
-      Loggers.get(getClass()).info("Automatically perform DB migration, as automatic database upgrade is enabled");
-      migrationEngine.execute();
-    } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isBlueGreen()) {
-      Loggers.get(getClass()).info("Automatically perform DB migration on blue/green deployment");
-      migrationEngine.execute();
+      LoggerFactory.getLogger(getClass()).info("Automatically perform DB migration, as automatic database upgrade is enabled");
+      migrationEngine.execute(new MigrationStatusListenerImpl(databaseMigrationState));
     }
   }
 

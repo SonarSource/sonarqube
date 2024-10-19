@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -34,9 +36,6 @@ import org.sonarqube.ws.UserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 /**
@@ -44,9 +43,9 @@ import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOption
  */
 public class GroupWsSupport {
 
-  static final String PARAM_GROUP_ID = "id";
   static final String PARAM_ORGANIZATION_KEY = "organization";
   static final String PARAM_GROUP_NAME = "name";
+  static final String PARAM_GROUP_CURRENT_NAME = "currentName";
   static final String PARAM_GROUP_DESCRIPTION = "description";
   static final String PARAM_LOGIN = "login";
 
@@ -64,7 +63,7 @@ public class GroupWsSupport {
   }
 
   /**
-   * Find a group by its id (parameter {@link #PARAM_GROUP_ID}) or group name (parameter {@link #PARAM_GROUP_NAME}). The virtual
+   * Find a group by its  group name (parameter {@link #PARAM_GROUP_NAME}). The virtual
    * group "Anyone" is not supported.
    *
    * @throws NotFoundException if parameters are missing/incorrect, if the requested group does not exist
@@ -75,39 +74,35 @@ public class GroupWsSupport {
   }
 
   public GroupDto findGroupDto(DbSession dbSession, Request request) {
-    String uuid = request.param(PARAM_GROUP_ID);
     String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
-    String name = request.param(PARAM_GROUP_NAME);
-    return findGroupDto(dbSession, GroupWsRef.create(uuid, organizationKey, name));
+    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+    return findGroupDto(dbSession, groupName);
   }
 
-  public GroupDto findGroupDto(DbSession dbSession, GroupWsRef ref) {
-    if (ref.hasUuid()) {
-      GroupDto group = dbClient.groupDao().selectByUuid(dbSession, ref.getUuid());
-      checkFound(group, "No group with id '%s'", ref.getUuid());
-      return group;
+  @CheckForNull
+  public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, String groupName) {
+    if (DefaultGroups.isAnyone(groupName)) {
+      return null;
     }
+    return findGroupDto(dbSession, groupName);
+  }
 
+  public GroupDto findGroupDto(DbSession dbSession, String groupName) {
     OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), ref.getName());
-    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", ref.getName(), org.getKey());
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), groupName);
+    checkFoundWithOptional(group, "No group with name '%s'", groupName);
     return group.get();
   }
 
-  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, GroupWsRef ref) {
-    if (ref.hasUuid()) {
-      GroupDto group = dbClient.groupDao().selectByUuid(dbSession, ref.getUuid());
-      checkFound(group, "No group with id '%s'", ref.getUuid());
-      return GroupUuidOrAnyone.from(group);
-    }
-
+  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, String groupName) {
     OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
-    if (ref.isAnyone()) {
+
+    if (DefaultGroups.isAnyone(groupName)) {
       return GroupUuidOrAnyone.forAnyone(org.getUuid());
     }
 
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), ref.getName());
-    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", ref.getName(), org.getKey());
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), groupName);
+    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", groupName, org.getKey());
     return GroupUuidOrAnyone.from(group.get());
   }
 
@@ -148,26 +143,19 @@ public class GroupWsSupport {
   }
 
   static void defineGroupWsParameters(WebService.NewAction action) {
-    defineGroupIdWsParameter(action);
     defineGroupNameWsParameter(action);
-  }
-
-  private static void defineGroupIdWsParameter(WebService.NewAction action) {
-    action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group id, use 'name' instead")
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
   }
 
   private static void defineGroupNameWsParameter(WebService.NewAction action) {
     action.createParam(PARAM_ORGANIZATION_KEY)
-            .setDescription("Key of organization")
-            .setExampleValue("my-org")
-            .setInternal(true)
-            .setRequired(true);
+      .setDescription("Key of organization")
+      .setExampleValue("my-org")
+      .setInternal(true)
+      .setRequired(true);
     action.createParam(PARAM_GROUP_NAME)
-            .setDescription("Group name")
-            .setExampleValue("sonar-administrators");
+      .setRequired(true)
+      .setDescription("Group name")
+      .setExampleValue("sonar-administrators");
   }
 
   static WebService.NewParam defineLoginWsParameter(WebService.NewAction action) {

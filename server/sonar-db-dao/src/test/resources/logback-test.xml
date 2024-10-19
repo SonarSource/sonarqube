@@ -11,22 +11,15 @@
     </encoder>
   </appender>
 
-  <logger name="org.dbunit">
-    <level value="WARN"/>
-  </logger>
+  <logger name="org.dbunit" level="WARN"/>
 
   <!-- set to level DEBUG to log SQL requests executed by MyBatis -->
-  <logger name="java.sql">
-    <level value="WARN"/>
-  </logger>
+  <logger name="java.sql" level="WARN"/>
 
   <!-- required for DryRunDatabaseFactoryTest -->
-  <logger name="org.elasticsearch">
-    <level value="WARN"/>
-  </logger>
+  <logger name="org.elasticsearch" level="WARN"/>
 
-  <root>
-    <level value="INFO"/>
+  <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>
 

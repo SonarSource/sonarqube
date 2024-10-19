@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Visibility } from '~sonar-aligned/types/component';
 import { Branch } from './branch-like';
-import { Visibility } from './component';
 
 export interface ApplicationPeriod {
   date: string;
@@ -36,19 +36,19 @@ export interface Application {
 }
 
 export interface ApplicationProject {
+  accessible?: boolean;
   enabled?: boolean;
   key: string;
   name: string;
   selected?: boolean;
-  accessible?: boolean;
 }
 
 export interface ApplicationProjectBranch {
+  accessible?: boolean;
   branch: string;
   enabled?: boolean;
   isMain: boolean;
   key: string;
   name: string;
   selected?: boolean;
-  accessible?: boolean;
 }

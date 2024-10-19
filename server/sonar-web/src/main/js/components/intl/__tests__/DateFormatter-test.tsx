@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import DateFormatter, { DateFormatterProps } from '../DateFormatter';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('standard');
-  expect(shallowRender({ long: true })).toMatchSnapshot('long');
+  renderDateFormatter({}, (formatted: string) => <span>{formatted}</span>);
+  expect(screen.getByText('Feb 20, 2020')).toBeInTheDocument();
+
+  renderDateFormatter({ long: true });
+  expect(screen.getByText('February 20, 2020')).toBeInTheDocument();
 });
 
-function shallowRender(overrides: Partial<DateFormatterProps> = {}) {
-  return shallow(
+function renderDateFormatter(
+  overrides: Partial<DateFormatterProps> = {},
+  children?: (d: string) => React.ReactNode,
+) {
+  return renderComponent(
     <DateFormatter date={new Date('2020-02-20T20:20:20Z')} {...overrides}>
-      {(formatted) => <span>{formatted}</span>}
-    </DateFormatter>
+      {children}
+    </DateFormatter>,
   );
 }

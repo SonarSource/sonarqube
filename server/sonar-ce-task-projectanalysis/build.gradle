@@ -19,13 +19,14 @@ dependencies {
 
   api 'org.slf4j:jul-to-slf4j'
   api 'org.slf4j:slf4j-api'
-  api 'net.sf.trove4j:core:3.1.0'
+  api 'net.sf.trove4j:core'
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
+  implementation 'org.apache.commons:commons-text'
   api 'com.google.code.gson:gson'
   api 'com.google.guava:guava'
-  api 'com.google.code.findbugs:jsr305'
+  api 'com.github.spotbugs:spotbugs-annotations'
   api 'com.google.protobuf:protobuf-java'
   api 'com.googlecode.java-diff-utils:diffutils'
   api 'org.mybatis:mybatis'
@@ -41,25 +42,36 @@ dependencies {
   api project(':sonar-duplications')
   api project(':sonar-scanner-protocol')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   api project(':server:sonar-db-dao')
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.reflections:reflections'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-testing-harness')
   testImplementation testFixtures(project(':server:sonar-server-common'))
 
   testFixturesApi 'junit:junit'
   testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
   testFixturesApi 'org.mockito:mockito-core'
   testFixturesApi testFixtures(project(':server:sonar-ce-task'))
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

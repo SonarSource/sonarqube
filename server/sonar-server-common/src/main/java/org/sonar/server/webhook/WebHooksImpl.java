@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,11 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -44,7 +43,7 @@ import static java.lang.String.format;
 @ComputeEngineSide
 public class WebHooksImpl implements WebHooks {
 
-  private static final Logger LOGGER = Loggers.get(WebHooksImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(WebHooksImpl.class);
 
   private final WebhookCaller caller;
   private final WebhookDeliveryStorage deliveryStorage;
@@ -106,7 +105,7 @@ public class WebHooksImpl implements WebHooks {
     List<Webhook> webhooks = readWebHooksFrom(analysis.projectUuid(), taskLogStatistics)
       .map(dto -> new Webhook(dto.getUuid(), analysis.projectUuid(), analysis.ceTaskUuid(), analysis.analysisUuid(),
         dto.getName(), dto.getUrl(), dto.getSecret()))
-      .collect(MoreCollectors.toList());
+      .toList();
     if (webhooks.isEmpty()) {
       return;
     }
@@ -117,7 +116,7 @@ public class WebHooksImpl implements WebHooks {
       log(delivery);
       deliveryStorage.persist(delivery);
     }));
-    asyncExecution.addToQueue(() -> deliveryStorage.purge(analysis.projectUuid()));
+    asyncExecution.addToQueue(deliveryStorage::purge);
   }
 
   private static void log(WebhookDelivery delivery) {

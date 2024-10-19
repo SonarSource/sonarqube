@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,9 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -42,13 +42,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class DbSessionImplTest {
-  private SqlSession sqlSessionMock = mock(SqlSession.class);
+class DbSessionImplTest {
+  private final SqlSession sqlSessionMock = mock(SqlSession.class);
 
-  private DbSessionImpl underTest = new DbSessionImpl(sqlSessionMock);
+  private final DbSessionImpl underTest = new DbSessionImpl(sqlSessionMock);
 
   @Test
-  public void all_methods_to_wrapped_SqlSession() {
+  void all_methods_to_wrapped_SqlSession() {
     Random random = new Random();
     boolean randomBoolean = random.nextBoolean();
     int randomInt = random.nextInt(200);
@@ -240,7 +240,7 @@ public class DbSessionImplTest {
   }
 
   @Test
-  public void getSqlSession_returns_wrapped_SqlSession_object() {
+  void getSqlSession_returns_wrapped_SqlSession_object() {
     assertThat(underTest.getSqlSession()).isSameAs(sqlSessionMock);
   }
 

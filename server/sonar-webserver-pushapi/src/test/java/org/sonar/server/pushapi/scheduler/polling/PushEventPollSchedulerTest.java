@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -86,7 +86,7 @@ public class PushEventPollSchedulerTest {
 
   @Test
   public void nothing_to_broadcast_when_no_push_events() {
-    var project = db.components().insertPrivateProject();
+    var project = db.components().insertPrivateProject().getMainBranchComponent();
 
     var sonarLintClient = mock(SonarLintClient.class);
     when(sonarLintClient.getClientProjectUuids()).thenReturn(Set.of(project.uuid()));
@@ -102,7 +102,7 @@ public class PushEventPollSchedulerTest {
 
   @Test
   public void nothing_to_broadcast_if_project_key_does_not_exist() {
-    var project = db.components().insertPrivateProject();
+    var project = db.components().insertPrivateProject().getMainBranchComponent();
 
     system2.setNow(1L);
     var sonarLintClient = mock(SonarLintClient.class);
@@ -124,7 +124,7 @@ public class PushEventPollSchedulerTest {
 
   @Test
   public void broadcast_push_events() {
-    var project = db.components().insertPrivateProject();
+    var project = db.components().insertPrivateProject().getMainBranchComponent();
 
     system2.setNow(1L);
     var sonarLintClient = mock(SonarLintClient.class);
@@ -160,7 +160,7 @@ public class PushEventPollSchedulerTest {
 
   @Test
   public void broadcast_should_stop_polling_for_events_when_all_clients_unregister() {
-    var project = db.components().insertPrivateProject();
+    var project = db.components().insertPrivateProject().getMainBranchComponent();
 
     system2.setNow(1L);
     var sonarLintClient = mock(SonarLintClient.class);

@@ -1,12 +1,11 @@
 pluginManagement {
   repositories {
     maven {
-      //url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
       url 'https://plugins.gradle.org/m2/'
     }
   }
   plugins {
-    id 'com.bmuschko.docker-remote-api' version '7.3.0'
+    id 'com.bmuschko.docker-remote-api' version '9.4.0'
     id 'org.ajoberstar.grgit' version '4.1.1'
   }
 }
@@ -32,22 +31,27 @@ include 'server:sonar-db-migration'
 include 'server:sonar-main'
 include 'server:sonar-process'
 include 'server:sonar-server-common'
+include 'server:sonar-telemetry'
+include 'server:sonar-telemetry-core'
 include 'server:sonar-web'
+include 'server:sonar-web:design-system'
 include 'server:sonar-webserver'
 include 'server:sonar-webserver-api'
 include 'server:sonar-webserver-auth'
+include 'server:sonar-webserver-common'
 include 'server:sonar-webserver-core'
 include 'server:sonar-webserver-es'
 include 'server:sonar-webserver-webapi'
+include 'server:sonar-webserver-webapi-v2'
 include 'server:sonar-webserver-pushapi'
 include 'server:sonar-webserver-ws'
 include 'server:sonar-alm-client'
 include 'server:sonar-webserver-monitoring'
 
-include 'sonar-application'
 include 'codescan-application'
 include 'sonar-check-api'
 include 'sonar-core'
+include 'sonar-sarif'
 include 'sonar-duplications'
 include 'sonar-markdown'
 include 'sonar-plugin-api-impl'
@@ -59,12 +63,11 @@ include 'sonar-testing-harness'
 include 'sonar-testing-ldap'
 include 'sonar-ws'
 include 'sonar-ws-generator'
-include 'ut-monitoring'
 
 ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
 
 // use Settings.getRootDir() so that it doesn't matter which directory you are executing from
-File extraSettings = new File(rootDir, 'private/settings.gradle')
+File extraSettings = new File(rootDir, 'private/private-settings.gradle')
 if (extraSettings.exists()) {
   apply from: extraSettings
 }

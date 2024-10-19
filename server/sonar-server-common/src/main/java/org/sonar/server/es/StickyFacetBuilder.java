@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -98,6 +98,15 @@ public class StickyFacetBuilder {
     return AggregationBuilders
       .global(facetName)
       .subAggregation(facetTopAggregation);
+  }
+
+  public AggregationBuilder buildNestedAggregationStickyFacet(String parentFieldName, String childFieldName, String facetName, AggregationBuilder additionalAggregationFilter) {
+    BoolQueryBuilder facetFilter = getStickyFacetFilter(parentFieldName + "." + childFieldName, parentFieldName);
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(AggregationBuilders
+        .filter(facetName + "_filter", facetFilter)
+        .subAggregation(additionalAggregationFilter));
   }
 
   public BoolQueryBuilder getStickyFacetFilter(String... fieldNames) {

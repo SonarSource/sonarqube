@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import PageActions from '../../components/ui/PageActions';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { getComponentMeasureUniqueKey } from '../../helpers/component';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { ComponentMeasure } from '../../types/types';
-import { getWrappedDisplayName } from './utils';
 
 export interface WithKeyboardNavigationProps {
   components?: ComponentMeasure[];
@@ -37,7 +36,9 @@ export interface WithKeyboardNavigationProps {
 }
 
 export default function withKeyboardNavigation<P>(
-  WrappedComponent: React.ComponentType<P & Partial<WithKeyboardNavigationProps>>
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<P & Partial<WithKeyboardNavigationProps>>
+  >,
 ) {
   return class Wrapper extends React.Component<P & WithKeyboardNavigationProps> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withKeyboardNavigation');
@@ -55,14 +56,13 @@ export default function withKeyboardNavigation<P>(
         return true;
       }
       if (event.key === KeyboardKeys.UpArrow) {
-        return this.skipIfFile(event, this.handleHighlightPrevious);
+        return this.skipIfFile(this.handleHighlightPrevious);
       } else if (event.key === KeyboardKeys.DownArrow) {
-        return this.skipIfFile(event, this.handleHighlightNext);
+        return this.skipIfFile(this.handleHighlightNext);
       } else if (event.key === KeyboardKeys.RightArrow || event.key === KeyboardKeys.Enter) {
-        return this.skipIfFile(event, this.handleSelectCurrent);
+        return this.skipIfFile(this.handleSelectCurrent);
       } else if (event.key === KeyboardKeys.LeftArrow) {
         this.handleSelectParent();
-        return false; // always hijack left / Why did you put this @wouter?
       }
       return true;
     };
@@ -72,16 +72,15 @@ export default function withKeyboardNavigation<P>(
       return selected
         ? components.findIndex(
             (component) =>
-              getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
+              getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected),
           )
         : -1;
     };
 
-    skipIfFile = (event: KeyboardEvent, handler: () => void) => {
+    skipIfFile = (handler: () => void) => {
       if (this.props.isFile) {
         return true;
       }
-      event.preventDefault();
       handler();
       return false;
     };
@@ -96,7 +95,7 @@ export default function withKeyboardNavigation<P>(
       const first = cycle ? 0 : index;
 
       this.props.onHighlight(
-        index < components.length - 1 ? components[index + 1] : components[first]
+        index < components.length - 1 ? components[index + 1] : components[first],
       );
 
       if (index + 1 === components.length - 1 && this.props.onEndOfList) {
@@ -159,13 +158,7 @@ export default function withKeyboardNavigation<P>(
     };
 
     render() {
-      return (
-        <>
-          <PageActions showShortcuts={!this.props.isFile} />
-
-          <WrappedComponent {...this.props} />
-        </>
-      );
+      return <WrappedComponent {...this.props} />;
     }
   };
 }

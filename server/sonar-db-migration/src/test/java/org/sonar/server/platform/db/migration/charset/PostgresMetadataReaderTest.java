@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,12 +21,9 @@ package org.sonar.server.platform.db.migration.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
@@ -40,13 +37,13 @@ public class PostgresMetadataReaderTest {
 
   @Test
   public void test_getDefaultCharset() throws SQLException {
-    answerSelect(Arrays.<String[]>asList(new String[] {"latin"}));
+    answerSelect("latin");
 
     assertThat(underTest.getDefaultCharset(connection)).isEqualTo("latin");
   }
 
-  private void answerSelect(List<String[]> firstRequest) throws SQLException {
-    when(sqlExecutor.select(same(connection), anyString(), any(SqlExecutor.StringsConverter.class))).thenReturn(firstRequest);
+  private void answerSelect(String charset) throws SQLException {
+    when(sqlExecutor.selectSingleString(same(connection), anyString())).thenReturn(charset);
   }
 
 }

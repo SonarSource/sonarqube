@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,24 +23,26 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.platform.Server;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.ci.CiConfiguration;
+import org.sonar.scanner.ci.DevOpsPlatformInfo;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -82,6 +84,7 @@ public class ReportPublisherTest {
   private AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
+  private CiConfiguration ciConfiguration = mock(CiConfiguration.class);
   private ReportPublisher underTest;
   private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
   private FileStructure fileStructure;
@@ -89,6 +92,7 @@ public class ReportPublisherTest {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     root = new DefaultInputModule(
       ProjectDefinition.create().setKey("org.sonarsource.sonarqube:sonarqube").setBaseDir(reportTempFolder.newDir()).setWorkDir(reportTempFolder.getRoot()));
     when(moduleHierarchy.root()).thenReturn(root);
@@ -99,7 +103,7 @@ public class ReportPublisherTest {
       .resolve("folder")
       .resolve("report-task.txt"));
     underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure, ciConfiguration);
   }
 
   @Test
@@ -196,7 +200,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.branchType()).thenReturn(BRANCH);
     when(branchConfiguration.branchName()).thenReturn("branch-6.7");
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure, ciConfiguration);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -217,7 +221,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.pullRequestKey()).thenReturn("105");
 
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure, ciConfiguration);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -245,7 +249,7 @@ public class ReportPublisherTest {
     underTest.start();
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("ANALYSIS SUCCESSFUL")
       .doesNotContain("dashboard/index");
 
@@ -264,9 +268,9 @@ public class ReportPublisherTest {
     underTest.execute();
 
     assertThat(properties.metadataFilePath()).exists();
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Report metadata written to " + properties.metadataFilePath());
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("ANALYSIS SUCCESSFUL, you can find the results at: https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
       .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
   }
@@ -276,7 +280,7 @@ public class ReportPublisherTest {
     underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(properties.metadataFilePath()).exists();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Report metadata written to " + properties.metadataFilePath());
+    assertThat(logTester.logs(Level.DEBUG)).contains("Report metadata written to " + properties.metadataFilePath());
   }
 
   @Test
@@ -316,6 +320,7 @@ public class ReportPublisherTest {
     WsRequest wsRequest = capture.getValue();
     assertThat(wsRequest.getParameters().getKeys()).containsOnly("projectKey");
     assertThat(wsRequest.getParameters().getValue("projectKey")).isEqualTo("org.sonarsource.sonarqube:sonarqube");
+    assertThat(wsRequest.getParameters().getValues("characteristic")).isEmpty();
   }
 
   @Test
@@ -379,13 +384,47 @@ public class ReportPublisherTest {
   }
 
   @Test
+  public void upload_whenDevOpsPlatformInformationPresentInCiConfiguration_shouldUploadDevOpsPlatformInfoAsCharacteristic() throws Exception {
+    String branchName = "feature";
+    String pullRequestId = "pr-123";
+    DevOpsPlatformInfo devOpsPlatformInfo = new DevOpsPlatformInfo("https://devops.example.com", "projectId");
+
+    when(branchConfiguration.branchName()).thenReturn(branchName);
+    when(branchConfiguration.branchType()).thenReturn(PULL_REQUEST);
+    when(branchConfiguration.pullRequestKey()).thenReturn(pullRequestId);
+    when(ciConfiguration.getDevOpsPlatformInfo()).thenReturn(Optional.of(devOpsPlatformInfo));
+
+    WsResponse response = mock(WsResponse.class);
+
+    PipedOutputStream out = new PipedOutputStream();
+    PipedInputStream in = new PipedInputStream(out);
+    Ce.SubmitResponse.newBuilder().build().writeTo(out);
+    out.close();
+
+    when(response.failIfNotSuccessful()).thenReturn(response);
+    when(response.contentStream()).thenReturn(in);
+
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
+    underTest.upload(reportTempFolder.newFile());
+
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
+    verify(wsClient).call(capture.capture());
+
+    WsRequest wsRequest = capture.getValue();
+    assertThat(wsRequest.getParameters().getValues("characteristic"))
+      .contains(
+        "devOpsPlatformUrl=" + devOpsPlatformInfo.getUrl(),
+        "devOpsPlatformProjectIdentifier=" + devOpsPlatformInfo.getProjectIdentifier());
+  }
+
+  @Test
   public void test_do_not_log_or_add_warning_if_using_64bit_jre() {
     when(javaArchitectureInformationProvider.is64bitJavaVersion()).thenReturn(true);
     when(mode.isMediumTest()).thenReturn(true);
     underTest.start();
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
 
     verifyNoInteractions(analysisWarnings);
   }
@@ -397,7 +436,7 @@ public class ReportPublisherTest {
     underTest.start();
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
+    assertThat(logTester.logs(Level.WARN)).containsOnly(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
     verify(analysisWarnings).addUnique(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
   }
 

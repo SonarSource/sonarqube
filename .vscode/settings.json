@@ -1,0 +1,83 @@
+{
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "editor.formatOnSave": true,
+    "editor.rulers": [100],
+    "editor.tabSize": 2,
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+    "files.exclude": {
+      "**/.awcache": true,
+      "**/.cache": true,
+      "**/.DS_Store": true,
+      "**/.git": true,
+      "**/.gradle": true,
+      "**/.hg": true,
+      "**/.sonarlint": true,
+      "**/.svn": true,
+      "**/.vscode": true,
+      "**/eslint-report.json": true,
+      "**/bower_components": true,
+      "**/build": true,
+      "**/CVS": true,
+      "**/node": true,
+      "**/node_modules": true,
+      "**/out": true,
+      "**/coverage": true,
+      "**/target": true
+    },
+    "javascript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.importModuleSpecifier": "project-relative",
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "javascript.validate.enable": false,
+    "prettier.configPath": "server/sonar-web/.prettierrc",
+    "search.exclude": {
+      "**/build": true,
+      "**/target": true,
+      "**/.awcache": true,
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "**/.sonarlint": true,
+      "**/flow-typed": true,
+      "**/yarn.lock": true,
+      "**/coverage": true,
+      "**/*.js.snap": true,
+      "**/*.ts.snap": true
+    },
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": null
+    },
+    "[yaml]": {
+      "editor.insertSpaces": true,
+      "editor.tabSize": 2,
+      "editor.autoIndent": "keep",
+      "diffEditor.ignoreTrimWhitespace": false,
+      "editor.formatOnSave": false
+    }
+}

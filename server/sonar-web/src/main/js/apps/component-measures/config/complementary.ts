@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Dict } from '../../../types/types';
 
-export const complementary: Dict<string[]> = {
-  coverage: ['uncovered_lines', 'uncovered_conditions'],
-  line_coverage: ['uncovered_lines'],
-  branch_coverage: ['uncovered_conditions'],
-  uncovered_lines: ['line_coverage'],
-  uncovered_conditions: ['branch_coverage'],
+export const complementary: Dict<MetricKey[]> = {
+  coverage: [MetricKey.uncovered_lines, MetricKey.uncovered_conditions],
+  line_coverage: [MetricKey.uncovered_lines],
+  branch_coverage: [MetricKey.uncovered_conditions],
+  uncovered_lines: [MetricKey.line_coverage],
+  uncovered_conditions: [MetricKey.branch_coverage],
 
-  new_coverage: ['new_uncovered_lines', 'new_uncovered_conditions'],
-  new_line_coverage: ['new_uncovered_lines'],
-  new_branch_coverage: ['new_uncovered_conditions'],
-  new_uncovered_lines: ['new_line_coverage'],
-  new_uncovered_conditions: ['new_branch_coverage'],
+  new_coverage: [MetricKey.new_uncovered_lines, MetricKey.new_uncovered_conditions],
+  new_line_coverage: [MetricKey.new_uncovered_lines],
+  new_branch_coverage: [MetricKey.new_uncovered_conditions],
+  new_uncovered_lines: [MetricKey.new_line_coverage],
+  new_uncovered_conditions: [MetricKey.new_branch_coverage],
 
-  duplicated_lines_density: ['duplicated_lines'],
-  new_duplicated_lines_density: ['new_duplicated_lines'],
-  duplicated_lines: ['duplicated_lines_density'],
-  new_duplicated_lines: ['new_duplicated_lines_density'],
+  duplicated_lines_density: [MetricKey.duplicated_lines],
+  new_duplicated_lines_density: [MetricKey.new_duplicated_lines],
+  duplicated_lines: [MetricKey.duplicated_lines_density],
+  new_duplicated_lines: [MetricKey.new_duplicated_lines_density],
 };

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,56 +24,25 @@ import CustomRuleFormModal from './CustomRuleFormModal';
 interface Props {
   children: (props: { onClick: () => void }) => React.ReactNode;
   customRule?: RuleDetails;
-  onDone: (newRuleDetails: RuleDetails) => void;
   templateRule: RuleDetails;
   organization: string;
 }
 
-interface State {
-  modal: boolean;
-}
+export default function CustomRuleButton(props: Props) {
+  const { customRule, templateRule } = props;
+  const [modalOpen, setModalOpen] = React.useState(false);
 
-export default class CustomRuleButton extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { modal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleClick = () => {
-    this.setState({ modal: true });
-  };
-
-  handleModalClose = () => {
-    if (this.mounted) {
-      this.setState({ modal: false });
-    }
-  };
-
-  handleDone = (newRuleDetails: RuleDetails) => {
-    this.handleModalClose();
-    this.props.onDone(newRuleDetails);
-  };
-
-  render() {
-    return (
-      <>
-        {this.props.children({ onClick: this.handleClick })}
-        {this.state.modal && (
-          <CustomRuleFormModal
-            customRule={this.props.customRule}
-            onClose={this.handleModalClose}
-            onDone={this.handleDone}
-            organization={this.props.organization}
-            templateRule={this.props.templateRule}
-          />
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      {props.children({ onClick: () => setModalOpen(true) })}
+      {modalOpen && (
+        <CustomRuleFormModal
+          organization={this.props.organization}
+          customRule={customRule}
+          onClose={() => setModalOpen(false)}
+          templateRule={templateRule}
+        />
+      )}
+    </>
+  );
 }

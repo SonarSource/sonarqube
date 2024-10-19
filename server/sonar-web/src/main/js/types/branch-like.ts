@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,33 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BranchBase, PullRequestBase } from '~sonar-aligned/types/branch-like';
+import { Status } from '~sonar-aligned/types/common';
+import { NewCodeDefinition } from './new-code-definition';
 import { QualityGateStatusCondition } from './quality-gates';
-import { NewCodePeriod, Status } from './types';
 
-export interface Branch {
-  analysisDate?: string;
+export interface Branch extends BranchBase {
   excludedFromPurge: boolean;
-  isMain: boolean;
-  name: string;
-  status?: { qualityGateStatus: Status };
 }
 
 export interface MainBranch extends Branch {
   isMain: true;
 }
 
-export interface PullRequest {
-  analysisDate?: string;
-  base: string;
-  branch: string;
-  key: string;
-  isOrphan?: true;
-  status?: { qualityGateStatus: Status };
-  target: string;
-  title: string;
-  url?: string;
-  isComparisonBranch?: boolean;
-}
+export interface PullRequest extends PullRequestBase {}
 
 export type BranchLike = Branch | PullRequest;
 
@@ -53,16 +40,14 @@ export interface BranchTree {
 }
 
 export interface BranchLikeTree {
-  mainBranchTree?: BranchTree;
   branchTree: BranchTree[];
-  parentlessPullRequests: PullRequest[];
+  mainBranchTree?: BranchTree;
   orphanPullRequests: PullRequest[];
+  parentlessPullRequests: PullRequest[];
 }
 
-export type BranchParameters = { branch?: string } | { pullRequest?: string };
-
 export interface BranchWithNewCodePeriod extends Branch {
-  newCodePeriod?: NewCodePeriod;
+  newCodePeriod?: NewCodeDefinition;
 }
 
 export interface BranchStatusData {

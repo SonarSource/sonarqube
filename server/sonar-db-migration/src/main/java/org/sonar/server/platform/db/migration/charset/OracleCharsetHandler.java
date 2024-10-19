@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,11 @@ package org.sonar.server.platform.db.migration.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 class OracleCharsetHandler extends CharsetHandler {
 
@@ -41,7 +41,7 @@ class OracleCharsetHandler extends CharsetHandler {
     // any errors related to charset if they didn't follow the UTF8 requirement when creating
     // the schema in previous SonarQube versions.
     if (state == DatabaseCharsetChecker.State.FRESH_INSTALL) {
-      Loggers.get(getClass()).info("Verify that database charset is UTF8");
+      LoggerFactory.getLogger(getClass()).info("Verify that database charset is UTF8");
       expectUtf8(connection);
     }
   }

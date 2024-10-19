@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { translate } from '../../../helpers/l10n';
+import { FormattedMessage } from 'react-intl';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
 interface Props {
+  organization: string;
   language: string;
   profile: string;
-  sonarway: string;
   sonarWayMissingRules: number;
-  organization: string;
+  sonarway: string;
 }
 
 export default function ProfileRulesSonarWayComparison(props: Props) {
@@ -37,19 +38,34 @@ export default function ProfileRulesSonarWayComparison(props: Props) {
     activation: 'false',
     compareToProfile: props.sonarway,
     languages: props.language,
-  },props.organization);
+  }, props.organization);
+
   return (
-    <div className="quality-profile-rules-sonarway-missing clearfix">
-      <span className="pull-left">
-        <span className="text-middle">{translate('quality_profiles.sonarway_missing_rules')}</span>
+    <FlagMessage variant="warning">
+      <div className="sw-flex sw-items-center sw-gap-1">
+        <FormattedMessage
+          defaultMessage={translate('quality_profiles.x_sonarway_missing_rules')}
+          id="quality_profiles.x_sonarway_missing_rules"
+          values={{
+            count: props.sonarWayMissingRules,
+            linkCount: (
+              <Link
+                aria-label={translateWithParameters(
+                  'quality_profiles.sonarway_see_x_missing_rules',
+                  props.sonarWayMissingRules,
+                )}
+                to={url}
+              >
+                {props.sonarWayMissingRules}
+              </Link>
+            ),
+          }}
+        />
         <HelpTooltip
-          className="spacer-left"
+          className="sw-ml-2"
           overlay={translate('quality_profiles.sonarway_missing_rules_description')}
         />
-      </span>
-      <Link className="pull-right" data-test="rules" to={url}>
-        {props.sonarWayMissingRules}
-      </Link>
-    </div>
+      </div>
+    </FlagMessage>
   );
 }

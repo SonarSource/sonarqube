@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.db.webhook;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface WebhookDeliveryMapper {
 
@@ -31,19 +31,19 @@ public interface WebhookDeliveryMapper {
 
   int countByWebhookUuid(@Param("webhookUuid") String webhookUuid);
 
-  List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid, RowBounds rowBounds);
+  List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid, @Param("pagination") Pagination pagination);
 
-  int countByComponentUuid(@Param("componentUuid") String componentUuid);
+  int countByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid, RowBounds rowBounds);
+  List<WebhookDeliveryLiteDto> selectOrderedByProjectUuid(@Param("projectUuid") String projectUuid, @Param("pagination") Pagination pagination);
 
   int countByCeTaskUuid(@Param("ceTaskUuid") String ceTaskId);
 
-  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid, RowBounds rowBounds);
+  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid, @Param("pagination") Pagination pagination);
 
   void insert(WebhookDeliveryDto dto);
 
-  void deleteComponentBeforeDate(@Param("componentUuid") String componentUuid, @Param("beforeDate") long beforeDate);
+  void deleteAllBeforeDate(@Param("beforeDate") long beforeDate);
 
   void deleteByWebhookUuid(@Param("webhookUuid") String webhookUuid);
 }

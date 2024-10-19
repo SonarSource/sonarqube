@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -47,6 +47,6 @@ afterAll(() => {
 it('should not render for anonymous user', () => {
   handleRequiredAuthorization();
   expect(replace).toHaveBeenCalledWith(
-    '/sessions/new?return_to=%2Fpath%3Fid%3D12%23tag&authorizationError=true'
+    '/sessions/new?return_to=%2Fpath%3Fid%3D12%23tag&authorizationError=true',
   );
 });

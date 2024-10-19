@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.sonar.api.Startable;
 import org.sonar.api.Plugin;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginJarExploder;
@@ -43,7 +43,7 @@ import org.sonar.core.plugin.PluginType;
  * </ul>
  */
 public class ServerPluginManager implements Startable {
-  private static final Logger LOG = Loggers.get(ServerPluginManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ServerPluginManager.class);
 
   private final PluginJarLoader pluginJarLoader;
   private final PluginJarExploder pluginJarExploder;

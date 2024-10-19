@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package org.sonar.server.authentication;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -52,13 +52,13 @@ public class CredentialsAuthentication {
     this.ldapCredentialsAuthentication = ldapCredentialsAuthentication;
   }
 
-  public UserDto authenticate(Credentials credentials, HttpServletRequest request, Method method) {
+  public UserDto authenticate(Credentials credentials, HttpRequest request, Method method) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return authenticate(dbSession, credentials, request, method);
     }
   }
 
-  private UserDto authenticate(DbSession dbSession, Credentials credentials, HttpServletRequest request, Method method) {
+  private UserDto authenticate(DbSession dbSession, Credentials credentials, HttpRequest request, Method method) {
     UserDto localUser = dbClient.userDao().selectActiveUserByLogin(dbSession, credentials.getLogin());
     if (localUser != null && localUser.isLocal()) {
       String password = getNonNullPassword(credentials);

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.db;
 
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -55,38 +54,13 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void deleteProjectProperty(String key, String projectUuid, String projectKey, String projectName, String qualifier) {
-    // do nothing
-  }
-
-  @Override
   public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectKey,
     String projectName, String qualifier) {
     // do nothing
   }
 
   @Override
-  public void deleteProjectProperties(String key, String value, DbSession session) {
-    // do nothing
-  }
-
-  @Override
-  public void deleteProjectProperties(String key, String value) {
-    // do nothing
-  }
-
-  @Override
   public void deleteGlobalProperty(String key, DbSession session) {
-    // do nothing
-  }
-
-  @Override
-  public void deleteGlobalProperty(String key) {
-    // do nothing
-  }
-
-  @Override
-  public void saveGlobalProperties(Map<String, String> properties) {
     // do nothing
   }
 

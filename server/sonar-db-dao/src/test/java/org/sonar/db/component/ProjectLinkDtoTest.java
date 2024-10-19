@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,20 +19,20 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectLinkDtoTest {
+class ProjectLinkDtoTest {
 
   @Test
-  public void test_getters_and_setters() {
+  void test_getters_and_setters() {
     ProjectLinkDto dto = new ProjectLinkDto()
       .setUuid("ABCD")
       .setProjectUuid("EFGH")
       .setType("homepage")
       .setName("Home")
-      .setHref("http://www.sonarqube.org")
+      .setHref("https://www.sonarsource.com/products/sonarqube")
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(5_000_000_000L);
 
@@ -40,13 +40,13 @@ public class ProjectLinkDtoTest {
     assertThat(dto.getProjectUuid()).isEqualTo("EFGH");
     assertThat(dto.getType()).isEqualTo("homepage");
     assertThat(dto.getName()).isEqualTo("Home");
-    assertThat(dto.getHref()).isEqualTo("http://www.sonarqube.org");
+    assertThat(dto.getHref()).isEqualTo("https://www.sonarsource.com/products/sonarqube");
     assertThat(dto.getCreatedAt()).isEqualTo(1_000_000_000L);
     assertThat(dto.getUpdatedAt()).isEqualTo(5_000_000_000L);
   }
 
   @Test
-  public void test_provided_types() {
+  void test_provided_types() {
     assertThat(ProjectLinkDto.PROVIDED_TYPES).hasSize(5);
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,48 +17,68 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import Dropdown from '../../../components/controls/Dropdown';
-import { PopupPlacement } from '../../../components/ui/popups';
+
+import {
+  LineMeta,
+  LineSCMStyled,
+  LineSCMStyledDiv,
+  OutsideClickHandler,
+  PopupPlacement,
+} from 'design-system';
+import React, { memo, useCallback, useState } from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
-import { ButtonPlain } from '../../controls/buttons';
+import Tooltip from '../../controls/Tooltip';
 import SCMPopup from './SCMPopup';
 
-export interface LineSCMProps {
+interface Props {
   line: SourceLine;
   previousLine: SourceLine | undefined;
 }
 
-export function LineSCM({ line, previousLine }: LineSCMProps) {
-  const hasPopup = !!line.line;
-  const cell = (
-    <div className="source-line-scm-inner">
-      {isSCMChanged(line, previousLine) ? line.scmAuthor || '…' : ' '}
-    </div>
-  );
+function LineSCM({ line, previousLine }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
 
-  if (hasPopup) {
-    let ariaLabel = translateWithParameters('source_viewer.click_for_scm_info', line.line);
-    if (line.scmAuthor) {
-      ariaLabel = `${translateWithParameters(
-        'source_viewer.author_X',
-        line.scmAuthor
-      )}, ${ariaLabel}`;
-    }
+  const handleToggle = useCallback(() => {
+    setIsOpen(!isOpen);
+  }, [isOpen]);
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
+  const isFileIssue = !line.line;
+  if (isFileIssue) {
     return (
-      <td className="source-meta source-line-scm" data-line-number={line.line}>
-        <Dropdown overlay={<SCMPopup line={line} />} overlayPlacement={PopupPlacement.RightTop}>
-          <ButtonPlain aria-label={ariaLabel}>{cell}</ButtonPlain>
-        </Dropdown>
-      </td>
+      <LineMeta>
+        <LineSCMStyledDiv>{line.scmAuthor ?? ' '}</LineSCMStyledDiv>
+      </LineMeta>
     );
   }
+
+  let ariaLabel = translateWithParameters('source_viewer.click_for_scm_info', line.line);
+  if (line.scmAuthor) {
+    ariaLabel = `${translateWithParameters(
+      'source_viewer.author_X',
+      line.scmAuthor,
+    )}, ${ariaLabel}`;
+  }
+
   return (
-    <td className="source-meta source-line-scm" data-line-number={line.line}>
-      {cell}
-    </td>
+    <LineMeta data-line-number={line.line}>
+      <OutsideClickHandler onClickOutside={handleClose}>
+        <Tooltip
+          content={<SCMPopup line={line} />}
+          side={PopupPlacement.Right}
+          isOpen={isOpen}
+          isInteractive
+          classNameInner="sw-max-w-abs-600"
+        >
+          <LineSCMStyled aria-label={ariaLabel} onClick={handleToggle} role="button">
+            {isSCMChanged(line, previousLine) ? (line.scmAuthor ?? '…') : ' '}
+          </LineSCMStyled>
+        </Tooltip>
+      </OutsideClickHandler>
+    </LineMeta>
   );
 }
 
@@ -70,4 +90,4 @@ function isSCMChanged(s: SourceLine, p: SourceLine | undefined) {
   return changed;
 }
 
-export default React.memo(LineSCM);
+export default memo(LineSCM);

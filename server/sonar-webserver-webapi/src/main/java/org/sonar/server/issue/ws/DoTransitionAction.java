@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -77,12 +77,22 @@ public class DoTransitionAction implements IssuesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_DO_TRANSITION)
-      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>" +
-        "The transitions '" + DefaultTransitions.WONT_FIX + "' and '" + DefaultTransitions.FALSE_POSITIVE + "' require the permission 'Administer Issues'.<br/>" +
-        "The transitions involving security hotspots require the permission 'Administer Security Hotspot'.")
+      .setDescription("""
+        Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>
+        The transitions '%s', '%s' and '%s' require the permission 'Administer Issues'.<br/>
+        The transitions involving security hotspots require the permission 'Administer Security Hotspot'.
+        """.formatted(DefaultTransitions.ACCEPT, DefaultTransitions.WONT_FIX, DefaultTransitions.FALSE_POSITIVE))
       .setSince("3.6")
       .setChangelog(
+        new Change("10.4", "The transitions '%s' and '%s' are deprecated. Please use '%s' instead. The transition '%s' is deprecated too. "
+          .formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.CONFIRM, DefaultTransitions.ACCEPT, DefaultTransitions.UNCONFIRM)),
+        new Change("10.4", "Add transition '%s'.".formatted(DefaultTransitions.ACCEPT)),
+        new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
+        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
+        new Change("10.4", "Add 'issueStatus' field to the response."),
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
+        new Change("8.8", "The response field components.uuid is removed"),
         new Change("8.1", format("transitions '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, OPEN_AS_VULNERABILITY)),
         new Change("7.8", format("added '%s', %s, %s and %s transitions for security hotspots ", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY, RESET_AS_TO_REVIEW)),
         new Change("7.3", "added transitions for security hotspots"),
@@ -118,8 +128,8 @@ public class DoTransitionAction implements IssuesWsAction {
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
-      BranchDto branch = issueUpdater.getBranch(session, defaultIssue, defaultIssue.projectUuid());
-      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, branch);
+      BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context, branch);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, null, transitionKey, branch,

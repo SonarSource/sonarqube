@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.ExternalGroupMapper">
+
+  <sql id="externalGroupColumns">
+    eg.group_uuid as groupUuid,
+    eg.external_group_id as external_id,
+    eg.external_identity_provider as externalIdentityProvider
+  </sql>
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="ExternalGroup">
+    insert into external_groups (
+      group_uuid,
+      external_group_id,
+      external_identity_provider
+    ) values (
+      #{groupUuid,jdbcType=VARCHAR},
+      #{externalId,jdbcType=VARCHAR},
+      #{externalIdentityProvider,jdbcType=VARCHAR}
+    )
+  </insert>
+
+    <select id="selectByGroupUuid" parameterType="String" resultType="ExternalGroup">
+    SELECT
+      <include refid="externalGroupColumns"/>
+    FROM external_groups eg
+    WHERE eg.group_uuid=#{groupUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByIdentityProvider" parameterType="String" resultType="ExternalGroup">
+    SELECT
+      <include refid="externalGroupColumns"/>,
+      g.name as name
+    FROM external_groups eg
+    LEFT JOIN groups g ON eg.group_uuid = g.uuid
+    WHERE eg.external_identity_provider=#{identityProvider,jdbcType=VARCHAR}
+  </select>
+
+    <select id="selectByExternalIdAndIdentityProvider" parameterType="String" resultType="ExternalGroup">
+    SELECT
+      <include refid="externalGroupColumns"/>
+    FROM external_groups eg
+    WHERE eg.external_group_id=#{externalId,jdbcType=VARCHAR}
+    AND eg.external_identity_provider=#{identityProvider,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByGroupUuid" parameterType="String">
+    delete from external_groups where group_uuid = #{groupUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByExternalIdentityProvider" parameterType="String">
+    delete from external_groups where external_identity_provider = #{externalIdentityProvider, jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

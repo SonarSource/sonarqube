@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,17 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import org.junit.Test;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +40,9 @@ import static org.mockito.Mockito.when;
 
 public class ServletRequestTest {
 
+  private final HttpServletRequest source = mock(HttpServletRequest.class);
 
-  private HttpServletRequest source = mock(HttpServletRequest.class);
-
-  private ServletRequest underTest = new ServletRequest(source);
+  private final ServletRequest underTest = new ServletRequest(new JavaxHttpRequest(source));
 
   @Test
   public void call_method() {
@@ -76,8 +76,8 @@ public class ServletRequestTest {
 
   @Test
   public void has_param_from_source() {
-    when(source.getParameterMap()).thenReturn(ImmutableMap.of("param", new String[] {"value"}));
-    ServletRequest request = new ServletRequest(source);
+    when(source.getParameterMap()).thenReturn(Map.of("param", new String[] {"value"}));
+    ServletRequest request = new ServletRequest(new JavaxHttpRequest(source));
     assertThat(request.hasParam("param")).isTrue();
   }
 

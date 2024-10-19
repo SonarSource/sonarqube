@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
-import { CurrentUser, HomePage, NoticeType } from '../../../types/users';
+import { useContext } from 'react';
+import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
+import { CurrentUser, HomePage, LoggedInUser, NoticeType } from '../../../types/users';
 import { Organization } from "../../../types/types";
 
 export interface CurrentUserContextInterface {
   currentUser: CurrentUser;
-  userOrganizations: Organization[];
   updateCurrentUserHomepage: (homepage: HomePage) => void;
   updateDismissedNotices: (key: NoticeType, value: boolean) => void;
+  userOrganizations: Organization[];
   updateUserOrganizations: (organizations: Organization[]) => void;
 }
 
-export const CurrentUserContext = React.createContext<CurrentUserContextInterface | undefined>(
-  undefined
-);
+export const CurrentUserContext = React.createContext<CurrentUserContextInterface>({
+  currentUser: {
+    isLoggedIn: false,
+    dismissedNotices: {},
+  },
+  updateCurrentUserHomepage: noop,
+  updateDismissedNotices: noop,
+});
+
+export function useCurrentUser() {
+  return useContext(CurrentUserContext);
+}
+
+export function useCurrentLoginUser() {
+  const { currentUser } = useCurrentUser();
+
+  if (!currentUser.isLoggedIn) {
+    handleRequiredAuthentication();
+  }
+  return currentUser as LoggedInUser;
+}

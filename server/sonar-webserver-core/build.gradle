@@ -25,7 +25,6 @@ dependencies {
   api 'com.google.protobuf:protobuf-java'
   api 'io.jsonwebtoken:jjwt-api'
   api 'io.jsonwebtoken:jjwt-impl'
-  api 'org.apache.httpcomponents:httpclient'
   api 'org.apache.logging.log4j:log4j-api'
   api 'org.apache.tomcat.embed:tomcat-embed-core'
   api 'com.zaxxer:HikariCP'
@@ -52,11 +51,11 @@ dependencies {
   api project(':sonar-ws')
   implementation project(path: ':server:sonar-webserver-webapi')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   // not a transitive dep. At runtime lib/jdbc/h2 is used
   compileOnlyApi 'com.h2database:h2'
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.h2database:h2'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.tngtech.java:junit-dataprovider'
@@ -67,8 +66,10 @@ dependencies {
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'org.eclipse.jetty:jetty-server'
   testImplementation 'org.eclipse.jetty:jetty-servlet'
-  testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation 'org.hamcrest:hamcrest'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation 'org.subethamail:subethasmtp'
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation testFixtures(project(':server:sonar-webserver-auth'))
@@ -76,5 +77,13 @@ dependencies {
   testImplementation testFixtures(project(':server:sonar-webserver-ws'))
   testImplementation project(':sonar-testing-harness')
 
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+
   runtimeOnly 'io.jsonwebtoken:jjwt-jackson'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

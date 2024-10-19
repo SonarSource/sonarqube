@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentLongName;
@@ -72,8 +72,7 @@ public class ComponentDto {
    * order to support LIKE conditions when requesting descendants of a component
    * and to avoid Oracle NULL on root components.
    * Example:
-   * - on root module: UUID="1" UUID_PATH="."
-   * - on module: UUID="2" UUID_PATH=".1."
+   * - on root: UUID="1" UUID_PATH="."
    * - on directory: UUID="3" UUID_PATH=".1.2."
    * - on file: UUID="4" UUID_PATH=".1.2.3."
    * - on view: UUID="5" UUID_PATH="."
@@ -86,49 +85,13 @@ public class ComponentDto {
   /**
    * Non-null UUID of root component. Equals UUID column on root components
    * Example:
-   * - on root module: UUID="1" PROJECT_UUID="1"
-   * - on module: UUID="2" PROJECT_UUID="1"
+   * - on root: UUID="1" PROJECT_UUID="1"
    * - on directory: UUID="3" PROJECT_UUID="1"
    * - on file: UUID="4" PROJECT_UUID="1"
    * - on view: UUID="5" PROJECT_UUID="5"
    * - on sub-view: UUID="6" PROJECT_UUID="5"
-  */
+   */
   private String branchUuid;
-
-  /**
-   * Badly named, it is not the root !
-   * - on root module: UUID="1" ROOT_UUID="1"
-   * - on modules, whatever depth, value is the root module: UUID="2" ROOT_UUID="1"
-   * - on directory, value is the closest module: UUID="3" ROOT_UUID="2"
-   * - on file, value is the closest module: UUID="4" ROOT_UUID="2"
-   * - on view: UUID="5" ROOT_UUID="5"
-   * - on sub-view: UUID="6" ROOT_UUID="5"
-   * @since 6.0
-   */
-  private String rootUuid;
-
-  /**
-   * On non-main branches only, {@link #uuid} of the main branch that represents
-   * the project ({@link #qualifier}="TRK").
-   * It is propagated to all the components of the branch.
-   *
-   * Value is null on the main-branch components and on other kinds of components
-   * (applications, portfolios).
-   *
-   * Value must be used for loading settings, checking permissions, running webhooks,
-   * selecting Quality profiles/gates and any other project-related operations.
-   *
-   * Example:
-   * - project P : kee=P, uuid=U1, qualifier=TRK, project_uuid=U1, main_branch_project_uuid=NULL
-   * - file F of project P : kee=P:F, uuid=U2, qualifier=FIL, project_uuid=U1, main_branch_project_uuid=NULL
-   * - branch B of project P : kee=P, uuid=U3, qualifier=TRK, project_uuid=U3, main_branch_project_uuid=U1
-   * - file F in branch B of project P : kee=P:F, uuid=U4, qualifier=FIL, project_uuid=U3, main_branch_project_uuid=U1
-   */
-  @Nullable
-  private String mainBranchProjectUuid;
-
-  private String moduleUuid;
-  private String moduleUuidPath;
   private String copyComponentUuid;
   private String scope;
   private String qualifier;
@@ -229,31 +192,6 @@ public class ComponentDto {
     return UUID_PATH_OF_ROOT.equals(uuidPath);
   }
 
-  /**
-   * Return the direct module of a component. Will be null on projects
-   */
-  @CheckForNull
-  public String moduleUuid() {
-    return moduleUuid;
-  }
-
-  public ComponentDto setModuleUuid(@Nullable String moduleUuid) {
-    this.moduleUuid = moduleUuid;
-    return this;
-  }
-
-  /**
-   * Return the path from the project to the last modules
-   */
-  public String moduleUuidPath() {
-    return moduleUuidPath;
-  }
-
-  public ComponentDto setModuleUuidPath(String moduleUuidPath) {
-    this.moduleUuidPath = moduleUuidPath;
-    return this;
-  }
-
   @CheckForNull
   public String path() {
     return path;
@@ -302,29 +240,6 @@ public class ComponentDto {
     return this;
   }
 
-  /**
-   * Use {@link #branchUuid()}, {@link #moduleUuid()} or {@link #moduleUuidPath()}
-   */
-  @Deprecated
-  public String getRootUuid() {
-    return rootUuid;
-  }
-
-  public ComponentDto setRootUuid(String rootUuid) {
-    this.rootUuid = rootUuid;
-    return this;
-  }
-
-  @Nullable
-  public String getMainBranchProjectUuid() {
-    return mainBranchProjectUuid;
-  }
-
-  public ComponentDto setMainBranchProjectUuid(@Nullable String s) {
-    this.mainBranchProjectUuid = s;
-    return this;
-  }
-
   public boolean isEnabled() {
     return enabled;
   }
@@ -354,7 +269,7 @@ public class ComponentDto {
   }
 
   public boolean isRootProject() {
-    return moduleUuid == null && Scopes.PROJECT.equals(scope);
+    return uuid.equals(branchUuid) && Scopes.PROJECT.equals(scope);
   }
 
   public boolean isPrivate() {
@@ -393,10 +308,6 @@ public class ComponentDto {
       .append("scope", scope)
       .append("qualifier", qualifier)
       .append("branchUuid", branchUuid)
-      .append("moduleUuid", moduleUuid)
-      .append("moduleUuidPath", moduleUuidPath)
-      .append("rootUuid", rootUuid)
-      .append("mainBranchProjectUuid", mainBranchProjectUuid)
       .append("copyComponentUuid", copyComponentUuid)
       .append("path", path)
       .append("name", name)
@@ -414,10 +325,6 @@ public class ComponentDto {
     copy.uuid = uuid;
     copy.uuidPath = uuidPath;
     copy.branchUuid = branchUuid;
-    copy.rootUuid = rootUuid;
-    copy.mainBranchProjectUuid = mainBranchProjectUuid;
-    copy.moduleUuid = moduleUuid;
-    copy.moduleUuidPath = moduleUuidPath;
     copy.copyComponentUuid = copyComponentUuid;
     copy.scope = scope;
     copy.qualifier = qualifier;

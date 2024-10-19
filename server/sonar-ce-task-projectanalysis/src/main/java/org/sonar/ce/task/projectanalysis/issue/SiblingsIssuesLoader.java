@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
@@ -34,8 +35,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.PrIssueDto;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class SiblingsIssuesLoader {
 
@@ -79,10 +78,10 @@ public class SiblingsIssuesLoader {
       List<DefaultIssue> issues = dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
         .stream()
         .map(IssueDto::toDefaultIssue)
-        .collect(toList(issuesByKey.size()));
+        .toList();
       componentIssuesLoader.loadChanges(session, issues);
       return issues.stream()
-        .collect(uniqueIndex(i -> issuesByKey.get(i.key()), i -> i, issues.size()));
+        .collect(Collectors.toMap(i -> issuesByKey.get(i.key()), Function.identity()));
     }
   }
 

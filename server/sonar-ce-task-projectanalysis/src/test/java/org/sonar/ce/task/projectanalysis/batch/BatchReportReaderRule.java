@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,6 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -39,7 +41,7 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
 
-public class BatchReportReaderRule implements TestRule, BatchReportReader {
+public class BatchReportReaderRule implements TestRule, BatchReportReader, AfterEachCallback {
   private ScannerReport.Metadata metadata;
   private List<String> scannerLogs;
   private List<ScannerReport.ActiveRule> activeRules = new ArrayList<>();
@@ -60,6 +62,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, ScannerReport.ChangedLines> changedLines = new HashMap<>();
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
   private byte[] analysisCache;
+  private List<ScannerReport.Cve> cves = new ArrayList<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -320,4 +323,18 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return this;
   }
 
+  @Override
+  public void afterEach(ExtensionContext context) {
+    clear();
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.Cve> readCves() {
+    return CloseableIterator.from(cves.iterator());
+  }
+
+  public BatchReportReaderRule putCves(List<ScannerReport.Cve> cves) {
+    this.cves = cves;
+    return this;
+  }
 }

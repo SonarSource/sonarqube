@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,10 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.util.Uuids;
@@ -33,21 +35,20 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 
 public class QualityProfileDbTester {
+  private final Random random = new SecureRandom();
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public QualityProfileDbTester(DbTester dbTester) {
     this.dbClient = dbTester.getDbClient();
-    this.dbSession = dbTester.getSession();
+    this.db = dbTester;
   }
 
   public Optional<QProfileDto> selectByUuid(String uuid) {
-    return Optional.ofNullable(dbClient.qualityProfileDao().selectByUuid(dbSession, uuid));
+    return Optional.ofNullable(dbClient.qualityProfileDao().selectByUuid(db.getSession(), uuid));
   }
 
   /**
@@ -66,24 +67,24 @@ public class QualityProfileDbTester {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto();
     consumer.accept(profile);
 
-    dbClient.qualityProfileDao().insert(dbSession, profile);
-    dbSession.commit();
+    dbClient.qualityProfileDao().insert(db.getSession(), profile);
+    db.commit();
     return profile;
   }
 
   public QualityProfileDbTester insert(QProfileDto profile, QProfileDto... others) {
-    dbClient.qualityProfileDao().insert(dbSession, profile);
-    Arrays.stream(others).forEach(p -> dbClient.qualityProfileDao().insert(dbSession, p));
-    dbSession.commit();
+    dbClient.qualityProfileDao().insert(db.getSession(), profile);
+    Arrays.stream(others).forEach(p -> dbClient.qualityProfileDao().insert(db.getSession(), p));
+    db.commit();
     return this;
   }
 
   public QualityProfileDbTester associateWithProject(ProjectDto project, QProfileDto profile, QProfileDto... otherProfiles) {
-    dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
+    dbClient.qualityProfileDao().insertProjectProfileAssociation(db.getSession(), project, profile);
     for (QProfileDto p : otherProfiles) {
-      dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, p);
+      dbClient.qualityProfileDao().insertProjectProfileAssociation(db.getSession(), project, p);
     }
-    dbSession.commit();
+    db.commit();
     return this;
   }
 
@@ -94,42 +95,43 @@ public class QualityProfileDbTester {
 
   public ActiveRuleDto activateRule(QProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto> consumer) {
     ActiveRuleDto activeRule = createFor(profile, rule)
-      .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setSeverity(Severity.ALL.get(random.nextInt(Severity.ALL.size())))
+      .setPrioritizedRule(random.nextBoolean())
+      .setCreatedAt(random.nextLong(Long.MAX_VALUE))
+      .setUpdatedAt(random.nextLong(Long.MAX_VALUE));
     consumer.accept(activeRule);
-    dbClient.activeRuleDao().insert(dbSession, activeRule);
-    dbSession.commit();
+    dbClient.activeRuleDao().insert(db.getSession(), activeRule);
+    db.commit();
     return activeRule;
   }
 
   public QualityProfileDbTester setAsDefault(QProfileDto profile, QProfileDto... others) {
-    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
+    dbClient.defaultQProfileDao().insertOrUpdate(db.getSession(), DefaultQProfileDto.from(profile));
     for (QProfileDto other : others) {
-      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(other));
+      dbClient.defaultQProfileDao().insertOrUpdate(db.getSession(), DefaultQProfileDto.from(other));
     }
-    dbSession.commit();
+    db.commit();
     return this;
   }
 
   public void addUserPermission(QProfileDto profile, UserDto user) {
     checkArgument(!profile.isBuiltIn(), "Built-In profile cannot be used");
-    dbClient.qProfileEditUsersDao().insert(dbSession, new QProfileEditUsersDto()
+    dbClient.qProfileEditUsersDao().insert(db.getSession(), new QProfileEditUsersDto()
         .setUuid(Uuids.createFast())
         .setUserUuid(user.getUuid())
         .setQProfileUuid(profile.getKee()),
       profile.getName(), user.getLogin()
     );
-    dbSession.commit();
+    db.commit();
   }
 
   public void addGroupPermission(QProfileDto profile, GroupDto group) {
     checkArgument(!profile.isBuiltIn(), "Built-In profile cannot be used");
-    dbClient.qProfileEditGroupsDao().insert(dbSession, new QProfileEditGroupsDto()
+    dbClient.qProfileEditGroupsDao().insert(db.getSession(), new QProfileEditGroupsDto()
         .setUuid(Uuids.createFast())
         .setGroupUuid(group.getUuid())
         .setQProfileUuid(profile.getKee()),
       profile.getName(), group.getName());
-    dbSession.commit();
+    db.commit();
   }
 }

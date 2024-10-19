@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,15 @@ package org.sonar.server.es;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ListMultimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
@@ -68,6 +69,8 @@ public class RecoveryIndexer implements Startable {
   private final long minAgeInMs;
   private final long loopLimit;
 
+  private final Random random = new SecureRandom();
+
   public RecoveryIndexer(System2 system2, Configuration config, DbClient dbClient, ResilientIndexer... indexers) {
     this.system2 = system2;
     this.config = config;
@@ -87,7 +90,7 @@ public class RecoveryIndexer implements Startable {
 
     // in the cluster mode, avoid (but not prevent!) simultaneous executions of recovery
     // indexers so that a document is not handled multiple times.
-    long initialDelayInMs = getSetting(PROPERTY_INITIAL_DELAY, RandomUtils.nextInt(1 + (int) (delayInMs / 2)));
+    long initialDelayInMs = getSetting(PROPERTY_INITIAL_DELAY, random.nextInt(1 + (int) (delayInMs / 2)));
 
     executorService.scheduleAtFixedRate(
       this::recover,

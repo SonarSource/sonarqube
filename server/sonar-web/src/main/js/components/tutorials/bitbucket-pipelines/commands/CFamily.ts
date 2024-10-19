@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function cFamilyExample(branchesEnabled: boolean, mainBranchName: string) {
+import { AutoConfig, BuildTools, OSs } from '../../types';
+import {
+  SONAR_SCANNER_CLI_LATEST_VERSION,
+  getBuildWrapperExecutableLinux,
+  getBuildWrapperFolderLinux,
+  getScannerUrlSuffix,
+} from '../../utils';
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+import othersExample from './Others';
+
+const cFamilyExample: BuildToolExampleBuilder = ({
+  config,
+  arch,
+  branchesEnabled,
+  mainBranchName,
+}) => {
+  if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+    return othersExample({ config, branchesEnabled, mainBranchName });
+  }
+  const buildWrapperExecutable = getBuildWrapperExecutableLinux(arch);
+  const buildWrapperFolder = getBuildWrapperFolderLinux(arch);
+  const scannerSuffix = getScannerUrlSuffix(OSs.Linux, arch);
   return `image: <image ready for your build toolchain>
 
 definitions:
@@ -25,16 +46,16 @@ definitions:
     - step: &build-step
         name: Build the project, and run the SonarQube analysis
         script:
-          - export SONAR_SCANNER_VERSION=4.6.2.2472
+          - export SONAR_SCANNER_VERSION=${SONAR_SCANNER_CLI_LATEST_VERSION}
           - mkdir $HOME/.sonar
-          - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
-          - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
+          - curl -sSLo $HOME/.sonar/${buildWrapperFolder}.zip \${SONAR_HOST_URL}/static/cpp/${buildWrapperFolder}.zip
+          - unzip -o $HOME/.sonar/${buildWrapperFolder}.zip -d $HOME/.sonar/
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}${scannerSuffix}.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}${scannerSuffix}/bin"
           - <any step required before running your build, like ./configure>
-          - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-          - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output  
+          - $HOME/.sonar/${buildWrapperFolder}/${buildWrapperExecutable} --out-dir bw-output <your clean build command>
+          - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  
   caches:
     sonar: ~/.sonar
 
@@ -53,4 +74,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default cFamilyExample;

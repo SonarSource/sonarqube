@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,26 +23,29 @@ import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.project.DeletedProject;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.Visibility;
@@ -51,9 +54,11 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.min;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.project.ws.SearchAction.buildDbQuery;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
@@ -99,7 +104,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setChangelog(
         new Change("7.8", parameterRequiredMessage),
         new Change("9.1", "The parameter '" + PARAM_ANALYZED_BEFORE + "' "
-        + "takes into account the analysis of all branches and pull requests, not only the main branch."));
+          + "takes into account the analysis of all branches and pull requests, not only the main branch."));
 
     action
       .createParam(PARAM_PROJECTS)
@@ -153,15 +158,25 @@ public class BulkDeleteAction implements ProjectsWsAction {
       checkIfAnalyzedBeforeIsFutureDate(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);
-      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE));
+      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, forPage(1).andSize(Integer.MAX_VALUE)));
+      List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
+      Set<String> entityUuids = entities.stream().map(EntityDto::getUuid).collect(toSet());
+      Map<String, String> mainBranchUuidByEntityUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, entityUuids).stream()
+        .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
 
       try {
-        componentDtos.forEach(p -> componentCleanerService.delete(dbSession, p));
+        entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p));
       } finally {
-        projectLifeCycleListeners.onProjectsDeleted(componentDtos.stream().map(Project::from).collect(MoreCollectors.toSet(componentDtos.size())));
+        callDeleteListeners(mainBranchUuidByEntityUuid, entities);
       }
     }
     response.noContent();
+  }
+
+  private void callDeleteListeners(Map<String, String> mainBranchUuidByEntityUuid , List<EntityDto> entities) {
+    Set<DeletedProject> deletedProjects = entities.stream().map(entity -> new DeletedProject(Project.from(entity),
+        mainBranchUuidByEntityUuid.get(entity.getUuid()))).collect(toSet());
+    projectLifeCycleListeners.onProjectsDeleted(deletedProjects);
   }
 
   private static void checkAtLeastOneParameterIsPresent(SearchRequest searchRequest) {

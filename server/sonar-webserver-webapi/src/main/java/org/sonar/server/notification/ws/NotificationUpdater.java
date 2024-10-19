@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,10 +22,9 @@ package org.sonar.server.notification.ws;
 import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -45,62 +44,62 @@ public class NotificationUpdater {
   /**
    * Add a notification to a user.
    */
-  public void add(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
+  public void add(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable EntityDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
-    String projectUuid = project == null ? null : project.uuid();
+    String projectUuid = project == null ? null : project.getUuid();
     String projectKey = project == null ? null : project.getKey();
-    String projectName = project == null ? null : project.name();
-    String qualifier = project == null ? null : project.qualifier();
+    String projectName = project == null ? null : project.getName();
+    String qualifier = project == null ? null : project.getQualifier();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
-      PropertyQuery.builder()
-        .setKey(key)
-        .setComponentUuid(projectUuid)
-        .setUserUuid(user.getUuid())
-        .build(),
-      dbSession).stream()
+        PropertyQuery.builder()
+          .setKey(key)
+          .setEntityUuid(projectUuid)
+          .setUserUuid(user.getUuid())
+          .build(),
+        dbSession).stream()
       .filter(notificationScope(project))
-      .collect(MoreCollectors.toList());
+      .toList();
     checkArgument(existingNotification.isEmpty()
       || !PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification already added");
 
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey(key)
-      .setUserUuid(user.getUuid())
-      .setValue(PROP_NOTIFICATION_VALUE)
-      .setComponentUuid(projectUuid),
+        .setKey(key)
+        .setUserUuid(user.getUuid())
+        .setValue(PROP_NOTIFICATION_VALUE)
+        .setEntityUuid(projectUuid),
       user.getLogin(), projectKey, projectName, qualifier);
   }
 
   /**
    * Remove a notification from a user.
    */
-  public void remove(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
+  public void remove(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable EntityDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
-    String projectUuid = project == null ? null : project.uuid();
+    String projectUuid = project == null ? null : project.getUuid();
     String projectKey = project == null ? null : project.getKey();
-    String projectName = project == null ? null : project.name();
-    String qualifier = project == null ? null : project.qualifier();
+    String projectName = project == null ? null : project.getName();
+    String qualifier = project == null ? null : project.getQualifier();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
-      PropertyQuery.builder()
-        .setKey(key)
-        .setComponentUuid(projectUuid)
-        .setUserUuid(user.getUuid())
-        .build(),
-      dbSession).stream()
+        PropertyQuery.builder()
+          .setKey(key)
+          .setEntityUuid(projectUuid)
+          .setUserUuid(user.getUuid())
+          .build(),
+        dbSession).stream()
       .filter(notificationScope(project))
-      .collect(MoreCollectors.toList());
+      .toList();
     checkArgument(!existingNotification.isEmpty() && PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification doesn't exist");
 
     dbClient.propertiesDao().delete(dbSession, new PropertyDto()
       .setKey(key)
       .setUserUuid(user.getUuid())
       .setValue(PROP_NOTIFICATION_VALUE)
-      .setComponentUuid(projectUuid), user.getLogin(), projectKey, projectName, qualifier);
+      .setEntityUuid(projectUuid), user.getLogin(), projectKey, projectName, qualifier);
   }
 
-  private static Predicate<PropertyDto> notificationScope(@Nullable ComponentDto project) {
-    return prop -> project == null ? (prop.getComponentUuid() == null) : (prop.getComponentUuid() != null);
+  private static Predicate<PropertyDto> notificationScope(@Nullable EntityDto project) {
+    return prop -> project == null ? (prop.getEntityUuid() == null) : (prop.getEntityUuid() != null);
   }
 }

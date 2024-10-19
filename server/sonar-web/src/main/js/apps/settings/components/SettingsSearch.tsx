@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,19 +20,19 @@
 import { debounce, keyBy } from 'lodash';
 import lunr, { LunrIndex } from 'lunr';
 import * as React from 'react';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component, Dict } from '../../../types/types';
 import {
   ADDITIONAL_PROJECT_SETTING_DEFINITIONS,
   ADDITIONAL_SETTING_DEFINITIONS,
-  buildSettingLink,
-} from '../utils';
+} from '../constants';
+import { buildSettingLink } from '../utils';
 import SettingsSearchRenderer from './SettingsSearchRenderer';
 
 interface Props {
-  className?: string;
   component?: Component;
   definitions: ExtendedSettingDefinition[];
   router: Router;
@@ -62,7 +62,7 @@ export class SettingsSearch extends React.Component<Props, State> {
     this.handleFocus = debounce(this.handleFocus, DEBOUNCE_DELAY);
 
     const definitions = props.definitions.concat(
-      props.component ? ADDITIONAL_PROJECT_SETTING_DEFINITIONS : ADDITIONAL_SETTING_DEFINITIONS
+      props.component ? ADDITIONAL_PROJECT_SETTING_DEFINITIONS : ADDITIONAL_SETTING_DEFINITIONS,
     );
     this.index = this.buildSearchIndex(definitions);
     this.definitionsByKey = keyBy(definitions, 'key');
@@ -95,7 +95,7 @@ export class SettingsSearch extends React.Component<Props, State> {
         cleanQuery
           .split(/\s+/)
           .map((s) => `${s} *${s}*`)
-          .join(' ')
+          .join(' '),
       )
       .map((match) => this.definitionsByKey[match.ref]);
 
@@ -170,17 +170,16 @@ export class SettingsSearch extends React.Component<Props, State> {
     const { selectedResult } = this.state;
     if (selectedResult) {
       const definition = this.definitionsByKey[selectedResult];
-      router.push(buildSettingLink(definition));
+      router.push(buildSettingLink(definition, this.props.component));
       this.setState({ showResults: false });
     }
   };
 
   render() {
-    const { className, component } = this.props;
+    const { component } = this.props;
 
     return (
       <SettingsSearchRenderer
-        className={className}
         component={component}
         onClickOutside={this.hideResults}
         onMouseOverResult={this.handleMouseOverResult}

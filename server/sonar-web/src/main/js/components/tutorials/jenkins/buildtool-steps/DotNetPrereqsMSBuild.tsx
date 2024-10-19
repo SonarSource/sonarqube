@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,44 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ClipboardIconButton,
+  FlagMessage,
+  ListItem,
+  NumberedListItem,
+  OrderedList,
+} from 'design-system';
 import * as React from 'react';
-import { ClipboardIconButton } from '../../../../components/controls/clipboard';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
+import { InlineSnippet } from '../../components/InlineSnippet';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export default function DotNetPrereqsMSBuild() {
   return (
-    <li className="abs-width-600">
+    <NumberedListItem>
       <SentenceWithHighlights
         highlightKeys={['default_msbuild']}
         translationKey="onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.title"
       />
-      <Alert className="spacer-top" variant="info">
-        {translate('onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.info')}
-      </Alert>
-      <ol className="list-styled list-roman">
-        <li>
+      <div className="sw-ml-8 sw-mt-2">
+        <FlagMessage variant="info">
+          {translate('onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.info')}
+        </FlagMessage>
+      </div>
+      <OrderedList tickStyle="ALPHA" className="sw-ml-12">
+        <ListItem>
           <SentenceWithHighlights
             highlightKeys={['msbuild']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.step1"
           />
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           <SentenceWithHighlights
             highlightKeys={['path']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.step2"
           />
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           <SentenceWithHighlights
             highlightKeys={['msbuild', 'add_msbuild', 'name', 'msbuild_plugin']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.step3"
           />
-          <code className="rule">Default MSBuild</code>
-          <ClipboardIconButton copyValue="Default MSBuild" />
-        </li>
-      </ol>
-    </li>
+          <InlineSnippet className="sw-ml-1" snippet="Default MSBuild" />
+          <ClipboardIconButton className="sw-ml-2 sw-align-sub" copyValue="Default MSBuild" />
+        </ListItem>
+      </OrderedList>
+    </NumberedListItem>
   );
 }

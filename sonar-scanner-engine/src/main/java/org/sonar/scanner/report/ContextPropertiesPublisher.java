@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.ci.CiConfiguration;
@@ -59,7 +58,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
     properties.addAll(config.getProperties().entrySet()
       .stream()
       .filter(e -> e.getKey().startsWith(CorePropertyDefinitions.SONAR_ANALYSIS))
-      .collect(Collectors.toList()));
+      .toList());
 
     writer.writeContextProperties(properties
       .stream()
@@ -67,7 +66,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
         .setKey(e.getKey())
         .setValue(e.getValue())
         .build())
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   private Map.Entry<String, String> constructScmInfo() {

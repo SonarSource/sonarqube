@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package org.sonar.auth.ldap;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.server.http.HttpRequest;
 
 import static java.util.Objects.requireNonNull;
 
@@ -35,9 +35,9 @@ public interface LdapAuthenticator {
   final class Context {
     private String username;
     private String password;
-    private HttpServletRequest request;
+    private HttpRequest request;
 
-    public Context(@Nullable String username, @Nullable String password, HttpServletRequest request) {
+    public Context(@Nullable String username, @Nullable String password, HttpRequest request) {
       requireNonNull(request);
       this.request = request;
       this.username = username;
@@ -58,7 +58,7 @@ public interface LdapAuthenticator {
       return password;
     }
 
-    public HttpServletRequest getRequest() {
+    public HttpRequest getRequest() {
       return request;
     }
   }

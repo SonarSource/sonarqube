@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { omitBy } from 'lodash';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { isCategoryDefinition } from '../apps/settings/utils';
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, RequestData } from '../helpers/request';
-import { BranchParameters } from '../types/branch-like';
+import { post, postJSON, RequestData } from '../helpers/request';
 import {
   ExtendedSettingDefinition,
   SettingDefinition,
+  SettingType,
   SettingValue,
   SettingValueResponse,
 } from '../types/settings';
@@ -32,19 +35,19 @@ import {
 export function getDefinitions(component?: string): Promise<ExtendedSettingDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
     (r) => r.definitions,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getValue(
-  data: { key: string; component?: string } & BranchParameters
-): Promise<SettingValue> {
+  data: { component?: string; key: string } & BranchParameters,
+): Promise<SettingValue | undefined> {
   return getValues({ keys: [data.key], component: data.component }).then(([result]) => result);
 }
 
 export function getValues(
-  data: { keys: string[]; component?: string } & BranchParameters
-): Promise<SettingValue[]> {
+  data: { component?: string; keys: string[] } & BranchParameters,
+): Promise<(SettingValue | undefined)[]> {
   return getJSON('/api/settings/values', {
     keys: data.keys.join(','),
     component: data.component,
@@ -55,7 +58,7 @@ export function getValues(
 }
 
 export function getAllValues(
-  data: { component?: string } & BranchParameters = {}
+  data: { component?: string } & BranchParameters = {},
 ): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', data).then((r: SettingValueResponse) => [
     ...r.settings,
@@ -66,17 +69,17 @@ export function getAllValues(
 export function setSettingValue(
   definition: SettingDefinition,
   value: any,
-  component?: string
+  component?: string,
 ): Promise<void> {
   const { key } = definition;
   const data: RequestData = { key, component };
 
-  if (isCategoryDefinition(definition) && definition.multiValues) {
-    data.values = value;
-  } else if (definition.type === 'PROPERTY_SET') {
+  if (definition.type === SettingType.PROPERTY_SET) {
     data.fieldValues = value
       .map((fields: any) => omitBy(fields, (value) => value == null))
       .map(JSON.stringify);
+  } else if (isCategoryDefinition(definition) && definition.multiValues) {
+    data.values = value;
   } else {
     data.value = value;
   }
@@ -85,13 +88,13 @@ export function setSettingValue(
 }
 
 export function setSimpleSettingValue(
-  data: { component?: string; value: string; key: string } & BranchParameters
+  data: { component?: string; key: string; value?: string; values?: string[] } & BranchParameters,
 ): Promise<void | Response> {
   return post('/api/settings/set', data).catch(throwGlobalError);
 }
 
 export function resetSettingValue(
-  data: { keys: string; component?: string } & BranchParameters
+  data: { component?: string; keys: string } & BranchParameters,
 ): Promise<void> {
   return post('/api/settings/reset', data);
 }
@@ -109,7 +112,7 @@ export function generateSecretKey(): Promise<{ secretKey: string }> {
 }
 
 export function encryptValue(value: string): Promise<{ encryptedValue: string }> {
-  return getJSON('/api/settings/encrypt', { value }).catch(throwGlobalError);
+  return postJSON('/api/settings/encrypt', { value }).catch(throwGlobalError);
 }
 
 export function getLoginMessage(): Promise<{ message: string }> {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { IndexationContext } from '../../app/components/indexation/IndexationContext';
 import { IndexationContextInterface } from '../../types/indexation';
-import { getWrappedDisplayName } from './utils';
 
 export interface WithIndexationContextProps {
   indexationContext: IndexationContextInterface;
 }
 
 export default function withIndexationContext<P>(
-  WrappedComponent: React.ComponentType<P & WithIndexationContextProps>
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & WithIndexationContextProps>>,
 ) {
   return class WithIndexationContext extends React.PureComponent<
     Omit<P, keyof WithIndexationContextProps>

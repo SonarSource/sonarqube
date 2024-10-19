@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omit } from 'lodash';
 import { To } from 'react-router-dom';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
-import { Exporter, Profile } from '../apps/quality-profiles/types';
-import { Location, Router } from '../components/hoc/withRouter';
+import { REST_RULE_KEYS_TO_OLD_KEYS } from '../apps/coding-rules/utils';
+import { Exporter, Profile, ProfileChangelogEvent } from '../apps/quality-profiles/types';
+import { LogsLevels } from '../apps/system/utils';
 import { AppState } from '../types/appstate';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../types/clean-code-taxonomy';
 import { RuleRepository } from '../types/coding-rules';
+import { Cve } from '../types/cves';
 import { EditionKey } from '../types/editions';
-import { IssueType, RawIssue } from '../types/issues';
+import {
+  IssueDeprecatedStatus,
+  IssueScope,
+  IssueSeverity,
+  IssueStatus,
+  IssueType,
+  RawIssue,
+} from '../types/issues';
 import { Language } from '../types/languages';
+import { Notification } from '../types/notifications';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
 import {
@@ -34,7 +54,8 @@ import {
   Condition,
   FlowLocation,
   Group,
-  HealthType,
+  GroupMembership,
+  HealthTypes,
   IdentityProvider,
   Issue,
   Measure,
@@ -42,26 +63,24 @@ import {
   Metric,
   Paging,
   Period,
-  Permission,
-  PermissionGroup,
-  PermissionTemplate,
-  PermissionTemplateGroup,
-  PermissionUser,
-  ProfileInheritanceDetails,
+  RestRuleDetails,
   Rule,
   RuleActivation,
   RuleDetails,
   RuleParameter,
   SysInfoBase,
   SysInfoCluster,
+  SysInfoLogging,
   SysInfoStandalone,
+  UserGroupMember,
+  UserSelected,
 } from '../types/types';
-import { CurrentUser, LoggedInUser, User } from '../types/users';
+import { CurrentUser, LoggedInUser, RestUserDetailed, User } from '../types/users';
 
 export function mockAlmApplication(overrides: Partial<AlmApplication> = {}): AlmApplication {
   return {
     backgroundColor: '#444444',
-    iconPath: '/images/sonarcloud/github-white.svg',
+    iconPath: '/images/alm/github.svg',
     installationUrl: 'https://github.com/apps/greg-sonarcloud/installations/new',
     key: 'github',
     name: 'GitHub',
@@ -73,16 +92,18 @@ export function mockAppState(overrides: Partial<AppState> = {}): AppState {
   return {
     edition: EditionKey.community,
     productionDatabase: true,
-    qualifiers: ['TRK'],
+    qualifiers: [ComponentQualifier.Project],
     settings: {},
     version: '1.0',
+    versionEOL: '2020-01-01',
+    documentationUrl: 'https://docs.sonarsource.com/sonarqube/10.0',
     ...overrides,
   };
 }
 
 export function mockBaseSysInfo(overrides: Partial<any> = {}): SysInfoBase {
   return {
-    Health: 'GREEN' as HealthType,
+    Health: HealthTypes.GREEN,
     'Health Causes': [],
     System: {
       Version: '7.8',
@@ -123,10 +144,10 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
     },
     'Application Nodes': [
       {
-        Name: 'server9.example.com',
+        Name: 'server1.example.com',
         Host: '10.0.0.0',
-        Health: 'GREEN' as HealthType,
-        'Health Causes': [],
+        Health: HealthTypes.RED,
+        'Health Causes': ['Something is wrong'],
         System: {
           Version: '7.8',
         },
@@ -166,10 +187,10 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         },
       },
       {
-        Name: 'server9.example.com',
+        Name: 'server2.example.com',
         Host: '10.0.0.0',
-        Health: 'GREEN' as HealthType,
-        'Health Causes': [],
+        Health: HealthTypes.YELLOW,
+        'Health Causes': ['Friendly warning'],
         System: {
           Version: '7.8',
         },
@@ -212,7 +233,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
     ],
     'Search Nodes': [
       {
-        Name: 'server.example.com',
+        Name: 'server1.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
@@ -220,7 +241,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         },
       },
       {
-        Name: 'server.example.com',
+        Name: 'server2.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
@@ -228,7 +249,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         },
       },
       {
-        Name: 'server.example.com',
+        Name: 'server3.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
@@ -279,9 +300,18 @@ export function mockLoggedInUser(overrides: Partial<LoggedInUser> = {}): LoggedI
 
 export function mockGroup(overrides: Partial<Group> = {}): Group {
   return {
-    id: 1,
-    membersCount: 1,
+    id: Math.random().toString(),
     name: 'Foo',
+    managed: false,
+    ...overrides,
+  };
+}
+
+export function mockGroupMembership(overrides: Partial<GroupMembership> = {}): GroupMembership {
+  return {
+    id: Math.random().toString(),
+    userId: Math.random().toString(),
+    groupId: Math.random().toString(),
     ...overrides,
   };
 }
@@ -291,13 +321,23 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     actions: [],
     component: 'main.js',
     key: 'AVsae-CQS-9G3txfbFN2',
+    creationDate: '2023-01-15T09:36:01+0100',
     line: 25,
     project: 'myproject',
     rule: 'javascript:S1067',
-    severity: 'MAJOR',
-    status: 'OPEN',
+    severity: IssueSeverity.Major,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     type: IssueType.CodeSmell,
+    status: IssueDeprecatedStatus.Open,
+    issueStatus: IssueStatus.Open,
+    transitions: [],
+    scope: IssueScope.Main,
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+    cleanCodeAttribute: CleanCodeAttribute.Respectful,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Medium },
+    ],
+    prioritizedRule: false,
     ...overrides,
   };
 
@@ -320,7 +360,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
   };
 }
 
-export function mockIssue(withLocations = false, overrides: Partial<Issue> = {}) {
+export function mockIssue(withLocations = false, overrides: Partial<Issue> = {}): Issue {
   const issue: Issue = {
     actions: [],
     component: 'main.js',
@@ -339,12 +379,19 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     projectName: 'Foo',
     rule: 'javascript:S1067',
     ruleName: 'foo',
+    scope: IssueScope.Main,
     secondaryLocations: [],
-    severity: 'MAJOR',
-    status: 'OPEN',
+    severity: IssueSeverity.Major,
+    status: IssueDeprecatedStatus.Open,
+    issueStatus: IssueStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     transitions: [],
-    type: 'BUG',
+    type: IssueType.Bug,
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+    cleanCodeAttribute: CleanCodeAttribute.Respectful,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Medium },
+    ],
   };
 
   const loc = mockFlowLocation;
@@ -363,6 +410,20 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
   };
 }
 
+export function mockCve(overrides: Partial<Cve> = {}): Cve {
+  return {
+    id: 'CVE-2021-12345',
+    epssPercentile: 0.56051,
+    cvssScore: 0.31051,
+    description: 'description',
+    cwes: ['CWE-79', 'CWE-89'],
+    epssScore: 0.2,
+    lastModifiedAt: '2021-10-04T14:00:00Z',
+    publishedAt: '2021-10-04T14:00:00Z',
+    ...overrides,
+  };
+}
+
 export function mockLocation(overrides: Partial<Location> = {}): Location {
   return {
     hash: '',
@@ -375,12 +436,14 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
   };
 }
 
-export function mockMetric(overrides: Partial<Pick<Metric, 'key' | 'name' | 'type'>> = {}): Metric {
-  const key = overrides.key || 'coverage';
+export function mockMetric(
+  overrides: Partial<Pick<Metric, 'key' | 'name' | 'type' | 'domain'>> = {},
+): Metric {
+  const key = overrides.key || MetricKey.coverage;
   const name = overrides.name || key;
-  const type = overrides.type || 'PERCENT';
+  const type = overrides.type || MetricType.Percent;
   return {
-    id: key,
+    ...overrides,
     key,
     name,
     type,
@@ -412,6 +475,16 @@ export function mockMeasureEnhanced(overrides: Partial<MeasureEnhanced> = {}): M
       value: '1.0',
     },
     value: '1.0',
+    ...overrides,
+  };
+}
+
+export function mockNotification(overrides: Partial<Notification> = {}): Notification {
+  return {
+    channel: 'channel1',
+    type: 'type-global',
+    project: 'foo',
+    projectName: 'Foo',
     ...overrides,
   };
 }
@@ -451,18 +524,31 @@ export function mockCompareResult(overrides: Partial<CompareResponse> = {}): Com
       {
         key: 'java:S4604',
         name: 'Rule in left',
-        severity: 'MINOR',
+        cleanCodeAttributeCategory: CleanCodeAttributeCategory.Adaptable,
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity: SoftwareImpactSeverity.Medium,
+          },
+        ],
       },
     ],
     inRight: [
       {
         key: 'java:S5128',
         name: 'Rule in right',
-        severity: 'MAJOR',
+        cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Security,
+            severity: SoftwareImpactSeverity.Medium,
+          },
+        ],
       },
     ],
     modified: [
       {
+        impacts: [],
         key: 'java:S1698',
         name: '== and != should not be used when equals is overridden',
         left: { params: {}, severity: 'MINOR' },
@@ -473,28 +559,29 @@ export function mockCompareResult(overrides: Partial<CompareResponse> = {}): Com
   };
 }
 
-export function mockQualityProfileInheritance(
-  overrides: Partial<ProfileInheritanceDetails> = {}
-): ProfileInheritanceDetails {
-  return {
-    activeRuleCount: 4,
-    isBuiltIn: false,
-    key: 'foo',
-    name: 'Foo',
-    overridingRuleCount: 0,
-    ...overrides,
-  };
-}
-
-export function mockQualityProfileChangelogEvent(eventOverride?: any) {
+export function mockQualityProfileChangelogEvent(
+  eventOverride?: Partial<ProfileChangelogEvent>,
+): ProfileChangelogEvent {
   return {
     action: 'ACTIVATED',
     date: '2019-04-23T02:12:32+0100',
     params: {
-      severity: 'MAJOR',
+      severity: IssueSeverity.Major,
     },
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+    impacts: [
+      {
+        softwareQuality: SoftwareQuality.Maintainability,
+        severity: SoftwareImpactSeverity.Low,
+      },
+      {
+        softwareQuality: SoftwareQuality.Security,
+        severity: SoftwareImpactSeverity.High,
+      },
+    ],
     ruleKey: 'rule-key',
     ruleName: 'rule-name',
+    sonarQubeVersion: '10.3',
     ...eventOverride,
   };
 }
@@ -512,7 +599,7 @@ export function mockRouter(
   overrides: {
     push?: (loc: To) => void;
     replace?: (loc: To) => void;
-  } = {}
+  } = {},
 ) {
   return {
     createHref: jest.fn(),
@@ -521,9 +608,12 @@ export function mockRouter(
     goBack: jest.fn(),
     goForward: jest.fn(),
     isActive: jest.fn(),
+    navigate: jest.fn(),
     push: jest.fn(),
     replace: jest.fn(),
+    searchParams: new URLSearchParams(),
     setRouteLeaveHook: jest.fn(),
+    setSearchParams: jest.fn(),
     ...overrides,
   } as Router;
 }
@@ -550,12 +640,15 @@ export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): Rul
     params: [{ key: 'foo', value: 'Bar' }],
     qProfile: 'baz',
     severity: 'MAJOR',
+    prioritizedRule: false,
     ...overrides,
   };
 }
 
 export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetails {
   return {
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Intentional,
+    cleanCodeAttribute: CleanCodeAttribute.Clear,
     key: 'squid:S1337',
     repo: 'squid',
     name: '".equals()" should not be used to test the values of "Atomic" classes',
@@ -571,16 +664,14 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
     severity: 'MAJOR',
     status: 'READY',
     isTemplate: false,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.High },
+    ],
     tags: [],
     sysTags: ['multi-threading'],
     lang: 'java',
     langName: 'Java',
     params: [],
-    defaultDebtRemFnType: 'CONSTANT_ISSUE',
-    defaultDebtRemFnOffset: '5min',
-    debtOverloaded: false,
-    debtRemFnType: 'CONSTANT_ISSUE',
-    debtRemFnOffset: '5min',
     defaultRemFnType: 'CONSTANT_ISSUE',
     defaultRemFnBaseEffort: '5min',
     remFnType: 'CONSTANT_ISSUE',
@@ -593,6 +684,21 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
   };
 }
 
+export function mockRestRuleDetails(overrides: Partial<RestRuleDetails> = {}): RestRuleDetails {
+  const ruleDetails = mockRuleDetails(overrides);
+  return {
+    ...omit(ruleDetails, Object.values(REST_RULE_KEYS_TO_OLD_KEYS)),
+    ...Object.entries(REST_RULE_KEYS_TO_OLD_KEYS).reduce(
+      (obj, [key, value]: [keyof RestRuleDetails, keyof RuleDetails]) => {
+        obj[key] = ruleDetails[value] as never;
+        return obj;
+      },
+      {} as RestRuleDetails,
+    ),
+    ...overrides,
+  };
+}
+
 export function mockRuleDetailsParameter(overrides: Partial<RuleParameter> = {}): RuleParameter {
   return {
     defaultValue: '1',
@@ -601,6 +707,10 @@ export function mockRuleDetailsParameter(overrides: Partial<RuleParameter> = {})
     type: 'number',
     ...overrides,
   };
+}
+
+export function mockLogs(logsLevel: LogsLevels = LogsLevels.INFO): SysInfoLogging {
+  return { 'Logs Level': logsLevel, 'Logs Dir': '/logs' };
 }
 
 export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStandalone {
@@ -624,7 +734,7 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStan
       'Pool Active Connections': 0,
       'Pool Max Connections': 60,
     },
-    'Web Logging': { 'Logs Level': 'INFO', 'Logs Dir': '/logs' },
+    'Web Logging': mockLogs(),
     'Web JVM Properties': {
       'file.encoding': 'UTF-8',
       'file.separator': '/',
@@ -641,10 +751,7 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStan
       'Pool Initial Size': 0,
       'Pool Active Connections': 0,
     },
-    'Compute Engine Logging': {
-      'Logs Level': 'DEBUG',
-      'Logs Dir': '/logs',
-    },
+    'Compute Engine Logging': mockLogs(),
     'Compute Engine JVM Properties': {
       'file.encoding': 'UTF-8',
       'file.separator': '/',
@@ -662,12 +769,52 @@ export function mockUser(overrides: Partial<User> = {}): User {
     local: true,
     login: 'john.doe',
     name: 'John Doe',
+    managed: false,
+    ...overrides,
+  };
+}
+
+export function mockRestUser(overrides: Partial<RestUserDetailed> = {}): RestUserDetailed {
+  return {
+    id: Math.random().toString(),
+    login: 'buzz.aldrin',
+    name: 'Buzz Aldrin',
+    email: 'buzz.aldrin@nasa.com',
+    active: true,
+    local: true,
+    managed: false,
+    externalProvider: '',
+    externalLogin: '',
+    sonarQubeLastConnectionDate: null,
+    sonarLintLastConnectionDate: null,
+    scmAccounts: [],
+    avatar: 'buzzonthemoon',
+    ...overrides,
+  };
+}
+
+export function mockUserSelected(overrides: Partial<UserSelected> = {}): UserSelected {
+  return {
+    active: true,
+    login: 'john.doe',
+    name: 'John Doe',
+    selected: true,
+    ...overrides,
+  };
+}
+
+export function mockUserGroupMember(overrides: Partial<UserGroupMember> = {}): UserGroupMember {
+  return {
+    login: 'john.doe',
+    name: 'John Doe',
+    managed: false,
+    selected: true,
     ...overrides,
   };
 }
 
 export function mockDocumentationMarkdown(
-  overrides: Partial<{ content: string; title: string; key: string }> = {}
+  overrides: Partial<{ content: string; key: string; title: string }> = {},
 ): string {
   const content =
     overrides.content ||
@@ -720,7 +867,7 @@ export function mockIdentityProvider(overrides: Partial<IdentityProvider> = {}):
 }
 
 export function mockRef(
-  overrides: Partial<React.RefObject<Partial<HTMLElement>>> = {}
+  overrides: Partial<React.RefObject<Partial<HTMLElement>>> = {},
 ): React.RefObject<HTMLElement> {
   return {
     current: {
@@ -761,53 +908,4 @@ export function mockDumpStatus(props: Partial<DumpStatus> = {}): DumpStatus {
 
 export function mockRuleRepository(override: Partial<RuleRepository> = {}) {
   return { key: 'css', language: 'css', name: 'SonarQube', ...override };
-}
-
-export function mockPermission(override: Partial<Permission> = {}) {
-  return {
-    key: 'admin',
-    name: 'Admin',
-    description: 'Can do anything he/she wants',
-    ...override,
-  };
-}
-
-export function mockPermissionTemplateGroup(override: Partial<PermissionTemplateGroup> = {}) {
-  return {
-    groupsCount: 1,
-    usersCount: 1,
-    key: 'admin',
-    withProjectCreator: true,
-    ...override,
-  };
-}
-
-export function mockPermissionTemplate(override: Partial<PermissionTemplate> = {}) {
-  return {
-    id: 'template1',
-    name: 'Permission Template 1',
-    createdAt: '',
-    defaultFor: [],
-    permissions: [mockPermissionTemplateGroup()],
-    ...override,
-  };
-}
-
-export function mockTemplateUser(override: Partial<PermissionUser> = {}) {
-  return {
-    login: 'admin',
-    name: 'Admin Admin',
-    permissions: ['admin', 'codeviewer'],
-    ...override,
-  };
-}
-
-export function mockTemplateGroup(override: Partial<PermissionGroup> = {}) {
-  return {
-    id: 'Anyone',
-    name: 'Anyone',
-    description: 'everyone',
-    permissions: ['admin', 'codeviewer'],
-    ...override,
-  };
 }

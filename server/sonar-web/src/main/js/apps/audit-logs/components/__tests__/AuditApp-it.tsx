@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getDate, getMonth, getYear, subDays } from 'date-fns';
-import selectEvent from 'react-select-event';
-import { byPlaceholderText, byRole, byText } from 'testing-library-selector';
+import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { now } from '../../../../helpers/dates';
 import { getShortMonthName } from '../../../../helpers/l10n';
@@ -30,8 +28,6 @@ import { AdminPageExtension } from '../../../../types/extension';
 import { SettingsKey } from '../../../../types/settings';
 import routes from '../../routes';
 import { HousekeepingPolicy } from '../../utils';
-
-jest.mock('../../../../api/settings');
 
 const extensions = [
   { key: AdminPageExtension.GovernanceConsole, name: 'Portfolios' },
@@ -67,6 +63,8 @@ const ui = {
   downloadSentenceStart: byText('audit_logs.download_start.sentence.1'),
   startDateInput: byPlaceholderText('start_date'),
   endDateInput: byPlaceholderText('end_date'),
+  dateInputMonthSelect: byTestId('month-select'),
+  dateInputYearSelect: byTestId('year-select'),
 };
 
 let handler: SettingsServiceMock;
@@ -85,22 +83,22 @@ it('should handle download button click', async () => {
   expect(downloadButton).toBeInTheDocument();
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-07-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-07-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
   await user.click(ui.weekRadio.get());
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-07-14T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-07-14T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
   await user.click(ui.monthRadio.get());
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-06-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-06-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
   await user.click(ui.trimesterRadio.get());
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-04-22T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-04-22T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
 
   await user.click(downloadButton);
@@ -114,23 +112,39 @@ it('should handle download button click', async () => {
   await user.click(ui.customRadio.get());
   expect(ui.downloadButton.get()).toHaveAttribute('aria-disabled', 'true');
   await user.click(ui.startDateInput.get());
+  const monthSelector = ui.dateInputMonthSelect.byRole('combobox').get();
+  await user.click(monthSelector);
+  await user.click(
+    ui.dateInputMonthSelect
+      .byText(getShortMonthName(getMonth(startDay)))
+      .getAll()
+      .slice(-1)[0],
+  );
 
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_month' }), [
-    getShortMonthName(getMonth(startDay)),
-  ]);
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_year' }), [
-    getYear(startDay),
-  ]);
-  await user.click(screen.getByText(getDate(startDay)));
+  const yearSelector = ui.dateInputYearSelect.byRole('combobox').get();
+  await user.click(yearSelector);
+  await user.click(
+    ui.dateInputYearSelect.byText(getYear(startDay).toString()).getAll().slice(-1)[0],
+  );
+
+  await user.click(byText(getDate(startDay), { selector: 'button' }).get());
+
   await user.click(ui.endDateInput.get());
 
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_month' }), [
-    getShortMonthName(getMonth(endDate)),
-  ]);
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_year' }), [
-    getYear(endDate),
-  ]);
-  await user.click(screen.getByText(getDate(endDate)));
+  await user.click(monthSelector);
+  await user.click(
+    ui.dateInputMonthSelect
+      .byText(getShortMonthName(getMonth(endDate)))
+      .getAll()
+      .slice(-1)[0],
+  );
+
+  await user.click(yearSelector);
+  await user.click(
+    ui.dateInputYearSelect.byText(getYear(endDate).toString()).getAll().slice(-1)[0],
+  );
+
+  await user.click(byText(getDate(endDate), { selector: 'button' }).get());
 
   expect(await ui.downloadButton.find()).toHaveAttribute('aria-disabled', 'false');
   await user.click(downloadButton);

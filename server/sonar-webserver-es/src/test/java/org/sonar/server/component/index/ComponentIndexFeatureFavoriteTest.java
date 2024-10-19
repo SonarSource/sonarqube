@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.component.index;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static com.google.common.collect.ImmutableSet.of;
@@ -40,8 +40,8 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
 
   @Test
   public void scoring_cares_about_favorites() {
-    ComponentDto project1 = indexProject("sonarqube", "SonarQube");
-    ComponentDto project2 = indexProject("recent", "SonarQube Recently");
+    ProjectDto project1 = indexProject("sonarqube", "SonarQube");
+    ProjectDto project2 = indexProject("recent", "SonarQube Recently");
 
     SuggestionQuery query1 = SuggestionQuery.builder()
       .setQuery("SonarQube")
@@ -61,7 +61,7 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
   @Test
   public void irrelevant_favorites_are_not_returned() {
     features.set(q -> termQuery(FIELD_KEY, "non-existing-value"), ComponentTextSearchFeatureRepertoire.FAVORITE);
-    ComponentDto project1 = indexProject("foo", "foo");
+    ProjectDto project1 = indexProject("foo", "foo");
 
     SuggestionQuery query1 = SuggestionQuery.builder()
       .setQuery("bar")

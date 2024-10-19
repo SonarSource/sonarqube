@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Title, TutorialStep, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import {
-  AlmKeys,
-  AlmSettingsInstance,
-  ProjectAlmBindingResponse,
-} from '../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
-import AllSetStep from '../components/AllSetStep';
-import FinishButton from '../components/FinishButton';
+import AllSet from '../components/AllSet';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
-import Step from '../components/Step';
+import RenderOptions from '../components/RenderOptions';
 import YamlFileStep from '../components/YamlFileStep';
-import { BuildTools, TutorialModes } from '../types';
+import { Arch, OSs, TutorialConfig, TutorialModes } from '../types';
+import { shouldShowArchSelector, shouldShowGithubCFamilyExampleRepositories } from '../utils';
 import AnalysisCommand from './AnalysisCommand';
 import RepositoryVariables from './RepositoryVariables';
 
@@ -47,74 +44,81 @@ export interface BitbucketPipelinesTutorialProps {
   component: Component;
   currentUser: LoggedInUser;
   mainBranchName: string;
-  projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }
 
-export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTutorialProps) {
-  const {
-    almBinding,
-    baseUrl,
-    currentUser,
-    component,
-    projectBinding,
-    willRefreshAutomatically,
-    mainBranchName,
-  } = props;
+export default function BitbucketPipelinesTutorial(
+  props: Readonly<BitbucketPipelinesTutorialProps>,
+) {
+  const { almBinding, baseUrl, currentUser, component, willRefreshAutomatically, mainBranchName } =
+    props;
 
-  const [step, setStep] = React.useState<Steps>(Steps.REPOSITORY_VARIABLES);
+  const [config, setConfig] = React.useState<TutorialConfig>({});
+  const [done, setDone] = React.useState(false);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
+
+  React.useEffect(() => {
+    setDone(Boolean(config.buildTool));
+  }, [config.buildTool]);
+
   return (
     <>
-      <Step
-        finished={step > Steps.REPOSITORY_VARIABLES}
-        onOpen={() => setStep(Steps.REPOSITORY_VARIABLES)}
-        open={step === Steps.REPOSITORY_VARIABLES}
-        renderForm={() => (
+      <Title>{translate('onboarding.tutorial.with.bitbucket_ci.title')}</Title>
+
+      <TutorialStepList className="sw-mb-8">
+        <TutorialStep
+          title={translate('onboarding.tutorial.with.bitbucket_pipelines.variables.title')}
+        >
           <RepositoryVariables
             almBinding={almBinding}
             baseUrl={baseUrl}
             component={component}
             currentUser={currentUser}
-            onDone={() => setStep(Steps.YAML)}
-            projectBinding={projectBinding}
           />
-        )}
-        stepNumber={Steps.REPOSITORY_VARIABLES}
-        stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.create_secret.title')}
-      />
-      <Step
-        finished={step > Steps.YAML}
-        onOpen={() => setStep(Steps.YAML)}
-        open={step === Steps.YAML}
-        renderForm={() => (
-          <YamlFileStep>
-            {(buildTool) => (
+        </TutorialStep>
+        <TutorialStep title={translate('onboarding.tutorial.with.bitbucket_pipelines.yaml.title')}>
+          <YamlFileStep config={config} setConfig={setConfig} ci={TutorialModes.BitbucketPipelines}>
+            {(config) => (
               <>
-                {buildTool === BuildTools.CFamily && (
+                {shouldShowGithubCFamilyExampleRepositories(config) && (
                   <GithubCFamilyExampleRepositories
-                    className="big-spacer-top"
+                    className="sw-my-4 sw-w-abs-600"
                     ci={TutorialModes.BitbucketPipelines}
                   />
                 )}
+                {shouldShowArchSelector(OSs.Linux, config) && (
+                  <div className="sw-my-4">
+                    <RenderOptions
+                      label={translate('onboarding.build.other.architecture')}
+                      checked={arch}
+                      onCheck={(value: Arch) => setArch(value)}
+                      optionLabelKey="onboarding.build.other.architecture"
+                      options={[Arch.X86_64, Arch.Arm64]}
+                      titleLabelKey="onboarding.build.other.architecture"
+                    />
+                  </div>
+                )}
                 <AnalysisCommand
-                  buildTool={buildTool}
+                  config={config}
+                  arch={arch}
                   component={component}
                   mainBranchName={mainBranchName}
                 />
-                <FinishButton onClick={() => setStep(Steps.ALL_SET)} />
               </>
             )}
           </YamlFileStep>
+        </TutorialStep>
+
+        {done && (
+          <>
+            <BasicSeparator className="sw-my-10" />
+            <AllSet
+              alm={AlmKeys.BitbucketCloud}
+              willRefreshAutomatically={willRefreshAutomatically}
+            />
+          </>
         )}
-        stepNumber={Steps.YAML}
-        stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.yaml.title')}
-      />
-      <AllSetStep
-        alm={almBinding?.alm || AlmKeys.BitbucketCloud}
-        open={step === Steps.ALL_SET}
-        stepNumber={Steps.ALL_SET}
-        willRefreshAutomatically={willRefreshAutomatically}
-      />
+      </TutorialStepList>
     </>
   );
 }

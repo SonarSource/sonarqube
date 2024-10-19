@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,75 +17,71 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
+import { Select } from '@sonarsource/echoes-react';
+import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import Select from '../../../components/controls/Select';
-import { getLocalizedMetricDomain, translate } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { Dict, Metric } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 
 interface Props {
-  metric?: Metric;
-  metricsArray: Metric[];
   metrics: Dict<Metric>;
+  metricsArray: Metric[];
   onMetricChange: (metric: Metric) => void;
+  selectedMetric?: Metric;
 }
 
-interface Option {
-  isDisabled?: boolean;
-  label: string;
-  value: string;
-}
-
-export class MetricSelect extends React.PureComponent<Props> {
-  handleChange = (option: Option | null) => {
-    if (option) {
-      const { metricsArray: metrics } = this.props;
-      const selectedMetric = metrics.find((metric) => metric.key === option.value);
+export function MetricSelect({
+  selectedMetric,
+  metricsArray,
+  metrics,
+  onMetricChange,
+}: Readonly<Props>) {
+  const handleChange = (key: string | null) => {
+    if (isDefined(key)) {
+      const selectedMetric = metricsArray.find((metric) => metric.key === key);
       if (selectedMetric) {
-        this.props.onMetricChange(selectedMetric);
+        onMetricChange(selectedMetric);
       }
     }
   };
 
-  render() {
-    const { metric, metricsArray, metrics } = this.props;
+  const options = React.useMemo(
+    () => groupByDomain(metricsArray, metrics),
+    [metricsArray, metrics],
+  );
 
-    const options: Array<Option & { domain?: string }> = sortBy(
-      metricsArray.map((m) => ({
-        value: m.key,
-        label: getLocalizedMetricNameNoDiffMetric(m, metrics),
-        domain: m.domain,
-      })),
-      'domain'
-    );
-
-    // Use "disabled" property to emulate optgroups.
-    const optionsWithDomains: Option[] = [];
-    options.forEach((option, index, options) => {
-      const previous = index > 0 ? options[index - 1] : null;
-      if (option.domain && (!previous || previous.domain !== option.domain)) {
-        optionsWithDomains.push({
-          value: '<domain>',
-          label: getLocalizedMetricDomain(option.domain),
-          isDisabled: true,
-        });
-      }
-      optionsWithDomains.push(option);
-    });
-
-    return (
-      <Select
-        className="text-middle quality-gate-metric-select"
-        id="condition-metric"
-        onChange={this.handleChange}
-        options={optionsWithDomains}
-        placeholder={translate('search.search_for_metrics')}
-        value={optionsWithDomains.find((o) => o.value === metric?.key)}
-      />
-    );
-  }
+  return (
+    <Select
+      data={options}
+      value={selectedMetric?.key}
+      onChange={handleChange}
+      ariaLabel={translate('quality_gates.conditions.fails_when')}
+      isSearchable
+      isNotClearable
+    />
+  );
 }
 
 export default withMetricsContext(MetricSelect);
+
+function groupByDomain(metricsArray: Metric[], metrics: Dict<Metric>) {
+  const groups = groupBy(metricsArray, (m) => m.domain);
+
+  return sortBy(
+    Object.keys(groups).map((group) => {
+      const items = sortBy(
+        groups[group].map((m) => ({
+          value: m.key,
+          label: getLocalizedMetricNameNoDiffMetric(m, metrics),
+        })),
+        (m) => m.label,
+      );
+
+      return { group: translate('metric_domain', group), items };
+    }),
+    (g) => g.group,
+  );
+}

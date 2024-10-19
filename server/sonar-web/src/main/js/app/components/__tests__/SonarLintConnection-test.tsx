@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,6 @@ import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
 import SonarLintConnection from '../SonarLintConnection';
-
-jest.mock('../../../api/user-tokens');
 
 jest.mock('../../../helpers/handleRequiredAuthentication', () => ({
   __esModule: true,
@@ -74,13 +72,13 @@ it('should allow the user to accept the binding request', async () => {
   renderSonarLintConnection();
 
   expect(
-    await screen.findByRole('heading', { name: 'sonarlint-connection.request.title' })
+    await screen.findByRole('heading', { name: 'sonarlint-connection.request.title' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'sonarlint-connection.request.action' }));
 
   expect(
-    await screen.findByText('sonarlint-connection.success.description', { exact: false })
+    await screen.findByText('sonarlint-connection.success.description', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -91,11 +89,11 @@ it('should handle token generation errors', async () => {
   renderSonarLintConnection();
 
   await user.click(
-    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' })
+    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' }),
   );
 
   expect(
-    await screen.findByText('sonarlint-connection.token-error.description')
+    await screen.findByText('sonarlint-connection.token-error.description'),
   ).toBeInTheDocument();
 });
 
@@ -106,15 +104,15 @@ it('should handle connection errors', async () => {
   renderSonarLintConnection();
 
   await user.click(
-    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' })
+    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' }),
   );
 
   expect(
-    await screen.findByText('sonarlint-connection.connection-error.description')
+    await screen.findByText('sonarlint-connection.connection-error.description'),
   ).toBeInTheDocument();
 
   const tokenValue = tokenMock.getLastToken()?.token ?? '';
-  expect(await screen.findByText(tokenValue)).toBeInTheDocument();
+  expect(await screen.findByRole('textbox')).toHaveValue(tokenValue);
 });
 
 it('should require authentication if user is not logged in', () => {
@@ -129,11 +127,11 @@ it('should let the user copy the token if the port is not valid', async () => {
   renderSonarLintConnection({ port: '' });
 
   await user.click(
-    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' })
+    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' }),
   );
 
   expect(
-    await screen.findByText('sonarlint-connection.connection-error.description')
+    await screen.findByText('sonarlint-connection.connection-error.description'),
   ).toBeInTheDocument();
 });
 

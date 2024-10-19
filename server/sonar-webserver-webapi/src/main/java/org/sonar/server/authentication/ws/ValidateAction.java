@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,20 +22,21 @@ package org.sonar.server.authentication.ws;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.BasicAuthentication;
+import org.sonar.server.authentication.HttpHeadersAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
+import org.sonar.server.authentication.UserAuthResult;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.usertoken.UserTokenAuthentication;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonarqube.ws.MediaTypes;
 
@@ -43,7 +44,7 @@ import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VAL
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 
-public class ValidateAction extends ServletFilter implements AuthenticationWsAction {
+public class ValidateAction extends HttpFilter implements AuthenticationWsAction {
 
   private static final String VALIDATE_ACTION = "validate";
   public static final String VALIDATE_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + VALIDATE_ACTION;
@@ -51,11 +52,17 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
   private final Configuration config;
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthentication basicAuthentication;
+  private final HttpHeadersAuthentication httpHeadersAuthentication;
+  private final UserTokenAuthentication userTokenAuthentication;
 
-  public ValidateAction(Configuration config, BasicAuthentication basicAuthentication, JwtHttpHandler jwtHttpHandler) {
+  public ValidateAction(Configuration config, BasicAuthentication basicAuthentication, JwtHttpHandler jwtHttpHandler, HttpHeadersAuthentication httpHeadersAuthentication,
+    UserTokenAuthentication userTokenAuthentication) {
+
     this.config = config;
     this.basicAuthentication = basicAuthentication;
     this.jwtHttpHandler = jwtHttpHandler;
+    this.httpHeadersAuthentication = httpHeadersAuthentication;
+    this.userTokenAuthentication = userTokenAuthentication;
   }
 
   @Override
@@ -73,10 +80,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain filterChain) throws IOException {
     boolean isAuthenticated = authenticate(request, response);
     response.setContentType(MediaTypes.JSON);
 
@@ -87,24 +91,20 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
     }
   }
 
-  private boolean authenticate(HttpServletRequest request, HttpServletResponse response) {
+  private boolean authenticate(HttpRequest request, HttpResponse response) {
     try {
-      Optional<UserDto> user = jwtHttpHandler.validateToken(request, response);
-      if (user.isPresent()) {
-        return true;
-      }
-      user = basicAuthentication.authenticate(request);
-      if (user.isPresent()) {
-        return true;
-      }
-      return !config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
+      Optional<UserDto> user = httpHeadersAuthentication.authenticate(request, response)
+        .or(() -> jwtHttpHandler.validateToken(request, response))
+        .or(() -> basicAuthentication.authenticate(request))
+        .or(() -> userTokenAuthentication.authenticate(request).map(UserAuthResult::getUserDto));
+      return user.isPresent() || !config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
     } catch (AuthenticationException e) {
       return false;
     }
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // Nothing to do
   }
 

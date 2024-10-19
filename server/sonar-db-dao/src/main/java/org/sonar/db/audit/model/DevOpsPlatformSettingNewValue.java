@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,19 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 
 public class DevOpsPlatformSettingNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String devOpsPlatformSettingUuid;
 
@@ -45,6 +50,10 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
   @Nullable
   private String clientId;
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String projectUuid;
 
@@ -98,6 +107,10 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     this.projectName = projectDto.getName();
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getDevOpsPlatformSettingUuid() {
     return this.devOpsPlatformSettingUuid;
@@ -128,6 +141,10 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     return this.clientId;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getProjectUuid() {
     return this.projectUuid;
@@ -177,8 +194,8 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     addField(sb, "\"projectName\": ", this.projectName, true);
     addField(sb, "\"almRepo\": ", this.almRepo, true);
     addField(sb, "\"almSlug\": ", this.almSlug, true);
-    addField(sb, "\"isSummaryCommentEnabled\": ", ObjectUtils.toString(this.isSummaryCommentEnabled), false);
-    addField(sb, "\"isMonorepo\": ", ObjectUtils.toString(this.isMonorepo), false);
+    addField(sb, "\"isSummaryCommentEnabled\": ", Objects.toString(this.isSummaryCommentEnabled, ""), false);
+    addField(sb, "\"isMonorepo\": ", Objects.toString(this.isMonorepo, ""), false);
     endString(sb);
     return sb.toString();
   }

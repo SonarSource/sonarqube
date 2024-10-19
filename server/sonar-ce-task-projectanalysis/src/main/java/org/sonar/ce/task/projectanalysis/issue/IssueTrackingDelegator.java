@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
@@ -42,9 +43,9 @@ public class IssueTrackingDelegator {
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
-  public TrackingResult track(Component component, Input<DefaultIssue> rawInput) {
+  public TrackingResult track(Component component, Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput) {
     if (analysisMetadataHolder.isPullRequest()) {
-      return standardResult(pullRequestTracker.track(component, rawInput));
+      return standardResult(pullRequestTracker.track(component, rawInput, targetInput));
     }
 
     if (isFirstAnalysisSecondaryBranch()) {

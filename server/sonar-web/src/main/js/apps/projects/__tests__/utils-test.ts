@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,20 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { searchProjects } from '../../../api/components';
+import { ONE_SECOND } from '../../../helpers/constants';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { Component } from '../../../types/types';
 import * as utils from '../utils';
 
 jest.mock('../../../api/components', () => ({
   searchProjects: jest
     .fn()
     .mockResolvedValue({ components: [], facets: [], paging: { total: 10 } }),
-}));
-
-jest.mock('../../../api/measures', () => ({
-  getMeasuresForProjects: jest.fn().mockResolvedValue([
-    { component: 'foo', metric: 'new_coverage', period: { index: 1, value: '10' } },
-    { component: 'bar', metric: 'languages', value: '20' },
-  ]),
+  getScannableProjects: jest.fn().mockResolvedValue({ projects: [] }),
 }));
 
 describe('localizeSorting', () => {
@@ -55,14 +51,15 @@ describe('parseSorting', () => {
 });
 
 describe('formatDuration', () => {
-  const ONE_MINUTE = 60000;
+  const ONE_MINUTE = 60 * ONE_SECOND;
   const ONE_HOUR = 60 * ONE_MINUTE;
   const ONE_DAY = 24 * ONE_HOUR;
   const ONE_MONTH = 30 * ONE_DAY;
   const ONE_YEAR = 12 * ONE_MONTH;
+
   it('render years and months only', () => {
     expect(utils.formatDuration(ONE_YEAR * 4 + ONE_MONTH * 2 + ONE_DAY * 10)).toEqual(
-      'duration.years.4 duration.months.2 '
+      'duration.years.4 duration.months.2 ',
     );
   });
 
@@ -72,7 +69,7 @@ describe('formatDuration', () => {
 
   it('render hours and minutes', () => {
     expect(utils.formatDuration(ONE_HOUR * 4 + ONE_MINUTE * 10)).toEqual(
-      'duration.hours.4 duration.minutes.10 '
+      'duration.hours.4 duration.minutes.10 ',
     );
   });
 
@@ -81,13 +78,46 @@ describe('formatDuration', () => {
   });
 
   it('render less than a minute', () => {
-    expect(utils.formatDuration(1000)).toEqual('duration.seconds');
+    expect(utils.formatDuration(ONE_SECOND)).toEqual('duration.seconds');
   });
 });
 
 describe('fetchProjects', () => {
   it('correctly converts the passed arguments to the desired query format', async () => {
-    await utils.fetchProjects({}, true);
+    await utils.fetchProjects({ isFavorite: true, query: {}, isLegacy: true });
+
+    expect(searchProjects).toHaveBeenCalledWith({
+      f: 'analysisDate,leakPeriodDate',
+      facets: utils.LEGACY_FACETS.join(),
+      filter: 'isFavorite',
+      p: undefined,
+      ps: 50,
+    });
+
+    await utils.fetchProjects({
+      isFavorite: false,
+      pageIndex: 3,
+      query: {
+        view: 'leak',
+        new_reliability: 6,
+        incorrect_property: 'should not appear in post data',
+        search: 'foo',
+      },
+      isLegacy: true,
+    });
+
+    expect(searchProjects).toHaveBeenCalledWith({
+      f: 'analysisDate,leakPeriodDate',
+      facets: utils.LEGACY_LEAK_FACETS.join(),
+      filter: 'new_reliability_rating = 6 and query = "foo"',
+      p: 3,
+      ps: 50,
+    });
+  });
+
+  it('correctly converts the passed arguments to the desired query format for non legacy', async () => {
+    await utils.fetchProjects({ isFavorite: true, query: {}, isLegacy: false });
+
     expect(searchProjects).toHaveBeenCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.FACETS.join(),
@@ -96,10 +126,22 @@ describe('fetchProjects', () => {
       ps: 50,
     });
 
-    await utils.fetchProjects({ view: 'leak' }, false, 3);
+    await utils.fetchProjects({
+      isFavorite: false,
+      pageIndex: 3,
+      query: {
+        view: 'leak',
+        new_reliability: 6,
+        incorrect_property: 'should not appear in post data',
+        search: 'foo',
+      },
+      isLegacy: false,
+    });
+
     expect(searchProjects).toHaveBeenCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.LEAK_FACETS.join(),
+      filter: 'new_software_quality_reliability_rating = 6 and query = "foo"',
       p: 3,
       ps: 50,
     });
@@ -107,6 +149,7 @@ describe('fetchProjects', () => {
 
   it('correctly treats result data', async () => {
     const components = [mockComponent({ key: 'foo' }), mockComponent({ key: 'bar' })];
+
     (searchProjects as jest.Mock).mockResolvedValue({
       components,
       facets: [
@@ -121,20 +164,25 @@ describe('fetchProjects', () => {
       ],
       paging: { total: 2 },
     });
-    await utils.fetchProjects({}, true).then((r) => {
+
+    await utils.fetchProjects({ isFavorite: true, query: {}, isLegacy: true }).then((r) => {
       expect(r).toEqual({
         facets: {
           new_coverage: { NO_DATA: 0 },
           languages: { css: 10, js: 2 },
         },
-        projects: components.map((component: any) => {
-          if (component.key === 'foo') {
-            component.measures = { new_coverage: '10' };
-          } else {
-            component.measures = { languages: '20' };
-          }
-          return component;
-        }),
+        projects: components.map(
+          (
+            component: Component & {
+              isScannable: boolean;
+              measures: { languages?: string; new_coverage?: string };
+            },
+          ) => {
+            component.isScannable = false;
+            return component;
+          },
+        ),
+
         total: 2,
       });
     });
@@ -146,5 +194,27 @@ describe('defineMetrics', () => {
     expect(utils.defineMetrics({ view: 'leak' })).toBe(utils.LEAK_METRICS);
     expect(utils.defineMetrics({ view: 'overall' })).toBe(utils.METRICS);
     expect(utils.defineMetrics({})).toBe(utils.METRICS);
+  });
+});
+
+describe('convertToSorting', () => {
+  it('handles asc and desc sort', () => {
+    expect(utils.convertToSorting({ sort: '-size' }, true)).toStrictEqual({
+      asc: false,
+      s: 'ncloc',
+    });
+    expect(utils.convertToSorting({}, true)).toStrictEqual({ s: undefined });
+    expect(utils.convertToSorting({ sort: 'search' }, true)).toStrictEqual({ s: 'query' });
+  });
+
+  it('handles sort for legacy and non legacy queries', () => {
+    expect(utils.convertToSorting({ sort: '-reliability' }, true)).toStrictEqual({
+      asc: false,
+      s: 'reliability_rating',
+    });
+    expect(utils.convertToSorting({ sort: '-reliability' }, false)).toStrictEqual({
+      asc: false,
+      s: 'software_quality_reliability_rating',
+    });
   });
 });

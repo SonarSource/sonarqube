@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ import { Dict } from '../../../types/types';
 
 export interface SentenceWithHighlightsProps {
   highlightKeys: string[];
-  translationKey: string;
   highlightPrefixKeys?: string;
+  translationKey: string;
 }
 
 export default function SentenceWithHighlights({
@@ -37,7 +37,11 @@ export default function SentenceWithHighlights({
 
   const transhighlightPrefixKeys = highlightPrefixKeys || translationKey;
   highlightKeys.forEach((key) => {
-    values[key] = <strong>{translate(transhighlightPrefixKeys, 'sentence', key)}</strong>;
+    values[key] = (
+      <strong className="sw-font-semibold">
+        {translate(transhighlightPrefixKeys, 'sentence', key)}
+      </strong>
+    );
   });
   return (
     <FormattedMessage

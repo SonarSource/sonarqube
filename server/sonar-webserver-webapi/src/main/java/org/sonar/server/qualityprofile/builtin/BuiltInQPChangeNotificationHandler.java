@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,13 @@ package org.sonar.server.qualityprofile.builtin;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
-
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class BuiltInQPChangeNotificationHandler extends EmailNotificationHandler<BuiltInQPChangeNotification> {
   private final DbClient dbClient;
@@ -56,7 +55,7 @@ public class BuiltInQPChangeNotificationHandler extends EmailNotificationHandler
         .selectQualityProfileAdministratorLogins(session)
         .stream()
         .flatMap(t -> notifications.stream().map(notification -> new EmailDeliveryRequest(t.getEmail(), notification)))
-        .collect(toSet());
+        .collect(Collectors.toSet());
     }
   }
 }

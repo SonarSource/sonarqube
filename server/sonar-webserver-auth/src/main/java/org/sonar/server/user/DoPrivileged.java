@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,8 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 
 /**
@@ -106,13 +108,18 @@ public final class DoPrivileged {
       }
 
       @Override
-      protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
-        // always root so unused
-        throw new UnsupportedOperationException();
+      public boolean hasComponentPermission(String permission, ComponentDto component) {
+        return true;
       }
 
       @Override
-      protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
+      protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
+        // always root
+        return Optional.of(componentUuid);
+      }
+
+      @Override
+      protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
         return true;
       }
 
@@ -134,6 +141,11 @@ public final class DoPrivileged {
       @Override
       public boolean isActive() {
         return true;
+      }
+
+      @Override
+      public boolean isAuthenticatedBrowserSession() {
+        return false;
       }
 
     }

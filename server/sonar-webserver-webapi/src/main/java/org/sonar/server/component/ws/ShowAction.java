@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +26,7 @@ import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -48,7 +48,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.ShowWsResponse;
 
-import static java.util.Optional.ofNullable;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrAppToWsComponent;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
@@ -61,8 +60,8 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SH
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 
 public class ShowAction implements ComponentsWsAction {
-  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
-  private static final Set<String> APP_VIEW_OR_SUBVIEW_QUALIFIERS = ImmutableSet.of(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> APP_VIEW_OR_SUBVIEW_QUALIFIERS = Set.of(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -85,6 +84,7 @@ public class ShowAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("show-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
@@ -163,36 +163,47 @@ public class ShowAction implements ComponentsWsAction {
 
   private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto lastAnalysis,
     Request request) {
-    OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
-    if (isProjectOrApp(component)) {
+    OrganizationDto organization = componentFinder.getOrganization(dbSession, component);
+
+    // project or application
+    if (isMainBranchOfProjectOrApp(component, dbSession)) {
       ProjectDto project = dbClient.projectDao().selectProjectOrAppByKey(dbSession, component.getKey())
         .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
       boolean needIssueSync = needIssueSync(dbSession, component, project);
-      return projectOrAppToWsComponent(project, organizationDto, lastAnalysis)
+      return projectOrAppToWsComponent(project, organization, lastAnalysis).setNeedIssueSync(needIssueSync);
+    }
+
+    // parent project can an application. For components in portfolios, it will be null
+    ProjectDto parentProject = dbClient.projectDao().selectByBranchUuid(dbSession, component.branchUuid()).orElse(null);
+    boolean needIssueSync = needIssueSync(dbSession, component, parentProject);
+
+    // if this is a project calculated in a portfolio or app, we need to include the original branch name (if any)
+    if (component.getCopyComponentUuid() != null) {
+      String branch = dbClient.branchDao().selectByUuid(dbSession, component.getCopyComponentUuid())
+        .filter(b -> !b.isMain())
+        .map(BranchDto::getKey)
+        .orElse(null);
+      return componentDtoToWsComponent(component, organization, parentProject, lastAnalysis, true, branch, null)
+        .setNeedIssueSync(needIssueSync);
+    }
+
+    // branch won't exist for portfolios
+    Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, component.branchUuid());
+    if (branchDto.isPresent() && !branchDto.get().isMain()) {
+      return componentDtoToWsComponent(component, organization, parentProject, lastAnalysis, false, request.branch, request.pullRequest)
         .setNeedIssueSync(needIssueSync);
     } else {
-      Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
-        ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
-      boolean needIssueSync = needIssueSync(dbSession, component, parentProject.orElse(null));
-      if (component.getCopyComponentUuid() != null) {
-        String branch = dbClient.branchDao().selectByUuid(dbSession, component.getCopyComponentUuid())
-          .filter(b -> !b.isMain())
-          .map(BranchDto::getKey)
-          .orElse(null);
-        return componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), lastAnalysis, branch, null)
-          .setNeedIssueSync(needIssueSync);
-      } else if (component.getMainBranchProjectUuid() != null) {
-        return componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
-          .setNeedIssueSync(needIssueSync);
-      } else {
-        return componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), lastAnalysis, null, null)
-          .setNeedIssueSync(needIssueSync);
-      }
+      return componentDtoToWsComponent(component, organization, parentProject, lastAnalysis, true, null, null)
+        .setNeedIssueSync(needIssueSync);
     }
   }
 
-  private static boolean isProjectOrApp(ComponentDto component) {
-    return component.getMainBranchProjectUuid() == null && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier());
+  private boolean isMainBranchOfProjectOrApp(ComponentDto component, DbSession dbSession) {
+    if (!PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier()) || !Scopes.PROJECT.equals(component.scope())) {
+      return false;
+    }
+    Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, component.branchUuid());
+    return branchDto.isPresent() && branchDto.get().isMain();
   }
 
   private boolean needIssueSync(DbSession dbSession, ComponentDto component, @Nullable ProjectDto projectDto) {

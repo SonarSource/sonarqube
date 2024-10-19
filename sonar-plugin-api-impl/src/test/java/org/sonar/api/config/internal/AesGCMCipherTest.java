@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,7 @@ import java.io.File;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +49,7 @@ public class AesGCMCipherTest {
     AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.encrypt("this is a secret"))
-      .hasRootCauseInstanceOf(InvalidKeyException.class)
-      .hasMessageContaining("Invalid AES key");
+      .hasCauseInstanceOf(InvalidKeyException.class);
   }
 
   @Test
@@ -72,8 +70,7 @@ public class AesGCMCipherTest {
     AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY="))
-      .hasRootCauseInstanceOf(InvalidKeyException.class)
-      .hasMessageContaining("Invalid AES key");
+      .hasCauseInstanceOf(InvalidKeyException.class);
   }
 
   @Test
@@ -83,7 +80,7 @@ public class AesGCMCipherTest {
     AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.decrypt(originalCipher.encrypt("this is a secret")))
-      .hasRootCauseInstanceOf(BadPaddingException.class);
+      .hasCauseInstanceOf(BadPaddingException.class);
   }
 
   private String pathToSecretKey() throws Exception {

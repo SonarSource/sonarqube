@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,25 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import { throttle } from 'lodash';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import ListFooter from '../../../components/controls/ListFooter';
-import { Alert } from '../../../components/ui/Alert';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
-import { scrollToElement } from '../../../helpers/scrolling';
+import { isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
-import {
-  ComponentMeasure,
-  ComponentMeasureEnhanced,
-  Dict,
-  Metric,
-  Paging,
-} from '../../../types/types';
+import { Component, ComponentMeasureEnhanced, Dict, Metric, Paging } from '../../../types/types';
 import ComponentsList from './ComponentsList';
 
 interface Props {
@@ -43,13 +38,13 @@ interface Props {
   components: ComponentMeasureEnhanced[];
   defaultShowBestMeasures: boolean;
   fetchMore: () => void;
-  handleSelect: (component: ComponentMeasureEnhanced) => void;
   handleOpen: (component: ComponentMeasureEnhanced) => void;
+  handleSelect: (component: ComponentMeasureEnhanced) => void;
   loadingMore: boolean;
   metric: Metric;
   metrics: Dict<Metric>;
   paging?: Paging;
-  rootComponent: ComponentMeasure;
+  rootComponent: Component;
   selectedComponent?: ComponentMeasureEnhanced;
   selectedIdx?: number;
   view: MeasurePageView;
@@ -160,12 +155,10 @@ export default class FilesView extends React.PureComponent<Props, State> {
   };
 
   scrollToElement = () => {
-    if (this.listContainer) {
-      const elem = this.listContainer.getElementsByClassName('selected')[0];
-      if (elem) {
-        scrollToElement(elem, { topOffset: 215, bottomOffset: 100 });
-      }
-    }
+    this.listContainer?.getElementsByClassName('selected')[0]?.scrollIntoView({
+      block: 'center',
+      behavior: 'smooth',
+    });
   };
 
   render() {
@@ -184,18 +177,23 @@ export default class FilesView extends React.PureComponent<Props, State> {
           view={this.props.view}
         />
         {hidingBestMeasures && this.props.paging && (
-          <Alert className="spacer-top" variant="info">
-            <div className="display-flex-center">
-              {translateWithParameters(
-                'component_measures.hidden_best_score_metrics',
-                formatMeasure(this.props.paging.total - filteredComponents.length, 'INT'),
-                formatMeasure(this.props.metric.bestValue, this.props.metric.type)
-              )}
-              <Button className="button-small spacer-left" onClick={this.handleShowBestMeasures}>
-                {translate('show_them')}
-              </Button>
-            </div>
-          </Alert>
+          <FlagMessage variant="info" className="sw-mt-4">
+            {translateWithParameters(
+              'component_measures.hidden_best_score_metrics',
+              formatMeasure(
+                this.props.paging.total - filteredComponents.length,
+                MetricType.Integer,
+              ),
+              formatMeasure(this.props.metric.bestValue, this.props.metric.type),
+            )}
+            <Button
+              onClick={this.handleShowBestMeasures}
+              className="sw-ml-4"
+              aria-label={translate('component_measures.hidden_best_score_metrics_show_label')}
+            >
+              {translate('show_them')}
+            </Button>
+          </FlagMessage>
         )}
         {!hidingBestMeasures && this.props.paging && this.props.components.length > 0 && (
           <ListFooter

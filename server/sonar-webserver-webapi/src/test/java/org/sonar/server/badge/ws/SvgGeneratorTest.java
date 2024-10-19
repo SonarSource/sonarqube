@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,26 +21,16 @@ package org.sonar.server.badge.ws;
 
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric;
-import org.sonar.db.DbTester;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.Metric.Level.ERROR;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 
 public class SvgGeneratorTest {
-
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
 
   private SvgGenerator underTest;
 
@@ -60,15 +50,6 @@ public class SvgGeneratorTest {
     String result = underTest.generateQualityGate(ERROR);
 
     checkQualityGate(result, ERROR);
-  }
-
-  @Test
-  public void generate_deprecated_warning_quality_gate() {
-    initSvgGenerator();
-
-    String result = underTest.generateQualityGate(WARN);
-
-    assertThat(result).isEqualTo(readTemplate("quality_gate_warn.svg"));
   }
 
   @Test

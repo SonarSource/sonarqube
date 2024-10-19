@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,46 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  CodeSnippet,
+  ListItem,
+  NumberedList,
+  NumberedListItem,
+  TutorialStep,
+  UnorderedList,
+} from 'design-system';
 import * as React from 'react';
-import { rawSizes } from '../../../app/theme';
-import { Button } from '../../../components/controls/buttons';
-import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
-import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import LabelValuePair from '../components/LabelValuePair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
-import Step from '../components/Step';
 import { buildGithubLink } from '../utils';
 
 export interface MultiBranchPipelineStepProps {
   alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
-  finished: boolean;
-  onDone: () => void;
-  onOpen: () => void;
-  open: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
+
+  projectBinding?: ProjectAlmBindingResponse | null;
 }
 
 /* Capture [workspaceID] from this pattern: https://bitbucket.org/[workspaceId]/  */
-const bitbucketcloudUrlRegex = new RegExp('https:\\/\\/bitbucket.org\\/(.+)\\/');
+const bitbucketcloudUrlRegex = /https:\/\/bitbucket.org\/(.+)\//;
 
 function extractBitbucketCloudWorkspaceId(almBinding?: AlmSettingsInstance): string | undefined {
   if (almBinding?.url) {
-    const result = almBinding.url.match(bitbucketcloudUrlRegex);
+    const result = bitbucketcloudUrlRegex.exec(almBinding.url);
 
     return result ? result[1] : undefined;
   }
 }
 
 export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepProps) {
-  const { alm, almBinding, finished, open, projectBinding } = props;
+  const { alm, almBinding, projectBinding } = props;
 
   const workspaceId = extractBitbucketCloudWorkspaceId(almBinding);
   const isGitLab = alm === AlmKeys.GitLab;
@@ -64,224 +64,197 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
   const isBitbucketCloud = alm === AlmKeys.BitbucketCloud;
   const isGitHub = alm === AlmKeys.GitHub;
 
-  const renderForm = React.useCallback(
-    () => (
-      <div className="boxed-group-inner">
-        <p className="big-spacer-bottom">
-          {translate('onboarding.tutorial.with.jenkins.multi_branch_pipeline.intro')}
-        </p>
-        <ol className="list-styled">
-          <li>
-            <SentenceWithHighlights
-              highlightKeys={['new_item', 'type']}
-              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step1"
-            />
-          </li>
-          <li>
-            <SentenceWithHighlights
-              highlightKeys={['tab', 'source']}
-              translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${alm}`}
-            />
-            <ul className="list-styled list-alpha">
-              {isBitbucketServer && (
-                <>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.server" />
-                  </li>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.creds" />
-                  </li>
-                  <li>
-                    {projectBinding?.repository ? (
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner"
-                        value={projectBinding.repository}
-                      />
-                    ) : (
-                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner" />
-                    )}
-                  </li>
-                  <li>
-                    {projectBinding?.slug ? (
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo"
-                        value={projectBinding.slug}
-                      />
-                    ) : (
-                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo" />
-                    )}
-                  </li>
-                </>
-              )}
-              {isBitbucketCloud && (
-                <>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.server" />
-                  </li>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.creds" />
-                  </li>
-                  <li>
-                    {workspaceId ? (
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.owner"
-                        value={workspaceId}
-                      />
-                    ) : (
-                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.owner" />
-                    )}
-                  </li>
-                  <li>
-                    {projectBinding?.repository ? (
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo"
-                        value={projectBinding.repository}
-                      />
-                    ) : (
-                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo" />
-                    )}
-                  </li>
-                </>
-              )}
-              {isGitHub && (
-                <>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.creds" />
-                  </li>
-                  <li>
-                    {almBinding !== undefined &&
-                    projectBinding !== undefined &&
-                    buildGithubLink(almBinding, projectBinding) !== null ? (
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"
-                        value={buildGithubLink(almBinding, projectBinding) as string}
-                      />
-                    ) : (
-                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url" />
-                    )}
-                  </li>
-                </>
-              )}
-              {isGitLab && (
-                <>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.creds" />
-                  </li>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.owner" />
-                  </li>
-                  <li>
-                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.repo" />
-                  </li>
-                </>
-              )}
-              <li>
-                <strong>
-                  {translate(
-                    'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label'
-                  )}
-                  :
-                </strong>
-                <ol className="list-styled list-roman little-spacer-top abs-width-600">
-                  <li>
-                    <LabelActionPair
-                      translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.${
-                        isGitLab ? 'branches_mrs' : 'branches_prs'
-                      }`}
-                    />
-                  </li>
-                  <li>
-                    <LabelActionPair
-                      translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.${
-                        isGitLab ? 'discover_mrs' : 'discover_prs'
-                      }`}
-                    />
-                  </li>
-                  <li>
-                    <strong>
-                      {translate(
-                        'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label'
-                      )}
-                      :
-                    </strong>
-                    <ul className="list-styled little-spacer-top">
-                      <li>
-                        <SentenceWithHighlights
-                          highlightKeys={['add', 'ref_spec']}
-                          translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
-                        />
-                      </li>
-                      <li>
-                        <SentenceWithHighlights
-                          highlightKeys={['ref_spec']}
-                          translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.${
-                            isGitLab ? 'set_mr_ref_specs' : 'set_pr_ref_specs'
-                          }`}
-                        />
-                        <CodeSnippet
-                          isOneLine={true}
-                          snippet="+refs/heads/*:refs/remotes/@{remote}/*"
-                        />
-                      </li>
-                    </ul>
-                  </li>
-                </ol>
-              </li>
-            </ul>
-            <p className="big-spacer-left padder-left">
-              {translate(
-                'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.leave_defaults'
-              )}
-            </p>
-          </li>
-          <li>
-            <SentenceWithHighlights
-              highlightKeys={['tab']}
-              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
-            />
-            <ul className="list-styled list-alpha">
-              <li>
-                <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.mode" />
-              </li>
-              <li>
-                <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.script_path" />
-              </li>
-            </ul>
-          </li>
-          <li>
-            <SentenceWithHighlights
-              highlightKeys={['save']}
-              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step4"
-            />
-          </li>
-        </ol>
-        <Button className="big-spacer-top" onClick={props.onDone}>
-          {translate('continue')}
-          <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
-        </Button>
-      </div>
-    ),
-    [
-      isBitbucketCloud,
-      isBitbucketServer,
-      isGitHub,
-      isGitLab,
-      workspaceId,
-      alm,
-      projectBinding,
-      almBinding,
-      props.onDone,
-    ]
-  );
-
   return (
-    <Step
-      finished={finished}
-      onOpen={props.onOpen}
-      open={open}
-      renderForm={renderForm}
-      stepNumber={1}
-      stepTitle={translate('onboarding.tutorial.with.jenkins.multi_branch_pipeline.title')}
-    />
+    <TutorialStep title={translate('onboarding.tutorial.with.jenkins.multi_branch_pipeline.title')}>
+      <p className="sw-mb-4">
+        {translate('onboarding.tutorial.with.jenkins.multi_branch_pipeline.intro')}
+      </p>
+      <NumberedList>
+        <NumberedListItem>
+          <SentenceWithHighlights
+            highlightKeys={['new_item', 'type']}
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step1"
+          />
+        </NumberedListItem>
+        <NumberedListItem>
+          <SentenceWithHighlights
+            highlightKeys={['tab', 'source']}
+            translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${alm}`}
+          />
+          <UnorderedList ticks className="sw-ml-12">
+            {isBitbucketServer && (
+              <>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.server" />
+                </ListItem>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.creds" />
+                </ListItem>
+                <ListItem>
+                  {projectBinding?.repository ? (
+                    <LabelValuePair
+                      translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner"
+                      value={projectBinding.repository}
+                    />
+                  ) : (
+                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner" />
+                  )}
+                </ListItem>
+                <ListItem>
+                  {projectBinding?.slug ? (
+                    <LabelValuePair
+                      translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo"
+                      value={projectBinding.slug}
+                    />
+                  ) : (
+                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo" />
+                  )}
+                </ListItem>
+              </>
+            )}
+            {isBitbucketCloud && (
+              <>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.server" />
+                </ListItem>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.creds" />
+                </ListItem>
+                <ListItem>
+                  {workspaceId ? (
+                    <LabelValuePair
+                      translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.owner"
+                      value={workspaceId}
+                    />
+                  ) : (
+                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.owner" />
+                  )}
+                </ListItem>
+                <ListItem>
+                  {projectBinding?.repository ? (
+                    <LabelValuePair
+                      translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo"
+                      value={projectBinding.repository}
+                    />
+                  ) : (
+                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo" />
+                  )}
+                </ListItem>
+              </>
+            )}
+            {isGitHub && (
+              <>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.creds" />
+                </ListItem>
+                <ListItem>
+                  {almBinding !== undefined &&
+                  projectBinding != null &&
+                  buildGithubLink(almBinding, projectBinding) !== null ? (
+                    <LabelValuePair
+                      translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"
+                      value={buildGithubLink(almBinding, projectBinding) as string}
+                    />
+                  ) : (
+                    <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url" />
+                  )}
+                </ListItem>
+              </>
+            )}
+            {isGitLab && (
+              <>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.creds" />
+                </ListItem>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.owner" />
+                </ListItem>
+                <ListItem>
+                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.repo" />
+                </ListItem>
+              </>
+            )}
+            <ListItem>
+              <strong>
+                {translate(
+                  'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label',
+                )}
+                :
+              </strong>
+              <UnorderedList ticks className="sw-ml-4 sw-mt-1">
+                <ListItem>
+                  <LabelActionPair
+                    translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.${
+                      isGitLab ? 'branches_mrs' : 'branches_prs'
+                    }`}
+                  />
+                </ListItem>
+                <ListItem>
+                  <LabelActionPair
+                    translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.${
+                      isGitLab ? 'discover_mrs' : 'discover_prs'
+                    }`}
+                  />
+                </ListItem>
+                <ListItem>
+                  <strong>
+                    {translate(
+                      'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label',
+                    )}
+                    :
+                  </strong>
+                  <UnorderedList className="sw-ml-4 sw-mt-1">
+                    <ListItem>
+                      <SentenceWithHighlights
+                        highlightKeys={['add', 'ref_spec']}
+                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <SentenceWithHighlights
+                        highlightKeys={['ref_spec']}
+                        translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.${
+                          isGitLab ? 'set_mr_ref_specs' : 'set_pr_ref_specs'
+                        }`}
+                      />
+                      <CodeSnippet
+                        className="sw-p-4"
+                        isOneLine
+                        snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                      />
+                    </ListItem>
+                  </UnorderedList>
+                </ListItem>
+              </UnorderedList>
+            </ListItem>
+          </UnorderedList>
+          <p className="sw-ml-12">
+            {translate(
+              'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.leave_defaults',
+            )}
+          </p>
+        </NumberedListItem>
+        <NumberedListItem>
+          <SentenceWithHighlights
+            highlightKeys={['tab']}
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
+          />
+          <UnorderedList ticks className="sw-ml-12">
+            <ListItem>
+              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.mode" />
+            </ListItem>
+            <ListItem>
+              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.script_path" />
+            </ListItem>
+          </UnorderedList>
+        </NumberedListItem>
+        <NumberedListItem>
+          <SentenceWithHighlights
+            highlightKeys={['save']}
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step4"
+          />
+        </NumberedListItem>
+      </NumberedList>
+    </TutorialStep>
   );
 }

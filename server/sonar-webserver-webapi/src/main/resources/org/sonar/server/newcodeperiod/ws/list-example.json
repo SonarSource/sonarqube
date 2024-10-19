@@ -1,14 +1,14 @@
 {
   "newCodePeriods": [
     {
-      "projectKey": "com.sonarsource:test-project-1",
+      "projectKey": "com.sonarsource:test-project",
       "branchKey": "branch/long-lived-feature",
       "type": "SPECIFIC_ANALYSIS",
       "value": "AWy-TIJu8EpjWCnQf92P",
       "effectiveValue": "1566560776257"
     },
     {
-      "projectKey": "com.sonarsource:test-project-2",
+      "projectKey": "com.sonarsource:test-project",
       "branchKey": "branch/number-1",
       "type": "PREVIOUS_VERSION"
     },

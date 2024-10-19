@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.Webhooks.ListResponse;
 import org.sonarqube.ws.Webhooks.ListResponseElement;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
@@ -85,6 +85,7 @@ public class ListAction implements WebhooksWsAction {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.setChangelog(new Change("7.8", "Field 'secret' added to response"));
+    action.setChangelog(new Change("10.1", "Field 'secret' replaced by flag 'hasSecret' in response"));
   }
 
   @Override
@@ -129,10 +130,8 @@ public class ListAction implements WebhooksWsAction {
         responseElementBuilder
           .setKey(webhook.getUuid())
           .setName(webhook.getName())
-          .setUrl(obfuscateCredentials(webhook.getUrl()));
-        if (webhook.getSecret() != null) {
-          responseElementBuilder.setSecret(webhook.getSecret());
-        }
+          .setUrl(obfuscateCredentials(webhook.getUrl()))
+          .setHasSecret(webhook.getSecret() != null);
         addLastDelivery(responseElementBuilder, webhook, lastDeliveries);
       });
     writeProtobuf(responseBuilder.build(), request, response);

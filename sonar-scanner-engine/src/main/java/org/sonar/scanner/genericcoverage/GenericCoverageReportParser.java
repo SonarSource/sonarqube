@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,11 +33,11 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GenericCoverageReportParser {
-  private static final Logger LOG = Loggers.get(GenericCoverageReportParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GenericCoverageReportParser.class);
 
   private static final String LINE_NUMBER_ATTR = "lineNumber";
   private static final String COVERED_ATTR = "covered";

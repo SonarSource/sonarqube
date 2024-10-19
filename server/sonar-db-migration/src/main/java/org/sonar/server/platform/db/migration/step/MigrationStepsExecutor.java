@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,5 +34,5 @@ public interface MigrationStepsExecutor {
   /**
    * @throws MigrationStepExecutionException at the first failing migration step execution
    */
-  void execute(List<RegisteredMigrationStep> steps);
+  void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener);
 }

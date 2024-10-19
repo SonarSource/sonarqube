@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -158,6 +159,11 @@ class LocalWsConnector implements WsConnector {
     @Override
     public Optional<String> header(String name) {
       return Optional.empty();
+    }
+
+    @Override
+    public Map<String, List<String>> headers() {
+      return new HashMap<>();
     }
   }
 }

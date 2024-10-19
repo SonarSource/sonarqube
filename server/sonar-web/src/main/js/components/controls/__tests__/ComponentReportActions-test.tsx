@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,28 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   getReportStatus,
   subscribeToEmailReport,
   unsubscribeFromEmailReport,
 } from '../../../api/component-report';
-import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockComponentReportStatus } from '../../../helpers/mocks/component-report';
-import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
-import { ComponentQualifier } from '../../../types/component';
+import { mockAppState, mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { ComponentReportActions } from '../ComponentReportActions';
+
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
+  addGlobalSuccessMessage: jest.fn(),
+}));
 
 jest.mock('../../../api/component-report', () => ({
   ...jest.requireActual('../../../api/component-report'),
   getReportStatus: jest
     .fn()
     .mockResolvedValue(
-      jest.requireActual('../../../helpers/mocks/component-report').mockComponentReportStatus()
+      jest.requireActual('../../../helpers/mocks/component-report').mockComponentReportStatus(),
     ),
   subscribeToEmailReport: jest.fn().mockResolvedValue(undefined),
   unsubscribeFromEmailReport: jest.fn().mockResolvedValue(undefined),
@@ -49,81 +55,119 @@ jest.mock('../../../helpers/system', () => ({
   getBaseUrl: jest.fn().mockReturnValue('baseUrl'),
 }));
 
-jest.mock('../../../helpers/globalMessages', () => ({
-  addGlobalSuccessMessage: jest.fn(),
-}));
-
 beforeEach(jest.clearAllMocks);
 
-it('should not render anything', async () => {
-  // loading
-  expect(shallowRender().type()).toBeNull();
+it('should not render anything when no status', async () => {
+  jest.mocked(getReportStatus).mockRejectedValueOnce('Nope');
+
+  renderComponentReportActions();
+
+  // Loading
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+
+  await waitFor(() => expect(getReportStatus).toHaveBeenCalled());
 
   // No status
-  (getReportStatus as jest.Mock).mockResolvedValueOnce(undefined);
-  const w1 = shallowRender();
-  await waitAndUpdate(w1);
-  expect(w1.type()).toBeNull();
-
-  // Branch purgeable
-  const w2 = shallowRender({ branch: mockBranch({ excludedFromPurge: false }) });
-  await waitAndUpdate(w2);
-  expect(w2.type()).toBeNull();
-
-  // no governance
-  const w3 = shallowRender({ appState: mockAppState({ qualifiers: [] }) });
-  await waitAndUpdate(w3);
-  expect(w3.type()).toBeNull();
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
-it('should call for status properly', async () => {
+it('should not render anything when branch is purgeable', async () => {
+  renderComponentReportActions({
+    branch: mockBranch({ excludedFromPurge: false }),
+  });
+
+  await waitFor(() => expect(getReportStatus).toHaveBeenCalled());
+
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+});
+
+it('should not render anything without governance', () => {
+  renderComponentReportActions({ appState: mockAppState({ qualifiers: [] }) });
+
+  expect(getReportStatus).not.toHaveBeenCalled();
+
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+});
+
+it('should allow user to (un)subscribe', async () => {
+  jest
+    .mocked(getReportStatus)
+    .mockResolvedValueOnce(mockComponentReportStatus({ globalFrequency: 'monthly' }))
+    .mockResolvedValueOnce(
+      mockComponentReportStatus({ subscribed: true, globalFrequency: 'monthly' }),
+    );
+
+  const user = userEvent.setup();
   const component = mockComponent();
   const branch = mockBranch();
 
-  const wrapper = shallowRender({ component, branch });
-
-  await waitAndUpdate(wrapper);
+  renderComponentReportActions({
+    component,
+    branch,
+    currentUser: mockLoggedInUser({ email: 'igot@nEmail.address' }),
+  });
 
   expect(getReportStatus).toHaveBeenCalledWith(component.key, branch.name);
-});
 
-it('should handle subscription', async () => {
-  const component = mockComponent();
-  const branch = mockBranch();
-  const wrapper = shallowRender({ component, branch });
+  const button = await screen.findByRole('button', {
+    name: 'component_report.report.qualifier.TRK',
+  });
+  expect(button).toBeInTheDocument();
+  await user.click(button);
 
-  await wrapper.instance().handleSubscribe();
+  expect(screen.getByText('download_verb')).toBeInTheDocument();
+
+  // Subscribe!
+  const subscribeButton = screen.getByText('component_report.subscribe_x.report.frequency.monthly');
+  expect(subscribeButton).toBeInTheDocument();
+
+  await user.click(subscribeButton);
 
   expect(subscribeToEmailReport).toHaveBeenCalledWith(component.key, branch.name);
-  expect(addGlobalSuccessMessage).toHaveBeenCalledWith(
-    'component_report.subscribe_x_success.report.frequency..qualifier.trk'
+  expect(addGlobalSuccessMessage).toHaveBeenLastCalledWith(
+    'component_report.subscribe_x_success.report.frequency.monthly.qualifier.trk',
   );
-});
 
-it('should handle unsubscription', async () => {
-  const component = mockComponent();
-  const branch = mockBranch();
-  const wrapper = shallowRender({ component, branch });
+  // And unsubscribe!
+  await user.click(button);
 
-  await waitAndUpdate(wrapper);
+  const unsubscribeButton = screen.getByText(
+    'component_report.unsubscribe_x.report.frequency.monthly',
+  );
+  expect(unsubscribeButton).toBeInTheDocument();
 
-  wrapper.setState({ status: mockComponentReportStatus({ componentFrequency: 'compfreq' }) });
-
-  await wrapper.instance().handleUnsubscribe();
+  await user.click(unsubscribeButton);
 
   expect(unsubscribeFromEmailReport).toHaveBeenCalledWith(component.key, branch.name);
-  expect(addGlobalSuccessMessage).toHaveBeenCalledWith(
-    'component_report.unsubscribe_x_success.report.frequency.compfreq.qualifier.trk'
+  expect(addGlobalSuccessMessage).toHaveBeenLastCalledWith(
+    'component_report.unsubscribe_x_success.report.frequency.monthly.qualifier.trk',
   );
 });
 
-function shallowRender(props: Partial<ComponentReportActions['props']> = {}) {
-  return shallow<ComponentReportActions>(
+it('should prevent user to subscribe if no email', async () => {
+  const user = userEvent.setup();
+
+  renderComponentReportActions({ currentUser: mockLoggedInUser({ email: undefined }) });
+
+  await user.click(
+    await screen.findByRole('button', {
+      name: 'component_report.report.qualifier.TRK',
+    }),
+  );
+
+  const subscribeButton = screen.getByText('component_report.no_email_to_subscribe');
+  expect(subscribeButton).toBeInTheDocument();
+  expect(subscribeButton).toBeDisabled();
+});
+
+function renderComponentReportActions(props: Partial<ComponentReportActions['props']> = {}) {
+  return renderApp(
+    '/',
     <ComponentReportActions
       appState={mockAppState({ qualifiers: [ComponentQualifier.Portfolio] })}
       component={mockComponent()}
       currentUser={mockCurrentUser()}
       {...props}
-    />
+    />,
   );
 }

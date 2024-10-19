@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 
@@ -31,37 +31,37 @@ public class FavoriteDbTester {
   private static final String PROP_FAVORITE_KEY = "favourite";
 
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public FavoriteDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
-  public void add(ComponentDto componentDto, String userUuid, String userLogin) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
+  public void add(EntityDto entity, String userUuid, String userLogin) {
+    dbClient.propertiesDao().saveProperty(db.getSession(), new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
         .setUserUuid(userUuid)
-        .setComponentUuid(componentDto.uuid()),
-      userLogin, componentDto.getKey(), componentDto.name(), componentDto.qualifier());
-    dbSession.commit();
+        .setEntityUuid(entity.getUuid()),
+      userLogin, entity.getKey(), entity.getName(), entity.getQualifier());
+    db.commit();
   }
 
-  public boolean hasFavorite(ComponentDto componentDto, String userUuid) {
+  public boolean hasFavorite(EntityDto entity, String userUuid) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
-      .setComponentUuid(componentDto.uuid())
+      .setEntityUuid(entity.getUuid())
       .setUserUuid(userUuid)
-      .build(), dbSession);
+      .build(), db.getSession());
 
     return !result.isEmpty();
   }
 
-  public boolean hasNoFavorite(ComponentDto componentDto) {
+  public boolean hasNoFavorite(EntityDto entity) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
-      .setComponentUuid(componentDto.uuid())
-      .build(), dbSession);
+      .setEntityUuid(entity.getUuid())
+      .build(), db.getSession());
     return result.isEmpty();
   }
 }

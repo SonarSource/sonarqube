@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,11 @@ import * as React from 'react';
 import { DefaultSpecializedInputProps } from '../../utils';
 import SimpleInput from './SimpleInput';
 
-export default function InputForNumber(props: DefaultSpecializedInputProps) {
-  return <SimpleInput className="input-small" type="text" {...props} />;
+function InputForNumber(
+  props: DefaultSpecializedInputProps,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  return <SimpleInput ref={ref} size="small" type="text" {...props} />;
 }
+
+export default React.forwardRef(InputForNumber);

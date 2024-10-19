@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,180 +17,147 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { getComponentLeaves } from '../../../api/components';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import PageActions from '../../../components/ui/PageActions';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
-import { BranchLike } from '../../../types/branch-like';
-import { isFile } from '../../../types/component';
+import { getProjectUrl } from '../../../helpers/urls';
+import { useCurrentBranchQuery } from '../../../queries/branch';
+import { useComponentDataQuery } from '../../../queries/component';
+import { useComponentTreeQuery } from '../../../queries/measures';
+import A11ySkipTarget from '../../../sonar-aligned/components/a11y/A11ySkipTarget';
+import { useLocation, useRouter } from '../../../sonar-aligned/components/hoc/withRouter';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
+import { isFile, isView } from '../../../types/component';
+import { Component, ComponentMeasureIntern, Period } from '../../../types/types';
+import { BubblesByDomain } from '../config/bubbles';
+import BubbleChartView from '../drilldown/BubbleChartView';
 import {
-  ComponentMeasure,
-  ComponentMeasureEnhanced,
-  ComponentMeasureIntern,
-  Dict,
-  Issue,
-  Metric,
-  Paging,
-  Period,
-} from '../../../types/types';
-import BubbleChart from '../drilldown/BubbleChart';
-import { BUBBLES_FETCH_LIMIT, enhanceComponent, getBubbleMetrics, hasFullMeasures } from '../utils';
-import Breadcrumbs from './Breadcrumbs';
+  BUBBLES_FETCH_LIMIT,
+  enhanceComponent,
+  getBubbleMetrics,
+  hasFullMeasures,
+  parseQuery,
+  Query,
+} from '../utils';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
+import MeasuresBreadcrumbs from './MeasuresBreadcrumbs';
 
 interface Props {
-  branchLike?: BranchLike;
-  className?: string;
-  component: ComponentMeasure;
-  domain: string;
+  bubblesByDomain: BubblesByDomain;
   leakPeriod?: Period;
-  loading: boolean;
-  metrics: Dict<Metric>;
-  onIssueChange?: (issue: Issue) => void;
-  rootComponent: ComponentMeasure;
-  updateLoading: (param: Dict<boolean>) => void;
-  updateSelected: (component: ComponentMeasureIntern) => void;
+  rootComponent: Component;
+  updateQuery: (query: Partial<Query>) => void;
 }
 
-interface State {
-  components: ComponentMeasureEnhanced[];
-  paging?: Paging;
-}
-
-export default class MeasureOverview extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { components: [] };
-
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchComponents();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.component !== this.props.component ||
-      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
-      prevProps.metrics !== this.props.metrics ||
-      prevProps.domain !== this.props.domain
-    ) {
-      this.fetchComponents();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchComponents = () => {
-    const { branchLike, component, domain, metrics } = this.props;
-    if (isFile(component.qualifier)) {
-      this.setState({ components: [], paging: undefined });
-      return;
-    }
-    const { x, y, size, colors } = getBubbleMetrics(domain, metrics);
-    const metricsKey = [x.key, y.key, size.key];
-    if (colors) {
-      metricsKey.push(...colors.map((metric) => metric.key));
-    }
-    const options = {
+export default function MeasureOverview(props: Readonly<Props>) {
+  const { leakPeriod, updateQuery, rootComponent, bubblesByDomain } = props;
+  const metrics = useMetrics();
+  const { data: branchLike } = useCurrentBranchQuery(rootComponent);
+  const router = useRouter();
+  const { query } = useLocation();
+  const { selected, metric: domain } = parseQuery(query);
+  // eslint-disable-next-line local-rules/no-implicit-coercion
+  const componentKey = selected || rootComponent.key;
+  const { data: componentData, isLoading: loadingComponent } = useComponentDataQuery(
+    {
       ...getBranchLikeQuery(branchLike),
-      s: 'metric',
-      metricSort: size.key,
-      asc: false,
-      ps: BUBBLES_FETCH_LIMIT,
-    };
+      component: componentKey,
+    },
+    { enabled: Boolean(componentKey) },
+  );
 
-    this.props.updateLoading({ bubbles: true });
-    getComponentLeaves(component.key, metricsKey, options).then(
-      (r) => {
-        if (domain === this.props.domain) {
-          if (this.mounted) {
-            this.setState({
-              components: r.components.map((c) => enhanceComponent(c, undefined, metrics)),
-              paging: r.paging,
-            });
-          }
-          this.props.updateLoading({ bubbles: false });
-        }
+  const component = componentData?.component;
+  const { x, y, size, colors } = getBubbleMetrics(bubblesByDomain, domain, metrics);
+  const metricsKey = [x.key, y.key, size.key];
+  if (colors) {
+    metricsKey.push(...colors.map((metric) => metric.key));
+  }
+  const { data: bubblesData, isLoading: loadingBubbles } = useComponentTreeQuery(
+    {
+      strategy: 'leaves',
+      metrics: metricsKey,
+      component: component?.key ?? '',
+      additionalData: {
+        ...getBranchLikeQuery(branchLike),
+        s: 'metric',
+        metricSort: size.key,
+        asc: false,
+        ps: BUBBLES_FETCH_LIMIT,
       },
-      () => this.props.updateLoading({ bubbles: false })
-    );
-  };
+    },
+    {
+      enabled: Boolean(component),
+    },
+  );
 
-  renderContent() {
-    const { branchLike, component, domain, metrics } = this.props;
-    const { paging } = this.state;
+  const components = (bubblesData?.pages?.[0]?.components ?? []).map((c) =>
+    enhanceComponent(c, undefined, metrics),
+  );
+  const paging = bubblesData?.pages?.[0]?.paging;
 
-    if (isFile(component.qualifier)) {
-      return (
-        <div className="measure-details-viewer">
-          <SourceViewer
-            branchLike={branchLike}
-            component={component.key}
-            onIssueChange={this.props.onIssueChange}
-          />
-        </div>
+  if (!component) {
+    return null;
+  }
+
+  const loading = loadingComponent || loadingBubbles;
+
+  const updateSelected = (selectedComponent: ComponentMeasureIntern) => {
+    if (component && isView(component.qualifier)) {
+      router.push(
+        getProjectUrl(selectedComponent.refKey ?? selectedComponent.key, selectedComponent.branch),
       );
+    } else {
+      updateQuery({
+        selected: selectedComponent.key !== rootComponent.key ? selectedComponent.key : undefined,
+      });
     }
+  };
+  const displayLeak = hasFullMeasures(branchLike);
+  const isFileComponent = isFile(component.qualifier);
 
-    return (
-      <BubbleChart
-        componentKey={component.key}
-        branchLike={branchLike}
-        components={this.state.components}
-        domain={domain}
-        metrics={metrics}
-        paging={paging}
-        updateSelected={this.props.updateSelected}
+  return (
+    <div>
+      <A11ySkipTarget anchor="measures_main" />
+
+      <MeasureContentHeader
+        left={
+          <MeasuresBreadcrumbs
+            backToFirst
+            branchLike={branchLike}
+            component={component}
+            handleSelect={updateSelected}
+            rootComponent={rootComponent}
+          />
+        }
+        right={
+          leakPeriod &&
+          displayLeak && <LeakPeriodLegend component={component} period={leakPeriod} />
+        }
       />
-    );
-  }
 
-  render() {
-    const { branchLike, className, component, leakPeriod, loading, rootComponent } = this.props;
-    const displayLeak = hasFullMeasures(branchLike);
-    return (
-      <div className={className}>
-        <div className="layout-page-header-panel layout-page-main-header">
-          <A11ySkipTarget anchor="measures_main" />
-
-          <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-            <div className="layout-page-main-inner">
-              <MeasureContentHeader
-                left={
-                  <Breadcrumbs
-                    backToFirst={true}
-                    branchLike={branchLike}
-                    className="text-ellipsis"
-                    component={component}
-                    handleSelect={this.props.updateSelected}
-                    rootComponent={rootComponent}
-                  />
-                }
-                right={
-                  <PageActions
-                    componentQualifier={rootComponent.qualifier}
-                    current={this.state.components.length}
-                  />
-                }
-              />
+      <div className="sw-p-6">
+        <Spinner isLoading={loading}>
+          {isFileComponent && (
+            <div className="measure-details-viewer">
+              <SourceViewer hideHeader branchLike={branchLike} component={component.key} />
             </div>
-          </div>
-        </div>
-        <div className="layout-page-main-inner measure-details-content">
-          <div className="clearfix big-spacer-bottom">
-            {leakPeriod && displayLeak && (
-              <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
-            )}
-          </div>
-          <DeferredSpinner loading={loading} />
-          {!loading && this.renderContent()}
-        </div>
+          )}
+          {!isFileComponent && (
+            <BubbleChartView
+              bubblesByDomain={bubblesByDomain}
+              component={component}
+              branchLike={branchLike}
+              components={components}
+              domain={domain}
+              metrics={metrics}
+              paging={paging}
+              updateSelected={updateSelected}
+            />
+          )}
+        </Spinner>
       </div>
-    );
-  }
+    </div>
+  );
 }

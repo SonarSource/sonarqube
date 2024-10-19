@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,25 @@
 export function isShortcut(event: KeyboardEvent): boolean {
   return event.ctrlKey || event.metaKey;
 }
-export function isTextarea(event: KeyboardEvent): boolean {
-  const { tagName } = event.target as HTMLElement;
-  return ['TEXTAREA'].includes(tagName);
+
+export function isTextarea(
+  event: KeyboardEvent,
+): event is KeyboardEvent & { target: HTMLTextAreaElement } {
+  return event.target instanceof HTMLTextAreaElement;
 }
 
-export function isInput(event: KeyboardEvent): boolean {
-  const { tagName } = event.target as HTMLElement;
-  return ['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName);
+export function isInput(
+  event: KeyboardEvent,
+): event is KeyboardEvent & { target: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement } {
+  return (
+    event.target instanceof HTMLInputElement ||
+    event.target instanceof HTMLSelectElement ||
+    event.target instanceof HTMLTextAreaElement
+  );
+}
+
+export function isDropdown(event: KeyboardEvent) {
+  const role = (event.target as HTMLElement | null)?.role ?? '';
+
+  return ['menu', 'menuitem'].includes(role);
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -44,6 +44,8 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private UserSession.ExternalIdentity externalIdentity;
   private Long lastSonarlintConnectionDate;
 
+  private boolean isAuthenticatedBrowserSession = false;
+
   public MockUserSession(String login) {
     super(MockUserSession.class);
     checkArgument(!login.isEmpty());
@@ -83,6 +85,11 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   @Override
   public boolean isActive() {
     return true;
+  }
+
+  @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return isAuthenticatedBrowserSession;
   }
 
   @Override
@@ -141,4 +148,8 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     return Optional.ofNullable(externalIdentity);
   }
 
+  @Override
+  public void flagAsBrowserSession() {
+    isAuthenticatedBrowserSession = true;
+  }
 }

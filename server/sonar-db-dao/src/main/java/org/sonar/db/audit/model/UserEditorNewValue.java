@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,11 @@ import org.sonar.db.qualityprofile.QProfileEditUsersDto;
 import org.sonar.db.user.UserDto;
 
 public class UserEditorNewValue extends AbstractEditorNewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String userUuid;
   @Nullable
@@ -76,6 +81,10 @@ public class UserEditorNewValue extends AbstractEditorNewValue {
     this.qualityProfileName = qProfileDto.getName();
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getUserUuid() {
     return this.userUuid;

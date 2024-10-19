@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
@@ -32,7 +32,6 @@ import static java.lang.String.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 
 @ServerSide
 public class SvgGenerator {
@@ -132,7 +131,6 @@ public class SvgGenerator {
     this.badgeTemplate = readTemplate(TEMPLATES_PATH + "/badge.svg");
     this.qualityGateTemplates = Map.of(
       OK, readTemplate(TEMPLATES_PATH + "/quality_gate_passed.svg"),
-      WARN, readTemplate(TEMPLATES_PATH + "/quality_gate_warn.svg"),
       ERROR, readTemplate(TEMPLATES_PATH + "/quality_gate_failed.svg"));
   }
 
@@ -152,7 +150,7 @@ public class SvgGenerator {
       .put(PARAMETER_LABEL, label)
       .put(PARAMETER_VALUE, value)
       .build();
-    StrSubstitutor strSubstitutor = new StrSubstitutor(values);
+    StringSubstitutor strSubstitutor = new StringSubstitutor(values);
     return strSubstitutor.replace(badgeTemplate);
   }
 
@@ -164,8 +162,16 @@ public class SvgGenerator {
     Map<String, String> values = ImmutableMap.of(
       PARAMETER_TOTAL_WIDTH, valueOf(MARGIN + computeWidth(error) + MARGIN),
       PARAMETER_LABEL, error);
-    StrSubstitutor strSubstitutor = new StrSubstitutor(values);
+    StringSubstitutor strSubstitutor = new StringSubstitutor(values);
     return strSubstitutor.replace(errorTemplate);
+  }
+
+  public static String readTemplate(String template, Class<?> clazz) {
+    try {
+      return IOUtils.toString(clazz.getResource(template), UTF_8);
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Can't read svg template '%s'", template), e);
+    }
   }
 
   private static int computeWidth(String text) {
@@ -180,17 +186,12 @@ public class SvgGenerator {
   }
 
   private String readTemplate(String template) {
-    try {
-      return IOUtils.toString(getClass().getResource(template), UTF_8);
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format("Can't read svg template '%s'", template), e);
-    }
+    return readTemplate(template, getClass());
   }
 
   static class Color {
     static final Color DEFAULT = new Color("#999999");
     static final Color QUALITY_GATE_OK = new Color("#00aa00");
-    static final Color QUALITY_GATE_WARN = new Color("#ed7d20");
     static final Color QUALITY_GATE_ERROR = new Color("#d4333f");
     static final Color RATING_A = new Color("#00aa00");
     static final Color RATING_B = new Color("#b0d513");

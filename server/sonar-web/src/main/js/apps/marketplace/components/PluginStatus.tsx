@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Plugin } from '../../../types/plugins';
@@ -28,22 +29,18 @@ interface Props {
   status?: string;
 }
 
-export default function PluginStatus({ plugin, refreshPending, status }: Props) {
-  return (
-    <td className="text-top text-right width-20 little-spacer-left">
-      {status === 'installing' && (
-        <p className="text-success">{translate('marketplace.install_pending')}</p>
-      )}
+export default function PluginStatus({ plugin, refreshPending, status }: Readonly<Props>) {
+  switch (status) {
+    case 'installing':
+      return <FlagMessage variant="info">{translate('marketplace.install_pending')}</FlagMessage>;
 
-      {status === 'updating' && (
-        <p className="text-success">{translate('marketplace.update_pending')}</p>
-      )}
+    case 'updating':
+      return <FlagMessage variant="info">{translate('marketplace.update_pending')}</FlagMessage>;
 
-      {status === 'removing' && (
-        <p className="text-danger">{translate('marketplace.uninstall_pending')}</p>
-      )}
+    case 'removing':
+      return <FlagMessage variant="info">{translate('marketplace.uninstall_pending')}</FlagMessage>;
 
-      {status == null && <PluginActions plugin={plugin} refreshPending={refreshPending} />}
-    </td>
-  );
+    default:
+      return <PluginActions plugin={plugin} refreshPending={refreshPending} />;
+  }
 }

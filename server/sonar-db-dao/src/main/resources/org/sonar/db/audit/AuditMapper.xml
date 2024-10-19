@@ -33,34 +33,8 @@
     from audits a
     where
       a.created_at &gt;= #{start} and a.created_at &lt; #{end}
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto" databaseId="mssql">
-    select <include refid="sqlColumns"/> from (
-      select
-        row_number() over(order by created_at, uuid) as row_number,
-          <include refid="sqlColumnsInInnerQuery" />
-        from audits
-        where created_at &gt;= #{start} and created_at &lt; #{end}
-    ) as a
-    where
-    a.row_number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by a.row_number asc
-  </select>
-
-  <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto" databaseId="oracle">
-    select <include refid="sqlColumns"/> from (
-      select rownum as rn, t.* from (
-        select
-        <include refid="sqlColumnsInInnerQuery"/>
-        from audits
-        where created_at &gt;= #{start} and created_at &lt; #{end}
-      ) t
-    ) a
-    where
-      a.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by a.rn asc
+    order by created_at asc, uuid asc
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
@@ -97,21 +71,31 @@
       a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
   </select>
 
-  <delete id="purge" parameterType="long">
-    delete from audits
-    where uuid in (select a.uuid from audits a where a.created_at &lt; #{threshold,jdbcType=BIGINT}
-    order by a.created_at limit 100000)
-  </delete>
+  <select id="selectUuidsOlderThan" parameterType="long" resultType="string">
+    select a.uuid
+    from audits a
+    where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
+    order by a.created_at
+    limit 100000
+  </select>
 
-  <delete id="purge" parameterType="long" databaseId="mssql">
-    delete from audits
-    where uuid in (select top 100000 a.uuid from audits a where a.created_at &lt; #{threshold,jdbcType=BIGINT}
-      order by a.created_at)
-  </delete>
+    <select id="selectUuidsOlderThan" parameterType="long" resultType="string" databaseId="mssql">
+    select top 100000 a.uuid
+    from audits a
+    where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
+    order by a.created_at
+  </select>
 
-    <delete id="purge" parameterType="long" databaseId="oracle">
-    delete from audits
-    where uuid in (select a.uuid from audits a where a.created_at &lt; #{threshold,jdbcType=BIGINT}
-      order by a.created_at fetch first 100000 rows only)
+    <select id="selectUuidsOlderThan" parameterType="long" resultType="string" databaseId="oracle">
+    select a.uuid
+    from audits a
+    where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
+    order by a.created_at
+    fetch first 100000 rows only
+  </select>
+
+  <delete id="purgeUuids" parameterType="string">
+    delete from audits where uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </delete>
 </mapper>

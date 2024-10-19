@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,9 @@ interface Props {
 
 export default function SeverityChange({ severity }: Props) {
   return (
-    <div className="nowrap">
-      {translate('quality_profiles.severity_set_to')} <SeverityHelper severity={severity} />
+    <div className="sw-whitespace-nowrap">
+      {translate('quality_profiles.deprecated_severity_set_to')}{' '}
+      <SeverityHelper severity={severity} />
     </div>
   );
 }

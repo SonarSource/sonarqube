@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,20 +25,18 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.internal.apachecommons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sonar.api.platform.Server;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 
 import static org.sonar.server.authentication.AuthenticationFilter.CALLBACK_PATH;
 
-public class SamlValidationRedirectionFilter extends ServletFilter {
+public class SamlValidationRedirectionFilter extends HttpFilter {
 
   public static final String VALIDATION_RELAY_STATE = "validation-query";
   public static final String SAML_VALIDATION_CONTROLLER_CONTEXT = "saml";
@@ -58,8 +56,7 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    super.init(filterConfig);
+  public void init() {
     this.redirectionPageTemplate = extractTemplate("validation-redirection.html");
   }
 
@@ -73,24 +70,25 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException {
     String relayState = request.getParameter(RELAY_STATE_PARAMETER);
 
     if (isSamlValidation(relayState)) {
-      HttpServletResponse httpResponse = (HttpServletResponse) response;
 
       URI redirectionEndpointUrl = URI.create(server.getContextPath() + "/")
         .resolve(SAML_VALIDATION_CONTROLLER_CONTEXT + "/")
         .resolve(SAML_VALIDATION_KEY);
-      String samlResponse = StringEscapeUtils.escapeHtml(request.getParameter(SAML_RESPONSE_PARAMETER));
+      String samlResponse = StringEscapeUtils.escapeHtml3(request.getParameter(SAML_RESPONSE_PARAMETER));
       String csrfToken = getCsrfTokenFromRelayState(relayState);
 
-      String template = StringUtils.replaceEachRepeatedly(redirectionPageTemplate,
-        new String[]{"%VALIDATION_URL%", "%SAML_RESPONSE%", "%CSRF_TOKEN%"},
-        new String[]{redirectionEndpointUrl.toString(), samlResponse, csrfToken});
+      String nonce = SamlValidationCspHeaders.addCspHeadersWithNonceToResponse(response);
 
-      httpResponse.setContentType("text/html");
-      httpResponse.getWriter().print(template);
+      String template = StringUtils.replaceEachRepeatedly(redirectionPageTemplate,
+        new String[]{"%NONCE%", "%WEB_CONTEXT%", "%VALIDATION_URL%", "%SAML_RESPONSE%", "%CSRF_TOKEN%"},
+        new String[]{nonce, server.getContextPath(), redirectionEndpointUrl.toString(), samlResponse, csrfToken});
+
+      response.setContentType("text/html");
+      response.getWriter().print(template);
       return;
     }
     chain.doFilter(request, response);
@@ -105,7 +103,7 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
 
   private static String getCsrfTokenFromRelayState(@Nullable String relayState) {
     if (relayState != null && relayState.contains("/")) {
-      return StringEscapeUtils.escapeHtml(relayState.split("/")[1]);
+      return StringEscapeUtils.escapeHtml3(relayState.split("/")[1]);
     }
     return "";
   }

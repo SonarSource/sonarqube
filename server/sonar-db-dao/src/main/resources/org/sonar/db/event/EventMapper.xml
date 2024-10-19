@@ -57,9 +57,23 @@
     inner join snapshots s on
       s.uuid = e.analysis_uuid
       and s.status = 'P'
-      and s.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+      and s.root_component_uuid = #{componentUuid,jdbcType=VARCHAR}
     where
       e.category = 'Version'
+    order by
+      e.event_date desc
+  </select>
+
+    <select id="selectSqUpgrades" resultType="Event" parameterType="map">
+    select
+      <include refid="eventColumns"/>
+    from events e
+    inner join snapshots s on
+      s.uuid = e.analysis_uuid
+      and s.status = 'P'
+      and s.root_component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    where
+      e.category = 'SQ Upgrade'
     order by
       e.event_date desc
   </select>

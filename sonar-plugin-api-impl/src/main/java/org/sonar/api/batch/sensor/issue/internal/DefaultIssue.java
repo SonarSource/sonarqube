@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,10 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
@@ -30,6 +33,7 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.fix.NewQuickFix;
 import org.sonar.api.batch.sensor.issue.fix.QuickFix;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 import static java.lang.String.format;
@@ -38,11 +42,13 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements Issue, NewIssue {
+  private final Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpacts = new EnumMap<>(SoftwareQuality.class);
   private RuleKey ruleKey;
   private Double gap;
   private Severity overriddenSeverity;
   private boolean quickFixAvailable = false;
   private String ruleDescriptionContextKey;
+  private List<String> codeVariants;
 
   public DefaultIssue(DefaultInputProject project) {
     this(project, null);
@@ -75,6 +81,12 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   }
 
   @Override
+  public DefaultIssue overrideImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    overridenImpacts.put(softwareQuality, severity);
+    return this;
+  }
+
+  @Override
   public DefaultIssue setQuickFixAvailable(boolean quickFixAvailable) {
     this.quickFixAvailable = quickFixAvailable;
     return this;
@@ -98,6 +110,16 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   }
 
   @Override
+  public DefaultIssue setCodeVariants(@Nullable Iterable<String> codeVariants) {
+    if (codeVariants != null) {
+      List<String> codeVariantsList = new ArrayList<>();
+      codeVariants.forEach(codeVariantsList::add);
+      this.codeVariants = codeVariantsList;
+    }
+    return this;
+  }
+
+  @Override
   public boolean isQuickFixAvailable() {
     return quickFixAvailable;
   }
@@ -113,8 +135,18 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   }
 
   @Override
+  public List<String> codeVariants() {
+    return codeVariants;
+  }
+
+  @Override
   public Severity overriddenSeverity() {
     return this.overriddenSeverity;
+  }
+
+  @Override
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpacts() {
+    return overridenImpacts;
   }
 
   @Override

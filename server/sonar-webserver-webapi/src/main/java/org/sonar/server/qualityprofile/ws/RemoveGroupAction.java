@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -34,7 +35,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonarqube.ws.client.component.ComponentsWsParameters;
 
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -77,7 +77,7 @@ public class RemoveGroupAction implements QProfileWsAction {
       .createParam(PARAM_LANGUAGE)
       .setDescription("Quality profile language")
       .setRequired(true)
-      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(toSet()));
+      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet()));
 
     action.createParam(PARAM_GROUP)
       .setDescription("Group name")

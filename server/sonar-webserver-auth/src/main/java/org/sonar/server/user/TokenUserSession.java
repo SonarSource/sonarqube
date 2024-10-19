@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,45 +19,48 @@
  */
 package org.sonar.server.user;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
+import static java.lang.String.format;
+import static org.sonar.api.web.UserRole.USER;
+
 public class TokenUserSession extends ServerUserSession {
 
+  private static final String TOKEN_ASSERTION_ERROR_MESSAGE = "Unsupported token type %s";
   private static final String SCAN = "scan";
   private static final Set<GlobalPermission> GLOBAL_ANALYSIS_TOKEN_SUPPORTED_PERMISSIONS = EnumSet.of(GlobalPermission.SCAN, GlobalPermission.PROVISION_PROJECTS);
   private final UserTokenDto userToken;
-  private final DbClient dbClient;
 
   public TokenUserSession(DbClient dbClient, UserDto user, UserTokenDto userToken) {
-    super(dbClient, user);
-    this.dbClient = dbClient;
+    super(dbClient, user, false);
     this.userToken = userToken;
   }
 
   @Override
-  protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
+  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
-    switch (tokenType) {
-      case USER_TOKEN:
-        return super.hasProjectUuidPermission(permission, projectUuid);
-      case PROJECT_ANALYSIS_TOKEN:
-        return SCAN.equals(permission) &&
-          projectUuid.equals(userToken.getProjectUuid()) &&
-          (super.hasProjectUuidPermission(SCAN, projectUuid) || false /* TODO: super.hasPermissionImpl(SCAN, dbClient.projectDao().selectByUuid()) */);
-      case GLOBAL_ANALYSIS_TOKEN:
-        //The case with a global analysis token has to return false always, since it is based on the assumption that the user
+    return switch (tokenType) {
+      case USER_TOKEN -> super.hasEntityUuidPermission(permission, entityUuid);
+      case PROJECT_ANALYSIS_TOKEN -> SCAN.equals(permission) &&
+        entityUuid.equals(userToken.getProjectUuid()) && super.hasEntityUuidPermission(SCAN, entityUuid);
+      case GLOBAL_ANALYSIS_TOKEN ->
+        // The case with a global analysis token has to return false always, since it is based on the assumption that the user
         // has global analysis privileges
-        return false;
-      default:
-        throw new IllegalArgumentException("Unsupported token type " + tokenType.name());
-    }
+        false;
+      default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
+    };
 
   }
 
@@ -68,17 +71,53 @@ public class TokenUserSession extends ServerUserSession {
   @Override
   protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
-    switch (tokenType) {
-      case USER_TOKEN:
-        return super.hasPermissionImpl(permission, organizationUuid);
-      case PROJECT_ANALYSIS_TOKEN:
-        return false;
-      case GLOBAL_ANALYSIS_TOKEN:
-        //The case with a global analysis token has to return false always, since it is based on the assumption that the user
-        // has global analysis privileges
-        return false;
-      default:
-        throw new IllegalArgumentException("Unsupported token type " + tokenType.name());
-    }
+    return switch (tokenType) {
+      case USER_TOKEN -> super.hasPermissionImpl(permission);
+      case PROJECT_ANALYSIS_TOKEN ->
+        // The case with a project analysis token has to return false always, delegating the result to the super class would allow
+        // the project analysis token to work for multiple projects in case the user has Global Permissions.
+        false;
+      case GLOBAL_ANALYSIS_TOKEN ->
+        GLOBAL_ANALYSIS_TOKEN_SUPPORTED_PERMISSIONS.contains(permission) && super.hasPermissionImpl(permission);
+      default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
+    };
+  }
+
+  @Override
+  protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
+    TokenType tokenType = TokenType.valueOf(userToken.getType());
+    return switch (tokenType) {
+      case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.doKeepAuthorizedEntities(permission, entities);
+      case PROJECT_ANALYSIS_TOKEN ->
+        (SCAN.equals(permission) || USER.equals(permission)) ? entities.stream()
+          .filter(entity -> entity.getUuid().equals(userToken.getProjectUuid()))
+          .toList() : Collections.emptyList();
+      default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
+    };
+  }
+
+  /**
+   * Required to override doKeepAuthorizedComponents to handle the case of a project analysis token
+   */
+  @Override
+  protected Set<String> keepAuthorizedProjectsUuids(DbSession dbSession, String permission, Collection<String> entityUuids) {
+    TokenType tokenType = TokenType.valueOf(userToken.getType());
+    return switch (tokenType) {
+      case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.keepAuthorizedProjectsUuids(dbSession, permission, entityUuids);
+      case PROJECT_ANALYSIS_TOKEN ->
+        (SCAN.equals(permission) || USER.equals(permission)) ? Collections.singleton(userToken.getProjectUuid()) : Collections.emptySet();
+      default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
+    };
+  }
+
+  public UserTokenDto getUserToken() {
+    return userToken;
+  }
+
+  /**
+   * @return the type of the token, based on the {@link TokenType} enum
+   */
+  public TokenType getTokenType() {
+    return TokenType.valueOf(userToken.getType());
   }
 }

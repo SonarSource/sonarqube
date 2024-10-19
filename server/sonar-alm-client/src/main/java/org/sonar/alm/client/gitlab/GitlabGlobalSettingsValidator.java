@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,34 +19,56 @@
  */
 package org.sonar.alm.client.gitlab;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 @ServerSide
 public class GitlabGlobalSettingsValidator {
 
+  public enum ValidationMode {COMPLETE, AUTH_ONLY}
   private final Encryption encryption;
-  private final GitlabHttpClient gitlabHttpClient;
+  private final GitlabApplicationClient gitlabApplicationClient;
 
-  public GitlabGlobalSettingsValidator(GitlabHttpClient gitlabHttpClient, Settings settings) {
+  public GitlabGlobalSettingsValidator(GitlabApplicationClient gitlabApplicationClient, Settings settings) {
     this.encryption = settings.getEncryption();
-    this.gitlabHttpClient = gitlabHttpClient;
+    this.gitlabApplicationClient = gitlabApplicationClient;
   }
 
   public void validate(AlmSettingDto almSettingDto) {
     String gitlabUrl = almSettingDto.getUrl();
     String accessToken = almSettingDto.getDecryptedPersonalAccessToken(encryption);
-
-    if (gitlabUrl == null || accessToken == null) {
-      throw new IllegalArgumentException("Your Gitlab global configuration is incomplete.");
-    }
-
-    gitlabHttpClient.checkUrl(gitlabUrl);
-    gitlabHttpClient.checkToken(gitlabUrl, accessToken);
-    gitlabHttpClient.checkReadPermission(gitlabUrl, accessToken);
-    gitlabHttpClient.checkWritePermission(gitlabUrl, accessToken);
+    validate(ValidationMode.COMPLETE, gitlabUrl, accessToken);
   }
 
+  public void validate(ValidationMode validationMode, @Nullable String gitlabApiUrl, @Nullable String accessToken) {
+    if (gitlabApiUrl == null) {
+      throw new IllegalArgumentException("Your Gitlab global configuration is incomplete. The GitLab URL must be set.");
+    }
+    gitlabApplicationClient.checkUrl(gitlabApiUrl);
+    if (ValidationMode.AUTH_ONLY.equals(validationMode)) {
+      return;
+    }
+
+    String decryptedToken = getDecryptedToken(accessToken);
+    if (decryptedToken == null) {
+      throw new IllegalArgumentException("Your Gitlab global configuration is incomplete. The GitLab access token must be set.");
+    }
+    gitlabApplicationClient.checkToken(gitlabApiUrl, decryptedToken);
+    gitlabApplicationClient.checkReadPermission(gitlabApiUrl, decryptedToken);
+    gitlabApplicationClient.checkWritePermission(gitlabApiUrl, decryptedToken);
+  }
+
+  @CheckForNull
+  public String getDecryptedToken(@Nullable String token) {
+    if (!isNullOrEmpty(token) && encryption.isEncrypted(token)) {
+      return encryption.decrypt(token);
+    }
+    return token;
+  }
 }

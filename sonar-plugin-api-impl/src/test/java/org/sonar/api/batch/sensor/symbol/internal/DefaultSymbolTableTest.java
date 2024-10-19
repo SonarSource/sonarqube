@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.symbol.NewSymbol;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class DefaultSymbolTableTest {
@@ -51,7 +53,7 @@ public class DefaultSymbolTableTest {
     symbolTableBuilder
       .newSymbol(1, 0, 1, 10)
       .newReference(2, 10, 2, 15)
-    .newReference(1, 16, 1, 20);
+      .newReference(1, 16, 1, 20);
 
     symbolTableBuilder
       .newSymbol(1, 12, 1, 15)
@@ -60,6 +62,18 @@ public class DefaultSymbolTableTest {
     symbolTableBuilder.save();
 
     referencesPerSymbol = symbolTableBuilder.getReferencesBySymbol();
+  }
+
+  @Test
+  public void fail_on_reference_overlaps_declaration() {
+    NewSymbol symbol = new DefaultSymbolTable(mock(SensorStorage.class))
+      .onFile(INPUT_FILE)
+      .newSymbol(1, 0, 1, 10);
+
+    assertThatThrownBy(() -> symbol.newReference(1, 3, 1, 12))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(
+        "Overlapping symbol declaration and reference for symbol declared at Range[from [line=1, lineOffset=0] to [line=1, lineOffset=10]] and referenced at Range[from [line=1, lineOffset=3] to [line=1, lineOffset=12]] in file src/Foo.java");
   }
 
   @Test

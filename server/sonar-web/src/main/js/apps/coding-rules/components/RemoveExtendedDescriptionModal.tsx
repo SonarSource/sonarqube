@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -28,28 +28,26 @@ interface Props {
 }
 
 export default function RemoveExtendedDescriptionModal({ onCancel, onSubmit }: Props) {
+  const [submitting, setSubmitting] = React.useState(false);
   const header = translate('coding_rules.remove_extended_description');
+
+  const handleClick = React.useCallback(() => {
+    setSubmitting(true);
+    onSubmit();
+  }, [onSubmit]);
+
   return (
-    <SimpleModal header={header} onClose={onCancel} onSubmit={onSubmit}>
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-
-          <div className="modal-body">
-            {translate('coding_rules.remove_extended_description.confirm')}
-          </div>
-
-          <footer className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton className="button-red" disabled={submitting}>
-              {translate('remove')}
-            </SubmitButton>
-            <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      )}
-    </SimpleModal>
+    <Modal
+      headerTitle={header}
+      body={translate('coding_rules.remove_extended_description.confirm')}
+      onClose={onCancel}
+      primaryButton={
+        <Button isDisabled={submitting} onClick={handleClick} variety={ButtonVariety.Danger}>
+          {translate('remove')}
+        </Button>
+      }
+      loading={submitting}
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

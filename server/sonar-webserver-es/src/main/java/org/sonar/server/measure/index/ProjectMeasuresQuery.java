@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@ public class ProjectMeasuresQuery {
 
   public static final String SORT_BY_NAME = "name";
   public static final String SORT_BY_LAST_ANALYSIS_DATE = "analysisDate";
+  public static final String SORT_BY_CREATION_DATE = "creationDate";
 
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus = null;

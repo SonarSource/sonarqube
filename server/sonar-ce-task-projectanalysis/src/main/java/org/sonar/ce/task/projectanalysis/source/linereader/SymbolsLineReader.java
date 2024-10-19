@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -40,7 +40,7 @@ import static org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetCon
 
 public class SymbolsLineReader implements LineReader {
 
-  private static final Logger LOG = Loggers.get(SymbolsLineReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SymbolsLineReader.class);
 
   private final Component file;
   private final RangeOffsetConverter rangeOffsetConverter;

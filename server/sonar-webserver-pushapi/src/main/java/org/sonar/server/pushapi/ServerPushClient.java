@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,12 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncListener;
 import javax.servlet.ServletOutputStream;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ServerPushClient {
 
-  private static final Logger LOG = Loggers.get(ServerPushClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ServerPushClient.class);
   private static final int DEFAULT_HEARTBEAT_PERIOD = 20;
 
   protected final AsyncContext asyncContext;
@@ -84,7 +84,7 @@ public abstract class ServerPushClient {
 
   private void handleIOException(IOException e) {
     String remoteAddr = asyncContext.getRequest().getRemoteAddr();
-    LOG.info(String.format("The server push client %s gone without notice, closing the connection (%s)", remoteAddr, e.getMessage()));
+    LOG.debug(String.format("The server push client %s gone without notice, closing the connection (%s)", remoteAddr, e.getMessage()));
     throw new IllegalStateException(e.getMessage());
   }
 

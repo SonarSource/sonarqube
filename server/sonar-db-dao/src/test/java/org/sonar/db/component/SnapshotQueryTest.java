@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,18 +20,18 @@
 package org.sonar.db.component;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 
-public class SnapshotQueryTest {
+class SnapshotQueryTest {
 
   @Test
-  public void test_setters_and_getters() {
+  void test_setters_and_getters() {
     SnapshotQuery query = new SnapshotQuery()
-      .setComponentUuid("abcd")
+      .setRootComponentUuid("abcd")
       .setIsLast(true)
       .setStatus("P")
       .setProjectVersion("1.0")
@@ -39,7 +39,7 @@ public class SnapshotQueryTest {
       .setCreatedBefore(20L)
       .setSort(BY_DATE, ASC);
 
-    assertThat(query.getComponentUuid()).isEqualTo("abcd");
+    assertThat(query.getRootComponentUuid()).isEqualTo("abcd");
     assertThat(query.getIsLast()).isTrue();
     assertThat(query.getStatus()).isEqualTo(List.of("P"));
     assertThat(query.getProjectVersion()).isEqualTo("1.0");

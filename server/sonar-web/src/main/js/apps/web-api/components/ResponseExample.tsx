@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ export default class ResponseExample extends React.PureComponent<Props, State> {
     const { domain, action } = this.props;
     fetchResponseExampleApi(domain.path, action.key).then(
       (responseExample) => this.setState({ responseExample }),
-      () => {}
+      () => {},
     );
   }
 
@@ -61,8 +61,10 @@ export default class ResponseExample extends React.PureComponent<Props, State> {
     const { responseExample } = this.state;
 
     return (
-      <div className="web-api-response">
-        {responseExample && <pre style={{ whiteSpace: 'pre-wrap' }}>{responseExample.example}</pre>}
+      <div className="sw-mt-6">
+        {responseExample && (
+          <pre className="sw-code sw-whitespace-pre-wrap">{responseExample.example}</pre>
+        )}
       </div>
     );
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -81,7 +81,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       WebhookDeliveryDto delivery = dbClient.webhookDeliveryDao().selectByUuid(dbSession, deliveryUuid)
         .orElseThrow(() -> new NotFoundException("Webhook delivery not found"));
-      ProjectDto project = componentFinder.getProjectByUuid(dbSession, delivery.getComponentUuid());
+      ProjectDto project = componentFinder.getProjectByUuid(dbSession, delivery.getProjectUuid());
       return new Data(project, delivery);
     }
   }
@@ -96,7 +96,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     }
 
     void ensureAdminPermission(UserSession userSession) {
-      userSession.checkProjectPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(UserRole.ADMIN, project);
     }
 
     void writeTo(Request request, Response response) {

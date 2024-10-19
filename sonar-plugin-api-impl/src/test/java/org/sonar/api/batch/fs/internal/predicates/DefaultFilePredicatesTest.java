@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Before;
@@ -153,8 +152,7 @@ public class DefaultFilePredicatesTest {
     Files.touch(javaFile.file());
 
     // relative file
-    Path workingDir = Paths.get(System.getProperty("user.dir"));
-    Path relativePath = workingDir.relativize(javaFile.path());
+    Path relativePath = moduleBasePath.relativize(javaFile.path());
     assertThat(predicates.is(relativePath.toFile()).apply(javaFile)).isTrue();
 
     // absolute file

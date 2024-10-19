@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,26 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Navigate } from 'react-router-dom';
+import { byText } from '~sonar-aligned/helpers/testSelector';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
 import { Landing, LandingProps } from '../Landing';
 
 it.each([
-  [mockCurrentUser(), '/projects'],
-  [mockLoggedInUser(), '/projects'],
-  [
-    mockLoggedInUser({ homepage: { type: 'ISSUES' } }),
-    expect.objectContaining({ pathname: '/issues' }),
-  ],
-])('should render correctly', (currentUser: CurrentUser, expected: string) => {
-  const wrapper = shallowRender({ currentUser });
-
-  expect(wrapper.find(Navigate).props().to).toEqual(expected);
+  ['user not logged in', mockCurrentUser()],
+  ['user has no homepage', mockLoggedInUser({ homepage: undefined })],
+])('should redirect to projects (%s)', (_, currentUser: CurrentUser) => {
+  renderLanding({ currentUser });
+  expect(byText('/projects').get()).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<LandingProps> = {}) {
-  return shallow<LandingProps>(<Landing currentUser={mockCurrentUser()} {...props} />);
+it('should redirect to homepage', () => {
+  renderLanding({
+    currentUser: mockLoggedInUser({
+      homepage: { type: 'PROJECT', branch: undefined, component: 'pk1' },
+    }),
+  });
+  expect(byText('/dashboard?id=pk1').get()).toBeInTheDocument();
+});
+
+function renderLanding(props: Partial<LandingProps> = {}) {
+  return renderApp('/', <Landing currentUser={mockCurrentUser()} {...props} />);
 }

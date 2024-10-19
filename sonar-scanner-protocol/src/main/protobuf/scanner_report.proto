@@ -49,7 +49,8 @@ message Metadata {
   string scm_revision_id = 13;
 
   string pull_request_key = 14;
-  map<string, string> modules_project_relative_path_by_key = 15;
+
+  reserved 15; // modules_project_relative_path_by_key (no longer used)
 
   string projectVersion = 16;
   string buildString = 17;
@@ -199,18 +200,23 @@ message Issue {
   bool quickFixAvailable = 8;
   optional string ruleDescriptionContextKey = 9;
   repeated MessageFormatting msgFormatting = 10;
+  repeated string codeVariants = 11;
+  repeated Impact overridenImpacts = 12;
 }
 
 message ExternalIssue {
   string engine_id = 1;
   string rule_id = 2;
   string msg = 3;
-  Severity severity = 4;
+  optional Severity severity = 4;
   int64 effort = 5;
   TextRange text_range = 6;
   repeated Flow flow = 7;
-  IssueType type = 8;
+  optional IssueType type = 8;
   repeated MessageFormatting msgFormatting = 9;
+  repeated Impact impacts = 10;
+  optional string cleanCodeAttribute = 11;
+  optional string cve_id = 12;
 }
 
 message AdHocRule {
@@ -218,8 +224,21 @@ message AdHocRule {
     string rule_id = 2;
     string name = 3;
     string description = 4;
-    Severity severity = 5;
-    IssueType type = 6;
+  optional Severity severity = 5;
+  optional IssueType type = 6;
+  optional string cleanCodeAttribute = 7;
+  repeated Impact defaultImpacts = 8;
+}
+
+message Cve {
+  string cve_id = 1;
+  string description = 2;
+  optional float cvss_score = 3;
+  optional float epss_score = 4;
+  optional float epss_percentile = 5;
+  int64 published_date = 6;
+  int64 last_modified_date = 7;
+  repeated string cwe = 8;
 }
 
 enum IssueType {
@@ -358,4 +377,9 @@ message SyntaxHighlightingRule {
 message AnalysisWarning {
   string text = 1;
   int64 timestamp = 2;
+}
+
+message Impact {
+  string software_quality = 1;
+  string severity = 2;
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import styled from '@emotion/styled';
+import { Button, ButtonVariety, Link, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import { Card, CenteredLayout, Note, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
+import { getMigrationsStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { isDefined } from '../../../helpers/types';
 import { getReturnUrl } from '../../../helpers/urls';
-import '../styles.css';
+import { MigrationStatus } from '../../../types/system';
+import { MigrationProgress } from './MigrationProgress';
 
 interface Props {
   location: { query?: { return_to?: string } };
@@ -39,9 +44,14 @@ interface Props {
 
 interface State {
   message?: string;
+  migrationState?: MigrationStatus;
+  progress?: {
+    completedSteps: number;
+    expectedFinishTimestamp: string;
+    totalSteps: number;
+  };
   startedAt?: string;
-  state?: string;
-  status?: string;
+  systemStatus?: string;
   wasStarting?: boolean;
 }
 
@@ -60,34 +70,36 @@ export default class App extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    if (this.interval) {
+
+    if (isDefined(this.interval)) {
       window.clearInterval(this.interval);
     }
   }
 
   fetchStatus = () => {
     const request = this.props.setup ? this.fetchMigrationState() : this.fetchSystemStatus();
+
     request.catch(() => {
       if (this.mounted) {
         this.setState({
           message: undefined,
           startedAt: undefined,
-          state: undefined,
-          status: 'OFFLINE',
+          migrationState: undefined,
+          systemStatus: 'OFFLINE',
         });
       }
     });
   };
 
   fetchSystemStatus = () => {
-    return getSystemStatus().then(({ status }) => {
+    return getSystemStatus().then(({ status: systemStatus }) => {
       if (this.mounted) {
-        this.setState({ status });
+        this.setState({ systemStatus });
 
-        if (status === 'STARTING') {
+        if (systemStatus === 'STARTING') {
           this.setState({ wasStarting: true });
           this.scheduleRefresh();
-        } else if (status === 'UP') {
+        } else if (systemStatus === 'UP') {
           if (this.state.wasStarting) {
             this.loadPreviousPage();
           }
@@ -99,16 +111,39 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   fetchMigrationState = () => {
-    return getMigrationStatus().then(({ message, startedAt, state }) => {
-      if (this.mounted) {
-        this.setState({ message, startedAt, state });
-        if (state === 'MIGRATION_SUCCEEDED') {
-          this.loadPreviousPage();
-        } else if (state !== 'NO_MIGRATION') {
-          this.scheduleRefresh();
+    return getMigrationsStatus().then(
+      ({
+        message,
+        startedAt,
+        status: migrationState,
+        completedSteps,
+        totalSteps,
+        expectedFinishTimestamp,
+      }) => {
+        if (this.mounted) {
+          const progress =
+            isDefined(completedSteps) && isDefined(totalSteps) && isDefined(expectedFinishTimestamp)
+              ? {
+                  completedSteps,
+                  totalSteps,
+                  expectedFinishTimestamp,
+                }
+              : undefined;
+
+          this.setState({
+            message,
+            startedAt,
+            migrationState,
+            progress,
+          });
+          if (migrationState === 'MIGRATION_SUCCEEDED') {
+            this.loadPreviousPage();
+          } else if (migrationState !== 'NO_MIGRATION') {
+            this.scheduleRefresh();
+          }
         }
-      }
-    });
+      },
+    );
   };
 
   scheduleRefresh = () => {
@@ -125,202 +160,229 @@ export default class App extends React.PureComponent<Props, State> {
     migrateDatabase().then(
       ({ message, startedAt, state }) => {
         if (this.mounted) {
-          this.setState({ message, startedAt, state });
+          this.setState({ message, startedAt, migrationState: state });
         }
       },
-      () => {}
+      () => {},
     );
   };
 
   render() {
-    const { state, status } = this.state;
+    const { migrationState, systemStatus, progress } = this.state;
 
     return (
       <>
         <Helmet defaultTitle={translate('maintenance.page')} defer={false} />
-        <div className="page-wrapper-simple" id="bd">
-          <div
-            className={classNames('page-simple', {
-              'panel-warning': state === 'MIGRATION_REQUIRED',
-            })}
-            id="nonav"
-          >
-            {status === 'OFFLINE' && (
+
+        <CenteredLayout className="sw-flex sw-justify-around sw-mt-32" id="bd">
+          <Card className="sw-typo-default sw-p-10 sw-w-abs-400" id="nonav">
+            {systemStatus === 'OFFLINE' && (
               <>
-                <h1 className="maintenance-title text-danger">
+                <MaintenanceTitle className="text-danger">
                   <InstanceMessage message={translate('maintenance.is_offline')} />
-                </h1>
-                <p className="maintenance-text">
+                </MaintenanceTitle>
+
+                <MaintenanceText>
                   {translate('maintenance.sonarqube_is_offline.text')}
-                </p>
-                <p className="maintenance-text text-center">
-                  {/* We don't use <Link> here, as we want to fully refresh the page. */}
-                  <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
-                </p>
+                </MaintenanceText>
+
+                <div className="sw-text-center">
+                  <LinkStandalone reloadDocument to={`${getBaseUrl()}/`}>
+                    {translate('maintenance.try_again')}
+                  </LinkStandalone>
+                </div>
               </>
             )}
 
-            {status === 'UP' && (
+            {systemStatus === 'UP' && (
               <>
-                <h1 className="maintenance-title">
+                <MaintenanceTitle>
                   <InstanceMessage message={translate('maintenance.is_up')} />
-                </h1>
-                <p className="maintenance-text text-center">
+                </MaintenanceTitle>
+
+                <MaintenanceText className="sw-text-center">
                   {translate('maintenance.all_systems_opetational')}
-                </p>
-                <p className="maintenance-text text-center">
-                  <Link to="/">{translate('layout.home')}</Link>
-                </p>
+                </MaintenanceText>
+
+                <div className="sw-text-center">
+                  <LinkStandalone to="/">{translate('layout.home')}</LinkStandalone>
+                </div>
               </>
             )}
 
-            {status === 'STARTING' && (
+            {systemStatus === 'STARTING' && (
               <>
-                <h1 className="maintenance-title">
+                <MaintenanceTitle>
                   <InstanceMessage message={translate('maintenance.is_starting')} />
-                </h1>
-                <p className="maintenance-spinner">
-                  <i className="spinner" />
-                </p>
+                </MaintenanceTitle>
+
+                <MaintenanceSpinner>
+                  <Spinner />
+                </MaintenanceSpinner>
               </>
             )}
 
-            {status === 'DOWN' && (
+            {systemStatus === 'DOWN' && (
               <>
-                <h1 className="maintenance-title text-danger">
+                <MaintenanceTitle className="text-danger">
                   <InstanceMessage message={translate('maintenance.is_down')} />
-                </h1>
-                <p className="maintenance-text">
-                  {translate('maintenance.sonarqube_is_down.text')}
-                </p>
-                <p className="maintenance-text text-center">
-                  {/* We don't use <Link> here, as we want to fully refresh the page. */}
-                  <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
-                </p>
+                </MaintenanceTitle>
+
+                <MaintenanceText>{translate('maintenance.sonarqube_is_down.text')}</MaintenanceText>
+
+                <MaintenanceText className="sw-text-center">
+                  <LinkStandalone reloadDocument to={`${getBaseUrl()}/`}>
+                    {translate('maintenance.try_again')}
+                  </LinkStandalone>
+                </MaintenanceText>
               </>
             )}
 
-            {(status === 'DB_MIGRATION_NEEDED' || status === 'DB_MIGRATION_RUNNING') && (
+            {(systemStatus === 'DB_MIGRATION_NEEDED' ||
+              systemStatus === 'DB_MIGRATION_RUNNING') && (
               <>
-                <h1 className="maintenance-title">
+                <MaintenanceTitle>
                   <InstanceMessage message={translate('maintenance.is_under_maintenance')} />
-                </h1>
-                <p className="maintenance-text">
+                </MaintenanceTitle>
+
+                <MaintenanceText>
                   <FormattedMessage
                     defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.1')}
                     id="maintenance.sonarqube_is_under_maintenance.1"
                     values={{
                       link: (
-                        <Link
-                          to="https://www.codescan.io/products/editor-plugins/"
-                          target="_blank"
-                        >
+                        <Link to="https://www.codescan.io/products/editor-plugins/">
                           {translate('maintenance.sonarqube_is_under_maintenance_link.1')}
                         </Link>
                       ),
                     }}
                   />
-                </p>
-                <p className="maintenance-text">
+                </MaintenanceText>
+
+                <MaintenanceText>
                   <FormattedMessage
                     defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.2')}
                     id="maintenance.sonarqube_is_under_maintenance.2"
                     values={{
                       link: (
-                        <Link
-                          // We cannot use <DocLink> here, as it relies on AppState. However, the maintenance
-                          // app is a special app that can run in a "downgraded" environment, where the AppState
-                          // may not yet be fully loaded. Hence, we link to this documentation page directly.
-                          to="https://knowledgebase.autorabit.com/codescan/docs/codescan-self-hosted"
-                          target="_blank"
-                        >
+                        <DocumentationLink to={DocLink.ServerUpgradeRoadmap}>
                           {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
-                        </Link>
+                        </DocumentationLink>
                       ),
                     }}
                   />
-                </p>
+                </MaintenanceText>
               </>
             )}
 
-            {state === 'NO_MIGRATION' && (
+            {migrationState === MigrationStatus.noMigration && (
               <>
-                <h1 className="maintenance-title">
+                <MaintenanceTitle>
                   {translate('maintenance.database_is_up_to_date')}
-                </h1>
-                <p className="maintenance-text text-center">
-                  <Link to="/">{translate('layout.home')}</Link>
-                </p>
-              </>
-            )}
+                </MaintenanceTitle>
 
-            {state === 'MIGRATION_REQUIRED' && (
-              <>
-                <h1 className="maintenance-title">{translate('maintenance.upgrade_database')}</h1>
-                <p className="maintenance-text">{translate('maintenance.upgrade_database.1')}</p>
-                <p className="maintenance-text">{translate('maintenance.upgrade_database.2')}</p>
-                <p className="maintenance-text">{translate('maintenance.upgrade_database.3')}</p>
-                <div className="maintenance-spinner">
-                  <Button id="start-migration" onClick={this.handleMigrateClick}>
-                    {translate('maintenance.upgrade')}
-                  </Button>
+                <div className="sw-text-center">
+                  <LinkStandalone to="/">{translate('layout.home')}</LinkStandalone>
                 </div>
               </>
             )}
 
-            {state === 'NOT_SUPPORTED' && (
+            {migrationState === MigrationStatus.required && (
               <>
-                <h1 className="maintenance-title text-danger">
+                <MaintenanceTitle>{translate('maintenance.upgrade_database')}</MaintenanceTitle>
+
+                <MaintenanceText>{translate('maintenance.upgrade_database.1')}</MaintenanceText>
+
+                <MaintenanceText>{translate('maintenance.upgrade_database.2')}</MaintenanceText>
+
+                <MaintenanceText>{translate('maintenance.upgrade_database.3')}</MaintenanceText>
+
+                <MaintenanceSpinner>
+                  <Button
+                    id="start-migration"
+                    onClick={this.handleMigrateClick}
+                    variety={ButtonVariety.Primary}
+                  >
+                    {translate('maintenance.upgrade')}
+                  </Button>
+                </MaintenanceSpinner>
+              </>
+            )}
+
+            {migrationState === MigrationStatus.notSupported && (
+              <>
+                <MaintenanceTitle className="text-danger">
                   {translate('maintenance.migration_not_supported')}
-                </h1>
+                </MaintenanceTitle>
+
                 <p>{translate('maintenance.migration_not_supported.text')}</p>
               </>
             )}
 
-            {state === 'MIGRATION_RUNNING' && (
+            {migrationState === MigrationStatus.running && (
               <>
-                <h1 className="maintenance-title">{translate('maintenance.database_migration')}</h1>
-                {this.state.message && (
-                  <p className="maintenance-text text-center">{this.state.message}</p>
+                <MaintenanceTitle>{translate('maintenance.database_migration')}</MaintenanceTitle>
+
+                {isDefined(this.state.message) && (
+                  <MaintenanceText className="sw-text-center">{this.state.message}</MaintenanceText>
                 )}
-                {this.state.startedAt && (
-                  <p className="maintenance-text text-center">
+
+                {isDefined(this.state.startedAt) && (
+                  <MaintenanceText className="sw-text-center">
                     {translate('background_tasks.table.started')}{' '}
                     <DateFromNow date={this.state.startedAt} />
                     <br />
-                    <small className="text-muted">
-                      <TimeFormatter date={this.state.startedAt} long={true} />
-                    </small>
-                  </p>
+                    <Note>
+                      <TimeFormatter date={this.state.startedAt} long />
+                    </Note>
+                  </MaintenanceText>
                 )}
-                <p className="maintenance-spinner">
-                  <i className="spinner" />
-                </p>
+
+                <MaintenanceSpinner>
+                  <Spinner className="sw-mb-4" />
+                  {progress && <MigrationProgress progress={progress} />}
+                </MaintenanceSpinner>
               </>
             )}
 
-            {state === 'MIGRATION_SUCCEEDED' && (
+            {migrationState === MigrationStatus.succeeded && (
               <>
-                <h1 className="maintenance-title text-success">
+                <MaintenanceTitle className="text-success">
                   {translate('maintenance.database_is_up_to_date')}
-                </h1>
-                <p className="maintenance-text text-center">
-                  <Link to="/">{translate('layout.home')}</Link>
-                </p>
+                </MaintenanceTitle>
+
+                <div className="sw-text-center">
+                  <LinkStandalone to="/">{translate('layout.home')}</LinkStandalone>
+                </div>
               </>
             )}
 
-            {state === 'MIGRATION_FAILED' && (
+            {migrationState === MigrationStatus.failed && (
               <>
-                <h1 className="maintenance-title text-danger">
+                <MaintenanceTitle className="text-danger">
                   {translate('maintenance.upgrade_failed')}
-                </h1>
-                <p className="maintenance-text">{translate('maintenance.upgrade_failed.text')}</p>
+                </MaintenanceTitle>
+
+                <MaintenanceText>{translate('maintenance.upgrade_failed.text')}</MaintenanceText>
               </>
             )}
-          </div>
-        </div>
+          </Card>
+        </CenteredLayout>
       </>
     );
   }
 }
+
+const MaintenanceTitle = styled(Title)`
+  margin-bottom: 2.5rem;
+  text-align: center;
+`;
+
+const MaintenanceText = styled.p`
+  margin-bottom: 1rem;
+`;
+
+const MaintenanceSpinner = styled.div`
+  margin-top: 2.5rem;
+  text-align: center;
+`;

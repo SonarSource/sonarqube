@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,10 +38,9 @@ import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.fromRequest;
@@ -69,15 +68,15 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setSince("5.2")
       .setDescription("Add a group to a permission template.<br /> " +
-        "The group id or group name must be provided. <br />" +
+        "The group name must be provided. <br />" +
         "Requires the following permission: 'Administer System'.")
       .setChangelog(
+        new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
 
     createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    createGroupIdParameter(action);
     createGroupNameParameter(action);
   }
 
@@ -85,8 +84,8 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      GroupUuidOrAnyone group = support.findGroup(dbSession, request);
-      checkRequest(!SYSTEM_ADMIN.equals(permission) || !group.isAnyone(),
+      GroupUuidOrAnyone group = support.findGroupUuidOrAnyone(dbSession, request);
+      checkRequest(!ADMINISTER.getKey().equals(permission) || !group.isAnyone(),
         format("It is not possible to add the '%s' permission to the group 'Anyone'.", permission));
 
       PermissionTemplateDto template = support.findTemplate(dbSession, fromRequest(request));

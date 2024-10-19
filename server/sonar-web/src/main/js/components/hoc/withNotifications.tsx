@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,13 @@
  */
 import { uniqWith } from 'lodash';
 import * as React from 'react';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { addNotification, getNotifications, removeNotification } from '../../api/notifications';
 import {
   Notification,
   NotificationGlobalType,
   NotificationProjectType,
 } from '../../types/notifications';
-import { getWrappedDisplayName } from './utils';
 
 interface State {
   channels: string[];
@@ -46,7 +46,7 @@ export interface WithNotificationsProps {
 }
 
 export function withNotifications<P>(
-  WrappedComponent: React.ComponentType<P & WithNotificationsProps>
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & WithNotificationsProps>>,
 ) {
   class Wrapper extends React.Component<P, State> {
     mounted = false;
@@ -86,7 +86,7 @@ export function withNotifications<P>(
           if (this.mounted) {
             this.setState({ loading: false });
           }
-        }
+        },
       );
     };
 
@@ -100,7 +100,7 @@ export function withNotifications<P>(
     removeNotificationFromState = (removed: Notification) => {
       this.setState((state) => {
         const notifications = state.notifications.filter(
-          (notification) => !this.areNotificationsEqual(notification, removed)
+          (notification) => !this.areNotificationsEqual(notification, removed),
         );
         return { notifications };
       });

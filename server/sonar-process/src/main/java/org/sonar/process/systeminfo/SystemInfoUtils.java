@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.process.systeminfo;
 
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +33,8 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 import static java.util.Arrays.stream;
 
 public class SystemInfoUtils {
+
+  private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private SystemInfoUtils() {
     // prevent instantiation
@@ -94,5 +97,11 @@ public class SystemInfoUtils {
     });
     result.addAll(alphabeticalOrderedMap.values());
     return result;
+  }
+
+  public static void addIfNotEmpty(ProtobufSystemInfo.Section.Builder protobuf, String key, @Nullable List<String> values) {
+    if (values != null && !values.isEmpty()) {
+      setAttribute(protobuf, key, COMMA_JOINER.join(values));
+    }
   }
 }

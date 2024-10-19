@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.issue.index.IssueIndexer;
 
 public final class IndexIssuesStep implements ComputationStep {
-  private static final Logger LOG = Loggers.get(IndexIssuesStep.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IndexIssuesStep.class);
   private final CeTask ceTask;
   private final DbClient dbClient;
   private final IssueIndexer issueIndexer;

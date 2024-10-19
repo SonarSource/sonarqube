@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -45,6 +45,7 @@ public class SearchMyProjectsDataTest {
   public void fail_if_projects_links_are_not_provided() {
     Builder builder = underTest
       .setProjects(emptyList())
+      .setBranches(emptyList())
       .setProjectLinks(null)
       .setSnapshots(emptyList())
       .setQualityGates(emptyList())
@@ -57,6 +58,7 @@ public class SearchMyProjectsDataTest {
   public void fail_if_snapshots_are_not_provided() {
     Builder builder = underTest
       .setProjects(emptyList())
+      .setBranches(emptyList())
       .setProjectLinks(emptyList())
       .setSnapshots(null)
       .setQualityGates(emptyList())
@@ -68,7 +70,7 @@ public class SearchMyProjectsDataTest {
   @Test
   public void fail_if_quality_gates_are_not_provided() {
     Builder builder = underTest
-      .setProjects(emptyList())
+      .setBranches(emptyList())
       .setProjectLinks(emptyList())
       .setSnapshots(emptyList())
       .setQualityGates(null);
@@ -79,7 +81,7 @@ public class SearchMyProjectsDataTest {
   @Test
   public void fail_if_total_number_of_projects_is_not_provided() {
     Builder builder = underTest
-      .setProjects(emptyList())
+      .setBranches(emptyList())
       .setProjectLinks(emptyList())
       .setSnapshots(emptyList())
       .setQualityGates(emptyList())

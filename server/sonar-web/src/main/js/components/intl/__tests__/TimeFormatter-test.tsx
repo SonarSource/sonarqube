@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import TimeFormatter, { TimeFormatterProps } from '../TimeFormatter';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('standard');
-  expect(shallowRender({ long: true })).toMatchSnapshot('long');
+  renderTimeFormatter({}, (formatted: string) => <span>{formatted}</span>);
+  expect(screen.getByText('8:20 PM')).toBeInTheDocument();
+
+  renderTimeFormatter({ long: true });
+  expect(screen.getByText('8:20:20 PM')).toBeInTheDocument();
 });
 
-function shallowRender(overrides: Partial<TimeFormatterProps> = {}) {
-  return shallow(
-    <TimeFormatter date={new Date('2020-02-20T20:20:20Z')} {...overrides}>
-      {(formatted) => <span>{formatted}</span>}
-    </TimeFormatter>
+function renderTimeFormatter(
+  overrides: Partial<TimeFormatterProps> = {},
+  children?: (d: string) => React.ReactNode,
+) {
+  return renderComponent(
+    <TimeFormatter date={new Date('2020-02-20T20:20:20Z')} timeZone="UTC" {...overrides}>
+      {children}
+    </TimeFormatter>,
   );
 }

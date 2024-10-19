@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.util.InitializedProperty;
 import org.sonar.db.component.BranchType;
@@ -33,10 +35,10 @@ import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
-public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
+public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder, AfterEachCallback {
 
   private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
@@ -249,5 +251,10 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public boolean isPullRequest() {
     Branch property = this.branch.getProperty();
     return property != null && property.getType() == BranchType.PULL_REQUEST;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) {
+    after();
   }
 }

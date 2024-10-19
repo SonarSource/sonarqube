@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -68,7 +67,7 @@ public class CreateTableBuilder {
     checkState(!columnDefs.isEmpty() || !pkColumnDefs.isEmpty(), "at least one column must be specified");
 
     return Stream.concat(of(createTableStatement()), createOracleAutoIncrementStatements())
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   public CreateTableBuilder addColumn(ColumnDef columnDef) {

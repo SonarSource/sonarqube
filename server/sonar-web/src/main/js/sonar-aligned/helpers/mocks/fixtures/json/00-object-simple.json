@@ -1,0 +1,15 @@
+{
+  "first-key": "foo",
+  "nested-object": {
+    "boolean": true,
+    "null-value": null,
+    "second-nested-object": {
+      "foo": 13e-4
+    }
+  },
+  "empty-object": {},
+  "another-object": {
+    "containing-array": ["with a first string", "with a second string"]
+  },
+  "last-ignored-key": "with some value"
+}

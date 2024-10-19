@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import axios, { AxiosResponse } from 'axios';
 import { isNil, omitBy } from 'lodash';
 import { Dict } from '../types/types';
 import { getCookie } from './cookies';
 import { translate } from './l10n';
 import { stringify } from './stringify-queryparams';
 import { getBaseUrl } from './system';
+
+const FAST_RETRY_TIMEOUT = 500;
+const SLOW_RETRY_TIMEOUT = 3000;
 
 export function getCSRFTokenName(): string {
   return 'X-XSRF-TOKEN';
@@ -79,9 +83,12 @@ class Request {
   private isJSON = false;
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(private readonly url: string, private readonly options: { method?: string } = {}) {}
+  constructor(
+    private readonly url: string,
+    private readonly options: { method?: string } = {},
+  ) {}
 
-  getSubmitData(customHeaders: any = {}): { url: string; options: RequestInit } {
+  getSubmitData(customHeaders: any = {}): { options: RequestInit; url: string } {
     let { url } = this;
     const options: RequestInit = { ...DEFAULT_OPTIONS, ...this.options };
 
@@ -114,12 +121,12 @@ class Request {
     return window.fetch(getBaseUrl() + url, options);
   }
 
-  setMethod(method: string): Request {
+  setMethod(method: string): this {
     this.options.method = method;
     return this;
   }
 
-  setData(data?: RequestData, isJSON = false): Request {
+  setData(data?: RequestData, isJSON = false): this {
     if (data) {
       this.data = data;
       this.isJSON = isJSON;
@@ -151,7 +158,7 @@ export function corsRequest(url: string, mode: RequestMode = 'cors'): Request {
 /**
  * Check that response status is ok
  */
-export function checkStatus(response: Response, bypassRedirect?: boolean): Promise<Response> {
+export function checkStatus(response: Response, bypassRedirect = false): Promise<Response> {
   return new Promise((resolve, reject) => {
     if (response.status === HttpStatus.Unauthorized && !bypassRedirect) {
       import('./handleRequiredAuthentication').then((i) => i.default()).then(reject, reject);
@@ -178,19 +185,36 @@ export function parseText(response: Response): Promise<string> {
 }
 
 /**
- * Parse response of failed request
+ * Parse error response of failed request
  */
 export function parseError(response: Response): Promise<string> {
   const DEFAULT_MESSAGE = translate('default_error_message');
   return parseJSON(response)
-    .then(({ errors }) => errors.map((error: any) => error.msg).join('. '))
+    .then(parseErrorResponse)
     .catch(() => DEFAULT_MESSAGE);
+}
+
+export function parseErrorResponse(response?: AxiosResponse | Response): string {
+  const DEFAULT_MESSAGE = translate('default_error_message');
+  let data;
+  if (!response) {
+    return DEFAULT_MESSAGE;
+  }
+  if ('data' in response) {
+    ({ data } = response);
+  } else {
+    data = response;
+  }
+  const { message, errors } = data;
+  return (
+    message ?? errors?.map((error: { msg: string }) => error.msg).join('. ') ?? DEFAULT_MESSAGE
+  );
 }
 
 /**
  * Shortcut to do a GET request and return a Response
  */
-export function get(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<Response> {
+export function get(url: string, data?: RequestData, bypassRedirect = false): Promise<Response> {
   return request(url)
     .setData(data)
     .submit()
@@ -198,20 +222,9 @@ export function get(url: string, data?: RequestData, bypassRedirect?: boolean): 
 }
 
 /**
- * Shortcut to do a GET request and return response json
- */
-export function getJSON(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<any> {
-  return get(url, data, bypassRedirect).then(parseJSON);
-}
-
-/**
  * Shortcut to do a GET request and return response text
  */
-export function getText(
-  url: string,
-  data?: RequestData,
-  bypassRedirect?: boolean
-): Promise<string> {
+export function getText(url: string, data?: RequestData, bypassRedirect = false): Promise<string> {
   return get(url, data, bypassRedirect).then(parseText);
 }
 
@@ -233,7 +246,7 @@ export function getCorsJSON(url: string, data?: RequestData): Promise<any> {
 /**
  * Shortcut to do a POST request and return response json
  */
-export function postJSON(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<any> {
+export function postJSON(url: string, data?: RequestData, bypassRedirect = false): Promise<any> {
   return request(url)
     .setMethod('POST')
     .setData(data)
@@ -248,7 +261,7 @@ export function postJSON(url: string, data?: RequestData, bypassRedirect?: boole
 export function postJSONBody(
   url: string,
   data?: RequestData,
-  bypassRedirect?: boolean
+  bypassRedirect = false,
 ): Promise<any> {
   return request(url)
     .setMethod('POST')
@@ -288,7 +301,7 @@ export function deleteRequest(url: string, bypassRedirect?: boolean): Promise<vo
 /**
  * Shortcut to do a POST request
  */
-export function post(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<void> {
+export function post(url: string, data?: RequestData, bypassRedirect = false): Promise<void> {
   return new Promise((resolve, reject) => {
     request(url)
       .setMethod('POST')
@@ -299,19 +312,30 @@ export function post(url: string, data?: RequestData, bypassRedirect?: boolean):
   });
 }
 
+/**
+ * Shortcut to do a DELETE request
+ */
+export function deleteJSON(url: string, data?: RequestData): Promise<Response> {
+  return request(url)
+    .setMethod('DELETE')
+    .setData(data)
+    .submit()
+    .then((response) => checkStatus(response));
+}
+
 function tryRequestAgain<T>(
   repeatAPICall: () => Promise<T>,
   tries: { max: number; slowThreshold: number },
   stopRepeat: (response: T) => boolean,
   repeatErrors: number[] = [],
-  lastError?: Response
+  lastError?: Response,
 ) {
   tries.max--;
   if (tries.max !== 0) {
     return new Promise<T>((resolve) => {
       setTimeout(
         () => resolve(requestTryAndRepeatUntil(repeatAPICall, tries, stopRepeat, repeatErrors)),
-        tries.max > tries.slowThreshold ? 500 : 3000
+        tries.max > tries.slowThreshold ? FAST_RETRY_TIMEOUT : SLOW_RETRY_TIMEOUT,
       );
     });
   }
@@ -322,7 +346,7 @@ export function requestTryAndRepeatUntil<T>(
   repeatAPICall: () => Promise<T>,
   tries: { max: number; slowThreshold: number },
   stopRepeat: (response: T) => boolean,
-  repeatErrors: number[] = []
+  repeatErrors: number[] = [],
 ) {
   return repeatAPICall().then(
     (r) => {
@@ -336,7 +360,7 @@ export function requestTryAndRepeatUntil<T>(
         return tryRequestAgain(repeatAPICall, tries, stopRepeat, repeatErrors, error);
       }
       return Promise.reject(error);
-    }
+    },
   );
 }
 
@@ -362,3 +386,5 @@ export enum HttpStatus {
   ServiceUnavailable = 503,
   GatewayTimeout = 504,
 }
+
+export const axiosToCatch = axios.create();

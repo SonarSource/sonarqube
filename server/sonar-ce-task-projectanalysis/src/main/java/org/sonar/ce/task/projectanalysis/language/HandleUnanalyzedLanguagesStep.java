@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 
 import static java.lang.String.format;
 import static org.sonar.core.language.UnanalyzedLanguages.C;
@@ -52,7 +52,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
   static final String DESCRIPTION = "Check upgrade possibility for not analyzed code files.";
 
   private static final String LANGUAGE_UPGRADE_MESSAGE = "%s detected in this project during the last analysis. %s cannot be analyzed with your" +
-    " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to" +
+    " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to" +
     " Developer Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in %s.";
 
   private final BatchReportReader reportReader;
@@ -124,7 +124,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
     }
 
     String message = format(LANGUAGE_UPGRADE_MESSAGE, fileCountLabel, languageLabel, sortedLanguageMap.size() == 1 ? "this file" : "these files");
-    return new CeTaskMessages.Message(message, system.now(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    return new CeTaskMessages.Message(message, system.now(), MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
   }
 
   private void computeMeasures(Map<String, Integer> filesPerLanguage) {

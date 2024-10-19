@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,12 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.SeverityUtil;
@@ -36,7 +39,8 @@ public class ExportRuleDto {
   private String template = null;
   private Integer severity = null;
   private Integer type = null;
-  private String tags = null;
+  private Boolean prioritizedRule;
+  private Set<String> tags = new HashSet<>();
 
   private List<ExportRuleParamDto> params = null;
 
@@ -68,7 +72,12 @@ public class ExportRuleDto {
     return RuleType.valueOf(type);
   }
 
-  public String getTags() {
+  @CheckForNull
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public Set<String> getTags() {
     return tags;
   }
 

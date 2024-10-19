@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ package org.sonar.server.async;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.util.AbstractStoppableExecutorService;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -31,7 +31,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class AsyncExecutionExecutorServiceImpl
   extends AbstractStoppableExecutorService<ThreadPoolExecutor>
   implements AsyncExecutionExecutorService, AsyncExecutionMonitoring {
-  private static final Logger LOG = Loggers.get(AsyncExecutionExecutorServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AsyncExecutionExecutorServiceImpl.class);
 
   private static final int MAX_THREAD_COUNT = 10;
   private static final int UNLIMITED_QUEUE = Integer.MAX_VALUE;

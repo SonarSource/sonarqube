@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,54 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LargeCenteredLayout, PageContentFontWrapper, TopBar } from 'design-system';
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
-import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import handleRequiredAuthentication from '../../helpers/handleRequiredAuthentication';
-import { translate } from '../../helpers/l10n';
-import { CurrentUser, LoggedInUser } from '../../types/users';
-import './account.css';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
+import { useCurrentLoginUser } from '../../app/components/current-user/CurrentUserContext';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import Nav from './components/Nav';
 import UserCard from './components/UserCard';
 
-interface Props {
-  currentUser: CurrentUser;
+export default function Account() {
+  const currentUser = useCurrentLoginUser();
+  const [portalAnchor, setPortalAnchor] = React.useState<Element | null>(null);
+
+  // Set portal anchor on mount
+  React.useEffect(() => {
+    setPortalAnchor(document.getElementById('component-nav-portal'));
+  }, []);
+
+  const title = translate('my_account.page');
+
+  return (
+    <div id="account-page">
+      {portalAnchor &&
+        createPortal(
+          <header>
+            <TopBar>
+              <div className="sw-flex sw-items-center sw-gap-2 sw-pb-4">
+                <UserCard user={currentUser} />
+              </div>
+
+              <Nav />
+            </TopBar>
+          </header>,
+          portalAnchor,
+        )}
+
+      <LargeCenteredLayout as="main">
+        <PageContentFontWrapper className="sw-typo-default sw-py-8">
+          <Helmet
+            defaultTitle={title}
+            defer={false}
+            titleTemplate={translateWithParameters(
+              'page_title.template.with_category',
+              translate('my_account.page'),
+            )}
+          />
+
+          <A11ySkipTarget anchor="account_main" />
+
+          <Outlet />
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    </div>
+  );
 }
-
-export class Account extends React.PureComponent<Props> {
-  componentDidMount() {
-    if (!this.props.currentUser.isLoggedIn) {
-      handleRequiredAuthentication();
-    }
-  }
-
-  render() {
-    const { currentUser } = this.props;
-
-    if (!currentUser.isLoggedIn) {
-      return null;
-    }
-
-    const title = translate('my_account.page');
-    return (
-      <div id="account-page">
-        <Suggestions suggestions="account" />
-        <Helmet defaultTitle={title} defer={false} titleTemplate={`%s - ${title}`} />
-        <A11ySkipTarget anchor="account_main" />
-        <header className="account-header">
-          <div className="account-container clearfix">
-            <UserCard user={currentUser as LoggedInUser} />
-            <Nav />
-          </div>
-        </header>
-
-        <Outlet />
-      </div>
-    );
-  }
-}
-
-export default withCurrentUserContext(Account);

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,8 @@ import {
   NotificationsResponse,
 } from '../../types/notifications';
 import { addNotification, getNotifications, removeNotification } from '../notifications';
+
+jest.mock('../notifications');
 
 /* Constants */
 const channels = ['EmailNotificationChannel'];
@@ -61,7 +63,7 @@ export default class NotificationsMock {
 
   handleRemoveNotification = (params: AddRemoveNotificationParameters) => {
     const index = this.notifications.findIndex(
-      (n) => n.project === params.project && n.type === params.type && n.channel === params.channel
+      (n) => n.project === params.project && n.type === params.type && n.channel === params.channel,
     );
 
     if (index < 0) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  ActionCell,
+  ButtonPrimary,
+  ContentCell,
+  HelperHintIcon,
+  InteractiveIcon,
+  LargeCenteredLayout,
+  Link,
+  PageContentFontWrapper,
+  PencilIcon,
+  Spinner,
+  Table,
+  TableRow,
+  TableRowInteractive,
+  Title,
+} from 'design-system';
 import { groupBy, orderBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Profile } from '../../api/quality-profiles';
-import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
-import Link from '../../components/common/Link';
-import { Button } from '../../components/controls/buttons';
-import HelpTooltip from '../../components/controls/HelpTooltip';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import EditIcon from '../../components/icons/EditIcon';
-import PlusCircleIcon from '../../components/icons/PlusCircleIcon';
-import { translate } from '../../helpers/l10n';
+import { DocLink } from '../../helpers/doc-links';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getRulesUrl } from '../../helpers/urls';
 import { Component } from '../../types/types';
 import BuiltInQualityProfileBadge from '../quality-profiles/components/BuiltInQualityProfileBadge';
@@ -51,7 +65,7 @@ export interface ProjectQualityProfilesAppRendererProps {
 }
 
 export default function ProjectQualityProfilesAppRenderer(
-  props: ProjectQualityProfilesAppRendererProps
+  props: Readonly<ProjectQualityProfilesAppRendererProps>,
 ) {
   const {
     allProfiles,
@@ -65,124 +79,127 @@ export default function ProjectQualityProfilesAppRenderer(
   const profilesByLanguage = groupBy(allProfiles, 'language');
   const orderedProfiles = orderBy(projectProfiles, (p) => p.profile.languageName);
 
+  const COLUMN_WIDTHS_WITH_PURGE_SETTING = ['auto', 'auto', 'auto', '5%'];
+
+  const header = (
+    <TableRow>
+      <ContentCell>{translate('language')}</ContentCell>
+      <ContentCell>{translate('project_quality_profile.current')}</ContentCell>
+      <ContentCell>{translate('coding_rules.filters.activation.active_rules')}</ContentCell>
+      <ActionCell>{translate('actions')}</ActionCell>
+    </TableRow>
+  );
+
   return (
-    <div className="page page-limited" id="project-quality-profiles">
-      <Suggestions suggestions="project_quality_profiles" />
-      <Helmet defer={false} title={translate('project_quality_profiles.page')} />
-      <A11ySkipTarget anchor="profiles_main" />
+    <LargeCenteredLayout id="project-quality-profiles">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
+        <Suggestions suggestion={DocLink.InstanceAdminQualityProfiles} />
+        <Helmet defer={false} title={translate('project_quality_profiles.page')} />
+        <A11ySkipTarget anchor="profiles_main" />
 
-      <header className="page-header">
-        <div className="page-title display-flex-center">
-          <h1>{translate('project_quality_profiles.page')} </h1>
+        <header className="sw-mb-2 sw-flex sw-items-center">
+          <Title>{translate('project_quality_profiles.page')}</Title>
           <HelpTooltip
-            className="spacer-left"
-            overlay={
-              <div className="big-padded-top big-padded-bottom">
-                {translate('quality_profiles.list.projects.help')}
+            className="sw-ml-2 sw-mb-4"
+            overlay={translate('quality_profiles.list.projects.help')}
+          >
+            <HelperHintIcon aria-label="help-tooltip" />
+          </HelpTooltip>
+        </header>
+
+        <div>
+          <p>{translate('project_quality_profiles.page.description')}</p>
+          <div className="sw-mt-16">
+            <Spinner loading={loading}>
+              {!loading && orderedProfiles.length > 0 && (
+                <Table
+                  noHeaderTopBorder
+                  className="sw-w-[60%]"
+                  columnCount={COLUMN_WIDTHS_WITH_PURGE_SETTING.length}
+                  columnWidths={COLUMN_WIDTHS_WITH_PURGE_SETTING}
+                  header={header}
+                >
+                  {orderedProfiles.map((projectProfile) => {
+                    const { profile, selected } = projectProfile;
+
+                    return (
+                      <TableRowInteractive key={profile.language}>
+                        <ContentCell>
+                          <span>{profile.languageName}</span>
+                        </ContentCell>
+                        <ContentCell>
+                          <span>
+                            {!selected && profile.isDefault ? (
+                              <em>{translate('project_quality_profile.instance_default')}</em>
+                            ) : (
+                              <>
+                                {profile.name}
+                                {profile.isBuiltIn && (
+                                  <BuiltInQualityProfileBadge className="sw-ml-2" />
+                                )}
+                              </>
+                            )}
+                          </span>
+                        </ContentCell>
+                        <ContentCell>
+                          <Link to={getRulesUrl({ activation: 'true', qprofile: profile.key })}>
+                            {profile.activeRuleCount}
+                          </Link>
+                        </ContentCell>
+
+                        <ActionCell>
+                          <InteractiveIcon
+                            Icon={PencilIcon}
+                            aria-label={translateWithParameters(
+                              'project_quality_profile.change_profile_x',
+                              profile.languageName,
+                            )}
+                            onClick={() => {
+                              props.onOpenSetProfileModal(projectProfile);
+                            }}
+                            size="small"
+                            stopPropagation={false}
+                          />
+                        </ActionCell>
+                      </TableRowInteractive>
+                    );
+                  })}
+                </Table>
+              )}
+
+              <div className="sw-mt-8">
+                <div className="sw-mb-4">
+                  {translate('project_quality_profile.add_language.description')}
+                </div>
+
+                <ButtonPrimary disabled={loading} onClick={props.onOpenAddLanguageModal}>
+                  {translate('project_quality_profile.add_language.action')}
+                </ButtonPrimary>
               </div>
-            }
-          />
-        </div>
-      </header>
 
-      <div className="boxed-group">
-        <h2 className="boxed-group-header">{translate('project_quality_profile.subtitle')}</h2>
+              {showProjectProfileInModal && (
+                <SetQualityProfileModal
+                  availableProfiles={profilesByLanguage[showProjectProfileInModal.profile.language]}
+                  component={component}
+                  currentProfile={showProjectProfileInModal.profile}
+                  onClose={props.onCloseModal}
+                  onSubmit={props.onSetProfile}
+                  usesDefault={!showProjectProfileInModal.selected}
+                />
+              )}
 
-        <div className="boxed-group-inner">
-          <p className="big-spacer-bottom">
-            {translate('project_quality_profiles.page.description')}
-          </p>
-
-          {loading && <i className="spinner spacer-left" />}
-
-          {!loading && orderedProfiles.length > 0 && (
-            <table className="data zebra">
-              <thead>
-                <tr>
-                  <th>{translate('language')}</th>
-                  <th className="thin nowrap">{translate('project_quality_profile.current')}</th>
-                  <th className="thin nowrap text-right">
-                    {translate('coding_rules.filters.activation.active_rules')}
-                  </th>
-                  <th aria-label={translate('actions')} />
-                </tr>
-              </thead>
-              <tbody>
-                {orderedProfiles.map((projectProfile) => {
-                  const { profile, selected } = projectProfile;
-                  return (
-                    <tr key={profile.language}>
-                      <td>{profile.languageName}</td>
-                      <td className="thin nowrap">
-                        <span className="display-inline-flex-center">
-                          {!selected && profile.isDefault ? (
-                            <em>{translate('project_quality_profile.instance_default')}</em>
-                          ) : (
-                            <>
-                              {profile.name}
-                              {profile.isBuiltIn && (
-                                <BuiltInQualityProfileBadge className="spacer-left" />
-                              )}
-                            </>
-                          )}
-                        </span>
-                      </td>
-                      <td className="nowrap text-right">
-                        <Link to={getRulesUrl({ activation: 'true', qprofile: profile.key }, component.organization)}>
-                          {profile.activeRuleCount}
-                        </Link>
-                      </td>
-                      <td className="text-right">
-                        <Button
-                          onClick={() => {
-                            props.onOpenSetProfileModal(projectProfile);
-                          }}
-                        >
-                          <EditIcon className="spacer-right" />
-                          {translate('project_quality_profile.change_profile')}
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-
-          <div className="big-spacer-top">
-            <h2>{translate('project_quality_profile.add_language.title')}</h2>
-
-            <p className="spacer-top big-spacer-bottom">
-              {translate('project_quality_profile.add_language.description')}
-            </p>
-
-            <Button disabled={loading} onClick={props.onOpenAddLanguageModal}>
-              <PlusCircleIcon className="little-spacer-right" />
-              {translate('project_quality_profile.add_language.action')}
-            </Button>
+              {showAddLanguageModal && projectProfiles && (
+                <AddLanguageModal
+                  profilesByLanguage={profilesByLanguage}
+                  onClose={props.onCloseModal}
+                  onSubmit={props.onAddLanguage}
+                  unavailableLanguages={projectProfiles.map((p) => p.profile.language)}
+                />
+              )}
+            </Spinner>
           </div>
-
-          {showProjectProfileInModal && (
-            <SetQualityProfileModal
-              availableProfiles={profilesByLanguage[showProjectProfileInModal.profile.language]}
-              component={component}
-              currentProfile={showProjectProfileInModal.profile}
-              onClose={props.onCloseModal}
-              onSubmit={props.onSetProfile}
-              usesDefault={!showProjectProfileInModal.selected}
-            />
-          )}
-
-          {showAddLanguageModal && projectProfiles && (
-            <AddLanguageModal
-              profilesByLanguage={profilesByLanguage}
-              onClose={props.onCloseModal}
-              onSubmit={props.onAddLanguage}
-              unavailableLanguages={projectProfiles.map((p) => p.profile.language)}
-            />
-          )}
         </div>
-      </div>
-    </div>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,69 +19,15 @@
  */
 package org.sonar.alm.client.github;
 
-import java.io.IOException;
-import java.util.Optional;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.alm.client.GenericApplicationHttpClient;
+import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 @ServerSide
 @ComputeEngineSide
-public interface GithubApplicationHttpClient {
-  /**
-   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK}.
-   */
-  GetResponse get(String appUrl, AccessToken token, String endPoint) throws IOException;
-
-  /**
-   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK}.
-   * No log if there is an issue during the call.
-   */
-  GetResponse getSilent(String appUrl, AccessToken token, String endPoint) throws IOException;
-
-  /**
-   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK} or
-   * {@link java.net.HttpURLConnection#HTTP_CREATED CREATED}.
-   */
-  Response post(String appUrl, AccessToken token, String endPoint) throws IOException;
-
-  /**
-   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK} or
-   * {@link java.net.HttpURLConnection#HTTP_CREATED CREATED}.
-   *
-   * Content type will be application/json; charset=utf-8
-   */
-  Response post(String appUrl, AccessToken token, String endPoint, String json) throws IOException;
-
-  /**
-   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK}.
-   *
-   * Content type will be application/json; charset=utf-8
-   */
-  Response patch(String appUrl, AccessToken token, String endPoint, String json) throws IOException;
-
-  /**
-   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK}.
-   *
-   * Content type will be application/json; charset=utf-8
-   *
-   */
-  Response delete(String appUrl, AccessToken token, String endPoint) throws IOException;
-
-  interface Response {
-    /**
-     * @return the HTTP code of the response.
-     */
-    int getCode();
-
-    /**
-     * @return the content of the response if the response had an HTTP code for which we expect a content for the current
-     *         HTTP method (see {@link #get(String, AccessToken, String)} and {@link #post(String, AccessToken, String)}).
-     */
-    Optional<String> getContent();
-  }
-
-  interface GetResponse extends Response {
-    Optional<String> getNextEndPoint();
+public class GithubApplicationHttpClient extends GenericApplicationHttpClient {
+  public GithubApplicationHttpClient(GithubHeaders githubHeaders, TimeoutConfiguration timeoutConfiguration) {
+    super(githubHeaders, timeoutConfiguration);
   }
 }

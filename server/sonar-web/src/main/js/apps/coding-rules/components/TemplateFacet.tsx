@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import Facet, { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 
 interface Props extends Omit<BasicProps, 'onChange' | 'values'> {
   onChange: (changes: { template: boolean | undefined }) => void;
@@ -54,18 +55,16 @@ export default class TemplateFacet extends React.PureComponent<Props> {
         property="template"
         renderName={this.renderName}
         renderTextName={this.renderName}
-        singleSelection={true}
+        singleSelection
         values={value !== undefined ? [String(value)] : []}
-      >
-        <HelpTooltip
-          className="spacer-left"
-          overlay={
-            <div className="big-padded-top big-padded-bottom">
-              {translate('coding_rules.rule_template.help')}
-            </div>
-          }
-        />
-      </Facet>
+        help={
+          <HelpTooltip
+            overlay={<div className="sw-my-2">{translate('coding_rules.rule_template.help')}</div>}
+          >
+            <HelperHintIcon />
+          </HelpTooltip>
+        }
+      />
     );
   }
 }

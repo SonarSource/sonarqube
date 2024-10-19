@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
 package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
@@ -38,19 +40,23 @@ public class PurgeConfiguration {
   private final System2 system2;
   private final Set<String> disabledComponentUuids;
 
+  private final int maxAgeInDaysOfAnticipatedTransitions;
+
   public PurgeConfiguration(String rootUuid, String projectUuid, int maxAgeInDaysOfClosedIssues,
-    Optional<Integer> maxAgeInDaysOfInactiveBranches, System2 system2, Set<String> disabledComponentUuids) {
+    Optional<Integer> maxAgeInDaysOfInactiveBranches, System2 system2, Set<String> disabledComponentUuids, int maxAgeInDaysOfAnticipatedTransitions) {
     this.rootUuid = rootUuid;
     this.projectUuid = projectUuid;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
     this.disabledComponentUuids = disabledComponentUuids;
     this.maxAgeInDaysOfInactiveBranches = maxAgeInDaysOfInactiveBranches;
+    this.maxAgeInDaysOfAnticipatedTransitions = maxAgeInDaysOfAnticipatedTransitions;
   }
 
   public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
     return new PurgeConfiguration(rootUuid, projectUuid, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
-      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS), System2.INSTANCE, disabledComponentUuids);
+      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS), System2.INSTANCE, disabledComponentUuids,
+      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_ANTICIPATED_TRANSITIONS).get());
   }
 
   /**
@@ -81,6 +87,11 @@ public class PurgeConfiguration {
   public Optional<Date> maxLiveDateOfInactiveBranches() {
     return maxAgeInDaysOfInactiveBranches.map(age -> DateUtils.addDays(new Date(system2.now()), -age));
   }
+
+  public Instant maxLiveDateOfAnticipatedTransitions() {
+    return Instant.ofEpochMilli(system2.now()).minus(maxAgeInDaysOfAnticipatedTransitions, ChronoUnit.DAYS);
+  }
+
 
   @VisibleForTesting
   @CheckForNull

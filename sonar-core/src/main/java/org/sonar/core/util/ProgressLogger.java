@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ package org.sonar.core.util;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Background thread that logs the state of a counter at fixed intervals.
@@ -43,7 +43,7 @@ public class ProgressLogger {
 
   public static ProgressLogger create(Class clazz, AtomicLong counter) {
     String threadName = String.format("ProgressLogger[%s]", clazz.getSimpleName());
-    Logger logger = Loggers.get(clazz);
+    Logger logger = LoggerFactory.getLogger(clazz);
     return new ProgressLogger(threadName, counter, logger);
   }
 

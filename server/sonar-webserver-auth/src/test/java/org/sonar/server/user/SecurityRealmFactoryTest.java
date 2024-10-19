@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.server.user;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.security.LoginPasswordAuthenticator;
+import org.sonar.api.security.Authenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.SonarException;
 
@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
 
 public class SecurityRealmFactoryTest {
 
@@ -82,44 +83,10 @@ public class SecurityRealmFactoryTest {
   }
 
   @Test
-  public void should_provide_compatibility_for_authenticator() {
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
-    LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
-
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig(), new LoginPasswordAuthenticator[] {authenticator});
-    SecurityRealm realm = factory.getRealm();
-    assertThat(realm).isInstanceOf(CompatibilityRealm.class);
-  }
-
-  @Test
-  public void should_take_precedence_over_authenticator() {
-    SecurityRealm realm = new FakeRealm();
-    settings.setProperty("sonar.security.realm", realm.getName());
-    LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
-
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm},
-      new LoginPasswordAuthenticator[] {authenticator});
-    assertThat(factory.getRealm()).isSameAs(realm);
-  }
-
-  @Test
-  public void authenticator_not_found() {
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "Fake");
-
-    try {
-      new SecurityRealmFactory(settings.asConfig());
-      fail();
-    } catch (SonarException e) {
-      assertThat(e.getMessage()).contains("Authenticator 'Fake' not found.");
-    }
-  }
-
-  @Test
   public void ignore_startup_failure() {
     SecurityRealm realm = spy(new AlwaysFailsRealm());
     settings.setProperty("sonar.security.realm", realm.getName());
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE, true);
+    settings.setProperty(SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey(), true);
 
     new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm}).start();
     verify(realm).init();
@@ -148,18 +115,8 @@ public class SecurityRealmFactoryTest {
 
   private static class FakeRealm extends SecurityRealm {
     @Override
-    public LoginPasswordAuthenticator getLoginPasswordAuthenticator() {
+    public Authenticator doGetAuthenticator() {
       return null;
     }
   }
-
-  private static class FakeAuthenticator implements LoginPasswordAuthenticator {
-    public void init() {
-    }
-
-    public boolean authenticate(String login, String password) {
-      return false;
-    }
-  }
-
 }

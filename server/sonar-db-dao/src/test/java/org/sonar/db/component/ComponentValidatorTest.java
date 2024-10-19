@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,38 +19,39 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.test.TestUtils.hasOnlyPrivateConstructors;
 
-public class ComponentValidatorTest {
+class ComponentValidatorTest {
 
   @Test
-  public void check_name() {
+  void check_name() {
     String name = repeat("a", 500);
 
     assertThat(ComponentValidator.checkComponentName(name)).isEqualTo(name);
   }
 
   @Test
-  public void fail_when_name_longer_than_500_characters() {
+  void fail_when_name_longer_than_500_characters() {
     assertThatThrownBy(() -> ComponentValidator.checkComponentName(repeat("a", 500 + 1)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Component name length");
   }
 
   @Test
-  public void check_key() {
+  void check_key() {
     String key = repeat("a", 400);
 
     assertThat(ComponentValidator.checkComponentKey(key)).isEqualTo(key);
   }
 
   @Test
-  public void fail_when_key_longer_than_400_characters() {
+  void fail_when_key_longer_than_400_characters() {
     assertThatThrownBy(() -> {
       String key = repeat("a", 400 + 1);
       ComponentValidator.checkComponentKey(key);
@@ -60,21 +61,21 @@ public class ComponentValidatorTest {
   }
 
   @Test
-  public void check_qualifier() {
+  void check_qualifier() {
     String qualifier = repeat("a", 10);
 
     assertThat(ComponentValidator.checkComponentQualifier(qualifier)).isEqualTo(qualifier);
   }
 
   @Test
-  public void fail_when_qualifier_is_longer_than_10_characters() {
+  void fail_when_qualifier_is_longer_than_10_characters() {
     assertThatThrownBy(() -> ComponentValidator.checkComponentQualifier(repeat("a", 10 + 1)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Component qualifier length");
   }
 
   @Test
-  public void private_constructor() {
+  void private_constructor() {
     assertThat(hasOnlyPrivateConstructors(ComponentValidator.class)).isTrue();
   }
 }

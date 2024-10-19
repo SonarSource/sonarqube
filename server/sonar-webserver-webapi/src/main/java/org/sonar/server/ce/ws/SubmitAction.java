@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,23 +23,29 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.server.ce.queue.ReportSubmitter;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Ce;
 
-import static org.apache.commons.lang.StringUtils.abbreviate;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SubmitAction implements CeWsAction {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SubmitAction.class);
 
   private static final String PARAM_ORGANIZATION_KEY = "organization";
   private static final String PARAM_PROJECT_KEY = "projectKey";
@@ -111,6 +117,9 @@ public class SubmitAction implements CeWsAction {
         .setProjectId(task.getComponent().get().getUuid())
         .build();
       WsUtils.writeProtobuf(submitResponse, wsRequest, wsResponse);
+    } catch (IllegalStateException e) {
+      LOGGER.debug(e.getMessage(), e);
+      throw new ServerException(HTTP_INTERNAL_ERROR, e.getMessage());
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.user.UserQuery;
+import org.sonar.db.Pagination;
 
 public interface UserMapper {
 
@@ -38,7 +38,9 @@ public interface UserMapper {
    * Can return multiple results if an email is used by many users (For instance, technical account can use the same email as a none technical account)
    */
   @CheckForNull
-  List<UserDto> selectNullableByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail, @Param("likeScmAccount") String likeScmAccount);
+  List<UserDto> selectNullableByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail);
+
+  List<UserIdDto> selectActiveUsersByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail);
 
   /**
    * Select user by login. Note that disabled users are ignored.
@@ -46,7 +48,9 @@ public interface UserMapper {
   @CheckForNull
   UserDto selectUserByLogin(String login);
 
-  List<UserDto> selectUsers(UserQuery query);
+  List<UserDto> selectUsers(@Param("query") UserQuery query, @Param("pagination") Pagination pagination);
+
+  int countByQuery(@Param("query") UserQuery query);
 
   List<UserTelemetryDto> selectUsersForTelemetry();
 
@@ -81,4 +85,10 @@ public interface UserMapper {
   void clearHomepage(@Param("login") String login, @Param("now") long now);
 
   long countActiveSonarlintUsers(@Param("sinceDate") long sinceDate);
+
+  long countActiveUsers();
+
+  void insertScmAccount(@Param("userUuid") String userUuid, @Param("scmAccount") String scmAccount);
+
+  void deleteAllScmAccounts(@Param("userUuid") String userUuid);
 }

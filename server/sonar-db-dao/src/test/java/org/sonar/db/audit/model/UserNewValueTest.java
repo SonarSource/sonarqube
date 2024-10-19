@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,28 +19,21 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.List;
 import org.json.simple.parser.JSONParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.user.UserDto;
 
+import static java.util.Collections.emptyList;
 import static org.junit.Assert.fail;
 
-public class UserNewValueTest {
+class UserNewValueTest {
 
   private static final JSONParser jsonParser = new JSONParser();
 
   @Test
-  public void toString_givenAllFieldsWithValue_returnValidJSON() {
-    UserDto userDto = new UserDto();
-    userDto.setName("name");
-    userDto.setEmail("name@email.com");
-    userDto.setActive(true);
-    userDto.setScmAccounts("\ngithub-account\n");
-    userDto.setExternalId("name");
-    userDto.setExternalLogin("name");
-    userDto.setExternalIdentityProvider("github");
-    userDto.setLocal(false);
-    userDto.setLastConnectionDate(System.currentTimeMillis());
+  void toString_givenAllFieldsWithValue_returnValidJSON() {
+    UserDto userDto = createUserDto();
     UserNewValue userNewValue = new UserNewValue(userDto);
 
     String jsonString = userNewValue.toString();
@@ -49,14 +42,39 @@ public class UserNewValueTest {
   }
 
   @Test
-  public void toString_givenUserUuidAndUserLogin_returnValidJSON() {
+  void toString_givenEmptyScmAccount_returnValidJSON() {
+    UserDto userDto = createUserDto();
+    userDto.setScmAccounts(emptyList());
+    UserNewValue userNewValue = new UserNewValue(userDto);
+
+    String jsonString = userNewValue.toString();
+
+    assertValidJSON(jsonString);
+  }
+
+  @Test
+  void toString_givenUserUuidAndUserLogin_returnValidJSON() {
     UserNewValue userNewValue = new UserNewValue("userUuid", "userLogin");
 
     String jsonString = userNewValue.toString();
 
     assertValidJSON(jsonString);
   }
-  
+
+  private static UserDto createUserDto() {
+    UserDto userDto = new UserDto();
+    userDto.setName("name");
+    userDto.setEmail("name@email.com");
+    userDto.setActive(true);
+    userDto.setScmAccounts(List.of("github-account", "gitlab-account"));
+    userDto.setExternalId("name");
+    userDto.setExternalLogin("name");
+    userDto.setExternalIdentityProvider("github");
+    userDto.setLocal(false);
+    userDto.setLastConnectionDate(System.currentTimeMillis());
+    return userDto;
+  }
+
   private void assertValidJSON(String jsonString) {
     try {
       jsonParser.parse(jsonString);

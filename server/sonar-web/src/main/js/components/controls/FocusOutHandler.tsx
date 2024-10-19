@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 import * as React from 'react';
 
 interface Props extends React.BaseHTMLAttributes<HTMLDivElement> {
-  onFocusOut: () => void;
   innerRef?: (instance: HTMLDivElement) => void;
+  onFocusOut: () => void;
 }
 
 export default class FocusOutHandler extends React.PureComponent<React.PropsWithChildren<Props>> {

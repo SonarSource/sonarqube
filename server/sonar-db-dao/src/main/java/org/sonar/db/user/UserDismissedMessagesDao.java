@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.project.ProjectDto;
 
 public class UserDismissedMessagesDao implements Dao {
@@ -40,9 +40,14 @@ public class UserDismissedMessagesDao implements Dao {
     return dto;
   }
 
-  public Optional<UserDismissedMessageDto> selectByUserAndProjectAndMessageType(DbSession session, UserDto user, ProjectDto project,
-    CeTaskMessageType ceMessageType) {
-    return mapper(session).selectByUserUuidAndProjectUuidAndMessageType(user.getUuid(), project.getUuid(), ceMessageType.name());
+  public Optional<UserDismissedMessageDto> selectByUserAndProjectAndMessageType(DbSession session, String userUuid, ProjectDto project,
+    MessageType messageType) {
+    return mapper(session).selectByUserUuidAndProjectUuidAndMessageType(userUuid, project.getUuid(), messageType.name());
+  }
+
+  public Optional<UserDismissedMessageDto> selectByUserUuidAndMessageType(DbSession session, String userUuid,
+    MessageType messageType) {
+    return mapper(session).selectByUserUuidAndMessageType(userUuid, messageType.name());
   }
 
   public List<UserDismissedMessageDto> selectByUser(DbSession session, UserDto user) {
@@ -53,7 +58,7 @@ public class UserDismissedMessagesDao implements Dao {
     mapper(session).deleteByUserUuid(user.getUuid());
   }
 
-  public void deleteByType(DbSession session, CeTaskMessageType type) {
+  public void deleteByType(DbSession session, MessageType type) {
     mapper(session).deleteByType(type.name());
   }
 

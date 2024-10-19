@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,12 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Date;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -90,6 +94,7 @@ public class IssueLifecycleTest {
     assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
   }
 
   @Test
@@ -120,6 +125,7 @@ public class IssueLifecycleTest {
       .setIsNewCodeReferenceIssue(true);
     fromShort.setResolution("resolution");
     fromShort.setStatus("status");
+    fromShort.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE);
 
     Date commentDate = new Date();
     fromShort.addComment(new DefaultIssueComment()
@@ -151,6 +157,7 @@ public class IssueLifecycleTest {
 
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");
+    assertThat(raw.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.COMPLETE);
     assertThat(raw.defaultIssueComments())
       .extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
       .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
@@ -181,6 +188,7 @@ public class IssueLifecycleTest {
       .setKey("short");
     fromShort.setResolution("resolution");
     fromShort.setStatus("status");
+    fromShort.setCleanCodeAttribute(CleanCodeAttribute.DISTINCT);
 
     Date commentDate = new Date();
     fromShort.addComment(new DefaultIssueComment()
@@ -208,6 +216,7 @@ public class IssueLifecycleTest {
 
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");
+    assertThat(raw.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.DISTINCT);
     assertThat(raw.defaultIssueComments())
       .extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
       .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
@@ -292,10 +301,12 @@ public class IssueLifecycleTest {
       .setCreationDate(parseDate("2015-01-01"))
       .setUpdateDate(parseDate("2015-01-02"))
       .setCloseDate(parseDate("2015-01-03"))
+      .setCleanCodeAttribute(CleanCodeAttribute.FOCUSED)
       .setResolution(RESOLUTION_FIXED)
       .setStatus(STATUS_CLOSED)
       .setSeverity(BLOCKER)
       .setAssigneeUuid("base assignee uuid")
+      .setAssigneeLogin("base assignee login")
       .setAuthorLogin("base author")
       .setTags(newArrayList("base tag"))
       .setOnDisabledRule(true)
@@ -317,6 +328,7 @@ public class IssueLifecycleTest {
 
     assertThat(raw.isNew()).isFalse();
     assertThat(raw.isCopied()).isTrue();
+    assertThat(raw.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.FOCUSED);
     assertThat(raw.key()).isNotNull();
     assertThat(raw.key()).isNotEqualTo(base.key());
     assertThat(raw.creationDate()).isEqualTo(base.creationDate());
@@ -325,6 +337,7 @@ public class IssueLifecycleTest {
     assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
     assertThat(raw.assignee()).isEqualTo("base assignee uuid");
+    assertThat(raw.assigneeLogin()).isEqualTo("base assignee login");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
     assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
@@ -347,12 +360,44 @@ public class IssueLifecycleTest {
   }
 
   @Test
+  public void doManualTransition() {
+    DefaultIssue issue = new DefaultIssue();
+    String transitionKey = "transitionKey";
+    String userUuid = "userUuid";
+
+    underTest.doManualTransition(issue, transitionKey, userUuid);
+
+    verify(workflow).doManualTransition(issue, transitionKey, getIssueChangeContextWithUser(userUuid));
+  }
+
+  @Test
+  public void addComment() {
+    DefaultIssue issue = new DefaultIssue();
+    String comment = "comment";
+    String userUuid = "userUuid";
+
+    underTest.addComment(issue, comment, userUuid);
+
+    verify(updater).addComment(issue, comment, getIssueChangeContextWithUser(userUuid));
+  }
+
+  private IssueChangeContext getIssueChangeContextWithUser(String userUuid) {
+    return IssueChangeContext.newBuilder()
+      .setDate(issueChangeContext.date())
+      .setWebhookSource(issueChangeContext.getWebhookSource())
+      .setUserUuid(userUuid).build();
+  }
+
+  @Test
   public void mergeExistingOpenIssue() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
       .setKey("RAW_KEY")
       .setRuleKey(XOO_X1)
       .setRuleDescriptionContextKey("spring")
+      .setCleanCodeAttribute(CleanCodeAttribute.IDENTIFIABLE)
+      .setCodeVariants(Set.of("foo", "bar"))
+      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
       .setCreationDate(parseDate("2015-10-01"))
       .setUpdateDate(parseDate("2015-10-02"))
       .setCloseDate(parseDate("2015-10-03"));
@@ -377,10 +422,12 @@ public class IssueLifecycleTest {
       .setKey("BASE_KEY")
       .setCreationDate(parseDate("2015-01-01"))
       .setUpdateDate(parseDate("2015-01-02"))
+      .setCleanCodeAttribute(CleanCodeAttribute.FOCUSED)
       .setResolution(RESOLUTION_FALSE_POSITIVE)
       .setStatus(STATUS_RESOLVED)
       .setSeverity(BLOCKER)
       .setAssigneeUuid("base assignee uuid")
+      .setAssigneeLogin("base assignee login")
       .setAuthorLogin("base author")
       .setTags(newArrayList("base tag"))
       .setOnDisabledRule(true)
@@ -390,6 +437,8 @@ public class IssueLifecycleTest {
       .setMessageFormattings(messageFormattings)
       .setGap(15d)
       .setRuleDescriptionContextKey("hibernate")
+      .setCodeVariants(Set.of("donut"))
+      .addImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
       .setEffort(Duration.create(15L))
       .setManualSeverity(false)
       .setLocations(issueLocations)
@@ -407,8 +456,10 @@ public class IssueLifecycleTest {
     assertThat(raw.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
     assertThat(raw.status()).isEqualTo(STATUS_RESOLVED);
     assertThat(raw.assignee()).isEqualTo("base assignee uuid");
+    assertThat(raw.assigneeLogin()).isEqualTo("base assignee login");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
+    assertThat(raw.codeVariants()).containsOnly("foo", "bar");
     assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(raw.isOnDisabledRule()).isTrue();
     assertThat(raw.selectedAt()).isEqualTo(1000L);
@@ -418,13 +469,16 @@ public class IssueLifecycleTest {
       .containsOnly(entry("foo", new FieldDiffs.Diff<>("bar", "donut")));
     assertThat(raw.changes().get(1).diffs())
       .containsOnly(entry("file", new FieldDiffs.Diff<>("A", "B")));
-
+    assertThat(raw.impacts())
+      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
     verify(updater).setRuleDescriptionContextKey(raw, "hibernate");
+    verify(updater).setCodeVariants(raw, Set.of("donut"), issueChangeContext);
     verify(updater).setPastMessage(raw, "message with code", messageFormattings, issueChangeContext);
     verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
     verify(updater).setPastLocations(raw, issueLocations);
+    verify(updater).setCleanCodeAttribute(raw, CleanCodeAttribute.FOCUSED, issueChangeContext);
   }
 
   @Test

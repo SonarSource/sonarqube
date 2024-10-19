@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,15 +27,16 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.scan.branch.BranchParamsValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
-import static org.sonar.core.config.ScannerProperties.BRANCHES_DOC_LINK;
+import static org.sonar.core.config.ScannerProperties.BRANCHES_DOC_LINK_SUFFIX;
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_BASE;
 import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_BRANCH;
@@ -53,15 +54,18 @@ public class ProjectReactorValidator {
   @Nullable
   private final BranchParamsValidator branchParamsValidator;
 
+  private final DocumentationLinkGenerator documentationLinkGenerator;
+
   @Autowired(required = false)
-  public ProjectReactorValidator(GlobalConfiguration settings, @Nullable BranchParamsValidator branchParamsValidator) {
+  public ProjectReactorValidator(GlobalConfiguration settings, @Nullable BranchParamsValidator branchParamsValidator, DocumentationLinkGenerator documentationLinkGenerator) {
     this.settings = settings;
     this.branchParamsValidator = branchParamsValidator;
+    this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
   @Autowired(required = false)
-  public ProjectReactorValidator(GlobalConfiguration settings) {
-    this(settings, null);
+  public ProjectReactorValidator(GlobalConfiguration settings, DocumentationLinkGenerator documentationLinkGenerator) {
+    this(settings, null, documentationLinkGenerator);
   }
 
   public void validate(ProjectReactor reactor) {
@@ -87,7 +91,7 @@ public class ProjectReactorValidator {
   private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
     if (isNotEmpty(settings.get(BRANCH_NAME).orElse(null))) {
       validationMessages.add(format("To use the property \"%s\" and analyze branches, Developer Edition or above is required. "
-        + "See %s for more information.", BRANCH_NAME, BRANCHES_DOC_LINK));
+        + "See %s for more information.", BRANCH_NAME, documentationLinkGenerator.getDocumentationLink(BRANCHES_DOC_LINK_SUFFIX)));
     }
   }
 
@@ -95,7 +99,7 @@ public class ProjectReactorValidator {
     Stream.of(PULL_REQUEST_KEY, PULL_REQUEST_BRANCH, PULL_REQUEST_BASE)
       .filter(param -> nonNull(settings.get(param).orElse(null)))
       .forEach(param -> validationMessages.add(format("To use the property \"%s\" and analyze pull requests, Developer Edition or above is required. "
-        + "See %s for more information.", param, BRANCHES_DOC_LINK)));
+        + "See %s for more information.", param, documentationLinkGenerator.getDocumentationLink(BRANCHES_DOC_LINK_SUFFIX))));
   }
 
   private static void validateModule(ProjectDefinition projectDefinition, List<String> validationMessages) {

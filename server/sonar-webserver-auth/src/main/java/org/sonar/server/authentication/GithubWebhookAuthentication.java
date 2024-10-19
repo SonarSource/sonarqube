@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,13 +22,13 @@ package org.sonar.server.authentication;
 import com.google.common.annotations.VisibleForTesting;
 import java.security.MessageDigest;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -38,11 +38,11 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.sonar.server.user.GithubWebhookUserSession.GITHUB_WEBHOOK_USER_NAME;
 
 public class GithubWebhookAuthentication {
-  private static final Logger LOG = Loggers.get(GithubWebhookAuthentication.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GithubWebhookAuthentication.class);
 
   @VisibleForTesting
   static final String GITHUB_SIGNATURE_HEADER = "x-hub-signature-256";
@@ -77,7 +77,7 @@ public class GithubWebhookAuthentication {
     this.encryption = settings.getEncryption();
   }
 
-  public Optional<UserAuthResult> authenticate(HttpServletRequest request) {
+  public Optional<UserAuthResult> authenticate(HttpRequest request) {
     String githubAppId = request.getHeader(GITHUB_APP_ID_HEADER);
     if (isEmpty(githubAppId)) {
       return Optional.empty();
@@ -94,7 +94,7 @@ public class GithubWebhookAuthentication {
     return createAuthResult(request);
   }
 
-  private static String getGithubSignature(HttpServletRequest request, String githubAppId) {
+  private static String getGithubSignature(HttpRequest request, String githubAppId) {
     String githubSignature = request.getHeader(GITHUB_SIGNATURE_HEADER);
     if (isEmpty(githubSignature)) {
       logAuthenticationProblemAndThrow(format(MSG_UNAUTHENTICATED_GITHUB_CALLS_DENIED, githubAppId));
@@ -102,7 +102,7 @@ public class GithubWebhookAuthentication {
     return githubSignature;
   }
 
-  private static String getBody(HttpServletRequest request) {
+  private static String getBody(HttpRequest request) {
     try {
       return request.getReader().lines().collect(joining(System.lineSeparator()));
     } catch (Exception e) {
@@ -144,7 +144,7 @@ public class GithubWebhookAuthentication {
     return MessageDigest.isEqual(githubSignature.getBytes(UTF_8), computedSignature.getBytes(UTF_8));
   }
 
-  private Optional<UserAuthResult> createAuthResult(HttpServletRequest request) {
+  private Optional<UserAuthResult> createAuthResult(HttpRequest request) {
     UserAuthResult userAuthResult = UserAuthResult.withGithubWebhook();
     authenticationEvent.loginSuccess(request, GITHUB_WEBHOOK_USER_NAME, AuthenticationEvent.Source.githubWebhook());
     return Optional.of(userAuthResult);

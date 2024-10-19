@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,17 +22,9 @@ import PageCounter from '../../../components/common/PageCounter';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  current: number | undefined;
   total: number;
 }
 
 export default function IssuesCounter(props: Props) {
-  return (
-    <PageCounter
-      className="spacer-left"
-      current={props.current}
-      label={translate('issues.issues')}
-      total={props.total}
-    />
-  );
+  return <PageCounter className="sw-ml-2" label={translate('issues.issues')} total={props.total} />;
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -204,6 +204,7 @@ module.exports = {
     smallFontSize: '12px',
     mediumFontSize: '14px',
     bigFontSize: '16px',
+    veryBigFontSize: '18px',
     hugeFontSize: '24px',
     giganticFontSize: '36px',
 
@@ -217,8 +218,6 @@ module.exports = {
 
     globalNavContentHeight: `${4 * grid}px`,
 
-    maxPageWidth: '1320px',
-    minPageWidth: '1080px',
     pagePadding: '20px',
   },
 
@@ -258,7 +257,7 @@ module.exports = {
 
     contextbarZIndex: '420',
 
-    tooltipZIndex: '8000',
+    tooltipZIndex: '9001',
 
     dropdownMenuZIndex: '7500',
 

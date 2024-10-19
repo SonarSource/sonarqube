@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,63 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import React from 'react';
+import userEvent from '@testing-library/user-event';
+import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { dismissNotice } from '../../../../api/users';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { NoticeType } from '../../../../types/users';
-import { PromotionNotification, PromotionNotificationProps } from '../PromotionNotification';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { CurrentUser, NoticeType } from '../../../../types/users';
+import PromotionNotification from '../PromotionNotification';
 
 jest.mock('../../../../api/users', () => ({
-  dismissNotice: jest.fn().mockResolvedValue({}),
+  dismissNotice: jest.fn().mockResolvedValue(undefined),
 }));
 
-beforeEach(() => {
-  jest.clearAllMocks();
+it('should not render when anonymous', () => {
+  renderPromotionNotification(mockCurrentUser({ isLoggedIn: false }));
+
+  expect(byText('promotion.sonarlint.title').query()).not.toBeInTheDocument();
 });
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('anonymous');
-  expect(
-    shallowRender({
-      currentUser: mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: true } }),
-    })
-  ).toMatchSnapshot('adAlreadySeen');
-  expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('loggedIn');
-});
-
-it('should remove the toaster when click on dismiss', async () => {
-  const updateDismissedNotices = jest.fn();
-  const wrapper = shallowRender({
-    currentUser: mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: false } }),
-    updateDismissedNotices,
-  });
-  wrapper.find('.toaster-actions ButtonLink').simulate('click');
-  expect(dismissNotice).toHaveBeenCalled();
-  await waitAndUpdate(wrapper);
-  expect(updateDismissedNotices).toHaveBeenCalled();
-});
-
-it('should remove the toaster and navigate to sonarlint when click on learn more', async () => {
-  const updateDismissedNotices = jest.fn();
-  const wrapper = shallowRender({
-    currentUser: mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: false } }),
-    updateDismissedNotices,
-  });
-  wrapper.find('.toaster-actions .button-primary').simulate('click');
-  expect(dismissNotice).toHaveBeenCalled();
-  await waitAndUpdate(wrapper);
-  expect(updateDismissedNotices).toHaveBeenCalled();
-});
-
-function shallowRender(props: Partial<PromotionNotificationProps> = {}) {
-  return shallow(
-    <PromotionNotification
-      currentUser={mockCurrentUser()}
-      updateDismissedNotices={jest.fn()}
-      updateCurrentUserHomepage={jest.fn()}
-      {...props}
-    />
+it('should not render if previously dismissed', () => {
+  renderPromotionNotification(
+    mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: true } }),
   );
+
+  expect(byText('promotion.sonarlint.title').query()).not.toBeInTheDocument();
+});
+
+it('should be dismissable', async () => {
+  const user = userEvent.setup();
+
+  renderPromotionNotification();
+
+  expect(byText('promotion.sonarlint.title').get()).toBeInTheDocument();
+  const dismissButton = byRole('button', { name: 'dismiss' }).get();
+
+  expect(dismissButton).toBeInTheDocument();
+  await user.click(dismissButton);
+
+  expect(dismissNotice).toHaveBeenCalledWith(NoticeType.SONARLINT_AD);
+});
+
+function renderPromotionNotification(currentUser: CurrentUser = mockLoggedInUser()) {
+  return renderComponent(<PromotionNotification />, '', {
+    currentUser,
+  });
 }

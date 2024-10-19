@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
@@ -33,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -55,16 +54,13 @@ public class PersistComponentsStepTest {
     doReturn(componentDao).when(dbClient).componentDao();
     doReturn(emptyList()).when(componentDao).selectByBranchUuid(eq(projectKey), any(DbSession.class));
 
-    assertThatThrownBy(() -> {
-      new PersistComponentsStep(
-        dbClient,
-        treeRootHolder,
-        System2.INSTANCE,
-        mock(MutableDisabledComponentsHolder.class),
-        mock(AnalysisMetadataHolder.class),
-        mock(BranchPersister.class),
-        mock(ProjectPersister.class)).execute(new TestComputationStepContext());
-    })
+    assertThatThrownBy(() -> new PersistComponentsStep(
+      dbClient,
+      treeRootHolder,
+      System2.INSTANCE,
+      mock(MutableDisabledComponentsHolder.class),
+      mock(BranchPersister.class),
+      mock(ProjectPersister.class)).execute(new TestComputationStepContext()))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("The project '" + projectKey + "' is not stored in the database, during a project analysis");
   }

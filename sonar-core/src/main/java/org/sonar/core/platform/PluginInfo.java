@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,17 +35,17 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Objects.requireNonNull;
 
 public class PluginInfo implements Comparable<PluginInfo> {
-  private static final Logger LOGGER = Loggers.get(PluginInfo.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PluginInfo.class);
 
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
 
@@ -99,6 +99,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
   private String documentationPath;
 
   private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
+
+  private final Set<String> requiredForLanguages = new HashSet<>();
 
   public PluginInfo(String key) {
     requireNonNull(key, "Plugin key is missing from manifest");
@@ -210,6 +212,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return requiredPlugins;
   }
 
+  public Set<String> getRequiredForLanguages() {
+    return requiredForLanguages;
+  }
+
   public PluginInfo setName(@Nullable String name) {
     this.name = (name != null ? name : this.key);
     return this;
@@ -296,6 +302,11 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public PluginInfo addRequiredPlugin(RequiredPlugin p) {
     this.requiredPlugins.add(p);
+    return this;
+  }
+
+  public PluginInfo addRequiredForLanguage(String lang) {
+    this.requiredForLanguages.add(lang);
     return this;
   }
 
@@ -405,6 +416,12 @@ public class PluginInfo implements Comparable<PluginInfo> {
         .map(RequiredPlugin::parse)
         .filter(t -> !"license".equals(t.key))
         .forEach(this::addRequiredPlugin);
+    }
+
+    String[] requiredForLanguagesFromManifest = manifest.getRequiredForLanguages();
+    if (requiredForLanguagesFromManifest != null) {
+      Arrays.stream(requiredForLanguagesFromManifest)
+        .forEach(this::addRequiredForLanguage);
     }
   }
 

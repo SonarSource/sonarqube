@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.server.webhook;
 public interface WebhookCaller {
 
   /**
-   * Call webhook by sending a HTTP(S) POST request containing
+   * Call webhook by sending an HTTP(S) POST request containing
    * the JSON payload.
    * <br/>
    * Errors are silently ignored. They don't generate logs or

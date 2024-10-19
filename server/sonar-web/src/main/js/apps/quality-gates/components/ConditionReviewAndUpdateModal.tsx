@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,151 +17,135 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Link, Modal, SubHeading, Title } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { createCondition, updateCondition } from '../../../api/quality-gates';
-import DocLink from '../../../components/common/DocLink';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useFixQualityGateMutation } from '../../../queries/quality-gates';
 import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
-import { getCorrectCaycCondition, getWeakMissingAndNonCaycConditions } from '../utils';
+import { getWeakMissingAndNonCaycConditions } from '../utils';
 import ConditionsTable from './ConditionsTable';
 
 interface Props {
   canEdit: boolean;
-  organization: string;
-  metrics: Dict<Metric>;
-  updatedConditionId?: string;
   conditions: Condition[];
-  scope: 'new' | 'overall' | 'new-cayc';
-  onClose: () => void;
-  onAddCondition: (condition: Condition) => void;
-  onRemoveCondition: (condition: Condition) => void;
-  onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
+  isOptimizing?: boolean;
   lockEditing: () => void;
+  metrics: Dict<Metric>;
+  onClose: () => void;
   qualityGate: QualityGate;
+  scope: 'new' | 'overall' | 'new-cayc';
 }
 
-export default class CaycReviewUpdateConditionsModal extends React.PureComponent<Props> {
-  updateCaycQualityGate = () => {
-    const { conditions, qualityGate, organization } = this.props;
-    const promiseArr: Promise<Condition | undefined | void>[] = [];
-    const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
+export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) {
+  const { conditions, qualityGate, metrics, lockEditing, onClose, isOptimizing } = props;
+  const { mutateAsync: fixQualityGate } = useFixQualityGateMutation(qualityGate.name);
 
-    weakConditions.forEach((condition) => {
-      promiseArr.push(
-        updateCondition({
-          ...getCorrectCaycCondition(condition),
-          id: condition.id,
-          organization,
-        })
-          .then((resultCondition) => {
-            const currentCondition = conditions.find((con) => con.metric === condition.metric);
-            if (currentCondition) {
-              this.props.onSaveCondition(resultCondition, currentCondition);
-            }
-          })
-          .catch(() => undefined)
-      );
-    });
+  const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
+  const sortedWeakConditions = sortBy(
+    weakConditions,
+    (condition) => metrics[condition.metric]?.name,
+  );
 
-    missingConditions.forEach((condition) => {
-      promiseArr.push(
-        createCondition({
-          ...getCorrectCaycCondition(condition),
-          gateId: qualityGate.id,
-          organization,
-        })
-          .then((resultCondition) => this.props.onAddCondition(resultCondition))
-          .catch(() => undefined)
-      );
-    });
+  const sortedMissingConditions = sortBy(
+    missingConditions,
+    (condition) => metrics[condition.metric]?.name,
+  );
 
-    return Promise.all(promiseArr).then(() => {
-      this.props.lockEditing();
-    });
-  };
+  const docUrl = useDocUrl(DocLink.CaYC);
 
-  render() {
-    const { conditions, qualityGate, metrics } = this.props;
+  const updateCaycQualityGate = React.useCallback(async () => {
+    await fixQualityGate({ weakConditions, missingConditions });
+    lockEditing();
+  }, [fixQualityGate, weakConditions, missingConditions, lockEditing]);
 
-    const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
-    const sortedWeakConditions = sortBy(
-      weakConditions,
-      (condition) => metrics[condition.metric] && metrics[condition.metric].name
-    );
+  const body = (
+    <div className="sw-mb-10">
+      <SubHeading as="p" className="sw-typo-default">
+        <FormattedMessage
+          id={
+            isOptimizing
+              ? 'quality_gates.cayc.review_optimize_modal.description1'
+              : 'quality_gates.cayc.review_update_modal.description1'
+          }
+          values={{
+            cayc_link: <Link to={docUrl}>{translate('quality_gates.cayc')}</Link>,
+          }}
+        />
+      </SubHeading>
 
-    const sortedMissingConditions = sortBy(
-      missingConditions,
-      (condition) => metrics[condition.metric] && metrics[condition.metric].name
-    );
+      {sortedMissingConditions.length > 0 && (
+        <>
+          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-typo-semibold">
+            {translateWithParameters(
+              'quality_gates.cayc.review_update_modal.add_condition.header',
+              sortedMissingConditions.length,
+            )}
+          </Title>
+          <ConditionsTable
+            {...props}
+            conditions={sortedMissingConditions}
+            showEdit={false}
+            isCaycModal
+          />
+        </>
+      )}
 
-    return (
-      <ConfirmModal
-        header={translateWithParameters(
-          'quality_gates.cayc.review_update_modal.header',
-          qualityGate.name
-        )}
-        confirmButtonText={translate('quality_gates.cayc.review_update_modal.confirm_text')}
-        onClose={this.props.onClose}
-        onConfirm={this.updateCaycQualityGate}
-        size="medium"
-      >
-        <div className="quality-gate-section huge-spacer-bottom">
-          <p>
-            <FormattedMessage
-              id="quality_gates.cayc.review_update_modal.description1"
-              defaultMessage={translate('quality_gates.cayc.review_update_modal.description1')}
-              values={{
-                cayc_link: (
-                  <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                    {translate('quality_gates.cayc')}
-                  </DocLink>
-                ),
-              }}
-            />
-          </p>
+      {sortedWeakConditions.length > 0 && (
+        <>
+          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-typo-semibold">
+            {translateWithParameters(
+              'quality_gates.cayc.review_update_modal.modify_condition.header',
+              sortedWeakConditions.length,
+            )}
+          </Title>
+          <ConditionsTable
+            {...props}
+            conditions={sortedWeakConditions}
+            showEdit={false}
+            isCaycModal
+          />
+        </>
+      )}
 
-          {sortedMissingConditions.length > 0 && (
-            <>
-              <h4 className="big-spacer-top spacer-bottom">
-                {translateWithParameters(
-                  'quality_gates.cayc.review_update_modal.add_condition.header',
-                  sortedMissingConditions.length
-                )}
-              </h4>
-              <ConditionsTable
-                {...this.props}
-                conditions={sortedMissingConditions}
-                showEdit={false}
-                isCaycModal={true}
-              />
-            </>
+      <Title as="h4" className="sw-mb-2 sw-mt-4 sw-typo-semibold">
+        {translate('quality_gates.cayc.review_update_modal.description2')}
+      </Title>
+    </div>
+  );
+
+  return (
+    <Modal
+      isLarge
+      headerTitle={translateWithParameters(
+        isOptimizing
+          ? 'quality_gates.cayc.review_optimize_modal.header'
+          : 'quality_gates.cayc.review_update_modal.header',
+        qualityGate.name,
+      )}
+      onClose={onClose}
+      body={body}
+      primaryButton={
+        <Button
+          hasAutoFocus
+          id="fix-quality-gate"
+          type="submit"
+          onClick={updateCaycQualityGate}
+          variety={ButtonVariety.Primary}
+        >
+          {translate(
+            isOptimizing
+              ? 'quality_gates.cayc.review_optimize_modal.confirm_text'
+              : 'quality_gates.cayc.review_update_modal.confirm_text',
           )}
-
-          {sortedWeakConditions.length > 0 && (
-            <>
-              <h4 className="big-spacer-top spacer-bottom">
-                {translateWithParameters(
-                  'quality_gates.cayc.review_update_modal.modify_condition.header',
-                  sortedWeakConditions.length
-                )}
-              </h4>
-              <ConditionsTable
-                {...this.props}
-                conditions={sortedWeakConditions}
-                showEdit={false}
-                isCaycModal={true}
-              />
-            </>
-          )}
-
-          <h4 className="big-spacer-top spacer-bottom">
-            {translate('quality_gates.cayc.review_update_modal.description2')}
-          </h4>
-        </div>
-      </ConfirmModal>
-    );
-  }
+        </Button>
+      }
+      secondaryButtonLabel={translate('close')}
+    />
+  );
 }

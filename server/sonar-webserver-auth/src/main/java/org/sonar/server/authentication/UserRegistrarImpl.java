@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
@@ -42,6 +44,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
@@ -50,25 +53,27 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public class UserRegistrarImpl implements UserRegistrar {
 
   public static final String SQ_AUTHORITY = "sonarqube";
   public static final String LDAP_PROVIDER_PREFIX = "LDAP_";
-  private static final Logger LOGGER = Loggers.get(UserRegistrarImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserRegistrarImpl.class);
   public static final String GITHUB_PROVIDER = "github";
   public static final String GITLAB_PROVIDER = "gitlab";
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
+  private final ManagedInstanceService managedInstanceService;
 
-  public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultGroupFinder defaultGroupFinder) {
+  public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultGroupFinder defaultGroupFinder,
+    ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.defaultGroupFinder = defaultGroupFinder;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -81,7 +86,7 @@ public class UserRegistrarImpl implements UserRegistrar {
       if (!userDto.isActive()) {
         return registerNewUser(dbSession, userDto, registration);
       }
-      return registerExistingUser(dbSession, userDto, registration);
+      return updateExistingUser(dbSession, userDto, registration);
     }
   }
 
@@ -159,6 +164,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserRegistration authenticatorParameters) {
+    blockUnmanagedUserCreationOnManagedInstance(authenticatorParameters);
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters, disabledUser != null ? disabledUser.getUuid() : null);
     NewUser newUser = createNewUser(authenticatorParameters);
     if (disabledUser == null) {
@@ -167,14 +173,24 @@ public class UserRegistrarImpl implements UserRegistrar {
     return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
   }
 
-  private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {
+  private void blockUnmanagedUserCreationOnManagedInstance(UserRegistration userRegistration) {
+    if (managedInstanceService.isInstanceExternallyManaged() && !userRegistration.managed()) {
+      throw AuthenticationException.newBuilder()
+        .setMessage("No account found for this user. As the instance is managed, make sure to provision the user from your IDP.")
+        .setPublicMessage("You have no account on SonarQube. Please make sure with your administrator that your account is provisioned.")
+        .setLogin(userRegistration.getUserIdentity().getProviderLogin())
+        .setSource(userRegistration.getSource())
+        .build();
+    }
+  }
+
+  private UserDto updateExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {
     UpdateUser update = new UpdateUser()
       .setEmail(authenticatorParameters.getUserIdentity().getEmail())
       .setName(authenticatorParameters.getUserIdentity().getName())
-      .setExternalIdentity(new ExternalIdentity(
-        authenticatorParameters.getProvider().getKey(),
-        authenticatorParameters.getUserIdentity().getProviderLogin(),
-        authenticatorParameters.getUserIdentity().getProviderId()));
+      .setExternalIdentityProvider(authenticatorParameters.getProvider().getKey())
+      .setExternalIdentityProviderId(authenticatorParameters.getUserIdentity().getProviderId())
+      .setExternalIdentityProviderLogin(authenticatorParameters.getUserIdentity().getProviderLogin());
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters, userDto.getUuid());
     userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
     return userDto;
@@ -219,7 +235,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     allGroups.addAll(groupsToRemove);
     Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, null /* TODO */, allGroups)
       .stream()
-      .collect(uniqueIndex(GroupDto::getName));
+      .collect(Collectors.toMap(GroupDto::getName, Function.identity()));
 
     addGroups(dbSession, userDto, groupsToAdd, groupsByName);
     removeGroups(dbSession, userDto, groupsToRemove, groupsByName);
@@ -247,9 +263,9 @@ public class UserRegistrarImpl implements UserRegistrar {
       });
   }
 
-  private static NewUser createNewUser(UserRegistration authenticatorParameters) {
+  private NewUser createNewUser(UserRegistration authenticatorParameters) {
     String identityProviderKey = authenticatorParameters.getProvider().getKey();
-    if (!authenticatorParameters.getProvider().allowsUsersToSignUp()) {
+    if (!managedInstanceService.isInstanceExternallyManaged() && !authenticatorParameters.getProvider().allowsUsersToSignUp()) {
       throw AuthenticationException.newBuilder()
         .setSource(authenticatorParameters.getSource())
         .setLogin(authenticatorParameters.getUserIdentity().getProviderLogin())

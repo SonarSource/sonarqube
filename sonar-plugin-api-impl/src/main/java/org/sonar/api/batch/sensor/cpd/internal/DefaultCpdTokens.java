@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,15 +27,15 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
-  private static final Logger LOG = Loggers.get(DefaultCpdTokens.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultCpdTokens.class);
   private final List<TokensLine> result = new ArrayList<>();
   private DefaultInputFile inputFile;
   private int startLine = Integer.MIN_VALUE;

@@ -39,7 +39,9 @@ message ListResponseElement {
   optional string name = 2;
   optional string url = 3;
   optional LatestDelivery latestDelivery = 4;
-  optional string secret = 5;
+  // deprecated
+  // optional string secret = 5;
+  optional bool hasSecret = 6;
 }
 
 // GET api/webhooks/list
@@ -55,7 +57,9 @@ message CreateWsResponse {
     optional string key = 1;
     optional string name = 2;
     optional string url = 3;
-    optional string secret = 4;
+    // deprecated
+    // optional string secret = 4;
+    required bool hasSecret = 5;
   }
 }
 
@@ -74,7 +78,7 @@ message DeliveryWsResponse {
 message Delivery {
   optional string id = 1;
   optional string componentKey = 2;
-  optional string ceTaskId = 3;
+  optional string ceTaskId = 3 [deprecated=true];
   optional string name = 4;
   optional string url = 5;
   optional string at = 6;

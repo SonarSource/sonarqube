@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,59 +19,66 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.FilePredicates;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.predicates.AbstractFilePredicate;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.core.sarif.ArtifactLocation;
-import org.sonar.core.sarif.Location;
-import org.sonar.core.sarif.PhysicalLocation;
-import org.sonar.core.sarif.Result;
+import org.sonar.sarif.pojo.ArtifactLocation;
+import org.sonar.sarif.pojo.Location;
+import org.sonar.sarif.pojo.PhysicalLocation;
 
-import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 @ScannerSide
 public class LocationMapper {
+  private static final int CACHE_SIZE = 500;
+  private static final int CACHE_EXPIRY = 60;
 
   private final SensorContext sensorContext;
   private final RegionMapper regionMapper;
+
+  LoadingCache<String, Optional<InputFile>> inputFileCache = CacheBuilder.newBuilder()
+    .maximumSize(CACHE_SIZE)
+    .expireAfterAccess(CACHE_EXPIRY, TimeUnit.SECONDS)
+    .concurrencyLevel(Runtime.getRuntime().availableProcessors())
+    .build(getCacheLoader());
 
   LocationMapper(SensorContext sensorContext, RegionMapper regionMapper) {
     this.sensorContext = sensorContext;
     this.regionMapper = regionMapper;
   }
 
-  NewIssueLocation fillIssueInProjectLocation(Result result, NewIssueLocation newIssueLocation) {
-    return newIssueLocation
-      .message(getResultMessageOrThrow(result))
+  void fillIssueInProjectLocation(NewIssueLocation newIssueLocation) {
+    newIssueLocation
       .on(sensorContext.project());
   }
 
-  @CheckForNull
-  NewIssueLocation fillIssueInFileLocation(Result result, NewIssueLocation newIssueLocation, Location location) {
-    newIssueLocation.message(getResultMessageOrThrow(result));
+  boolean fillIssueInFileLocation(NewIssueLocation newIssueLocation, Location location) {
     PhysicalLocation physicalLocation = location.getPhysicalLocation();
 
     String fileUri = getFileUriOrThrow(location);
-    InputFile file = findFile(sensorContext, fileUri);
-    if (file == null) {
-      return null;
+    Optional<InputFile> file = findFile(fileUri);
+    if (file.isEmpty()) {
+      return false;
     }
-    newIssueLocation.on(file);
-    regionMapper.mapRegion(physicalLocation.getRegion(), file).ifPresent(newIssueLocation::at);
-    return newIssueLocation;
-  }
-
-  private static String getResultMessageOrThrow(Result result) {
-    requireNonNull(result.getMessage(), "No messages found for issue thrown by rule " + result.getRuleId());
-    return requireNonNull(result.getMessage().getText(), "No text found for messages in issue thrown by rule " + result.getRuleId());
+    InputFile inputFile = file.get();
+    newIssueLocation.on(inputFile);
+    regionMapper.mapRegion(physicalLocation.getRegion(), inputFile).ifPresent(newIssueLocation::at);
+    return true;
   }
 
   private static String getFileUriOrThrow(Location location) {
@@ -84,10 +91,23 @@ public class LocationMapper {
     return Optional.ofNullable(location).map(PhysicalLocation::getArtifactLocation).map(ArtifactLocation::getUri).isPresent();
   }
 
-  @CheckForNull
-  private static InputFile findFile(SensorContext context, String filePath) {
-    FilePredicates predicates = context.fileSystem().predicates();
-    return context.fileSystem().inputFile(predicates.is(getFileFromAbsoluteUriOrPath(filePath)));
+  private Optional<InputFile> findFile(String filePath) {
+    return inputFileCache.getUnchecked(filePath);
+  }
+
+  private CacheLoader<String, Optional<InputFile>> getCacheLoader() {
+    return new CacheLoader<>() {
+      @NotNull
+      @Override
+      public Optional<InputFile> load(final String filePath) {
+        return computeInputFile(filePath);
+      }
+    };
+  }
+
+  private Optional<InputFile> computeInputFile(String key) {
+    // we use a custom predicate (which is not optimized) because fileSystem().predicates().is() doesn't handle symlinks correctly
+    return Optional.ofNullable(sensorContext.fileSystem().inputFile(new LocationMapper.IsPredicate(getFileFromAbsoluteUriOrPath(key).toPath())));
   }
 
   private static File getFileFromAbsoluteUriOrPath(String filePath) {
@@ -98,4 +118,23 @@ public class LocationMapper {
       return new File(filePath);
     }
   }
+
+  @VisibleForTesting
+  static class IsPredicate extends AbstractFilePredicate {
+    private final Path path;
+
+    public IsPredicate(Path path) {
+      this.path = path;
+    }
+
+    @Override
+    public boolean apply(InputFile inputFile) {
+      try {
+        return Files.isSameFile(path, inputFile.path());
+      } catch (IOException e) {
+        return false;
+      }
+    }
+  }
+
 }

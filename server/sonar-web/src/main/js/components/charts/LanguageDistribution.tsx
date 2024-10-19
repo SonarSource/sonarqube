@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Histogram } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import withLanguagesContext from '../../app/components/languages/withLanguagesContext';
-import Histogram from '../../components/charts/Histogram';
 import { translate } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
 import { Languages } from '../../types/languages';
-import { MetricType } from '../../types/metrics';
 
-interface LanguageDistributionProps {
+export interface LanguageDistributionProps {
   distribution: string;
   languages: Languages;
 }
@@ -34,24 +34,28 @@ interface LanguageDistributionProps {
 const NUMBER_FORMAT_THRESHOLD = 1000;
 
 export function LanguageDistribution(props: LanguageDistributionProps) {
-  let distribution = props.distribution.split(';').map((point) => {
+  const { distribution, languages } = props;
+  let parsedDistribution = distribution.split(';').map((point) => {
     const tokens = point.split('=');
     return { language: tokens[0], lines: parseInt(tokens[1], 10) };
   });
 
-  distribution = sortBy(distribution, (d) => -d.lines);
+  parsedDistribution = sortBy(parsedDistribution, (d) => -d.lines);
 
-  const data = distribution.map((d) => d.lines);
-  const yTicks = distribution.map((d) => getLanguageName(d.language)).map(cutLanguageName);
-  const yTooltips = distribution.map((d) =>
-    d.lines > NUMBER_FORMAT_THRESHOLD ? formatMeasure(d.lines, MetricType.Integer) : ''
+  const data = parsedDistribution.map((d) => d.lines);
+  const yTicks = parsedDistribution
+    .map((d) => getLanguageName(languages, d.language))
+    .map(cutLanguageName);
+  const yTooltips = parsedDistribution.map((d) =>
+    d.lines > NUMBER_FORMAT_THRESHOLD ? formatMeasure(d.lines, MetricType.Integer) : '',
   );
-  const yValues = distribution.map((d) => formatMeasure(d.lines, MetricType.ShortInteger));
+  const yValues = parsedDistribution.map((d) => formatMeasure(d.lines, MetricType.ShortInteger));
 
   return (
     <Histogram
       bars={data}
-      height={distribution.length * 25}
+      height={parsedDistribution.length * 25}
+      leftAlignTicks
       padding={[0, 60, 0, 80]}
       width={260}
       yTicks={yTicks}
@@ -59,14 +63,14 @@ export function LanguageDistribution(props: LanguageDistributionProps) {
       yValues={yValues}
     />
   );
+}
 
-  function getLanguageName(langKey: string) {
-    if (langKey === '<null>') {
-      return translate('unknown');
-    }
-    const lang = props.languages[langKey];
-    return lang ? lang.name : langKey;
+function getLanguageName(languages: Languages, langKey: string) {
+  if (langKey === '<null>') {
+    return translate('unknown');
   }
+  const lang = languages[langKey];
+  return lang ? lang.name : langKey;
 }
 
 function cutLanguageName(name: string) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,10 @@
  */
 package org.sonar.server.user;
 
+import org.slf4j.Logger;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.NewUserHandler;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @ServerSide
 public class NewUserNotifier {
 
+  private static final Logger LOG = LoggerFactory.getLogger(NewUserNotifier.class);
   private final NewUserHandler[] handlers;
 
   @Autowired(required = false)
@@ -43,7 +45,7 @@ public class NewUserNotifier {
   }
 
   public void onNewUser(NewUserHandler.Context context) {
-    Loggers.get(NewUserNotifier.class).debug("User created: " + context.getLogin() + ". Notifying " + NewUserHandler.class.getSimpleName() + " handlers...");
+    LOG.debug("User created: {}. Notifying {} handlers...",context.getLogin(), NewUserHandler.class.getSimpleName() );
     for (NewUserHandler handler : handlers) {
       handler.doOnNewUser(context);
     }

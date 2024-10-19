@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -68,24 +68,17 @@ module.exports = (cssHash, jsHash) => `
 </head>
 
 <body>
-     <!-- Google Tag Manager (noscript) -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TGN67LR"
-            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-     <!-- End Google Tag Manager (noscript) -->
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TGN67LR"
+      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
-    <div id="content">
+    <div id="content" data-base-url="%WEB_CONTEXT%" data-server-status="%SERVER_STATUS%" data-instance="%INSTANCE%" data-official="%OFFICIAL%">
         <div class="global-loading">
-            <i class="spinner global-loading-spinner"></i> 
+            <i class="global-loading-spinner"></i>
             <span aria-live="polite" class="global-loading-text">Loading...</span>
         </div>
     </div>
-
-    <script>
-        window.baseUrl = '%WEB_CONTEXT%';
-        window.serverStatus = '%SERVER_STATUS%';
-        window.instance = '%INSTANCE%';
-        window.official = %OFFICIAL%;
-    </script>
 
     <script type="module" src="%WEB_CONTEXT%/js/out${jsHash}.js"></script>
 </body>

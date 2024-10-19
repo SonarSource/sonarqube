@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,9 +26,10 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -39,7 +40,7 @@ public class DefaultProfilerTest {
   @Rule
   public LogTester tester = new LogTester();
 
-  Profiler underTest = Profiler.create(Loggers.get("DefaultProfilerTest"));
+  Profiler underTest = Profiler.create(LoggerFactory.getLogger("DefaultProfilerTest"));
 
   @DataProvider
   public static Object[][] logTimeLastValues() {
@@ -173,7 +174,7 @@ public class DefaultProfilerTest {
     addSomeContext(underTest);
     underTest.startInfo("Foo");
 
-    assertThat(tester.logs(LoggerLevel.INFO)).containsOnly("Foo | a_string=bar | an_int=42 | after_start=true");
+    assertThat(tester.logs(Level.INFO)).containsOnly("Foo | a_string=bar | an_int=42 | after_start=true");
   }
 
   @Test
@@ -182,7 +183,7 @@ public class DefaultProfilerTest {
     addSomeContext(underTest);
     underTest.startDebug("Foo");
 
-    assertThat(tester.logs(LoggerLevel.DEBUG)).containsOnly("Foo | a_string=bar | an_int=42 | after_start=true");
+    assertThat(tester.logs(Level.DEBUG)).containsOnly("Foo | a_string=bar | an_int=42 | after_start=true");
   }
 
   @Test
@@ -191,7 +192,7 @@ public class DefaultProfilerTest {
     addSomeContext(underTest);
     underTest.startTrace("Foo");
 
-    assertThat(tester.logs(LoggerLevel.TRACE)).containsOnly("Foo | a_string=bar | an_int=42 | after_start=true");
+    assertThat(tester.logs(Level.TRACE)).containsOnly("Foo | a_string=bar | an_int=42 | after_start=true");
   }
 
   @Test
@@ -200,7 +201,7 @@ public class DefaultProfilerTest {
     underTest.start().stopError("Rules registered");
 
     assertThat(tester.logs()).hasSize(1);
-    assertThat(tester.logs(LoggerLevel.ERROR).get(0))
+    assertThat(tester.logs(Level.ERROR).get(0))
       .startsWith("Rules registered | time=")
       .endsWith("ms | a_string=bar | an_int=42 | after_start=true");
   }
@@ -211,7 +212,7 @@ public class DefaultProfilerTest {
     underTest.start().stopInfo("Rules registered");
 
     assertThat(tester.logs()).hasSize(1);
-    assertThat(tester.logs(LoggerLevel.INFO).get(0))
+    assertThat(tester.logs(Level.INFO).get(0))
       .startsWith("Rules registered | time=")
       .endsWith("ms | a_string=bar | an_int=42 | after_start=true");
   }
@@ -223,7 +224,7 @@ public class DefaultProfilerTest {
     underTest.start().stopTrace("Rules registered");
 
     assertThat(tester.logs()).hasSize(1);
-    assertThat(tester.logs(LoggerLevel.TRACE).get(0))
+    assertThat(tester.logs(Level.TRACE).get(0))
       .startsWith("Rules registered | time=")
       .endsWith("ms | a_string=bar | an_int=42 | after_start=true");
   }
@@ -235,7 +236,7 @@ public class DefaultProfilerTest {
     underTest.start().stopError("Rules registered");
 
     assertThat(tester.logs()).hasSize(1);
-    assertThat(tester.logs(LoggerLevel.ERROR).get(0))
+    assertThat(tester.logs(Level.ERROR).get(0))
       .startsWith("Rules registered | a_string=bar | an_int=42 | after_start=true | time=")
       .endsWith("ms");
   }
@@ -247,7 +248,7 @@ public class DefaultProfilerTest {
     underTest.start().stopInfo("Rules registered");
 
     assertThat(tester.logs()).hasSize(1);
-    assertThat(tester.logs(LoggerLevel.INFO).get(0))
+    assertThat(tester.logs(Level.INFO).get(0))
       .startsWith("Rules registered | a_string=bar | an_int=42 | after_start=true | time=")
       .endsWith("ms");
   }
@@ -260,7 +261,7 @@ public class DefaultProfilerTest {
     underTest.start().stopTrace("Rules registered");
 
     assertThat(tester.logs()).hasSize(1);
-    assertThat(tester.logs(LoggerLevel.TRACE).get(0))
+    assertThat(tester.logs(Level.TRACE).get(0))
       .startsWith("Rules registered | a_string=bar | an_int=42 | after_start=true | time=")
       .endsWith("ms");
   }
@@ -273,7 +274,7 @@ public class DefaultProfilerTest {
     underTest.start().stopInfo("Bar");
 
     assertThat(tester.logs()).hasSize(2);
-    List<String> logs = tester.logs(LoggerLevel.INFO);
+    List<String> logs = tester.logs(Level.INFO);
     assertThat(logs.get(0))
         .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
         .endsWith("ms");
@@ -291,7 +292,7 @@ public class DefaultProfilerTest {
     underTest.start().stopDebug("Bar");
 
     assertThat(tester.logs()).hasSize(2);
-    List<String> logs = tester.logs(LoggerLevel.DEBUG);
+    List<String> logs = tester.logs(Level.DEBUG);
     assertThat(logs.get(0))
         .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
         .endsWith("ms");
@@ -309,7 +310,7 @@ public class DefaultProfilerTest {
     underTest.start().stopTrace("Bar");
 
     assertThat(tester.logs()).hasSize(2);
-    List<String> logs = tester.logs(LoggerLevel.TRACE);
+    List<String> logs = tester.logs(Level.TRACE);
     assertThat(logs.get(0))
         .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
         .endsWith("ms");

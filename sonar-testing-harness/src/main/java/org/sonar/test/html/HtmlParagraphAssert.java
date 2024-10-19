@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -153,8 +153,7 @@ public class HtmlParagraphAssert extends HtmlBlockAssert<HtmlParagraphAssert> {
         } else {
           currentLine.append(node.toString());
         }
-      } else if (node instanceof Element) {
-        Element element = (Element) node;
+      } else if (node instanceof Element element) {
         if (element.tagName().equals("br")) {
           actualLines.add(currentLine == null ? "" : currentLine.toString());
           currentLine = null;

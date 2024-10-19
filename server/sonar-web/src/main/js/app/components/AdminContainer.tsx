@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { getSettingsNavigation } from '../../api/navigation';
 import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AdminPagesContext } from '../../types/admin';
 import { AppState } from '../../types/appstate';
 import { PendingPluginResult } from '../../types/plugins';
@@ -38,13 +39,14 @@ export interface AdminContainerProps {
 }
 
 interface State {
+  adminPages: Extension[];
   pendingPlugins: PendingPluginResult;
   systemStatus: SysStatus;
-  adminPages: Extension[];
 }
 
 export class AdminContainer extends React.PureComponent<AdminContainerProps, State> {
   mounted = false;
+  portalAnchor: Element | null = null;
   state: State = {
     pendingPlugins: defaultPendingPlugins,
     systemStatus: defaultSystemStatus,
@@ -53,6 +55,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
 
   componentDidMount() {
     this.mounted = true;
+    this.portalAnchor = document.getElementById('component-nav-portal');
     if (!this.props.appState.canAdmin && !this.props.appState.canCustomerAdmin) {
       handleRequiredAuthorization();
     } else if (this.props.appState.canCustomerAdmin) {
@@ -72,7 +75,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
   fetchNavigationSettings = () => {
     getSettingsNavigation().then(
       (r) => this.setState({ adminPages: r.extensions }),
-      () => {}
+      () => {},
     );
   };
 
@@ -83,7 +86,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           this.setState({ pendingPlugins });
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -97,7 +100,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           }
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -106,10 +109,10 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
       ({ status }) => {
         if (this.mounted) {
           this.setState({ systemStatus: status });
-          document.location.reload();
+          window.location.reload();
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -123,22 +126,31 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
     }
 
     const { pendingPlugins, systemStatus } = this.state;
-    const defaultTitle = translate('layout.settings');
-
     const adminPagesContext: AdminPagesContext = { adminPages };
 
     return (
-      <div>
-        <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
-        <SettingsNav
-          extensions={adminPages}
-          fetchPendingPlugins={this.fetchPendingPlugins}
-          fetchSystemStatus={this.fetchSystemStatus}
-          pendingPlugins={pendingPlugins}
-          systemStatus={systemStatus}
-          canAdmin={canAdmin}
-          canCustomerAdmin={canCustomerAdmin}
+      <>
+        <Helmet
+          defer={false}
+          titleTemplate={translateWithParameters(
+            'page_title.template.with_category',
+            translate('layout.settings'),
+          )}
         />
+        {this.portalAnchor &&
+          createPortal(
+            <SettingsNav
+              extensions={adminPages}
+              fetchPendingPlugins={this.fetchPendingPlugins}
+              fetchSystemStatus={this.fetchSystemStatus}
+              pendingPlugins={pendingPlugins}
+              systemStatus={systemStatus}
+              canAdmin={canAdmin}
+              canCustomerAdmin={canCustomerAdmin}
+            />,
+            this.portalAnchor,
+          )}
+
         <AdminContext.Provider
           value={{
             fetchSystemStatus: this.fetchSystemStatus,
@@ -149,7 +161,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
         >
           <Outlet context={adminPagesContext} />
         </AdminContext.Provider>
-      </div>
+      </>
     );
   }
 }

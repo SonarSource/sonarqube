@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -59,6 +59,14 @@ public class ScannerReportReader {
       return emptyCloseableIterator();
     }
     return Protobuf.readStream(file, ScannerReport.AdHocRule.parser());
+  }
+
+  public CloseableIterator<ScannerReport.Cve> readCves() {
+    File file = fileStructure.cves();
+    if (!fileExists(file)) {
+      return emptyCloseableIterator();
+    }
+    return Protobuf.readStream(file, ScannerReport.Cve.parser());
   }
 
   public CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef) {

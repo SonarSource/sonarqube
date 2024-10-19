@@ -1,0 +1,28 @@
+[
+  {
+    "name": "team1",
+    "id": 1,
+    "slug": "team1",
+    "permission": "pull",
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "push": true,
+      "triage": true,
+      "pull": true
+    }
+  },
+  {
+    "name": "team2",
+    "id": 2,
+    "slug": "team2",
+    "permission": "push",
+    "permissions": {
+      "admin": false,
+      "maintain": false,
+      "push": true,
+      "triage": true,
+      "pull": true
+    }
+  }
+]

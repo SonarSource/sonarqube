@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ public interface ComponentKeyUpdaterMapper {
 
   ResourceDto selectComponentByUuid(@Param("uuid") String uuid);
 
-  List<ResourceDto> selectBranchResources(@Param("rootUuid") String rootUuid);
+  List<ResourceDto> selectBranchResources(@Param("branchUuid") String branchUuid);
 
   void updateComponent(ResourceDto resource);
 

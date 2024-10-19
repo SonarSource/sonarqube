@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,109 +17,149 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import { ButtonIcon, ButtonVariety, IconUnfold } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import {
+  ChevronRightIcon,
+  ClipboardIconButton,
+  HoverLink,
+  LightLabel,
+  Link,
+  Spinner,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import { ClipboardIconButton } from '../../../components/controls/clipboard';
-import ExpandSnippetIcon from '../../../components/icons/ExpandSnippetIcon';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
+import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
-import { getBranchLikeUrl, getComponentIssuesUrl, getPathUrlAsString } from '../../../helpers/urls';
-import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { getBranchLikeUrl } from '../../../helpers/urls';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { SourceViewerFile } from '../../../types/types';
-import './IssueSourceViewerHeader.css';
+import { isLoggedIn } from '../../../types/users';
+import { IssueOpenInIdeButton } from '../components/IssueOpenInIdeButton';
+
+export const INTERACTIVE_TOOLTIP_DELAY = 0.5;
 
 export interface Props {
-  branchLike: BranchLike | undefined;
   className?: string;
-  expandable?: boolean;
   displayProjectName?: boolean;
+  expandable?: boolean;
+  issueKey: string;
   linkToProject?: boolean;
   loading?: boolean;
   onExpand?: () => void;
+  secondaryActions?: React.ReactNode;
+  shouldShowOpenInIde?: boolean;
+  shouldShowViewAllIssues?: boolean;
   sourceViewerFile: SourceViewerFile;
 }
 
-export default function IssueSourceViewerHeader(props: Props) {
+export function IssueSourceViewerHeader(props: Readonly<Props>) {
   const {
-    branchLike,
     className,
-    expandable,
     displayProjectName = true,
+    expandable,
+    issueKey,
     linkToProject = true,
     loading,
     onExpand,
     sourceViewerFile,
+    shouldShowOpenInIde = true,
+    shouldShowViewAllIssues = true,
+    secondaryActions,
   } = props;
+
   const { measures, path, project, projectName, q } = sourceViewerFile;
 
-  const projectNameLabel = (
-    <>
-      <QualifierIcon qualifier={ComponentQualifier.Project} /> <span>{projectName}</span>
-    </>
+  const { component } = React.useContext(ComponentContext);
+  const { data: branchLike, isLoading: isLoadingBranches } = useCurrentBranchQuery(
+    component ?? {
+      key: project,
+      name: projectName,
+      qualifier: ComponentQualifier.Project,
+    },
   );
+  const { currentUser } = useCurrentUser();
+  const theme = useTheme();
 
   const isProjectRoot = q === ComponentQualifier.Project;
 
+  const borderColor = themeColor('codeLineBorder')({ theme });
+
+  const IssueSourceViewerStyle = styled.section`
+    border: 1px solid ${borderColor};
+    border-bottom: none;
+  `;
+
   return (
-    <div
-      className={classNames(
-        'issue-source-viewer-header display-flex-row display-flex-space-between',
-        className
-      )}
-      role="separator"
+    <IssueSourceViewerStyle
       aria-label={sourceViewerFile.path}
+      className={classNames(
+        'sw-flex sw-justify-space-between sw-items-center sw-px-4 sw-py-3 sw-text-sm',
+        className,
+      )}
     >
-      <div className="display-flex-center flex-1">
+      <div className="sw-flex-1">
         {displayProjectName && (
-          <div className="spacer-right">
+          <>
             {linkToProject ? (
-              <a
-                className="link-no-underline"
-                href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}
-              >
-                {projectNameLabel}
-              </a>
+              <LightLabel>
+                <HoverLink to={getBranchLikeUrl(project, branchLike)} className="sw-mr-2">
+                  {projectName}
+                </HoverLink>
+              </LightLabel>
             ) : (
-              projectNameLabel
+              <LightLabel className="sw-ml-1 sw-mr-2">{projectName}</LightLabel>
             )}
-          </div>
+          </>
         )}
 
         {!isProjectRoot && (
-          <>
-            <div className="spacer-right">
-              <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
-              <span className="component-name-file">{fileFromPath(path)}</span>
-            </div>
+          <span className="sw-whitespace-nowrap">
+            {displayProjectName && <ChevronRightIcon className="sw-mr-2" />}
 
-            <div className="spacer-right">
-              <ClipboardIconButton
-                className="button-link link-no-underline"
-                copyValue={path}
-                aria-label={translate('source_viewer.click_to_copy_filepath')}
-              />
-            </div>
-          </>
+            <LightLabel>
+              {collapsedDirFromPath(path)}
+              {fileFromPath(path)}
+            </LightLabel>
+            <ClipboardIconButton
+              className="sw-h-6 sw-mx-2"
+              copyValue={path}
+              copyLabel={translate('source_viewer.click_to_copy_filepath')}
+            />
+          </span>
         )}
       </div>
 
-      {!isProjectRoot && measures.issues !== undefined && (
+      {!isProjectRoot && shouldShowOpenInIde && isLoggedIn(currentUser) && !isLoadingBranches && (
+        <IssueOpenInIdeButton
+          branchLike={branchLike}
+          issueKey={issueKey}
+          login={currentUser.login}
+          projectKey={project}
+        />
+      )}
+
+      {secondaryActions && <div>{secondaryActions}</div>}
+
+      {!isProjectRoot && shouldShowViewAllIssues && measures.issues !== undefined && (
         <div
-          className={classNames('flex-0 big-spacer-left', {
-            'little-spacer-right': !expandable || loading,
+          className={classNames('sw-ml-4', {
+            'sw-mr-1': (!expandable || loading) ?? isLoadingBranches,
           })}
         >
           <Link
             to={getComponentIssuesUrl(project, {
               ...getBranchLikeQuery(branchLike),
               files: path,
-              resolved: 'false',
+              ...DEFAULT_ISSUES_QUERY,
             })}
           >
             {translate('source_viewer.view_all_issues')}
@@ -127,19 +167,18 @@ export default function IssueSourceViewerHeader(props: Props) {
         </div>
       )}
 
-      {expandable && (
-        <DeferredSpinner className="little-spacer-right" loading={loading}>
-          <div className="flex-0 big-spacer-left">
-            <ButtonIcon
-              aria-label={translate('source_viewer.expand_all_lines')}
-              className="js-actions"
-              onClick={onExpand}
-            >
-              <ExpandSnippetIcon />
-            </ButtonIcon>
-          </div>
-        </DeferredSpinner>
+      <Spinner className="sw-mr-1" loading={loading ?? isLoadingBranches} />
+
+      {expandable && !(loading ?? isLoadingBranches) && (
+        <div className="sw-ml-4">
+          <ButtonIcon
+            Icon={IconUnfold}
+            ariaLabel={translate('source_viewer.expand_all_lines')}
+            onClick={onExpand}
+            variety={ButtonVariety.PrimaryGhost}
+          />
+        </div>
       )}
-    </div>
+    </IssueSourceViewerStyle>
   );
 }

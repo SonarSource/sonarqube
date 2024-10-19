@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { hasMessage } from '../../../helpers/l10n';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockDefinition, mockSettingValue } from '../../../helpers/mocks/settings';
 import {
@@ -25,7 +26,18 @@ import {
   SettingFieldDefinition,
   SettingType,
 } from '../../../types/settings';
-import { buildSettingLink, getDefaultValue, getEmptyValue, getSettingValue } from '../utils';
+import {
+  buildSettingLink,
+  getDefaultValue,
+  getEmptyValue,
+  getPropertyName,
+  getSettingValue,
+} from '../utils';
+
+jest.mock('../../../helpers/l10n', () => ({
+  ...jest.requireActual('../../../helpers/l10n'),
+  hasMessage: jest.fn(),
+}));
 
 const fields = [
   { key: 'foo', type: 'STRING' } as SettingFieldDefinition,
@@ -39,6 +51,21 @@ const settingDefinition: ExtendedSettingDefinition = {
   options: [],
   subCategory: 'subtest',
 };
+
+describe('getPropertyName', () => {
+  it('should return correct value for existing translation', () => {
+    jest.mocked(hasMessage).mockImplementation(() => true);
+    expect(getPropertyName(mockDefinition())).toBe('property.foo.name');
+  });
+
+  it('should return a name when translation doesn`t exist', () => {
+    jest.mocked(hasMessage).mockImplementation(() => false);
+    expect(getPropertyName(mockDefinition({ name: 'nicename', key: 'keey' }))).toBe('nicename');
+  });
+  it('should return a key when translation and name dont exist', () => {
+    expect(getPropertyName(mockDefinition({ key: 'keey' }))).toBe('keey');
+  });
+});
 
 describe('#getEmptyValue()', () => {
   it('should work for property sets', () => {
@@ -126,7 +153,7 @@ describe('#getDefaultValue()', () => {
         key: 'test',
       };
       expect(getDefaultValue(setting)).toEqual(expected);
-    }
+    },
   );
 });
 

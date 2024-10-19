@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,10 +29,9 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.RowBounds;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -69,27 +69,27 @@ public class SnapshotDao implements Dao {
   /**
    * returns the last analysis of any branch for each existing project
    */
-  public List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjects(DbSession session, Collection<String> projectUuids) {
+  public List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjectUuids(DbSession session, Collection<String> projectUuids) {
     if (projectUuids.isEmpty()) {
       return Collections.emptyList();
     }
-    return mapper(session).selectLastAnalysisDateByProjects(projectUuids);
+    return mapper(session).selectLastAnalysisDateByProjectUuids(projectUuids);
   }
 
-  public Optional<SnapshotDto> selectLastAnalysisByRootComponentUuid(DbSession session, String componentUuid) {
-    return Optional.ofNullable(mapper(session).selectLastSnapshotByRootComponentUuid(componentUuid));
+  public Optional<SnapshotDto> selectLastAnalysisByRootComponentUuid(DbSession session, String rootComponentUuid) {
+    return Optional.ofNullable(mapper(session).selectLastSnapshotByRootComponentUuid(rootComponentUuid));
   }
 
-  public List<SnapshotDto> selectLastAnalysesByRootComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
-    return executeLargeInputs(componentUuids, mapper(dbSession)::selectLastSnapshotsByRootComponentUuids);
+  public List<SnapshotDto> selectLastAnalysesByRootComponentUuids(DbSession dbSession, Collection<String> rootComponentUuids) {
+    return executeLargeInputs(rootComponentUuids, mapper(dbSession)::selectLastSnapshotsByRootComponentUuids);
   }
 
   public List<SnapshotDto> selectAnalysesByQuery(DbSession session, SnapshotQuery query) {
     return mapper(session).selectSnapshotsByQuery(query);
   }
 
-  public Optional<SnapshotDto> selectOldestAnalysis(DbSession session, String componentUuid) {
-    return mapper(session).selectOldestSnapshots(componentUuid, SnapshotDto.STATUS_PROCESSED, new RowBounds(0, 1))
+  public Optional<SnapshotDto> selectOldestAnalysis(DbSession session, String rootComponentUuid) {
+    return mapper(session).selectOldestSnapshots(rootComponentUuid, SnapshotDto.STATUS_PROCESSED, Pagination.first())
       .stream()
       .findFirst();
   }
@@ -97,23 +97,22 @@ public class SnapshotDao implements Dao {
   /**
    * Returned finished analysis from a list of projects and dates.
    * "Finished" analysis means that the status in the CE_ACTIVITY table is SUCCESS => the goal is to be sure that the CE task is completely finished.
-   *
    * Note that branches analysis of projects are also returned.
    */
-  public List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(DbSession dbSession, List<String> componentUuids, List<Long> fromDates) {
-    checkArgument(componentUuids.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.",
-      String.valueOf(componentUuids.size()),
+  public List<SnapshotDto> selectFinishedByProjectUuidsAndFromDates(DbSession dbSession, List<String> projectUuids, List<Long> fromDates) {
+    checkArgument(projectUuids.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.",
+      String.valueOf(projectUuids.size()),
       String.valueOf(fromDates.size()));
-    List<ComponentUuidFromDatePair> componentUuidFromDatePairs = IntStream.range(0, componentUuids.size())
-      .mapToObj(i -> new ComponentUuidFromDatePair(componentUuids.get(i), fromDates.get(i)))
-      .collect(MoreCollectors.toList(componentUuids.size()));
+    List<ProjectUuidFromDatePair> projectUuidFromDatePairs = IntStream.range(0, projectUuids.size())
+      .mapToObj(i -> new ProjectUuidFromDatePair(projectUuids.get(i), fromDates.get(i)))
+      .toList();
 
-    return executeLargeInputs(componentUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByComponentUuidsAndFromDates(partition), i -> i / 2);
+    return executeLargeInputs(projectUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByProjectUuidsAndFromDates(partition), i -> i / 2);
   }
 
-  public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String componentUuid, String analysisUuid) {
+  public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String rootComponentUuid, String analysisUuid) {
     SnapshotMapper mapper = mapper(dbSession);
-    mapper.unsetIsLastFlagForComponentUuid(componentUuid);
+    mapper.unsetIsLastFlagForRootComponentUuid(rootComponentUuid);
     mapper(dbSession).setIsLastFlagForAnalysisUuid(analysisUuid);
   }
 
@@ -122,12 +121,14 @@ public class SnapshotDao implements Dao {
     return item;
   }
 
+  @VisibleForTesting
   public void insert(DbSession session, Collection<SnapshotDto> items) {
     for (SnapshotDto item : items) {
       insert(session, item);
     }
   }
 
+  @VisibleForTesting
   public void insert(DbSession session, SnapshotDto item, SnapshotDto... others) {
     insert(session, Lists.asList(item, others));
   }
@@ -140,30 +141,30 @@ public class SnapshotDao implements Dao {
    * Used by Governance
    */
   @CheckForNull
-  public ViewsSnapshotDto selectSnapshotBefore(String componentUuid, long date, DbSession dbSession) {
-    return mapper(dbSession).selectSnapshotBefore(componentUuid, date).stream().findFirst().orElse(null);
+  public ViewsSnapshotDto selectSnapshotBefore(String rootComponentUuid, long date, DbSession dbSession) {
+    return mapper(dbSession).selectSnapshotBefore(rootComponentUuid, date).stream().findFirst().orElse(null);
   }
 
   private static SnapshotMapper mapper(DbSession session) {
     return session.getMapper(SnapshotMapper.class);
   }
 
-  static class ComponentUuidFromDatePair implements Comparable<ComponentUuidFromDatePair> {
-    private final String componentUuid;
+  static class ProjectUuidFromDatePair implements Comparable<ProjectUuidFromDatePair> {
+    private final String projectUuid;
     private final long from;
 
-    ComponentUuidFromDatePair(String componentUuid, long from) {
-      this.componentUuid = requireNonNull(componentUuid);
+    ProjectUuidFromDatePair(String projectUuid, long from) {
+      this.projectUuid = requireNonNull(projectUuid);
       this.from = from;
     }
 
     @Override
-    public int compareTo(ComponentUuidFromDatePair other) {
+    public int compareTo(ProjectUuidFromDatePair other) {
       if (this == other) {
         return 0;
       }
 
-      int c = componentUuid.compareTo(other.componentUuid);
+      int c = projectUuid.compareTo(other.projectUuid);
       if (c == 0) {
         c = Long.compare(from, other.from);
       }
@@ -180,14 +181,13 @@ public class SnapshotDao implements Dao {
         return false;
       }
 
-      ComponentUuidFromDatePair other = (ComponentUuidFromDatePair) o;
-      return componentUuid.equals(other.componentUuid)
-        && from == other.from;
+      ProjectUuidFromDatePair other = (ProjectUuidFromDatePair) o;
+      return projectUuid.equals(other.projectUuid) && from == other.from;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(componentUuid, from);
+      return Objects.hash(projectUuid, from);
     }
   }
 }

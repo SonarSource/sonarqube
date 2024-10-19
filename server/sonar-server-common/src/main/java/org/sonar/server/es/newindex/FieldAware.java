@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ public abstract class FieldAware<U extends FieldAware<U>> {
   public U createDateTimeField(String fieldName) {
     Map<String, String> hash = new TreeMap<>();
     hash.put("type", "date");
-    hash.put("format", "date_time||epoch_second");
+    hash.put("format", "date_time||epoch_millis");
     return setField(fieldName, hash);
   }
 

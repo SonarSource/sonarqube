@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,14 +28,12 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
@@ -46,7 +44,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
@@ -57,7 +55,6 @@ import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components.SuggestionsWsResponse;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Category;
-import org.sonarqube.ws.Components.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Suggestion;
 
 import static java.util.Arrays.stream;
@@ -65,8 +62,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.index.SuggestionQuery.DEFAULT_LIMIT;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -74,15 +69,12 @@ import static org.sonarqube.ws.Components.SuggestionsWsResponse.newBuilder;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 
 public class SuggestionsAction implements ComponentsWsAction {
-
   static final String PARAM_QUERY = "s";
   static final String PARAM_MORE = "more";
   static final String PARAM_RECENTLY_BROWSED = "recentlyBrowsed";
   static final String SHORT_INPUT_WARNING = "short_input";
   private static final int MAXIMUM_RECENTLY_BROWSED = 50;
-
   private static final int EXTENDED_LIMIT = 20;
-  private static final Set<String> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT = Stream.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE).collect(Collectors.toSet());
 
   private final ComponentIndex index;
   private final FavoriteFinder favoriteFinder;
@@ -115,6 +107,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "suggestions-example.json"))
       .setChangelog(
+        new Change("10.0", String.format("The use of 'BRC' as value for parameter '%s' is no longer supported", PARAM_MORE)),
         new Change("8.4", String.format("The use of 'DIR', 'FIL','UTS' as values for parameter '%s' is no longer supported", PARAM_MORE)),
         new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_MORE)));
 
@@ -166,44 +159,44 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   /**
-   * we are generating suggestions, by using (1) favorites and (2) recently browsed components (without searchin in Elasticsearch)
+   * we are generating suggestions, by using (1) favorites and (2) recently browsed components (without searching in Elasticsearch)
    */
   private SuggestionsWsResponse loadSuggestionsWithoutSearch(int skip, int limit, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
-    List<ComponentDto> favoriteDtos = favoriteFinder.list();
-    if (favoriteDtos.isEmpty() && recentlyBrowsedKeys.isEmpty()) {
+    List<EntityDto> favorites = favoriteFinder.list();
+    if (favorites.isEmpty() && recentlyBrowsedKeys.isEmpty()) {
       return newBuilder().build();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<ComponentDto> componentDtos = new HashSet<>(favoriteDtos);
+      Set<EntityDto> entities = new HashSet<>(favorites);
       if (!recentlyBrowsedKeys.isEmpty()) {
-        componentDtos.addAll(dbClient.componentDao().selectByKeys(dbSession, recentlyBrowsedKeys));
+        entities.addAll(dbClient.entityDao().selectByKeys(dbSession, recentlyBrowsedKeys));
       }
-      List<ComponentDto> authorizedComponents = userSession.keepAuthorizedComponents(USER, componentDtos);
-      ListMultimap<String, ComponentDto> componentsPerQualifier = authorizedComponents.stream()
-        .collect(MoreCollectors.index(ComponentDto::qualifier));
-      if (componentsPerQualifier.isEmpty()) {
+      List<EntityDto> authorizedEntities = userSession.keepAuthorizedEntities(USER, entities);
+      ListMultimap<String, EntityDto> entityPerQualifier = authorizedEntities.stream()
+        .collect(MoreCollectors.index(EntityDto::getQualifier));
+      if (entityPerQualifier.isEmpty()) {
         return newBuilder().build();
       }
 
-      Set<String> favoriteUuids = favoriteDtos.stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet(favoriteDtos.size()));
-      Comparator<ComponentDto> favoriteComparator = Comparator.comparing(c -> favoriteUuids.contains(c.uuid()) ? -1 : +1);
-      Comparator<ComponentDto> comparator = favoriteComparator.thenComparing(ComponentDto::name);
+      Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
+      Comparator<EntityDto> favoriteComparator = Comparator.comparing(c -> favoriteUuids.contains(c.getUuid()) ? -1 : +1);
+      Comparator<EntityDto> comparator = favoriteComparator.thenComparing(EntityDto::getName);
 
       ComponentIndexResults componentsPerQualifiers = ComponentIndexResults.newBuilder().setQualifiers(
         qualifiers.stream().map(q -> {
-          List<ComponentDto> componentsOfThisQualifier = componentsPerQualifier.get(q);
+          List<EntityDto> componentsOfThisQualifier = entityPerQualifier.get(q);
           List<ComponentHit> hits = componentsOfThisQualifier
             .stream()
             .sorted(comparator)
             .skip(skip)
             .limit(limit)
-            .map(ComponentDto::uuid)
+            .map(EntityDto::getUuid)
             .map(ComponentHit::new)
-            .collect(MoreCollectors.toList(limit));
+            .toList();
           int totalHits = componentsOfThisQualifier.size();
           return new ComponentHitsPerQualifier(q, hits, totalHits);
         })).build();
-      return buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, authorizedComponents, skip + limit).build();
+      return buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, authorizedEntities, skip + limit).build();
     }
   }
 
@@ -214,8 +207,8 @@ public class SuggestionsAction implements ComponentsWsAction {
       return queryBuilder.build();
     }
 
-    List<ComponentDto> favorites = favoriteFinder.list();
-    Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getKey).collect(MoreCollectors.toSet(favorites.size()));
+    List<EntityDto> favorites = favoriteFinder.list();
+    Set<String> favoriteKeys = favorites.stream().map(EntityDto::getKey).collect(Collectors.toSet());
     SuggestionQuery.Builder queryBuilder = SuggestionQuery.builder()
       .setQuery(query)
       .setRecentlyBrowsedKeys(recentlyBrowsedKeys)
@@ -228,14 +221,14 @@ public class SuggestionsAction implements ComponentsWsAction {
       return newBuilder().build();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> componentUuids = componentsPerQualifiers.getQualifiers()
+      Set<String> entityUuids = componentsPerQualifiers.getQualifiers()
         .map(ComponentHitsPerQualifier::getHits)
         .flatMap(Collection::stream)
         .map(ComponentHit::getUuid)
-        .collect(toSet());
-      List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
-      Set<String> favoriteUuids = favorites.stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet(favorites.size()));
-      SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtos, skip + limit);
+        .collect(Collectors.toSet());
+      List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
+      Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
+      SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, entities, skip + limit);
       getWarning(query).ifPresent(searchWsResponse::setWarning);
       return searchWsResponse.build();
     }
@@ -255,11 +248,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private List<String> getQualifiers(@Nullable String more) {
     Set<String> availableQualifiers = resourceTypes.getAll().stream()
       .map(ResourceType::getQualifier)
-      .filter(q -> !q.equals(Qualifiers.MODULE))
-      .filter(q -> !q.equals(Qualifiers.DIRECTORY))
-      .filter(q -> !q.equals(Qualifiers.FILE))
-      .filter(q -> !q.equals(Qualifiers.UNIT_TEST_FILE))
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     if (more == null) {
       return stream(SuggestionCategory.values())
         .map(SuggestionCategory::getQualifier)
@@ -272,21 +261,10 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers,
-    DbSession dbSession, List<ComponentDto> componentDtos, int coveredItems) {
+    List<EntityDto> entities, int coveredItems) {
 
-    Map<String, ComponentDto> componentsByUuids = componentDtos.stream()
-      .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
-    Map<String, ComponentDto> projectsByUuids = loadProjects(dbSession, componentsByUuids.values());
-    return toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, projectsByUuids, coveredItems);
-  }
-
-  private Map<String, ComponentDto> loadProjects(DbSession dbSession, Collection<ComponentDto> components) {
-    Set<String> projectUuids = components.stream()
-      .filter(c -> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(c.qualifier()))
-      .map(ComponentDto::branchUuid)
-      .collect(MoreCollectors.toSet());
-    return dbClient.componentDao().selectByUuids(dbSession, projectUuids).stream()
-      .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
+    Map<String, EntityDto> entitiesByUuids = entities.stream().collect(Collectors.toMap(EntityDto::getUuid, Function.identity()));
+    return toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, entitiesByUuids, coveredItems);
   }
 
   private ComponentIndexResults searchInIndex(SuggestionQuery suggestionQuery) {
@@ -294,63 +272,44 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private static SuggestionsWsResponse.Builder toResponse(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,
-    Map<String, ComponentDto> componentsByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
+    Map<String, EntityDto> entitiesByUuids, int coveredItems) {
     if (componentsPerQualifiers.isEmpty()) {
       return newBuilder();
     }
     return newBuilder()
-      .addAllResults(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, projectsByUuids, coveredItems))
-      .addAllProjects(toProjects(projectsByUuids));
+      .addAllResults(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, entitiesByUuids, coveredItems));
   }
 
   private static List<Category> toCategories(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,
-    Map<String, ComponentDto> componentsByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
+    Map<String, EntityDto> entitiesByUuids, int coveredItems) {
     return componentsPerQualifiers.getQualifiers().map(qualifier -> {
 
       List<Suggestion> suggestions = qualifier.getHits().stream()
-        .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, projectsByUuids))
-        .filter(Objects::nonNull)
-        .collect(toList());
+        .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, favoriteUuids, entitiesByUuids))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toList();
 
       return Category.newBuilder()
         .setQ(qualifier.getQualifier())
         .setMore(Math.max(0, qualifier.getTotalHits() - coveredItems))
         .addAllItems(suggestions)
         .build();
-    }).collect(toList());
+    }).toList();
   }
 
   /**
    * @return null when the component exists in Elasticsearch but not in database. That
    * occurs when failed indexing requests are been recovering.
    */
-  @CheckForNull
-  private static Suggestion toSuggestion(ComponentHit hit, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, Map<String, ComponentDto> componentsByUuids,
-    Map<String, ComponentDto> projectsByUuids) {
-    ComponentDto result = componentsByUuids.get(hit.getUuid());
-    if (result == null
-      // SONAR-11419 this has happened in production while code does not really allow it. An inconsistency in DB may be the cause.
-      || (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier()) && projectsByUuids.get(result.branchUuid()) == null)) {
-      return null;
-    }
-    Suggestion.Builder builder = Suggestion.newBuilder()
-      .setKey(result.getKey())
-      .setName(result.name())
-      .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.name())))
-      .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
-      .setIsFavorite(favoriteUuids.contains(result.uuid()));
-    if (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier())) {
-      builder.setProject(projectsByUuids.get(result.branchUuid()).getKey());
-    }
-    return builder.build();
-  }
-
-  private static List<Project> toProjects(Map<String, ComponentDto> projectsByUuids) {
-    return projectsByUuids.values().stream()
-      .map(p -> Project.newBuilder()
-        .setKey(p.getKey())
-        .setName(p.longName())
-        .build())
-      .toList();
+  private static Optional<Suggestion> toSuggestion(ComponentHit hit, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, Map<String, EntityDto> entitiesByUuids) {
+    return Optional.ofNullable(entitiesByUuids.get(hit.getUuid()))
+      .map(result -> Suggestion.newBuilder()
+        .setKey(result.getKey())
+        .setName(result.getName())
+        .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.getName())))
+        .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
+        .setIsFavorite(favoriteUuids.contains(result.getUuid()))
+        .build());
   }
 }

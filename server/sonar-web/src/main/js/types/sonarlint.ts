@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export interface Ide {
-  port: number;
-  ideName: string;
+  capabilities?: Capabilities;
   description: string;
+  ideName: string;
+  needsToken?: boolean;
+  port: number;
+}
+
+export interface Capabilities {
+  canOpenFixSuggestion: boolean;
+}
+
+export interface LineRange {
+  endLine: number;
+  startLine: number;
+}
+
+export interface Changes {
+  after: string;
+  before: string;
+  beforeLineRange: LineRange;
+}
+
+export interface EditFile {
+  changes: Changes[];
+  path: string;
+}
+
+export interface Fix {
+  explanation: string;
+  fileEdit: EditFile;
+  suggestionId: string;
 }

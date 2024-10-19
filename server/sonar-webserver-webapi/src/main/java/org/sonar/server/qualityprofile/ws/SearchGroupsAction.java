@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,13 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -46,8 +47,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
@@ -101,7 +100,7 @@ public class SearchGroupsAction implements QProfileWsAction {
       .createParam(PARAM_LANGUAGE)
       .setDescription("Quality profile language")
       .setRequired(true)
-      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(toSet()));
+      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet()));
 
     createOrganizationParam(action);
   }
@@ -124,14 +123,14 @@ public class SearchGroupsAction implements QProfileWsAction {
       List<SearchGroupMembershipDto> groupMemberships = dbClient.qProfileEditGroupsDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
       Map<String, GroupDto> groupsByUuid = dbClient.groupDao().selectByUuids(dbSession,
-        groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).collect(MoreCollectors.toList()))
+        groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).toList())
         .stream()
-        .collect(MoreCollectors.uniqueIndex(GroupDto::getUuid));
+        .collect(Collectors.toMap(GroupDto::getUuid, Function.identity()));
       writeProtobuf(
         Qualityprofiles.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()
             .map(groupsMembership -> toGroup(groupsByUuid.get(groupsMembership.getGroupUuid()), groupsMembership.isSelected()))
-            .collect(toList()))
+            .toList())
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

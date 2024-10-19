@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,28 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumericalCell } from 'design-system';
 import * as React from 'react';
-import Measure from '../../../components/measure/Measure';
-import { isDiffMetric } from '../../../helpers/measures';
+import Measure from '~sonar-aligned/components/measure/Measure';
+import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasureEnhanced, MeasureEnhanced, Metric } from '../../../types/types';
 
 interface Props {
+  branchLike?: BranchLike;
   component: ComponentMeasureEnhanced;
   measure?: MeasureEnhanced;
   metric: Metric;
 }
 
-export default function MeasureCell({ component, measure, metric }: Props) {
+export default function MeasureCell({ component, measure, metric, branchLike }: Readonly<Props>) {
   const getValue = (item: { leak?: string; value?: string }) =>
     isDiffMetric(metric.key) ? item.leak : item.value;
 
-  const value = getValue(measure || component);
+  const rawValue = getValue(measure || component);
+  const value = getCCTMeasureValue(metric.key, rawValue);
 
   return (
-    <td className="thin nowrap text-right">
-      <span id={`component-measures-component-measure-${component.key}-${metric.key}`}>
-        <Measure metricKey={metric.key} metricType={metric.type} value={value} small={true} />
-      </span>
-    </td>
+    <NumericalCell className="sw-py-3">
+      <Measure
+        branchLike={branchLike}
+        componentKey={component.key}
+        metricKey={metric.key}
+        metricType={metric.type}
+        value={value}
+        small
+      />
+    </NumericalCell>
   );
 }

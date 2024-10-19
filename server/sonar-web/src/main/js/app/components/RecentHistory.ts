@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,9 @@ const RECENT_HISTORY = 'sonar_recent_history';
 const HISTORY_LIMIT = 10;
 
 export type History = Array<{
+  icon: string;
   key: string;
   name: string;
-  icon: string;
 }>;
 
 export default class RecentHistory {

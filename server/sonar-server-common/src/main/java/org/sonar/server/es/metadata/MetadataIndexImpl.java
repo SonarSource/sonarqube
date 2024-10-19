@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -89,7 +89,8 @@ public class MetadataIndexImpl implements MetadataIndex {
   }
 
   private Optional<String> getMetadata(String id) {
-    GetResponse response = esClient.get(new GetRequest(TYPE_METADATA.getIndex().getName(), TYPE_METADATA.getType(), id)
+    GetResponse response = esClient.get(new GetRequest(TYPE_METADATA.getIndex().getName())
+      .id(id)
       .storedFields(MetadataIndexDefinition.FIELD_VALUE));
     if (response.isExists()) {
       DocumentField field = response.getField(MetadataIndexDefinition.FIELD_VALUE);
@@ -99,7 +100,8 @@ public class MetadataIndexImpl implements MetadataIndex {
   }
 
   private void setMetadata(String id, String value) {
-    esClient.index(new IndexRequest(TYPE_METADATA.getIndex().getName(), TYPE_METADATA.getType(), id)
+    esClient.index(new IndexRequest(TYPE_METADATA.getIndex().getName())
+        .id(id)
       .source(MetadataIndexDefinition.FIELD_VALUE, value)
       .setRefreshPolicy(REFRESH_IMMEDIATE));
   }

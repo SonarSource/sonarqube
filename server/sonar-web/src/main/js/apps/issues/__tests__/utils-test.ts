@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../../types/clean-code-taxonomy';
+import { IssueStatus } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
 import {
+  parseQuery,
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
 } from '../utils';
-
-jest.mock('../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn(),
-}));
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -40,12 +43,18 @@ describe('serialize/deserialize', () => {
         assigned: true,
         assignees: ['a', 'b'],
         author: ['a', 'b'],
+        cleanCodeAttributeCategories: [CleanCodeAttributeCategory.Responsible],
+        impactSeverities: [SoftwareImpactSeverity.High],
+        impactSoftwareQualities: [SoftwareQuality.Security],
+        codeVariants: ['variant1', 'variant2'],
         createdAfter: new Date(1000000),
         createdAt: 'a',
         createdBefore: new Date(1000000),
         createdInLast: 'a',
         cwe: ['18', '19'],
         directories: ['a', 'b'],
+        casa: ['a', 'b'],
+        'stig-ASD_V5R3': ['a', 'b'],
         files: ['a', 'b'],
         issues: ['a', 'b'],
         languages: ['a', 'b'],
@@ -56,22 +65,25 @@ describe('serialize/deserialize', () => {
         'owaspAsvs-4.0': ['2'],
         owaspAsvsLevel: '2',
         projects: ['a', 'b'],
-        resolutions: ['a', 'b'],
-        resolved: true,
         rules: ['a', 'b'],
         sort: 'rules',
-        sansTop25: ['a', 'b'],
         scopes: ['a', 'b'],
         severities: ['a', 'b'],
         inNewCodePeriod: true,
         sonarsourceSecurity: ['a', 'b'],
-        statuses: ['a', 'b'],
+        issueStatuses: [IssueStatus.Accepted, IssueStatus.Confirmed],
         tags: ['a', 'b'],
         types: ['a', 'b'],
-      })
+        fixedInPullRequest: '',
+        prioritizedRule: true,
+      }),
     ).toStrictEqual({
       assignees: 'a,b',
       author: ['a', 'b'],
+      cleanCodeAttributeCategories: CleanCodeAttributeCategory.Responsible,
+      impactSeverities: SoftwareImpactSeverity.High,
+      impactSoftwareQualities: SoftwareQuality.Security,
+      codeVariants: 'variant1,variant2',
       createdAt: 'a',
       createdBefore: '1970-01-01',
       createdAfter: '1970-01-01',
@@ -82,24 +94,132 @@ describe('serialize/deserialize', () => {
       issues: 'a,b',
       languages: 'a,b',
       owaspTop10: 'a,b',
+      casa: 'a,b',
+      'stig-ASD_V5R3': 'a,b',
       'owaspTop10-2021': 'a,b',
       'pciDss-3.2': 'a,b',
       'pciDss-4.0': 'a,b',
       'owaspAsvs-4.0': '2',
       owaspAsvsLevel: '2',
       projects: 'a,b',
-      resolutions: 'a,b',
       rules: 'a,b',
       s: 'rules',
-      sansTop25: 'a,b',
       scopes: 'a,b',
-      severities: 'a,b',
       inNewCodePeriod: 'true',
+      severities: 'a,b',
       sonarsourceSecurity: 'a,b',
-      statuses: 'a,b',
+      issueStatuses: 'ACCEPTED,CONFIRMED',
       tags: 'a,b',
       types: 'a,b',
+      prioritizedRule: 'true',
     });
+  });
+
+  it('should deserialize correctly', () => {
+    expect(
+      parseQuery({
+        assigned: 'true',
+        assignees: 'first,second',
+        author: ['author'],
+        cleanCodeAttributeCategories: 'CONSISTENT',
+        impactSeverities: 'LOW',
+        severities: 'CRITICAL,MAJOR',
+        impactSoftwareQualities: 'MAINTAINABILITY',
+        prioritizedRule: 'true',
+      }),
+    ).toStrictEqual({
+      assigned: true,
+      assignees: ['first', 'second'],
+      author: ['author'],
+      cleanCodeAttributeCategories: [CleanCodeAttributeCategory.Consistent],
+      codeVariants: [],
+      createdAfter: undefined,
+      createdAt: '',
+      createdBefore: undefined,
+      createdInLast: '',
+      cwe: [],
+      'stig-ASD_V5R3': [],
+      casa: [],
+      directories: [],
+      files: [],
+      impactSeverities: [SoftwareImpactSeverity.Low],
+      impactSoftwareQualities: [SoftwareQuality.Maintainability],
+      inNewCodePeriod: false,
+      issues: [],
+      languages: [],
+      'owaspAsvs-4.0': [],
+      owaspAsvsLevel: '',
+      owaspTop10: [],
+      'owaspTop10-2021': [],
+      'pciDss-3.2': [],
+      'pciDss-4.0': [],
+      projects: [],
+      rules: [],
+      scopes: [],
+      severities: ['CRITICAL', 'MAJOR'],
+      sonarsourceSecurity: [],
+      sort: '',
+      issueStatuses: [],
+      tags: [],
+      types: [],
+      fixedInPullRequest: '',
+      resolved: undefined,
+      prioritizedRule: true,
+    });
+  });
+
+  it('should map deprecated status and resolution query to new issue statuses', () => {
+    expect(parseQuery({ statuses: 'OPEN' }).issueStatuses).toEqual([IssueStatus.Open]);
+    expect(parseQuery({ statuses: 'REOPENED' }).issueStatuses).toEqual([IssueStatus.Open]);
+    expect(parseQuery({ statuses: 'CONFIRMED' }).issueStatuses).toEqual([IssueStatus.Confirmed]);
+    expect(parseQuery({ statuses: 'RESOLVED' }).issueStatuses).toEqual([
+      IssueStatus.Fixed,
+      IssueStatus.Accepted,
+      IssueStatus.FalsePositive,
+    ]);
+    expect(parseQuery({ statuses: 'OPEN,REOPENED' }).issueStatuses).toEqual([IssueStatus.Open]);
+    expect(parseQuery({ statuses: 'OPEN,CONFIRMED' }).issueStatuses).toEqual([
+      IssueStatus.Open,
+      IssueStatus.Confirmed,
+    ]);
+
+    // Resolutions
+    expect(parseQuery({ resolutions: 'FALSE-POSITIVE' }).issueStatuses).toEqual([
+      IssueStatus.FalsePositive,
+    ]);
+    expect(parseQuery({ resolutions: 'WONTFIX' }).issueStatuses).toEqual([IssueStatus.Accepted]);
+    expect(parseQuery({ resolutions: 'REMOVED' }).issueStatuses).toEqual([IssueStatus.Fixed]);
+    expect(parseQuery({ resolutions: 'REMOVED,WONTFIX,FALSE-POSITIVE' }).issueStatuses).toEqual([
+      IssueStatus.Fixed,
+      IssueStatus.Accepted,
+      IssueStatus.FalsePositive,
+    ]);
+
+    // Both statuses and resolutions
+    expect(
+      parseQuery({ resolutions: 'FALSE-POSITIVE', statuses: 'RESOLVED' }).issueStatuses,
+    ).toEqual([IssueStatus.FalsePositive]);
+    expect(parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED' }).issueStatuses).toEqual([
+      IssueStatus.Accepted,
+    ]);
+
+    // With resolved=false
+    expect(
+      parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED', resolved: 'false' }).issueStatuses,
+    ).toEqual([IssueStatus.Accepted, IssueStatus.Open, IssueStatus.Confirmed]);
+    expect(parseQuery({ statuses: 'OPEN', resolved: 'false' }).issueStatuses).toEqual([
+      IssueStatus.Open,
+    ]);
+
+    // With new status
+    expect(
+      parseQuery({
+        resolutions: 'WONTFIX',
+        statuses: 'RESOLVED',
+        resolved: 'false',
+        issueStatuses: 'FIXED',
+      }).issueStatuses,
+    ).toEqual([IssueStatus.Fixed]);
   });
 });
 
@@ -123,57 +243,50 @@ describe('shouldOpenStandardsFacet', () => {
 describe('shouldOpenStandardsChildFacet', () => {
   it('should open standard child facet', () => {
     expect(
-      shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, SecurityStandard.OWASP_TOP10)
-    ).toBe(true);
-    expect(
-      shouldOpenStandardsChildFacet({ sansTop25: true }, {}, SecurityStandard.SANS_TOP25)
+      shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, SecurityStandard.OWASP_TOP10),
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
-        { sansTop25: true },
+        { cwe: true },
         { owaspTop10: ['A1'] },
-        SecurityStandard.OWASP_TOP10
-      )
+        SecurityStandard.OWASP_TOP10,
+      ),
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
         { owaspTop10: false },
         { owaspTop10: ['A1'] },
-        SecurityStandard.OWASP_TOP10
-      )
+        SecurityStandard.OWASP_TOP10,
+      ),
+    ).toBe(true);
+    expect(
+      shouldOpenStandardsChildFacet({}, { owaspTop10: ['A1'] }, SecurityStandard.OWASP_TOP10),
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
         {},
-        { sansTop25: ['insecure-interactions'] },
-        SecurityStandard.SANS_TOP25
-      )
-    ).toBe(true);
-    expect(
-      shouldOpenStandardsChildFacet(
-        {},
-        { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
-        SecurityStandard.SONARSOURCE
-      )
+        { owaspTop10: ['A1'], sonarsourceSecurity: ['sql-injection'] },
+        SecurityStandard.SONARSOURCE,
+      ),
     ).toBe(true);
   });
 
   it('should NOT open standard child facet', () => {
     expect(
-      shouldOpenStandardsChildFacet({ standards: true }, {}, SecurityStandard.OWASP_TOP10)
+      shouldOpenStandardsChildFacet({ standards: true }, {}, SecurityStandard.OWASP_TOP10),
     ).toBe(false);
+    expect(shouldOpenStandardsChildFacet({ cwe: true }, {}, SecurityStandard.OWASP_TOP10)).toBe(
+      false,
+    );
     expect(
-      shouldOpenStandardsChildFacet({ sansTop25: true }, {}, SecurityStandard.OWASP_TOP10)
-    ).toBe(false);
-    expect(
-      shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, SecurityStandard.SANS_TOP25)
+      shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, SecurityStandard.OWASP_TOP10),
     ).toBe(false);
     expect(
       shouldOpenStandardsChildFacet(
         {},
-        { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
-        SecurityStandard.OWASP_TOP10
-      )
+        { owaspTop10: ['A1'], sonarsourceSecurity: ['sql-injection'] },
+        SecurityStandard.OWASP_TOP10_2021,
+      ),
     ).toBe(false);
   });
 });
@@ -187,16 +300,14 @@ describe('shouldOpenSonarSourceSecurityFacet', () => {
     expect(
       shouldOpenSonarSourceSecurityFacet(
         { sonarsourceSecurity: false },
-        { sonarsourceSecurity: ['xss'] }
-      )
+        { sonarsourceSecurity: ['xss'] },
+      ),
     ).toBe(true);
   });
 
   it('should NOT open sonarsourceSecurity facet', () => {
     expect(shouldOpenSonarSourceSecurityFacet({ standards: false }, {})).toBe(false);
     expect(shouldOpenSonarSourceSecurityFacet({ owaspTop10: true }, {})).toBe(false);
-    expect(shouldOpenSonarSourceSecurityFacet({ standards: true, sansTop25: true }, {})).toBe(
-      false
-    );
+    expect(shouldOpenSonarSourceSecurityFacet({ standards: true, cwe: true }, {})).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from 'design-system';
+import { groupBy } from 'lodash';
 import * as React from 'react';
+import IssueItem from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, Issue } from '../../../types/types';
-import { Query } from '../utils';
-import ListItem from './ListItem';
+import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 
 interface Props {
   branchLike: BranchLike | undefined;
   checked: string[];
   component: Component | undefined;
   issues: Issue[];
-  onFilterChange: (changes: Partial<Query>) => void;
   onIssueChange: (issue: Issue) => void;
   onIssueCheck: ((issueKey: string) => void) | undefined;
-  onIssueClick: (issueKey: string) => void;
+  onIssueSelect: (issueKey: string) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup: { issue: string; name: string } | undefined;
   selectedIssue: Issue | undefined;
@@ -58,38 +59,47 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     }
   }
 
+  renderIssueComponentList = (issues: Issue[], index: number) => {
+    const { branchLike, checked, component, openPopup, selectedIssue } = this.props;
+    return (
+      <React.Fragment key={index}>
+        <li>
+          <ComponentBreadcrumbs component={component} issue={issues[0]} />
+        </li>
+        <ul>
+          {issues.map((issue) => (
+            <IssueItem
+              branchLike={branchLike}
+              checked={checked.includes(issue.key)}
+              issue={issue}
+              key={issue.key}
+              onChange={this.props.onIssueChange}
+              onCheck={this.props.onIssueCheck}
+              onSelect={this.props.onIssueSelect}
+              onPopupToggle={this.props.onPopupToggle}
+              openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : undefined}
+              selected={selectedIssue != null && selectedIssue.key === issue.key}
+            />
+          ))}
+        </ul>
+      </React.Fragment>
+    );
+  };
+
   render() {
-    const { branchLike, checked, component, issues, openPopup, selectedIssue } = this.props;
+    const { issues } = this.props;
     const { prerender } = this.state;
 
     if (prerender) {
       return (
         <div>
-          <i className="spinner" />
+          <Spinner />
         </div>
       );
     }
 
-    return (
-      <ul>
-        {issues.map((issue, index) => (
-          <ListItem
-            branchLike={branchLike}
-            checked={checked.includes(issue.key)}
-            component={component}
-            issue={issue}
-            key={issue.key}
-            onChange={this.props.onIssueChange}
-            onCheck={this.props.onIssueCheck}
-            onClick={this.props.onIssueClick}
-            onFilterChange={this.props.onFilterChange}
-            onPopupToggle={this.props.onPopupToggle}
-            openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : undefined}
-            previousIssue={index > 0 ? issues[index - 1] : undefined}
-            selected={selectedIssue != null && selectedIssue.key === issue.key}
-          />
-        ))}
-      </ul>
-    );
+    const issuesByComponent = groupBy(issues, (issue) => `(${issue.component} : ${issue.branch})`);
+
+    return <ul>{Object.values(issuesByComponent).map(this.renderIssueComponentList)}</ul>;
   }
 }

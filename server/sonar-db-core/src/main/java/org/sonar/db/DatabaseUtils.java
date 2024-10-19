@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -49,9 +49,9 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -76,7 +76,7 @@ public class DatabaseUtils {
       try {
         connection.close();
       } catch (SQLException e) {
-        Loggers.get(DatabaseUtils.class).warn("Fail to close connection", e);
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close connection", e);
         // ignore
       }
     }
@@ -87,7 +87,7 @@ public class DatabaseUtils {
       try {
         stmt.close();
       } catch (SQLException e) {
-        Loggers.get(DatabaseUtils.class).warn("Fail to close statement", e);
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close statement", e);
         // ignore
       }
     }
@@ -98,7 +98,7 @@ public class DatabaseUtils {
       try {
         rs.close();
       } catch (SQLException e) {
-        Loggers.get(DatabaseUtils.class).warn("Fail to close result set", e);
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close result set", e);
         // ignore
       }
     }
@@ -106,7 +106,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a function on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -116,7 +116,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a function on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -147,7 +147,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a consumer on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -157,7 +157,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a consumer on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    *
@@ -206,7 +206,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a consumer on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -403,6 +403,8 @@ public class DatabaseUtils {
     String schema = getSchema(connection);
     try (ResultSet rs = connection.getMetaData().getColumns(connection.getCatalog(), schema, tableName, null)) {
       while (rs.next()) {
+        // this is wrong and could lead to bugs, there is no point of going through each column - only one column contains column name
+        // see the contract (javadoc) of java.sql.DatabaseMetaData.getColumns
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
           String name = rs.getString(i);
           if (columnName.equalsIgnoreCase(name)) {
@@ -413,13 +415,38 @@ public class DatabaseUtils {
       return false;
     }
   }
+  @CheckForNull
+  public static ColumnMetadata getColumnMetadata(Connection connection, String tableName, String columnName) throws SQLException {
+    ColumnMetadata columnMetadataLowerCase = getColumnMetadataWithCaseSensitiveTableName(connection, tableName.toLowerCase(Locale.US), columnName);
+    if (columnMetadataLowerCase != null) {
+      return columnMetadataLowerCase;
+    }
+    return getColumnMetadataWithCaseSensitiveTableName(connection, tableName.toUpperCase(Locale.US), columnName);
+  }
+
+  @CheckForNull
+  public static ColumnMetadata getColumnMetadataWithCaseSensitiveTableName(Connection connection, String tableName, String columnName) throws SQLException {
+    String schema = getSchema(connection);
+    try (ResultSet rs = connection.getMetaData().getColumns(connection.getCatalog(), schema, tableName, null)) {
+      while (rs.next()) {
+        String name = rs.getString(4);
+        int type = rs.getInt(5);
+        int limit = rs.getInt(7);
+        boolean nullable = rs.getBoolean(11);
+        if (columnName.equalsIgnoreCase(name)) {
+          return new ColumnMetadata(name, nullable, type, limit);
+        }
+      }
+      return null;
+    }
+  }
 
   @CheckForNull
   static String getDriver(Connection connection) {
     try {
       return connection.getMetaData().getDriverName();
     } catch (SQLException e) {
-      Loggers.get(DatabaseUtils.class).warn("Fail to determine database driver.", e);
+      LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to determine database driver.", e);
       return null;
     }
   }
@@ -435,7 +462,7 @@ public class DatabaseUtils {
         schema = connection.getSchema();
       }
     } catch (SQLException e) {
-      Loggers.get(DatabaseUtils.class).warn("Fail to determine schema. Keeping it null for searching tables", e);
+      LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to determine schema. Keeping it null for searching tables", e);
     }
     return schema;
   }

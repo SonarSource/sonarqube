@@ -1,0 +1,167 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render favorite empty 1`] = `
+.emotion-1 {
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  color: var(--color);
+  background-color: var(--background);
+  -webkit-transition: background-color 0.2s ease,outline 0.2s ease,color 0.2s ease;
+  transition: background-color 0.2s ease,outline 0.2s ease,color 0.2s ease;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 1.5rem;
+  border-radius: 0.125rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  --background: transparent;
+  --backgroundHover: rgb(232,235,255);
+  --color: rgb(75,86,187);
+  --colorHover: rgb(43,51,104);
+  --focus: rgba(93,108,208,0.2);
+}
+
+.emotion-1:hover,
+.emotion-1:focus,
+.emotion-1:active {
+  color: var(--colorHover);
+  background-color: var(--backgroundHover);
+}
+
+.emotion-1:focus,
+.emotion-1:active {
+  outline: 4px solid var(--focus);
+}
+
+.emotion-1:disabled,
+.emotion-1:disabled:hover {
+  color: rgb(166,173,194);
+  background-color: var(--background);
+  cursor: not-allowed;
+}
+
+.emotion-3 {
+  fill: rgb(237,148,106);
+}
+
+<div>
+  <button
+    aria-describedby="tooltip-2"
+    aria-label="label-info"
+    class="it__favorite-link it__is-filled emotion-0 emotion-1 emotion-2"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class=" emotion-3 emotion-4"
+      fill="currentColor"
+      focusable="false"
+      height="16"
+      style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
+      viewBox="0 0 16 16"
+      width="16"
+    >
+      <path
+        d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
+      />
+    </svg>
+  </button>
+</div>
+`;
+
+exports[`should render favorite filled 1`] = `
+.emotion-1 {
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  color: var(--color);
+  background-color: var(--background);
+  -webkit-transition: background-color 0.2s ease,outline 0.2s ease,color 0.2s ease;
+  transition: background-color 0.2s ease,outline 0.2s ease,color 0.2s ease;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 1.5rem;
+  border-radius: 0.125rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  --background: transparent;
+  --backgroundHover: rgb(232,235,255);
+  --color: rgb(75,86,187);
+  --colorHover: rgb(43,51,104);
+  --focus: rgba(93,108,208,0.2);
+}
+
+.emotion-1:hover,
+.emotion-1:focus,
+.emotion-1:active {
+  color: var(--colorHover);
+  background-color: var(--backgroundHover);
+}
+
+.emotion-1:focus,
+.emotion-1:active {
+  outline: 4px solid var(--focus);
+}
+
+.emotion-1:disabled,
+.emotion-1:disabled:hover {
+  color: rgb(166,173,194);
+  background-color: var(--background);
+  cursor: not-allowed;
+}
+
+.emotion-3 {
+  fill: rgb(237,148,106);
+}
+
+<div>
+  <button
+    aria-describedby="tooltip-1"
+    aria-label="label-info"
+    class="it__favorite-link it__is-filled emotion-0 emotion-1 emotion-2"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class=" emotion-3 emotion-4"
+      fill="currentColor"
+      focusable="false"
+      height="16"
+      style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
+      viewBox="0 0 16 16"
+      width="16"
+    >
+      <path
+        d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
+      />
+    </svg>
+  </button>
+</div>
+`;

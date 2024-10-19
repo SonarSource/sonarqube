@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CenteredLayout, PageContentFontWrapper, addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
 import { logOut } from '../../../api/auth';
 import RecentHistory from '../../../app/components/RecentHistory';
-import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 
-export default class Logout extends React.PureComponent {
-  componentDidMount() {
+export default function Logout() {
+  React.useEffect(() => {
     logOut()
       .then(() => {
         RecentHistory.clear();
@@ -34,13 +35,13 @@ export default class Logout extends React.PureComponent {
       .catch(() => {
         addGlobalErrorMessage(translate('login.logout_failed'));
       });
-  }
+  }, []);
 
-  render() {
-    return (
-      <div className="page page-limited">
-        <div className="text-center">{translate('logging_out')}</div>
-      </div>
-    );
-  }
+  return (
+    <CenteredLayout>
+      <PageContentFontWrapper className="sw-typo-lg sw-mt-14 sw-text-center">
+        {translate('logging_out')}
+      </PageContentFontWrapper>
+    </CenteredLayout>
+  );
 }

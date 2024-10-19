@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.db.metric;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface MetricMapper {
 
@@ -35,9 +35,7 @@ public interface MetricMapper {
 
   List<MetricDto> selectAll();
 
-  List<MetricDto> selectAllEnabled();
-
-  List<MetricDto> selectAllEnabled(RowBounds rowBounds);
+  List<MetricDto> selectAllEnabled(@Param("pagination")Pagination pagination);
 
   void insert(MetricDto dto);
 

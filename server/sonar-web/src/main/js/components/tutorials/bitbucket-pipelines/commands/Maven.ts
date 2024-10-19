@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function mavenExample(
-  branchesEnabled: boolean,
-  mainBranchName: string,
-  projectKey: string
-) {
-  return `image: maven:3-openjdk-11
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+
+const mavenExample: BuildToolExampleBuilder = ({
+  branchesEnabled,
+  mainBranchName,
+  projectKey,
+  projectName,
+}) => {
+  return `image: maven:3-eclipse-temurin-17
 
 definitions:
   steps:
@@ -32,7 +35,7 @@ definitions:
           - maven
           - sonar
         script:
-          - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}
+          - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'
   caches:
     sonar: ~/.sonar
 
@@ -51,4 +54,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default mavenExample;

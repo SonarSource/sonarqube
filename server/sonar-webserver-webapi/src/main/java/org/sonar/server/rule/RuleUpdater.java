@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,11 +31,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -54,7 +55,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 @ServerSide
@@ -95,11 +96,7 @@ public class RuleUpdater {
    */
   private RuleDto getRuleDto(RuleUpdate change) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getOrganization(), change.getRuleKey());
-      if (RuleStatus.REMOVED == rule.getStatus()) {
-        throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
-      }
-      return rule;
+      return dbClient.ruleDao().selectOrFailByKey(dbSession, change.getOrganization(), change.getRuleKey());
     }
   }
 
@@ -128,6 +125,14 @@ public class RuleUpdater {
     }
   }
 
+  private static void updateImpactSeverity(RuleDto rule, String severity) {
+    rule.getDefaultImpacts()
+      .stream()
+      .filter(i -> i.getSoftwareQuality().equals(ImpactMapper.convertToSoftwareQuality(rule.getEnumType())))
+      .findFirst()
+      .ifPresent(i -> i.setSeverity(ImpactMapper.convertToImpactSeverity(severity)));
+  }
+
   private static void updateName(RuleUpdate update, RuleDto rule) {
     String name = update.getName();
     if (isNullOrEmpty(name)) {
@@ -152,6 +157,7 @@ public class RuleUpdater {
       throw new IllegalArgumentException("The severity is invalid");
     }
     rule.setSeverity(severity);
+    updateImpactSeverity(rule, severity);
   }
 
   private static void updateStatus(RuleUpdate update, RuleDto rule) {

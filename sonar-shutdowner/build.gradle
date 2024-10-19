@@ -6,7 +6,7 @@ sonar {
 
 dependencies {
   // please keep list ordered
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'

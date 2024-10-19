@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,42 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedList, NumberedListItem } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
-import RenderOptions from '../components/RenderOptions';
-import { BuildTools } from '../types';
+import { TutorialConfig, TutorialModes } from '../types';
+import BuildConfigSelection from './BuildConfigSelection';
 
 export interface YamlFileStepProps {
-  children?: (buildTool: BuildTools) => React.ReactElement<{}>;
+  children?: (config: TutorialConfig) => React.ReactElement<{}>;
+  ci: TutorialModes;
+  config: TutorialConfig;
   hasCLanguageFeature: boolean;
+  setConfig: (config: TutorialConfig) => void;
 }
 
 export function YamlFileStep(props: YamlFileStepProps) {
-  const { children, hasCLanguageFeature } = props;
-
-  const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
-  if (hasCLanguageFeature) {
-    buildTools.push(BuildTools.CFamily);
-  }
-  buildTools.push(BuildTools.Other);
-
-  const [buildToolSelected, setBuildToolSelected] = React.useState<BuildTools>();
+  const { ci, config, setConfig, children, hasCLanguageFeature } = props;
 
   return (
-    <ol className="list-styled big-spacer-top big-spacer-bottom">
-      <li className="abs-width-600">
-        {translate('onboarding.build')}
-        <RenderOptions
-          label={translate('onboarding.build')}
-          checked={buildToolSelected}
-          onCheck={(value) => setBuildToolSelected(value as BuildTools)}
-          options={buildTools}
-          optionLabelKey="onboarding.build"
+    <NumberedList>
+      <NumberedListItem>
+        <BuildConfigSelection
+          ci={ci}
+          config={config}
+          onSetConfig={setConfig}
+          supportCFamily={hasCLanguageFeature}
         />
-      </li>
-      {children && buildToolSelected && children(buildToolSelected)}
-    </ol>
+      </NumberedListItem>
+
+      {children && config && children(config)}
+    </NumberedList>
   );
 }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,7 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.annotation.Nullable;
+import java.util.Optional;
 import org.apache.ibatis.annotations.Param;
 
 public interface BranchMapper {
@@ -39,7 +38,7 @@ public interface BranchMapper {
 
   BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("branchType") BranchType branchType);
 
-  List<BranchDto> selectByKeys(@Param("projectUuid") String projectUuid, @Param("keys") Set<String> branchKeys);
+  List<BranchDto> selectByKeys(@Param("projectUuid") String projectUuid, @Param("keys") Collection<String> branchKeys);
 
   BranchDto selectByUuid(@Param("uuid") String uuid);
 
@@ -49,6 +48,8 @@ public interface BranchMapper {
 
   List<BranchDto> selectByBranchKeys(@Param("branchKeyByProjectUuid") Map<String, String> branchKeyByProjectUuid);
 
+  List<BranchDto> selectByPullRequestKeys(@Param("prKeyByProjectUuid") Map<String, String> prKeyByProjectUuid);
+
   List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
   List<String> selectProjectUuidsWithIssuesNeedSync(@Param("projectUuids") Collection<String> uuids);
@@ -56,10 +57,6 @@ public interface BranchMapper {
   long countByTypeAndCreationDate(@Param("branchType") String branchType, @Param("sinceDate") long sinceDate);
 
   short hasAnyBranchWhereNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);
-
-  int countByNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);
-
-  int countAll();
 
   List<BranchDto> selectBranchNeedingIssueSync();
 
@@ -71,6 +68,14 @@ public interface BranchMapper {
 
   long updateNeedIssueSync(@Param("uuid") String uuid, @Param("needIssueSync")boolean needIssueSync,@Param("now") long now);
 
+  long updateIsMain(@Param("uuid") String uuid, @Param("isMain") boolean isMain, @Param("now") long now);
+
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
+
+  Optional<BranchDto> selectMainBranchByProjectUuid(String projectUuid);
+
+  List<BranchDto> selectMainBranchesByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
+
+  List<BranchMeasuresDto> selectBranchMeasuresWithCaycMetric(long yesterday);
 
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,16 +21,26 @@ package org.sonar.application.es;
 
 import com.google.common.net.HostAndPort;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLContext;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -51,10 +61,15 @@ public class EsConnectorImpl implements EsConnector {
   private final AtomicReference<RestHighLevelClient> restClient = new AtomicReference<>(null);
   private final Set<HostAndPort> hostAndPorts;
   private final String searchPassword;
+  private final Path keyStorePath;
+  private final String keyStorePassword;
 
-  public EsConnectorImpl(Set<HostAndPort> hostAndPorts, @Nullable String searchPassword) {
+  public EsConnectorImpl(Set<HostAndPort> hostAndPorts, @Nullable String searchPassword, @Nullable Path keyStorePath,
+                         @Nullable String keyStorePassword) {
     this.hostAndPorts = hostAndPorts;
     this.searchPassword = searchPassword;
+    this.keyStorePath = keyStorePath;
+    this.keyStorePassword = keyStorePassword;
   }
 
   @Override
@@ -94,7 +109,7 @@ public class EsConnectorImpl implements EsConnector {
 
   private RestHighLevelClient buildRestHighLevelClient() {
     HttpHost[] httpHosts = hostAndPorts.stream()
-      .map(hostAndPort -> new HttpHost(hostAndPort.getHost(), hostAndPort.getPortOrDefault(9001)))
+      .map(this::toHttpHost)
       .toArray(HttpHost[]::new);
 
     if (LOG.isDebugEnabled()) {
@@ -110,9 +125,24 @@ public class EsConnectorImpl implements EsConnector {
           BasicCredentialsProvider provider = getBasicCredentialsProvider(searchPassword);
           httpClientBuilder.setDefaultCredentialsProvider(provider);
         }
+
+        if (keyStorePath != null) {
+          SSLContext sslContext = getSSLContext(keyStorePath, keyStorePassword);
+          httpClientBuilder.setSSLContext(sslContext);
+        }
+
         return httpClientBuilder;
       });
     return new RestHighLevelClient(builder);
+  }
+
+  private HttpHost toHttpHost(HostAndPort host) {
+    try {
+      String scheme = keyStorePath != null ? "https" : HttpHost.DEFAULT_SCHEME_NAME;
+      return new HttpHost(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001), scheme);
+    } catch (UnknownHostException e) {
+      throw new IllegalStateException("Can not resolve host [" + host + "]", e);
+    }
   }
 
   private static BasicCredentialsProvider getBasicCredentialsProvider(String searchPassword) {
@@ -121,4 +151,16 @@ public class EsConnectorImpl implements EsConnector {
     return provider;
   }
 
+  private static SSLContext getSSLContext(Path keyStorePath, @Nullable String keyStorePassword) {
+    try {
+      KeyStore keyStore = KeyStore.getInstance("pkcs12");
+      try (InputStream is = Files.newInputStream(keyStorePath)) {
+        keyStore.load(is, keyStorePassword == null ? null : keyStorePassword.toCharArray());
+      }
+      SSLContextBuilder sslBuilder = SSLContexts.custom().loadTrustMaterial(keyStore, null);
+      return sslBuilder.build();
+    } catch (IOException | GeneralSecurityException e) {
+      throw new IllegalStateException("Failed to setup SSL context on ES client", e);
+    }
+  }
 }

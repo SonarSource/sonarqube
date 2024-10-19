@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,9 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
@@ -86,7 +85,7 @@ public abstract class AbstractExtensionDictionary {
     }
   }
 
-  protected <T> Collection<T> sort(Collection<T> extensions) {
+  protected <T> List<T> sort(Collection<T> extensions) {
     DirectAcyclicGraph dag = new DirectAcyclicGraph();
 
     for (T extension : extensions) {
@@ -99,11 +98,11 @@ public abstract class AbstractExtensionDictionary {
       }
       completePhaseDependencies(dag, extension);
     }
-    List<?> sortedList = dag.sort();
+    List<T> sortedList = dag.sort();
 
-    return (Collection<T>) sortedList.stream()
+    return sortedList.stream()
       .filter(extensions::contains)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**

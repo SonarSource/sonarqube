@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,163 +17,122 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { get, save } from '../../../../helpers/storage';
-import { mockAppState, mockLocation } from '../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../types/component';
-import { AllProjects, LS_PROJECTS_SORT, LS_PROJECTS_VIEW } from '../AllProjects';
+import { AutoSizerProps } from 'react-virtualized';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { ProjectsServiceMock } from '../../../../api/mocks/ProjectsServiceMock';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
+import { save } from '../../../../helpers/storage';
+import { mockAppState, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { Dict } from '../../../../types/types';
+import projectRoutes from '../../routes';
+import { LS_PROJECTS_SORT, LS_PROJECTS_VIEW } from '../AllProjects';
 
-jest.mock(
-  '../ProjectsList',
-  () =>
-    // eslint-disable-next-line
-    function ProjectsList() {
-      return null;
-    }
-);
+/* Mock the Autosizer to always render the whole list */
+jest.mock('react-virtualized/dist/commonjs/AutoSizer', () => {
+  function AutoSizer(props: AutoSizerProps) {
+    return <>{props.children({ height: 10000, width: 1000 })}</>;
+  }
 
-jest.mock(
-  '../PageHeader',
-  () =>
-    // eslint-disable-next-line
-    function PageHeader() {
-      return null;
-    }
-);
+  return { AutoSizer };
+});
 
-jest.mock(
-  '../PageSidebar',
-  () =>
-    // eslint-disable-next-line
-    function PageSidebar() {
-      return null;
-    }
-);
+jest.mock('../../../../api/components');
+jest.mock('../../../../api/measures');
+jest.mock('../../../../api/favorites');
 
-jest.mock('../../utils', () => ({
-  ...jest.requireActual('../../utils'),
-  fetchProjects: jest.fn(() => Promise.resolve({ projects: [] })),
-}));
+jest.mock('../../../../helpers/storage', () => {
+  const fakeStorage: Dict<string> = {
+    'sonarqube.projects.default': 'all',
+  };
 
-jest.mock('../../../../helpers/storage', () => ({
-  get: jest.fn(() => null),
-  save: jest.fn(),
-}));
+  return {
+    get: jest.fn((key: string) => fakeStorage[key]),
+    save: jest.fn((key: string, value: string) => {
+      fakeStorage[key] = value;
+    }),
+  };
+});
 
-const fetchProjects = require('../../utils').fetchProjects as jest.Mock;
+// eslint-disable-next-line local-rules/use-metrickey-enum
+const BASE_PATH = 'projects';
+
+const projectHandler = new ProjectsServiceMock();
+const settingsHandler = new SettingsServiceMock();
 
 beforeEach(() => {
-  (get as jest.Mock).mockImplementation(() => null);
-  (save as jest.Mock).mockClear();
-  fetchProjects.mockClear();
+  jest.clearAllMocks();
+  projectHandler.reset();
+  settingsHandler.reset();
 });
 
-it('renders', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+it('renders correctly', async () => {
+  renderProjects(`${BASE_PATH}?gate=OK`);
+
+  expect(await ui.sortSelect.find()).toBeInTheDocument();
+  expect(await ui.perspectiveSelect.find()).toBeInTheDocument();
+  expect(await ui.projects.findAll()).toHaveLength(20);
 });
 
-it('fetches projects', () => {
-  shallowRender();
-  expect(fetchProjects).toHaveBeenLastCalledWith(
-    {
-      coverage: undefined,
-      duplications: undefined,
-      gate: undefined,
-      languages: undefined,
-      maintainability: undefined,
-      new_coverage: undefined,
-      new_duplications: undefined,
-      new_lines: undefined,
-      new_maintainability: undefined,
-      new_reliability: undefined,
-      new_security: undefined,
-      reliability: undefined,
-      search: undefined,
-      security: undefined,
-      size: undefined,
-      sort: undefined,
-      tags: undefined,
-      view: undefined,
-    },
-    false
+it('changes sort and perspective', async () => {
+  const user = userEvent.setup();
+  renderProjects();
+
+  await user.click(await ui.sortSelect.find());
+  await user.click(screen.getByText('projects.sorting.size'));
+
+  const projects = ui.projects.getAll();
+
+  expect(await within(projects[0]).findByRole('link')).toHaveTextContent(
+    'sonarlint-omnisharp-dotnet',
   );
-});
 
-it('changes sort', () => {
-  const push = jest.fn();
-  const wrapper = shallowRender({}, push);
-  wrapper.find('PageHeader').prop<Function>('onSortChange')('size', false);
-  expect(push).toHaveBeenLastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
-  expect(save).toHaveBeenLastCalledWith(LS_PROJECTS_SORT, 'size');
-});
+  // Change perspective
+  await user.click(ui.perspectiveSelect.get());
+  await user.click(screen.getByText('projects.view.new_code'));
 
-it('changes perspective to leak', () => {
-  const push = jest.fn();
-  const wrapper = shallowRender({}, push);
-  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({ view: 'leak' });
-  expect(push).toHaveBeenLastCalledWith({
-    pathname: '/projects',
-    query: { view: 'leak' },
-  });
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, undefined);
+  // each project should show "new bugs" instead of "bugs"
+  expect(await screen.findAllByText(`metric.${MetricKey.new_violations}.description`)).toHaveLength(
+    20,
+  );
+
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
+  // sort should also be updated
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, MetricKey.new_lines);
 });
 
-it('updates sorting when changing perspective from leak', () => {
-  const push = jest.fn();
-  const wrapper = shallowRender({}, push);
-  wrapper.setState({ query: { sort: 'new_coverage', view: 'leak' } });
-  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({
-    view: undefined,
-  });
-  expect(push).toHaveBeenLastCalledWith({
-    pathname: '/projects',
-    query: { sort: 'coverage', view: undefined },
-  });
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, 'coverage');
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, undefined);
+it('handles showing favorite projects on load', async () => {
+  const user = userEvent.setup();
+  renderProjects(`${BASE_PATH}/favorite`);
+
+  expect(await ui.myFavoritesToggleOption.find()).toHaveAttribute('aria-current', 'true');
+  expect(await ui.projects.findAll()).toHaveLength(2);
+
+  await user.click(ui.allToggleOption.get());
+
+  expect(ui.projects.getAll()).toHaveLength(20);
 });
 
-it('handles favorite projects', () => {
-  const wrapper = shallowRender();
-  expect(wrapper.state('projects')).toMatchSnapshot();
-
-  wrapper.instance().handleFavorite('foo', true);
-  expect(wrapper.state('projects')).toMatchSnapshot();
-});
-
-function shallowRender(
-  props: Partial<AllProjects['props']> = {},
-  push = jest.fn(),
-  replace = jest.fn()
-) {
-  const wrapper = shallow<AllProjects>(
-    <AllProjects
-      currentUser={{ isLoggedIn: true, dismissedNotices: {} }}
-      isFavorite={false}
-      location={mockLocation({ pathname: '/projects', query: {} })}
-      appState={mockAppState({
-        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application],
-      })}
-      router={{ push, replace }}
-      {...props}
-    />
-  );
-  wrapper.setState({
-    loading: false,
-    projects: [
-      {
-        key: 'foo',
-        measures: {},
-        name: 'Foo',
-        qualifier: ComponentQualifier.Project,
-        tags: [],
-        visibility: 'public',
-      },
-    ],
-    total: 0,
+function renderProjects(navigateTo?: string) {
+  return renderAppRoutes(BASE_PATH, projectRoutes, {
+    appState: mockAppState({
+      qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application],
+    }),
+    currentUser: mockLoggedInUser({ dismissedNotices: {} }),
+    navigateTo,
   });
-  return wrapper;
 }
+
+const ui = {
+  loading: byText('loading'),
+  myFavoritesToggleOption: byRole('radio', { name: 'my_favorites' }),
+  allToggleOption: byRole('radio', { name: 'all' }),
+  projects: byRole('row'),
+  perspectiveSelect: byLabelText('projects.perspective'),
+  sortSelect: byLabelText('projects.sort_by'),
+};

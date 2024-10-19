@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,16 +34,16 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class LdapContextFactory {
 
-  private static final Logger LOG = Loggers.get(LdapContextFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapContextFactory.class);
 
   // visible for testing
   static final String AUTH_METHOD_SIMPLE = "simple";
@@ -73,16 +73,22 @@ public class LdapContextFactory {
   private final String password;
   private final String realm;
   private final String referral;
+  private final String saslQop;
+  private final String saslStrength;
+  private final String saslMaxbuf;
 
   public LdapContextFactory(org.sonar.api.config.Configuration config, String settingsPrefix, String ldapUrl) {
-    this.authentication = StringUtils.defaultString(config.get(settingsPrefix + ".authentication").orElse(null), DEFAULT_AUTHENTICATION);
-    this.factory = StringUtils.defaultString(config.get(settingsPrefix + ".contextFactoryClass").orElse(null), DEFAULT_FACTORY);
+    this.authentication = config.get(settingsPrefix + ".authentication").orElse(DEFAULT_AUTHENTICATION);
+    this.factory = config.get(settingsPrefix + ".contextFactoryClass").orElse(DEFAULT_FACTORY);
     this.realm = config.get(settingsPrefix + ".realm").orElse(null);
     this.providerUrl = ldapUrl;
     this.startTLS = config.getBoolean(settingsPrefix + ".StartTLS").orElse(false);
     this.username = config.get(settingsPrefix + ".bindDn").orElse(null);
     this.password = config.get(settingsPrefix + ".bindPassword").orElse(null);
     this.referral = getReferralsMode(config, settingsPrefix + ".followReferrals");
+    this.saslQop = config.get(settingsPrefix + ".saslQop").orElse(null);
+    this.saslStrength = config.get(settingsPrefix + ".saslStrength").orElse(null);
+    this.saslMaxbuf = config.get(settingsPrefix + ".saslMaxbuf").orElse(null);
   }
 
   /**
@@ -179,6 +185,16 @@ public class LdapContextFactory {
     if (principal != null) {
       env.put(Context.SECURITY_PRINCIPAL, principal);
     }
+    if (saslQop != null) {
+      env.put("javax.security.sasl.qop", saslQop);
+    }
+    if (saslStrength != null) {
+      env.put("javax.security.sasl.strength", saslStrength);
+    }
+    if (saslMaxbuf != null) {
+      env.put("javax.security.sasl.maxbuf", saslMaxbuf);
+    }
+
     // Note: debug is intentionally was placed here - in order to not expose password in log
     LOG.debug("Initializing LDAP context {}", env);
     if (credentials != null) {

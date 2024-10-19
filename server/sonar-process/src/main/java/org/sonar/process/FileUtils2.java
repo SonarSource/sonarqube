@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,8 +31,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -42,7 +42,7 @@ import static java.util.Objects.requireNonNull;
  * {@link org.apache.commons.io.FileUtils Common IO FileUtils} class.
  */
 public final class FileUtils2 {
-  private static final Logger LOG = Loggers.get(FileUtils2.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FileUtils2.class);
   private static final String DIRECTORY_CAN_NOT_BE_NULL = "Directory can not be null";
   private static final EnumSet<FileVisitOption> FOLLOW_LINKS = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
 

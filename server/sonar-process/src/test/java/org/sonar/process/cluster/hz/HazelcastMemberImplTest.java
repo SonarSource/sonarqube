@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -129,12 +129,12 @@ public class HazelcastMemberImplTest {
       .map(answer::getFailed)
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static List<Boolean> extractTimeOuts(DistributedAnswer<Long> answer) {
     return answer.getMembers().stream()
       .map(answer::hasTimedOut)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

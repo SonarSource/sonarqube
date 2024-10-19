@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,10 +30,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.sql.DataSource;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.DialectUtils;
 import org.sonar.db.profiling.NullConnectionInterceptor;
@@ -58,7 +58,7 @@ import static org.sonar.process.ProcessProperties.Property.JDBC_VALIDATION_TIMEO
  */
 public class DefaultDatabase implements Database {
   private static final String IGNORED_KEYWORDS_OPTION = ";NON_KEYWORDS=VALUE";
-  private static final Logger LOG = Loggers.get(Database.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultDatabase.class);
 
   private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar" + IGNORED_KEYWORDS_OPTION;
   private static final String SONAR_JDBC = "sonar.jdbc.";
@@ -255,5 +255,9 @@ public class DefaultDatabase implements Database {
   @Override
   public String toString() {
     return format("Database[%s]", properties != null ? properties.getProperty(JDBC_URL.getKey()) : "?");
+  }
+
+  public Settings getSettings() {
+    return settings;
   }
 }

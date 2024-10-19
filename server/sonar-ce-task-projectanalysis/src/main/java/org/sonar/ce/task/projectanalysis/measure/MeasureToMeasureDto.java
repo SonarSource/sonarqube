@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 
@@ -37,8 +37,8 @@ public class MeasureToMeasureDto {
     this.treeRootHolder = treeRootHolder;
   }
 
-  public MeasureDto toMeasureDto(Measure measure, Metric metric, Component component) {
-    MeasureDto out = new MeasureDto();
+  public ProjectMeasureDto toProjectMeasureDto(Measure measure, Metric metric, Component component) {
+    ProjectMeasureDto out = new ProjectMeasureDto();
     out.setMetricUuid(metric.getUuid());
     out.setComponentUuid(component.getUuid());
     out.setAnalysisUuid(analysisMetadataHolder.getUuid());
@@ -60,9 +60,9 @@ public class MeasureToMeasureDto {
     return out;
   }
 
-  private static void setAlert(MeasureDto measureDto, QualityGateStatus qualityGateStatus) {
-    measureDto.setAlertStatus(qualityGateStatus.getStatus().name());
-    measureDto.setAlertText(qualityGateStatus.getText());
+  private static void setAlert(ProjectMeasureDto projectMeasureDto, QualityGateStatus qualityGateStatus) {
+    projectMeasureDto.setAlertStatus(qualityGateStatus.getStatus().name());
+    projectMeasureDto.setAlertText(qualityGateStatus.getText());
   }
 
   private static String data(Measure in) {

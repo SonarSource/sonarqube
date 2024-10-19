@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -49,8 +49,12 @@ public class ProjectBuildersExecutor {
   }
 
   public void execute(ProjectReactor reactor) {
+    executeProjectBuilders(projectBuilders, reactor, "Execute project builders");
+  }
+
+  public void executeProjectBuilders(ProjectBuilder[] projectBuilders, ProjectReactor reactor, String profilerMessage) {
     if (projectBuilders.length > 0) {
-      Profiler profiler = Profiler.create(LOG).startInfo("Execute project builders");
+      Profiler profiler = Profiler.create(LOG).startInfo(profilerMessage);
       ProjectBuilderContext context = new ProjectBuilderContext(reactor, globalConfig);
 
       for (ProjectBuilder projectBuilder : projectBuilders) {

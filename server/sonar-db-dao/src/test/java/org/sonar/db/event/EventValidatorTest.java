@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +19,15 @@
  */
 package org.sonar.db.event;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class EventValidatorTest {
+class EventValidatorTest {
 
   @Test
-  public void valid_cases() {
+  void valid_cases() {
     EventValidator.checkEventName(repeat("a", 400));
     EventValidator.checkEventName(null);
     EventValidator.checkEventCategory(repeat("a", 50));
@@ -37,22 +37,23 @@ public class EventValidatorTest {
   }
 
   @Test
-  public void fail_if_name_longer_than_400() {
-    assertThatThrownBy(() ->  EventValidator.checkEventName(repeat("a", 400 + 1)))
+  void fail_if_name_longer_than_400() {
+    assertThatThrownBy(() -> EventValidator.checkEventName(repeat("a", 400 + 1)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Event name length (401) is longer than the maximum authorized (400).");
   }
 
   @Test
-  public void fail_if_category_longer_than_50() {
+  void fail_if_category_longer_than_50() {
     assertThatThrownBy(() -> EventValidator.checkEventCategory(repeat("a", 50 + 1)))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Event category length (51) is longer than the maximum authorized (50). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
+      .hasMessage("Event category length (51) is longer than the maximum authorized (50). " +
+        "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
   }
 
   @Test
-  public void fail_if_description_longer_than_4000() {
-    assertThatThrownBy(() ->  EventValidator.checkEventDescription(repeat("a", 4000 + 1)))
+  void fail_if_description_longer_than_4000() {
+    assertThatThrownBy(() -> EventValidator.checkEventDescription(repeat("a", 4000 + 1)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Event description length (4001) is longer than the maximum authorized (4000).");
   }

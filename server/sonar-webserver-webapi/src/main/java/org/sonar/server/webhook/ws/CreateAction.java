@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.webhook.ws;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,7 +36,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ACTION_CREATE;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
@@ -46,6 +47,7 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MAXIMUM_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MINIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
@@ -81,6 +83,7 @@ public class CreateAction implements WebhooksWsAction {
       .setDescription("Create a Webhook.<br>" +
         "Requires 'Administer' permission on the specified project, or global 'Administer' permission.")
       .setSince("7.1")
+      .setChangelog(new Change("10.6", "The minimum length of parameter '" + SECRET_PARAM + "' increased to 16."))
       .setResponseExample(getClass().getResource("example-webhook-create.json"))
       .setHandler(this);
 
@@ -113,7 +116,7 @@ public class CreateAction implements WebhooksWsAction {
 
     action.createParam(SECRET_PARAM)
       .setRequired(false)
-      .setMinimumLength(1)
+      .setMinimumLength(SECRET_PARAM_MINIMUM_LENGTH)
       .setMaximumLength(SECRET_PARAM_MAXIMUM_LENGTH)
       .setDescription("If provided, secret will be used as the key to generate the HMAC hex (lowercase) digest value in the 'X-Sonar-Webhook-HMAC-SHA256' header")
       .setExampleValue("your_secret")
@@ -179,17 +182,9 @@ public class CreateAction implements WebhooksWsAction {
     webhookBuilder
       .setKey(dto.getUuid())
       .setName(dto.getName())
-      .setUrl(dto.getUrl());
-    if (dto.getSecret() != null) {
-      webhookBuilder.setSecret(dto.getSecret());
-    }
+      .setUrl(dto.getUrl())
+      .setHasSecret(dto.getSecret() != null);
     writeProtobuf(newBuilder().setWebhook(webhookBuilder).build(), request, response);
-  }
-
-  private static void checkNumberOfWebhook(int nbOfWebhooks, String projectKey) {
-    if (nbOfWebhooks >= MAX_NUMBER_OF_WEBHOOKS) {
-      throw new IllegalArgumentException(format("Maximum number of webhook reached for project '%s'", projectKey));
-    }
   }
 
   private int numberOfWebhookOf(DbSession dbSession, OrganizationDto organizationDto) {
@@ -200,7 +195,13 @@ public class CreateAction implements WebhooksWsAction {
     return dbClient.webhookDao().selectByProject(dbSession, projectDto).size();
   }
 
-  private static void checkNumberOfWebhook(int nbOfWebhooks, String message, Object... messageArguments) {
+  private void checkNumberOfWebhook(int nbOfWebhooks, String projectKey) {
+    if (nbOfWebhooks >= MAX_NUMBER_OF_WEBHOOKS) {
+      throw new IllegalArgumentException(format("Maximum number of webhook reached for project '%s'", projectKey));
+    }
+  }
+
+  private void checkNumberOfWebhook(int nbOfWebhooks, String message, Object... messageArguments) {
     if (nbOfWebhooks >= MAX_NUMBER_OF_WEBHOOKS) {
       throw new IllegalArgumentException(format(message, messageArguments));
     }

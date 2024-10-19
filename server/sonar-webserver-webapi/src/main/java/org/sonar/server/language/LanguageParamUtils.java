@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class LanguageParamUtils {
 
@@ -45,6 +44,6 @@ public class LanguageParamUtils {
     return Arrays.stream(all)
       .map(Language::getKey)
       .sorted()
-      .collect(MoreCollectors.toList(all.length));
+      .toList();
   }
 }

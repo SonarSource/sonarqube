@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -67,17 +67,18 @@ public class ReportAnalysisFailureNotificationExecutionListener implements CeWor
     if (status == CeActivityDto.Status.SUCCESS) {
       return;
     }
-    String projectUuid = ceTask.getComponent().map(CeTask.Component::getUuid).orElse(null);
-    if (!CeTaskTypes.REPORT.equals(ceTask.getType()) || projectUuid == null) {
+    String branchUuid = ceTask.getComponent().map(CeTask.Component::getUuid).orElse(null);
+    if (!CeTaskTypes.REPORT.equals(ceTask.getType()) || branchUuid == null) {
       return;
     }
 
-    if (notificationService.hasProjectSubscribersForTypes(projectUuid, singleton(ReportAnalysisFailureNotification.class))) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, projectUuid)
-          .orElseThrow(() -> new IllegalStateException("Could not find project uuid " + projectUuid));
-        BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, projectDto.getUuid())
-          .orElseThrow(() -> new IllegalStateException("Could not find a branch for project uuid " + projectDto.getUuid()));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, branchUuid)
+        .orElseThrow(() -> new IllegalStateException("Could not find a branch with uuid %s".formatted(branchUuid)));
+      if (notificationService.hasProjectSubscribersForTypes(branchDto.getProjectUuid(), singleton(ReportAnalysisFailureNotification.class))) {
+        ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, branchDto.getProjectUuid())
+          .orElseThrow(() -> new IllegalStateException("Could not find project uuid %s".formatted(branchDto.getProjectUuid())));
+
         checkQualifier(projectDto);
         CeActivityDto ceActivityDto = dbClient.ceActivityDao().selectByUuid(dbSession, ceTask.getUuid())
           .orElseThrow(() -> new RowNotFoundException(format("CeActivity with uuid '%s' not found", ceTask.getUuid())));

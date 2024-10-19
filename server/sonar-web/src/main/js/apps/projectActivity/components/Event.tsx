@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, InteractiveIcon, PencilIcon, TrashIcon } from 'design-system';
 import * as React from 'react';
 import EventInner from '../../../components/activity-graph/EventInner';
-import { DeleteButton, EditButton } from '../../../components/controls/buttons';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { AnalysisEvent } from '../../../types/project-activity';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
 
@@ -30,52 +31,55 @@ export interface EventProps {
   canAdmin?: boolean;
   event: AnalysisEvent;
   isFirst?: boolean;
-  onChange?: (event: string, name: string) => Promise<void>;
-  onDelete?: (analysisKey: string, event: string) => Promise<void>;
 }
 
-export function Event(props: EventProps) {
+function Event(props: Readonly<EventProps>) {
   const { analysisKey, event, canAdmin, isFirst } = props;
 
   const [changing, setChanging] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
 
-  const isOther = event.category === 'OTHER';
-  const isVersion = event.category === 'VERSION';
-  const canChange = (isOther || isVersion) && props.onChange;
-  const canDelete = (isOther || (isVersion && !isFirst)) && props.onDelete;
+  const isOther = event.category === ProjectAnalysisEventCategory.Other;
+  const isVersion = event.category === ProjectAnalysisEventCategory.Version;
+  const canChange = isOther || isVersion;
+  const canDelete = isOther || (isVersion && !isFirst);
   const showActions = canAdmin && (canChange || canDelete);
 
   return (
-    <div className="project-activity-event">
+    <div className="it__project-activity-event sw-flex sw-justify-between">
       <EventInner event={event} />
 
       {showActions && (
-        <span className="nowrap">
+        <div className="sw-grow-0 sw-shrink-0 sw-ml-2">
           {canChange && (
-            <EditButton
-              aria-label={translate('project_activity.events.tooltip.edit')}
-              className="button-small"
-              data-test="project-activity__edit-event"
-              onClick={() => setChanging(true)}
-              stopPropagation={true}
-            />
+            <Tooltip content={translate('project_activity.events.tooltip.edit')}>
+              <InteractiveIcon
+                Icon={PencilIcon}
+                aria-label={translate('project_activity.events.tooltip.edit')}
+                data-test="project-activity__edit-event"
+                onClick={() => setChanging(true)}
+                stopPropagation
+                size="small"
+              />
+            </Tooltip>
           )}
           {canDelete && (
-            <DeleteButton
-              aria-label={translate('project_activity.events.tooltip.delete')}
-              className="button-small"
-              data-test="project-activity__delete-event"
-              onClick={() => setDeleting(true)}
-              stopPropagation={true}
-            />
+            <Tooltip content={translate('project_activity.events.tooltip.delete')}>
+              <DestructiveIcon
+                Icon={TrashIcon}
+                aria-label={translate('project_activity.events.tooltip.delete')}
+                data-test="project-activity__delete-event"
+                onClick={() => setDeleting(true)}
+                stopPropagation
+                size="small"
+              />
+            </Tooltip>
           )}
-        </span>
+        </div>
       )}
 
-      {changing && props.onChange && (
+      {changing && (
         <ChangeEventForm
-          changeEvent={props.onChange}
           event={event}
           header={
             isVersion
@@ -86,7 +90,7 @@ export function Event(props: EventProps) {
         />
       )}
 
-      {deleting && props.onDelete && (
+      {deleting && (
         <RemoveEventForm
           analysisKey={analysisKey}
           event={event}
@@ -96,9 +100,8 @@ export function Event(props: EventProps) {
               : translate('project_activity.remove_custom_event')
           }
           onClose={() => setDeleting(false)}
-          onConfirm={props.onDelete}
           removeEventQuestion={translate(
-            `project_activity.${isVersion ? 'remove_version' : 'remove_custom_event'}.question`
+            `project_activity.${isVersion ? 'remove_version' : 'remove_custom_event'}.question`,
           )}
         />
       )}

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,14 +32,13 @@ import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerController;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
@@ -64,7 +63,7 @@ public class CeTasksMBeanImplTest {
       when(res.getUUID()).thenReturn(uuid);
       return res;
     })
-    .collect(MoreCollectors.toSet());
+    .collect(Collectors.toSet());
 
   private final CeWorkerController ceWorkerController = mock(CeWorkerController.class);
   private final CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration(), new DumbCeWorkerFactory(), ceWorkerController);
@@ -124,7 +123,7 @@ public class CeTasksMBeanImplTest {
     List<String> workerUuids = underTest.getWorkerUuids();
 
     assertThat(workerUuids).
-      isEqualTo(WORKERS.stream().map(CeWorker::getUUID).sorted().collect(Collectors.toList()))
+      isEqualTo(WORKERS.stream().map(CeWorker::getUUID).sorted().toList())
       // ImmutableSet can not be serialized
       .isNotInstanceOf(ImmutableSet.class);
   }
@@ -147,7 +146,7 @@ public class CeTasksMBeanImplTest {
     List<String> enabledWorkerUuids = underTest.getEnabledWorkerUuids();
 
     assertThat(enabledWorkerUuids)
-      .isEqualTo(Stream.of(enabledWorkers).map(CeWorker::getUUID).sorted().collect(Collectors.toList()))
+      .isEqualTo(Stream.of(enabledWorkers).map(CeWorker::getUUID).sorted().toList())
       // ImmutableSet can not be serialized
       .isNotInstanceOf(ImmutableSet.class);
   }

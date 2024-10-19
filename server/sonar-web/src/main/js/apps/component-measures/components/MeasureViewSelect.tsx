@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,94 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
-import Select from '../../../components/controls/Select';
-import ListIcon from '../../../components/icons/ListIcon';
-import TreeIcon from '../../../components/icons/TreeIcon';
-import TreemapIcon from '../../../components/icons/TreemapIcon';
 import { translate } from '../../../helpers/l10n';
 import { MeasurePageView } from '../../../types/measures';
 import { Metric } from '../../../types/types';
 import { hasList, hasTree, hasTreemap } from '../utils';
 
-interface Props {
+export interface MeasureViewSelectProps {
   className?: string;
-  metric: Metric;
   handleViewChange: (view: MeasurePageView) => void;
+  metric: Metric;
   view: MeasurePageView;
 }
 
-interface ViewOption {
-  icon: JSX.Element;
-  label: string;
-  value: string;
-}
+export default function MeasureViewSelect(props: Readonly<MeasureViewSelectProps>) {
+  const { metric, view, className, handleViewChange } = props;
 
-export default class MeasureViewSelect extends React.PureComponent<Props> {
-  getOptions = () => {
-    const { metric } = this.props;
-    const options: ViewOption[] = [];
+  const measureViewOptions = React.useMemo(() => {
+    const options = [];
     if (hasTree(metric.key)) {
       options.push({
-        icon: <TreeIcon />,
         label: translate('component_measures.tab.tree'),
-        value: 'tree',
+        value: MeasurePageView.tree,
       });
     }
     if (hasList(metric.key)) {
       options.push({
-        icon: <ListIcon />,
         label: translate('component_measures.tab.list'),
-        value: 'list',
+        value: MeasurePageView.list,
       });
     }
     if (hasTreemap(metric.key, metric.type)) {
       options.push({
-        icon: <TreemapIcon />,
         label: translate('component_measures.tab.treemap'),
-        value: 'treemap',
+        value: MeasurePageView.treemap,
       });
     }
     return options;
-  };
+  }, [metric]);
 
-  handleChange = (option: ViewOption) => {
-    return this.props.handleViewChange(option.value as MeasurePageView);
-  };
-
-  renderOption = (props: OptionProps<ViewOption, false>) => (
-    <components.Option {...props} className="display-flex-center">
-      {props.data.icon}
-      <span className="little-spacer-left">{props.data.label}</span>
-    </components.Option>
+  return (
+    <Select
+      ariaLabelledBy="measures-view-selection-label"
+      className={className}
+      data={measureViewOptions}
+      isNotClearable
+      onChange={handleViewChange}
+      value={view}
+    />
   );
-
-  renderValue = (props: SingleValueProps<ViewOption>) => (
-    <components.SingleValue {...props} className="display-flex-center">
-      {props.data.icon}
-      <span className="little-spacer-left">{props.data.label}</span>
-    </components.SingleValue>
-  );
-
-  render() {
-    const { className, view } = this.props;
-    const options = this.getOptions();
-
-    return (
-      <Select
-        aria-labelledby="measures-view-selection-label"
-        blurInputOnSelect={true}
-        className={className}
-        onChange={this.handleChange}
-        components={{
-          Option: this.renderOption,
-          SingleValue: this.renderValue,
-        }}
-        options={options}
-        isSearchable={false}
-        value={options.find((o) => o.value === view)}
-      />
-    );
-  }
 }

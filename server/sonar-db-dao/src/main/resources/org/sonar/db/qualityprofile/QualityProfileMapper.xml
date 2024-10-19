@@ -152,14 +152,14 @@
     where dp.language = #{language, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectDefaultBuiltInProfilesWithoutActiveRules" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+  <select id="selectDefaultProfilesWithoutActiveRules" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     SELECT
     <include refid="qProfileColumns"/>
     FROM org_qprofiles oqp
     INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.uuid
     INNER JOIN default_qprofiles dp ON dp.qprofile_uuid = oqp.uuid
     WHERE
-      rp.is_built_in = ${_true}
+      rp.is_built_in = #{builtIn, jdbcType=BOOLEAN}
       AND rp.language IN <foreach collection="languages" open="(" close=")" item="language"
                                   separator=",">#{language, jdbcType=VARCHAR}</foreach>
       AND NOT EXISTS (
@@ -181,6 +181,14 @@
       and rp.language = dp.language
       and dp.organization_uuid = oqp.organization_uuid
       and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAllDefaultProfiles" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
+    inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
   </select>
 
   <select id="selectBuiltInRuleProfilesWithActiveRules" resultType="org.sonar.db.qualityprofile.RulesProfileDto">
@@ -302,14 +310,6 @@
       and pqp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectQProfileUuidsByProjectUuid" parameterType="String" resultType="String">
-    SELECT profile_key
-    FROM project_qprofiles
-    <where>
-      AND project_uuid=#{projectUuid}
-    </where>
-  </select>
-
   <select id="selectQProfilesByProjectUuid" parameterType="String" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>
@@ -362,12 +362,10 @@
       pj.kee as projectKey,
       pj.name as projectName,
       pp.profile_key as profileKey
-    from components pj
+    from projects pj
     inner join project_qprofiles pp ON pp.project_uuid = pj.uuid and pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
     where
-      pj.scope = 'PRJ'
-      and pj.qualifier = 'TRK'
-      and pj.main_branch_project_uuid is null
+      pj.qualifier = 'TRK'
       and (upper(pj.name) like #{nameOrKeyQuery, jdbcType=VARCHAR} or upper(pj.kee) like #{nameOrKeyQuery, jdbcType=VARCHAR})
       and pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     order by pj.name ASC
@@ -379,12 +377,10 @@
       pj.kee as projectKey,
       pj.name as projectName,
       pp.profile_key as profileKey
-    FROM components pj
+    FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
     WHERE
-      pj.scope='PRJ'
-      AND pj.qualifier='TRK'
-      AND pj.main_branch_project_uuid is null
+      pj.qualifier='TRK'
       AND (upper(pj.name) like #{nameOrKeyQuery, jdbcType=VARCHAR} or upper(pj.kee) like #{nameOrKeyQuery, jdbcType=VARCHAR})
       AND pp.profile_key IS NULL
       AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
@@ -397,17 +393,27 @@
       pj.kee as projectKey,
       pj.name as projectName,
       pp.profile_key as profileKey
-    FROM components pj
+    FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
     AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
     WHERE
-      pj.scope='PRJ'
-      AND pj.qualifier='TRK'
-      AND pj.main_branch_project_uuid is null
+      pj.qualifier='TRK'
       AND (upper(pj.name) like #{nameOrKeyQuery, jdbcType=VARCHAR} or upper(pj.kee) like #{nameOrKeyQuery, jdbcType=VARCHAR})
       AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
+
+    <select id="selectAllProjectAssociations" resultType="org.sonar.db.qualityprofile.ProjectQProfileLanguageAssociationDto">
+      SELECT
+        pj.uuid        as projectUuid,
+        pp.profile_key as profileKey,
+        rp.language    as language
+      FROM projects pj
+        INNER JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
+        INNER JOIN org_qprofiles oq ON pp.profile_key = oq.uuid
+        INNER JOIN rules_profiles rp on oq.rules_profile_uuid = rp.uuid
+      WHERE pj.qualifier = 'TRK'
+    </select>
 
   <select id="selectUuidsOfCustomRuleProfiles" parameterType="map" resultType="string">
     select oqp.rules_profile_uuid

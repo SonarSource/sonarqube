@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,26 +22,38 @@ package org.sonar.scanner.ci;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 public class CiConfigurationImpl implements CiConfiguration {
   private final String ciName;
 
-  @Nullable
-  private final String scmRevision;
+  private final Optional<String> scmRevision;
+  private final Optional<DevOpsPlatformInfo> devOpsPlatformInfo;
 
   public CiConfigurationImpl(@Nullable String scmRevision, String ciName) {
-    this.scmRevision = defaultIfBlank(scmRevision, null);
+    this.scmRevision = Optional.ofNullable(defaultIfBlank(scmRevision, null));
     this.ciName = ciName;
+    this.devOpsPlatformInfo = Optional.empty();
+  }
+
+  public CiConfigurationImpl(@Nullable String scmRevision, String ciName, DevOpsPlatformInfo devOpsPlatformInfo) {
+    this.scmRevision = Optional.ofNullable(defaultIfBlank(scmRevision, null));
+    this.ciName = ciName;
+    this.devOpsPlatformInfo = Optional.of(devOpsPlatformInfo);
   }
 
   @Override
   public Optional<String> getScmRevision() {
-    return Optional.ofNullable(scmRevision);
+    return scmRevision;
   }
 
   @Override
   public String getCiName() {
     return ciName;
+  }
+
+  @Override
+  public Optional<DevOpsPlatformInfo> getDevOpsPlatformInfo() {
+    return devOpsPlatformInfo;
   }
 }

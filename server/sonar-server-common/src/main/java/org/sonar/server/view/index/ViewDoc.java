@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,22 +41,29 @@ public class ViewDoc extends BaseDoc {
     return uuid();
   }
 
+  /**
+   * Uuid of the view.
+   * It may or may not be the root view (Qualifiers SVW, SW, APP).
+   */
   public String uuid() {
     return getField(ViewIndexDefinition.FIELD_UUID);
   }
 
-  public List<String> projects() {
+  public List<String> projectBranchUuids() {
     return getField(ViewIndexDefinition.FIELD_PROJECTS);
   }
 
+  /**
+   * Uuid of the view.
+   * It may or may not be the root view (Qualifiers SVW, SW, APP).
+   */
   public ViewDoc setUuid(String s) {
     setField(ViewIndexDefinition.FIELD_UUID, s);
     return this;
   }
 
-  public ViewDoc setProjects(List<String> s) {
+  public ViewDoc setProjectBranchUuids(List<String> s) {
     setField(ViewIndexDefinition.FIELD_PROJECTS, s);
     return this;
   }
-
 }

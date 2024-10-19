@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ public class QualitygatesService extends BaseService {
   public void copy(CopyRequest request) {
     call(
       new PostRequest(path("copy"))
-        .setParam("id", request.getId())
+        .setParam("sourceName", request.getSourceName())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
@@ -98,7 +98,7 @@ public class QualitygatesService extends BaseService {
     return call(
       new PostRequest(path("create_condition"))
         .setParam("error", request.getError())
-        .setParam("gateId", request.getGateId())
+        .setParam("gateName", request.getGateName())
         .setParam("metric", request.getMetric())
         .setParam("op", request.getOp())
         .setParam("organization", request.getOrganization()),
@@ -130,8 +130,7 @@ public class QualitygatesService extends BaseService {
   public void deselect(DeselectRequest request) {
     call(
       new PostRequest(path("deselect"))
-         .setParam("organization", request.getOrganization())
-        .setParam("projectId", request.getProjectId())
+        .setParam("organization", request.getOrganization())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -146,7 +145,7 @@ public class QualitygatesService extends BaseService {
   public void destroy(DestroyRequest request) {
     call(
       new PostRequest(path("destroy"))
-        .setParam("id", request.getId())
+        .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -238,7 +237,7 @@ public class QualitygatesService extends BaseService {
   public SearchResponse search(SearchRequest request) {
     return call(
       new GetRequest(path("search"))
-        .setParam("gateId", request.getGateId())
+        .setParam("gateName", request.getGateName())
         .setParam("organization", request.getOrganization())
         .setParam("page", request.getPage())
         .setParam("pageSize", request.getPageSize())
@@ -257,9 +256,8 @@ public class QualitygatesService extends BaseService {
   public void select(SelectRequest request) {
     call(
       new PostRequest(path("select"))
-        .setParam("gateId", request.getGateId())
+        .setParam("gateName", request.getGateName())
         .setParam("organization", request.getOrganization())
-        .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -274,7 +272,7 @@ public class QualitygatesService extends BaseService {
   public void setAsDefault(SetAsDefaultRequest request) {
     call(
       new PostRequest(path("set_as_default"))
-        .setParam("id", request.getId())
+        .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -289,9 +287,8 @@ public class QualitygatesService extends BaseService {
   public ShowWsResponse show(ShowRequest request) {
     return call(
       new GetRequest(path("show"))
-        .setParam("id", request.getId())
-        .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization()),
+        .setParam("organization", request.getOrganization())
+        .setParam("name", request.getName()),
       ShowWsResponse.parser());
   }
 

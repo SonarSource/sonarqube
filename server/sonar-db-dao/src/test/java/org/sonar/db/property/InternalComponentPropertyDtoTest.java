@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,21 +19,19 @@
  */
 package org.sonar.db.property;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(DataProviderRunner.class)
-public class InternalComponentPropertyDtoTest {
+class InternalComponentPropertyDtoTest {
 
 
   @Test
-  public void setter_and_getter() {
+  void setter_and_getter() {
     InternalComponentPropertyDto underTest = new InternalComponentPropertyDto()
       .setComponentUuid("component1")
       .setKey("key1")
@@ -50,16 +48,17 @@ public class InternalComponentPropertyDtoTest {
     assertThat(underTest.getUpdatedAt()).isEqualTo(15L);
   }
 
-  @Test
-  @DataProvider({"null", ""})
-  public void setKey_throws_IAE_if_key_is_null_or_empty(String key) {
-    assertThatThrownBy(() -> new InternalComponentPropertyDto().setKey(key))
+  @ParameterizedTest
+  @NullAndEmptySource
+  void setKey_throws_IAE_if_key_is_null_or_empty(String key) {
+    InternalComponentPropertyDto dto = new InternalComponentPropertyDto();
+    assertThatThrownBy(() -> dto.setKey(key))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("key can't be null nor empty");
   }
 
   @Test
-  public void setKey_throws_IAE_if_key_is_too_long() {
+  void setKey_throws_IAE_if_key_is_too_long() {
     String veryLongKey = StringUtils.repeat("a", 513);
 
     assertThatThrownBy(() -> new InternalComponentPropertyDto().setKey(veryLongKey))
@@ -68,7 +67,7 @@ public class InternalComponentPropertyDtoTest {
   }
 
   @Test
-  public void setValue_throws_IAE_if_value_is_too_long() {
+  void setValue_throws_IAE_if_value_is_too_long() {
     String veryLongValue = StringUtils.repeat("a", 4001);
 
     assertThatThrownBy(() -> new InternalComponentPropertyDto().setValue(veryLongValue))
@@ -77,14 +76,14 @@ public class InternalComponentPropertyDtoTest {
   }
 
   @Test
-  public void setValue_accept_null_value() {
+  void setValue_accept_null_value() {
     InternalComponentPropertyDto underTest = new InternalComponentPropertyDto().setValue(null);
 
     assertThat(underTest.getValue()).isNull();
   }
 
   @Test
-  public void test_toString() {
+  void test_toString() {
     InternalComponentPropertyDto underTest = new InternalComponentPropertyDto()
       .setUuid("uuid1")
       .setComponentUuid("component1")
@@ -93,6 +92,7 @@ public class InternalComponentPropertyDtoTest {
       .setCreatedAt(10L)
       .setUpdatedAt(15L);
 
-    assertThat(underTest).hasToString("InternalComponentPropertyDto{uuid=uuid1, key=key1, value=value1, componentUuid=component1, updatedAt=15, createdAt=10}");
+    assertThat(underTest).hasToString("InternalComponentPropertyDto{uuid=uuid1, key=key1, value=value1, componentUuid=component1, " +
+      "updatedAt=15, createdAt=10}");
   }
 }

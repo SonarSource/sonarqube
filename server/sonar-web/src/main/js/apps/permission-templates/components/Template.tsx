@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../api/permissions';
+import AllHoldersList from '../../../components/permissions/AllHoldersList';
+import { FilterOption } from '../../../components/permissions/SearchForm';
 import { translate } from '../../../helpers/l10n';
-import { Organization, Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
-import AllHoldersList from '../../permissions/shared/components/AllHoldersList';
-import { FilterOption } from '../../permissions/shared/components/SearchForm';
 import {
-  convertToPermissionDefinitions,
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
-} from '../../permissions/utils';
+  convertToPermissionDefinitions,
+} from '../../../helpers/permissions';
+import { Organization, Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
+import ProvisioningWarning from './ProvisioningWarning';
 import TemplateDetails from './TemplateDetails';
 import TemplateHeader from './TemplateHeader';
 
 interface Props {
+  organization: Organization;
   refresh: () => void;
   template: PermissionTemplate;
   topQualifiers: string[];
-  organization: Organization;
 }
 
 interface State {
@@ -72,27 +74,27 @@ export default class Template extends React.PureComponent<Props, State> {
   loadUsersAndGroups = (usersPage?: number, groupsPage?: number) => {
     this.setState({ loading: true });
 
-    const { template, organization } = this.props;
+    const { organization, template } = this.props;
     const { query, filter, selectedPermission } = this.state;
 
     const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
       filter !== 'groups'
         ? api.getPermissionTemplateUsers({
-            templateId: template.id,
-            q: query || null,
-            permission: selectedPermission,
             organization: organization.kee,
+            templateId: template.id,
+            q: query || undefined,
+            permission: selectedPermission,
             p: usersPage,
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
-    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
+    const getGroups: Promise<{ groups: PermissionGroup[]; paging?: Paging }> =
       filter !== 'users'
         ? api.getPermissionTemplateGroups({
-            templateId: template.id,
-            q: query || null,
-            permission: selectedPermission,
             organization: organization.kee,
+            templateId: template.id,
+            q: query || undefined,
+            permission: selectedPermission,
             p: groupsPage,
           })
         : Promise.resolve({ paging: undefined, groups: [] });
@@ -122,7 +124,7 @@ export default class Template extends React.PureComponent<Props, State> {
     });
     const [usersResponse, groupsResponse] = await this.loadUsersAndGroups(
       usersPaging ? usersPaging.pageIndex + 1 : 1,
-      groupsPaging ? groupsPaging.pageIndex + 1 : 1
+      groupsPaging ? groupsPaging.pageIndex + 1 : 1,
     );
     if (this.mounted) {
       this.setState(({ groups, users }) => ({
@@ -138,130 +140,162 @@ export default class Template extends React.PureComponent<Props, State> {
   removePermissionFromEntity = <T extends { login?: string; name: string; permissions: string[] }>(
     entities: T[],
     entity: string,
-    permission: string
+    permission: string,
   ): T[] =>
     entities.map((candidate) =>
       candidate.name === entity || candidate.login === entity
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
-        : candidate
+        : candidate,
     );
 
   addPermissionToEntity = <T extends { login?: string; name: string; permissions: string[] }>(
     entities: T[],
     entity: string,
-    permission: string
+    permission: string,
   ): T[] =>
     entities.map((candidate) =>
       candidate.name === entity || candidate.login === entity
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
-        : candidate
+        : candidate,
     );
 
   grantPermissionToUser = (login: string, permission: string) => {
-    const { template, organization } = this.props;
+    const { organization, template } = this.props;
     const isProjectCreator = login === '<creator>';
 
     this.setState(({ users }) => ({
       users: this.addPermissionToEntity(users, login, permission),
+      loading: true,
     }));
 
     const request = isProjectCreator
       ? api.addProjectCreatorToTemplate(template.id, permission)
       : api.grantTemplatePermissionToUser({
+          organization: organization.kee,
           templateId: template.id,
           login,
           permission,
-          organization: organization.kee,
         });
 
-    return request.then(this.props.refresh).catch(() => {
-      this.setState(({ users }) => ({
-        users: this.removePermissionFromEntity(users, login, permission),
-      }));
-    });
+    return request
+      .then(this.props.refresh)
+      .then(() => this.setState({ loading: false }))
+      .catch(() => {
+        this.setState(({ users }) => ({
+          users: this.removePermissionFromEntity(users, login, permission),
+          loading: false,
+        }));
+      });
   };
 
   revokePermissionFromUser = (login: string, permission: string) => {
-    const { template, organization } = this.props;
+    const { organization, template } = this.props;
     const isProjectCreator = login === '<creator>';
 
     this.setState(({ users }) => ({
       users: this.removePermissionFromEntity(users, login, permission),
+      loading: true,
     }));
 
     const request = isProjectCreator
       ? api.removeProjectCreatorFromTemplate(template.id, permission)
       : api.revokeTemplatePermissionFromUser({
+          organization: organization.kee,
           templateId: template.id,
           login,
           permission,
-          organization: organization.kee,
         });
 
-    return request.then(this.props.refresh).catch(() => {
-      this.setState(({ users }) => ({
-        users: this.addPermissionToEntity(users, login, permission),
-      }));
-    });
+    return request
+      .then(this.props.refresh)
+      .then(() => this.setState({ loading: false }))
+      .catch(() => {
+        this.setState(({ users }) => ({
+          users: this.addPermissionToEntity(users, login, permission),
+          loading: false,
+        }));
+      });
   };
 
   grantPermissionToGroup = (groupName: string, permission: string) => {
-    const { template, organization } = this.props;
+    const { organization, template } = this.props;
 
     this.setState(({ groups }) => ({
       groups: this.addPermissionToEntity(groups, groupName, permission),
+      loading: true,
     }));
 
     return api
       .grantTemplatePermissionToGroup({
+        organization: organization.kee,
         templateId: template.id,
         groupName,
         permission,
-        organization: organization.kee,
       })
       .then(this.props.refresh)
+      .then(() => this.setState({ loading: false }))
       .catch(() => {
         this.setState(({ groups }) => ({
           groups: this.removePermissionFromEntity(groups, groupName, permission),
+          loading: false,
         }));
       });
   };
 
   revokePermissionFromGroup = (groupName: string, permission: string) => {
-    const { template, organization } = this.props;
+    const { organization, template } = this.props;
 
     this.setState(({ groups }) => ({
       groups: this.removePermissionFromEntity(groups, groupName, permission),
+      loading: true,
     }));
 
     return api
       .revokeTemplatePermissionFromGroup({
+        organization: organization.kee,
         templateId: template.id,
         groupName,
         permission,
-        organization: organization.kee,
       })
       .then(this.props.refresh)
+      .then(() => this.setState({ loading: false }))
       .catch(() => {
         this.setState(({ groups }) => ({
           groups: this.addPermissionToEntity(groups, groupName, permission),
+          loading: false,
         }));
       });
   };
 
   handleSearch = (query: string) => {
-    this.setState({ query }, this.requestHolders);
+    this.setState({ query }, () => {
+      this.requestHolders().catch(() => {
+        /* noop */
+      });
+    });
   };
 
   handleFilter = (filter: FilterOption) => {
-    this.setState({ filter }, this.requestHolders);
+    this.setState({ filter }, () => {
+      this.requestHolders().catch(() => {
+        /* noop */
+      });
+    });
   };
 
   handleSelectPermission = (selectedPermission: string) => {
     if (selectedPermission === this.state.selectedPermission) {
-      this.setState({ selectedPermission: undefined }, this.requestHolders);
+      this.setState({ selectedPermission: undefined }, () => {
+        this.requestHolders().catch(() => {
+          /* noop */
+        });
+      });
     } else {
-      this.setState({ selectedPermission }, this.requestHolders);
+      this.setState({ selectedPermission }, () => {
+        this.requestHolders().catch(() => {
+          /* noop */
+        });
+      });
     }
   };
 
@@ -285,7 +319,7 @@ export default class Template extends React.PureComponent<Props, State> {
       this.state;
     const permissions = convertToPermissionDefinitions(
       PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
-      'projects_role'
+      'projects_role',
     );
     const allUsers = [...users];
 
@@ -309,39 +343,42 @@ export default class Template extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="page page-limited">
-        <Helmet defer={false} title={template.name} />
+      <LargeCenteredLayout id="permission-template">
+        <PageContentFontWrapper className="sw-my-8 sw-typo-default">
+          <Helmet defer={false} title={template.name} />
 
-        <TemplateHeader
-          loading={loading}
-          refresh={this.props.refresh}
-          template={template}
-          topQualifiers={topQualifiers}
-          organization={this.props.organization}
-        />
+          <TemplateHeader
+            organization={this.props.organization}
+            refresh={this.props.refresh}
+            template={template}
+            topQualifiers={topQualifiers}
+          />
+          <main>
+            <TemplateDetails template={template} />
+            <ProvisioningWarning />
 
-        <TemplateDetails template={template} />
-
-        <AllHoldersList
-          filter={filter}
-          grantPermissionToGroup={this.grantPermissionToGroup}
-          grantPermissionToUser={this.grantPermissionToUser}
-          groups={groups}
-          groupsPaging={groupsPaging}
-          loading={loading}
-          onFilter={this.handleFilter}
-          onLoadMore={this.onLoadMore}
-          onQuery={this.handleSearch}
-          query={query}
-          revokePermissionFromGroup={this.revokePermissionFromGroup}
-          revokePermissionFromUser={this.revokePermissionFromUser}
-          users={allUsers}
-          usersPaging={usersPagingWithCreator}
-          permissions={permissions}
-          selectedPermission={selectedPermission}
-          onSelectPermission={this.handleSelectPermission}
-        />
-      </div>
+            <AllHoldersList
+              filter={filter}
+              onGrantPermissionToGroup={this.grantPermissionToGroup}
+              onGrantPermissionToUser={this.grantPermissionToUser}
+              groups={groups}
+              groupsPaging={groupsPaging}
+              loading={loading}
+              onFilter={this.handleFilter}
+              onLoadMore={this.onLoadMore}
+              onQuery={this.handleSearch}
+              query={query}
+              onRevokePermissionFromGroup={this.revokePermissionFromGroup}
+              onRevokePermissionFromUser={this.revokePermissionFromUser}
+              users={allUsers}
+              usersPaging={usersPagingWithCreator}
+              permissions={permissions}
+              selectedPermission={selectedPermission}
+              onSelectPermission={this.handleSelectPermission}
+            />
+          </main>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

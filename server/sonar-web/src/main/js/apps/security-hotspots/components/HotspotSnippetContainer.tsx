@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getSources } from '../../../api/components';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import { Component, ExpandDirection, FlowLocation, SourceLine } from '../../../types/types';
@@ -31,7 +31,6 @@ interface Props {
   branchLike?: BranchLike;
   component: Component;
   hotspot: Hotspot;
-  onCommentButtonClick: () => void;
   onLocationSelect: (index: number) => void;
   selectedHotspotLocation?: number;
 }
@@ -40,8 +39,8 @@ interface State {
   highlightedSymbols: string[];
   lastLine?: number;
   loading: boolean;
-  sourceLines: SourceLine[];
   secondaryLocations: FlowLocation[];
+  sourceLines: SourceLine[];
 }
 
 const BUFFER_LINES = 10;
@@ -103,16 +102,16 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       1,
       Math.min(
         ...[textRange, ...secondaryLocations.map((l) => l.textRange)].map(
-          (t) => t.startLine - BUFFER_LINES
-        )
-      )
+          (t) => t.startLine - BUFFER_LINES,
+        ),
+      ),
     );
     // Search for the max endLine within primary and secondary locations
     const to = Math.max(
       ...[textRange, ...secondaryLocations.map((l) => l.textRange)].map(
         // Add 1 to check for end-of-file
-        (t) => t.endLine + BUFFER_LINES + 1
-      )
+        (t) => t.endLine + BUFFER_LINES + 1,
+      ),
     );
 
     this.setState({ loading: true });
@@ -145,7 +144,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
             text: location.msg,
           })),
         },
-        () => resolve(undefined)
+        () => resolve(undefined),
       );
     });
   }
@@ -182,7 +181,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       } else {
         // remove extra sourceline if we didn't reach the end:
         concatSourceLines = sourceLines.concat(
-          lastLine ? additionalLines : additionalLines.slice(0, -1)
+          lastLine ? additionalLines : additionalLines.slice(0, -1),
         );
       }
 
@@ -207,13 +206,12 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
 
     return (
       <HotspotSnippetContainerRenderer
-        branchLike={branchLike}
         component={component}
+        branchLike={branchLike}
         highlightedSymbols={highlightedSymbols}
         hotspot={hotspot}
         loading={loading}
         locations={locations}
-        onCommentButtonClick={this.props.onCommentButtonClick}
         onExpandBlock={this.handleExpansion}
         onSymbolClick={this.handleSymbolClick}
         onLocationSelect={this.props.onLocationSelect}

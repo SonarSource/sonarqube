@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,6 @@ package org.sonar.process;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,29 +34,6 @@ public class ConfigurationUtilsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Test
-  public void shouldInterpolateVariables() {
-    Properties input = new Properties();
-    input.setProperty("hello", "world");
-    input.setProperty("url", "${env:SONAR_JDBC_URL}");
-    input.setProperty("do_not_change", "${SONAR_JDBC_URL}");
-    Map<String, String> variables = new HashMap<>();
-    variables.put("SONAR_JDBC_URL", "jdbc:h2:mem");
-
-    Properties output = ConfigurationUtils.interpolateVariables(input, variables);
-
-    assertThat(output).hasSize(3);
-    assertThat(output.getProperty("hello")).isEqualTo("world");
-    assertThat(output.getProperty("url")).isEqualTo("jdbc:h2:mem");
-    assertThat(output.getProperty("do_not_change")).isEqualTo("${SONAR_JDBC_URL}");
-
-    // input is not changed
-    assertThat(input).hasSize(3);
-    assertThat(input.getProperty("hello")).isEqualTo("world");
-    assertThat(input.getProperty("url")).isEqualTo("${env:SONAR_JDBC_URL}");
-    assertThat(input.getProperty("do_not_change")).isEqualTo("${SONAR_JDBC_URL}");
-  }
 
   @Test
   public void loadPropsFromCommandLineArgs_missing_argument() {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,21 @@
  */
 package org.sonar.db.issue;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang.time.DateUtils;
-import org.junit.Test;
+import org.apache.commons.lang3.time.DateUtils;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -36,8 +41,16 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
-public class IssueDtoTest {
+class IssueDtoTest {
 
   private static final String TEST_CONTEXT_KEY = "test_context_key";
 
@@ -47,7 +60,7 @@ public class IssueDtoTest {
     .build();
 
   @Test
-  public void toDefaultIssue_set_issue_fields() {
+  void toDefaultIssue_ShouldSetIssueFields() throws InvalidProtocolBufferException {
     Date createdAt = DateUtils.addDays(new Date(), -5);
     Date updatedAt = DateUtils.addDays(new Date(), -3);
     Date closedAt = DateUtils.addDays(new Date(), -1);
@@ -61,7 +74,6 @@ public class IssueDtoTest {
       .setComponentKey("org.sonar.sample:Sample")
       .setComponentUuid("CDEF")
       .setProjectUuid("GHIJ")
-      .setModuleUuidPath("ABCD.BCDE.")
       .setProjectKey("org.sonar.sample")
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
@@ -69,6 +81,7 @@ public class IssueDtoTest {
       .setEffort(10L)
       .setLine(6)
       .setSeverity("BLOCKER")
+      .setPrioritizedRule(true)
       .setMessage("message")
       .setMessageFormattings(EXAMPLE_MESSAGE_FORMATTINGS)
       .setManualSeverity(true)
@@ -77,54 +90,63 @@ public class IssueDtoTest {
       .setIssueCreationDate(createdAt)
       .setIssueUpdateDate(updatedAt)
       .setIssueCloseDate(closedAt)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .addImpact(new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(HIGH));
+
+    DefaultIssue expected = new DefaultIssue()
+      .setKey("100")
+      .setType(RuleType.VULNERABILITY)
+      .setRuleKey(RuleKey.of("java", "AvoidCycle"))
+      .setLanguage("xoo")
+      .setComponentUuid("CDEF")
+      .setProjectUuid("GHIJ")
+      .setComponentKey("org.sonar.sample:Sample")
+      .setProjectKey("org.sonar.sample")
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+      .setGap(15.0)
+      .setEffort(Duration.create(10L))
+      .setLine(6)
+      .setSeverity("BLOCKER")
+      .setPrioritizedRule(true)
+      .setMessage("message")
+      .setMessageFormattings(DbIssues.MessageFormattings.parseFrom(EXAMPLE_MESSAGE_FORMATTINGS.toByteArray()))
+      .setManualSeverity(true)
+      .setAssigneeUuid("perceval")
+      .setAuthorLogin("pierre")
+      .setCreationDate(DateUtils.truncate(createdAt, Calendar.SECOND))
+      .setUpdateDate(DateUtils.truncate(updatedAt, Calendar.SECOND))
+      .setCloseDate(DateUtils.truncate(closedAt, Calendar.SECOND))
+      .setNew(false)
+      .setIsNewCodeReferenceIssue(false)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .setCodeVariants(Set.of())
+      .setTags(Set.of())
+      .addImpact(MAINTAINABILITY, HIGH);
 
     DefaultIssue issue = dto.toDefaultIssue();
-    assertThat(issue.key()).isEqualTo("100");
-    assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
-    assertThat(issue.ruleKey()).hasToString("java:AvoidCycle");
-    assertThat(issue.language()).isEqualTo("xoo");
-    assertThat(issue.componentUuid()).isEqualTo("CDEF");
-    assertThat(issue.projectUuid()).isEqualTo("GHIJ");
-    assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
-    assertThat(issue.moduleUuidPath()).isEqualTo("ABCD.BCDE.");
-    assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(issue.gap()).isEqualTo(15.0);
-    assertThat(issue.effort()).isEqualTo(Duration.create(10L));
-    assertThat(issue.line()).isEqualTo(6);
-    assertThat(issue.severity()).isEqualTo("BLOCKER");
-    assertThat(issue.message()).isEqualTo("message");
-    assertThat((DbIssues.MessageFormattings) issue.getMessageFormattings()).isEqualTo(EXAMPLE_MESSAGE_FORMATTINGS);
-    assertThat(issue.manualSeverity()).isTrue();
-    assertThat(issue.assignee()).isEqualTo("perceval");
-    assertThat(issue.authorLogin()).isEqualTo("pierre");
-    assertThat(issue.creationDate()).isEqualTo(DateUtils.truncate(createdAt, Calendar.SECOND));
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(updatedAt, Calendar.SECOND));
-    assertThat(issue.closeDate()).isEqualTo(DateUtils.truncate(closedAt, Calendar.SECOND));
-    assertThat(issue.isNew()).isFalse();
-    assertThat(issue.isNewCodeReferenceIssue()).isFalse();
-    assertThat(issue.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+
+    assertThat(issue).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test
-  public void set_rule() {
+  void set_rule() {
     IssueDto dto = new IssueDto()
       .setKee("100")
-      .setRule(new RuleDto().setUuid("uuid-1").setRuleKey("AvoidCycle").setRepositoryKey("java").setIsExternal(true))
+      .setRule(new RuleDto().setUuid("uuid-1").setRuleKey("AvoidCycle").setRepositoryKey("java").setIsExternal(true).setCleanCodeAttribute(CleanCodeAttribute.CLEAR))
       .setLanguage("xoo");
 
     assertThat(dto.getRuleUuid()).isEqualTo("uuid-1");
     assertThat(dto.getRuleRepo()).isEqualTo("java");
     assertThat(dto.getRule()).isEqualTo("AvoidCycle");
     assertThat(dto.getRuleKey()).hasToString("java:AvoidCycle");
+    assertThat(dto.getEffectiveCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(dto.getLanguage()).isEqualTo("xoo");
     assertThat(dto.isExternal()).isTrue();
   }
 
   @Test
-  public void set_tags() {
+  void set_tags() {
     IssueDto dto = new IssueDto();
     assertThat(dto.getTags()).isEmpty();
     assertThat(dto.getTagsString()).isNull();
@@ -133,7 +155,7 @@ public class IssueDtoTest {
     assertThat(dto.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(dto.getTagsString()).isEqualTo("tag1,tag2,tag3");
 
-    dto.setTags(Arrays.asList());
+    dto.setTags(List.of());
     assertThat(dto.getTags()).isEmpty();
 
     dto.setTagsString("tag1, tag2 ,,tag3");
@@ -147,68 +169,203 @@ public class IssueDtoTest {
   }
 
   @Test
-  public void toDtoForComputationInsert_givenDefaultIssueWithAllFields_returnFullIssueDto() {
+  void getEffectiveImpacts_whenNoIssueImpactsOverridden_shouldReturnRuleImpacts() {
+    IssueDto dto = new IssueDto();
+    dto.getRuleDefaultImpacts().add(newImpactDto(MAINTAINABILITY, HIGH));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SECURITY, MEDIUM));
+    dto.getRuleDefaultImpacts().add(newImpactDto(RELIABILITY, LOW));
+
+    assertThat(dto.getEffectiveImpacts())
+      .hasSize(3)
+      .containsEntry(MAINTAINABILITY, HIGH)
+      .containsEntry(SECURITY, MEDIUM)
+      .containsEntry(RELIABILITY, LOW);
+  }
+
+  @Test
+  void getEffectiveImpacts_whenIssueImpactsOverridden_shouldReturnIssueImpacts() {
+    IssueDto dto = new IssueDto();
+    dto.getRuleDefaultImpacts().add(newImpactDto(MAINTAINABILITY, HIGH));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SECURITY, MEDIUM));
+    dto.getRuleDefaultImpacts().add(newImpactDto(RELIABILITY, LOW));
+
+    dto.addImpact(newImpactDto(MAINTAINABILITY, LOW));
+    dto.addImpact(newImpactDto(RELIABILITY, HIGH));
+
+    assertThat(dto.getEffectiveImpacts())
+      .hasSize(2)
+      .containsEntry(MAINTAINABILITY, LOW)
+      .containsEntry(RELIABILITY, HIGH);
+  }
+
+  @Test
+  void addImpact_whenSoftwareQualityAlreadyDefined_shouldThrowISE() {
+    IssueDto dto = new IssueDto();
+    dto.addImpact(newImpactDto(MAINTAINABILITY, LOW));
+
+    ImpactDto duplicatedImpact = newImpactDto(MAINTAINABILITY, HIGH);
+
+    assertThatThrownBy(() -> dto.addImpact(duplicatedImpact))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Impact already defined on issue for Software Quality [MAINTAINABILITY]");
+  }
+
+  @Test
+  void replaceAllImpacts_whenSoftwareQualityAlreadyDuplicated_shouldThrowISE() {
+    IssueDto dto = new IssueDto();
+    dto.addImpact(newImpactDto(MAINTAINABILITY, MEDIUM));
+    dto.addImpact(newImpactDto(SECURITY, HIGH));
+    dto.addImpact(newImpactDto(RELIABILITY, LOW));
+
+    Set<ImpactDto> duplicatedImpacts = Set.of(
+      newImpactDto(MAINTAINABILITY, HIGH),
+      newImpactDto(MAINTAINABILITY, LOW));
+    assertThatThrownBy(() -> dto.replaceAllImpacts(duplicatedImpacts))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Impacts must have unique Software Quality values");
+  }
+
+  @Test
+  void replaceAllImpacts_shouldReplaceExistingImpacts() {
+    IssueDto dto = new IssueDto();
+    dto.addImpact(newImpactDto(MAINTAINABILITY, MEDIUM));
+    dto.addImpact(newImpactDto(SECURITY, HIGH));
+    dto.addImpact(newImpactDto(RELIABILITY, LOW));
+
+    Set<ImpactDto> duplicatedImpacts = Set.of(
+      newImpactDto(MAINTAINABILITY, HIGH),
+      newImpactDto(SECURITY, LOW));
+
+    dto.replaceAllImpacts(duplicatedImpacts);
+
+    assertThat(dto.getImpacts())
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(MAINTAINABILITY, HIGH),
+        tuple(SECURITY, LOW));
+
+  }
+
+  @Test
+  void setCodeVariants_shouldReturnCodeVariants() {
+    IssueDto dto = new IssueDto();
+    assertThat(dto.getCodeVariants()).isEmpty();
+    assertThat(dto.getCodeVariantsString()).isNull();
+
+    dto.setCodeVariants(Arrays.asList("variant1", "variant2", "variant3"));
+    assertThat(dto.getCodeVariants()).containsOnly("variant1", "variant2", "variant3");
+    assertThat(dto.getCodeVariantsString()).isEqualTo("variant1,variant2,variant3");
+
+    dto.setCodeVariants(null);
+    assertThat(dto.getCodeVariants()).isEmpty();
+    assertThat(dto.getCodeVariantsString()).isNull();
+
+    dto.setCodeVariants(List.of());
+    assertThat(dto.getCodeVariants()).isEmpty();
+    assertThat(dto.getCodeVariantsString()).isNull();
+  }
+
+  @Test
+  void setCodeVariantsString_shouldReturnCodeVariants() {
+    IssueDto dto = new IssueDto();
+
+    dto.setCodeVariantsString("variant1, variant2 ,,variant4");
+    assertThat(dto.getCodeVariants()).containsOnly("variant1", "variant2", "variant4");
+
+    dto.setCodeVariantsString(null);
+    assertThat(dto.getCodeVariants()).isEmpty();
+
+    dto.setCodeVariantsString("");
+    assertThat(dto.getCodeVariants()).isEmpty();
+  }
+
+  @Test
+  void toDtoForComputationInsert_givenDefaultIssueWithAllFields_returnFullIssueDto() {
     long now = System.currentTimeMillis();
     Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
     DefaultIssue defaultIssue = createExampleDefaultIssue(dateNow);
 
     IssueDto issueDto = IssueDto.toDtoForComputationInsert(defaultIssue, "ruleUuid", now);
 
-    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
+    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key",
+      RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
 
     assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
-      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt, IssueDto::getCreatedAt)
+        IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt, IssueDto::getCreatedAt)
       .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now, now);
 
     assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
-      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+        IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
-    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
-      .containsExactly(Set.of("todo"), "admin");
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
-      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
-      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey,
-      IssueDto::getRuleUuid)
-      .containsExactly(true, "123", "123", true, "123", "componentKey",
-        "path/to/module/uuid", "123", "projectKey", "ruleUuid");
+        IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
+        IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getRuleUuid)
+      .containsExactly(true, "123", "123", true, "123", "componentKey", "123", "projectKey", "ruleUuid");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+    assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH), tuple(RELIABILITY, LOW));
   }
 
   @Test
-  public void toDtoForUpdate_givenDefaultIssueWithAllFields_returnFullIssueDto() {
+  void toDtoForUpdate_givenDefaultIssueWithAllFields_returnFullIssueDto() {
     long now = System.currentTimeMillis();
     Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
     DefaultIssue defaultIssue = createExampleDefaultIssue(dateNow);
 
     IssueDto issueDto = IssueDto.toDtoForUpdate(defaultIssue, now);
 
-    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
+    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key",
+      RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
 
     assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
-      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt)
+        IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt)
       .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now);
 
     assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
-      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+        IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
-    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
-      .containsExactly(Set.of("todo"), "admin");
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
-      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
-      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey)
-      .containsExactly(true, "123", "123", true, "123", "componentKey",
-        "path/to/module/uuid", "123", "projectKey");
+        IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getProjectUuid, IssueDto::getProjectKey)
+      .containsExactly(true, "123", "123", true, "123", "componentKey", "123", "projectKey");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+    assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH), tuple(RELIABILITY, LOW));
+  }
+
+  @Test
+  void getIssueStatus_shouldReturnExpectedValueFromStatusAndResolution() {
+    IssueDto dto = new IssueDto();
+    dto.setStatus(Issue.STATUS_CLOSED);
+    assertThat(dto.getIssueStatus()).isEqualTo(IssueStatus.FIXED);
+
+    dto.setStatus(Issue.STATUS_RESOLVED);
+    dto.setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(dto.getIssueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
+
+    dto.setStatus(Issue.STATUS_RESOLVED);
+    dto.setResolution(Issue.RESOLUTION_WONT_FIX);
+    assertThat(dto.getIssueStatus()).isEqualTo(IssueStatus.ACCEPTED);
+  }
+
+  @Test
+  void getIssueStatus_shouldReturnOpen_whenStatusIsNull() {
+    IssueDto dto = new IssueDto();
+    assertThat(dto.getIssueStatus())
+      .isEqualTo(IssueStatus.OPEN);
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
@@ -222,6 +379,7 @@ public class IssueDtoTest {
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setStatus(Issue.STATUS_CLOSED)
       .setSeverity("BLOCKER")
+      .setPrioritizedRule(true)
       .setManualSeverity(true)
       .setChecksum("123")
       .setAssigneeUuid("123")
@@ -230,7 +388,6 @@ public class IssueDtoTest {
       .setTags(List.of("todo"))
       .setComponentUuid("123")
       .setComponentKey("componentKey")
-      .setModuleUuidPath("path/to/module/uuid")
       .setProjectUuid("123")
       .setProjectKey("projectKey")
       .setAuthorLogin("admin")
@@ -240,7 +397,17 @@ public class IssueDtoTest {
       .setSelectedAt(dateNow.getTime())
       .setQuickFixAvailable(true)
       .setIsNewCodeReferenceIssue(true)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .setCodeVariants(List.of("variant1", "variant2"))
+      .addImpact(MAINTAINABILITY, HIGH)
+      .addImpact(RELIABILITY, LOW);
     return defaultIssue;
   }
+
+  private static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
+    return new ImpactDto()
+      .setSoftwareQuality(softwareQuality)
+      .setSeverity(severity);
+  }
+
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.server.util;
 
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -54,11 +54,11 @@ public abstract class AbstractStoppableExecutorService<D extends ExecutorService
         delegate.shutdownNow();
         // Wait a while for tasks to respond to being canceled
         if (!delegate.awaitTermination(5, TimeUnit.SECONDS)) {
-          Loggers.get(getClass()).warn(format("Pool %s did not terminate", getClass().getSimpleName()));
+          LoggerFactory.getLogger(getClass()).warn(format("Pool %s did not terminate", getClass().getSimpleName()));
         }
       }
     } catch (InterruptedException ie) {
-      Loggers.get(getClass()).warn(format("Termination of pool %s failed", getClass().getSimpleName()), ie);
+      LoggerFactory.getLogger(getClass()).warn(format("Termination of pool %s failed", getClass().getSimpleName()), ie);
       // (Re-)Cancel if current thread also interrupted
       delegate.shutdownNow();
     }

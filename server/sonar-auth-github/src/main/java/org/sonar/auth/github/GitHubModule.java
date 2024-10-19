@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,22 +21,23 @@ package org.sonar.auth.github;
 
 import java.util.List;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 import org.sonar.core.platform.Module;
 
 import static org.sonar.auth.github.GitHubSettings.definitions;
 
 public class GitHubModule extends Module {
+  private static final List<Class<?>> COMPONENT_CLASSES = List.of(
+    GitHubIdentityProvider.class,
+    GitHubRestClient.class,
+    UserIdentityFactoryImpl.class,
+    ScribeGitHubApi.class,
+    ScribeServiceBuilder.class);
 
   @Override
   protected void configureModule() {
-    add(
-      GitHubIdentityProvider.class,
-      GitHubSettings.class,
-      GitHubRestClient.class,
-      UserIdentityFactoryImpl.class,
-      ScribeGitHubApi.class);
+    add(COMPONENT_CLASSES);
     List<PropertyDefinition> definitions = definitions();
     add(definitions.toArray(new Object[definitions.size()]));
   }
-
 }

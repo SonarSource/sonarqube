@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,11 +20,12 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
+import { ComponentContextShape } from '../../../types/component';
 import { Component } from '../../../types/types';
-import { ComponentContext } from '../componentContext/ComponentContext';
 import NonAdminPagesContainer from '../NonAdminPagesContainer';
+import { ComponentContext } from '../componentContext/ComponentContext';
 
 function Child() {
   return <div>Test Child</div>;
@@ -32,9 +33,9 @@ function Child() {
 
 it('should render correctly for an user that does not have access to all children', () => {
   renderNonAdminPagesContainer(
-    mockComponent({ qualifier: ComponentQualifier.Application, canBrowseAllChildProjects: false })
+    mockComponent({ qualifier: ComponentQualifier.Application, canBrowseAllChildProjects: false }),
   );
-  expect(screen.getByText('application.cannot_access_all_child_projects1')).toBeInTheDocument();
+  expect(screen.getByText(/^application.cannot_access_all_child_projects1/)).toBeInTheDocument();
 });
 
 it('should render correctly', () => {
@@ -52,6 +53,6 @@ function renderNonAdminPagesContainer(component: Component) {
           </Route>
         </Routes>
       </MemoryRouter>
-    </ComponentContext.Provider>
+    </ComponentContext.Provider>,
   );
 }

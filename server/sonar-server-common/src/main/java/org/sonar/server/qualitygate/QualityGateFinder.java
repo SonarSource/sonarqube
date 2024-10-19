@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+
+import static java.lang.String.format;
+import static org.sonar.server.qualitygate.QualityGate.BUILTIN_QUALITY_GATE_NAME;
 
 public class QualityGateFinder {
   private final DbClient dbClient;
@@ -58,6 +61,11 @@ public class QualityGateFinder {
     QualityGateDto qgate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
     checkState(qgate != null, "Default quality gate [%s] is missing on organization [%s]", organization.getDefaultQualityGateUuid(), organization.getUuid());
     return qgate;
+  }
+
+  public QualityGateDto getSonarWay(DbSession dbSession) {
+    return Optional.ofNullable(dbClient.qualityGateDao().selectByName(dbSession, BUILTIN_QUALITY_GATE_NAME)).orElseThrow(() ->
+      new IllegalStateException(format("%s quality gate is missing", BUILTIN_QUALITY_GATE_NAME)));
   }
 
   public static class QualityGateData {

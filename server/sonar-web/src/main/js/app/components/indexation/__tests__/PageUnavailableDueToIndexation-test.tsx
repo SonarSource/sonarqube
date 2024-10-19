@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ComponentQualifier } from '../../../../types/component';
-import { PageContext, PageUnavailableDueToIndexation } from '../PageUnavailableDueToIndexation';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { PageUnavailableDueToIndexation } from '../PageUnavailableDueToIndexation';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  renderPageUnavailableToIndexation();
+
+  expect(byRole('link', { name: 'learn_more' }).get()).toBeInTheDocument();
 });
 
 it('should not refresh the page once the indexation is complete if there were failures', () => {
@@ -35,14 +36,17 @@ it('should not refresh the page once the indexation is complete if there were fa
     value: { reload },
   });
 
-  const wrapper = shallowRender();
+  const { rerender } = renderPageUnavailableToIndexation();
 
   expect(reload).not.toHaveBeenCalled();
 
-  wrapper.setProps({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } },
-  });
-  wrapper.update();
+  rerender(
+    <PageUnavailableDueToIndexation
+      indexationContext={{
+        status: { hasFailures: true, isCompleted: true },
+      }}
+    />,
+  );
 
   expect(reload).not.toHaveBeenCalled();
 });
@@ -55,27 +59,27 @@ it('should refresh the page once the indexation is complete if there were NO fai
     value: { reload },
   });
 
-  const wrapper = shallowRender();
+  const { rerender } = renderPageUnavailableToIndexation();
 
   expect(reload).not.toHaveBeenCalled();
 
-  wrapper.setProps({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: false } },
-  });
-  wrapper.update();
+  rerender(
+    <PageUnavailableDueToIndexation
+      indexationContext={{
+        status: { hasFailures: false, isCompleted: true },
+      }}
+    />,
+  );
 
   expect(reload).toHaveBeenCalled();
 });
 
-function shallowRender(props?: PageUnavailableDueToIndexation['props']) {
-  return shallow<PageUnavailableDueToIndexation>(
+function renderPageUnavailableToIndexation() {
+  return renderComponent(
     <PageUnavailableDueToIndexation
       indexationContext={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
       }}
-      pageContext={PageContext.Issues}
-      component={{ qualifier: ComponentQualifier.Portfolio, name: 'test-portfolio' }}
-      {...props}
-    />
+    />,
   );
 }

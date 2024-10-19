@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
  */
 package org.sonar.db.component;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +44,8 @@ public class BranchDao implements Dao {
   }
 
   public void insert(DbSession dbSession, BranchDto dto) {
-    mapper(dbSession).insert(dto, system2.now());
+    BranchMapper mapper = mapper(dbSession);
+    mapper.insert(dto, system2.now());
   }
 
   public void upsert(DbSession dbSession, BranchDto dto) {
@@ -86,22 +89,40 @@ public class BranchDao implements Dao {
     if (branchKeys.isEmpty()) {
       return emptyList();
     }
-    return executeLargeInputs(branchKeys, partition -> mapper(dbSession).selectByKeys(projectUuid, branchKeys));
+    return executeLargeInputs(branchKeys, partition -> mapper(dbSession).selectByKeys(projectUuid, partition));
   }
 
+  /*
+   * Returns collection of branches that are in the same project as the component
+   */
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {
-    String projectUuid = component.getMainBranchProjectUuid();
-    if (projectUuid == null) {
-      projectUuid = component.branchUuid();
+    BranchDto branchDto = mapper(dbSession).selectByUuid(component.branchUuid());
+    if (branchDto == null) {
+      return List.of();
     }
-    return mapper(dbSession).selectByProjectUuid(projectUuid);
+    return mapper(dbSession).selectByProjectUuid(branchDto.getProjectUuid());
   }
 
   public Collection<BranchDto> selectByProject(DbSession dbSession, ProjectDto project) {
-    return mapper(dbSession).selectByProjectUuid(project.getUuid());
+    return selectByProjectUuid(dbSession, project.getUuid());
   }
 
-  public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession){
+  public Collection<BranchDto> selectByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectByProjectUuid(projectUuid);
+  }
+
+  public Optional<BranchDto> selectMainBranchByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectMainBranchByProjectUuid(projectUuid);
+  }
+
+  public List<BranchDto> selectMainBranchesByProjectUuids(DbSession dbSession, Collection<String> projectUuids) {
+    if (projectUuids.isEmpty()) {
+      return List.of();
+    }
+    return executeLargeInputs(projectUuids, partition -> mapper(dbSession).selectMainBranchesByProjectUuids(partition));
+  }
+
+  public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession) {
     return mapper(dbSession).countPrBranchAnalyzedLanguageByProjectUuid();
   }
 
@@ -132,14 +153,6 @@ public class BranchDao implements Dao {
     return mapper(dbSession).countByTypeAndCreationDate(branchType.name(), sinceDate);
   }
 
-  public int countByNeedIssueSync(DbSession session, boolean needIssueSync) {
-    return mapper(session).countByNeedIssueSync(needIssueSync);
-  }
-
-  public int countAll(DbSession session) {
-    return mapper(session).countAll();
-  }
-
   private static BranchMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(BranchMapper.class);
   }
@@ -164,6 +177,10 @@ public class BranchDao implements Dao {
     long now = system2.now();
     return mapper(dbSession).updateNeedIssueSync(branchUuid, needIssueSync, now);
   }
+  public long updateIsMain(DbSession dbSession, String branchUuid, boolean isMain) {
+    long now = system2.now();
+    return mapper(dbSession).updateIsMain(branchUuid, isMain, now);
+  }
 
   public boolean doAnyOfComponentsNeedIssueSync(DbSession session, List<String> components) {
     if (!components.isEmpty()) {
@@ -176,5 +193,16 @@ public class BranchDao implements Dao {
         .anyMatch(b -> b);
     }
     return false;
+  }
+
+  public boolean isBranchNeedIssueSync(DbSession session, String branchUuid) {
+    return selectByUuid(session, branchUuid)
+      .map(BranchDto::isNeedIssueSync)
+      .orElse(false);
+  }
+
+  public List<BranchMeasuresDto> selectBranchMeasuresWithCaycMetric(DbSession dbSession) {
+    long yesterday = ZonedDateTime.now(ZoneId.systemDefault()).minusDays(1).toInstant().toEpochMilli();
+    return mapper(dbSession).selectBranchMeasuresWithCaycMetric(yesterday);
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkHighlight, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import {
+  Breadcrumbs,
+  FlagMessage,
+  GreyCard,
+  LightLabel,
+  LightPrimary,
+  SubTitle,
+  Title,
+} from 'design-system';
 import * as React from 'react';
-import EllipsisIcon from '../../components/icons/EllipsisIcon';
+import { Image } from '~sonar-aligned/components/common/Image';
+import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { AnalysisStatus } from '../../apps/overview/components/AnalysisStatus';
 import { translate } from '../../helpers/l10n';
-import { getBaseUrl } from '../../helpers/system';
+import { getProjectTutorialLocation } from '../../helpers/urls';
+import { useBranchesQuery } from '../../queries/branch';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { MainBranch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
-import { Alert } from '../ui/Alert';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
@@ -33,6 +47,8 @@ import JenkinsTutorial from './jenkins/JenkinsTutorial';
 import OtherTutorial from './other/OtherTutorial';
 import { TutorialModes } from './types';
 
+const DEFAULT_MAIN_BRANCH_NAME = 'main';
+
 export interface TutorialSelectionRendererProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
@@ -40,34 +56,32 @@ export interface TutorialSelectionRendererProps {
   currentUser: LoggedInUser;
   currentUserCanScanProject: boolean;
   loading: boolean;
-  mainBranchName: string;
-  onSelectTutorial: (mode: TutorialModes) => void;
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
   selectedTutorial?: TutorialModes;
   willRefreshAutomatically?: boolean;
 }
 
-const DEFAULT_ICON_SIZE = 60;
-const GH_ACTION_ICON_SIZE = 46;
-
-function renderButton(
-  mode: TutorialModes,
-  onSelectTutorial: (mode: TutorialModes) => void,
-  icon: React.ReactNode
-) {
+function renderAlm(mode: TutorialModes, project: string, icon?: React.ReactNode) {
   return (
-    <button
-      className={`button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-${mode}`}
-      // Currently, OtherCI is the same tutorial as Manual. We might update it to its own stand-alone
-      // tutorial in the future.
-      onClick={() => onSelectTutorial(mode)}
-      type="button"
-    >
-      {icon}
-      <div className="medium big-spacer-top">
-        {translate('onboarding.tutorial.choose_method', mode)}
-      </div>
-    </button>
+    <GreyCard className="sw-col-span-4 sw-p-4">
+      <LinkStandalone iconLeft={icon} to={getProjectTutorialLocation(project, mode)}>
+        <span className={icon ? 'sw-ml-2' : ''}>
+          {translate('onboarding.tutorial.choose_method', mode)}
+        </span>
+      </LinkStandalone>
+
+      {mode === TutorialModes.Local && (
+        <LightLabel as="p" className="sw-mt-3">
+          {translate('onboarding.mode.help.manual')}
+        </LightLabel>
+      )}
+
+      {mode === TutorialModes.OtherCI && (
+        <LightLabel as="p" className="sw-mt-3">
+          {translate('onboarding.mode.help.otherci')}
+        </LightLabel>
+      )}
+    </GreyCard>
   );
 }
 
@@ -79,18 +93,27 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     currentUser,
     currentUserCanScanProject,
     loading,
-    mainBranchName,
     projectBinding,
     selectedTutorial,
     willRefreshAutomatically,
   } = props;
 
+  const { data: branchLikes = [] } = useBranchesQuery(component);
+
+  const mainBranchName =
+    (branchLikes.find((b) => isMainBranch(b)) as MainBranch | undefined)?.name ||
+    DEFAULT_MAIN_BRANCH_NAME;
+
   if (loading) {
-    return <i aria-label={translate('loading')} className="spinner" />;
+    return <Spinner />;
   }
 
   if (!currentUserCanScanProject) {
-    return <Alert variant="warning">{translate('onboarding.tutorial.no_scan_rights')}</Alert>;
+    return (
+      <FlagMessage className="sw-w-full" variant="warning">
+        {translate('onboarding.tutorial.no_scan_rights')}
+      </FlagMessage>
+    );
   }
 
   let showGitHubActions = true;
@@ -99,11 +122,12 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   let showAzurePipelines = true;
   let showJenkins = true;
 
-  if (projectBinding !== undefined) {
+  if (projectBinding != null) {
     showGitHubActions = projectBinding.alm === AlmKeys.GitHub;
     showGitLabCICD = projectBinding.alm === AlmKeys.GitLab;
     showBitbucketPipelines = projectBinding.alm === AlmKeys.BitbucketCloud;
     showAzurePipelines = [AlmKeys.Azure, AlmKeys.GitHub].includes(projectBinding.alm);
+
     showJenkins = [
       AlmKeys.BitbucketCloud,
       AlmKeys.BitbucketServer,
@@ -113,106 +137,104 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   }
 
   return (
-    <>
+    <div className="sw-typo-default">
+      <AnalysisStatus component={component} className="sw-mb-4 sw-w-max" />
+
       {selectedTutorial === undefined && (
-        <>
-          <h2 className="spacer-top huge-spacer-bottom">
+        <div className="sw-flex sw-flex-col">
+          <Title className="sw-mb-6 sw-heading-xl">
+            {translate('onboarding.tutorial.page.title')}
+          </Title>
+
+          <LightPrimary>{translate('onboarding.tutorial.page.description')}</LightPrimary>
+
+          <SubTitle className="sw-mt-12 sw-mb-4 sw-heading-lg">
             {translate('onboarding.tutorial.choose_method')}
-          </h2>
+          </SubTitle>
 
-          <div className="tutorial-selection">
-            <p className="big-spacer-bottom">
-              {translate('onboarding.tutorial.choose_method.devops_platform.description')}
-            </p>
-            <div className="display-flex-start display-flex-wrap">
-              {showJenkins &&
-                renderButton(
-                  TutorialModes.Jenkins,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
-                  />
-                )}
-
-              {showGitHubActions &&
-                renderButton(
-                  TutorialModes.GitHubActions,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={GH_ACTION_ICON_SIZE}
-                    className="spacer-bottom spacer-top"
-                    src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
-                  />
-                )}
-
-              {showBitbucketPipelines &&
-                renderButton(
-                  TutorialModes.BitbucketPipelines,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-                  />
-                )}
-
-              {showGitLabCICD &&
-                renderButton(
-                  TutorialModes.GitLabCI,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-                  />
-                )}
-
-              {showAzurePipelines &&
-                renderButton(
-                  TutorialModes.AzurePipelines,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
-                  />
-                )}
-
-              {renderButton(
-                TutorialModes.OtherCI,
-                props.onSelectTutorial,
-                <EllipsisIcon size={DEFAULT_ICON_SIZE} />
-              )}
-            </div>
-
-            <p className="big-spacer-bottom spacer-top">
-              {translate('onboarding.tutorial.choose_method.local.description')}
-            </p>
-            <div>
-              {renderButton(
-                TutorialModes.Local,
-                props.onSelectTutorial,
-                <img
+          <div className="it__tutorial-selection sw-grid sw-gap-6 sw-grid-cols-12">
+            {showJenkins &&
+              renderAlm(
+                TutorialModes.Jenkins,
+                component.key,
+                <Image
                   alt="" // Should be ignored by screen readers
-                  height={DEFAULT_ICON_SIZE}
-                  src={`${getBaseUrl()}/images/tutorials/manual.svg`}
-                />
+                  className="sw-h-4 sw-w-4"
+                  src="/images/tutorials/jenkins.svg"
+                />,
               )}
-            </div>
+
+            {showGitHubActions &&
+              renderAlm(
+                TutorialModes.GitHubActions,
+                component.key,
+                <Image
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src="/images/tutorials/github-actions.svg"
+                />,
+              )}
+
+            {showBitbucketPipelines &&
+              renderAlm(
+                TutorialModes.BitbucketPipelines,
+                component.key,
+                <Image
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src="/images/alm/bitbucket.svg"
+                />,
+              )}
+
+            {showGitLabCICD &&
+              renderAlm(
+                TutorialModes.GitLabCI,
+                component.key,
+                <Image
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src="/images/alm/gitlab.svg"
+                />,
+              )}
+
+            {showAzurePipelines &&
+              renderAlm(
+                TutorialModes.AzurePipelines,
+                component.key,
+                <Image
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src="/images/tutorials/azure-pipelines.svg"
+                />,
+              )}
+
+            {renderAlm(TutorialModes.OtherCI, component.key)}
+
+            {renderAlm(TutorialModes.Local, component.key)}
           </div>
-        </>
+        </div>
+      )}
+
+      {selectedTutorial && (
+        <Breadcrumbs className="sw-mb-3">
+          <LinkStandalone
+            highlight={LinkHighlight.CurrentColor}
+            to={getProjectTutorialLocation(component.key)}
+          >
+            {translate('onboarding.tutorial.breadcrumbs.home')}
+          </LinkStandalone>
+
+          <LinkStandalone
+            highlight={LinkHighlight.CurrentColor}
+            to={getProjectTutorialLocation(component.key, selectedTutorial)}
+          >
+            {translate('onboarding.tutorial.breadcrumbs', selectedTutorial)}
+          </LinkStandalone>
+        </Breadcrumbs>
       )}
 
       {selectedTutorial === TutorialModes.Local && (
-        <OtherTutorial
-          component={component}
-          baseUrl={baseUrl}
-          isLocal={true}
-          currentUser={currentUser}
-        />
+        <OtherTutorial component={component} baseUrl={baseUrl} isLocal currentUser={currentUser} />
       )}
 
       {selectedTutorial === TutorialModes.OtherCI && (
@@ -226,7 +248,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           component={component}
           currentUser={currentUser}
           mainBranchName={mainBranchName}
-          projectBinding={projectBinding}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
@@ -237,8 +258,8 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
+          monorepo={projectBinding?.monorepo}
           mainBranchName={mainBranchName}
-          projectBinding={projectBinding}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
@@ -248,7 +269,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           almBinding={almBinding}
           baseUrl={baseUrl}
           component={component}
-          projectBinding={projectBinding}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
@@ -258,7 +278,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
-          mainBranchName={mainBranchName}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
@@ -272,6 +291,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
-    </>
+    </div>
   );
 }

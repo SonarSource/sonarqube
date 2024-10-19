@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,75 +19,74 @@
  */
 package org.sonar.scanner.scan;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.config.ScannerProperties;
+import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+import static java.lang.String.format;
+import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.ScannerProperties.BRANCHES_DOC_LINK_SUFFIX;
 
-@RunWith(DataProviderRunner.class)
-public class ProjectReactorValidatorTest {
-
-  @Rule
-  public LogTester logTester = new LogTester();
+class ProjectReactorValidatorTest {
 
   private final GlobalConfiguration settings = mock(GlobalConfiguration.class);
   private final ProjectInfo projectInfo = mock(ProjectInfo.class);
-  private final ProjectReactorValidator underTest = new ProjectReactorValidator(settings);
+  private final DefaultDocumentationLinkGenerator defaultDocumentationLinkGenerator = mock(DefaultDocumentationLinkGenerator.class);
+  private final ProjectReactorValidator underTest = new ProjectReactorValidator(settings, defaultDocumentationLinkGenerator);
+  private static final String LINK_TO_DOC = "link_to_documentation";
 
-  @Before
-  public void prepare() {
+  @BeforeEach
+  void prepare() {
     when(settings.get(anyString())).thenReturn(Optional.empty());
+    when(defaultDocumentationLinkGenerator.getDocumentationLink(BRANCHES_DOC_LINK_SUFFIX)).thenReturn(LINK_TO_DOC);
   }
 
-  @Test
-  @UseDataProvider("validKeys")
-  public void not_fail_with_valid_key(String validKey) {
+  @ParameterizedTest
+  @MethodSource("validKeys")
+  void not_fail_with_valid_key(String validKey) {
     ProjectReactor projectReactor = createProjectReactor(validKey);
     underTest.validate(projectReactor);
   }
 
-  @DataProvider
-  public static Object[][] validKeys() {
-    return new Object[][] {
-      {"foo"},
-      {"123foo"},
-      {"foo123"},
-      {"1Z3"},
-      {"a123"},
-      {"123a"},
-      {"1:2"},
-      {"3-3"},
-      {"-:"},
-      {"Foobar2"},
-      {"foo.bar"},
-      {"foo-bar"},
-      {"foo:bar"},
-      {"foo_bar"}
-    };
+  private static Stream<String> validKeys() {
+    return Stream.of(
+      "foo",
+      "123foo",
+      "foo123",
+      "1Z3",
+      "a123",
+      "123a",
+      "1:2",
+      "3-3",
+      "-:",
+      "Foobar2",
+      "foo.bar",
+      "foo-bar",
+      "foo:bar",
+      "foo_bar"
+    );
   }
 
   @Test
-  public void fail_when_invalid_key() {
+  void fail_when_invalid_key() {
     ProjectReactor reactor = createProjectReactor("foo$bar");
 
     assertThatThrownBy(() -> underTest.validate(reactor))
@@ -97,7 +96,7 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void fail_when_only_digits() {
+  void fail_when_only_digits() {
     ProjectReactor reactor = createProjectReactor("12345");
 
     assertThatThrownBy(() -> underTest.validate(reactor))
@@ -107,7 +106,7 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void fail_when_backslash_in_key() {
+  void fail_when_backslash_in_key() {
     ProjectReactor reactor = createProjectReactor("foo\\bar");
 
     assertThatThrownBy(() -> underTest.validate(reactor))
@@ -117,7 +116,7 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void fail_when_branch_name_is_specified_but_branch_plugin_not_present() {
+  void fail_when_branch_name_is_specified_but_branch_plugin_not_present() {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
@@ -125,11 +124,12 @@ public class ProjectReactorValidatorTest {
 
     assertThatThrownBy(() -> underTest.validate(reactor))
       .isInstanceOf(MessageException.class)
-      .hasMessageContaining("To use the property \"sonar.branch.name\" and analyze branches, Developer Edition or above is required");
+      .hasMessageContaining(format("To use the property \"sonar.branch.name\" and analyze branches, Developer Edition or above is required. See %s for more information.",
+        LINK_TO_DOC));
   }
 
   @Test
-  public void fail_when_pull_request_id_specified_but_branch_plugin_not_present() {
+  void fail_when_pull_request_id_specified_but_branch_plugin_not_present() {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
@@ -137,11 +137,12 @@ public class ProjectReactorValidatorTest {
 
     assertThatThrownBy(() -> underTest.validate(reactor))
       .isInstanceOf(MessageException.class)
-      .hasMessageContaining("To use the property \"sonar.pullrequest.key\" and analyze pull requests, Developer Edition or above is required");
+      .hasMessageContaining(format("To use the property \"sonar.pullrequest.key\" and analyze pull requests, Developer Edition or above is required. See %s for more information.",
+        LINK_TO_DOC));
   }
 
   @Test
-  public void fail_when_pull_request_branch_is_specified_but_branch_plugin_not_present() {
+  void fail_when_pull_request_branch_is_specified_but_branch_plugin_not_present() {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
@@ -149,11 +150,12 @@ public class ProjectReactorValidatorTest {
 
     assertThatThrownBy(() -> underTest.validate(reactor))
       .isInstanceOf(MessageException.class)
-      .hasMessageContaining("To use the property \"sonar.pullrequest.branch\" and analyze pull requests, Developer Edition or above is required");
+      .hasMessageContaining(format("To use the property \"sonar.pullrequest.branch\" and analyze pull requests, Developer Edition or above is required. See %s for more information.",
+        LINK_TO_DOC));
   }
 
   @Test
-  public void fail_when_pull_request_base_specified_but_branch_plugin_not_present() {
+  void fail_when_pull_request_base_specified_but_branch_plugin_not_present() {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
@@ -161,45 +163,44 @@ public class ProjectReactorValidatorTest {
 
     assertThatThrownBy(() -> underTest.validate(reactor))
       .isInstanceOf(MessageException.class)
-      .hasMessageContaining("To use the property \"sonar.pullrequest.base\" and analyze pull requests, Developer Edition or above is required");
+      .hasMessageContaining(format("To use the property \"sonar.pullrequest.base\" and analyze pull requests, Developer Edition or above is required. See %s for more information.",
+        LINK_TO_DOC));
   }
 
-  @Test
-  @UseDataProvider("validVersions")
-  public void not_fail_with_valid_version(String validVersion) {
+  @ParameterizedTest
+  @MethodSource("validVersions")
+  void not_fail_with_valid_version(@Nullable String validVersion) {
     when(projectInfo.getProjectVersion()).thenReturn(Optional.ofNullable(validVersion));
 
     ProjectReactor projectReactor = createProjectReactor("foo");
     underTest.validate(projectReactor);
   }
 
-  @DataProvider
-  public static Object[][] validVersions() {
-    return new Object[][] {
-      {null},
-      {"1.0"},
-      {"2017-10-16"},
-      {randomAscii(100)}
-    };
+  private static Stream<String> validVersions() {
+    return Stream.of(
+      null,
+      "1.0",
+      "2017-10-16",
+      randomAscii(100)
+    );
   }
 
-  @Test
-  @UseDataProvider("validBuildStrings")
-  public void not_fail_with_valid_buildString(String validBuildString) {
+  @ParameterizedTest
+  @MethodSource("validBuildStrings")
+  void not_fail_with_valid_buildString(@Nullable String validBuildString) {
     when(projectInfo.getBuildString()).thenReturn(Optional.ofNullable(validBuildString));
 
     ProjectReactor projectReactor = createProjectReactor("foo");
     underTest.validate(projectReactor);
   }
 
-  @DataProvider
-  public static Object[][] validBuildStrings() {
-    return new Object[][] {
-      {null},
-      {"1.0"},
-      {"2017-10-16"},
-      {randomAscii(100)}
-    };
+  private static Stream<String> validBuildStrings() {
+    return Stream.of(
+      null,
+      "1.0",
+      "2017-10-16",
+      randomAscii(100)
+    );
   }
 
   private ProjectReactor createProjectReactor(String projectKey, Consumer<ProjectDefinition>... consumers) {

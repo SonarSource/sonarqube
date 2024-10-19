@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,32 +20,33 @@
 import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
-import FinishButton from '../../components/FinishButton';
 import { GITHUB_ACTIONS_RUNS_ON_WINDOWS } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface DotNetProps {
   branchesEnabled?: boolean;
-  mainBranchName: string;
   component: Component;
-  onDone: () => void;
+  mainBranchName: string;
+  monorepo?: boolean;
 }
 
 function dotnetYamlSteps(projectKey: string) {
   return `
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version: 1.11
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
       - name: Cache SonarQube packages
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
-          path: ~\\sonar\\cache
+          path: ~\\.sonar\\cache
           key: \${{ runner.os }}-sonar
           restore-keys: \${{ runner.os }}-sonar
       - name: Cache SonarQube scanner
         id: cache-sonar-scanner
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: .\\.sonar\\scanner
           key: \${{ runner.os }}-sonar-scanner
@@ -57,29 +58,29 @@ function dotnetYamlSteps(projectKey: string) {
           New-Item -Path .\\.sonar\\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\\.sonar\\scanner
       - name: Build and analyze
-        env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         shell: powershell
         run: |
-          .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"${projectKey}" /d:sonar.login="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
+          .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"${projectKey}" /d:sonar.token="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
           dotnet build
-          .\\.sonar\\scanner\\dotnet-sonarscanner end /d:sonar.login="\${{ secrets.SONAR_TOKEN }}"`;
+          .\\.sonar\\scanner\\dotnet-sonarscanner end /d:sonar.token="\${{ secrets.SONAR_TOKEN }}"`;
 }
 
 export default function DotNet(props: DotNetProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
+
+  if (monorepo) {
+    return <MonorepoDocLinkFallback />;
+  }
+
   return (
-    <>
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_WINDOWS,
-          dotnetYamlSteps(component.key)
-        )}
-      />
-      <FinishButton onClick={props.onDone} />
-    </>
+    <CreateYmlFile
+      yamlFileName=".github/workflows/build.yml"
+      yamlTemplate={generateGitHubActionsYaml(
+        mainBranchName,
+        !!branchesEnabled,
+        GITHUB_ACTIONS_RUNS_ON_WINDOWS,
+        dotnetYamlSteps(component.key),
+      )}
+    />
   );
 }

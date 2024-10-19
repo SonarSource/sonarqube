@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
@@ -42,8 +42,8 @@ public class ProjectDumpWsSupport {
 
   public void verifyAdminOfProjectByKey(String projectKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      userSession.checkComponentPermission(UserRole.ADMIN, project);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+      userSession.checkEntityPermission(UserRole.ADMIN, project);
     }
   }
 }

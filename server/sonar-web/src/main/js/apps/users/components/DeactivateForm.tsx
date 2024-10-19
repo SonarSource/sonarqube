@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,110 +17,86 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  Checkbox,
+  DangerButtonPrimary,
+  FlagMessage,
+  LightPrimary,
+  Link,
+  Modal,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { deactivateUser } from '../../../api/users';
-import DocLink from '../../../components/common/DocLink';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Checkbox from '../../../components/controls/Checkbox';
-import Modal from '../../../components/controls/Modal';
-import { Alert } from '../../../components/ui/Alert';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { UserActive } from '../../../types/users';
+import { useDeactivateUserMutation } from '../../../queries/users';
+import { RestUserDetailed } from '../../../types/users';
 
 export interface Props {
   onClose: () => void;
-  onUpdateUsers: () => void;
-  user: UserActive;
+  user: RestUserDetailed;
 }
 
-interface State {
-  submitting: boolean;
-  anonymize: boolean;
-}
+const DEACTIVATE_FORM_ID = 'deactivate-user-form';
 
-export default class DeactivateForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { submitting: false, anonymize: false };
+export default function DeactivateForm(props: Props) {
+  const { user } = props;
+  const [anonymize, setAnonymize] = React.useState(false);
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const { mutate: deactivateUser, isPending } = useDeactivateUserMutation();
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleAnonymize = (checked: boolean) => {
-    this.setState({ anonymize: checked });
-  };
-
-  handleDeactivate = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleDeactivate = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    this.setState({ submitting: true });
-    deactivateUser({ login: this.props.user.login, anonymize: this.state.anonymize }).then(
-      () => {
-        this.props.onUpdateUsers();
-        this.props.onClose();
+    deactivateUser(
+      { id: user.id, anonymize },
+      {
+        onSuccess: props.onClose,
       },
-      () => {
-        if (this.mounted) {
-          this.setState({ submitting: false });
-        }
-      }
     );
   };
 
-  render() {
-    const { user } = this.props;
-    const { submitting, anonymize } = this.state;
+  const header = translate('users.deactivate_user');
+  const docUrl = useDocUrl(DocLink.AuthOverview);
 
-    const header = translate('users.deactivate_user');
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form autoComplete="off" id="deactivate-user-form" onSubmit={this.handleDeactivate}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-          <div className="modal-body display-flex-column">
-            {translateWithParameters('users.deactivate_user.confirmation', user.name, user.login)}
-            <Checkbox
-              id="delete-user"
-              className="big-spacer-top"
-              checked={anonymize}
-              onCheck={this.handleAnonymize}
-            >
-              <label className="little-spacer-left" htmlFor="delete-user">
-                {translate('users.delete_user')}
-              </label>
-            </Checkbox>
-            {anonymize && (
-              <Alert variant="warning" className="big-spacer-top">
+  return (
+    <Modal
+      headerTitle={header}
+      body={
+        <form autoComplete="off" id={DEACTIVATE_FORM_ID} onSubmit={handleDeactivate}>
+          {translateWithParameters('users.deactivate_user.confirmation', user.name, user.login)}
+          <Checkbox
+            id="delete-user"
+            className="sw-flex sw-items-center sw-mt-4"
+            checked={anonymize}
+            onCheck={(checked) => setAnonymize(checked)}
+          >
+            <LightPrimary className="sw-ml-3">{translate('users.delete_user')}</LightPrimary>
+          </Checkbox>
+          {anonymize && (
+            <FlagMessage variant="warning" className="sw-mt-2">
+              <span>
                 <FormattedMessage
                   defaultMessage={translate('users.delete_user.help')}
                   id="delete-user-warning"
                   values={{
-                    link: (
-                      <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                        {translate('users.delete_user.help.link')}
-                      </DocLink>
-                    ),
+                    link: <Link to={docUrl}>{translate('users.delete_user.help.link')}</Link>,
                   }}
                 />
-              </Alert>
-            )}
-          </div>
-          <footer className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton className="js-confirm button-red" disabled={submitting}>
-              {translate('users.deactivate')}
-            </SubmitButton>
-            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </footer>
+              </span>
+            </FlagMessage>
+          )}
         </form>
-      </Modal>
-    );
-  }
+      }
+      onClose={props.onClose}
+      loading={isPending}
+      primaryButton={
+        <DangerButtonPrimary form={DEACTIVATE_FORM_ID} disabled={isPending} type="submit">
+          {translate('users.deactivate')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }

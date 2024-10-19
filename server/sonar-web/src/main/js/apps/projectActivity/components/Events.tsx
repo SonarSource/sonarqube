@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { AnalysisEvent } from '../../../types/project-activity';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import Event from './Event';
 
 export interface EventsProps {
@@ -27,23 +27,31 @@ export interface EventsProps {
   canAdmin?: boolean;
   events: AnalysisEvent[];
   isFirst?: boolean;
-  onChange?: (event: string, name: string) => Promise<void>;
-  onDelete?: (analysis: string, event: string) => Promise<void>;
 }
 
-export function Events(props: EventsProps) {
+function Events(props: EventsProps) {
   const { analysisKey, canAdmin, events, isFirst } = props;
 
   const sortedEvents = sortBy(
     events,
-    // versions last
-    (event) => (event.category === 'VERSION' ? 1 : 0),
-    // then the rest sorted by category
-    'category'
+    (event) => {
+      switch (event.category) {
+        case ProjectAnalysisEventCategory.SqUpgrade:
+          // SQ Upgrade first
+          return 0;
+        case ProjectAnalysisEventCategory.Version:
+          // versions last
+          return 2;
+        default:
+          // then the rest in between, sorted by category
+          return 1;
+      }
+    },
+    'category',
   );
 
   return (
-    <div className="big-spacer-top">
+    <div className="sw-flex sw-flex-1 sw-flex-col sw-gap-2 sw-min-w-0">
       {sortedEvents.map((event) => (
         <Event
           analysisKey={analysisKey}
@@ -51,8 +59,6 @@ export function Events(props: EventsProps) {
           event={event}
           isFirst={isFirst}
           key={event.key}
-          onChange={props.onChange}
-          onDelete={props.onDelete}
         />
       ))}
     </div>

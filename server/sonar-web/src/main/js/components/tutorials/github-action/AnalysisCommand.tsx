@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,36 +23,33 @@ import withAvailableFeatures, {
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import { BuildTools } from '../types';
+import { BuildTools, TutorialConfig } from '../types';
 import CFamily from './commands/CFamily';
+import Dart from './commands/Dart';
 import DotNet from './commands/DotNet';
 import Gradle from './commands/Gradle';
 import JavaMaven from './commands/JavaMaven';
 import Others from './commands/Others';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
-  buildTool: BuildTools;
-  mainBranchName: string;
   component: Component;
-  onDone: () => void;
+  config: TutorialConfig;
+  mainBranchName: string;
+  monorepo?: boolean;
 }
 
-export function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, component, mainBranchName } = props;
+export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
+  const { config, component, mainBranchName, monorepo } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
-  if (!buildTool) {
-    return null;
-  }
-
-  switch (buildTool) {
+  switch (config.buildTool) {
     case BuildTools.Maven:
       return (
         <JavaMaven
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
-          onDone={props.onDone}
         />
       );
     case BuildTools.Gradle:
@@ -60,8 +57,8 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <Gradle
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
-          onDone={props.onDone}
         />
       );
     case BuildTools.DotNet:
@@ -69,17 +66,28 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <DotNet
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
-          onDone={props.onDone}
         />
       );
-    case BuildTools.CFamily:
+    case BuildTools.Cpp:
+    case BuildTools.ObjectiveC:
       return (
         <CFamily
+          config={config}
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
-          onDone={props.onDone}
+        />
+      );
+    case BuildTools.Dart:
+      return (
+        <Dart
+          branchesEnabled={branchSupportEnabled}
+          mainBranchName={mainBranchName}
+          monorepo={monorepo}
+          component={component}
         />
       );
     case BuildTools.Other:
@@ -87,10 +95,12 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <Others
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
-          onDone={props.onDone}
         />
       );
+    default:
+      return undefined;
   }
 }
 

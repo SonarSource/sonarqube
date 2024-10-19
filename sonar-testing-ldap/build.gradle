@@ -5,10 +5,12 @@ sonar {
 }
 
 dependencies {
-    api 'junit:junit'
-    api 'org.apache.directory.server:apacheds-all:2.0.0-M24'
-    api 'org.slf4j:slf4j-api'
+    api 'org.apache.mina:mina-core'
+    implementation 'org.apache.directory.server:apacheds-server-integ'
+    implementation 'org.apache.kerby:kerb-simplekdc'
+    implementation 'org.apache.kerby:ldap-backend'
 
+    testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.hamcrest:hamcrest-core'
     testImplementation 'org.mockito:mockito-core'

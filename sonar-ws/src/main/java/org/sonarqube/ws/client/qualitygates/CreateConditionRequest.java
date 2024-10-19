@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ import javax.annotation.Generated;
 public class CreateConditionRequest {
 
   private String error;
-  private String gateId;
+  private String gateName;
   private String metric;
   private String op;
   private String organization;
@@ -60,13 +60,13 @@ public class CreateConditionRequest {
    * This is a mandatory parameter.
    * Example value: "1"
    */
-  public CreateConditionRequest setGateId(String gateId) {
-    this.gateId = gateId;
+  public CreateConditionRequest setGateName(String gateName) {
+    this.gateName = gateName;
     return this;
   }
 
-  public String getGateId() {
-    return gateId;
+  public String getGateName() {
+    return gateName;
   }
 
   /**

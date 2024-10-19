@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,18 @@
  */
 package org.sonar.db.property;
 
+import java.security.SecureRandom;
+import java.util.Random;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class PropertyTesting {
 
-  private static int cursor = RandomUtils.nextInt(100);
+  private static final Random RANDOM = new SecureRandom();
+  private static int cursor = RANDOM.nextInt(100);
 
   private PropertyTesting() {
     // static methods only
@@ -42,14 +44,14 @@ public class PropertyTesting {
     return newPropertyDto((String) null, null);
   }
 
-  public static PropertyDto newComponentPropertyDto(String key, String value, ComponentDto component) {
-    checkNotNull(component.uuid());
-    return newPropertyDto(key, value, component.uuid(), null);
+  public static PropertyDto newComponentPropertyDto(String key, String value, EntityDto component) {
+    checkNotNull(component.getUuid());
+    return newPropertyDto(key, value, component.getUuid(), null);
   }
 
-  public static PropertyDto newComponentPropertyDto(ComponentDto component) {
-    checkNotNull(component.uuid());
-    return newPropertyDto(component.uuid(), null);
+  public static PropertyDto newComponentPropertyDto(EntityDto entity) {
+    checkNotNull(entity.getUuid());
+    return newPropertyDto(entity.getUuid(), null);
   }
 
   public static PropertyDto newUserPropertyDto(String key, String value, UserDto user) {
@@ -60,18 +62,6 @@ public class PropertyTesting {
   public static PropertyDto newUserPropertyDto(UserDto user) {
     checkNotNull(user.getUuid());
     return newPropertyDto(null, user.getUuid());
-  }
-
-  public static PropertyDto newPropertyDto(String key, String value, ComponentDto component, UserDto user) {
-    checkNotNull(component.uuid());
-    checkNotNull(user.getUuid());
-    return newPropertyDto(key, value, component.uuid(), user.getUuid());
-  }
-
-  public static PropertyDto newPropertyDto(ComponentDto component, UserDto user) {
-    checkNotNull(component.uuid());
-    checkNotNull(user.getUuid());
-    return newPropertyDto(component.uuid(), user.getUuid());
   }
 
   private static PropertyDto newPropertyDto(@Nullable String componentUuid, @Nullable String userUuid) {
@@ -87,7 +77,7 @@ public class PropertyTesting {
       .setKey(key)
       .setValue(value);
     if (componentUuid != null) {
-      propertyDto.setComponentUuid(componentUuid);
+      propertyDto.setEntityUuid(componentUuid);
     }
     if (userUuid != null) {
       propertyDto.setUserUuid(userUuid);

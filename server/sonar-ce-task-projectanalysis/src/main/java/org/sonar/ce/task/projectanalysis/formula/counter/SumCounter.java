@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,9 @@ package org.sonar.ce.task.projectanalysis.formula.counter;
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.formula.Counter;
 
-public interface SumCounter<T extends Number, COUNTER extends SumCounter<T, COUNTER>> extends Counter<COUNTER> {
+public interface SumCounter<T, COUNTER extends SumCounter<T, COUNTER>> extends Counter<COUNTER> {
 
   Optional<T> getValue();
+
+  void addValue(T value);
 }

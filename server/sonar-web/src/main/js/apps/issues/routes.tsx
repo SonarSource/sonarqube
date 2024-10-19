@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -47,10 +47,10 @@ function IssuesNavigate() {
                 branch: searchParams.get('branch'),
                 pullRequest: searchParams.get('pullRequest'),
                 assignedToMe: 'false',
-              })
+              }),
             ).toString(),
           },
-          { replace: true }
+          { replace: true },
         );
       } else {
         const filteredTypes = types

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ public class FastStringComparatorTest {
     String s2 = "PE";
 
     assertThat(s1).hasSameHashCodeAs(s2);
-    assertThat(compare(s1, s2)).isLessThan(0);
+    assertThat(compare(s1, s2)).isNegative();
     assertThat(compare(s2, s1)).isPositive();
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,8 @@ package org.sonar.server.issue.index;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Rule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -46,12 +45,12 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class IssueIndexTestCommon {
 
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   protected final System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create(system2);
 
   private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
@@ -68,7 +67,7 @@ public class IssueIndexTestCommon {
   protected List<String> searchAndReturnKeys(IssueQuery.Builder query) {
     return Arrays.stream(underTest.search(query.build(), new SearchOptions()).getHits().getHits())
       .map(SearchHit::getId)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   protected void assertThatSearchReturnsOnly(IssueQuery.Builder query, String... expectedIssueKeys) {

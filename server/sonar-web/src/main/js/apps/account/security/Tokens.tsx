@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Heading } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
@@ -26,17 +28,18 @@ interface Props {
   login: string;
 }
 
-export default function Tokens({ login }: Props) {
+export default function Tokens({ login }: Readonly<Props>) {
   return (
-    <div className="boxed-group">
-      <h2>{translate('users.tokens')}</h2>
-      <div className="boxed-group-inner">
-        <div className="big-spacer-bottom big-spacer-right markdown">
-          <InstanceMessage message={translate('my_account.tokens_description')} />
-        </div>
+    <>
+      <Heading as="h1" hasMarginBottom>
+        {translate('my_account.security')}
+      </Heading>
 
-        <TokensForm deleteConfirmation="modal" login={login} displayTokenTypeInput={true} />
+      <div className="sw-typo-lg sw-mb-4 sw-mr-4">
+        <InstanceMessage message={translate('my_account.tokens_description')} />
       </div>
-    </div>
+
+      <TokensForm deleteConfirmation="modal" login={login} displayTokenTypeInput />
+    </>
   );
 }

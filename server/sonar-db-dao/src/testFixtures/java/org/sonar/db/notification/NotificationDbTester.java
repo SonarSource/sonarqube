@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,10 @@ package org.sonar.db.notification;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 
@@ -35,31 +34,31 @@ public class NotificationDbTester {
   private static final String PROP_NOTIFICATION_PREFIX = "notification";
 
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public NotificationDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
-  public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ComponentDto component) {
+  public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
-      .setComponentUuid(component == null ? null : component.uuid())
-      .setUserUuid(userUuid)
-      .build(), dbSession).stream()
-      .filter(prop -> component == null ? prop.getComponentUuid() == null : prop.getComponentUuid() != null)
-      .collect(MoreCollectors.toList());
+        .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
+        .setEntityUuid(project == null ? null : project.getUuid())
+        .setUserUuid(userUuid)
+        .build(), db.getSession()).stream()
+      .filter(prop -> project == null ? prop.getEntityUuid() == null : prop.getEntityUuid() != null)
+      .toList();
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getValue()).isEqualTo("true");
   }
 
-  public void assertDoesNotExist(String channel, String dispatcher, String userUuid, @Nullable ComponentDto component) {
+  public void assertDoesNotExist(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
-      .setComponentUuid(component == null ? null : component.uuid())
+      .setEntityUuid(project == null ? null : project.getUuid())
       .setUserUuid(userUuid)
-      .build(), dbSession);
+      .build(), db.getSession());
     assertThat(result).isEmpty();
   }
 }

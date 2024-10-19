@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpResponse;
 
 import static java.lang.String.format;
 import static java.net.URLEncoder.encode;
@@ -43,7 +44,15 @@ public class AuthenticationRedirection {
     }
   }
 
-  public static void redirectTo(HttpServletResponse response, String url) {
+  public static void redirectTo(HttpResponse response, String url) {
+    try {
+      response.sendRedirect(url);
+    } catch (IOException e) {
+      throw new IllegalStateException(format("Fail to redirect to %s", url), e);
+    }
+  }
+
+  static void redirectTo(HttpServletResponse response, String url) {
     try {
       response.sendRedirect(url);
     } catch (IOException e) {

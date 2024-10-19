@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.health.AppNodeClusterCheck;
-import org.sonar.server.health.CeStatusNodeCheck;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusClusterCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
+import org.sonar.server.common.health.AppNodeClusterCheck;
+import org.sonar.server.common.health.CeStatusNodeCheck;
+import org.sonar.server.common.health.DbConnectionNodeCheck;
+import org.sonar.server.common.health.EsStatusClusterCheck;
+import org.sonar.server.common.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerStatusNodeCheck;
+import org.sonar.server.common.health.WebServerStatusNodeCheck;
 import org.sonar.server.platform.NodeInformation;
 
 public class HealthCheckerModule extends Module {

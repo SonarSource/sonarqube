@@ -1,0 +1,89 @@
+{
+  "total": 3,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 3
+  },
+  "issues": [
+    {
+      "rule": "xoo:x1",
+      "component": "FILE_KEY",
+      "project": "PROJECT_KEY",
+      "flows": [],
+      "status": "OPEN",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [
+        "variant2",
+        "variant3"
+      ]
+    },
+    {
+      "rule": "xoo:x1",
+      "component": "FILE_KEY",
+      "project": "PROJECT_KEY",
+      "flows": [],
+      "status": "OPEN",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [
+        "variant2"
+      ]
+    },
+    {
+      "rule": "xoo:x1",
+      "component": "FILE_KEY",
+      "project": "PROJECT_KEY",
+      "flows": [],
+      "status": "OPEN",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [
+        "variant1",
+        "variant2"
+      ]
+    }
+  ],
+  "components": [
+    {
+      "key": "FILE_KEY",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "NAME_FILE_ID",
+      "longName": "null/NAME_FILE_ID",
+      "path": "null/NAME_FILE_ID"
+    },
+    {
+      "key": "PROJECT_KEY",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "NAME_PROJECT_ID",
+      "longName": "LONG_NAME_PROJECT_ID"
+    }
+  ],
+  "facets": [
+    {
+      "property": "codeVariants",
+      "values": [
+        {
+          "val": "variant2",
+          "count": 3
+        },
+        {
+          "val": "variant1",
+          "count": 2
+        },
+        {
+          "val": "variant3",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,19 +19,12 @@
  */
 import exposeLibraries from '../exposeLibraries';
 
-let warnSpy: jest.SpyInstance;
-
-beforeEach(() => {
-  warnSpy = jest.spyOn(console, 'warn');
-});
-
-it('should run the deprecation notice', () => {
+it('should register expected libraries to the window object', () => {
   exposeLibraries();
 
-  const { SonarHelpers, SonarMeasures, SonarComponents } = window as any;
+  const { SonarRequest, t, tp } = window as any;
 
-  expect(SonarHelpers).not.toBeNull();
-  expect(SonarMeasures).not.toBeNull();
-  expect(SonarComponents).not.toBeNull();
-  expect(warnSpy).toHaveBeenCalledTimes(3);
+  expect(SonarRequest).toBeDefined();
+  expect(t).toBeDefined();
+  expect(tp).toBeDefined();
 });

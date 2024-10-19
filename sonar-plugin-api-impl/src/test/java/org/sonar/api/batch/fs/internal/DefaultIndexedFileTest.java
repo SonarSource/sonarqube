@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.api.batch.fs.internal;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -34,5 +34,13 @@ public class DefaultIndexedFileTest {
     Assertions.assertThatThrownBy(() -> new DefaultIndexedFile(projectKey, baseDir, path, null))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageEndingWith("length (401) is longer than the maximum authorized (400)");
+  }
+
+  @Test
+  public void sanitize_shouldThrow_whenRelativePathIsInvalid() {
+    String invalidPath = "./../foo/bar";
+    Assertions.assertThatThrownBy(() -> DefaultIndexedFile.checkSanitize(invalidPath))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(invalidPath);
   }
 }

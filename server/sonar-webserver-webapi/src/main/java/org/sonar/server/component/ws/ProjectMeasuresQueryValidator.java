@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,21 +28,21 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_CREATION_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 
 public class ProjectMeasuresQueryValidator {
 
-  static final Set<String> NON_METRIC_SORT_KEYS = new HashSet<>(asList(SORT_BY_NAME, SORT_BY_LAST_ANALYSIS_DATE));
+  static final Set<String> NON_METRIC_SORT_KEYS = new HashSet<>(asList(SORT_BY_NAME, SORT_BY_LAST_ANALYSIS_DATE, SORT_BY_CREATION_DATE));
 
   private ProjectMeasuresQueryValidator() {
   }
 
   public static void validate(ProjectMeasuresQuery query) {
-    validateFilterKeys(query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(toHashSet()));
+    validateFilterKeys(query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(Collectors.toSet()));
     validateSort(query.getSort());
   }
 

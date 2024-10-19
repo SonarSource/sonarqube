@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { uniqueId } from 'lodash';
+import styled from '@emotion/styled';
+import { Checkbox, ListItem, UnorderedList, themeBorder } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import DeferredSpinner from '../ui/DeferredSpinner';
-import Checkbox from './Checkbox';
 import { SelectListFilter } from './SelectList';
 import SelectListListElement from './SelectListListElement';
 
 interface Props {
   allowBulkSelection?: boolean;
-  elements: string[];
   disabledElements: string[];
+  elements: string[];
   filter: SelectListFilter;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
@@ -84,22 +82,17 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
   renderBulkSelector() {
     const { elements, readOnly, selectedElements } = this.props;
     return (
-      <>
-        <li>
-          <Checkbox
-            checked={selectedElements.length > 0}
-            disabled={this.state.loading || readOnly}
-            onCheck={this.handleBulkChange}
-            thirdState={selectedElements.length > 0 && elements.length !== selectedElements.length}
-          >
-            <span className="big-spacer-left">
-              {translate('bulk_change')}
-              <DeferredSpinner className="spacer-left" loading={this.state.loading} timeout={10} />
-            </span>
-          </Checkbox>
-        </li>
-        <li className="divider" />
-      </>
+      <BorderedListItem className="sw-pb-4">
+        <Checkbox
+          checked={selectedElements.length > 0}
+          disabled={this.state.loading || readOnly}
+          onCheck={this.handleBulkChange}
+          thirdState={selectedElements.length > 0 && elements.length !== selectedElements.length}
+          loading={this.state.loading}
+        >
+          <span className="sw-ml-4">{translate('bulk_change')}</span>
+        </Checkbox>
+      </BorderedListItem>
     );
   }
 
@@ -107,8 +100,8 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
     const { allowBulkSelection, elements, filter } = this.props;
 
     return (
-      <div className={classNames('select-list-list-container spacer-top')}>
-        <ul className="menu">
+      <ListContainer className="sw-mt-2 sw-p-3 sw-rounded-1 it__select-list-list-container">
+        <UnorderedList className="-sw-mt-3">
           {allowBulkSelection &&
             elements.length > 0 &&
             filter === SelectListFilter.All &&
@@ -117,15 +110,25 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
             <SelectListListElement
               disabled={this.isDisabled(element)}
               element={element}
-              key={uniqueId()}
+              key={element}
               onSelect={this.props.onSelect}
               onUnselect={this.props.onUnselect}
               renderElement={this.props.renderElement}
               selected={this.isSelected(element)}
             />
           ))}
-        </ul>
-      </div>
+        </UnorderedList>
+      </ListContainer>
     );
   }
 }
+
+const BorderedListItem = styled(ListItem)`
+  border-bottom: ${themeBorder('default', 'discreetBorder')};
+`;
+
+const ListContainer = styled.div`
+  overflow: auto;
+  height: 330px;
+  border: ${themeBorder('default')};
+`;

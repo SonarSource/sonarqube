@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -84,7 +84,7 @@ public class ShowAction implements SourcesWsAction {
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
     int from = Math.max(request.paramAsInt("from"), 1);
-    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
+    int to = ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);

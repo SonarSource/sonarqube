@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,15 @@
  */
 package org.sonar.server.user;
 
+import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
+import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.process.ProcessProperties.Property.WEB_SYSTEM_PASS_CODE;
 
@@ -46,8 +48,13 @@ public class SystemPasscodeImpl implements SystemPasscode, Startable {
     if (configuredPasscode == null) {
       return false;
     }
-    return request.header(PASSCODE_HTTP_HEADER)
-      .map(s -> configuredPasscode.equals(s))
+    return isValidPasscode(request.header(PASSCODE_HTTP_HEADER).orElse(null));
+  }
+
+  @Override
+  public boolean isValidPasscode(@Nullable String passcode) {
+    return Optional.ofNullable(passcode)
+      .map(s -> Objects.equals(configuredPasscode, s))
       .orElse(false);
   }
 
@@ -67,7 +74,7 @@ public class SystemPasscodeImpl implements SystemPasscode, Startable {
   }
 
   private void logState(String state) {
-    Loggers.get(getClass()).info("System authentication by passcode is {}", state);
+    LoggerFactory.getLogger(getClass()).info("System authentication by passcode is {}", state);
   }
 
   @Override

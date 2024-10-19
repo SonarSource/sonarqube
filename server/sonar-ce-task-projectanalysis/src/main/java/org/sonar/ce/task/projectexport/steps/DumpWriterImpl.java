@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
 import org.sonar.ce.task.projectexport.util.ProjectExportDumpFS;
 
@@ -88,7 +88,7 @@ public class DumpWriterImpl implements DumpWriter {
     FILES2.deleteIfExists(targetZip);
     FILES2.moveFile(zip, targetZip);
     FILES2.deleteIfExists(rootDir);
-    Loggers.get(getClass()).info("Dump file published | size={} | path={}", humanReadableByteCountSI(sizeOf(targetZip)), targetZip.getAbsolutePath());
+    LoggerFactory.getLogger(getClass()).info("Dump file published | size={} | path={}", humanReadableByteCountSI(sizeOf(targetZip)), targetZip.getAbsolutePath());
     published.set(true);
   }
 

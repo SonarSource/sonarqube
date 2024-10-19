@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,15 +26,12 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.project.Project;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,8 +41,6 @@ public class ConfigurationRepositoryTest {
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   private final DbClient dbClient = db.getDbClient();
@@ -54,13 +49,11 @@ public class ConfigurationRepositoryTest {
   private final Component root = mock(Component.class);
   private ConfigurationRepository underTest;
 
-
   @Before
   public void setUp() {
     analysisMetadataHolder.setProject(project);
     when(root.getUuid()).thenReturn(project.getUuid());
-    treeRootHolder.setRoot(root);
-    underTest = new ConfigurationRepositoryImpl(treeRootHolder, analysisMetadataHolder, new ProjectConfigurationFactory(globalSettings, dbClient));
+    underTest = new ConfigurationRepositoryImpl(analysisMetadataHolder, new ProjectConfigurationFactory(globalSettings, dbClient));
   }
 
   @Test
@@ -129,6 +122,6 @@ public class ConfigurationRepositoryTest {
 
   private void insertComponentProperty(String componentUuid, String propertyKey, String propertyValue) {
     db.properties().insertProperties(null, null, null, null,
-      new PropertyDto().setKey(propertyKey).setValue(propertyValue).setComponentUuid(componentUuid));
+      new PropertyDto().setKey(propertyKey).setValue(propertyValue).setEntityUuid(componentUuid));
   }
 }

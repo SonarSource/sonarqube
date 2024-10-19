@@ -1,0 +1,192 @@
+only_if: $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BUILD_SOURCE == 'api' )
+skip: $CIRRUS_BRANCH == "public_master" || $CIRRUS_BRANCH =~ "dogfood/.*"
+
+env:
+  CIRRUS_SHELL: bash
+  CIRRUS_CLONE_DEPTH: 0
+  GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
+  FETCH_DEPTH: --depth=1
+
+default_artifact_template: &DEFAULT_ARTIFACTS_TEMPLATE
+  on_failure:
+    jest_junit_cleanup_script: >
+      find . -type f -wholename "**/build/test-results/test-jest/junit.xml" -exec
+      xmlstarlet edit --inplace --delete '//testsuite[@errors=0 and @failures=0]' {} \;
+    junit_artifacts:
+      path: '**/build/test-results/**/*.xml'
+      type: 'text/xml'
+      format: junit
+    reports_artifacts:
+      path: '**/build/reports/**/*'
+    screenshots_artifacts:
+      path: '**/build/screenshots/**/*'
+    log_artifacts:
+      path: '**/build/**/*.log'
+
+default_template: &DEFAULT_TEMPLATE
+  clone_script: |
+    git init
+    git remote add origin https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git
+    git fetch origin $CIRRUS_CHANGE_IN_REPO $FETCH_DEPTH
+    git reset --hard $CIRRUS_CHANGE_IN_REPO
+
+gradle_cache_template: &GRADLE_CACHE_TEMPLATE
+  gradle_cache:
+    folder: ${GRADLE_USER_HOME}/caches
+    fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs cat
+    populate_script: mkdir -p ${GRADLE_USER_HOME}/caches
+
+cleanup_gradle_cache_script_template: &CLEANUP_GRADLE_CACHE_SCRIPT
+  cleanup_gradle_script: |
+    rm -rf "${GRADLE_USER_HOME}"/caches/7.*/
+    rm -rf "${GRADLE_USER_HOME}"/daemon/
+    rm -rf "${GRADLE_USER_HOME}"/caches/transforms-*
+    rm -rf "${GRADLE_USER_HOME}"/caches/journal-*
+    /usr/bin/find "${GRADLE_USER_HOME}"/caches/ -name "*.lock" -type f -delete
+
+yarn_cache_template: &YARN_CACHE_TEMPLATE
+  yarn_cache:
+    folder: '~/.yarn/berry/cache'
+    fingerprint_script: cat server/sonar-web/yarn.lock
+
+jar_cache_template: &JAR_CACHE_TEMPLATE
+  jar_cache:
+    folder: '**/build/libs/*.jar'
+    fingerprint_key: jar-cache_$CIRRUS_BUILD_ID
+
+eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
+  eslint_report_cache:
+    folders:
+      - server/sonar-web/eslint-report/
+      - server/sonar-web/design-system/eslint-report/
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
+jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
+  jest_report_cache:
+    folders:
+      - server/sonar-web/coverage/
+      - server/sonar-web/design-system/coverage/
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
+junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
+  junit_report_cache:
+    folders:
+      - '**/reports/jacoco'
+      - '**/test-results/test'
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
+build_cache_template: &BUILD_CACHE_TEMPLATE
+  build_cache:
+    folders:
+      - '**/build/**/*'
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
+cache_dependencies_task:
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 2
+    memory: 4Gb
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  script:
+    - .cirrus/cirrus-cache-dependencies.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+build_task:
+  depends_on: cache_dependencies
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 8Gb
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *BUILD_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  script: .cirrus/cirrus-build.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+yarn_lint_task:
+  depends_on: cache_dependencies
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 3
+    memory: 10Gb
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  <<: *ESLINT_REPORT_CACHE_TEMPLATE
+  script:
+    - .cirrus/cirrus-yarn-lint-report.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+yarn_check_task:
+  depends_on: cache_dependencies
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 3
+    memory: 10Gb
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  script: |
+    source .cirrus/cirrus-env
+    ./gradlew yarn_check-ci
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+yarn_validate_task:
+  depends_on: cache_dependencies
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 32Gb
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  <<: *JEST_REPORT_CACHE_TEMPLATE
+  script:
+    - .cirrus/cirrus-yarn-validate-ci.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+junit_task:
+  depends_on: cache_dependencies
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 10Gb
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *JUNIT_REPORT_CACHE_TEMPLATE
+  script:
+    - .cirrus/cirrus-junit.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+sq_analysis_task:
+  depends_on:
+    - build
+    - yarn_lint
+    - yarn_validate
+    - junit
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 7.5
+    memory: 15Gb
+  env:
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *BUILD_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  <<: *JEST_REPORT_CACHE_TEMPLATE
+  <<: *ESLINT_REPORT_CACHE_TEMPLATE
+  <<: *JUNIT_REPORT_CACHE_TEMPLATE
+  script:
+    - .cirrus/cirrus-sq-analysis.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE

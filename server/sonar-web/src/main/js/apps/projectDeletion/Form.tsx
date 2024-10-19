@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
-import { deleteApplication } from '../../api/application';
-import { deletePortfolio } from '../../api/components';
-import { Button } from '../../components/controls/buttons';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
+import { Router } from '~sonar-aligned/types/router';
 import ConfirmButton from '../../components/controls/ConfirmButton';
-import { Router, withRouter } from '../../components/hoc/withRouter';
-import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { isApplication, isPortfolioLike } from '../../types/component';
+import { useDeleteApplicationMutation } from '../../queries/applications';
+import { useDeletePortfolioMutation } from '../../queries/portfolios';
+import { useDeleteProjectMutation } from '../../queries/projects';
+import { isApplication } from '../../types/component';
 import { Component } from '../../types/types';
 import { deleteProject } from '../../api/codescan';
 
@@ -34,46 +38,51 @@ interface Props {
   router: Router;
 }
 
-export class Form extends React.PureComponent<Props> {
-  handleDelete = async () => {
-    const { component } = this.props;
+export function Form({ component, router }: Readonly<Props>) {
+  const { mutate: deleteProject } = useDeleteProjectMutation();
+  const { mutate: deleteApplication } = useDeleteApplicationMutation();
+  const { mutate: deletePortfolio } = useDeletePortfolioMutation();
+
+  const handleDelete = () => {
+    let deleteMethod = deleteProject;
     let redirectTo = '/';
+
     if (isPortfolioLike(component.qualifier)) {
-      await deletePortfolio(component.key);
+      deleteMethod = deletePortfolio;
       redirectTo = '/portfolios';
     } else if (isApplication(component.qualifier)) {
-      await deleteApplication(component.key);
-    } else {
-      await deleteProject(component.id, true)
+      deleteMethod = deleteApplication;
     }
 
-    addGlobalSuccessMessage(
-      translateWithParameters('project_deletion.resource_deleted', component.name)
-    );
-    this.props.router.replace(redirectTo);
+    deleteMethod(component.key, {
+      onSuccess: () => {
+        addGlobalSuccessMessage(
+          translateWithParameters('project_deletion.resource_deleted', component.name),
+        );
+
+        router.replace(redirectTo);
+      },
+    });
   };
 
-  render() {
-    const { component } = this.props;
-    return (
-      <ConfirmButton
-        confirmButtonText={translate('delete')}
-        isDestructive={true}
-        modalBody={translateWithParameters(
-          'project_deletion.delete_resource_confirmation',
-          component.name
-        )}
-        modalHeader={translate('qualifier.delete', component.qualifier)}
-        onConfirm={this.handleDelete}
-      >
-        {({ onClick }) => (
-          <Button className="button-red" id="delete-project" onClick={onClick}>
-            {translate('delete')}
-          </Button>
-        )}
-      </ConfirmButton>
-    );
-  }
+  return (
+    <ConfirmButton
+      confirmButtonText={translate('delete')}
+      isDestructive
+      modalBody={translateWithParameters(
+        'project_deletion.delete_resource_confirmation',
+        component.name,
+      )}
+      modalHeader={translate('qualifier.delete', component.qualifier)}
+      onConfirm={handleDelete}
+    >
+      {({ onClick }) => (
+        <Button id="delete-project" onClick={onClick} variety={ButtonVariety.Danger}>
+          {translate('delete')}
+        </Button>
+      )}
+    </ConfirmButton>
+  );
 }
 
 export default withRouter(Form);

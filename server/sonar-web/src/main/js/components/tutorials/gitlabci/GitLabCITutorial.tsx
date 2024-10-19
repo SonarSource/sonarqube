@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Title, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
-import AllSetStep from '../components/AllSetStep';
-import { BuildTools } from '../types';
+import AllSet from '../components/AllSet';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
-import ProjectKeyStep from './ProjectKeyStep';
 import YmlFileStep from './YmlFileStep';
 
 export enum Steps {
-  PROJECT_KEY,
   ENV_VARIABLES,
   YML,
   ALL_SET,
@@ -39,58 +37,34 @@ export interface GitLabCITutorialProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
-  mainBranchName: string;
   willRefreshAutomatically?: boolean;
 }
 
 export default function GitLabCITutorial(props: GitLabCITutorialProps) {
-  const { baseUrl, component, currentUser, willRefreshAutomatically, mainBranchName } = props;
+  const { baseUrl, component, currentUser, willRefreshAutomatically } = props;
 
-  const [step, setStep] = React.useState(Steps.PROJECT_KEY);
-  const [buildTool, setBuildTool] = React.useState<BuildTools>();
+  const [done, setDone] = React.useState<boolean>(false);
 
   return (
     <>
-      <div className="page-header big-spacer-bottom">
-        <h2 className="page-title">{translate('onboarding.tutorial.with.gitlab_ci.title')}</h2>
-      </div>
+      <Title>{translate('onboarding.tutorial.with.gitlab_ci.title')}</Title>
 
-      <ProjectKeyStep
-        buildTool={buildTool}
-        component={component}
-        finished={step > Steps.PROJECT_KEY}
-        onDone={() => setStep(Steps.ENV_VARIABLES)}
-        onOpen={() => setStep(Steps.PROJECT_KEY)}
-        open={step === Steps.PROJECT_KEY}
-        setBuildTool={setBuildTool}
-      />
+      <TutorialStepList className="sw-mb-8">
+        <EnvironmentVariablesStep
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+        />
 
-      <EnvironmentVariablesStep
-        baseUrl={baseUrl}
-        component={component}
-        currentUser={currentUser}
-        finished={step > Steps.ENV_VARIABLES}
-        onDone={() => setStep(Steps.YML)}
-        onOpen={() => setStep(Steps.ENV_VARIABLES)}
-        open={step === Steps.ENV_VARIABLES}
-      />
+        <YmlFileStep component={component} setDone={setDone} />
+      </TutorialStepList>
 
-      <YmlFileStep
-        buildTool={buildTool}
-        finished={step > Steps.YML}
-        mainBranchName={mainBranchName}
-        onDone={() => setStep(Steps.ALL_SET)}
-        onOpen={() => setStep(Steps.YML)}
-        open={step === Steps.YML}
-        projectKey={component.key}
-      />
-
-      <AllSetStep
-        alm={AlmKeys.GitLab}
-        open={step === Steps.ALL_SET}
-        stepNumber={4}
-        willRefreshAutomatically={willRefreshAutomatically}
-      />
+      {done && (
+        <>
+          <BasicSeparator className="sw-my-10" />
+          <AllSet alm={AlmKeys.GitLab} willRefreshAutomatically={willRefreshAutomatically} />
+        </>
+      )}
     </>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -80,8 +80,9 @@ public class DropMsSQLDefaultConstraintsBuilder {
       PreparedStatement pstmt = connection
         .prepareStatement(format("SELECT d.name FROM sys.tables t "
           + "JOIN sys.default_constraints d ON d.parent_object_id = t.object_id "
-          + "JOIN sys.columns c ON c.object_id = t.object_id AND c.column_id = d.parent_column_id  "
-          + "WHERE  t.name = '%s' AND c.name in (%s)", tableName, commaSeparatedListOfColumns));
+          + "JOIN sys.columns c ON c.object_id = t.object_id AND c.column_id = d.parent_column_id "
+          + "JOIN sys.schemas s ON s.schema_id = t.schema_id "
+          + "WHERE t.name = '%s' AND c.name in (%s) AND s.name = '%s'", tableName, commaSeparatedListOfColumns, connection.getSchema()));
       ResultSet rs = pstmt.executeQuery()) {
       while (rs.next()) {
         defaultConstrainNames.add(rs.getString(1));

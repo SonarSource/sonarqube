@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -59,20 +58,17 @@ public class CeQueueDao implements Dao {
   }
 
   public List<CeQueueDto> selectByQueryInDescOrder(DbSession dbSession, CeTaskQuery query, int page, int pageSize) {
-    if (query.isShortCircuitedByMainComponentUuids()
+    if (query.isShortCircuitedByEntityUuids()
       || query.isOnlyCurrents()
       || query.getMaxExecutedAt() != null) {
       return emptyList();
     }
 
-    int offset = (page - 1) * pageSize;
-    int limit = page * pageSize;
-
-    return mapper(dbSession).selectByQueryInDescOrder(query, new RowBounds(offset, limit));
+    return mapper(dbSession).selectByQueryInDescOrder(query, Pagination.forPage(page).andSize(pageSize));
   }
 
   public int countByQuery(DbSession dbSession, CeTaskQuery query) {
-    if (query.isShortCircuitedByMainComponentUuids()
+    if (query.isShortCircuitedByEntityUuids()
       || query.isOnlyCurrents()
       || query.getMaxExecutedAt() != null) {
       return 0;
@@ -84,8 +80,8 @@ public class CeQueueDao implements Dao {
   /**
    * Ordered by ascending id: oldest to newest
    */
-  public List<CeQueueDto> selectByMainComponentUuid(DbSession session, String projectUuid) {
-    return mapper(session).selectByMainComponentUuid(projectUuid);
+  public List<CeQueueDto> selectByEntityUuid(DbSession session, String projectUuid) {
+    return mapper(session).selectByEntityUuid(projectUuid);
   }
 
   public Optional<CeQueueDto> selectByUuid(DbSession session, String uuid) {
@@ -133,32 +129,32 @@ public class CeQueueDao implements Dao {
     return mapper(session).deleteByUuid(uuid, deleteIf);
   }
 
-  /**
-   * Updates all tasks for the specified worker uuid which are not PENDING to:
-   * STATUS='PENDING', STARTED_AT=NULL, UPDATED_AT={now}.
-   */
-  public int resetToPendingForWorker(DbSession session, String workerUuid) {
-    return mapper(session).resetToPendingForWorker(workerUuid, system2.now());
+  public void resetToPendingByUuid(DbSession session, String uuid) {
+    mapper(session).resetToPendingByUuid(uuid, system2.now());
+  }
+
+  public List<CeQueueDto> selectNotPendingForWorker(DbSession session, String uuid) {
+    return mapper(session).selectNotPendingForWorker(uuid);
   }
 
   public int countByStatus(DbSession dbSession, CeQueueDto.Status status) {
-    return mapper(dbSession).countByStatusAndMainComponentUuid(status, null);
+    return mapper(dbSession).countByStatusAndEntityUuid(status, null);
   }
 
-  public int countByStatusAndMainComponentUuid(DbSession dbSession, CeQueueDto.Status status, @Nullable String mainComponentUuid) {
-    return mapper(dbSession).countByStatusAndMainComponentUuid(status, mainComponentUuid);
+  public int countByStatusAndEntityUuid(DbSession dbSession, CeQueueDto.Status status, @Nullable String entityUuid) {
+    return mapper(dbSession).countByStatusAndEntityUuid(status, entityUuid);
   }
 
-  public Optional<Long> selectCreationDateOfOldestPendingByMainComponentUuid(DbSession dbSession, @Nullable String mainComponentUuid) {
-    return Optional.ofNullable(mapper(dbSession).selectCreationDateOfOldestPendingByMainComponentUuid(mainComponentUuid));
+  public Optional<Long> selectCreationDateOfOldestPendingByEntityUuid(DbSession dbSession, @Nullable String entityUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectCreationDateOfOldestPendingByEntityUuid(entityUuid));
   }
 
   /**
-   * Counts entries in the queue with the specified status for each specified main component uuid.
-   * The returned map doesn't contain any entry for main component uuids for which there is no entry in the queue (ie.
+   * Counts entries in the queue with the specified status for each specified entity uuid.
+   * The returned map doesn't contain any entry for entity uuids for which there is no entry in the queue (ie.
    * all entries have a value >= 0).
    */
-  public Map<String, Integer> countByStatusAndMainComponentUuids(DbSession dbSession, CeQueueDto.Status status, Set<String> projectUuids) {
+  public Map<String, Integer> countByStatusAndEntityUuids(DbSession dbSession, CeQueueDto.Status status, Set<String> projectUuids) {
     if (projectUuids.isEmpty()) {
       return emptyMap();
     }
@@ -167,8 +163,8 @@ public class CeQueueDao implements Dao {
     executeLargeUpdates(
       projectUuids,
       partitionOfProjectUuids -> {
-        List<QueueCount> i = mapper(dbSession).countByStatusAndMainComponentUuids(status, partitionOfProjectUuids);
-        i.forEach(o -> builder.put(o.getMainComponentUuid(), o.getTotal()));
+        List<QueueCount> i = mapper(dbSession).countByStatusAndEntityUuids(status, partitionOfProjectUuids);
+        i.forEach(o -> builder.put(o.getEntityUuid(), o.getTotal()));
       });
     return builder.build();
   }

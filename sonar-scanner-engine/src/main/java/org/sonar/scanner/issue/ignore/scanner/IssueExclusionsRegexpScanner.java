@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 
 public class IssueExclusionsRegexpScanner extends CharHandler {
-  private static final Logger LOG = Loggers.get(IssueExclusionsLoader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IssueExclusionsRegexpScanner.class);
 
   private final StringBuilder sb = new StringBuilder();
   private final List<Pattern> allFilePatterns;
@@ -89,7 +89,7 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
     if (!lineExclusions.isEmpty()) {
       Set<LineRange> lineRanges = convertLineExclusionsToLineRanges();
       LOG.debug("  - Line exclusions found: {}", lineRanges.stream().map(LineRange::toString).collect(Collectors.joining(",")));
-      inputFile.addIgnoreIssuesOnLineRanges(lineRanges.stream().map(r -> new int[] {r.from(), r.to()}).collect(Collectors.toList()));
+      inputFile.addIgnoreIssuesOnLineRanges(lineRanges.stream().map(r -> new int[] {r.from(), r.to()}).toList());
     }
   }
 

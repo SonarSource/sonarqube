@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note } from 'design-system';
 import * as React from 'react';
 import { getRuleRepositories } from '../../../api/rules';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
-import { BasicProps } from './Facet';
+import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 
 interface StateProps {
   languages: Languages;
@@ -35,7 +36,7 @@ interface Props extends BasicProps, StateProps {
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
 }
 
-export class RepositoryFacet extends React.PureComponent<Props> {
+class RepositoryFacet extends React.PureComponent<Props> {
   getLanguageName = (languageKey: string) => {
     const { languages } = this.props;
     const language = languages[languageKey];
@@ -57,7 +58,7 @@ export class RepositoryFacet extends React.PureComponent<Props> {
     return repository ? (
       <>
         {repository.name}
-        <span className="note little-spacer-left">{this.getLanguageName(repository.language)}</span>
+        <Note className="sw-ml-1">{this.getLanguageName(repository.language)}</Note>
       </>
     ) : (
       repositoryKey
@@ -77,7 +78,7 @@ export class RepositoryFacet extends React.PureComponent<Props> {
     return repository ? (
       <>
         {highlightTerm(repository.name, query)}
-        <span className="note little-spacer-left">{this.getLanguageName(repository.language)}</span>
+        <Note className="sw-ml-1">{this.getLanguageName(repository.language)}</Note>
       </>
     ) : (
       repositoryKey
@@ -88,6 +89,8 @@ export class RepositoryFacet extends React.PureComponent<Props> {
     return (
       <ListStyleFacet<string>
         facetHeader={translate('coding_rules.facet.repositories')}
+        showMoreAriaLabel={translate('coding_rules.facet.repository.show_more')}
+        showLessAriaLabel={translate('coding_rules.facet.repository.show_less')}
         fetching={false}
         getFacetItemText={this.renderTextName}
         getSearchResultKey={(rep) => rep}
@@ -100,6 +103,7 @@ export class RepositoryFacet extends React.PureComponent<Props> {
         renderFacetItem={this.renderName}
         renderSearchResult={this.renderSearchTextName}
         searchPlaceholder={translate('search.search_for_repositories')}
+        searchInputAriaLabel={translate('search.search_for_repositories')}
         stats={this.props.stats}
         values={this.props.values}
       />

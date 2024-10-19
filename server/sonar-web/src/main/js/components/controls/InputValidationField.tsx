@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { InputField } from 'design-system';
 import * as React from 'react';
 import ModalValidationField from './ModalValidationField';
 
@@ -34,18 +34,19 @@ interface Props {
   onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
+  required?: boolean;
   touched: boolean | undefined;
   type?: string;
   value: string;
 }
 
-export default function InputValidationField({ className, ...props }: Props) {
-  const { description, dirty, error, label, touched, ...inputProps } = props;
-  const modalValidationProps = { description, dirty, error, label, touched };
+export default function InputValidationField({ ...props }: Readonly<Props>) {
+  const { description, dirty, error, label, touched, required, ...inputProps } = props;
+  const modalValidationProps = { description, dirty, error, label, touched, required };
   return (
-    <ModalValidationField {...modalValidationProps}>
-      {({ className: validationClassName }) => (
-        <input className={classNames(className, validationClassName)} {...inputProps} />
+    <ModalValidationField id={props.id} {...modalValidationProps}>
+      {({ isInvalid, isValid }) => (
+        <InputField size="full" isInvalid={isInvalid} isValid={isValid} {...inputProps} />
       )}
     </ModalValidationField>
   );

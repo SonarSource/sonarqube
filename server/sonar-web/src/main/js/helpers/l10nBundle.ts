@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IntlShape, createIntl, createIntlCache } from 'react-intl';
 import { fetchL10nBundle } from '../api/l10n';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10nBundle';
-import { toNotSoISOString } from './dates';
+import { Dict } from '../types/types';
+import { toISO8601WithOffsetString } from './dates';
 
 const DEFAULT_LOCALE = 'en';
-const DEFAULT_MESSAGES = {
+const DEFAULT_MESSAGES: Dict<string> = {
   // eslint-disable-next-line camelcase
   default_error_message: 'The request cannot be processed. Try again later.',
 };
+
+let intl: IntlShape;
+
+export function getIntl() {
+  return intl;
+}
 
 export function getMessages() {
   return getL10nBundleFromCache().messages ?? DEFAULT_MESSAGES;
@@ -69,14 +77,24 @@ export async function loadL10nBundle() {
   });
 
   const bundle = {
-    timestamp: toNotSoISOString(new Date()),
+    timestamp: toISO8601WithOffsetString(new Date()),
     locale: effectiveLocale,
     messages,
   };
 
   persistL10nBundleInCache(bundle);
 
-  return bundle;
+  const cache = createIntlCache();
+
+  intl = createIntl(
+    {
+      locale: effectiveLocale,
+      messages,
+    },
+    cache,
+  );
+
+  return intl;
 }
 
 function getPreferredLanguage() {

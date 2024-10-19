@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.core.config;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
@@ -33,7 +32,7 @@ public class ExclusionProperties {
   }
 
   public static List<PropertyDefinition> all() {
-    return ImmutableList.of(
+    return List.of(
 
       // COVERAGE
       PropertyDefinition.builder(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)
@@ -41,7 +40,7 @@ public class ExclusionProperties {
         .subCategory(CoreProperties.SUBCATEGORY_COVERAGE_EXCLUSIONS)
         .type(PropertyType.STRING)
         .multiValues(true)
-        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
+        .onQualifiers(Qualifiers.PROJECT)
         .build(),
 
       // FILES

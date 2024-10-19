@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Location, withRouter } from '../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { installScript } from '../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensionsHandler';
 import { getInstance } from '../../helpers/system';
@@ -27,15 +28,15 @@ import { AppState } from '../../types/appstate';
 import withAppStateContext from './app-state/withAppStateContext';
 
 interface Props {
-  location: Location;
   appState: AppState;
+  location: Location;
 }
 
 interface State {
   lastLocation?: string;
 }
 
-export class PageTracker extends React.Component<Props, State> {
+export class PageTracker extends React.Component<React.PropsWithChildren<Props>, State> {
   state: State = {};
 
   componentDidMount() {

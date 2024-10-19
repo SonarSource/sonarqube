@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,12 +24,12 @@ import javax.annotation.Nullable;
 public class PropertyQuery {
 
   private final String key;
-  private final String componentUuid;
+  private final String entityUuid;
   private final String userUuid;
 
   private PropertyQuery(Builder builder) {
     this.key = builder.key;
-    this.componentUuid = builder.componentUuid;
+    this.entityUuid = builder.entityUuid;
     this.userUuid = builder.userUuid;
   }
 
@@ -37,8 +37,8 @@ public class PropertyQuery {
     return key;
   }
 
-  public String componentUuid() {
-    return componentUuid;
+  public String entityUuid() {
+    return entityUuid;
   }
 
   public String userUuid() {
@@ -51,7 +51,7 @@ public class PropertyQuery {
 
   public static class Builder {
     private String key;
-    private String componentUuid;
+    private String entityUuid;
     private String userUuid;
 
     public Builder setKey(String key) {
@@ -59,8 +59,8 @@ public class PropertyQuery {
       return this;
     }
 
-    public Builder setComponentUuid(@Nullable String componentUuid) {
-      this.componentUuid = componentUuid;
+    public Builder setEntityUuid(@Nullable String entityUuid) {
+      this.entityUuid = entityUuid;
       return this;
     }
 

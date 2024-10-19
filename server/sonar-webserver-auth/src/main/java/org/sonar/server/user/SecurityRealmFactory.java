@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,16 +20,14 @@
 package org.sonar.server.user;
 
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
@@ -41,15 +39,15 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 @ServerSide
 public class SecurityRealmFactory implements Startable {
 
+  private static final Logger LOG = LoggerFactory.getLogger("org.sonar.INFO");
   private static final String LDAP_SECURITY_REALM = "LDAP";
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
 
   @Autowired(required = false)
-  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
+  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms) {
     ignoreStartupFailure = config.getBoolean(SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey()).orElse(false);
     String realmName = config.get(SONAR_SECURITY_REALM.getKey()).orElse(null);
-    String className = config.get(CoreProperties.CORE_AUTHENTICATOR_CLASS).orElse(null);
 
     if (LDAP_SECURITY_REALM.equals(realmName)) {
       realm = null;
@@ -64,44 +62,26 @@ public class SecurityRealmFactory implements Startable {
           "Realm '%s' not found. Please check the property '%s' in conf/sonar.properties", realmName, SONAR_SECURITY_REALM.getKey()));
       }
     }
-    if (selectedRealm == null && !StringUtils.isEmpty(className)) {
-      LoginPasswordAuthenticator authenticator = selectAuthenticator(authenticators, className);
-      if (authenticator == null) {
-        throw new SonarException(String.format(
-          "Authenticator '%s' not found. Please check the property '%s' in conf/sonar.properties", className, CoreProperties.CORE_AUTHENTICATOR_CLASS));
-      }
-      selectedRealm = new CompatibilityRealm(authenticator);
-    }
+
     realm = selectedRealm;
 
   }
 
   @Autowired(required = false)
-  public SecurityRealmFactory(Configuration config, LoginPasswordAuthenticator[] authenticators) {
-    this(config, new SecurityRealm[0], authenticators);
-  }
-
-  @Autowired(required = false)
-  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms) {
-    this(config, realms, new LoginPasswordAuthenticator[0]);
-  }
-
-  @Autowired(required = false)
   public SecurityRealmFactory(Configuration config) {
-    this(config, new SecurityRealm[0], new LoginPasswordAuthenticator[0]);
+    this(config, new SecurityRealm[0]);
   }
 
   @Override
   public void start() {
     if (realm != null) {
-      Logger logger = Loggers.get("org.sonar.INFO");
       try {
-        logger.info("Security realm: " + realm.getName());
+        LOG.info("Security realm: {}", realm.getName());
         realm.init();
-        logger.info("Security realm started");
+        LOG.info("Security realm started");
       } catch (RuntimeException e) {
         if (ignoreStartupFailure) {
-          logger.error("IGNORED - Security realm fails to start: " + e.getMessage());
+          LOG.error("IGNORED - Security realm fails to start: {}", e.getMessage());
         } else {
           throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
         }
@@ -131,14 +111,4 @@ public class SecurityRealmFactory implements Startable {
     }
     return null;
   }
-
-  private static LoginPasswordAuthenticator selectAuthenticator(LoginPasswordAuthenticator[] authenticators, String className) {
-    for (LoginPasswordAuthenticator lpa : authenticators) {
-      if (lpa.getClass().getName().equals(className)) {
-        return lpa;
-      }
-    }
-    return null;
-  }
-
 }

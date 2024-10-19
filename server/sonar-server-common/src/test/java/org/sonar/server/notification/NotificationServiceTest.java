@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,12 +30,11 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertiesDao;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -56,11 +53,11 @@ public class NotificationServiceTest {
 
   @Test
   public void deliverEmails_fails_with_IAE_if_type_of_collection_is_Notification() {
-    NotificationHandler handler = mock(NotificationHandler1.class);
-    List<Notification> notifications = IntStream.range(0, 1 + new Random().nextInt(20))
+    NotificationHandler handler = getMockOfNotificationHandlerForType(Notification1.class);
+    List<Notification> notifications = IntStream.range(0, 10)
       .mapToObj(i -> new Notification("i"))
-      .collect(Collectors.toList());
-    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler});
+      .toList();
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[]{handler});
 
     assertThatThrownBy(() -> underTest.deliverEmails(notifications))
       .isInstanceOf(IllegalArgumentException.class)
@@ -69,9 +66,9 @@ public class NotificationServiceTest {
 
   @Test
   public void deliverEmails_collection_has_no_effect_if_no_handler_nor_dispatcher() {
-    List<Notification> notifications = IntStream.range(0, 1 + new Random().nextInt(20))
+    List<Notification> notifications = IntStream.range(0, 10)
       .mapToObj(i -> mock(Notification.class))
-      .collect(Collectors.toList());
+      .toList();
     NotificationService underTest = new NotificationService(dbClient);
 
     assertThat(underTest.deliverEmails(notifications)).isZero();
@@ -81,10 +78,10 @@ public class NotificationServiceTest {
   @Test
   public void deliverEmails_collection_has_no_effect_if_no_handler() {
     NotificationDispatcher dispatcher = mock(NotificationDispatcher.class);
-    List<Notification> notifications = IntStream.range(0, new Random().nextInt(20))
+    List<Notification> notifications = IntStream.range(0, 10)
       .mapToObj(i -> mock(Notification.class))
-      .collect(Collectors.toList());
-    NotificationService underTest = new NotificationService(dbClient, new NotificationDispatcher[] {dispatcher});
+      .toList();
+    NotificationService underTest = new NotificationService(dbClient, new NotificationDispatcher[]{dispatcher});
 
     assertThat(underTest.deliverEmails(notifications)).isZero();
     verifyNoInteractions(dispatcher);
@@ -93,10 +90,10 @@ public class NotificationServiceTest {
 
   @Test
   public void deliverEmails_collection_returns_0_if_collection_is_empty() {
-    NotificationHandler1 handler1 = mock(NotificationHandler1.class);
-    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
+    NotificationHandler<Notification1> handler1 = getMockOfNotificationHandlerForType(Notification1.class);
+    NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
     NotificationService underTest = new NotificationService(dbClient,
-      new NotificationHandler[] {handler1, handler2});
+      new NotificationHandler[]{handler1, handler2});
 
     assertThat(underTest.deliverEmails(Collections.emptyList())).isZero();
     verifyNoInteractions(handler1, handler2);
@@ -104,17 +101,17 @@ public class NotificationServiceTest {
 
   @Test
   public void deliverEmails_collection_returns_0_if_no_handler_for_the_notification_class() {
-    NotificationHandler1 handler1 = mock(NotificationHandler1.class);
-    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
-    List<Notification1> notification1s = IntStream.range(0, 1 + new Random().nextInt(20))
+    NotificationHandler<Notification1> handler1 = getMockOfNotificationHandlerForType(Notification1.class);
+    NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
+    List<Notification1> notification1s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification1())
-      .collect(Collectors.toList());
-    List<Notification2> notification2s = IntStream.range(0, 1 + new Random().nextInt(20))
+      .toList();
+    List<Notification2> notification2s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification2())
-      .collect(Collectors.toList());
+      .toList();
     NotificationService noHandler = new NotificationService(dbClient);
-    NotificationService onlyHandler1 = new NotificationService(dbClient, new NotificationHandler[] {handler1});
-    NotificationService onlyHandler2 = new NotificationService(dbClient, new NotificationHandler[] {handler2});
+    NotificationService onlyHandler1 = new NotificationService(dbClient, new NotificationHandler[]{handler1});
+    NotificationService onlyHandler2 = new NotificationService(dbClient, new NotificationHandler[]{handler2});
 
     assertThat(noHandler.deliverEmails(notification1s)).isZero();
     assertThat(noHandler.deliverEmails(notification2s)).isZero();
@@ -126,96 +123,89 @@ public class NotificationServiceTest {
 
   @Test
   public void deliverEmails_collection_calls_deliver_method_of_handler_for_notification_class_and_returns_its_output() {
-    Random random = new Random();
-    NotificationHandler1 handler1 = mock(NotificationHandler1.class);
-    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
-    List<Notification1> notification1s = IntStream.range(0, 1 + random.nextInt(20))
+    NotificationHandler<Notification1> handler1 = getMockOfNotificationHandlerForType(Notification1.class);
+    NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
+    List<Notification1> notification1s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification1())
-      .collect(Collectors.toList());
-    List<Notification2> notification2s = IntStream.range(0, 1 + random.nextInt(20))
+      .toList();
+    List<Notification2> notification2s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification2())
-      .collect(Collectors.toList());
-    NotificationService onlyHandler1 = new NotificationService(dbClient, new NotificationHandler[] {handler1});
-    NotificationService onlyHandler2 = new NotificationService(dbClient, new NotificationHandler[] {handler2});
-    NotificationService bothHandlers = new NotificationService(dbClient, new NotificationHandler[] {handler1, handler2});
+      .toList();
+    NotificationService onlyHandler1 = new NotificationService(dbClient, new NotificationHandler[]{handler1});
+    NotificationService onlyHandler2 = new NotificationService(dbClient, new NotificationHandler[]{handler2});
+    NotificationService bothHandlers = new NotificationService(dbClient, new NotificationHandler[]{handler1, handler2});
 
-    int expected = randomDeliveredCount(notification1s);
+    int expected = notification1s.size() - 1;
     when(handler1.deliver(notification1s)).thenReturn(expected);
     assertThat(onlyHandler1.deliverEmails(notification1s)).isEqualTo(expected);
-    verify(handler1).deliver(notification1s);
+    verify(handler1, times(1)).deliver(notification1s);
     verify(handler2, times(0)).deliver(anyCollection());
 
-    reset(handler1, handler2);
-    expected = randomDeliveredCount(notification2s);
+    expected = notification2s.size() - 2;
     when(handler2.deliver(notification2s)).thenReturn(expected);
     assertThat(onlyHandler2.deliverEmails(notification2s)).isEqualTo(expected);
-    verify(handler2).deliver(notification2s);
-    verify(handler1, times(0)).deliver(anyCollection());
+    verify(handler2, times(1)).deliver(notification2s);
+    verify(handler1, times(1)).deliver(anyCollection());
 
-    reset(handler1, handler2);
-    expected = randomDeliveredCount(notification1s);
+    expected = notification1s.size() - 1;
     when(handler1.deliver(notification1s)).thenReturn(expected);
     assertThat(bothHandlers.deliverEmails(notification1s)).isEqualTo(expected);
-    verify(handler1).deliver(notification1s);
-    verify(handler2, times(0)).deliver(anyCollection());
+    verify(handler1, times(2)).deliver(notification1s);
+    verify(handler2, times(1)).deliver(anyCollection());
 
-    reset(handler1, handler2);
-    expected = randomDeliveredCount(notification2s);
+    expected = notification2s.size() - 2;
     when(handler2.deliver(notification2s)).thenReturn(expected);
     assertThat(bothHandlers.deliverEmails(notification2s)).isEqualTo(expected);
-    verify(handler2).deliver(notification2s);
-    verify(handler1, times(0)).deliver(anyCollection());
+    verify(handler2, times(2)).deliver(notification2s);
+    verify(handler1, times(2)).deliver(anyCollection());
   }
 
   @Test
   public void deliver_calls_deliver_method_on_each_handler_for_notification_class_and_returns_sum_of_their_outputs() {
-    Random random = new Random();
-    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
-    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
-    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
-    List<Notification1> notification1s = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(i -> new Notification1())
-      .collect(Collectors.toList());
-    List<Notification2> notification2s = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(i -> new Notification2())
-      .collect(Collectors.toList());
-    NotificationService onlyHandler1A = new NotificationService(dbClient, new NotificationHandler[] {handler1A});
-    NotificationService onlyHandler1B = new NotificationService(dbClient, new NotificationHandler[] {handler1B});
-    NotificationService bothHandlers = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B});
-    NotificationService allHandlers = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B, handler2});
+    NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
+    NotificationHandler<Notification1> handler1B = getMockOfNotificationHandlerForType(Notification1.class);
+    NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
 
-    int expected = randomDeliveredCount(notification1s);
+    List<Notification1> notification1s = IntStream.range(0, 10)
+      .mapToObj(i -> new Notification1())
+      .toList();
+    List<Notification2> notification2s = IntStream.range(0, 10)
+      .mapToObj(i -> new Notification2())
+      .toList();
+    NotificationService onlyHandler1A = new NotificationService(dbClient, new NotificationHandler[]{handler1A});
+    NotificationService onlyHandler1B = new NotificationService(dbClient, new NotificationHandler[]{handler1B});
+    NotificationService bothHandlers = new NotificationService(dbClient, new NotificationHandler[]{handler1A, handler1B});
+    NotificationService allHandlers = new NotificationService(dbClient, new NotificationHandler[]{handler1A, handler1B, handler2});
+
+    int expected = notification1s.size() - 1;
     when(onlyHandler1A.deliverEmails(notification1s)).thenReturn(expected);
     assertThat(onlyHandler1A.deliverEmails(notification1s)).isEqualTo(expected);
-    verify(handler1A).deliver(notification1s);
+    verify(handler1A, times(1)).deliver(notification1s);
     verify(handler1B, times(0)).deliver(anyCollection());
     verify(handler2, times(0)).deliver(anyCollection());
 
-    reset(handler1A, handler1B, handler2);
-    expected = randomDeliveredCount(notification1s);
+    expected = notification1s.size() - 1;
     when(handler1B.deliver(notification1s)).thenReturn(expected);
     assertThat(onlyHandler1B.deliverEmails(notification1s)).isEqualTo(expected);
-    verify(handler1B).deliver(notification1s);
-    verify(handler1A, times(0)).deliver(anyCollection());
+    verify(handler1B, times(1)).deliver(notification1s);
+    verify(handler1A, times(1)).deliver(anyCollection());
     verify(handler2, times(0)).deliver(anyCollection());
 
-    reset(handler1A, handler1B, handler2);
-    expected = randomDeliveredCount(notification1s);
-    int expected2 = randomDeliveredCount(notification1s);
+    expected = notification1s.size() - 1;
+    int expected2 = notification1s.size() - 2;
     when(handler1A.deliver(notification1s)).thenReturn(expected);
     when(handler1B.deliver(notification1s)).thenReturn(expected2);
     assertThat(bothHandlers.deliverEmails(notification1s)).isEqualTo(expected + expected2);
-    verify(handler1A).deliver(notification1s);
-    verify(handler1B).deliver(notification1s);
+    verify(handler1A, times(2)).deliver(notification1s);
+    verify(handler1B, times(2)).deliver(notification1s);
     verify(handler2, times(0)).deliver(anyCollection());
 
-    reset(handler1A, handler1B, handler2);
-    expected = randomDeliveredCount(notification2s);
+    expected = notification2s.size() - 2;
     when(handler2.deliver(notification2s)).thenReturn(expected);
     assertThat(allHandlers.deliverEmails(notification2s)).isEqualTo(expected);
-    verify(handler2).deliver(notification2s);
-    verify(handler1A, times(0)).deliver(anyCollection());
-    verify(handler1B, times(0)).deliver(anyCollection());
+    verify(handler2, times(1)).deliver(notification2s);
+    verify(handler1A, times(2)).deliver(anyCollection());
+    verify(handler1B, times(2)).deliver(anyCollection());
   }
 
   @Test
@@ -232,16 +222,20 @@ public class NotificationServiceTest {
     String dispatcherKey1A = randomAlphabetic(5);
     String dispatcherKey1B = randomAlphabetic(6);
     String projectUuid = randomAlphabetic(7);
-    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+
+    NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
-    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+
+    NotificationHandler<Notification1> handler1B = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
-    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
+
+    NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
     when(handler2.getMetadata()).thenReturn(Optional.empty());
-    boolean expected = new Random().nextBoolean();
+
+    boolean expected = true;
     when(propertiesDao.hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B)))
       .thenReturn(expected);
-    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B, handler2});
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[]{handler1A, handler1B, handler2});
 
     boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification1.class));
 
@@ -262,19 +256,22 @@ public class NotificationServiceTest {
     String dispatcherKey1B = randomAlphabetic(6);
     String dispatcherKey2 = randomAlphabetic(7);
     String projectUuid = randomAlphabetic(8);
-    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+    NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
-    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+
+    NotificationHandler<Notification1> handler1B = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
-    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
+
+    NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
     when(handler2.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey2)));
-    boolean expected1 = new Random().nextBoolean();
+
+    boolean expected1 = false;
     when(propertiesDao.hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B, dispatcherKey2)))
       .thenReturn(expected1);
-    boolean expected2 = new Random().nextBoolean();
+    boolean expected2 = true;
     when(propertiesDao.hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey2)))
       .thenReturn(expected2);
-    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B, handler2});
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[]{handler1A, handler1B, handler2});
 
     boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification1.class, Notification2.class));
 
@@ -295,13 +292,17 @@ public class NotificationServiceTest {
     String dispatcherKey1A = randomAlphabetic(5);
     String dispatcherKey1B = randomAlphabetic(6);
     String projectUuid = randomAlphabetic(7);
-    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+
+    NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
-    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+
+    NotificationHandler<Notification1> handler1B = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
-    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
+
+    NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
     when(handler2.getMetadata()).thenReturn(Optional.empty());
-    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B, handler2});
+
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[]{handler1A, handler1B, handler2});
 
     boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of());
 
@@ -315,11 +316,14 @@ public class NotificationServiceTest {
     String dispatcherKey1A = randomAlphabetic(5);
     String dispatcherKey1B = randomAlphabetic(6);
     String projectUuid = randomAlphabetic(7);
-    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+
+    NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
-    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+
+    NotificationHandler<Notification1> handler1B = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
-    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B});
+
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[]{handler1A, handler1B});
 
     boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification2.class));
 
@@ -335,34 +339,10 @@ public class NotificationServiceTest {
     }
   }
 
-  private static abstract class NotificationHandler1 implements NotificationHandler<Notification1> {
-
-    // final to prevent mock to override implementation
-    @Override
-    public final Class<Notification1> getNotificationClass() {
-      return Notification1.class;
-    }
-
-  }
-
-  private static abstract class NotificationHandler1A implements NotificationHandler<Notification1> {
-
-    // final to prevent mock to override implementation
-    @Override
-    public final Class<Notification1> getNotificationClass() {
-      return Notification1.class;
-    }
-
-  }
-
-  private static abstract class NotificationHandler1B implements NotificationHandler<Notification1> {
-
-    // final to prevent mock to override implementation
-    @Override
-    public final Class<Notification1> getNotificationClass() {
-      return Notification1.class;
-    }
-
+  private <T extends Notification> NotificationHandler<T> getMockOfNotificationHandlerForType(Class<T> notificationClass) {
+    NotificationHandler mock = mock(NotificationHandler.class);
+    when(mock.getNotificationClass()).thenReturn(notificationClass);
+    return mock;
   }
 
   private static final class Notification2 extends Notification {
@@ -370,22 +350,5 @@ public class NotificationServiceTest {
     public Notification2() {
       super("2");
     }
-  }
-
-  private static abstract class NotificationHandler2 implements NotificationHandler<Notification2> {
-
-    // final to prevent mock to override implementation
-    @Override
-    public final Class<Notification2> getNotificationClass() {
-      return Notification2.class;
-    }
-  }
-
-  private static <T extends Notification> int randomDeliveredCount(List<T> notifications) {
-    int size = notifications.size();
-    if (size == 1) {
-      return size;
-    }
-    return 1 + new Random().nextInt(size - 1);
   }
 }

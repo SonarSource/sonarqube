@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,11 +25,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.ComputeEngineProperties;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,12 +38,12 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskDtoLight;
 import org.sonar.db.ce.PrOrBranchTask;
 
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 @ComputeEngineSide
 public class NextPendingTaskPicker {
-  private static final Logger LOG = Loggers.get(NextPendingTaskPicker.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NextPendingTaskPicker.class);
 
   private final Configuration config;
   private final CeQueueDao ceQueueDao;
@@ -54,8 +54,8 @@ public class NextPendingTaskPicker {
   }
 
   Optional<CeQueueDto> findPendingTask(String workerUuid, DbSession dbSession, boolean prioritizeAnalysisAndRefresh) {
-    // try to find tasks including indexation job & excluding app/portfolio and if no match, try the opposite
-    // when prioritizeAnalysisAndRefresh is false, search first excluding indexation jobs and including app/portfolio, then the opposite
+    // try to find tasks including indexing job & excluding app/portfolio and if no match, try the opposite
+    // when prioritizeAnalysisAndRefresh is false, search first excluding indexing jobs and including app/portfolio, then the opposite
     Optional<CeTaskDtoLight> eligibleForPeek = ceQueueDao.selectEligibleForPeek(dbSession, prioritizeAnalysisAndRefresh, !prioritizeAnalysisAndRefresh);
     Optional<CeTaskDtoLight> eligibleForPeekInParallel = eligibleForPeekInParallel(dbSession);
 
@@ -74,7 +74,7 @@ public class NextPendingTaskPicker {
    * priority is always given to the task that is waiting longer - to avoid starvation
    */
   private Optional<CeQueueDto> submitOldest(DbSession session, String workerUuid, @Nullable CeTaskDtoLight eligibleForPeek, @Nullable CeTaskDtoLight eligibleForPeekInParallel) {
-    CeTaskDtoLight oldest = (CeTaskDtoLight) ObjectUtils.min(eligibleForPeek, eligibleForPeekInParallel);
+    CeTaskDtoLight oldest = ObjectUtils.min(eligibleForPeek, eligibleForPeekInParallel);
     Optional<CeQueueDto> ceQueueDto = ceQueueDao.tryToPeek(session, oldest.getCeTaskUuid(), workerUuid);
     if (!Objects.equals(oldest, eligibleForPeek)) {
       ceQueueDto.ifPresent(t -> LOG.info("Task [uuid = " + t.getUuid() + "] will be run concurrently with other tasks for the same project"));
@@ -100,7 +100,7 @@ public class NextPendingTaskPicker {
 
     for (PrOrBranchTask task : queuedPrOrBranches) {
       if ((Objects.equals(task.getBranchType(), PULL_REQUEST) && canRunPr(task, inProgressTasks))
-        || (Objects.equals(task.getBranchType(), BRANCH_KEY) && canRunBranch(task, inProgressTasks))) {
+        || (Objects.equals(task.getBranchType(), BRANCH) && canRunBranch(task, inProgressTasks))) {
         return Optional.of(task);
       }
     }
@@ -108,8 +108,8 @@ public class NextPendingTaskPicker {
   }
 
   private static List<PrOrBranchTask> filterOldestPerProject(List<PrOrBranchTask> queuedPrOrBranches) {
-    Set<String> mainComponentUuidsSeen = new HashSet<>();
-    return queuedPrOrBranches.stream().filter(t -> mainComponentUuidsSeen.add(t.getMainComponentUuid())).toList();
+    Set<String> entityUuidsSeen = new HashSet<>();
+    return queuedPrOrBranches.stream().filter(t -> entityUuidsSeen.add(t.getEntityUuid())).toList();
   }
 
   /**
@@ -120,9 +120,9 @@ public class NextPendingTaskPicker {
    * This method returns the longest waiting branch in the queue which can be scheduled concurrently with pull requests.
    */
   private static boolean canRunBranch(PrOrBranchTask task, List<PrOrBranchTask> inProgress) {
-    String mainComponentUuid = task.getMainComponentUuid();
+    String entityUuid = task.getEntityUuid();
     List<PrOrBranchTask> sameComponentTasks = inProgress.stream()
-      .filter(t -> t.getMainComponentUuid().equals(mainComponentUuid))
+      .filter(t -> Objects.equals(t.getEntityUuid(), entityUuid))
       .toList();
     //we can peek branch analysis task only if all the other in progress tasks for this component uuid are pull requests
     return sameComponentTasks.stream().map(PrOrBranchTask::getBranchType).allMatch(s -> Objects.equals(s, PULL_REQUEST));
@@ -135,7 +135,8 @@ public class NextPendingTaskPicker {
   private static boolean canRunPr(PrOrBranchTask task, List<PrOrBranchTask> inProgress) {
     // return true unless the same PR is already in progress
     return inProgress.stream()
-      .noneMatch(pr -> pr.getMainComponentUuid().equals(task.getMainComponentUuid()) && Objects.equals(pr.getBranchType(), PULL_REQUEST) &&
-        Objects.equals(pr.getComponentUuid(), (task.getComponentUuid())));
+      .noneMatch(pr -> Objects.equals(pr.getEntityUuid(), task.getEntityUuid())
+        && Objects.equals(pr.getBranchType(), PULL_REQUEST)
+        && Objects.equals(pr.getComponentUuid(), task.getComponentUuid()));
   }
 }

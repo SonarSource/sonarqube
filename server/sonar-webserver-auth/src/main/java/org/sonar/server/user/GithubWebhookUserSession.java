@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -80,12 +80,22 @@ public class GithubWebhookUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
+  public boolean isAuthenticatedBrowserSession() {
+    return false;
+  }
+
+  @Override
+  protected boolean hasPermissionImpl(GlobalPermission permission) {
+    return false;
+  }
+
+  @Override
+  protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
     return Optional.empty();
   }
 
   @Override
-  protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
+  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
     return false;
   }
 

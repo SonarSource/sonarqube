@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,56 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { PageTitle } from 'design-system';
 import * as React from 'react';
 import {
   commentSecurityHotspot,
   deleteSecurityHotspotComment,
   editSecurityHotspotComment,
 } from '../../../api/security-hotspots';
-import FormattingTips from '../../../components/common/FormattingTips';
-import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
+import HotspotCommentModal from './HotspotCommentModal';
 import HotspotReviewHistory from './HotspotReviewHistory';
 
 interface Props {
   currentUser: CurrentUser;
   hotspot: Hotspot;
-  commentTextRef: React.RefObject<HTMLTextAreaElement>;
   onCommentUpdate: () => void;
 }
 
 interface State {
-  comment: string;
-  showFullHistory: boolean;
+  showAddCommentModal: boolean;
 }
 
 export default class HotspotReviewHistoryAndComments extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      comment: '',
-      showFullHistory: false,
+      showAddCommentModal: false,
     };
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.hotspot.key !== this.props.hotspot.key) {
-      this.setState({
-        comment: '',
-        showFullHistory: false,
-      });
-    }
-  }
-
-  handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    this.setState({ comment: event.target.value });
-  };
-
-  handleSubmitComment = () => {
-    return commentSecurityHotspot(this.props.hotspot.key, this.state.comment).then(() => {
-      this.setState({ comment: '' });
+  handleSubmitComment = (comment: string) => {
+    return commentSecurityHotspot(this.props.hotspot.key, comment).then(() => {
+      this.setState({ showAddCommentModal: false });
       this.props.onCommentUpdate();
     });
   };
@@ -83,50 +68,45 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     });
   };
 
-  handleShowFullHistory = () => {
-    this.setState({ showFullHistory: true });
+  handleShowCommentModal = () => {
+    this.setState({ showAddCommentModal: true });
+  };
+
+  handleHideCommentModal = () => {
+    this.setState({ showAddCommentModal: false });
   };
 
   render() {
-    const { currentUser, hotspot, commentTextRef } = this.props;
-    const { comment, showFullHistory } = this.state;
+    const { currentUser, hotspot } = this.props;
+    const { showAddCommentModal } = this.state;
     return (
-      <div className="padded it__hs-review-history">
-        {isLoggedIn(currentUser) && (
-          <>
-            <label htmlFor="security-hotspot-comment">{translate('hotspots.comment.field')}</label>
-            <textarea
-              id="security-hotspot-comment"
-              className="form-field fixed-width width-100 spacer-bottom"
-              onChange={this.handleCommentChange}
-              ref={commentTextRef}
-              rows={2}
-              value={comment}
-            />
-            <div className="display-flex-space-between display-flex-center ">
-              <FormattingTips className="huge-spacer-bottom" />
-              <div>
-                <Button
-                  className="huge-spacer-bottom"
-                  id="hotspot-comment-box-submit"
-                  onClick={this.handleSubmitComment}
-                >
-                  {translate('hotspots.comment.submit')}
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
+      <div className="it__hs-review-history">
+        <PageTitle
+          as="h2"
+          className="sw-typo-lg-semibold"
+          text={translate('hotspot.section.activity')}
+        />
 
-        <h2 className="spacer-top big-spacer-bottom">{translate('hotspot.section.activity')}</h2>
+        {isLoggedIn(currentUser) && (
+          <Button className="sw-mt-4 sw-mb-2" onClick={this.handleShowCommentModal}>
+            {translate('hotspots.status.add_comment')}
+          </Button>
+        )}
 
         <HotspotReviewHistory
           hotspot={hotspot}
           onDeleteComment={this.handleDeleteComment}
           onEditComment={this.handleEditComment}
-          onShowFullHistory={this.handleShowFullHistory}
-          showFullHistory={showFullHistory}
         />
+
+        {showAddCommentModal && (
+          <HotspotCommentModal
+            onCancel={this.handleHideCommentModal}
+            onSubmit={(comment) => {
+              this.handleSubmitComment(comment);
+            }}
+          />
+        )}
       </div>
     );
   }

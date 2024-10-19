@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,8 +39,6 @@ public class CspFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         cspHeaders.add("Content-Security-Policy");
-        cspHeaders.add("X-Content-Security-Policy");
-        cspHeaders.add("X-WebKit-CSP");
 
         this.defaultPolicies = String.join("; ", getDefaultCspPolicies()).trim();
         this.codescanPolicies = String.join("; ", getCodescanCspPolicies()).trim();
@@ -69,9 +67,10 @@ public class CspFilter implements Filter {
         cspPolicies.add("default-src 'self'");
         cspPolicies.add("base-uri 'none'");
         cspPolicies.add("connect-src 'self' http: https:");
+        cspPolicies.add("font-src 'self' data:");
         cspPolicies.add("img-src * data: blob:");
         cspPolicies.add("object-src 'none'");
-        cspPolicies.add("script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+        cspPolicies.add("script-src 'self'");
         cspPolicies.add("style-src 'self' 'unsafe-inline'");
         return cspPolicies;
     }
@@ -89,6 +88,7 @@ public class CspFilter implements Filter {
         // Allow list for GoogleTagManager, Pendo, FullStory, Linkedin, GoogleAnalytics, Facebook, zdassets Scripts.
         cspPolicies.add("connect-src 'self' https://edge.fullstory.com https://rs.fullstory.com app.pendo.io "
                 + "data.pendo.io pendo-static-6580644462460928.storage.googleapis.com http: https:");
+        cspPolicies.add("font-src 'self' data:");
         cspPolicies.add(
                 "script-src 'self' https://www.googletagmanager.com https://pendo-io-static.storage.googleapis.com "
                         + "pendo-static-6580644462460928.storage.googleapis.com "

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -75,11 +75,12 @@ public class ExportRuleStepTest {
 
   @Test
   public void execute_logs_number_total_exported_rules_count_when_successful() {
+    logTester.setLevel(Level.DEBUG);
     ruleRepository.add("A").add("B").add("C").add("D");
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("4 rules exported");
+    assertThat(logTester.logs(Level.DEBUG)).containsExactly("4 rules exported");
   }
 
   @Test

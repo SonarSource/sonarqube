@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,9 +35,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.CompareToSonarWay;
@@ -62,13 +59,11 @@ public class ShowAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileWsSupport qProfileWsSupport;
   private final Languages languages;
-  private final RuleIndex ruleIndex;
 
-  public ShowAction(DbClient dbClient, QProfileWsSupport qProfileWsSupport, Languages languages, RuleIndex ruleIndex) {
+  public ShowAction(DbClient dbClient, QProfileWsSupport qProfileWsSupport, Languages languages) {
     this.dbClient = dbClient;
     this.qProfileWsSupport = qProfileWsSupport;
     this.languages = languages;
-    this.ruleIndex = ruleIndex;
   }
 
   @Override
@@ -143,10 +138,7 @@ public class ShowAction implements QProfileWsAction {
     organizationDto.setUuid(profile.getOrganizationUuid());
     organizationDto.setKey(profile.getKee());
 
-    long missingRuleCount = ruleIndex.search(
-      new RuleQuery().setQProfile(profile).setActivation(false).setCompareToQProfile(sonarWay).setOrganization(organizationDto),
-      new SearchOptions().setLimit(1))
-      .getTotal();
+    long missingRuleCount = dbClient.activeRuleDao().countMissingRules(dbSession, profile.getRulesProfileUuid(), sonarWay.getRulesProfileUuid());
 
     return CompareToSonarWay.newBuilder()
       .setProfile(sonarWay.getKee())

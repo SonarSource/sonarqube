@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter.RangeOffsetConverterException;
 import org.sonar.db.protobuf.DbFileSources;
@@ -41,7 +41,7 @@ import static org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetCon
 
 public class HighlightingLineReader implements LineReader {
 
-  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HighlightingLineReader.class);
 
   private static final Map<HighlightingType, String> cssClassByType = ImmutableMap.<HighlightingType, String>builder()
     .put(HighlightingType.ANNOTATION, "a")

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { PopupZLevel, SearchSelectDropdown, SubHeading } from 'design-system';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { Options } from 'react-select';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
 import { CATEGORY_OVERRIDES, LANGUAGES_CATEGORY } from '../constants';
 import { getCategoryName } from '../utils';
@@ -37,7 +39,7 @@ interface SelectOption {
   value: string;
 }
 
-export function Languages(props: LanguagesProps) {
+export function Languages(props: Readonly<LanguagesProps>) {
   const { categories, component, definitions, location, router, selectedCategory } = props;
   const { availableLanguages, selectedLanguage } = getLanguages(categories, selectedCategory);
 
@@ -48,29 +50,44 @@ export function Languages(props: LanguagesProps) {
     });
   };
 
+  const handleLanguagesSearch = React.useCallback(
+    (query: string, cb: (options: Options<SelectOption>) => void) => {
+      const normalizedQuery = query.toLowerCase();
+
+      cb(
+        availableLanguages.filter(
+          (lang) =>
+            lang.label.toLowerCase().includes(normalizedQuery) ||
+            lang.value.includes(normalizedQuery),
+        ),
+      );
+    },
+    [availableLanguages],
+  );
+
   return (
     <>
-      <h2 id="languages-category-title" className="settings-sub-category-name">
+      <SubHeading id="languages-category-title">
         {translate('property.category.languages')}
-      </h2>
+      </SubHeading>
       <div data-test="language-select">
-        <Select
-          aria-labelledby="languages-category-title"
-          className="input-large select-settings-language"
+        <SearchSelectDropdown
+          defaultOptions={availableLanguages}
+          controlAriaLabel={translate('property.category.languages')}
           onChange={handleOnChange}
-          options={availableLanguages}
+          loadOptions={handleLanguagesSearch}
           placeholder={translate('settings.languages.select_a_language_placeholder')}
+          controlSize="medium"
+          zLevel={PopupZLevel.Content}
           value={availableLanguages.find((language) => language.value === selectedLanguage)}
         />
       </div>
       {selectedLanguage && (
-        <div className="settings-sub-category">
-          <CategoryDefinitionsList
-            category={selectedLanguage}
-            component={component}
-            definitions={definitions}
-          />
-        </div>
+        <CategoryDefinitionsList
+          category={selectedLanguage}
+          component={component}
+          definitions={definitions}
+        />
       )}
     </>
   );

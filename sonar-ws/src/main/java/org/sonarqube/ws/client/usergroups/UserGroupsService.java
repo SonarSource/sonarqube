@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -50,7 +50,6 @@ public class UserGroupsService extends BaseService {
   public void addUser(AddUserRequest request) {
     call(
       new PostRequest(path("add_user"))
-        .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
@@ -84,7 +83,6 @@ public class UserGroupsService extends BaseService {
     call(
       new PostRequest(path("delete"))
         .setParam("organization", request.getOrganization())
-        .setParam("id", request.getId())
         .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -99,7 +97,6 @@ public class UserGroupsService extends BaseService {
   public void removeUser(RemoveUserRequest request) {
     call(
       new PostRequest(path("remove_user"))
-        .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
@@ -135,7 +132,6 @@ public class UserGroupsService extends BaseService {
     call(
       new PostRequest(path("update"))
         .setParam("description", request.getDescription())
-        .setParam("id", request.getId())
         .setParam("name", request.getName()),
       UpdateWsResponse.parser());
   }
@@ -150,7 +146,6 @@ public class UserGroupsService extends BaseService {
   public String users(UsersRequest request) {
     return call(
       new GetRequest(path("users"))
-        .setParam("id", request.getId())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())

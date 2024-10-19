@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,22 +19,17 @@
  */
 package org.sonar.db;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.AssumptionViolatedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.version.SqTables;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
@@ -120,7 +115,7 @@ class CoreTestDb implements TestDb {
       db.start();
 
       databaseInitializer.accept(db);
-      Loggers.get(getClass()).debug("Test Database: " + db);
+      LoggerFactory.getLogger(getClass()).debug("Test Database: " + db);
 
       String login = settings.getString(JDBC_USERNAME.getKey());
 
@@ -132,46 +127,10 @@ class CoreTestDb implements TestDb {
 
   public void truncateTables() {
     try {
-      truncateDatabase(getDatabase().getDataSource());
+      DatabaseTestUtils.truncateAllTables(getDatabase().getDataSource());
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to truncate db tables", e);
     }
-  }
-
-  private void truncateDatabase(DataSource dataSource) throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      connection.setAutoCommit(false);
-      try (Statement statement = connection.createStatement()) {
-        for (String table : SqTables.TABLES) {
-          try {
-            if (shouldTruncate(connection, table)) {
-              statement.executeUpdate(truncateSql(table));
-              connection.commit();
-            }
-          } catch (Exception e) {
-            connection.rollback();
-            throw new IllegalStateException("Fail to truncate table " + table, e);
-          }
-        }
-      }
-    }
-  }
-
-  private static boolean shouldTruncate(Connection connection, String table) {
-    try (Statement stmt = connection.createStatement();
-      ResultSet rs = stmt.executeQuery("select count(1) from " + table)) {
-      if (rs.next()) {
-        return rs.getInt(1) > 0;
-      }
-
-    } catch (SQLException ignored) {
-      // probably because table does not exist. That's the case with H2 tests.
-    }
-    return false;
-  }
-
-  private static String truncateSql(String table) {
-    return "TRUNCATE TABLE " + table;
   }
 
   @Override
@@ -190,7 +149,7 @@ class CoreTestDb implements TestDb {
   }
 
   private void logJdbcSettings(Settings settings) {
-    Logger logger = Loggers.get(getClass());
+    Logger logger = LoggerFactory.getLogger(getClass());
     for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
       logger.info(key + ": " + settings.getString(key));
     }

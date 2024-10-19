@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,12 +21,10 @@ package org.sonar.server.component.ws;
 
 import java.util.Collections;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -44,9 +42,6 @@ import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LT;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LTE;
 
 public class ProjectMeasuresQueryFactoryTest {
-
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Test
   public void create_query() {

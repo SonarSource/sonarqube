@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,9 @@ import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
@@ -97,7 +100,7 @@ public class EsInstallationTest {
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es7"));
+    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es8"));
   }
 
   @Test
@@ -129,7 +132,7 @@ public class EsInstallationTest {
 
     assertThat(underTest.getOutdatedSearchDirectories())
       .extracting(File::getName)
-      .containsExactlyInAnyOrder("es", "es5", "es6");
+      .containsExactlyInAnyOrder("es", "es5", "es6", "es7");
   }
 
   @Test
@@ -200,5 +203,33 @@ public class EsInstallationTest {
     EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getJvmOptions()).isEqualTo(new File(tempDir, "conf/es/jvm.options"));
+  }
+
+  @Test
+  public void isHttpEncryptionEnabled_shouldReturnCorrectValue() throws IOException {
+    File sqHomeDir = temp.newFolder();
+    Props props = new Props(new Properties());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), sqHomeDir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(CLUSTER_ENABLED.getKey(), "true");
+    props.set(CLUSTER_SEARCH_PASSWORD.getKey(), "password");
+    props.set(CLUSTER_ES_HTTP_KEYSTORE.getKey(), sqHomeDir.getAbsolutePath());
+
+    EsInstallation underTest = new EsInstallation(props);
+    assertThat(underTest.isHttpEncryptionEnabled()).isTrue();
+
+    props.set(CLUSTER_ENABLED.getKey(), "false");
+    props.set(CLUSTER_ES_HTTP_KEYSTORE.getKey(), sqHomeDir.getAbsolutePath());
+
+    underTest = new EsInstallation(props);
+    assertThat(underTest.isHttpEncryptionEnabled()).isFalse();
+
+    props.set(CLUSTER_ENABLED.getKey(), "true");
+    props.rawProperties().remove(CLUSTER_ES_HTTP_KEYSTORE.getKey());
+
+    underTest = new EsInstallation(props);
+    assertThat(underTest.isHttpEncryptionEnabled()).isFalse();
   }
 }

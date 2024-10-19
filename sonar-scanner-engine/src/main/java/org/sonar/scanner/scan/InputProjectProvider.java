@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,13 +22,13 @@ package org.sonar.scanner.scan;
 import java.util.Locale;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.springframework.context.annotation.Bean;
 
 public class InputProjectProvider {
-  private static final Logger LOG = Loggers.get(InputProjectProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InputProjectProvider.class);
 
   @Bean("DefaultInputProject")
   public DefaultInputProject provide(ProjectBuildersExecutor projectBuildersExecutor, ProjectReactorValidator validator,

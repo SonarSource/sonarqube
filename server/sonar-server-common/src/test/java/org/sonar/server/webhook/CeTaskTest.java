@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskTest {
 
-  private CeTask underTest = new CeTask("A", CeTask.Status.SUCCESS);
+  private final CeTask underTest = new CeTask("A", CeTask.Status.SUCCESS);
 
   @Test
   public void constructor_throws_NPE_if_id_is_null() {

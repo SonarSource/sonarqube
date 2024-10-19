@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ import { useOutletContext } from 'react-router-dom';
 import { AdminPagesContext } from '../../../types/admin';
 
 export default function withAdminPagesOutletContext(
-  WrappedComponent: React.ComponentType<AdminPagesContext>
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<AdminPagesContext>>,
 ) {
   return function WithAdminPagesOutletContext() {
     const { adminPages } = useOutletContext<AdminPagesContext>();

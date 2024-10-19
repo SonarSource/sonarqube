@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,15 +19,15 @@
  */
 package org.sonar.db.purge;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class PurgeableAnalysisDtoTest {
+class PurgeableAnalysisDtoTest {
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     PurgeableAnalysisDto dto1 = new PurgeableAnalysisDto().setAnalysisUuid("u3");
     PurgeableAnalysisDto dto2 = new PurgeableAnalysisDto().setAnalysisUuid("u4");
     assertThat(dto1.equals(dto2)).isFalse();
@@ -39,7 +39,7 @@ public class PurgeableAnalysisDtoTest {
   }
 
   @Test
-  public void testHasCode() {
+  void testHasCode() {
     PurgeableAnalysisDto dto = new PurgeableAnalysisDto().setAnalysisUuid("u3");
 
     // no uuid => NPE
@@ -51,7 +51,7 @@ public class PurgeableAnalysisDtoTest {
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     PurgeableAnalysisDto dto = new PurgeableAnalysisDto().setAnalysisUuid("u3");
     assertThat(dto.toString()).isNotEmpty();
   }

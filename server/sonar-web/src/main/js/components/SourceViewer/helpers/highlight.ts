@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,17 @@
 import { uniq } from 'lodash';
 import { LinearIssueLocation } from '../../../types/types';
 
+export interface TokenModifiers {
+  isHighlighted?: boolean;
+  isLocation?: boolean;
+  isSelected?: boolean;
+  isUnderlined?: boolean;
+}
+
 export interface Token {
   className: string;
   markers: number[];
+  modifiers: TokenModifiers;
   text: string;
 }
 
@@ -39,7 +47,7 @@ export function splitByTokens(code: NodeListOf<ChildNode>, rootClassName = ''): 
     }
     if (node.nodeType === 3 && node.nodeValue) {
       // TEXT NODE
-      tokens.push({ className: rootClassName, markers: [], text: node.nodeValue });
+      tokens.push({ className: rootClassName, markers: [], text: node.nodeValue, modifiers: {} });
     }
   });
   return tokens;
@@ -50,7 +58,7 @@ export function highlightSymbol(tokens: Token[], symbol: string): Token[] {
   return tokens.map((token) =>
     symbolRegExp.test(token.className)
       ? { ...token, className: `${token.className} highlighted` }
-      : token
+      : token,
   );
 }
 
@@ -83,7 +91,8 @@ function part(str: string, from: number, to: number, acc: number): string {
 export function highlightIssueLocations(
   tokens: Token[],
   issueLocations: LinearIssueLocation[],
-  rootClassName: string = ISSUE_LOCATION_CLASS
+  modifier: keyof TokenModifiers,
+  rootClassName: string = ISSUE_LOCATION_CLASS,
 ): Token[] {
   issueLocations.forEach((location) => {
     const nextTokens: Token[] = [];
@@ -104,6 +113,10 @@ export function highlightIssueLocations(
             : token.className;
         nextTokens.push({
           className: newClassName,
+          modifiers: {
+            ...token.modifiers,
+            [modifier]: true,
+          },
           markers:
             !markerAdded && location.index != null
               ? uniq([...token.markers, location.index])
@@ -121,3 +134,53 @@ export function highlightIssueLocations(
   });
   return tokens;
 }
+
+export const getHighlightedTokens = (params: {
+  code: string | undefined;
+  highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
+  highlightedSymbols: string[] | undefined;
+  issueLocations: LinearIssueLocation[];
+  secondaryIssueLocations: LinearIssueLocation[];
+}) => {
+  const {
+    code,
+    highlightedLocationMessage,
+    highlightedSymbols,
+    issueLocations,
+    secondaryIssueLocations,
+  } = params;
+
+  const container = document.createElement('div');
+  container.innerHTML = code ?? '';
+  let tokens = splitByTokens(container.childNodes);
+
+  if (highlightedSymbols) {
+    highlightedSymbols.forEach((symbol) => {
+      tokens = highlightSymbol(tokens, symbol);
+    });
+  }
+
+  if (issueLocations.length > 0) {
+    tokens = highlightIssueLocations(tokens, issueLocations, 'isUnderlined', 'isUnderlined');
+  }
+
+  if (secondaryIssueLocations) {
+    tokens = highlightIssueLocations(
+      tokens,
+      secondaryIssueLocations,
+      'isLocation',
+      'issue-location',
+    );
+
+    if (highlightedLocationMessage) {
+      const location = secondaryIssueLocations.find(
+        (location) => location.index === highlightedLocationMessage.index,
+      );
+      if (location) {
+        tokens = highlightIssueLocations(tokens, [location], 'isSelected', 'selected');
+      }
+    }
+  }
+
+  return tokens;
+};

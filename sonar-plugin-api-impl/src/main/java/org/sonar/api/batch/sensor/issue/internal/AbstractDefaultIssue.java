@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
@@ -97,12 +96,10 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
     InputComponent component = location.inputComponent();
     Optional<Path> dirOrModulePath = Optional.empty();
 
-    if (component instanceof DefaultInputDir) {
-      DefaultInputDir dirComponent = (DefaultInputDir) component;
-      dirOrModulePath = Optional.of(project.getBaseDir().relativize(dirComponent.path()));
-    } else if (component instanceof DefaultInputModule && !Objects.equals(project.key(), component.key())) {
-      DefaultInputModule moduleComponent = (DefaultInputModule) component;
-      dirOrModulePath = Optional.of(project.getBaseDir().relativize(moduleComponent.getBaseDir()));
+    if (component instanceof DefaultInputDir defaultInputDir) {
+      dirOrModulePath = Optional.of(project.getBaseDir().relativize(defaultInputDir.path()));
+    } else if (component instanceof DefaultInputModule defaultInputModule && !Objects.equals(project.key(), component.key())) {
+      dirOrModulePath = Optional.of(project.getBaseDir().relativize(defaultInputModule.getBaseDir()));
     }
 
     if (dirOrModulePath.isPresent()) {
@@ -122,7 +119,7 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
 
       List<NewMessageFormatting> paddedFormattings = location.messageFormattings().stream()
         .map(m -> padMessageFormatting(m, prefixMessage.length()))
-        .collect(Collectors.toList());
+        .toList();
 
       fixedLocation.message(fullMessage.toString(), paddedFormattings);
 

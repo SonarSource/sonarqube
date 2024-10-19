@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,26 +17,62 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import QualityGateFilter, { Props } from '../QualityGateFilter';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
+import { byRole } from '../../../../sonar-aligned/helpers/testSelector';
+import QualityGateFacet from '../QualityGateFilter';
 
-it('renders', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+const ui = {
+  okQGCheckbox: byRole('checkbox', {
+    name: 'overview.quality_gate_x.metric.level.OK metric.level.OK 6',
+  }),
+  errorQGCheckbox: byRole('checkbox', {
+    name: 'overview.quality_gate_x.metric.level.ERROR metric.level.ERROR 3',
+  }),
+};
 
-  const renderOption = wrapper.prop('renderOption');
-  expect(renderOption(2, false)).toMatchSnapshot();
+it('renders options', () => {
+  renderQualityGateFilter();
+
+  expect(ui.okQGCheckbox.get()).toBeInTheDocument();
+  expect(ui.errorQGCheckbox.get()).toBeInTheDocument();
 });
 
-it('should render with warning facet', () => {
-  expect(
-    shallowRender({ facet: { ERROR: 1, WARN: 2, OK: 3 } })
-      .find('Filter')
-      .prop('options')
-  ).toEqual(['OK', 'WARN', 'ERROR']);
+it('updates the filter query', async () => {
+  const user = userEvent.setup();
+
+  const onQueryChange = jest.fn();
+
+  renderQualityGateFilter({ onQueryChange });
+
+  await user.click(ui.okQGCheckbox.get());
+
+  expect(onQueryChange).toHaveBeenCalledWith({ gate: 'OK' });
 });
 
-function shallowRender(props: Partial<Props> = {}) {
-  return shallow(<QualityGateFilter onQueryChange={jest.fn()} {...props} />);
+it('handles multiselection', async () => {
+  const user = userEvent.setup();
+
+  const onQueryChange = jest.fn();
+
+  renderQualityGateFilter({ onQueryChange, value: ['OK'] });
+
+  await user.keyboard('{Control>}');
+  await user.click(ui.errorQGCheckbox.get());
+  await user.keyboard('{/Control}');
+
+  expect(onQueryChange).toHaveBeenCalledWith({ gate: 'OK,ERROR' });
+});
+
+function renderQualityGateFilter(props: Partial<ComponentPropsType<typeof QualityGateFacet>> = {}) {
+  renderComponent(
+    <QualityGateFacet
+      maxFacetValue={9}
+      onQueryChange={jest.fn()}
+      facet={{ OK: 6, ERROR: 3 }}
+      {...props}
+    />,
+  );
 }

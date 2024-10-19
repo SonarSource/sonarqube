@@ -9,7 +9,6 @@
         u.name as name,
         u.email as email,
         u.active as "active",
-        u.scm_accounts as "scmAccounts",
         u.salt as "salt",
         u.crypted_password as "cryptedPassword",
         u.hash_method as "hashMethod",
@@ -28,83 +27,161 @@
         u.onboarded as "onboarded"
     </sql>
 
-    <select id="selectByUuid" parameterType="String" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+  <sql id="usersAndScmAccountsColumns">
+    sa.scm_account as "scm_account",
+    <include refid="userColumns"/>
+  </sql>
+
+
+  <sql id="leftOuterJoinScmAccounts">
+      left outer join scm_accounts sa on
+        sa.user_uuid = u.uuid
+  </sql>
+
+  <sql id="selectFromUsersAndJoinScmAccounts">
+    SELECT
+    <include refid="usersAndScmAccountsColumns"/>
+    FROM users u
+    <include refid="leftOuterJoinScmAccounts"/>
+  </sql>
+
+  <resultMap id="userResultMap" type="org.sonar.db.user.UserDto" autoMapping="true">
+    <id property="uuid" column="uuid"/>
+    <collection property="scmAccounts" javaType="list" ofType="java.lang.String">
+      <result column="scm_account"/>
+    </collection>
+  </resultMap>
+
+    <select id="selectByUuid" parameterType="String" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.uuid=#{uuid, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectByLogin" parameterType="String" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByLogin" parameterType="String" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.login=#{login, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
-        WHERE
-        u.login=#{scmAccount, jdbcType=VARCHAR}
-        OR u.email=#{scmAccount, jdbcType=VARCHAR}
-        OR u.scm_accounts like #{likeScmAccount, jdbcType=VARCHAR}
+    <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
+        WHERE uuid IN (
+          SELECT
+          u.uuid
+          FROM users u
+          <include refid="leftOuterJoinScmAccounts"/>
+          WHERE
+          u.login=#{scmAccount, jdbcType=VARCHAR}
+          OR u.email=#{scmAccount, jdbcType=VARCHAR}
+          OR sa.scm_account=#{scmAccount, jdbcType=VARCHAR}
+        )
     </select>
 
-    <select id="selectUserByLogin" parameterType="string" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectUserByLogin" parameterType="string" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.login=#{id, jdbcType=INTEGER} AND u.active=${_true}
     </select>
 
-    <select id="selectByLogins" parameterType="string" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByLogins" parameterType="string" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.login in
         <foreach collection="list" open="(" close=")" item="login" separator=",">
             #{login, jdbcType=VARCHAR}
         </foreach>
     </select>
 
-    <select id="selectByUuids" parameterType="string" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByUuids" parameterType="string" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.uuid in
         <foreach collection="list" open="(" close=")" item="uuid" separator=",">
             #{uuid, jdbcType=VARCHAR}
         </foreach>
     </select>
 
-    <select id="scrollAll" resultType="User" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-        select
-        <include refid="userColumns"/>
-        from users u
+    <select id="scrollAll" resultMap="userResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
+        ORDER BY u.uuid, sa.scm_account
     </select>
 
-    <select id="selectUsers" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
-        <where>
-            <if test="logins != null and logins.size() > 0">
-                u.login IN
-                <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
-                    #{login, jdbcType=VARCHAR}
+    <select id="selectUsers" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
+        <include refid="searchByQueryWhereClause"/>
+        ORDER BY u.login
+        <include refid="org.sonar.db.common.Common.pagination"/>
+    </select>
+
+    <select id="countByQuery" parameterType="map" resultType="int">
+        SELECT count(1)
+            FROM users u
+        <include refid="searchByQueryWhereClause"/>
+    </select>
+
+    <sql id="searchByQueryInnerQueryColumns">
+        u.uuid,
+        u.login,
+        u.name,
+        u.email,
+        u.active,
+        u.salt,
+        u.crypted_password,
+        u.hash_method,
+        u.external_id,
+        u.external_login,
+        u.external_identity_provider,
+        u.user_local,
+        u.reset_password,
+        u.homepage_type,
+        u.homepage_parameter,
+        u.last_connection_date,
+        u.last_sonarlint_connection,
+        u.created_at,
+        u.updated_at
+    </sql>
+
+    <sql id="searchByQueryWhereClause">
+         <where>
+             1=1
+            <if test="query.isActive != null">
+                AND u.active=#{query.isActive, jdbcType=BOOLEAN}
+            </if>
+            <if test="query.userUuids != null">
+                AND u.uuid in
+                <foreach collection="query.userUuids" open="(" close=")" item="userUuid" separator=",">
+                    #{userUuid, jdbcType=VARCHAR}
                 </foreach>
             </if>
-            <if test="includeDeactivated==false">
-                AND u.active=${_true}
+            <if test="query.searchText != null">
+                AND (
+                    (lower(u.login) LIKE lower(#{query.searchText, jdbcType=VARCHAR}) ESCAPE '/')
+                    OR (lower(u.name) LIKE lower(#{query.searchText, jdbcType=VARCHAR}) ESCAPE '/')
+                    OR (lower(u.email) LIKE lower(#{query.searchText, jdbcType=VARCHAR}) ESCAPE '/')
+                )
             </if>
-            <if test="searchText != null">
-                AND (u.login LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/' OR u.name LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/')
+            <if test="query.isManagedSqlClause != null">
+                AND ${query.isManagedSqlClause}
+            </if>
+            <if test="query.lastConnectionDateFrom != null">
+                AND u.last_connection_date &gt;= #{query.lastConnectionDateFrom, jdbcType=BIGINT}
+            </if>
+            <if test="query.lastConnectionDateTo != null">
+                AND (u.last_connection_date is null or u.last_connection_date &lt; #{query.lastConnectionDateTo, jdbcType=BIGINT})
+            </if>
+            <if test="query.sonarLintLastConnectionDateFrom != null">
+                AND u.last_sonarlint_connection &gt;= #{query.sonarLintLastConnectionDateFrom, jdbcType=BIGINT}
+            </if>
+            <if test="query.sonarLintLastConnectionDateTo != null">
+                AND (u.last_sonarlint_connection is null or u.last_sonarlint_connection &lt; #{query.sonarLintLastConnectionDateTo, jdbcType=BIGINT})
+            </if>
+            <if test="query.externalLogin != null">
+                AND (u.external_login = #{query.externalLogin, jdbcType=VARCHAR})
+            </if>
+            <if test="query.groupUuid != null">
+                AND exists (select 1 from groups_users ug where ug.user_uuid = u.uuid AND ug.group_uuid=#{query.groupUuid, jdbcType=VARCHAR})
+            </if>
+            <if test="query.excludedGroupUuid != null">
+                AND NOT exists (select 1 from groups_users ug where ug.user_uuid = u.uuid AND ug.group_uuid=#{query.excludedGroupUuid, jdbcType=VARCHAR})
             </if>
         </where>
-        ORDER BY u.name
-    </select>
+    </sql>
 
     <select id="selectUsersForTelemetry" parameterType="map" resultType="UserTelemetry">
         SELECT
@@ -112,15 +189,15 @@
             u.active as "active",
             u.external_identity_provider as "externalIdentityProvider",
             u.last_connection_date as "lastConnectionDate",
-            u.last_sonarlint_connection as "lastSonarlintConnectionDate"
+            u.last_sonarlint_connection as "lastSonarlintConnectionDate",
+            su.scim_uuid as "scimUuid"
         FROM users u
+        LEFT JOIN scim_users su on su.user_uuid = u.uuid
         ORDER BY u.uuid
     </select>
 
-    <select id="selectByEmail" parameterType="String" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByEmail" parameterType="String" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE lower(u.email)=#{email, jdbcType=VARCHAR}
         AND u.active=${_true}
     </select>
@@ -129,17 +206,13 @@
         SELECT distinct(external_identity_provider) from users
     </select>
 
-    <select id="selectByExternalIdAndIdentityProvider" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByExternalIdAndIdentityProvider" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.external_id=#{externalId, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectByExternalIdsAndIdentityProvider" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByExternalIdsAndIdentityProvider" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
         AND u.external_id in
         <foreach collection="externalIds" open="(" close=")" item="externalId" separator=",">
@@ -147,17 +220,14 @@
         </foreach>
     </select>
 
-    <select id="selectByExternalLoginAndIdentityProvider" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByExternalLoginAndIdentityProvider" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.external_login=#{externalLogin, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
     <sql id="deactivateUserUpdatedFields">
         active = ${_false},
         email = null,
-        scm_accounts = null,
         salt = null,
         crypted_password = null,
         last_connection_date = null,
@@ -205,7 +275,6 @@
         name,
         email,
         active,
-        scm_accounts,
         external_id,
         external_login,
         external_identity_provider,
@@ -226,7 +295,6 @@
         #{user.name,jdbcType=VARCHAR},
         #{user.email,jdbcType=VARCHAR},
         #{user.active,jdbcType=BOOLEAN},
-        #{user.scmAccounts,jdbcType=VARCHAR},
         #{user.externalId,jdbcType=VARCHAR},
         #{user.externalLogin,jdbcType=VARCHAR},
         #{user.externalIdentityProvider,jdbcType=VARCHAR},
@@ -250,7 +318,6 @@
         name = #{user.name, jdbcType=VARCHAR},
         email = #{user.email, jdbcType=VARCHAR},
         active = #{user.active, jdbcType=BOOLEAN},
-        scm_accounts = #{user.scmAccounts, jdbcType=VARCHAR},
         external_id = #{user.externalId, jdbcType=VARCHAR},
         external_login = #{user.externalLogin, jdbcType=VARCHAR},
         external_identity_provider = #{user.externalIdentityProvider, jdbcType=VARCHAR},
@@ -272,6 +339,37 @@
     <select id="countActiveSonarlintUsers" parameterType="map" resultType="long">
         select count(login) from users
         where last_sonarlint_connection > #{sinceDate,jdbcType=BIGINT}
+    </select>
+
+    <select id="countActiveUsers" resultType="long">
+        select count(1) from users u WHERE u.active=${_true}
+    </select>
+
+    <insert id="insertScmAccount" parameterType="map" useGeneratedKeys="false">
+      insert into scm_accounts (
+      user_uuid,
+      scm_account
+      ) values (
+      #{userUuid,jdbcType=VARCHAR},
+      #{scmAccount,jdbcType=VARCHAR}
+      )
+    </insert>
+
+    <delete id="deleteAllScmAccounts" parameterType="map">
+      delete from scm_accounts
+      where
+      user_uuid = #{userUuid,jdbcType=VARCHAR}
+    </delete>
+
+    <select id="selectActiveUsersByScmAccountOrLoginOrEmail" parameterType="String" resultType="org.sonar.db.user.UserIdDto">
+      select u.uuid, u.login
+      from scm_accounts sa
+      left join users u on sa.user_uuid = u.uuid
+      where u.active=${_true} and sa.scm_account = lower(#{scmAccount,jdbcType=VARCHAR})
+      union
+      select uuid, login
+      from users u
+      where active=${_true} and (login=#{scmAccount,jdbcType=VARCHAR} or lower(email)=lower(#{scmAccount,jdbcType=VARCHAR}) )
     </select>
 
 </mapper>

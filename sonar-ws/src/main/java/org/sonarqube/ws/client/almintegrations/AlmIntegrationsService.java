@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -97,6 +97,34 @@ public class AlmIntegrationsService extends BaseService {
       new PostRequest(path("import_gitlab_project"))
         .setParam("almSetting", request.getAlmSetting())
         .setParam("gitlabProjectId", request.getGitlabProjectId())
+        .setMediaType(MediaTypes.JSON),
+      Projects.CreateWsResponse.parser());
+  }
+
+  /**
+   * This is a POST request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_github_project">Further information about this action online (including a response example)</a>
+   */
+  public Projects.CreateWsResponse importGithubProject(ImportGithubProjectRequest request) {
+    return call(
+      new PostRequest(path("import_github_project"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("repositoryKey", request.getRepositoryKey())
+        .setMediaType(MediaTypes.JSON),
+      Projects.CreateWsResponse.parser());
+  }
+
+  /**
+   * This is a GET request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_github_organizations">Further information about this action online (including a response example)</a>
+   */
+  public void listGithubOrganizations(ListGithubOrganizationsRequest request) {
+    call(
+      new GetRequest(path("list_github_organizations"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("token", request.getToken())
         .setMediaType(MediaTypes.JSON),
       Projects.CreateWsResponse.parser());
   }
@@ -210,6 +238,7 @@ public class AlmIntegrationsService extends BaseService {
         .setHeader("X-GitHub-Event", request.getGithubEventHeader())
         .setHeader("X-Hub-Signature", request.getGithubSignatureHeader())
         .setHeader("X-Hub-Signature-256", request.getGithubSignature256Header())
+        .setHeader("x-github-hook-installation-target-id", request.getGithubAppId())
         .setBody(request.getPayload())
         .setMediaType(MediaTypes.JSON)
     ).content();

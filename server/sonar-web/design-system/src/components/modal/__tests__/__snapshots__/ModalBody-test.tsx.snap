@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders with children 1`] = `
+.emotion-0 {
+  font: var(--echoes-typography-text-default-regular);
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  overflow-x: hidden;
+  color: rgb(62,67,87);
+}
+
+.emotion-0.scrollable {
+  overflow-y: auto;
+}
+
+.emotion-0.overflowVisible {
+  overflow: visible;
+}
+
+<div>
+  <div
+    class="scrollable emotion-0 emotion-1"
+  >
+    <div>
+      Hello!
+    </div>
+  </div>
+</div>
+`;

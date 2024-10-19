@@ -9,12 +9,12 @@
     from
       snapshots s
     where
-      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      s.root_component_uuid=#{componentUuid,jdbcType=VARCHAR}
       <if test="islast != null">
         and s.islast=#{islast}
       </if>
       <if test="notPurged != null and notPurged">
-        and (s.purge_status is null or s.purge_status=0)
+        and s.purged = ${_false}
       </if>
       <if test="status != null">
         and s.status in
@@ -22,7 +22,7 @@
       </if>
   </select>
 
-  <select id="selectPurgeableAnalyses" parameterType="String" resultType="PurgeableAnalysis">
+  <select id="selectProcessedAnalysisByComponentUuid" parameterType="String" resultType="PurgeableAnalysis">
     select
       s.uuid as "analysisUuid",
       s.created_at as "date",
@@ -32,7 +32,20 @@
     from snapshots s
       left outer join events ve on ve.analysis_uuid=s.uuid
     where
-      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      s.root_component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      /*These conditions will select all the analysis that are possible candidates for the deletion happening in a second stage.
+        If an analysis has multiple events associated (including Version), a single row should be returned for it*/
+      and ( ve.category is null --Analysis without events are picked
+            --Analysis with Version events are picked with "version" field properly assigned
+            or ve.category='Version'
+            --Analysis with events other than "version" are selected only if they have not been picked already by the previous condition
+            or (ve.category != 'Version' and not exists
+                (select e2.analysis_uuid from events e2
+                  where e2.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+                  and e2.analysis_uuid = ve.analysis_uuid
+                  and e2.category = 'Version')
+                )
+          )
       and s.status='P'
   </select>
 
@@ -53,7 +66,7 @@
       project_branches pb
     left join snapshots s
     on
-        s.component_uuid = pb.uuid
+        s.root_component_uuid = pb.uuid
         and s.islast=${_true}
     where
         pb.project_uuid=#{projectUuid,jdbcType=VARCHAR}
@@ -63,7 +76,7 @@
 
   </select>
 
-  <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="String" parameterType="String">
+  <select id="selectRootAndSubviewsByProjectUuid" resultType="String" parameterType="String">
     select
        p.uuid
     from
@@ -71,7 +84,7 @@
     where
       (
         p.branch_uuid=#{rootUuid,jdbcType=VARCHAR}
-        and p.scope = 'PRJ' and p.qualifier in ('SVW','BRC')
+        and p.scope = 'PRJ' and p.qualifier = 'SVW'
       )
       or (
         uuid=#{rootUuid,jdbcType=VARCHAR}
@@ -178,7 +191,7 @@
     update
       snapshots
     set
-      purge_status = 1
+      purged = ${_true}
     where
       uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
@@ -209,12 +222,12 @@
       project_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deletePropertiesByComponentUuids" parameterType="map">
+  <delete id="deletePropertiesByEntityUuids" parameterType="map">
     delete from properties
     where
-      component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+      entity_uuid in
+      <foreach collection="entityUuids" open="(" close=")" item="entityUuid" separator=",">
+        #{entityUuid}
       </foreach>
   </delete>
 
@@ -223,11 +236,12 @@
     where
       branch_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
-
-    <delete id="deleteComponentsByMainBranchProjectUuid" parameterType="map">
+  <delete id="deleteNonMainBranchComponentsByProjectUuid" parameterType="map">
     delete from components
     where
-      main_branch_project_uuid = #{uuid,jdbcType=VARCHAR}
+      branch_uuid IN (SELECT pb.uuid from project_branches pb
+                      where
+                        pb.is_main = ${_false} and pb.project_uuid = #{uuid,jdbcType=VARCHAR})
   </delete>
 
   <delete id="deleteProjectsByProjectUuid" parameterType="map">
@@ -245,16 +259,16 @@
         </foreach>
   </delete>
 
-  <delete id="deleteGroupRolesByComponentUuid" parameterType="map">
+  <delete id="deleteGroupRolesByEntityUuid" parameterType="map">
     delete from group_roles
     where
-      component_uuid = #{rootUuid,jdbcType=INTEGER}
+      entity_uuid = #{entityUuid,jdbcType=INTEGER}
   </delete>
 
-  <delete id="deleteUserRolesByComponentUuid" parameterType="map">
+  <delete id="deleteUserRolesByEntityUuid" parameterType="map">
     delete from user_roles
     where
-      component_uuid = #{rootUuid,jdbcType=INTEGER}
+      entity_uuid = #{entityUuid,jdbcType=INTEGER}
   </delete>
 
   <delete id="deleteEventsByComponentUuid" parameterType="map">
@@ -290,6 +304,18 @@
       )
   </delete>
 
+  <delete id="deleteIssuesImpactsByProjectUuid" parameterType="map">
+    delete from issues_impacts
+    where
+      issue_key in (
+        select
+          kee
+        from issues
+        where
+          project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      )
+  </delete>
+
   <delete id="deleteFileSourcesByProjectUuid">
     delete from file_sources where project_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
   </delete>
@@ -315,6 +341,13 @@
       </otherwise>
     </choose>
   </select>
+
+  <select id="selectBranchOrphanIssues" parameterType="map">
+    select i.kee from issues i
+    left outer join components c on i.component_uuid = c.uuid
+    where i.project_uuid = #{branchUuid,jdbcType=VARCHAR} and c.kee is null
+  </select>
+
 
   <select id="selectDisabledComponentsWithoutIssues" resultType="String" parameterType="String">
     SELECT
@@ -417,6 +450,14 @@
     </foreach>
   </delete>
 
+  <delete id="deleteIssuesImpactsFromKeys" parameterType="map">
+    DELETE FROM issues_impacts
+    WHERE issue_key IN
+    <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
+      #{issueKey,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
   <delete id="deleteCeScannerContextOfCeActivityByRootUuidOrBefore">
     delete from ce_scanner_context
     where
@@ -473,7 +514,9 @@
         created_at &lt; #{createdAtBefore,jdbcType=BIGINT}
         and (
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          <if test="entityUuidToPurge != null">
+            or entity_uuid=#{entityUuidToPurge,jdbcType=VARCHAR}
+          </if>
         )
       </when>
       <when test="createdAtBefore != null">
@@ -481,7 +524,9 @@
       </when>
       <when test="rootUuid != null">
         component_uuid=#{rootUuid,jdbcType=VARCHAR}
-        or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+        <if test="entityUuidToPurge != null">
+          or entity_uuid=#{entityUuidToPurge,jdbcType=VARCHAR}
+        </if>
       </when>
       <!-- safety net when both variables are null to never generate a
            delete statement deleting the whole table -->
@@ -500,7 +545,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -513,7 +558,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -526,7 +571,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -539,7 +584,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -547,14 +592,19 @@
     delete from ce_queue
     where
       component_uuid=#{rootUuid,jdbcType=VARCHAR}
-      or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteNewCodePeriodsByRootUuid">
+  <delete id="deleteNewCodePeriodsByProjectUuid">
     DELETE FROM new_code_periods
     WHERE
-      branch_uuid=#{rootUuid,jdbcType=VARCHAR}
-      OR project_uuid=#{rootUuid,jdbcType=VARCHAR}
+      project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteNewCodePeriodsByBranchUuid">
+    DELETE FROM new_code_periods
+    WHERE
+      branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteWebhooksByProjectUuid">
@@ -562,11 +612,7 @@
   </delete>
 
   <delete id="deleteWebhookDeliveriesByProjectUuid">
-    delete from webhook_deliveries where component_uuid=#{projectUuid,jdbcType=VARCHAR}
-  </delete>
-
-  <delete id="deleteProjectMappingsByProjectUuid">
-    delete from project_mappings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
+    delete from webhook_deliveries where project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteProjectAlmSettingsByProjectUuid">
@@ -596,6 +642,32 @@
 
   <delete id="deleteScannerAnalysisCacheByBranchUuid">
     delete from scanner_analysis_cache where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteReportSchedulesByBranchUuid">
+    delete from report_schedules where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteReportSubscriptionsByBranchUuid">
+    delete from report_subscriptions where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteReportSchedulesByPortfolioUuids">
+    delete from report_schedules where portfolio_uuid in <foreach item="portfolioUuid" index="index" collection="portfolioUuids" open="("
+                                                                  separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <delete id="deleteReportSubscriptionsByPortfolioUuids">
+    delete from report_subscriptions where portfolio_uuid in <foreach item="portfolioUuid" index="index" collection="portfolioUuids"
+                                                                      open="("
+                                                                      separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <delete id="deleteAnticipatedTransitionsByProjectUuidAndCreationDate">
+    delete from anticipated_transitions where project_uuid = #{projectUuid,jdbcType=VARCHAR} and created_at &lt; #{createdAtBefore,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteIssuesFixedByBranchUuid">
+    delete from issues_fixed where pull_request_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
 </mapper>
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,11 @@ package org.sonar.ce.configuration;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeWorkerCountSettingWarningTest {
@@ -64,7 +64,7 @@ public class CeWorkerCountSettingWarningTest {
 
   private void verifyWarnMessage() {
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property sonar.ce.workerCount is not supported anymore and will be ignored." +
+    assertThat(logTester.logs(Level.WARN)).containsOnly("Property sonar.ce.workerCount is not supported anymore and will be ignored." +
       " Remove it from sonar.properties to remove this warning.");
   }
 }

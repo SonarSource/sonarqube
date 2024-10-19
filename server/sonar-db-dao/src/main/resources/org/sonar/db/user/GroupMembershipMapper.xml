@@ -22,10 +22,11 @@
     </where>
   </sql>
 
-  <select id="selectGroups" parameterType="map" resultType="GroupMembership">
+  <select id="selectGroups" resultType="GroupMembership">
     SELECT g.uuid as uuid, g.name as name, g.description as description, gu.user_uuid as userUuid
     <include refid="commonClauses"/>
     ORDER BY g.name
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countGroups" parameterType="map" resultType="int">
@@ -96,10 +97,11 @@
     </where>
   </sql>
 
-  <select id="selectMembers" parameterType="map" resultType="org.sonar.db.user.UserMembershipDto">
+  <select id="selectMembers" resultType="org.sonar.db.user.UserMembershipDto">
     SELECT u.uuid as uuid, u.login as login, u.name as name, gu.group_uuid as groupUuid
     <include refid="userCommonClauses"/>
     ORDER BY u.name ASC
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countMembers" parameterType="map" resultType="int">

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,35 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { BasicSeparator, StyledPageTitle } from 'design-system';
 import { flatMap } from 'lodash';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
-import { RawQuery } from '../../../types/types';
+import { Dict } from '../../../types/types';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import LanguagesFilter from '../filters/LanguagesFilter';
-import MaintainabilityFilter from '../filters/MaintainabilityFilter';
 import NewCoverageFilter from '../filters/NewCoverageFilter';
 import NewDuplicationsFilter from '../filters/NewDuplicationsFilter';
 import NewLinesFilter from '../filters/NewLinesFilter';
-import NewMaintainabilityFilter from '../filters/NewMaintainabilityFilter';
-import NewReliabilityFilter from '../filters/NewReliabilityFilter';
-import NewSecurityFilter from '../filters/NewSecurityFilter';
-import QualifierFilter from '../filters/QualifierFilter';
-import QualityGateFilter from '../filters/QualityGateFilter';
-import ReliabilityFilter from '../filters/ReliabilityFilter';
-import SecurityFilter from '../filters/SecurityFilter';
-import SecurityReviewFilter from '../filters/SecurityReviewFilter';
+import QualifierFacet from '../filters/QualifierFilter';
+import QualityGateFacet from '../filters/QualityGateFilter';
+import RatingFilter from '../filters/RatingFilter';
 import SizeFilter from '../filters/SizeFilter';
-import TagsFilter from '../filters/TagsFilter';
+import TagsFacet from '../filters/TagsFilter';
 import { hasFilterParams } from '../query';
 import { Facets } from '../types';
-import ClearAll from './ClearAll';
 import FavoriteFilter from './FavoriteFilter';
 
 export interface PageSidebarProps {
   applicationsEnabled: boolean;
   facets?: Facets;
+  loadSearchResultCount: (property: string, values: string[]) => Promise<Dict<number>>;
   onClearAll: () => void;
   onQueryChange: (change: RawQuery) => void;
   query: RawQuery;
@@ -53,7 +50,15 @@ export interface PageSidebarProps {
 }
 
 export default function PageSidebar(props: PageSidebarProps) {
-  const { applicationsEnabled, facets, onClearAll, onQueryChange, query, view } = props;
+  const {
+    applicationsEnabled,
+    facets,
+    loadSearchResultCount,
+    onClearAll,
+    onQueryChange,
+    query,
+    view,
+  } = props;
   const isFiltered = hasFilterParams(query);
   const isLeakView = view === 'leak';
   const maxFacetValue = getMaxFacetValue(facets);
@@ -69,88 +74,142 @@ export default function PageSidebar(props: PageSidebarProps) {
   }, [onClearAll, heading]);
 
   return (
-    <div className="huge-spacer-bottom huge-padded-bottom">
+    <div className="sw-typo-default sw-px-4 sw-pt-12 sw-pb-24">
       <FavoriteFilter />
 
-      <div className="projects-facets-header clearfix">
-        {isFiltered && <ClearAll onClearAll={clearAll} />}
-
-        <h2 className="h3" tabIndex={-1} ref={heading}>
+      <div className="sw-flex sw-items-center sw-justify-between">
+        <StyledPageTitle className="sw-typo-lg-semibold" as="h2" tabIndex={-1} ref={heading}>
           {translate('filters')}
-        </h2>
+        </StyledPageTitle>
+
+        {isFiltered && (
+          <Button onClick={clearAll} variety={ButtonVariety.DangerOutline}>
+            {translate('clear_all_filters')}
+          </Button>
+        )}
       </div>
-      <QualityGateFilter {...facetProps} facet={getFacet(facets, 'gate')} value={query.gate} />
+
+      <BasicSeparator className="sw-my-4" />
+
+      <QualityGateFacet
+        {...facetProps}
+        facet={getFacet(facets, 'gate')}
+        value={query.gate?.split(',')}
+      />
+
+      <BasicSeparator className="sw-my-4" />
+
       {!isLeakView && (
         <>
-          <ReliabilityFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'reliability')}
-            value={query.reliability}
-          />
-          <SecurityFilter
-            {...facetProps}
-            facet={getFacet(facets, 'security')}
+            facets={facets}
+            property="security"
             value={query.security}
           />
 
-          <SecurityReviewFilter
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'security_review')}
-            value={query.security_review_rating}
+            facets={facets}
+            property="reliability"
+            value={query.reliability}
           />
 
-          <MaintainabilityFilter
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'maintainability')}
+            facets={facets}
+            property="maintainability"
             value={query.maintainability}
           />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
+            {...facetProps}
+            facets={facets}
+            property="security_review"
+            value={query.security_review}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
           <CoverageFilter
             {...facetProps}
             facet={getFacet(facets, 'coverage')}
             value={query.coverage}
           />
+
+          <BasicSeparator className="sw-my-4" />
+
           <DuplicationsFilter
             {...facetProps}
             facet={getFacet(facets, 'duplications')}
             value={query.duplications}
           />
+
+          <BasicSeparator className="sw-my-4" />
+
           <SizeFilter {...facetProps} facet={getFacet(facets, 'size')} value={query.size} />
         </>
       )}
       {isLeakView && (
         <>
-          <NewReliabilityFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'new_reliability')}
-            value={query.new_reliability}
-          />
-          <NewSecurityFilter
-            {...facetProps}
-            facet={getFacet(facets, 'new_security')}
+            facets={facets}
+            property="new_security"
             value={query.new_security}
           />
-          <SecurityReviewFilter
+
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
             {...facetProps}
-            className="leak-facet-box"
-            facet={getFacet(facets, 'new_security_review')}
-            property="new_security_review"
-            value={query.new_security_review_rating}
+            facets={facets}
+            property="new_reliability"
+            value={query.new_reliability}
           />
-          <NewMaintainabilityFilter
+
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'new_maintainability')}
+            facets={facets}
+            property="new_maintainability"
             value={query.new_maintainability}
           />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
+            {...facetProps}
+            facets={facets}
+            property="security_review"
+            value={query.new_security_review}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
           <NewCoverageFilter
             {...facetProps}
             facet={getFacet(facets, 'new_coverage')}
             value={query.new_coverage}
           />
+
+          <BasicSeparator className="sw-my-4" />
+
           <NewDuplicationsFilter
             {...facetProps}
             facet={getFacet(facets, 'new_duplications')}
             value={query.new_duplications}
           />
+
+          <BasicSeparator className="sw-my-4" />
+
           <NewLinesFilter
             {...facetProps}
             facet={getFacet(facets, 'new_lines')}
@@ -158,22 +217,34 @@ export default function PageSidebar(props: PageSidebarProps) {
           />
         </>
       )}
+
+      <BasicSeparator className="sw-my-4" />
+
       <LanguagesFilter
         {...facetProps}
         facet={getFacet(facets, 'languages')}
+        loadSearchResultCount={loadSearchResultCount}
         query={query}
         value={query.languages}
       />
+
+      <BasicSeparator className="sw-my-4" />
+
       {applicationsEnabled && (
-        <QualifierFilter
-          {...facetProps}
-          facet={getFacet(facets, 'qualifier')}
-          value={query.qualifier}
-        />
+        <>
+          <QualifierFacet
+            {...facetProps}
+            facet={getFacet(facets, 'qualifier')}
+            value={query.qualifier}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+        </>
       )}
-      <TagsFilter
+      <TagsFacet
         {...facetProps}
         facet={getFacet(facets, 'tags')}
+        loadSearchResultCount={loadSearchResultCount}
         query={query}
         value={query.tags}
       />

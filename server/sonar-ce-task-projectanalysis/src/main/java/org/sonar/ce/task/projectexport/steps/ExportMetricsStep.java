@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,14 @@ package org.sonar.ce.task.projectexport.steps;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 public class ExportMetricsStep implements ComputationStep {
 
@@ -62,7 +62,7 @@ public class ExportMetricsStep implements ComputationStep {
         output.write(builder.build());
         count++;
       }
-      Loggers.get(getClass()).debug("{} metrics exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} metrics exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Metric Export failed after processing %d metrics successfully", count), e);
     }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.format.ISODateTimeFormat;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class EsUtils {
 
@@ -75,10 +74,11 @@ public class EsUtils {
   }
 
   public static List<String> termsKeys(Terms terms) {
+    terms.getBuckets();
     return terms.getBuckets()
       .stream()
       .map(Terms.Bucket::getKeyAsString)
-      .collect(MoreCollectors.toList(terms.getBuckets().size()));
+      .toList();
   }
 
   @CheckForNull

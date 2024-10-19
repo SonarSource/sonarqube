@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockAppState, mockCurrentUser } from '../../../../../helpers/testMocks';
-import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { GlobalNavMenu } from '../GlobalNavMenu';
+import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import GlobalNavMenu from '../GlobalNavMenu';
 
 it('should work with extensions', () => {
   const appState = mockAppState({
@@ -29,10 +29,10 @@ it('should work with extensions', () => {
     qualifiers: ['TRK'],
   });
 
-  const currentUser = {
+  const currentUser = mockCurrentUser({
     isLoggedIn: false,
     dismissedNotices: {},
-  };
+  });
   renderGlobalNavMenu({ appState, currentUser });
   expect(screen.getByText('more')).toBeInTheDocument();
 });
@@ -43,10 +43,10 @@ it('should show administration menu if the user has the rights', () => {
     globalPages: [],
     qualifiers: ['TRK'],
   });
-  const currentUser = {
+  const currentUser = mockCurrentUser({
     isLoggedIn: false,
     dismissedNotices: {},
-  };
+  });
 
   renderGlobalNavMenu({ appState, currentUser });
   expect(screen.getByText('layout.settings')).toBeInTheDocument();
@@ -56,8 +56,8 @@ function renderGlobalNavMenu({
   appState = mockAppState(),
   currentUser = mockCurrentUser(),
   location = { pathname: '' },
-}: Partial<GlobalNavMenu['props']>) {
-  renderComponent(
-    <GlobalNavMenu appState={appState} currentUser={currentUser} location={location} />
-  );
+}) {
+  renderApp('/', <GlobalNavMenu currentUser={currentUser} location={location} />, {
+    appState,
+  });
 }

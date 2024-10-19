@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,9 +27,7 @@ public enum SuggestionCategory {
   VIEW(Qualifiers.VIEW),
   SUBVIEW(Qualifiers.SUBVIEW),
   APP(Qualifiers.APP),
-  PROJECT(Qualifiers.PROJECT),
-  FILE(Qualifiers.FILE),
-  UNIT_TEST_FILE(Qualifiers.UNIT_TEST_FILE),;
+  PROJECT(Qualifiers.PROJECT);
 
   private final String qualifier;
 

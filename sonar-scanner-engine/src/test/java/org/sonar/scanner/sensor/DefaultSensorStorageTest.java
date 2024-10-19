@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,12 +47,19 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.metric.ScannerMetrics;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.issue.IssuePublisher;
+import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
@@ -347,4 +355,45 @@ public class DefaultSensorStorageTest {
     assertThat(contextPropertiesCache.getAll()).containsOnly(entry("foo", "bar"));
   }
 
+  @Test
+  public void store_whenAdhocRuleIsSpecified_shouldWriteAdhocRuleToReport() {
+
+    underTest.store(new DefaultAdHocRule().ruleId("ruleId").engineId("engineId")
+      .name("name")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM)
+      .cleanCodeAttribute(CleanCodeAttribute.CLEAR)
+      .severity(org.sonar.api.batch.rule.Severity.MAJOR)
+      .type(RuleType.CODE_SMELL)
+      .description("description"));
+
+    try (CloseableIterator<ScannerReport.AdHocRule> adhocRuleIt = reportReader.readAdHocRules()) {
+      ScannerReport.AdHocRule adhocRule = adhocRuleIt.next();
+      assertThat(adhocRule)
+        .extracting(ScannerReport.AdHocRule::getRuleId, ScannerReport.AdHocRule::getName, ScannerReport.AdHocRule::getSeverity,
+          ScannerReport.AdHocRule::getType, ScannerReport.AdHocRule::getDescription)
+        .containsExactlyInAnyOrder("ruleId", "name", Constants.Severity.MAJOR, ScannerReport.IssueType.CODE_SMELL, "description");
+      assertThat(adhocRule.getDefaultImpactsList()).hasSize(2).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
+        .containsExactlyInAnyOrder(
+          Tuple.tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.HIGH.name()),
+          Tuple.tuple(SoftwareQuality.RELIABILITY.name(), Severity.MEDIUM.name()));
+      assertThat(adhocRule.getCleanCodeAttribute())
+        .isEqualTo(CleanCodeAttribute.CLEAR.name());
+    }
+  }
+
+  @Test
+  public void store_whenAdhocRuleIsSpecifiedWithOptionalFieldEmpty_shouldWriteAdhocRuleWithDefaultImpactsToReport() {
+    underTest.store(new DefaultAdHocRule().ruleId("ruleId").engineId("engineId")
+      .name("name")
+      .description("description"));
+    try (CloseableIterator<ScannerReport.AdHocRule> adhocRuleIt = reportReader.readAdHocRules()) {
+      ScannerReport.AdHocRule adhocRule = adhocRuleIt.next();
+      assertThat(adhocRule).extracting(ScannerReport.AdHocRule::getSeverity, ScannerReport.AdHocRule::getType)
+        .containsExactlyInAnyOrder(Constants.Severity.UNSET_SEVERITY, ScannerReport.IssueType.UNSET);
+      assertThat(adhocRule.getDefaultImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
+        .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.MEDIUM.name()));
+      assertThat(adhocRule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL.name());
+    }
+  }
 }

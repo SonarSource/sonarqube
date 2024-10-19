@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ public class LoginMessageAction implements SettingsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (JsonWriter writer = response.newJsonWriter()) {
       writer.beginObject()
-        .prop("message", isMessageDisplayEnabled() && loginMessageFeature.isEnabled() ? Markdown.convertToHtml(getLoginMessage()) : "")
+        .prop("message", isMessageDisplayEnabled() && loginMessageFeature.isAvailable() ? Markdown.convertToHtml(getLoginMessage()) : "")
         .endObject()
         .close();
     }

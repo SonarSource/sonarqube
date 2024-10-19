@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 
@@ -59,17 +60,18 @@ public class IssuesChangesNotificationBuilder {
   public static final class ChangedIssue {
     private final String key;
     private final String newStatus;
-    @CheckForNull
-    private final String newResolution;
+    private final IssueStatus newIssueStatus;
     @CheckForNull
     private final User assignee;
     private final Rule rule;
     private final Project project;
+    private final IssueStatus oldIssueStatus;
 
     public ChangedIssue(Builder builder) {
       this.key = requireNonNull(builder.key, KEY_CANT_BE_NULL_MESSAGE);
       this.newStatus = requireNonNull(builder.newStatus, "newStatus can't be null");
-      this.newResolution = builder.newResolution;
+      this.newIssueStatus = builder.newIssueStatus;
+      this.oldIssueStatus = builder.oldIssueStatus;
       this.assignee = builder.assignee;
       this.rule = requireNonNull(builder.rule, "rule can't be null");
       this.project = requireNonNull(builder.project, "project can't be null");
@@ -83,8 +85,12 @@ public class IssuesChangesNotificationBuilder {
       return newStatus;
     }
 
-    public Optional<String> getNewResolution() {
-      return ofNullable(newResolution);
+    public Optional<IssueStatus> getNewIssueStatus() {
+      return ofNullable(newIssueStatus);
+    }
+
+    public Optional<IssueStatus> getOldIssueStatus() {
+      return ofNullable(oldIssueStatus);
     }
 
     public Optional<User> getAssignee() {
@@ -101,9 +107,11 @@ public class IssuesChangesNotificationBuilder {
 
     public static class Builder {
       private final String key;
-      private String newStatus;
       @CheckForNull
-      private String newResolution;
+      private IssueStatus newIssueStatus;
+      @CheckForNull
+      private IssueStatus oldIssueStatus;
+      private String newStatus;
       @CheckForNull
       private User assignee;
       private Rule rule;
@@ -118,13 +126,18 @@ public class IssuesChangesNotificationBuilder {
         return this;
       }
 
-      public Builder setNewResolution(@Nullable String newResolution) {
-        this.newResolution = newResolution;
+      public Builder setAssignee(@Nullable User assignee) {
+        this.assignee = assignee;
         return this;
       }
 
-      public Builder setAssignee(@Nullable User assignee) {
-        this.assignee = assignee;
+      public Builder setNewIssueStatus(@Nullable IssueStatus newIssueStatus) {
+        this.newIssueStatus = newIssueStatus;
+        return this;
+      }
+
+      public Builder setOldIssueStatus(@Nullable IssueStatus oldIssueStatus) {
+        this.oldIssueStatus = oldIssueStatus;
         return this;
       }
 
@@ -154,7 +167,7 @@ public class IssuesChangesNotificationBuilder {
       ChangedIssue that = (ChangedIssue) o;
       return key.equals(that.key) &&
         newStatus.equals(that.newStatus) &&
-        Objects.equals(newResolution, that.newResolution) &&
+        newIssueStatus == that.newIssueStatus &&
         Objects.equals(assignee, that.assignee) &&
         rule.equals(that.rule) &&
         project.equals(that.project);
@@ -162,7 +175,7 @@ public class IssuesChangesNotificationBuilder {
 
     @Override
     public int hashCode() {
-      return Objects.hash(key, newStatus, newResolution, assignee, rule, project);
+      return Objects.hash(key, newStatus, newIssueStatus, assignee, rule, project);
     }
 
     @Override
@@ -170,7 +183,7 @@ public class IssuesChangesNotificationBuilder {
       return "ChangedIssue{" +
         "key='" + key + '\'' +
         ", newStatus='" + newStatus + '\'' +
-        ", newResolution='" + newResolution + '\'' +
+        ", newIssueStatus='" + newIssueStatus + '\'' +
         ", assignee=" + assignee +
         ", rule=" + rule +
         ", project=" + project +

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -47,6 +47,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 
@@ -55,9 +56,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_FIELD_CHANGE;
 import static org.sonar.server.issue.IssueFieldsSetter.FILE;
@@ -65,7 +63,6 @@ import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
 
 public class IssueChangeWSSupport {
   private static final String EFFORT_CHANGELOG_KEY = "effort";
-
   private final DbClient dbClient;
   private final AvatarResolver avatarFactory;
   private final UserSession userSession;
@@ -100,7 +97,7 @@ public class IssueChangeWSSupport {
   }
 
   public FormattingContext newFormattingContext(DbSession dbSession, Set<IssueDto> dtos, Load load, Set<UserDto> preloadedUsers, Set<ComponentDto> preloadedComponents) {
-    Set<String> issueKeys = dtos.stream().map(IssueDto::getKey).collect(toSet());
+    Set<String> issueKeys = dtos.stream().map(IssueDto::getKey).collect(Collectors.toSet());
 
     List<IssueChangeDto> changes = List.of();
     List<IssueChangeDto> comments = List.of();
@@ -115,10 +112,10 @@ public class IssueChangeWSSupport {
         List<IssueChangeDto> all = dbClient.issueChangeDao().selectByIssueKeys(dbSession, issueKeys);
         changes = all.stream()
           .filter(t -> TYPE_FIELD_CHANGE.equals(t.getChangeType()))
-          .collect(toList());
+          .toList();
         comments = all.stream()
           .filter(t -> TYPE_COMMENT.equals(t.getChangeType()))
-          .collect(toList());
+          .toList();
         break;
       default:
         throw new IllegalStateException("Unsupported Load value:" + load);
@@ -136,12 +133,10 @@ public class IssueChangeWSSupport {
     Multimap<String, IssueChangeDto> unordered = changes.stream()
       .collect(MoreCollectors.index(IssueChangeDto::getIssueKey, t -> t));
     return unordered.asMap().entrySet().stream()
-      .collect(uniqueIndex(
-        Map.Entry::getKey,
-        t -> t.getValue().stream()
-          .map(transform)
-          .sorted(sortingComparator)
-          .collect(toList(t.getValue().size()))));
+      .collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue().stream()
+        .map(transform)
+        .sorted(sortingComparator)
+        .toList()));
   }
 
   private Map<String, UserDto> loadUsers(DbSession dbSession, Map<String, List<FieldDiffs>> changesByRuleKey,
@@ -157,7 +152,7 @@ public class IssueChangeWSSupport {
           .map(IssueChangeDto::getUserUuid)
       )
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     if (userUuids.isEmpty()) {
       return emptyMap();
     }
@@ -167,14 +162,14 @@ public class IssueChangeWSSupport {
     if (missingUsersUuids.isEmpty()) {
       return preloadedUsers.stream()
         .filter(t -> userUuids.contains(t.getUuid()))
-        .collect(uniqueIndex(UserDto::getUuid, userUuids.size()));
+        .collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
     }
 
     return Stream.concat(
         preloadedUsers.stream(),
         dbClient.userDao().selectByUuids(dbSession, missingUsersUuids).stream())
       .filter(t -> userUuids.contains(t.getUuid()))
-      .collect(uniqueIndex(UserDto::getUuid, userUuids.size()));
+      .collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
   }
 
   private Map<String, ComponentDto> loadFiles(DbSession dbSession, Map<String, List<FieldDiffs>> changesByRuleKey, Set<ComponentDto> preloadedComponents) {
@@ -189,7 +184,7 @@ public class IssueChangeWSSupport {
       })
       .map(Strings::emptyToNull)
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     if (fileUuids.isEmpty()) {
       return emptyMap();
     }
@@ -199,14 +194,14 @@ public class IssueChangeWSSupport {
     if (missingFileUuids.isEmpty()) {
       return preloadedComponents.stream()
         .filter(t -> fileUuids.contains(t.uuid()))
-        .collect(uniqueIndex(ComponentDto::uuid, fileUuids.size()));
+        .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
     }
 
     return Stream.concat(
         preloadedComponents.stream(),
         dbClient.componentDao().selectByUuids(dbSession, missingFileUuids).stream())
       .filter(t -> fileUuids.contains(t.uuid()))
-      .collect(uniqueIndex(ComponentDto::uuid, fileUuids.size()));
+      .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
   }
 
   private Map<String, Boolean> loadUpdatableFlag(Map<String, List<IssueChangeDto>> commentsByIssueKey) {
@@ -220,7 +215,7 @@ public class IssueChangeWSSupport {
 
     return commentsByIssueKey.values().stream()
       .flatMap(Collection::stream)
-      .collect(uniqueIndex(IssueChangeDto::getKey, t -> userUuid.equals(t.getUserUuid())));
+      .collect(Collectors.toMap(IssueChangeDto::getKey, t -> userUuid.equals(t.getUserUuid())));
   }
 
   public Stream<Common.Changelog> formatChangelog(IssueDto dto, FormattingContext formattingContext) {

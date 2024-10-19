@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,18 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { createProject, doesComponentExists } from '../../../../api/components';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
+import { doesComponentExists } from '../../../../api/components';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import ManualProjectCreate from '../ManualProjectCreate';
+import ManualProjectCreate from '../manual/ManualProjectCreate';
+
+const ui = {
+  nextButton: byRole('button', { name: 'next' }),
+  cancelButton: byRole('button', { name: 'cancel' }),
+  closeButton: byRole('button', { name: 'clear' }),
+};
 
 jest.mock('../../../../api/components', () => ({
-  createProject: jest.fn().mockResolvedValue({ project: { key: 'bar', name: 'Bar' } }),
   doesComponentExists: jest
     .fn()
     .mockImplementation(({ component }) => Promise.resolve(component === 'exists')),
@@ -42,7 +48,7 @@ beforeEach(() => {
 it('should show branch information', async () => {
   renderManualProjectCreate({ branchesEnabled: true });
   expect(
-    await screen.findByText('onboarding.create_project.pr_decoration.information')
+    await screen.findByText('onboarding.create_project.pr_decoration.information'),
   ).toBeInTheDocument();
 });
 
@@ -53,144 +59,114 @@ it('should validate form input', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
-    })
+      name: /onboarding.create_project.display_name/,
+    }),
   );
   await user.keyboard('test');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ }),
   ).toHaveValue('test');
-  expect(screen.getByRole('button', { name: 'set_up' })).toBeEnabled();
+  expect(ui.nextButton.get()).toBeEnabled();
 
   // Sanitize the key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
-    })
+      name: /onboarding.create_project.display_name/,
+    }),
   );
   await user.keyboard('{Control>}a{/Control}This is not a key%^$');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ }),
   ).toHaveValue('This-is-not-a-key-');
 
   // Clear name
   await user.clear(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
-    })
+      name: /onboarding.create_project.display_name/,
+    }),
   );
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ }),
   ).toHaveValue('');
-  expect(
-    screen.getByText('onboarding.create_project.display_name.error.empty')
-  ).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'set_up' })).toBeDisabled();
+
+  expect(ui.nextButton.get()).toBeDisabled();
 
   // Only key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.project_key field_required',
-    })
+      name: /onboarding.create_project.project_key/,
+    }),
   );
   await user.keyboard('awsome-key');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.display_name field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ }),
   ).toHaveValue('');
-  expect(screen.getByLabelText('valid_input')).toBeInTheDocument();
-  expect(
-    screen.getByText('onboarding.create_project.display_name.error.empty')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
 
   // Invalid key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.project_key field_required',
-    })
+      name: /onboarding.create_project.project_key/,
+    }),
   );
   await user.keyboard('{Control>}a{/Control}123');
-  expect(
-    await screen.findByText('onboarding.create_project.project_key.error.only_digits')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
+
   await user.keyboard('{Control>}a{/Control}@');
-  expect(
-    await screen.findByText('onboarding.create_project.project_key.error.invalid_char')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
+
   await user.keyboard('{Control>}a{/Control}exists');
-  expect(
-    await screen.findByText('onboarding.create_project.project_key.taken')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
 
   // Invalid main branch name
   await user.clear(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.main_branch_name field_required',
-    })
+      name: /onboarding.create_project.main_branch_name/,
+    }),
   );
-  expect(
-    await screen.findByText('onboarding.create_project.main_branch_name.error.empty')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
 });
 
 it('should submit form input', async () => {
   const user = userEvent.setup();
-  const onProjectCreate = jest.fn();
-  renderManualProjectCreate({ onProjectCreate });
+  const onProjectSetupDone = jest.fn();
+  renderManualProjectCreate({ onProjectSetupDone });
 
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
-    })
+      name: /onboarding.create_project.display_name/,
+    }),
   );
   await user.keyboard('test');
-  await user.click(screen.getByRole('button', { name: 'set_up' }));
-  expect(createProject).toHaveBeenCalledWith({
-    name: 'test',
-    project: 'test',
-    mainBranch: 'main',
-  });
-  expect(onProjectCreate).toHaveBeenCalled();
-});
-
-it('should handle create failure', async () => {
-  const user = userEvent.setup();
-  (createProject as jest.Mock).mockRejectedValueOnce({});
-  const onProjectCreate = jest.fn();
-  renderManualProjectCreate({ onProjectCreate });
-
-  // All input valid
-  await user.click(
-    await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
-    })
-  );
-  await user.keyboard('test');
-  await user.click(screen.getByRole('button', { name: 'set_up' }));
-
-  expect(onProjectCreate).not.toHaveBeenCalled();
+  await user.click(ui.nextButton.get());
+  expect(onProjectSetupDone).toHaveBeenCalled();
 });
 
 it('should handle component exists failure', async () => {
   const user = userEvent.setup();
-  (doesComponentExists as jest.Mock).mockRejectedValueOnce({});
-  const onProjectCreate = jest.fn();
-  renderManualProjectCreate({ onProjectCreate });
+  jest.mocked(doesComponentExists).mockRejectedValueOnce({});
+  renderManualProjectCreate();
 
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
-    })
+      name: /onboarding.create_project.display_name/,
+    }),
   );
   await user.keyboard('test');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.display_name field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ }),
   ).toHaveValue('test');
 });
 
-function renderManualProjectCreate(props: Partial<ManualProjectCreate['props']> = {}) {
+function renderManualProjectCreate(props: Partial<Parameters<typeof ManualProjectCreate>[0]> = {}) {
   renderComponent(
-    <ManualProjectCreate branchesEnabled={false} onProjectCreate={jest.fn()} {...props} />
+    <ManualProjectCreate
+      branchesEnabled={false}
+      onProjectSetupDone={jest.fn()}
+      onClose={jest.fn()}
+      {...props}
+    />,
   );
 }

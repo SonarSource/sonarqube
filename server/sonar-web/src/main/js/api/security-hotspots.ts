@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post } from '../helpers/request';
-import { BranchParameters } from '../types/branch-like';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { post } from '../helpers/request';
 import {
   Hotspot,
   HotspotAssignRequest,
@@ -31,27 +32,28 @@ import {
 } from '../types/security-hotspots';
 import { UserBase } from '../types/users';
 
+const HOTSPOTS_LIST_URL = '/api/hotspots/list';
 const HOTSPOTS_SEARCH_URL = '/api/hotspots/search';
 
 export function assignSecurityHotspot(
   hotspotKey: string,
-  data: HotspotAssignRequest
+  data: HotspotAssignRequest,
 ): Promise<void> {
   return post('/api/hotspots/assign', { hotspot: hotspotKey, ...data }).catch(throwGlobalError);
 }
 
 export function setSecurityHotspotStatus(
   hotspotKey: string,
-  data: HotspotSetStatusRequest
+  data: HotspotSetStatusRequest,
 ): Promise<void> {
   return post('/api/hotspots/change_status', { hotspot: hotspotKey, ...data }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function commentSecurityHotspot(hotspotKey: string, comment: string): Promise<void> {
   return post('/api/hotspots/add_comment', { hotspot: hotspotKey, comment }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -61,36 +63,41 @@ export function deleteSecurityHotspotComment(commentKey: string): Promise<void> 
 
 export function editSecurityHotspotComment(
   commentKey: string,
-  comment: string
+  comment: string,
 ): Promise<HotspotComment> {
   return post('/api/hotspots/edit_comment', { comment: commentKey, text: comment }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getSecurityHotspots(
   data: {
-    projectKey: string;
-    p: number;
-    ps: number;
-    status?: HotspotStatus;
-    resolution?: HotspotResolution;
-    onlyMine?: boolean;
     inNewCodePeriod?: boolean;
-  } & BranchParameters
+    onlyMine?: boolean;
+    p: number;
+    project: string;
+    ps: number;
+    resolution?: HotspotResolution;
+    status?: HotspotStatus;
+  } & BranchParameters,
+  projectIsIndexing = false,
 ): Promise<HotspotSearchResponse> {
-  return getJSON(HOTSPOTS_SEARCH_URL, data).catch(throwGlobalError);
+  return getJSON(projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL, data).catch(
+    throwGlobalError,
+  );
 }
 
 export function getSecurityHotspotList(
   hotspotKeys: string[],
   data: {
-    projectKey: string;
-  } & BranchParameters
+    project: string;
+  } & BranchParameters,
+  projectIsIndexing = false,
 ): Promise<HotspotSearchResponse> {
-  return getJSON(HOTSPOTS_SEARCH_URL, { ...data, hotspots: hotspotKeys.join() }).catch(
-    throwGlobalError
-  );
+  return getJSON(projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL, {
+    ...data,
+    hotspots: hotspotKeys.join(),
+  }).catch(throwGlobalError);
 }
 
 export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<Hotspot> {
@@ -105,10 +112,12 @@ export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<H
             login: hotspot.assignee,
           };
         }
+
         hotspot.authorUser = users.find((u) => u.login === hotspot.author) || {
           active: true,
           login: hotspot.author,
         };
+
         hotspot.comment.forEach((c) => {
           c.user = users.find((u) => u.login === c.login) || { active: true, login: c.login };
         });

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,12 +38,14 @@ import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.Boolean.TRUE;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
@@ -71,6 +74,9 @@ public class ActivateRuleAction implements QProfileWsAction {
         "  <li>'Administer Quality Profiles'</li>" +
         "  <li>Edit right on the specified quality profile</li>" +
         "</ul>")
+      .setChangelog(
+        new Change("10.6", format("Add parameter '%s'.", PARAM_PRIORITIZED_RULE)),
+        new Change("10.2", format("Parameter '%s' is now deprecated.", PARAM_SEVERITY)))
       .setHandler(this)
       .setPost(true)
       .setSince("4.4");
@@ -87,6 +93,7 @@ public class ActivateRuleAction implements QProfileWsAction {
 
     activate.createParam(PARAM_SEVERITY)
       .setDescription(format("Severity. Ignored if parameter %s is true.", PARAM_RESET))
+      .setDeprecatedSince("10.2")
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAM_PARAMS)
@@ -94,8 +101,14 @@ public class ActivateRuleAction implements QProfileWsAction {
       .setExampleValue("params=key1=v1;key2=v2");
 
     activate.createParam(PARAM_RESET)
-      .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile or from rule default values.")
+      .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile or from rule default " +
+        "values.")
       .setBooleanPossibleValues();
+
+    activate.createParam(PARAM_PRIORITIZED_RULE)
+      .setDescription("Mark activated rule as prioritized, so all corresponding Issues will have to be fixed.")
+      .setBooleanPossibleValues()
+      .setSince("10.6");
   }
 
   @Override
@@ -119,17 +132,18 @@ public class ActivateRuleAction implements QProfileWsAction {
   private RuleActivation readActivation(DbSession dbSession, Request request) {
     RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE));
     RuleDto ruleDto = wsSupport.getRule(dbSession, ruleKey);
-    boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
+    boolean reset = TRUE.equals(request.paramAsBoolean(PARAM_RESET));
     if (reset) {
       return RuleActivation.createReset(ruleDto.getUuid());
     }
     String severity = request.param(PARAM_SEVERITY);
+    Boolean prioritizedRule = request.paramAsBoolean(PARAM_PRIORITIZED_RULE);
     Map<String, String> params = null;
     String paramsAsString = request.param(PARAM_PARAMS);
     if (paramsAsString != null) {
       params = KeyValueFormat.parse(paramsAsString);
     }
-    return RuleActivation.create(ruleDto.getUuid(), severity, params);
+    return RuleActivation.create(ruleDto.getUuid(), severity, prioritizedRule, params);
   }
 
 }

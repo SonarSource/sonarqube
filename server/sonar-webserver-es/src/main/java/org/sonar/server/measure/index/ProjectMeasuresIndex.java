@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -54,11 +55,9 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -104,8 +103,12 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.termsToMap;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
@@ -117,6 +120,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.ALERT_ST
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_CREATED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
@@ -132,6 +136,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_FIELD_MEASURES_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_CREATION_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
@@ -156,6 +161,8 @@ public class ProjectMeasuresIndex {
     NEW_DUPLICATED_LINES_DENSITY(new RangeWithNoDataMeasureFacet(NEW_DUPLICATED_LINES_DENSITY_KEY, DUPLICATIONS_THRESHOLDS)),
     COVERAGE(new RangeWithNoDataMeasureFacet(COVERAGE_KEY, COVERAGE_THRESHOLDS)),
     NEW_COVERAGE(new RangeWithNoDataMeasureFacet(NEW_COVERAGE_KEY, COVERAGE_THRESHOLDS)),
+
+    //RuleType ratings
     SQALE_RATING(new RatingMeasureFacet(SQALE_RATING_KEY)),
     NEW_MAINTAINABILITY_RATING(new RatingMeasureFacet(NEW_MAINTAINABILITY_RATING_KEY)),
     RELIABILITY_RATING(new RatingMeasureFacet(RELIABILITY_RATING_KEY)),
@@ -164,6 +171,15 @@ public class ProjectMeasuresIndex {
     NEW_SECURITY_RATING(new RatingMeasureFacet(NEW_SECURITY_RATING_KEY)),
     SECURITY_REVIEW_RATING(new RatingMeasureFacet(SECURITY_REVIEW_RATING_KEY)),
     NEW_SECURITY_REVIEW_RATING(new RatingMeasureFacet(NEW_SECURITY_REVIEW_RATING_KEY)),
+
+    //Software quality ratings
+    SOFTWARE_QUALITY_MAINTAINABILITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)),
+    NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)),
+    SOFTWARE_QUALITY_RELIABILITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY)),
+    NEW_SOFTWARE_QUALITY_RELIABILITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY)),
+    SOFTWARE_QUALITY_SECURITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_SECURITY_RATING_KEY)),
+    NEW_SOFTWARE_QUALITY_SECURITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY)),
+
     SECURITY_HOTSPOTS_REVIEWED(new RangeMeasureFacet(SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_REVIEW_RATING_THRESHOLDS)),
     NEW_SECURITY_HOTSPOTS_REVIEWED(new RangeMeasureFacet(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_REVIEW_RATING_THRESHOLDS)),
     ALERT_STATUS(new MeasureFacet(ALERT_STATUS_KEY, ProjectMeasuresIndex::buildAlertStatusFacet)),
@@ -205,7 +221,7 @@ public class ProjectMeasuresIndex {
   }
 
   private static final Map<String, Facet> FACETS_BY_NAME = Arrays.stream(Facet.values())
-    .collect(uniqueIndex(Facet::getName));
+    .collect(Collectors.toMap(Facet::getName, Function.identity()));
 
   private final EsClient client;
   private final WebAuthorizationTypeSupport authorizationTypeSupport;
@@ -242,7 +258,7 @@ public class ProjectMeasuresIndex {
       .map(FACETS_BY_NAME::get)
       .filter(Objects::nonNull)
       .map(Facet::getTopAggregationDef)
-      .collect(toSet(facetNames.size()));
+      .collect(Collectors.toSet());
     return new RequestFiltersComputer(allFilters, facets);
   }
 
@@ -290,7 +306,7 @@ public class ProjectMeasuresIndex {
     Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_DISTRIBUTION))
       .map(nested -> (Terms) nested.getAggregations().get(nested.getName() + "_terms"))
       .flatMap(terms -> terms.getBuckets().stream())
-      .collect(MoreCollectors.uniqueIndex(Bucket::getKeyAsString, bucketToNcloc));
+      .collect(Collectors.toMap(Bucket::getKeyAsString, bucketToNcloc));
     statistics.setNclocByLanguage(nclocByLanguage);
 
     return statistics.build();
@@ -306,6 +322,8 @@ public class ProjectMeasuresIndex {
       requestBuilder.sort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), query.isAsc() ? ASC : DESC);
     } else if (SORT_BY_LAST_ANALYSIS_DATE.equals(sort)) {
       requestBuilder.sort(FIELD_ANALYSED_AT, query.isAsc() ? ASC : DESC);
+    } else if (SORT_BY_CREATION_DATE.equals(sort)) {
+      requestBuilder.sort(FIELD_CREATED_AT, query.isAsc() ? ASC : DESC);
     } else if (ALERT_STATUS_KEY.equals(sort)) {
       requestBuilder.sort(FIELD_QUALITY_GATE_STATUS, query.isAsc() ? ASC : DESC);
       requestBuilder.sort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), ASC);
@@ -357,13 +375,12 @@ public class ProjectMeasuresIndex {
           .subAggregation(rangeAgg));
   }
 
-  private static AbstractAggregationBuilder<?> createQualityGateFacet(ProjectMeasuresQuery projectMeasuresQuery) {
+  private static AbstractAggregationBuilder<?> createQualityGateFacet() {
     return filters(
       ALERT_STATUS_KEY,
       QUALITY_GATE_STATUS
         .entrySet()
         .stream()
-        .filter(qgs -> !(projectMeasuresQuery.isIgnoreWarning() && qgs.getKey().equals(Metric.Level.WARN.name())))
         .map(entry -> new KeyedFilter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())))
         .toArray(KeyedFilter[]::new));
   }
@@ -469,7 +486,7 @@ public class ProjectMeasuresIndex {
 
     TermsAggregationBuilder tagFacet = AggregationBuilders.terms(FIELD_TAGS)
       .field(FIELD_TAGS)
-      .size(size*page)
+      .size(size * page)
       .minDocCount(1)
       .order(BucketOrder.key(true));
     if (textQuery != null) {
@@ -487,9 +504,9 @@ public class ProjectMeasuresIndex {
     Terms aggregation = response.getAggregations().get(FIELD_TAGS);
 
     return aggregation.getBuckets().stream()
-      .skip((page-1) * size)
+      .skip((page - 1) * size)
       .map(Bucket::getKeyAsString)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   private interface FacetBuilder {
@@ -618,7 +635,7 @@ public class ProjectMeasuresIndex {
     return topAggregationHelper.buildTopAggregation(
       facet.getName(), facet.getTopAggregationDef(),
       NO_EXTRA_FILTER,
-      t -> t.subAggregation(createQualityGateFacet(query)));
+      t -> t.subAggregation(createQualityGateFacet()));
   }
 
   private static FilterAggregationBuilder buildTagsFacet(Facet facet, ProjectMeasuresQuery query, TopAggregationHelper topAggregationHelper) {

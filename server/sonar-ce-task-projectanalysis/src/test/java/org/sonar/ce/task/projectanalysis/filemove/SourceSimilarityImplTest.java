@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.filemove;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 
@@ -118,7 +117,7 @@ public class SourceSimilarityImplTest {
    * Creates a list of {@code numberOfElements} int values as String, starting with zero.
    */
   private static List<String> listOf(int numberOfElements) {
-    return IntStream.range(0, numberOfElements).mapToObj(String::valueOf).collect(Collectors.toList());
+    return IntStream.range(0, numberOfElements).mapToObj(String::valueOf).toList();
   }
 
   @Test

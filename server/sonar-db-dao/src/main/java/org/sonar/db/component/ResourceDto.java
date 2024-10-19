@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,13 +32,10 @@ public class ResourceDto {
 
   private String uuid;
   private String projectUuid;
-  private String moduleUuid;
-  private String moduleUuidPath;
   private String key;
   private String deprecatedKey;
   private String name;
   private String longName;
-  private String rootUuid;
   private String path;
   private String scope;
   private String qualifier;
@@ -66,24 +63,6 @@ public class ResourceDto {
     return this;
   }
 
-  public String getModuleUuid() {
-    return moduleUuid;
-  }
-
-  public ResourceDto setModuleUuid(String moduleUuid) {
-    this.moduleUuid = moduleUuid;
-    return this;
-  }
-
-  public String getModuleUuidPath() {
-    return moduleUuidPath;
-  }
-
-  public ResourceDto setModuleUuidPath(String moduleUuidPath) {
-    this.moduleUuidPath = moduleUuidPath;
-    return this;
-  }
-
   public String getName() {
     return name;
   }
@@ -108,15 +87,6 @@ public class ResourceDto {
 
   public ResourceDto setDeprecatedKey(String s) {
     this.deprecatedKey = s;
-    return this;
-  }
-
-  public String getRootUuid() {
-    return rootUuid;
-  }
-
-  public ResourceDto setRootUuid(String rootUuid) {
-    this.rootUuid = rootUuid;
     return this;
   }
 

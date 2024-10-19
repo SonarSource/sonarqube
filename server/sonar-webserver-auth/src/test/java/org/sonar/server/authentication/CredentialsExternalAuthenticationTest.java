@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,9 +28,11 @@ import org.sonar.api.security.ExternalGroupsProvider;
 import org.sonar.api.security.ExternalUsersProvider;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.security.UserDetails;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Arrays.asList;
@@ -44,7 +46,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
 
 public class CredentialsExternalAuthenticationTest {
 
@@ -53,20 +55,21 @@ public class CredentialsExternalAuthenticationTest {
 
   private static final String REALM_NAME = "realm name";
 
-  private MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings();
 
-  private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
-  private SecurityRealm realm = mock(SecurityRealm.class);
-  private Authenticator authenticator = mock(Authenticator.class);
-  private ExternalUsersProvider externalUsersProvider = mock(ExternalUsersProvider.class);
-  private ExternalGroupsProvider externalGroupsProvider = mock(ExternalGroupsProvider.class);
+  private final SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
+  private final SecurityRealm realm = mock(SecurityRealm.class);
+  private final Authenticator authenticator = mock(Authenticator.class);
+  private final ExternalUsersProvider externalUsersProvider = mock(ExternalUsersProvider.class);
+  private final ExternalGroupsProvider externalGroupsProvider = mock(ExternalGroupsProvider.class);
 
-  private TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
-  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private final TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
+  private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpRequest request = new JavaxHttpRequest(mock(HttpServletRequest.class));
 
-  private CredentialsExternalAuthentication underTest = new CredentialsExternalAuthentication(settings.asConfig(), securityRealmFactory, userIdentityAuthenticator, authenticationEvent);
+  private final CredentialsExternalAuthentication underTest = new CredentialsExternalAuthentication(settings.asConfig(), securityRealmFactory, userIdentityAuthenticator,
+    authenticationEvent);
 
   @Before
   public void setUp() throws Exception {
@@ -184,7 +187,8 @@ public class CredentialsExternalAuthenticationTest {
 
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(null);
 
-    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC))
+    Credentials credentials = new Credentials(LOGIN, PASSWORD);
+    assertThatThrownBy(() -> underTest.authenticate(credentials, request, BASIC))
       .hasMessage("No user details")
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.realm(BASIC, REALM_NAME))
@@ -200,7 +204,8 @@ public class CredentialsExternalAuthenticationTest {
 
     when(authenticator.doAuthenticate(any(Authenticator.Context.class))).thenReturn(false);
 
-    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC))
+    Credentials credentials = new Credentials(LOGIN, PASSWORD);
+    assertThatThrownBy(() -> underTest.authenticate(credentials, request, BASIC))
       .hasMessage("Realm returned authenticate=false")
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.realm(BASIC, REALM_NAME))
@@ -218,10 +223,11 @@ public class CredentialsExternalAuthenticationTest {
 
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(new UserDetails());
 
-    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN))
+    Credentials credentials = new Credentials(LOGIN, PASSWORD);
+    assertThatThrownBy(() -> underTest.authenticate(credentials, request, SONARQUBE_TOKEN))
       .hasMessage(expectedMessage)
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.realm(BASIC_TOKEN, REALM_NAME))
+      .hasFieldOrPropertyWithValue("source", Source.realm(SONARQUBE_TOKEN, REALM_NAME))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
     verifyNoInteractions(authenticationEvent);
@@ -238,7 +244,7 @@ public class CredentialsExternalAuthenticationTest {
     when(realm.doGetAuthenticator()).thenReturn(null);
     when(securityRealmFactory.getRealm()).thenReturn(realm);
 
-    assertThatThrownBy(() -> underTest.start())
+    assertThatThrownBy(underTest::start)
       .isInstanceOf(NullPointerException.class)
       .hasMessage("No authenticator available");
   }
@@ -249,7 +255,7 @@ public class CredentialsExternalAuthenticationTest {
     when(realm.getUsersProvider()).thenReturn(null);
     when(securityRealmFactory.getRealm()).thenReturn(realm);
 
-    assertThatThrownBy(() -> underTest.start())
+    assertThatThrownBy(underTest::start)
       .isInstanceOf(NullPointerException.class)
       .hasMessage("No users provider available");
   }

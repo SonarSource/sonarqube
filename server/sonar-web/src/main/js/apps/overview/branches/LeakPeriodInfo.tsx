@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isApplicationPeriod } from '../../../helpers/periods';
+import { isApplicationNewCodePeriod } from '../../../helpers/new-code-period';
 import { ApplicationPeriod } from '../../../types/application';
 import { Period } from '../../../types/types';
 import ApplicationLeakPeriodInfo from './ApplicationLeakPeriodInfo';
@@ -29,11 +29,10 @@ export interface LeakPeriodInfoProps {
 }
 
 export function LeakPeriodInfo({ leakPeriod }: LeakPeriodInfoProps) {
-  if (isApplicationPeriod(leakPeriod)) {
+  if (isApplicationNewCodePeriod(leakPeriod)) {
     return <ApplicationLeakPeriodInfo leakPeriod={leakPeriod} />;
-  } else {
-    return <ProjectLeakPeriodInfo leakPeriod={leakPeriod} />;
   }
+  return <ProjectLeakPeriodInfo leakPeriod={leakPeriod} />;
 }
 
 export default React.memo(LeakPeriodInfo);

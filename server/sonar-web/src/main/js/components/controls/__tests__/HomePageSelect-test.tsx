@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { setHomePage } from '../../../api/users';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { FCProps } from '../../../types/misc';
 import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
 
 jest.mock('../../../api/users', () => ({
@@ -29,12 +31,13 @@ jest.mock('../../../api/users', () => ({
 }));
 
 it('renders and behaves correctly', async () => {
+  const user = userEvent.setup();
   const updateCurrentUserHomepage = jest.fn();
   renderHomePageSelect({ updateCurrentUserHomepage });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
 
-  button.click();
+  await user.click(button);
   await new Promise(setImmediate);
   expect(setHomePage).toHaveBeenCalledWith({ type: 'MY_PROJECTS' });
   expect(updateCurrentUserHomepage).toHaveBeenCalled();
@@ -42,23 +45,25 @@ it('renders and behaves correctly', async () => {
 });
 
 it('renders correctly if user is on the homepage', async () => {
+  const user = userEvent.setup();
+
   renderHomePageSelect({ currentUser: mockLoggedInUser({ homepage: { type: 'MY_PROJECTS' } }) });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
 
-  button.click();
+  await user.click(button);
   await new Promise(setImmediate);
   expect(setHomePage).toHaveBeenCalledWith(DEFAULT_HOMEPAGE);
   expect(button).toHaveFocus();
 });
 
-function renderHomePageSelect(props: Partial<HomePageSelect['props']> = {}) {
+function renderHomePageSelect(props: Partial<FCProps<typeof HomePageSelect>> = {}) {
   return renderComponent(
     <HomePageSelect
       currentPage={{ type: 'MY_PROJECTS' }}
       currentUser={mockLoggedInUser()}
       updateCurrentUserHomepage={jest.fn()}
       {...props}
-    />
+    />,
   );
 }

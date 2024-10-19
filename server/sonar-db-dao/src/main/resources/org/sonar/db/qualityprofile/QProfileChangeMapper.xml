@@ -9,7 +9,17 @@
     qpc.created_at as createdAt,
     qpc.user_uuid as userUuid,
     qpc.change_type as changeType,
-    qpc.change_data as data
+    qpc.change_data as data,
+    qpc.sq_version as sqVersion,
+    rc.uuid as "rc_uuid",
+    rc.old_clean_code_attribute as oldCleanCodeAttribute,
+    rc.new_clean_code_attribute as newCleanCodeAttribute,
+    rc.rule_uuid as ruleUuid,
+    ric.old_software_quality as oldSoftwareQuality,
+    ric.new_software_quality as newSoftwareQuality,
+    ric.old_severity as oldSeverity,
+    ric.new_severity as newSeverity,
+    ric.rule_change_uuid as ruleChangeUuid
   </sql>
 
   <insert id="insert" useGeneratedKeys="false" parameterType="org.sonar.db.qualityprofile.QProfileChangeDto">
@@ -20,54 +30,48 @@
       created_at,
       user_uuid,
       change_type,
-      change_data
+      change_data,
+      rule_change_uuid,
+      sq_version
     ) values (
       #{uuid, jdbcType=VARCHAR},
       #{rulesProfileUuid, jdbcType=VARCHAR},
       #{createdAt, jdbcType=BIGINT},
       #{userUuid, jdbcType=VARCHAR},
       #{changeType, jdbcType=VARCHAR},
-      #{data, jdbcType=VARCHAR}
+      #{data, jdbcType=VARCHAR},
+      #{ruleChange.uuid, jdbcType=VARCHAR},
+      #{sqVersion, jdbcType=VARCHAR}
     )
   </insert>
 
   <select id="countByQuery" resultType="int">
     select count(qpc.kee)
-    <include refid="sqlSelectByQuery" />
+    from qprofile_changes qpc
+    inner join rules_profiles rp on rp.uuid = qpc.rules_profile_uuid
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
+    <include refid="whereClauseSelectByQuery"/>
   </select>
 
-  <select id="selectByQuery" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
-    select <include refid="selectColumns" />
-    <include refid="sqlSelectByQuery" />
-    order by qpc.created_at desc
-    limit #{query.limit}
-    offset #{query.offset}
-  </select>
-
-  <select id="selectByQuery" databaseId="mssql" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
-    select <include refid="selectColumns" />
-    <include refid="sqlSelectByQuery" />
+  <select id="selectByQuery" resultMap="qProfileChangeResultMap">
+    select
+    <include refid="selectColumns"/>
+    <include refid="sqlSelectByQuery"/>
     order by qpc.created_at desc
     offset #{query.offset} rows
     fetch next #{query.limit} rows only
-  </select>
-
-  <select id="selectByQuery" databaseId="oracle" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
-    select "uuid", rulesProfileUuid, createdAt, userUuid, changeType, data from (
-    select rownum rnum, "uuid", rulesProfileUuid, createdAt, userUuid, changeType, data from (
-    select <include refid="selectColumns" />
-    <include refid="sqlSelectByQuery" />
-    order by qpc.created_at desc
-    )
-    where rownum &lt;= #{query.total}
-    )
-    where rnum > #{query.offset}
   </select>
 
   <sql id="sqlSelectByQuery">
     from qprofile_changes qpc
     inner join rules_profiles rp on rp.uuid = qpc.rules_profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
+    left outer join rule_changes rc on rc.uuid = qpc.rule_change_uuid
+    left outer join rule_impact_changes ric on ric.rule_change_uuid = rc.uuid
+    <include refid="whereClauseSelectByQuery"/>
+  </sql>
+
+  <sql id="whereClauseSelectByQuery">
     where
       oqp.uuid = #{query.profileUuid, jdbcType=VARCHAR}
       <if test="query.fromIncluded != null">
@@ -78,6 +82,16 @@
       </if>
   </sql>
 
+  <resultMap id="qProfileChangeResultMap" type="org.sonar.db.qualityprofile.QProfileChangeDto" autoMapping="true">
+    <id property="uuid" column="uuid"/>
+    <association property="ruleChange" javaType="org.sonar.db.rule.RuleChangeDto" autoMapping="true">
+      <id property="uuid" column="rc_uuid"/>
+      <collection property="ruleImpactChanges" javaType="java.util.Set"
+                  ofType="org.sonar.db.rule.RuleImpactChangeDto" autoMapping="true">
+      </collection>
+    </association>
+  </resultMap>
+
   <delete id="deleteByRuleProfileUuids" parameterType="String">
     delete from qprofile_changes
     where rules_profile_uuid in
@@ -86,4 +100,3 @@
     </foreach>
   </delete>
 </mapper>
-

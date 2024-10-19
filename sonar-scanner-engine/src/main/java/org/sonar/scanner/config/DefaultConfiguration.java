@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,22 +24,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.config.internal.Encryption;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.trim;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 @Immutable
 public abstract class DefaultConfiguration implements Configuration {
 
-  private static final Logger LOG = Loggers.get(DefaultConfiguration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultConfiguration.class);
 
   private final PropertyDefinitions definitions;
   private final Encryption encryption;

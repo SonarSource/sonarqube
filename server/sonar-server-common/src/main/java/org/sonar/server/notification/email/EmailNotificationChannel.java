@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,27 +21,33 @@ package org.sonar.server.notification.email;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
-import org.sonar.api.config.EmailSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.platform.Server;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.email.EmailSmtpConfiguration;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
+import org.sonar.server.notification.NotificationChannel;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -56,13 +62,15 @@ import static java.util.Objects.requireNonNull;
  */
 public class EmailNotificationChannel extends NotificationChannel {
 
-  private static final Logger LOG = Loggers.get(EmailNotificationChannel.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationChannel.class);
 
   /**
-   * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(int)
-   * @see org.apache.commons.mail.Email#setSocketTimeout(int)
+   * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(Duration)
+   * @see org.apache.commons.mail.Email#setSocketTimeout(Duration)
    */
-  private static final int SOCKET_TIMEOUT = 30_000;
+  private static final Duration SOCKET_TIMEOUT = Duration.of(30, SECONDS);
+
+  private static final Pattern PATTERN_LINE_BREAK = Pattern.compile("[\n\r]");
 
   /**
    * Email Header Field: "List-ID".
@@ -91,13 +99,16 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final String SUBJECT_DEFAULT = "Notification";
   private static final String SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG = "SMTP host was not configured - email will not be sent";
   private static final String MAIL_SENT_FROM = "%sMail sent from: %s";
+  private static final String OAUTH_AUTH_METHOD = "OAUTH";
 
-  private final EmailSettings configuration;
+  private final EmailSmtpConfiguration configuration;
+  private final Server server;
   private final EmailTemplate[] templates;
   private final DbClient dbClient;
 
-  public EmailNotificationChannel(EmailSettings configuration, EmailTemplate[] templates, DbClient dbClient) {
+  public EmailNotificationChannel(EmailSmtpConfiguration configuration, Server server, EmailTemplate[] templates, DbClient dbClient) {
     this.configuration = configuration;
+    this.server = server;
     this.templates = templates;
     this.dbClient = dbClient;
   }
@@ -211,7 +222,9 @@ public class EmailNotificationChannel extends NotificationChannel {
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
     try {
-      LOG.trace("Sending email: {}", emailMessage);
+      LOG.atTrace().setMessage("Sending email: {}")
+        .addArgument(() -> sanitizeLog(emailMessage.getMessage()))
+        .log();
       String host = resolveHost();
 
       Email email = createEmailWithMessage(emailMessage);
@@ -226,6 +239,10 @@ public class EmailNotificationChannel extends NotificationChannel {
     }
   }
 
+  private static String sanitizeLog(String message) {
+    return PATTERN_LINE_BREAK.matcher(message).replaceAll("_");
+  }
+
   private static Email createEmailWithMessage(EmailMessage emailMessage) throws EmailException {
     if (emailMessage.isHtml()) {
       return new HtmlEmail().setHtmlMsg(emailMessage.getMessage());
@@ -235,7 +252,7 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   private void setSubject(Email email, EmailMessage emailMessage) {
     String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
-      + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
+      + Objects.toString(emailMessage.getSubject(), SUBJECT_DEFAULT);
     email.setSubject(subject);
   }
 
@@ -249,7 +266,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   @CheckForNull
   private String resolveHost() {
     try {
-      return new URL(configuration.getServerBaseURL()).getHost();
+      return new URL(server.getPublicRootUrl()).getHost();
     } catch (MalformedURLException e) {
       // ignore
       return null;
@@ -271,22 +288,40 @@ public class EmailNotificationChannel extends NotificationChannel {
       }
       // Set headers for proper filtering
       email.addHeader(LIST_ID_HEADER, "SonarQube <sonar." + host + ">");
-      email.addHeader(LIST_ARCHIVE_HEADER, configuration.getServerBaseURL());
+      email.addHeader(LIST_ARCHIVE_HEADER, server.getPublicRootUrl());
     }
   }
 
-  private void setConnectionDetails(Email email) {
+  private void setConnectionDetails(Email email) throws EmailException {
     email.setHostName(configuration.getSmtpHost());
     configureSecureConnection(email);
+    email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
+    email.setSocketTimeout(SOCKET_TIMEOUT);
+    if (OAUTH_AUTH_METHOD.equals(configuration.getAuthMethod())) {
+      setOauthAuthentication(email);
+    } else if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
+      setBasicAuthentication(email);
+    }
+  }
+
+  private void setOauthAuthentication(Email email) throws EmailException {
+    String token = OAuthMicrosoftRestClient.getAccessTokenFromClientCredentialsGrantFlow(configuration.getOAuthHost(), configuration.getOAuthClientId(),
+      configuration.getOAuthClientSecret(), configuration.getOAuthTenant(), configuration.getOAuthScope());
+    email.setAuthentication(configuration.getSmtpUsername(), token);
+    Properties props = email.getMailSession().getProperties();
+    props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+    props.put("mail.smtp.auth.login.disable", "true");
+    props.put("mail.smtp.auth.plain.disable", "true");
+  }
+
+  private void setBasicAuthentication(Email email) {
     if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
       email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
     }
-    email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
-    email.setSocketTimeout(SOCKET_TIMEOUT);
   }
 
   private void configureSecureConnection(Email email) {
-    if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "ssl")) {
+    if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSLTLS")) {
       email.setSSLOnConnect(true);
       email.setSSLCheckServerIdentity(true);
       email.setSslSmtpPort(String.valueOf(configuration.getSmtpPort()));
@@ -294,12 +329,12 @@ public class EmailNotificationChannel extends NotificationChannel {
       // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
       // It prevents from getting bad message.
       email.setSmtpPort(configuration.getSmtpPort());
-    } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "starttls")) {
+    } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "STARTTLS")) {
       email.setStartTLSEnabled(true);
       email.setStartTLSRequired(true);
       email.setSSLCheckServerIdentity(true);
       email.setSmtpPort(configuration.getSmtpPort());
-    } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
+    } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "NONE")) {
       email.setSmtpPort(configuration.getSmtpPort());
     } else {
       throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());
@@ -325,7 +360,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   }
 
   private String getServerBaseUrlFooter() {
-    return String.format(MAIL_SENT_FROM, "\n\n", configuration.getServerBaseURL());
+    return String.format(MAIL_SENT_FROM, "\n\n", server.getPublicRootUrl());
   }
 
 }

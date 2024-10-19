@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,51 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from '@sonarsource/echoes-react';
+import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
-import { Button } from '../controls/buttons';
 import SystemUpgradeForm from './SystemUpgradeForm';
 import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
 
 interface Props {
-  latestLTS: string;
+  latestLTA?: string;
   systemUpgrades: SystemUpgrade[];
-  updateUseCase?: UpdateUseCase;
+  updateUseCase: UpdateUseCase;
 }
 
-interface State {
-  openSystemUpgradeForm: boolean;
-}
+export default function SystemUpgradeButton(props: Readonly<Props>) {
+  const { latestLTA, systemUpgrades, updateUseCase } = props;
 
-export default class SystemUpgradeButton extends React.PureComponent<Props, State> {
-  state: State = { openSystemUpgradeForm: false };
+  const [isSystemUpgradeFormOpen, setSystemUpgradeFormOpen] = React.useState(false);
 
-  handleOpenSystemUpgradeForm = () => {
-    this.setState({ openSystemUpgradeForm: true });
-  };
+  const openSystemUpgradeForm = React.useCallback(() => {
+    setSystemUpgradeFormOpen(true);
+  }, [setSystemUpgradeFormOpen]);
 
-  handleCloseSystemUpgradeForm = () => {
-    this.setState({ openSystemUpgradeForm: false });
-  };
+  const closeSystemUpgradeForm = React.useCallback(() => {
+    setSystemUpgradeFormOpen(false);
+  }, [setSystemUpgradeFormOpen]);
 
-  render() {
-    const { latestLTS, systemUpgrades, updateUseCase } = this.props;
-    const { openSystemUpgradeForm } = this.state;
+  if (systemUpgrades.length === 0) {
     return (
-      <>
-        <Button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>
-          {translate('learn_more')}
-        </Button>
-        {openSystemUpgradeForm && (
-          <SystemUpgradeForm
-            onClose={this.handleCloseSystemUpgradeForm}
-            systemUpgrades={groupUpgrades(sortUpgrades(systemUpgrades))}
-            latestLTS={latestLTS}
-            updateUseCase={updateUseCase}
-          />
-        )}
-      </>
+      <Link
+        className="sw-ml-2"
+        to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
+        target="_blank"
+      >
+        {translate('learn_more')}
+      </Link>
     );
   }
+
+  return (
+    <>
+      <ButtonSecondary className="sw-ml-2" onClick={openSystemUpgradeForm}>
+        {translate('learn_more')}
+      </ButtonSecondary>
+      {isSystemUpgradeFormOpen && (
+        <SystemUpgradeForm
+          onClose={closeSystemUpgradeForm}
+          systemUpgrades={groupUpgrades(sortUpgrades(systemUpgrades))}
+          latestLTA={latestLTA}
+          updateUseCase={updateUseCase}
+        />
+      )}
+    </>
+  );
 }

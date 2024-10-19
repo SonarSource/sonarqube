@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,8 @@ import DotNetCore from './DotNetCore';
 import DotNetFramework from './DotNetFramework';
 
 export interface DotNetProps {
-  component: Component;
   baseUrl: string;
+  component: Component;
   token: string;
 }
 

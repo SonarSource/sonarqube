@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.notification.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.server.notification.NotificationChannel;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,9 +41,9 @@ public class NotificationCenterTest {
     NotificationDispatcherMetadata metadata3 = NotificationDispatcherMetadata.create("Dispatcher3").setProperty("global", "FOO").setProperty("on-project", "BAR");
 
     underTest = new NotificationCenter(
-        new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
-        new NotificationChannel[] {emailChannel, gtalkChannel}
-        );
+      new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
+      new NotificationChannel[] {emailChannel, gtalkChannel}
+    );
   }
 
   @Test

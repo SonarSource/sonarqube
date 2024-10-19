@@ -1,4 +1,5 @@
-{"rule": {
+{
+  "rule": {
     "key": "squid:ClassCyclomaticComplexity",
     "repo": "squid",
     "name": "Avoid too complex class",
@@ -8,7 +9,9 @@
     "internalKey": "ClassCyclomaticComplexity",
     "template": false,
     "tags": [],
-    "sysTags": ["brain-overload"],
+    "sysTags": [
+      "brain-overload"
+    ],
     "remFnType": "LINEAR_OFFSET",
     "remFnGapMultiplier": "5d",
     "remFnBaseEffort": "10h",
@@ -22,56 +25,68 @@
     "scope": "MAIN",
     "isExternal": false,
     "type": "CODE_SMELL",
+    "cleanCodeAttributeCategory": "INTENTIONAL",
+    "cleanCodeAttribute": "CLEAR",
+    "impacts": [
+      {
+        "softwareQuality": "MAINTAINABILITY",
+        "severity": "HIGH"
+      }
+    ],
     "descriptionSections": [
-        {
-            "key": "root_cause",
-            "content": "<h3 class=\"page-title coding-rules-detail-header\"><big>Unnecessary imports should be removed</big></h3>"
-        },
-        {
-            "key": "how_to_fix",
-            "content": "<h2>Recommended Secure Coding Practices</h2><ul><li> activate Spring Security's CSRF protection. </li></ul>",
-            "context": {
-                "displayName": "Spring",
-                "key": "spring"
-            }
-        },
-        {
-            "key": "how_to_fix",
-            "content": "<h2>Recommended Secure Coding Practices</h2><ul><li> activate hibernate protection. </li></ul>",
-            "context": {
-                "displayName": "Hibernate",
-                "key": "hibernate"
-            }
+      {
+        "key": "root_cause",
+        "content": "<h3 class=\"page-title coding-rules-detail-header\"><big>Unnecessary imports should be removed</big></h3>"
+      },
+      {
+        "key": "how_to_fix",
+        "content": "<h2>Recommended Secure Coding Practices</h2><ul><li> activate Spring Security's CSRF protection. </li></ul>",
+        "context": {
+          "displayName": "Spring",
+          "key": "spring"
         }
+      },
+      {
+        "key": "how_to_fix",
+        "content": "<h2>Recommended Secure Coding Practices</h2><ul><li> activate hibernate protection. </li></ul>",
+        "context": {
+          "displayName": "Hibernate",
+          "key": "hibernate"
+        }
+      }
     ],
     "params": [
-        {
-            "key": "max",
-            "desc": "Maximum complexity allowed.",
-            "defaultValue": "200"
-        }
+      {
+        "key": "max",
+        "desc": "Maximum complexity allowed.",
+        "defaultValue": "200"
+      }
     ]
-}, "actives": [
+  },
+  "actives": [
     {
-        "qProfile": "Sonar way with Findbugs:java",
-        "inherit": "NONE",
-        "severity": "MAJOR",
-        "params": [
-            {
-                "key": "max",
-                "value": "200"
-            }
-        ]
+      "qProfile": "Sonar way with Findbugs:java",
+      "inherit": "NONE",
+      "severity": "MAJOR",
+      "prioritizedRule": false,
+      "params": [
+        {
+          "key": "max",
+          "value": "200"
+        }
+      ]
     },
     {
-        "qProfile": "Sonar way:java",
-        "inherit": "NONE",
-        "severity": "MAJOR",
-        "params": [
-            {
-                "key": "max",
-                "value": "200"
-            }
-        ]
+      "qProfile": "Sonar way:java",
+      "inherit": "NONE",
+      "severity": "MAJOR",
+      "prioritizedRule": true,
+      "params": [
+        {
+          "key": "max",
+          "value": "200"
+        }
+      ]
     }
-]}
+  ]
+}

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,8 @@
  */
 package org.sonar.server.authentication;
 
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -36,7 +36,7 @@ import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENT
  */
 public class DefaultAdminCredentialsVerifierImpl implements DefaultAdminCredentialsVerifier {
 
-  private static final Logger LOGGER = Loggers.get(STARTUP_LOGGER_NAME);
+  private static final Logger LOGGER = LoggerFactory.getLogger(STARTUP_LOGGER_NAME);
 
   private final DbClient dbClient;
   private final CredentialsLocalAuthentication localAuthentication;

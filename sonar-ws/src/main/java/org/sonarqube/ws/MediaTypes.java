@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ public final class MediaTypes {
   public static final String CSV = "text/csv";
   public static final String DEFAULT = "application/octet-stream";
   public static final String HTML = "text/html";
-  public static final String JAVASCRIPT = "application/javascript";
+  public static final String JAVASCRIPT = "text/javascript";
   public static final String JSON = "application/json";
   public static final String PROTOBUF = "application/x-protobuf";
   public static final String SVG = "image/svg+xml";
@@ -56,6 +56,7 @@ public final class MediaTypes {
   private static final String TIFF = "image/tiff";
   private static final String TGZ = "application/tgz";
   private static final String TSV = "text/tab-separated-values";
+  private static final String WOFF2 = "application/font-woff2";
   private static final String XLS = "application/vnd.ms-excel";
   private static final String XSLT = "application/xslt+xml";
 
@@ -90,6 +91,7 @@ public final class MediaTypes {
     MAP.put("html", HTML);
     MAP.put("css", CSS);
     MAP.put("tsv", TSV);
+    MAP.put("woff2", WOFF2);
   }
 
   private MediaTypes() {

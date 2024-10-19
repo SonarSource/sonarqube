@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,15 +23,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
 
-import static java.util.Collections.emptyList;
-import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
@@ -78,25 +78,8 @@ public class IssueDao implements Dao {
       includingRepositories, excludingRepositories, languages, Pagination.forPage(page).andSize(BIG_PAGE_SIZE));
   }
 
-  public List<IssueDto> selectByComponentUuidPaginated(DbSession session, String componentUuid, int page) {
-    return mapper(session).selectByComponentUuidPaginated(componentUuid, Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE));
-  }
-
   public Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
-  }
-
-  public Set<String> selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
-    return mapper(session).selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
-  }
-
-  public List<IssueDto> selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(DbSession dbSession, String componentUuid) {
-    return mapper(dbSession).selectNonClosedByComponentUuidExcludingExternals(componentUuid);
-  }
-
-  public List<IssueDto> selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(DbSession dbSession, ComponentDto module) {
-    String likeModuleUuidPath = buildLikeValue(module.moduleUuidPath(), WildcardPosition.AFTER);
-    return mapper(dbSession).selectNonClosedByModuleOrProject(module.branchUuid(), likeModuleUuidPath);
   }
 
   public List<PrIssueDto> selectOpenByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
@@ -107,20 +90,71 @@ public class IssueDao implements Dao {
     return mapper(dbSession).selectIssueGroupsByComponent(component, leakPeriodBeginningDate);
   }
 
+  public Collection<IssueImpactGroupDto> selectIssueImpactGroupsByComponent(DbSession dbSession, ComponentDto component, long leakPeriodBeginningDate) {
+    return mapper(dbSession).selectIssueImpactGroupsByComponent(component, leakPeriodBeginningDate);
+  }
+
+  public Cursor<IndexedIssueDto> scrollIssuesForIndexation(DbSession dbSession, @Nullable @Param("branchUuid") String branchUuid,
+    @Nullable @Param("issueKeys") Collection<String> issueKeys) {
+    return mapper(dbSession).scrollIssuesForIndexation(branchUuid, issueKeys);
+  }
+
   public void insert(DbSession session, IssueDto dto) {
+    mapper(session).insert(dto);
+    insertIssueImpacts(session, dto);
+  }
+
+  /**
+   * In certain circumstances, most notably persisting issues in the CE, importing issues and web issue storage, we wish to avoid persisting
+   * both issues and their issue impacts in the same batch transactions, as this introduces a significant performance regression. In those
+   * situations, issues will be inserted first, and then subsequently their issue impacts using
+   * {@link IssueDao#insertIssueImpacts(DbSession, IssueDto) ()}.
+   */
+  public void insertWithoutImpacts(DbSession session, IssueDto dto) {
     mapper(session).insert(dto);
   }
 
-  public void insert(DbSession session, IssueDto dto, IssueDto... others) {
+  public void insertIssueImpacts(DbSession session, IssueDto issueDto) {
     IssueMapper mapper = mapper(session);
-    mapper.insert(dto);
+    issueDto.getImpacts()
+      .forEach(impact -> mapper.insertIssueImpact(issueDto.getKey(), impact));
+  }
+
+  private void updateIssueImpacts(DbSession session, IssueDto issueDto) {
+    deleteIssueImpacts(session, issueDto);
+    insertIssueImpacts(session, issueDto);
+  }
+
+  public void deleteIssueImpacts(DbSession session, IssueDto issueDto) {
+    mapper(session).deleteIssueImpacts(issueDto.getKey());
+  }
+
+  public void insert(DbSession session, IssueDto dto, IssueDto... others) {
+    insert(session, dto);
     for (IssueDto other : others) {
-      mapper.insert(other);
+      insert(session, other);
     }
   }
 
   public void update(DbSession session, IssueDto dto) {
     mapper(session).update(dto);
+    updateIssueImpacts(session, dto);
+  }
+
+  /**
+   * Update issue without updating issue impacts. Used only in batch update.
+   * Issue impacts should be updated separately.
+   */
+  public void updateWithoutIssueImpacts(DbSession session, IssueDto dto) {
+    mapper(session).update(dto);
+  }
+
+  public boolean updateIfBeforeSelectedDate(DbSession session, IssueDto dto) {
+    return mapper(session).updateIfBeforeSelectedDate(dto) != 0;
+  }
+
+  public List<IssueDto> selectByKeysIfNotUpdatedAt(DbSession session, List<String> keys, long updatedAt) {
+    return mapper(session).selectByKeysIfNotUpdatedAt(keys, updatedAt);
   }
 
   public void insertAsNewCodeOnReferenceBranch(DbSession session, NewCodeReferenceIssueDto dto) {
@@ -142,4 +176,12 @@ public class IssueDao implements Dao {
   public List<String> selectRecentlyClosedIssues(DbSession dbSession, IssueQueryParams issueQueryParams) {
     return mapper(dbSession).selectRecentlyClosedIssues(issueQueryParams);
   }
+
+  /**
+   * Returned results are unordered.
+   */
+  public List<String> selectIssueKeysByQuery(DbSession dbSession, IssueListQuery issueListQuery, Pagination pagination) {
+    return mapper(dbSession).selectIssueKeysByQuery(issueListQuery, pagination);
+  }
+
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,22 +20,25 @@
 import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { act } from 'react-dom/test-utils';
-import { byRole } from 'testing-library-selector';
+import { byLabelText } from '~sonar-aligned/helpers/testSelector';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
+import { isDiffMetric } from '../../../helpers/measures';
 import { HttpStatus } from '../../../helpers/request';
-import { mockIssue } from '../../../helpers/testMocks';
+import { mockIssue, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { RestUserDetailed } from '../../../types/users';
+import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
-import SourceViewer from '../SourceViewer';
 
 jest.mock('../../../api/components');
 jest.mock('../../../api/issues');
 // The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
 // This should be removed once IssuesServiceMock is cleaned up.
 jest.mock('../../../api/rules');
-jest.mock('../../../api/users');
 
 jest.mock('../helpers/loadIssues', () => ({
   __esModule: true,
@@ -50,17 +53,16 @@ jest.mock('../helpers/lines', () => {
   };
 });
 
-const ui = {
-  codeSmellTypeButton: byRole('button', { name: 'issue.type.CODE_SMELL' }),
-  minorSeverityButton: byRole('button', { name: 'severity.MINOR' }),
-};
-
 const componentsHandler = new ComponentsServiceMock();
 const issuesHandler = new IssuesServiceMock();
+const usersHandler = new UsersServiceMock();
+const message = 'First Issue';
 
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
+  usersHandler.reset();
+  usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 
 it('should show a permalink on line number', async () => {
@@ -69,10 +71,11 @@ it('should show a permalink on line number', async () => {
   let row = await screen.findByRole('row', { name: /\/\*$/ });
   expect(row).toBeInTheDocument();
   const rowScreen = within(row);
+
   await user.click(
     rowScreen.getByRole('button', {
       name: 'source_viewer.line_X.1',
-    })
+    }),
   );
 
   expect(
@@ -80,109 +83,85 @@ it('should show a permalink on line number', async () => {
     queryHelpers.queryByAttribute(
       'data-clipboard-text',
       row,
-      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1'
-    )
+      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1',
+    ),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await user.keyboard('[Escape]');
-  });
+  await user.keyboard('[Escape]');
 
   expect(
     /* eslint-disable-next-line testing-library/prefer-presence-queries */
     queryHelpers.queryByAttribute(
       'data-clipboard-text',
       row,
-      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1'
-    )
+      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1',
+    ),
   ).not.toBeInTheDocument();
 
   row = await screen.findByRole('row', { name: / \* 6$/ });
   expect(row).toBeInTheDocument();
   const lowerRowScreen = within(row);
 
-  await act(async () => {
-    await user.click(
-      lowerRowScreen.getByRole('button', {
-        name: 'source_viewer.line_X.6',
-      })
-    );
-  });
+  await user.click(
+    lowerRowScreen.getByRole('button', {
+      name: 'source_viewer.line_X.6',
+    }),
+  );
 
   expect(
-    lowerRowScreen.getByRole('button', {
-      name: 'component_viewer.copy_permalink',
-    })
+    lowerRowScreen.getByRole('menuitem', {
+      name: 'source_viewer.copy_permalink',
+    }),
   ).toBeInTheDocument();
 });
 
 it('should show issue on empty file', async () => {
-  (loadIssues as jest.Mock).mockResolvedValueOnce([
+  jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       key: 'first-issue',
-      message: 'First Issue',
+      message,
       line: undefined,
       textRange: undefined,
     }),
   ]);
+
   renderSourceViewer({
     component: componentsHandler.getEmptyFileKey(),
   });
+
   expect(await screen.findByRole('table')).toBeInTheDocument();
   expect(await screen.findByRole('row', { name: 'First Issue' })).toBeInTheDocument();
 });
 
 it('should be able to interact with issue action', async () => {
-  (loadIssues as jest.Mock).mockResolvedValueOnce([
+  jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
-      actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+      actions: ['set_tags', 'comment', 'assign'],
       key: 'issue1',
-      message: 'First Issue',
+      message,
       line: 1,
       textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 },
     }),
   ]);
+
   const user = userEvent.setup();
   renderSourceViewer();
 
-  //Open Issue type
+  // Assign issue to a different user
   await user.click(
-    await screen.findByRole('button', { name: 'issue.type.type_x_click_to_change.issue.type.BUG' })
+    await screen.findByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' }),
   );
-  expect(ui.codeSmellTypeButton.get()).toBeInTheDocument();
-
-  // Open severity
-  await user.click(
-    await screen.findByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR',
-    })
-  );
-  expect(ui.minorSeverityButton.get()).toBeInTheDocument();
-
-  // Close
-  await user.keyboard('{Escape}');
-  expect(ui.minorSeverityButton.query()).not.toBeInTheDocument();
-
-  // Change the severity
-  await user.click(
-    await screen.findByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR',
-    })
-  );
-  expect(ui.minorSeverityButton.get()).toBeInTheDocument();
-  await user.click(ui.minorSeverityButton.get());
-  expect(
-    screen.getByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MINOR',
-    })
-  ).toBeInTheDocument();
+  await user.click(screen.getByLabelText('search.search_for_users'));
+  await user.keyboard('luke');
+  expect(screen.getByText('Skywalker')).toBeInTheDocument();
 });
 
-it('should load line when looking arround unloaded line', async () => {
+it('should load line when looking around unloaded line', async () => {
   const rerender = renderSourceViewer({
     aroundLine: 50,
     component: componentsHandler.getHugeFileKey(),
   });
+
   expect(await screen.findByRole('row', { name: /Line 50$/ })).toBeInTheDocument();
   rerender({ aroundLine: 100, component: componentsHandler.getHugeFileKey() });
 
@@ -195,92 +174,67 @@ it('should show SCM information', async () => {
   let row = await screen.findByRole('row', { name: /\/\*$/ });
   expect(row).toBeInTheDocument();
   const firstRowScreen = within(row);
+
   expect(
-    firstRowScreen.getByRole('cell', { name: 'stas.vilchik@sonarsource.com' })
+    firstRowScreen.getByRole('cell', { name: 'stas.vilchik@sonarsource.com' }),
   ).toBeInTheDocument();
+
   await user.click(
     firstRowScreen.getByRole('button', {
       name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.1',
-    })
+    }),
   );
 
-  expect(
-    await firstRowScreen.findByRole('heading', { level: 4, name: 'author' })
-  ).toBeInTheDocument();
-  expect(
-    firstRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.commited_on' })
-  ).toBeInTheDocument();
-  expect(
-    firstRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
-  ).toBeInTheDocument();
+  // After using miui component the tooltip is appearing outside of the row
+  expect(await screen.findAllByText('author')).toHaveLength(4);
+  expect(screen.getAllByText('source_viewer.tooltip.scm.commited_on')).toHaveLength(3);
+  expect(screen.getAllByText('source_viewer.tooltip.scm.revision')).toHaveLength(7);
 
   row = screen.getByRole('row', { name: /\* SonarQube$/ });
   expect(row).toBeInTheDocument();
   const secondRowScreen = within(row);
+
   expect(
-    secondRowScreen.queryByRole('cell', { name: 'stas.vilchik@sonarsource.com' })
+    secondRowScreen.queryByRole('cell', { name: 'stas.vilchik@sonarsource.com' }),
   ).not.toBeInTheDocument();
 
   // SCM with no date
   row = await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ });
   expect(row).toBeInTheDocument();
   const fourthRowScreen = within(row);
+
   await user.click(
     fourthRowScreen.getByRole('button', {
       name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4',
-    })
+    }),
   );
-
-  expect(
-    await fourthRowScreen.findByRole('heading', { level: 4, name: 'author' })
-  ).toBeInTheDocument();
-  expect(
-    fourthRowScreen.queryByRole('heading', {
-      level: 4,
-      name: 'source_viewer.tooltip.scm.commited_on',
-    })
-  ).not.toBeInTheDocument();
-  expect(
-    fourthRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
-  ).toBeInTheDocument();
 
   // SCM with no date no author
   row = await screen.findByRole('row', { name: /\* 5$/ });
   expect(row).toBeInTheDocument();
   const fithRowScreen = within(row);
   expect(fithRowScreen.getByText('…')).toBeInTheDocument();
+
   await user.click(
     fithRowScreen.getByRole('button', {
       name: 'source_viewer.click_for_scm_info.5',
-    })
+    }),
   );
-
-  expect(
-    fithRowScreen.queryByRole('heading', { level: 4, name: 'author' })
-  ).not.toBeInTheDocument();
-  expect(
-    fithRowScreen.queryByRole('heading', {
-      level: 4,
-      name: 'source_viewer.tooltip.scm.commited_on',
-    })
-  ).not.toBeInTheDocument();
-  expect(
-    fithRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
-  ).toBeInTheDocument();
 
   // No SCM Popup
   row = await screen.findByRole('row', {
     name: /\* This program is free software; you can redistribute it and\/or$/,
   });
+
   expect(row).toBeInTheDocument();
   expect(within(row).queryByRole('button')).not.toBeInTheDocument();
 });
 
 it('should show issue indicator', async () => {
-  (loadIssues as jest.Mock).mockResolvedValueOnce([
+  jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       key: 'first-issue',
-      message: 'First Issue',
+      message,
       line: 1,
       textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 },
     }),
@@ -291,73 +245,68 @@ it('should show issue indicator', async () => {
       textRange: { startLine: 1, endLine: 1, startOffset: 1, endOffset: 2 },
     }),
   ]);
+
   const user = userEvent.setup();
   const onIssueSelect = jest.fn();
+
   renderSourceViewer({
     onIssueSelect,
     displayAllIssues: false,
   });
+
   const row = await screen.findByRole('row', { name: /.*\/ \*$/ });
   const issueRow = within(row);
   expect(issueRow.getByText('2')).toBeInTheDocument();
+
   await user.click(
     issueRow.getByRole('button', {
-      name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural',
-    })
+      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.2.issue.clean_code_attribute_category.responsible',
+    }),
   );
-  const firstIssueBox = issueRow.getByRole('region', { name: 'First Issue' });
-  const secondIssueBox = issueRow.getByRole('region', { name: 'Second Issue' });
-  expect(firstIssueBox).toBeInTheDocument();
-  expect(secondIssueBox).toBeInTheDocument();
-  expect(
-    issueRow.getByRole('button', {
-      name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.hide.2.issue.type.BUG.plural',
-    })
-  ).toBeInTheDocument();
-
-  await user.click(firstIssueBox);
-  expect(onIssueSelect).toHaveBeenCalledWith('first-issue');
-
-  await user.click(secondIssueBox);
-  expect(onIssueSelect).toHaveBeenCalledWith('second-issue');
 });
 
 it('should show coverage information', async () => {
   renderSourceViewer();
+
   const coverdLine = within(
-    await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ })
+    await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ }),
   );
+
   expect(
-    coverdLine.getByLabelText('source_viewer.tooltip.covered.conditions.1')
+    coverdLine.getByLabelText('source_viewer.tooltip.covered.conditions.1'),
   ).toBeInTheDocument();
 
   const partialyCoveredWithConditionLine = within(
-    await screen.findByRole('row', { name: / \* 5$/ })
+    await screen.findByRole('row', { name: / \* 5$/ }),
   );
+
   expect(
     partialyCoveredWithConditionLine.getByLabelText(
-      'source_viewer.tooltip.partially-covered.conditions.1.2'
-    )
+      'source_viewer.tooltip.partially-covered.conditions.1.2',
+    ),
   ).toBeInTheDocument();
 
   const partialyCoveredLine = within(await screen.findByRole('row', { name: /\/\*$/ }));
+
   expect(
-    partialyCoveredLine.getByLabelText('source_viewer.tooltip.partially-covered')
+    partialyCoveredLine.getByLabelText('source_viewer.tooltip.partially-covered'),
   ).toBeInTheDocument();
 
   const uncoveredLine = within(await screen.findByRole('row', { name: / \* 6$/ }));
   expect(uncoveredLine.getByLabelText('source_viewer.tooltip.uncovered')).toBeInTheDocument();
 
   const uncoveredWithConditionLine = within(
-    await screen.findByRole('row', { name: / \* SonarQube$/ })
+    await screen.findByRole('row', { name: / \* SonarQube$/ }),
   );
+
   expect(
-    uncoveredWithConditionLine.getByLabelText('source_viewer.tooltip.uncovered.conditions.1')
+    uncoveredWithConditionLine.getByLabelText('source_viewer.tooltip.uncovered.conditions.1'),
   ).toBeInTheDocument();
 
   const coveredWithNoCondition = within(await screen.findByRole('row', { name: /\* Copyright$/ }));
+
   expect(
-    coveredWithNoCondition.getByLabelText('source_viewer.tooltip.covered')
+    coveredWithNoCondition.getByLabelText('source_viewer.tooltip.covered'),
   ).toBeInTheDocument();
 });
 
@@ -365,20 +314,20 @@ it('should show duplication block', async () => {
   const user = userEvent.setup();
   renderSourceViewer();
   const duplicateLine = within(await screen.findByRole('row', { name: /\* 7$/ }));
+
   expect(
-    duplicateLine.getByLabelText('source_viewer.tooltip.duplicated_block')
+    duplicateLine.getByLabelText('source_viewer.tooltip.duplicated_block'),
   ).toBeInTheDocument();
 
   await user.click(
-    duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' })
+    duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' }),
   );
 
-  expect(duplicateLine.getAllByRole('link', { name: 'foo:test2.js' })[0]).toBeInTheDocument();
+  expect(screen.getByRole('tooltip')).toBeVisible();
 
-  await act(async () => {
-    await user.keyboard('[Escape]');
-  });
-  expect(duplicateLine.queryByRole('link', { name: 'foo:test2.js' })).not.toBeInTheDocument();
+  await user.click(document.body);
+
+  expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 });
 
 it('should highlight symbol', async () => {
@@ -387,17 +336,55 @@ it('should highlight symbol', async () => {
   const symbols = await screen.findAllByText('symbole');
   await user.click(symbols[0]);
 
-  // For now just check the class. Maybe found a better accessible way of showing higlighted symbole
+  // For now just check the class. Maybe find a better accessible way of showing higlighted symbols
   symbols.forEach((element) => {
     expect(element).toHaveClass('highlighted');
   });
 });
 
+it('should show software quality measures in header', async () => {
+  renderSourceViewer({ componentMeasures: generateMeasures(), showMeasures: true });
+
+  expect(
+    await byLabelText('source_viewer.issue_link_x.3.metric.security_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText('source_viewer.issue_link_x.3.metric.reliability_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.3.metric.maintainability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+});
+
+it('should show old issue measures in header', async () => {
+  renderSourceViewer({
+    componentMeasures: generateMeasures().filter(
+      (m) => !CCT_SOFTWARE_QUALITY_METRICS.includes(m.metric as MetricKey),
+    ),
+    showMeasures: true,
+  });
+
+  expect(
+    await byLabelText('source_viewer.issue_link_x.1.metric.security_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText('source_viewer.issue_link_x.1.metric.reliability_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.1.metric.maintainability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+});
+
 it('should show correct message when component is not asscessible', async () => {
   componentsHandler.setFailLoadingComponentStatus(HttpStatus.Forbidden);
   renderSourceViewer();
+
   expect(
-    await screen.findByText('code_viewer.no_source_code_displayed_due_to_security')
+    await screen.findByText('code_viewer.no_source_code_displayed_due_to_security'),
   ).toBeInTheDocument();
 });
 
@@ -407,40 +394,61 @@ it('should show correct message when component does not exist', async () => {
   expect(await screen.findByText('component_viewer.no_component')).toBeInTheDocument();
 });
 
-function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
+function generateMeasures(qualitiesValue = '3.0', overallValue = '1.0', newValue = '2.0') {
+  return [
+    ...[
+      MetricKey.security_issues,
+      MetricKey.reliability_issues,
+      MetricKey.maintainability_issues,
+    ].map((metric) =>
+      mockMeasure({ metric, value: JSON.stringify({ total: qualitiesValue }), period: undefined }),
+    ),
+    ...[
+      MetricKey.ncloc,
+      MetricKey.new_lines,
+      MetricKey.bugs,
+      MetricKey.vulnerabilities,
+      MetricKey.code_smells,
+      MetricKey.security_hotspots,
+      MetricKey.coverage,
+      MetricKey.new_coverage,
+    ].map((metric) =>
+      isDiffMetric(metric)
+        ? mockMeasure({ metric, period: { index: 1, value: newValue } })
+        : mockMeasure({ metric, value: overallValue, period: undefined }),
+    ),
+  ];
+}
+
+function renderSourceViewer(override?: Partial<Props>) {
   const { rerender } = renderComponent(
     <SourceViewer
       aroundLine={1}
       branchLike={undefined}
       component={componentsHandler.getNonEmptyFileKey()}
-      displayAllIssues={true}
-      displayIssueLocationsCount={true}
-      displayIssueLocationsLink={false}
-      displayLocationMarkers={true}
-      onIssueChange={jest.fn()}
+      displayAllIssues
+      displayLocationMarkers
       onIssueSelect={jest.fn()}
       onLoaded={jest.fn()}
       onLocationSelect={jest.fn()}
       {...override}
-    />
+    />,
   );
-  return function (reoverride?: Partial<SourceViewer['props']>) {
+
+  return function (reoverride?: Partial<Props>) {
     rerender(
       <SourceViewer
         aroundLine={1}
         branchLike={undefined}
         component={componentsHandler.getNonEmptyFileKey()}
-        displayAllIssues={true}
-        displayIssueLocationsCount={true}
-        displayIssueLocationsLink={false}
-        displayLocationMarkers={true}
-        onIssueChange={jest.fn()}
+        displayAllIssues
+        displayLocationMarkers
         onIssueSelect={jest.fn()}
         onLoaded={jest.fn()}
         onLocationSelect={jest.fn()}
         {...override}
         {...reoverride}
-      />
+      />,
     );
   };
 }

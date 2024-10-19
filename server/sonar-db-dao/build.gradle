@@ -10,8 +10,8 @@ dependencies {
   api 'com.google.guava:guava'
   api 'com.google.protobuf:protobuf-java'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
-  api 'net.jpountz.lz4:lz4'
+  api 'org.apache.commons:commons-lang3'
+  api 'org.lz4:lz4-java'
   api 'org.mybatis:mybatis'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
@@ -19,41 +19,49 @@ dependencies {
   api project(':server:sonar-db-migration')
   api project(':sonar-core')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'commons-dbutils:commons-dbutils'
-  testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mockito:mockito-core'
-  testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator'
+  testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-testing-harness')
   testImplementation project(':sonar-plugin-api-impl')
 
-  testCompileOnly 'com.google.code.findbugs:jsr305'
+  testCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
   testRuntimeOnly 'com.h2database:h2'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.postgresql:postgresql'
 
+  testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
   testFixturesApi testFixtures(project(':server:sonar-db-core'))
+    testFixturesApi testFixtures(project(':server:sonar-db-migration'))
 
   testFixturesImplementation 'com.h2database:h2'
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 }
 
 test {
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }
 
 task dumpSchema(type:JavaExec) {
     mainClass = 'org.sonar.db.dump.DumpSQSchema'
     classpath = sourceSets.test.runtimeClasspath
 }
+
 tasks.check.dependsOn dumpSchema
 
 task createDB(type:JavaExec) {
@@ -63,6 +71,11 @@ task createDB(type:JavaExec) {
     if (!project.version.endsWith("-SNAPSHOT")) {
         systemProperty 'sonar.runtimeVersion', project.version
     }
+}
+
+task populateDB(type: JavaExec) {
+  mainClass = 'org.sonar.db.createdb.PopulateDb'
+  classpath = sourceSets.test.runtimeClasspath
 }
 
 task testJar(type: Jar) {

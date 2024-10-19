@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,6 @@ import org.sonar.server.notification.NotificationManager.EmailRecipient;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
@@ -111,7 +110,7 @@ public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandle
           .filter(notification -> !notification.getChange().isAuthorLogin(recipient.login()))
           .map(notification -> toEmailDeliveryRequest(notification, recipient, projectKeys)))
         .filter(Objects::nonNull)
-        .collect(toSet(notificationsWithPeerChangedIssues.size()));
+        .collect(Collectors.toSet());
     }
 
     SetMultimap<String, String> assigneeLoginsOfPeerChangedIssuesByProjectKey = notificationsWithPeerChangedIssues.stream()
@@ -144,7 +143,7 @@ public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandle
           .map(notification -> toEmailDeliveryRequest(notification, recipient, subscribedProjectKeys))
           .filter(Objects::nonNull);
       })
-      .collect(toSet(notificationsWithPeerChangedIssues.size()));
+      .collect(Collectors.toSet());
   }
 
   /**
@@ -155,10 +154,11 @@ public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandle
    */
   @CheckForNull
   private static EmailDeliveryRequest toEmailDeliveryRequest(NotificationWithProjectKeys notification, EmailRecipient recipient, Set<String> subscribedProjectKeys) {
+    notification.getIssues();
     Set<ChangedIssue> recipientIssuesByProject = notification.getIssues().stream()
       .filter(issue -> issue.getAssignee().filter(assignee -> recipient.login().equals(assignee.getLogin())).isPresent())
       .filter(issue -> subscribedProjectKeys.contains(issue.getProject().getKey()))
-      .collect(toSet(notification.getIssues().size()));
+      .collect(Collectors.toSet());
     if (recipientIssuesByProject.isEmpty()) {
       return null;
     }

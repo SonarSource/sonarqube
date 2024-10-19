@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.sonar.server.component.index;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -37,8 +37,8 @@ public class ComponentIndexFeatureExactTest extends ComponentIndexTest {
 
   @Test
   public void scoring_cares_about_exact_matches() {
-    ComponentDto project1 = indexProject("project1", "LongNameLongNameLongNameLongNameSonarQube");
-    ComponentDto project2 = indexProject("project2", "LongNameLongNameLongNameLongNameSonarQubeX");
+    ProjectDto project1 = indexProject("project1", "LongNameLongNameLongNameLongNameSonarQube");
+    ProjectDto project2 = indexProject("project2", "LongNameLongNameLongNameLongNameSonarQubeX");
 
     SuggestionQuery query1 = SuggestionQuery.builder()
       .setQuery("LongNameLongNameLongNameLongNameSonarQube")

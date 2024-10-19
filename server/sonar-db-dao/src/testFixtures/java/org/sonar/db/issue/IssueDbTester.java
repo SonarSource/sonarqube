@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,8 +29,10 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.project.ProjectDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.dependency.IssuesDependencyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 
@@ -67,7 +69,7 @@ public class IssueDbTester {
   @SafeVarargs
   public final IssueDto insert(Consumer<IssueDto>... populators) {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));
@@ -89,19 +91,19 @@ public class IssueDbTester {
    * @throws AssertionError if rule is a Security Hotspot
    */
   @SafeVarargs
-  public final IssueDto insertIssue(RuleDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+  public final IssueDto insertIssue(RuleDto rule, ComponentDto branch, ComponentDto file, Consumer<IssueDto>... populators) {
     assertThat(rule.getType())
       .describedAs("rule must not be a Security Hotspot type")
       .isNotEqualTo(SECURITY_HOTSPOT.getDbConstant());
-    IssueDto issue = newIssue(rule, project, file)
+    IssueDto issue = newIssue(rule, branch, file)
       .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
     stream(populators).forEach(p -> p.accept(issue));
     return insertIssue(issue);
   }
 
   @SafeVarargs
-  public final IssueDto insert(RuleDto rule, ProjectDto project, ComponentDto file, Consumer<IssueDto>... populators) {
-    IssueDto issue = newIssue(rule, project, file);
+  public final IssueDto insert(RuleDto rule, BranchDto branch, ComponentDto file, Consumer<IssueDto>... populators) {
+    IssueDto issue = newIssue(rule, branch, file);
     stream(populators).forEach(p -> p.accept(issue));
     return insert(issue);
   }
@@ -136,7 +138,7 @@ public class IssueDbTester {
    */
   @SafeVarargs
   public final IssueDto insertIssue(RuleDto ruleDto, Consumer<IssueDto>... populators) {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(ruleDto, project, file)
       .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
@@ -175,6 +177,20 @@ public class IssueDbTester {
     return insertHotspot(issue);
   }
 
+  public final IssueDto insertHotspot(RuleDto rule, ProjectData project, ComponentDto file, Consumer<IssueDto>... populators) {
+    return insertHotspot(rule, project.getMainBranchComponent(), file, populators);
+  }
+
+  public final IssueDto insertHotspot(BranchDto branchDto, ComponentDto file, Consumer<IssueDto>... populators) {
+    RuleDto rule = db.rules().insertHotspotRule();
+    IssueDto issue = newIssue(rule, branchDto, file)
+      .setType(SECURITY_HOTSPOT)
+      .setStatus(Issue.STATUS_TO_REVIEW)
+      .setResolution(null);
+    stream(populators).forEach(p -> p.accept(issue));
+    return insertHotspot(issue);
+  }
+
   /**
    * Inserts a Security Hotspot.
    *
@@ -193,7 +209,7 @@ public class IssueDbTester {
   @SafeVarargs
   public final IssueDto insertHotspot(Consumer<IssueDto>... populators) {
     RuleDto rule = db.rules().insertHotspotRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file)
       .setType(SECURITY_HOTSPOT)
@@ -205,7 +221,7 @@ public class IssueDbTester {
 
   @SafeVarargs
   public final IssueChangeDto insertChange(IssueDto issueDto, Consumer<IssueChangeDto>... populators) {
-    IssueChangeDto dto = IssueTesting.newIssuechangeDto(issueDto);
+    IssueChangeDto dto = IssueTesting.newIssueChangeDto(issueDto);
     stream(populators).forEach(p -> p.accept(dto));
     return insertChange(dto);
   }
@@ -241,4 +257,8 @@ public class IssueDbTester {
     db.commit();
   }
 
+  public void insertIssuesDependency(IssuesDependencyDto issuesDependencyDto) {
+    db.getDbClient().issuesDependencyDao().insert(db.getSession(), issuesDependencyDto);
+    db.commit();
+  }
 }

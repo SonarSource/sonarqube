@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -68,7 +68,7 @@ class ComponentDtoToWsComponent {
   }
 
   public static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto, @Nullable ProjectDto parentProjectDto,
-    @Nullable SnapshotDto lastAnalysis, @Nullable String branch, @Nullable String pullRequest) {
+    @Nullable SnapshotDto lastAnalysis, boolean isMainBranch, @Nullable String branch, @Nullable String pullRequest) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setOrganization(organizationDto.getKey())
       .setKey(ComponentDto.removeBranchAndPullRequestFromKey(dto.getKey()))
@@ -87,7 +87,7 @@ class ComponentDtoToWsComponent {
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
-      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && dto.getMainBranchProjectUuid() != null && parentProjectDto != null) {
+      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && parentProjectDto != null && isMainBranch) {
         wsComponent.getTagsBuilder().addAllTags(parentProjectDto.getTags());
       }
     }

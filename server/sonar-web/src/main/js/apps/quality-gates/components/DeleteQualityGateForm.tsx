@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,58 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
-import { deleteQualityGate } from '../../../api/quality-gates';
-import { Button } from '../../../components/controls/buttons';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
+import { useDeleteQualityGateMutation } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
 
 interface Props {
-  onDelete: () => Promise<void>;
-  qualityGate: QualityGate;
   organization: string;
-  router: Router;
+  onClose: () => void;
+  qualityGate: QualityGate;
 }
 
-export class DeleteQualityGateForm extends React.PureComponent<Props> {
-  onDelete = () => {
-    const { organization, qualityGate } = this.props;
-    return deleteQualityGate({ id: qualityGate.id, organization })
-      .then(this.props.onDelete)
-      .then(() => {
-        this.props.router.push(getQualityGatesUrl(organization));
-      });
+export default function DeleteQualityGateForm({ qualityGate, onClose }: Readonly<Props>) {
+  const { mutateAsync: deleteQualityGate } = useDeleteQualityGateMutation(qualityGate.name);
+  const router = useRouter();
+
+  const onDelete = async () => {
+    await deleteQualityGate();
+    router.push(getQualityGatesUrl());
   };
 
-  render() {
-    const { qualityGate } = this.props;
-
-    return (
-      <ConfirmButton
-        confirmButtonText={translate('delete')}
-        isDestructive={true}
-        modalBody={translateWithParameters(
-          'quality_gates.delete.confirm.message',
-          qualityGate.name
-        )}
-        modalHeader={translate('quality_gates.delete')}
-        onConfirm={this.onDelete}
-      >
-        {({ onClick }) => (
-          <Button
-            className="little-spacer-left button-red"
-            id="quality-gate-delete"
-            onClick={onClick}
-          >
-            {translate('delete')}
-          </Button>
-        )}
-      </ConfirmButton>
-    );
-  }
+  return (
+    <Modal
+      headerTitle={translate('quality_gates.delete')}
+      onClose={onClose}
+      body={translateWithParameters('quality_gates.delete.confirm.message', qualityGate.name)}
+      primaryButton={
+        <Button hasAutoFocus type="submit" onClick={onDelete} variety={ButtonVariety.Danger}>
+          {translate('delete')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }
-
-export default withRouter(DeleteQualityGateForm);

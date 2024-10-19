@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,113 +17,97 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ListItem,
+  NumberedList,
+  NumberedListItem,
+  TutorialStep,
+  UnorderedList,
+} from 'design-system';
 import * as React from 'react';
-import { rawSizes } from '../../../app/theme';
-import { Button } from '../../../components/controls/buttons';
-import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
-import Step from '../components/Step';
 
 export interface PipelineStepProps {
   alm: AlmKeys;
-  finished: boolean;
-  onDone: () => void;
-  onOpen: () => void;
-  open: boolean;
 }
 
 export default function PipelineStep(props: PipelineStepProps) {
-  const { alm, finished, open } = props;
+  const { alm } = props;
   return (
-    <Step
-      finished={finished}
-      onOpen={props.onOpen}
-      open={open}
-      renderForm={() => (
-        <div className="boxed-group-inner">
-          <p className="big-spacer-bottom">
-            {translate('onboarding.tutorial.with.jenkins.pipeline.intro')}
-          </p>
-          <ol className="list-styled">
-            <li>
+    <TutorialStep title={translate('onboarding.tutorial.with.jenkins.pipeline.title')}>
+      <p className="sw-mb-4">{translate('onboarding.tutorial.with.jenkins.pipeline.intro')}</p>
+      <NumberedList>
+        <NumberedListItem>
+          <SentenceWithHighlights
+            highlightKeys={['new_item', 'type']}
+            translationKey="onboarding.tutorial.with.jenkins.pipeline.step1"
+          />
+        </NumberedListItem>
+        <NumberedListItem>
+          {alm === AlmKeys.GitLab ? (
+            <>
               <SentenceWithHighlights
-                highlightKeys={['new_item', 'type']}
-                translationKey="onboarding.tutorial.with.jenkins.pipeline.step1"
+                highlightKeys={['tab', 'option']}
+                translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.trigger"
               />
-            </li>
-            <li>
-              {alm === AlmKeys.GitLab ? (
-                <>
+              <UnorderedList className="sw-ml-12">
+                <ListItem>
                   <SentenceWithHighlights
-                    highlightKeys={['tab', 'option']}
-                    translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.trigger"
+                    highlightKeys={['triggers', 'push_events']}
+                    translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.pick_triggers"
                   />
-                  <ul className="list-styled">
-                    <li>
-                      <SentenceWithHighlights
-                        highlightKeys={['triggers', 'push_events']}
-                        translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.pick_triggers"
-                      />
-                    </li>
-                    <li>
-                      <SentenceWithHighlights
-                        highlightKeys={['advanced']}
-                        translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.click_advanced"
-                      />
-                    </li>
-                    <li>
-                      <SentenceWithHighlights
-                        highlightKeys={['secret_token', 'generate']}
-                        translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.secret_token"
-                      />
-                    </li>
-                  </ul>
-                </>
-              ) : (
-                <SentenceWithHighlights
-                  highlightKeys={['tab', 'option']}
-                  translationKey="onboarding.tutorial.with.jenkins.pipeline.step2"
-                />
-              )}
-            </li>
-            <li>
-              <SentenceWithHighlights
-                highlightKeys={['tab']}
-                translationKey="onboarding.tutorial.with.jenkins.pipeline.step3"
-              />
-              <ul className="list-styled">
-                <li>
-                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.definition" />
-                </li>
-                <li>
+                </ListItem>
+                <ListItem>
                   <SentenceWithHighlights
-                    highlightKeys={['label', 'branches_to_build']}
-                    translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.scm"
+                    highlightKeys={['advanced']}
+                    translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.click_advanced"
                   />
-                </li>
-                <li>
-                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.script_path" />
-                </li>
-              </ul>
-            </li>
-            <li>
+                </ListItem>
+                <ListItem>
+                  <SentenceWithHighlights
+                    highlightKeys={['secret_token', 'generate']}
+                    translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.secret_token"
+                  />
+                </ListItem>
+              </UnorderedList>
+            </>
+          ) : (
+            <SentenceWithHighlights
+              highlightKeys={['tab', 'option']}
+              translationKey="onboarding.tutorial.with.jenkins.pipeline.step2"
+            />
+          )}
+        </NumberedListItem>
+        <NumberedListItem>
+          <SentenceWithHighlights
+            highlightKeys={['tab']}
+            translationKey="onboarding.tutorial.with.jenkins.pipeline.step3"
+          />
+          <UnorderedList className="sw-ml-12">
+            <ListItem>
+              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.definition" />
+            </ListItem>
+            <ListItem>
               <SentenceWithHighlights
-                highlightKeys={['save']}
-                translationKey="onboarding.tutorial.with.jenkins.pipeline.step4"
+                highlightKeys={['label', 'branches_to_build']}
+                translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.scm"
               />
-            </li>
-          </ol>
-          <Button className="big-spacer-top" onClick={props.onDone}>
-            {translate('continue')}
-            <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
-          </Button>
-        </div>
-      )}
-      stepNumber={1}
-      stepTitle={translate('onboarding.tutorial.with.jenkins.pipeline.title')}
-    />
+            </ListItem>
+            <ListItem>
+              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.script_path" />
+            </ListItem>
+          </UnorderedList>
+        </NumberedListItem>
+        <NumberedListItem>
+          <SentenceWithHighlights
+            highlightKeys={['save']}
+            translationKey="onboarding.tutorial.with.jenkins.pipeline.step4"
+          />
+        </NumberedListItem>
+      </NumberedList>
+    </TutorialStep>
   );
 }

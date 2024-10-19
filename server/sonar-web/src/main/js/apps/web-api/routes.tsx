@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import WebApiApp from './components/WebApiApp';
 
 const routes = () => (
   <Route path="web_api">
-    <Route index={true} element={<WebApiApp />} />
+    <Route index element={<WebApiApp />} />
     <Route path="*" element={<WebApiApp />} />
   </Route>
 );

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,8 +31,8 @@ import org.sonar.server.platform.db.migration.DatabaseMigration;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.NO_CONNECTION_TO_DB;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.UNSUPPORTED_DATABASE_MIGRATION_STATUS;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.NO_CONNECTION_TO_DB;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.UNSUPPORTED_DATABASE_MIGRATION_STATUS;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.statusDescription;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.write;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeJustStartedResponse;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
@@ -204,7 +203,7 @@ public class ClusterSettings implements Consumer<Props> {
   private void ensureNotLoopbackAddresses(Property property, Set<AddressAndPort> hostAndPorts) {
     Set<AddressAndPort> loopbackAddresses = hostAndPorts.stream()
       .filter(t -> network.isLoopback(t.getHost()))
-      .collect(MoreCollectors.toSet());
+      .collect(toSet());
     if (!loopbackAddresses.isEmpty()) {
       throw new MessageException(format("Property %s must not contain a loopback address: %s", property.getKey(),
         loopbackAddresses.stream().map(AddressAndPort::getHost).sorted().collect(Collectors.joining(", "))));

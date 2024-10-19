@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,27 +21,23 @@ package org.sonar.ce.task.projectexport.steps;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.task.projectexport.component.ComponentRepository;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
-import org.sonar.db.project.ProjectExportMapper;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 public class ExportLinksStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final ComponentRepository componentRepository;
   private final ProjectHolder projectHolder;
   private final DumpWriter dumpWriter;
 
-  public ExportLinksStep(DbClient dbClient, ComponentRepository componentRepository, ProjectHolder projectHolder, DumpWriter dumpWriter) {
+  public ExportLinksStep(DbClient dbClient, ProjectHolder projectHolder, DumpWriter dumpWriter) {
     this.dbClient = dbClient;
-    this.componentRepository = componentRepository;
     this.projectHolder = projectHolder;
     this.dumpWriter = dumpWriter;
   }
@@ -54,20 +50,20 @@ public class ExportLinksStep implements ComputationStep {
       try (DbSession dbSession = dbClient.openSession(false);
         StreamWriter<ProjectDump.Link> linksWriter = dumpWriter.newStreamWriter(DumpElement.LINKS)) {
         ProjectDump.Link.Builder builder = ProjectDump.Link.newBuilder();
-        List<ProjectLinkDto> links = dbSession.getMapper(ProjectExportMapper.class).selectLinksForExport(projectHolder.projectDto().getUuid());
+        List<ProjectLinkDto> links = dbClient.projectExportDao()
+          .selectLinksForExport(dbSession, projectHolder.projectDto().getUuid());
         for (ProjectLinkDto link : links) {
           builder
             .clear()
             .setUuid(link.getUuid())
             .setName(defaultString(link.getName()))
             .setHref(defaultString(link.getHref()))
-            .setType(defaultString(link.getType()))
-            .setComponentRef(componentRepository.getRef(link.getProjectUuid()));
+            .setType(defaultString(link.getType()));
           linksWriter.write(builder.build());
           ++count;
         }
 
-        Loggers.get(getClass()).debug("{} links exported", count);
+        LoggerFactory.getLogger(getClass()).debug("{} links exported", count);
       }
     } catch (Exception e) {
       throw new IllegalStateException(format("Link export failed after processing %d link(s) successfully", count), e);

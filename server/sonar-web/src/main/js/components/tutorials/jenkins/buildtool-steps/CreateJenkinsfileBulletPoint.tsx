@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,41 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, FlagMessage, HelperHintIcon, NumberedListItem } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../../components/controls/HelpTooltip';
-import { Alert } from '../../../../components/ui/Alert';
-import CodeSnippet from '../../../common/CodeSnippet';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export interface CreateJenkinsfileBulletPointProps {
   alertTranslationKeyPart?: string;
   children?: React.ReactNode;
-  otherAlert?: JSX.Element;
   snippet: string;
 }
 
 export default function CreateJenkinsfileBulletPoint(props: CreateJenkinsfileBulletPointProps) {
-  const { children, snippet, alertTranslationKeyPart, otherAlert } = props;
+  const { children, snippet, alertTranslationKeyPart } = props;
 
   return (
-    <li className="abs-width-600">
+    <NumberedListItem>
       <SentenceWithFilename
         filename="Jenkinsfile"
         translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
       />
+      <br />
       {alertTranslationKeyPart && (
-        <Alert className="spacer-top" variant="info">
-          <div className="text-middle">
+        <FlagMessage className="sw-mt-2" variant="info">
+          <div>
             <SentenceWithHighlights
               highlightKeys={['default', 'in_jenkins']}
               translationKey={`${alertTranslationKeyPart}.replace`}
             />
             <HelpTooltip
-              className="little-spacer-left"
+              className="sw-ml-1"
               overlay={
                 <>
-                  <p className="spacer-bottom">
+                  <p className="sw-mb-2">
                     <SentenceWithHighlights
                       highlightKeys={['path']}
                       translationKey={`${alertTranslationKeyPart}.help1`}
@@ -65,13 +64,14 @@ export default function CreateJenkinsfileBulletPoint(props: CreateJenkinsfileBul
                   </p>
                 </>
               }
-            />
-            {otherAlert}
+            >
+              <HelperHintIcon />
+            </HelpTooltip>
           </div>
-        </Alert>
+        </FlagMessage>
       )}
-      <CodeSnippet snippet={snippet} />
+      <CodeSnippet className="sw-p-6" language="groovy" snippet={snippet} />
       {children}
-    </li>
+    </NumberedListItem>
   );
 }

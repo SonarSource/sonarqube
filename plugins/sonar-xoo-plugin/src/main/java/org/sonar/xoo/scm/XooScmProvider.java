@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.xoo.scm;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -33,17 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.batch.scm.ScmProvider;
 
-import java.io.File;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
 public class XooScmProvider extends ScmProvider {
-  private static final Logger LOG = Loggers.get(XooScmProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(XooScmProvider.class);
   private static final String SCM_EXTENSION = ".scm";
 
   private final XooBlameCommand blame;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.application;
 
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.CommandFactoryImpl;
 import org.sonar.application.config.AppSettings;
@@ -71,13 +71,13 @@ public class App {
         hardStopRequestWatcher.stopWatching();
       }
     } catch (Exception e) {
-      Loggers.get(App.class).error("Startup failure", e);
+      LoggerFactory.getLogger(App.class).error("Startup failure", e);
     }
 
     systemExit.exit(0);
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     new App().start(args);
   }
 

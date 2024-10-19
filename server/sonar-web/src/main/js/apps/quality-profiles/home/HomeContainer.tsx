@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ import * as React from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { QualityProfilesContextProps } from '../qualityProfilesContext';
 import Evolution from './Evolution';
+import LanguageSelect from './LanguageSelect';
 import PageHeader from './PageHeader';
 import ProfilesList from './ProfilesList';
 
@@ -34,13 +35,14 @@ export default function HomeContainer() {
     <div>
       <PageHeader {...context} />
 
-      <div className="page-with-sidebar">
-        <div className="page-main">
+      <div className="sw-grid sw-grid-cols-3 sw-gap-12 sw-mt-12">
+        <main className="sw-col-span-2">
+          <LanguageSelect currentFilter={selectedLanguage} languages={context.languages} />
           <ProfilesList {...context} language={selectedLanguage} />
-        </div>
-        <div className="page-sidebar">
+        </main>
+        <aside>
           <Evolution {...context} />
-        </div>
+        </aside>
       </div>
     </div>
   );

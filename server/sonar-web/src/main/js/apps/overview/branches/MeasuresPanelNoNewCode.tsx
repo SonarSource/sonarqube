@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from '@sonarsource/echoes-react';
+import { Note, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { Image } from '~sonar-aligned/components/common/Image';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { queryToSearch } from '../../../helpers/urls';
+import { CodeScope } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component, Period } from '../../../types/types';
 
 export interface MeasuresPanelNoNewCodeProps {
@@ -41,7 +46,10 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
   const isApp = component.qualifier === ComponentQualifier.Application;
 
   const hasBadReferenceBranch =
-    !isApp && !!period && !period.date && period.mode === 'REFERENCE_BRANCH';
+    !isApp &&
+    !!period &&
+    period.date === '' &&
+    period.mode === NewCodeDefinitionType.ReferenceBranch;
   /*
    * If the period is "reference branch"-based, and if there's no date, it means
    * that we're not lacking a second analysis, but that we'll never have new code because the
@@ -59,15 +67,19 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
   const showSettingsLink = !!(component.configuration && component.configuration.showSettings);
 
   return (
-    <div className="display-flex-center display-flex-justify-center" style={{ height: 500 }}>
-      <img
+    <div
+      className="sw-flex sw-items-center sw-justify-center"
+      id={getTabPanelId(CodeScope.New)}
+      style={{ height: 500 }}
+    >
+      <Image
         alt="" /* Make screen readers ignore this image; it's purely eye candy. */
-        className="spacer-right"
+        className="sw-mr-2"
         height={52}
-        src={`${getBaseUrl()}/images/source-code.svg`}
+        src="/images/source-code.svg"
       />
-      <div className="big-spacer-left text-muted" style={{ maxWidth: 500 }}>
-        <p className="spacer-bottom big-spacer-top big">{translate(badExplanationKey)}</p>
+      <Note as="div" className="sw-ml-4 sw-max-w-abs-500">
+        <p className="sw-mb-2 sw-mt-4">{translate(badExplanationKey)}</p>
         {hasBadNewCodeSettingSameRef ? (
           showSettingsLink && (
             <p>
@@ -79,7 +91,10 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
                     <Link
                       to={{
                         pathname: '/project/baseline',
-                        search: queryToSearch({ id: component.key, ...getBranchLikeQuery(branch) }),
+                        search: queryToSearchString({
+                          id: component.key,
+                          ...getBranchLikeQuery(branch),
+                        }),
                       }}
                     >
                       {translate('settings.new_code_period.category')}
@@ -96,13 +111,13 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
               id="overview.measures.empty_link"
               values={{
                 learn_more_link: (
-                  <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">{translate('learn_more')}</DocLink>
+                  <DocumentationLink to={DocLink.CaYC}>{translate('learn_more')}</DocumentationLink>
                 ),
               }}
             />
           </p>
         )}
-      </div>
+      </Note>
     </div>
   );
 }

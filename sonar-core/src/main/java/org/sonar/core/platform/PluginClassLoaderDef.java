@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,12 +33,12 @@ import org.sonar.classloader.Mask;
 /**
  * Temporary information about the classLoader to be created for a plugin (or a group of plugins).
  */
-class PluginClassLoaderDef {
+public class PluginClassLoaderDef {
 
   private final String basePluginKey;
   private final Map<String, String> mainClassesByPluginKey = new HashMap<>();
   private final List<File> files = new ArrayList<>();
-  private final Mask mask = new Mask();
+  private final Mask.Builder mask = Mask.builder();
   private boolean selfFirstStrategy = false;
 
   PluginClassLoaderDef(String basePluginKey) {
@@ -58,7 +58,7 @@ class PluginClassLoaderDef {
     this.files.addAll(f);
   }
 
-  Mask getExportMask() {
+  Mask.Builder getExportMask() {
     return mask;
   }
 

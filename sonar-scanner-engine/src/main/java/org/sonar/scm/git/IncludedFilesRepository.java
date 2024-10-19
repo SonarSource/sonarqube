@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,12 @@ import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.WorkingTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IncludedFilesRepository {
 
-  private static final Logger LOG = Loggers.get(IncludedFilesRepository.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IncludedFilesRepository.class);
   private final Set<Path> includedFiles = new HashSet<>();
 
   public IncludedFilesRepository(Path baseDir) throws IOException {

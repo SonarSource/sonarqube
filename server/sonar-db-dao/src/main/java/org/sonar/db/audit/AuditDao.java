@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 
@@ -57,7 +58,7 @@ public class AuditDao implements Dao {
       long now = system2.now();
       auditDto.setCreatedAt(now);
     }
-    if(auditDto.getNewValue().length() > MAX_SIZE) {
+    if (auditDto.getNewValue().length() > MAX_SIZE) {
       auditDto.setNewValue(EXCEEDED_LENGTH);
     }
     getMapper(dbSession).insert(auditDto);
@@ -68,7 +69,12 @@ public class AuditDao implements Dao {
   }
 
   public long deleteBefore(DbSession dbSession, long threshold) {
-    return getMapper(dbSession).purge(threshold);
+    List<String> uuids = getMapper(dbSession).selectUuidsOlderThan(threshold);
+    DatabaseUtils.executeLargeInputsWithoutOutput(uuids, list -> {
+      getMapper(dbSession).purgeUuids(list);
+      dbSession.commit();
+    });
+    return uuids.size();
   }
 
 }

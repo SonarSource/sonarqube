@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,12 +31,15 @@ public final class Language {
   private final String name;
   private final boolean publishAllFiles;
   private final String[] fileSuffixes;
+  private final String[] filenamePatterns;
 
-  public Language(String key, String name, boolean publishAllFiles, String... fileSuffixes) {
-    this.key = key;
-    this.name = name;
-    this.publishAllFiles = publishAllFiles;
-    this.fileSuffixes = fileSuffixes;
+
+  public Language(org.sonar.api.resources.Language language) {
+    this.key = language.getKey();
+    this.name = language.getName();
+    this.publishAllFiles = language.publishAllFiles();
+    this.fileSuffixes = language.getFileSuffixes();
+    this.filenamePatterns = language.filenamePatterns();
   }
 
   /**
@@ -58,6 +61,10 @@ public final class Language {
    */
   public Collection<String> fileSuffixes() {
     return Arrays.asList(fileSuffixes);
+  }
+
+  public Collection<String> filenamePatterns() {
+    return Arrays.asList(filenamePatterns);
   }
 
   public boolean isPublishAllFiles() {

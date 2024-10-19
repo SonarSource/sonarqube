@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -52,8 +52,9 @@ public class ProjectExportTaskProcessor implements CeTaskProcessor {
 
   private void processProjectExport(CeTask task) {
     CeTask.Component exportComponent = mandatoryComponent(task, PROJECT_EXPORT);
-    failIfNotMain(exportComponent, task);
-    ProjectDescriptor projectExportDescriptor = new ProjectDescriptor(exportComponent.getUuid(),
+    CeTask.Component entity = task.getEntity()
+      .orElseThrow(() -> new IllegalStateException("Compute engine task for project export doesn't contain entity"));
+    ProjectDescriptor projectExportDescriptor = new ProjectDescriptor(entity.getUuid(),
       mandatoryKey(exportComponent), mandatoryName(exportComponent));
 
     try (TaskContainer taskContainer = new TaskContainerImpl(componentContainer,
@@ -62,11 +63,6 @@ public class ProjectExportTaskProcessor implements CeTaskProcessor {
       taskContainer.getComponentByType(ProjectExportProcessor.class).process();
     }
 
-  }
-
-  private static void failIfNotMain(CeTask.Component exportComponent, CeTask task) {
-    task.getMainComponent().filter(mainComponent -> mainComponent.equals(exportComponent))
-      .orElseThrow(() -> new IllegalStateException("Component of task must be the same as main component"));
   }
 
   private static CeTask.Component mandatoryComponent(CeTask task, String type) {

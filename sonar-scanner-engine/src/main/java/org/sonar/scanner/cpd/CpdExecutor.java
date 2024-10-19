@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,13 +31,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
@@ -57,7 +56,7 @@ import org.sonar.scanner.util.ProgressReport;
  * The sensors are responsible for handling exclusions and block sizes.
  */
 public class CpdExecutor {
-  private static final Logger LOG = Loggers.get(CpdExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CpdExecutor.class);
   // timeout for the computation of duplicates in a file (seconds)
   private static final int TIMEOUT = 5 * 60 * 1000;
   static final int MAX_CLONE_GROUP_PER_FILE = 100;
@@ -150,7 +149,7 @@ public class CpdExecutor {
       Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(minTokens);
       filtered = duplications.stream()
         .filter(minimumTokensPredicate)
-        .collect(Collectors.toList());
+        .toList();
     } else {
       filtered = duplications;
     }

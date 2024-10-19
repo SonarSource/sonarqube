@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,14 +26,19 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.issue.ImpactDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
@@ -64,6 +69,9 @@ public class RuleDto {
    */
   private RuleDto.Format descriptionFormat = null;
   private RuleStatus status = null;
+
+  private Set<ImpactDto> defaultImpacts = new HashSet<>();
+
   private String name = null;
   private String configKey = null;
 
@@ -92,9 +100,11 @@ public class RuleDto {
   private String defRemediationGapMultiplier = null;
   private String defRemediationBaseEffort = null;
   private String gapDescription = null;
-  private String systemTagsField = null;
+  private Set<String> systemTags = new HashSet<>();
+  private Set<String> tags = new HashSet<>();
   private String securityStandardsField = null;
   private int type = 0;
+  private CleanCodeAttribute cleanCodeAttribute = null;
   private Scope scope = null;
 
   private RuleKey key = null;
@@ -224,7 +234,7 @@ public class RuleDto {
     return deserializeStringSet(educationPrinciplesField);
   }
 
-  public RuleDto setEducationPrinciples(Set<String> educationPrinciples){
+  public RuleDto setEducationPrinciples(Set<String> educationPrinciples) {
     this.educationPrinciplesField = serializeStringSet(educationPrinciples);
     return this;
   }
@@ -245,6 +255,29 @@ public class RuleDto {
 
   public RuleDto setStatus(@Nullable RuleStatus status) {
     this.status = status;
+    return this;
+  }
+
+  public Set<ImpactDto> getDefaultImpacts() {
+    return defaultImpacts;
+  }
+
+  public RuleDto addDefaultImpact(ImpactDto defaultImpactDto) {
+    defaultImpacts.stream().filter(impactDto -> impactDto.getSoftwareQuality() == defaultImpactDto.getSoftwareQuality()).findFirst()
+      .ifPresent(impactDto -> {
+        throw new IllegalStateException(format("Impact already defined on rule for Software Quality [%s]", defaultImpactDto.getSoftwareQuality()));
+      });
+    defaultImpacts.add(defaultImpactDto);
+    return this;
+  }
+
+  public RuleDto replaceAllDefaultImpacts(Collection<ImpactDto> newImpacts) {
+    Set<SoftwareQuality> newSoftwareQuality = newImpacts.stream().map(ImpactDto::getSoftwareQuality).collect(Collectors.toSet());
+    if (newSoftwareQuality.size() != newImpacts.size()) {
+      throw new IllegalStateException("Impacts must have unique Software Quality values");
+    }
+    defaultImpacts.clear();
+    defaultImpacts.addAll(newImpacts);
     return this;
   }
 
@@ -347,7 +380,7 @@ public class RuleDto {
   }
 
   public RuleDto setSystemTags(Set<String> tags) {
-    this.systemTagsField = serializeStringSet(tags);
+    this.systemTags = tags;
     return this;
   }
 
@@ -357,7 +390,7 @@ public class RuleDto {
   }
 
   public Set<String> getSystemTags() {
-    return deserializeTagsString(systemTagsField);
+    return systemTags;
   }
 
   public Set<String> getSecurityStandards() {
@@ -368,6 +401,10 @@ public class RuleDto {
     return type;
   }
 
+  public RuleType getEnumType() {
+    return RuleType.valueOf(type);
+  }
+
   public RuleDto setType(int type) {
     this.type = type;
     return this;
@@ -375,6 +412,16 @@ public class RuleDto {
 
   public RuleDto setType(RuleType type) {
     this.type = type.getDbConstant();
+    return this;
+  }
+
+  @CheckForNull
+  public CleanCodeAttribute getCleanCodeAttribute() {
+    return cleanCodeAttribute;
+  }
+
+  public RuleDto setCleanCodeAttribute(@Nullable CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
     return this;
   }
 
@@ -397,7 +444,6 @@ public class RuleDto {
     metadata.setUpdatedAt(updatedAt);
     return this;
   }
-
 
   @CheckForNull
   public String getDefRemediationFunction() {

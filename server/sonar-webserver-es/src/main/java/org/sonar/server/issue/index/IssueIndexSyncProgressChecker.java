@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,11 +41,11 @@ public class IssueIndexSyncProgressChecker {
   }
 
   public IssueSyncProgress getIssueSyncProgress(DbSession dbSession) {
-    int completed = dbClient.branchDao().countByNeedIssueSync(dbSession, false);
+    int completedCount = dbClient.projectDao().countIndexedProjects(dbSession);
+    int total = dbClient.projectDao().countProjects(dbSession);
     boolean hasFailures = dbClient.ceActivityDao().hasAnyFailedOrCancelledIssueSyncTask(dbSession);
     boolean isCompleted = !dbClient.ceQueueDao().hasAnyIssueSyncTaskPendingOrInProgress(dbSession);
-    int total = dbClient.branchDao().countAll(dbSession);
-    return new IssueSyncProgress(isCompleted, completed, total, hasFailures);
+    return new IssueSyncProgress(isCompleted, completedCount, total, hasFailures);
   }
 
   public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys) {

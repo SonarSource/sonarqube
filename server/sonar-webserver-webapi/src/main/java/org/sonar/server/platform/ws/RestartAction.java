@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ package org.sonar.server.platform.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.NodeInformation;
@@ -34,7 +34,7 @@ import org.sonar.server.user.UserSession;
  */
 public class RestartAction implements SystemWsAction {
 
-  private static final Logger LOGGER = Loggers.get(RestartAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RestartAction.class);
 
   private final UserSession userSession;
   private final ProcessCommandWrapper processCommandWrapper;

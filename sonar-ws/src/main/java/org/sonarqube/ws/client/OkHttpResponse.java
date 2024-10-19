@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,8 @@ package org.sonarqube.ws.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -52,6 +54,11 @@ class OkHttpResponse extends BaseResponse {
   @Override
   public Optional<String> header(String name) {
     return Optional.ofNullable(okResponse.header(name));
+  }
+
+  @Override
+  public Map<String, List<String>> headers() {
+    return okResponse.headers().toMultimap();
   }
 
   /**

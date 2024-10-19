@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,15 +30,18 @@ export function parseDate(rawDate: ParsableDate): Date {
   return new Date(rawDate);
 }
 
-export function toShortNotSoISOString(rawDate: ParsableDate): string {
+export function toShortISO8601String(rawDate: ParsableDate): string {
   const date = parseDate(rawDate);
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-export function toNotSoISOString(rawDate: ParsableDate): string {
+export function toISO8601WithOffsetString(rawDate: ParsableDate): string {
   const date = parseDate(rawDate);
-  const dateWithoutZone = date.toISOString().split('.')[0];
-  return dateWithoutZone + '+0000';
+  // JS ISO Date implementation returns a datetime in UTC time (suffixed by "Z"). But the backend
+  // expects a datetime with a timeoffset (e.g., +0200). UTC time is actually "+0000", so we convert
+  // the string to this other format for the backend. The backend also doesn't expect milliseconds, so
+  // we truncate that part, too.
+  return date.toISOString().split('.')[0] + '+0000';
 }
 
 export function isValidDate(date: Date): boolean {

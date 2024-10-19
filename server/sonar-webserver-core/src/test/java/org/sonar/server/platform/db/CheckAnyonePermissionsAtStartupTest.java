@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,13 +24,15 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -149,23 +151,23 @@ public class CheckAnyonePermissionsAtStartupTest {
   private void createPublicProjectsWithNonAnyoneGroupPermissions() {
     GroupDto group = dbTester.users().insertGroup();
     IntStream.rangeClosed(1, 3).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
+      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
       dbTester.users().insertProjectPermissionOnGroup(group, "perm-" + i, project);
     });
   }
 
   private void createPublicProjects(int projectCount, boolean includeAnyonePerm) {
     IntStream.rangeClosed(1, projectCount).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
+      ProjectDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
       if (includeAnyonePerm) {
-        dbTester.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+        dbTester.users().insertEntityPermissionOnAnyone("perm-" + i, project);
       }
     });
     underTest.start();
   }
 
   private void assertProjectLevelAnyonePermissionWarningNotInLogs() {
-    boolean noneMatch = logTester.logs(LoggerLevel.WARN).stream()
+    boolean noneMatch = logTester.logs(Level.WARN).stream()
       .noneMatch(s -> s.startsWith("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose"));
     assertThat(noneMatch).isTrue();
   }
@@ -174,11 +176,11 @@ public class CheckAnyonePermissionsAtStartupTest {
     String expected = String.format("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose %d " +
       "public project(s) to security risks, including: %s. Unauthenticated visitors have permissions on these project(s).",
       expectedProjectCount, String.join(", ", expectedListedProjects));
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expected);
+    assertThat(logTester.logs(Level.WARN)).contains(expected);
   }
 
   private void assertGlobalLevelAnyonePermissionWarningNotInLogs() {
-    boolean noneMatch = !logTester.logs(LoggerLevel.WARN).contains(
+    boolean noneMatch = !logTester.logs(Level.WARN).contains(
       "Authentication is not enforced, and permissions assigned to the 'Anyone' group globally expose the " +
         "instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.");
     assertThat(noneMatch).isTrue();
@@ -187,7 +189,7 @@ public class CheckAnyonePermissionsAtStartupTest {
   private void assertGlobalLevelAnyonePermissionWarningInLogs() {
     String expected = "Authentication is not enforced, and permissions assigned to the 'Anyone' group globally " +
       "expose the instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.";
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expected);
+    assertThat(logTester.logs(Level.WARN)).contains(expected);
   }
 
 }

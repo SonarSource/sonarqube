@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,54 +17,100 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
 import classNames from 'classnames';
+import {
+  Badge,
+  CloseIcon,
+  FlagWarningIcon,
+  InteractiveIcon,
+  Theme,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
-import { ClearButton } from '../../components/controls/buttons';
-import AlertWarnIcon from '../../components/icons/AlertWarnIcon';
-import ChartLegendIcon from '../../components/icons/ChartLegendIcon';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
 import { translateWithParameters } from '../../helpers/l10n';
+import Tooltip from '../controls/Tooltip';
+import { ChartLegend } from './ChartLegend';
+import { getDeprecatedTranslationKeyForTooltip } from './utils';
 
 interface Props {
   className?: string;
   index: number;
   metric: string;
   name: string;
-  showWarning?: boolean;
   removeMetric?: (metric: string) => void;
+  showWarning?: boolean;
 }
 
-export default class GraphsLegendItem extends React.PureComponent<Props> {
-  handleClick = () => {
-    if (this.props.removeMetric) {
-      this.props.removeMetric(this.props.metric);
-    }
-  };
+export function GraphsLegendItem({
+  className,
+  index,
+  metric,
+  name,
+  removeMetric,
+  showWarning,
+}: Props) {
+  const intl = useIntl();
+  const theme = useTheme() as Theme;
 
-  render() {
-    const { className, name, index, showWarning } = this.props;
-    const isActionable = this.props.removeMetric != null;
-    const legendClass = classNames({ 'activity-graph-legend-actionable': isActionable }, className);
+  const isActionable = removeMetric !== undefined;
+  const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(metric as MetricKey);
 
-    return (
-      <span className={legendClass}>
-        {showWarning ? (
-          <AlertWarnIcon className="spacer-right" />
-        ) : (
-          <ChartLegendIcon className="text-middle spacer-right" index={index} />
-        )}
-        <span className="text-middle">{name}</span>
-        {isActionable && (
-          <ClearButton
-            className="button-tiny spacer-left text-middle"
-            aria-label={translateWithParameters(
-              'project_activity.graphs.custom.remove_metric',
-              name
-            )}
-            iconProps={{ size: 12 }}
-            onClick={this.handleClick}
-          />
-        )}
+  return (
+    <StyledLegendItem
+      className={classNames('sw-px-2 sw-py-1 sw-rounded-2', className)}
+      isActionable={isActionable}
+    >
+      {showWarning ? (
+        <FlagWarningIcon className="sw-mr-2" />
+      ) : (
+        <ChartLegend className="sw-mr-2" index={index} />
+      )}
+      <span
+        className="sw-typo-default"
+        style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
+      >
+        {name}
       </span>
-    );
-  }
+      {isDeprecated && (
+        <Tooltip
+          content={
+            <FormattedMessage
+              id={getDeprecatedTranslationKeyForTooltip(metric as MetricKey)}
+              tagName="div"
+            />
+          }
+        >
+          <div>
+            <Badge className="sw-ml-1">{intl.formatMessage({ id: 'deprecated' })}</Badge>
+          </div>
+        </Tooltip>
+      )}
+      {isActionable && (
+        <InteractiveIcon
+          Icon={CloseIcon}
+          aria-label={translateWithParameters('project_activity.graphs.custom.remove_metric', name)}
+          className="sw-ml-2"
+          size="small"
+          onClick={() => removeMetric(metric)}
+        />
+      )}
+    </StyledLegendItem>
+  );
 }
+
+interface GraphPillsProps {
+  isActionable: boolean;
+}
+
+const StyledLegendItem = styled.div<GraphPillsProps>`
+  display: flex;
+  align-items: center;
+  border: ${(props) =>
+    props.isActionable ? themeBorder('default', 'buttonSecondaryBorder') : 'none'};
+`;

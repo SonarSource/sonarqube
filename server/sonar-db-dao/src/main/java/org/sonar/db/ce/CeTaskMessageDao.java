@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.dismissmessage.MessageType;
 
 public class CeTaskMessageDao implements Dao {
   public void insert(DbSession dbSession, CeTaskMessageDto dto) {
@@ -33,12 +34,6 @@ public class CeTaskMessageDao implements Dao {
     return getMapper(dbSession).selectByUuid(uuid);
   }
 
-  /**
-   * @return the messages for the specific task, if any, in ascending order of column {@code CREATED_AT}.
-   */
-  public List<CeTaskMessageDto> selectByTask(DbSession dbSession, String taskUuid) {
-    return getMapper(dbSession).selectByTask(taskUuid);
-  }
 
   /**
    * @return the non dismissed messages for the specific task and specific user, if any, in ascending order of column {@code CREATED_AT}.
@@ -47,7 +42,7 @@ public class CeTaskMessageDao implements Dao {
     return getMapper(dbSession).selectNonDismissedByUserAndTask(taskUuid, userUuid);
   }
 
-  public void deleteByType(DbSession session, CeTaskMessageType type) {
+  public void deleteByType(DbSession session, MessageType type) {
     getMapper(session).deleteByType(type.name());
   }
 

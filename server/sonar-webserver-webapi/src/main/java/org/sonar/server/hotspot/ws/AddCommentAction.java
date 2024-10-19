@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -80,12 +80,12 @@ public class AddCommentAction implements HotspotsWsAction {
     String comment = request.mandatoryParam(PARAM_COMMENT);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
-      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
+      hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
 
       DefaultIssue defaultIssue = hotspot.toDefaultIssue();
       IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithoutMeasureRefresh();
       issueFieldsSetter.addComment(defaultIssue, comment, context);
-      issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context);
+      issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, hotspot, defaultIssue, context);
       response.noContent();
     }
   }

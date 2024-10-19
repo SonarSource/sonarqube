@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -72,7 +72,7 @@ public class ProjectsService extends BaseService {
   public CreateWsResponse create(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
-        .setParam("branch", request.getBranch())
+        .setParam("mainBranch", request.getMainBranch())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())

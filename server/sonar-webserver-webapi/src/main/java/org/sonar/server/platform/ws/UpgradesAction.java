@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.server.platform.ws;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,7 +35,7 @@ import org.sonar.updatecenter.common.SonarUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 
 /**
@@ -46,6 +47,7 @@ public class UpgradesAction implements SystemWsAction {
 
   private static final String ARRAY_UPGRADES = "upgrades";
   private static final String PROPERTY_UPDATE_CENTER_LTS = "latestLTS";
+  private static final String PROPERTY_UPDATE_CENTER_LTA = "latestLTA";
   private static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
   private static final String PROPERTY_VERSION = "version";
   private static final String PROPERTY_DESCRIPTION = "description";
@@ -68,11 +70,14 @@ public class UpgradesAction implements SystemWsAction {
   private static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
   private static final String PROPERTY_EDITION_BUNDLED = "editionBundled";
   private static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
+  public static final String INSTALLED_VERSION_ACTIVE = "installedVersionActive";
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
+  private final ActiveVersionEvaluator activeVersionEvaluator;
 
-  public UpgradesAction(UpdateCenterMatrixFactory updateCenterFactory) {
+  public UpgradesAction(UpdateCenterMatrixFactory updateCenterFactory, ActiveVersionEvaluator activeVersionEvaluator) {
     this.updateCenterFactory = updateCenterFactory;
+    this.activeVersionEvaluator = activeVersionEvaluator;
   }
 
   private static void writeMetadata(JsonWriter jsonWriter, Release release) {
@@ -96,7 +101,10 @@ public class UpgradesAction implements SystemWsAction {
         "is provided in the response.")
       .setSince("5.2")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-upgrades_plugins.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "example-upgrades_plugins.json"))
+      .setChangelog(new Change("10.5", "The field 'ltsVersion' is deprecated from the response"))
+      .setChangelog(new Change("10.5", "The field 'ltaVersion' is added to indicate the Long-Term Active Version"))
+      .setChangelog(new Change("10.5", "The field 'installedVersionActive' is added to indicate if the installed version is an active version"));
   }
 
   @Override
@@ -109,20 +117,37 @@ public class UpgradesAction implements SystemWsAction {
 
   private void writeResponse(JsonWriter jsonWriter) {
     jsonWriter.beginObject();
-
-    Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
-    writeUpgrades(jsonWriter, updateCenter);
-    if (updateCenter.isPresent()) {
-      Release ltsRelease = updateCenter.get().getSonar().getLtsRelease();
-      if (ltsRelease != null) {
-        Version ltsVersion = ltsRelease.getVersion();
-        String latestLTS = String.format("%s.%s", ltsVersion.getMajor(), ltsVersion.getMinor());
-        jsonWriter.prop(PROPERTY_UPDATE_CENTER_LTS, latestLTS);
+    try {
+      Optional<UpdateCenter> updateCenterOpt = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
+      writeUpgrades(jsonWriter, updateCenterOpt);
+      if (updateCenterOpt.isPresent()) {
+        UpdateCenter updateCenter = updateCenterOpt.get();
+        writeLatestLtsVersion(jsonWriter, updateCenter);
+        writeLatestLtaVersion(jsonWriter, updateCenter);
+        jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.getDate());
+        jsonWriter.prop(INSTALLED_VERSION_ACTIVE, activeVersionEvaluator.evaluateIfActiveVersion(updateCenter));
       }
-      jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.get().getDate());
+    } finally {
+      jsonWriter.endObject();
     }
+  }
 
-    jsonWriter.endObject();
+  private static void writeLatestLtsVersion(JsonWriter jsonWriter, UpdateCenter updateCenter) {
+    Release ltsRelease = updateCenter.getSonar().getLtsRelease();
+    if (ltsRelease != null) {
+      Version ltsVersion = ltsRelease.getVersion();
+      String latestLTS = String.format("%s.%s", ltsVersion.getMajor(), ltsVersion.getMinor());
+      jsonWriter.prop(PROPERTY_UPDATE_CENTER_LTS, latestLTS);
+    }
+  }
+
+  private static void writeLatestLtaVersion(JsonWriter jsonWriter, UpdateCenter updateCenter) {
+    Release ltaRelease = updateCenter.getSonar().getLtaVersion();
+    if (ltaRelease != null) {
+      Version ltaVersion = ltaRelease.getVersion();
+      String latestLTA = String.format("%s.%s", ltaVersion.getMajor(), ltaVersion.getMinor());
+      jsonWriter.prop(PROPERTY_UPDATE_CENTER_LTA, latestLTA);
+    }
   }
 
   private static void writeUpgrades(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {

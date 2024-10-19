@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,17 +20,17 @@
 package org.sonar.server.qualitygate;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.measures.CoreMetrics;
 
 import static org.sonar.api.measures.Metric.ValueType.RATING;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class ValidRatingMetrics {
 
   private static final Set<String> CORE_RATING_METRICS = CoreMetrics.getMetrics().stream()
     .filter(metric -> metric.getType().equals(RATING))
     .map(org.sonar.api.measures.Metric::getKey)
-    .collect(toSet());
+    .collect(Collectors.toSet());
 
   private ValidRatingMetrics() {
     // only static methods

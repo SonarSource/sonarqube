@@ -1,0 +1,32 @@
+{
+  "application": {
+    "jit": {
+      "status": "SUCCESS"
+    },
+    "autoProvisioning": {
+      "status": "FAILED",
+      "errorMessage": "App validation failed"
+    }
+  },
+  "installations": [
+    {
+      "organization": "org1",
+      "jit": {
+        "status": "SUCCESS"
+      },
+      "autoProvisioning": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "organization": "org2",
+      "jit": {
+        "status": "SUCCESS"
+      },
+      "autoProvisioning": {
+        "status": "FAILED",
+        "errorMessage": "Organization validation failed."
+      }
+    }
+  ]
+}

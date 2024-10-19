@@ -7,7 +7,7 @@
     select
       u.uuid as userUuid,
       ur.organization_uuid as organizationUuid,
-      ur.component_uuid as componentUuid,
+      ur.entity_uuid as entityUuid,
       ur.role as permission
     <include refid="sqlQueryJoins"/>
     <where>
@@ -33,15 +33,15 @@
     from users u
     left join user_roles ur on ur.user_uuid = u.uuid and ur.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <choose>
-      <when test="query.componentUuid == null">
-        and ur.component_uuid is null
+      <when test="query.entityUuid == null">
+        and ur.entity_uuid is null
       </when>
       <otherwise>
-        and ur.component_uuid = #{query.componentUuid,jdbcType=VARCHAR}
+        and ur.entity_uuid = #{query.entityUuid,jdbcType=VARCHAR}
       </otherwise>
     </choose>
-    left join components p on ur.component_uuid = p.uuid
-    inner join organization_members om on u.uuid=om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+    left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.entity_uuid = entity.uuid
+    inner join organization_members om on u.uuid = om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <where>
       <include refid="sqlQueryFilters"/>
     </where>
@@ -60,8 +60,8 @@
   <sql id="sqlQueryJoins">
     from users u
     left join user_roles ur on ur.user_uuid = u.uuid
-    left join components p on ur.component_uuid = p.uuid
-    inner join organization_members om on u.uuid=om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+    left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.entity_uuid = entity.uuid
+    inner join organization_members om on u.uuid = om.user_uuid and om.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
   </sql>
 
   <sql id="sqlQueryFilters">
@@ -76,11 +76,11 @@
     <if test="query.withAtLeastOnePermission()">
       and ur.organization_uuid = om.organization_uuid
       and ur.role is not null
-      <if test="query.componentUuid==null">
-        and ur.component_uuid is null
+      <if test="query.entityUuid == null">
+        and ur.entity_uuid is null
       </if>
-      <if test="query.componentUuid!=null">
-        and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
+      <if test="query.entityUuid != null">
+        and entity.uuid = #{query.entityUuid,jdbcType=VARCHAR}
       </if>
       <if test="query.permission!=null">
         and ur.role = #{query.permission,jdbcType=VARCHAR}
@@ -94,34 +94,34 @@
     where
     ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
-    ur.component_uuid is null
+    ur.entity_uuid is null
   </select>
 
-  <select id="selectProjectPermissionsOfUser" parameterType="map" resultType="string">
+  <select id="selectEntityPermissionsOfUser" parameterType="map" resultType="string">
     select ur.role
     from user_roles ur
     where
     ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
-    ur.component_uuid = #{projectUuid,jdbcType=VARCHAR}
+    ur.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="countUsersByProjectPermission" resultType="org.sonar.db.permission.CountPerProjectPermission">
-    select ur.component_uuid as componentUuid, ur.role as permission, count(u.login) as count
+  <select id="countUsersByEntityPermission" resultType="org.sonar.db.permission.CountPerEntityPermission">
+    select ur.entity_uuid as entityUuid, ur.role as permission, count(u.login) as count
     from users u
     inner join user_roles ur on ur.user_uuid = u.uuid
-    inner join components p on p.uuid = ur.component_uuid
+    inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.entity_uuid = entity.uuid
     where u.active = ${_true}
-    and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" separator=",">#{projectUuid}</foreach>
-    group by ur.component_uuid, ur.role
+    and entity.uuid in <foreach collection="entityUuids" open="(" close=")" item="entityUuid" separator=",">#{entityUuid}</foreach>
+    group by ur.entity_uuid, ur.role
   </select>
 
-  <select id="selectUserIdsWithPermissionOnProjectBut" resultType="org.sonar.db.user.UserIdDto">
+  <select id="selectUserIdsWithPermissionOnEntityBut" resultType="org.sonar.db.user.UserIdDto">
     select
       distinct ur1.user_uuid, u.login
     from
       user_roles ur1 inner join users u on ur1.user_uuid = u.uuid
     where
-      ur1.component_uuid = #{projectUuid,jdbcType=VARCHAR}
+      ur1.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
       and role &lt;&gt; #{permission,jdbcType=VARCHAR}
       and not exists (
         select
@@ -129,7 +129,7 @@
         from
           user_roles ur2
         where
-          ur2.component_uuid = ur1.component_uuid
+          ur2.entity_uuid = ur1.entity_uuid
           and ur2.user_uuid = ur1.user_uuid
           and role = #{permission,jdbcType=VARCHAR}
       )
@@ -140,13 +140,13 @@
     uuid,
     organization_uuid,
     user_uuid,
-    component_uuid,
+    entity_uuid,
     role
     ) values (
     #{dto.uuid,jdbcType=VARCHAR},
     #{dto.organizationUuid,jdbcType=VARCHAR},
     #{dto.userUuid,jdbcType=VARCHAR},
-    #{dto.componentUuid,jdbcType=VARCHAR},
+    #{dto.entityUuid,jdbcType=VARCHAR},
     #{dto.permission,jdbcType=VARCHAR}
     )
   </insert>
@@ -157,28 +157,28 @@
     role = #{permission,jdbcType=VARCHAR} and
     user_uuid = #{userUuid,jdbcType=VARCHAR} and
     organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-    component_uuid is null
+    entity_uuid is null
   </delete>
 
-  <delete id="deleteProjectPermission" parameterType="map">
+  <delete id="deleteEntityPermission" parameterType="map">
     delete from user_roles
     where
     role = #{permission,jdbcType=VARCHAR} and
     user_uuid = #{userUuid,jdbcType=VARCHAR} and
-    component_uuid = #{projectUuid,jdbcType=VARCHAR}
+    entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteProjectPermissions" parameterType="map">
+  <delete id="deleteEntityPermissions" parameterType="map">
     delete from user_roles
     where
-    component_uuid = #{projectUuid,jdbcType=VARCHAR}
+    entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteProjectPermissionOfAnyUser" parameterType="map">
+  <delete id="deleteEntityPermissionOfAnyUser" parameterType="map">
     delete from
       user_roles
     where
-      component_uuid = #{projectUuid,jdbcType=VARCHAR}
+      entity_uuid = #{entityUuid,jdbcType=VARCHAR}
       and role = #{permission,jdbcType=VARCHAR}
   </delete>
 

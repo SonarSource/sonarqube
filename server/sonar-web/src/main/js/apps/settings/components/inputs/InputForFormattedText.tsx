@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import styled from '@emotion/styled';
+import {
+  ButtonSecondary,
+  HtmlFormatter,
+  InputTextArea,
+  PencilIcon,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import FormattingTipsWithLink from '../../../../components/common/FormattingTipsWithLink';
-import { Button } from '../../../../components/controls/buttons';
-import EditIcon from '../../../../components/icons/EditIcon';
 import { translate } from '../../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../../helpers/sanitize';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
-export default function InputForFormattedText(props: DefaultSpecializedInputProps) {
+function InputForFormattedText(
+  props: DefaultSpecializedInputProps,
+  ref: React.ForwardedRef<HTMLTextAreaElement>,
+) {
   const { isEditing, setting, name, value } = props;
   const { values, hasValue } = setting;
   const editMode = !hasValue || isEditing;
@@ -36,32 +47,44 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
     props.onChange(event.target.value);
   }
 
-  return (
+  return editMode ? (
     <div>
-      {editMode ? (
-        <div className="display-flex-row">
-          <textarea
-            className="settings-large-input text-top spacer-right"
-            name={name}
-            onChange={handleInputChange}
-            rows={5}
-            value={value || ''}
-          />
-          <FormattingTipsWithLink className="abs-width-100" />
-        </div>
-      ) : (
-        <>
-          <div
-            className="markdown-preview markdown"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
-          />
-          <Button className="spacer-top" onClick={props.onEditing}>
-            <EditIcon className="spacer-right" />
-            {translate('edit')}
-          </Button>
-        </>
-      )}
+      <InputTextArea
+        size="large"
+        aria-label={getPropertyName(setting.definition)}
+        className="settings-large-input sw-mr-2"
+        name={name}
+        onChange={handleInputChange}
+        ref={ref}
+        rows={5}
+        value={value || ''}
+      />
+      <FormattingTipsWithLink className="sw-mt-2" />
     </div>
+  ) : (
+    <>
+      <HtmlFormatter>
+        <FormattedPreviewBox
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
+        />
+      </HtmlFormatter>
+
+      <ButtonSecondary className="sw-mt-2" onClick={props.onEditing} icon={<PencilIcon />}>
+        {translate('edit')}
+      </ButtonSecondary>
+    </>
   );
 }
+
+const FormattedPreviewBox = styled.div`
+  width: 450px;
+  background-color: ${themeColor('infoBackground')};
+  border: ${themeBorder('default', 'infoBorder')};
+  border-radius: 2px;
+  padding: 16px;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+`;
+
+export default React.forwardRef(InputForFormattedText);

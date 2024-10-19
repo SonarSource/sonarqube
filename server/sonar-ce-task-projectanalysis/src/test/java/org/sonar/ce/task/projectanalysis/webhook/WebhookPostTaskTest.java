@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,11 +32,11 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask.LogStatistics;
-import org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.testfixtures.posttask.PostProjectAnalysisTaskTester;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
@@ -47,19 +47,19 @@ import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newBranchBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newConditionBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newQualityGateBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
+import static org.sonar.api.testfixtures.posttask.PostProjectAnalysisTaskTester.newBranchBuilder;
+import static org.sonar.api.testfixtures.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
+import static org.sonar.api.testfixtures.posttask.PostProjectAnalysisTaskTester.newConditionBuilder;
+import static org.sonar.api.testfixtures.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
+import static org.sonar.api.testfixtures.posttask.PostProjectAnalysisTaskTester.newQualityGateBuilder;
+import static org.sonar.api.testfixtures.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
 
 public class WebhookPostTaskTest {
 
@@ -93,7 +93,6 @@ public class WebhookPostTaskTest {
       .setMetricKey(randomAlphanumeric(96))
       .setOperator(QualityGate.Operator.LESS_THAN)
       .setErrorThreshold(randomAlphanumeric(22))
-      .setOnLeakPeriod(random.nextBoolean())
       .build(QualityGate.EvaluationStatus.OK, randomAlphanumeric(33));
     QualityGate qualityGate = newQualityGateBuilder()
       .setId(randomAlphanumeric(23))

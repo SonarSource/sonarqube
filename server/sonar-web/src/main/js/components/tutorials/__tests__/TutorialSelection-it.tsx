@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
-import { byLabelText, byRole, byText } from 'testing-library-selector';
-import { getAlmSettingsNoCatch } from '../../../api/alm-settings';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getScannableProjects } from '../../../api/components';
+import AlmSettingsServiceMock from '../../../api/mocks/AlmSettingsServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
-import {
-  mockGithubBindingDefinition,
-  mockProjectAlmBindingResponse,
-} from '../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -37,20 +34,14 @@ import { AlmKeys } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Permissions } from '../../../types/permissions';
 import { SettingsKey } from '../../../types/settings';
-import { withRouter } from '../../hoc/withRouter';
-import { TutorialSelection } from '../TutorialSelection';
+import TutorialSelection, { TutorialSelectionProps } from '../TutorialSelection';
 import { TutorialModes } from '../types';
 
-jest.mock('../../../api/settings');
-jest.mock('../../../api/user-tokens');
+jest.mock('../../../api/branches');
 
 jest.mock('../../../helpers/urls', () => ({
   ...jest.requireActual('../../../helpers/urls'),
   getHostUrl: jest.fn().mockReturnValue('http://host.url'),
-}));
-
-jest.mock('../../../api/alm-settings', () => ({
-  getAlmSettingsNoCatch: jest.fn().mockRejectedValue(null),
 }));
 
 jest.mock('../../../api/components', () => ({
@@ -59,24 +50,37 @@ jest.mock('../../../api/components', () => ({
 
 let settingsMock: SettingsServiceMock;
 let tokenMock: UserTokensMock;
+let almMock: AlmSettingsServiceMock;
 
 beforeAll(() => {
   settingsMock = new SettingsServiceMock();
   tokenMock = new UserTokensMock();
+  almMock = new AlmSettingsServiceMock();
 });
 
 afterEach(() => {
   tokenMock.reset();
   settingsMock.reset();
+  almMock.reset();
 });
 
-beforeEach(jest.clearAllMocks);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const ui = {
-  loading: byLabelText('loading'),
+  loading: byText('loading'),
   noScanRights: byText('onboarding.tutorial.no_scan_rights'),
-  chooseTutorialBtn: (mode: TutorialModes) =>
-    byRole('button', { name: `onboarding.tutorial.choose_method.${mode}` }),
+  monoRepoSecretInfo: byText(
+    'onboarding.tutorial.with.github_action.create_secret.monorepo_project_level_token_info.link',
+  ),
+  monoRepoYamlDocLink: byRole('link', {
+    name: /^onboarding\.tutorial\.with\.github_action\.monorepo\.see_yaml_instructions\b/,
+  }),
+  chooseTutorialLink: (mode: TutorialModes) =>
+    byRole('link', { name: `onboarding.tutorial.choose_method.${mode}` }),
+  chooseBootstrapper: (bootstrapper: string) =>
+    byRole('radio', { name: `onboarding.build.${bootstrapper}` }),
 };
 
 it.each([
@@ -84,21 +88,72 @@ it.each([
   [TutorialModes.AzurePipelines, 'onboarding.tutorial.with.azure_pipelines.title'],
   [
     TutorialModes.BitbucketPipelines,
-    'onboarding.tutorial.with.bitbucket_pipelines.create_secret.title',
+    'onboarding.tutorial.with.bitbucket_pipelines.variables.title',
   ],
   [TutorialModes.GitHubActions, 'onboarding.tutorial.with.github_action.create_secret.title'],
   [TutorialModes.GitLabCI, 'onboarding.tutorial.with.gitlab_ci.title'],
   [TutorialModes.Local, 'onboarding.project_analysis.header'],
   [TutorialModes.OtherCI, 'onboarding.project_analysis.header'],
-])('should behave correctly for %s', async (mode, title) => {
+])('should properly click link for %s', async (mode, title) => {
   const user = userEvent.setup();
-  renderTutorialSelection();
+  const breadcrumbs = `onboarding.tutorial.breadcrumbs.${mode}`;
+  renderTutorialSelection({});
   await waitOnDataLoaded();
 
   expect(screen.getByText('onboarding.tutorial.choose_method')).toBeInTheDocument();
 
-  await user.click(ui.chooseTutorialBtn(mode).get());
+  expect(screen.queryByText(breadcrumbs)).not.toBeInTheDocument();
+  await user.click(ui.chooseTutorialLink(mode).get());
   expect(screen.getByText(title)).toBeInTheDocument();
+  expect(screen.getByText(breadcrumbs)).toBeInTheDocument();
+});
+
+it('should properly detect and render GitHub monorepo-specific instructions for GitHub Actions', async () => {
+  almMock.handleSetProjectBinding(AlmKeys.GitHub, {
+    project: 'foo',
+    almSetting: 'foo',
+    repository: 'repo',
+    monorepo: true,
+  });
+  const user = userEvent.setup();
+  renderTutorialSelection({});
+  await waitOnDataLoaded();
+
+  await user.click(ui.chooseTutorialLink(TutorialModes.GitHubActions).get());
+
+  expect(ui.monoRepoSecretInfo.get()).toBeInTheDocument();
+
+  expect(ui.monoRepoYamlDocLink.query()).not.toBeInTheDocument();
+  await user.click(ui.chooseBootstrapper('maven').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('gradle').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('dotnet').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('other').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+});
+
+it('should properly render GitHub project tutorials for GitHub Actions', async () => {
+  almMock.handleSetProjectBinding(AlmKeys.GitHub, {
+    project: 'foo',
+    almSetting: 'foo',
+    repository: 'repo',
+    monorepo: false,
+  });
+  const user = userEvent.setup();
+  renderTutorialSelection({});
+  await waitOnDataLoaded();
+
+  await user.click(ui.chooseTutorialLink(TutorialModes.GitHubActions).get());
+
+  expect(ui.monoRepoSecretInfo.query()).not.toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('maven').get());
+  expect(ui.monoRepoYamlDocLink.query()).not.toBeInTheDocument();
 });
 
 it.each([
@@ -111,24 +166,29 @@ it.each([
   [AlmKeys.BitbucketServer, [TutorialModes.Jenkins]],
   [AlmKeys.BitbucketCloud, [TutorialModes.BitbucketPipelines, TutorialModes.Jenkins]],
 ])('should show correct buttons if project is bound to %s', async (alm, modes) => {
-  renderTutorialSelection({ projectBinding: mockProjectAlmBindingResponse({ alm }) });
+  almMock.handleSetProjectBinding(alm, {
+    project: 'foo',
+    almSetting: 'foo',
+    repository: 'repo',
+    monorepo: false,
+  });
+  renderTutorialSelection();
   await waitOnDataLoaded();
 
-  modes.forEach((mode) => expect(ui.chooseTutorialBtn(mode).get()).toBeInTheDocument());
+  modes.forEach((mode) => expect(ui.chooseTutorialLink(mode).get()).toBeInTheDocument());
 });
 
 it('should correctly fetch the corresponding ALM setting', async () => {
-  (getAlmSettingsNoCatch as jest.Mock).mockResolvedValueOnce([
-    mockGithubBindingDefinition({ key: 'binding', url: 'https://enterprise.github.com' }),
-  ]);
-  const user = userEvent.setup();
-  renderTutorialSelection({
-    projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' }),
+  almMock.handleSetProjectBinding(AlmKeys.GitHub, {
+    project: 'foo',
+    almSetting: 'conf-github-1',
+    repository: 'repo',
+    monorepo: false,
   });
+  renderTutorialSelection({}, `tutorials?selectedTutorial=${TutorialModes.Jenkins}&id=foo`);
   await waitOnDataLoaded();
 
-  await startJenkinsTutorial(user);
-  expect(screen.getByText('https://enterprise.github.com', { exact: false })).toBeInTheDocument();
+  expect(await screen.findByText('http://url', { exact: false })).toBeInTheDocument();
 });
 
 it('should correctly fetch the instance URL', async () => {
@@ -139,7 +199,7 @@ it('should correctly fetch the instance URL', async () => {
 
   await startLocalTutorial(user);
   expect(
-    screen.getByText('-Dsonar.host.url=http://sq.example.com', { exact: false })
+    screen.getByText('-Dsonar.host.url=http://sq.example.com', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -150,12 +210,14 @@ it('should fallback on the host URL', async () => {
 
   await startLocalTutorial(user);
   expect(
-    screen.getByText('-Dsonar.host.url=http://host.url', { exact: false })
+    screen.getByText('-Dsonar.host.url=http://host.url', { exact: false }),
   ).toBeInTheDocument();
 });
 
 it('should not display a warning if the user has no global scan permission, but can scan the project', async () => {
-  (getScannableProjects as jest.Mock).mockResolvedValueOnce({ projects: [{ key: 'foo' }] });
+  jest
+    .mocked(getScannableProjects)
+    .mockResolvedValueOnce({ projects: [{ key: 'foo', name: 'foo' }] });
   renderTutorialSelection({ currentUser: mockLoggedInUser() });
   await waitOnDataLoaded();
 
@@ -176,31 +238,23 @@ async function waitOnDataLoaded() {
 }
 
 async function startLocalTutorial(user: UserEvent) {
-  await user.click(ui.chooseTutorialBtn(TutorialModes.Local).get());
+  await user.click(ui.chooseTutorialLink(TutorialModes.Local).get());
   await user.click(screen.getByRole('button', { name: 'onboarding.token.generate' }));
   await user.click(screen.getByRole('button', { name: 'continue' }));
-  await user.click(screen.getByRole('button', { name: 'onboarding.build.maven' }));
+  await user.click(screen.getByRole('radio', { name: 'onboarding.build.maven' }));
 }
 
-async function startJenkinsTutorial(user: UserEvent) {
-  await user.click(ui.chooseTutorialBtn(TutorialModes.Jenkins).get());
-  await user.click(
-    screen.getByRole('button', { name: 'onboarding.tutorial.with.jenkins.prereqs.done' })
-  );
-}
-
-function renderTutorialSelection(props: Partial<TutorialSelection['props']> = {}) {
-  const Wrapper = withRouter(({ router, location, ...subProps }: TutorialSelection['props']) => {
-    return <TutorialSelection location={location} router={router} {...subProps} />;
-  });
-
+function renderTutorialSelection(
+  props: Partial<TutorialSelectionProps> = {},
+  navigateTo: string = 'tutorials?id=bar',
+) {
   return renderApp(
-    '/',
-    <Wrapper
+    '/tutorials',
+    <TutorialSelection
       component={mockComponent({ key: 'foo' })}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}
       {...props}
     />,
-    { featureList: [Feature.BranchSupport] }
+    { featureList: [Feature.BranchSupport], navigateTo },
   );
 }

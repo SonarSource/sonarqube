@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Title, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
-import {
-  AlmKeys,
-  AlmSettingsInstance,
-  ProjectAlmBindingResponse,
-} from '../../../types/alm-settings';
+import { useProjectBindingQuery } from '../../../queries/devops-integration';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import AllSetStep from '../components/AllSetStep';
-import JenkinsfileStep from './JenkinsfileStep';
+import AllSet from '../components/AllSet';
+import JenkinsStep from './JenkinsStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PipelineStep from './PipelineStep';
 import PreRequisitesStep from './PreRequisitesStep';
@@ -41,101 +39,56 @@ export interface JenkinsTutorialProps extends WithAvailableFeaturesProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
   component: Component;
-  projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }
 
-enum Steps {
-  SelectAlm = 0,
-  PreRequisites = 1,
-  MultiBranchPipeline = 2,
-  Webhook = 3,
-  Jenkinsfile = 4,
-  AllSet = 5,
-}
-
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
-  const { almBinding, baseUrl, component, projectBinding, willRefreshAutomatically } = props;
+  const { almBinding, baseUrl, component, willRefreshAutomatically } = props;
+  const { data: projectBinding } = useProjectBindingQuery(component.key);
   const hasSelectAlmStep = projectBinding?.alm === undefined;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const [alm, setAlm] = React.useState<AlmKeys | undefined>(projectBinding?.alm);
-  const [step, setStep] = React.useState(alm ? Steps.PreRequisites : Steps.SelectAlm);
+  const [done, setDone] = React.useState(false);
+
+  React.useEffect(() => {
+    setAlm(projectBinding?.alm);
+  }, [projectBinding]);
 
   return (
     <>
-      <div className="page-header big-spacer-bottom">
-        <h2 className="page-title">{translate('onboarding.tutorial.with.jenkins.title')}</h2>
-      </div>
+      <Title>{translate('onboarding.tutorial.with.jenkins.title')}</Title>
 
-      {hasSelectAlmStep && (
-        <SelectAlmStep
-          alm={alm}
-          open={step === Steps.SelectAlm}
-          onCheck={(value) => {
-            setAlm(value);
-            setStep(Steps.PreRequisites);
-          }}
-          onOpen={() => setStep(Steps.SelectAlm)}
-        />
-      )}
-
+      {hasSelectAlmStep && <SelectAlmStep alm={alm} onChange={setAlm} />}
       {alm && (
         <>
-          <PreRequisitesStep
-            alm={alm}
-            branchesEnabled={branchSupportEnabled}
-            finished={step > Steps.PreRequisites}
-            onDone={() => setStep(Steps.MultiBranchPipeline)}
-            onOpen={() => setStep(Steps.PreRequisites)}
-            open={step === Steps.PreRequisites}
-          />
+          <TutorialStepList className="sw-mb-10">
+            <PreRequisitesStep alm={alm} branchesEnabled={branchSupportEnabled} />
 
-          {branchSupportEnabled ? (
-            <MultiBranchPipelineStep
+            {branchSupportEnabled ? (
+              <MultiBranchPipelineStep
+                alm={alm}
+                almBinding={almBinding}
+                projectBinding={projectBinding}
+              />
+            ) : (
+              <PipelineStep alm={alm} />
+            )}
+
+            <WebhookStep
               alm={alm}
               almBinding={almBinding}
-              finished={step > Steps.MultiBranchPipeline}
-              onDone={() => setStep(Steps.Webhook)}
-              onOpen={() => setStep(Steps.MultiBranchPipeline)}
-              open={step === Steps.MultiBranchPipeline}
+              branchesEnabled={branchSupportEnabled}
               projectBinding={projectBinding}
             />
-          ) : (
-            <PipelineStep
-              alm={alm}
-              finished={step > Steps.MultiBranchPipeline}
-              onDone={() => setStep(Steps.Webhook)}
-              onOpen={() => setStep(Steps.MultiBranchPipeline)}
-              open={step === Steps.MultiBranchPipeline}
-            />
+
+            <JenkinsStep component={component} baseUrl={baseUrl} setDone={setDone} />
+          </TutorialStepList>
+          {done && (
+            <>
+              <BasicSeparator className="sw-my-10" />
+              <AllSet alm={alm} willRefreshAutomatically={willRefreshAutomatically} />
+            </>
           )}
-
-          <WebhookStep
-            alm={alm}
-            almBinding={almBinding}
-            branchesEnabled={branchSupportEnabled}
-            finished={step > Steps.Webhook}
-            onDone={() => setStep(Steps.Jenkinsfile)}
-            onOpen={() => setStep(Steps.Webhook)}
-            open={step === Steps.Webhook}
-            projectBinding={projectBinding}
-          />
-
-          <JenkinsfileStep
-            component={component}
-            baseUrl={baseUrl}
-            finished={step > Steps.Jenkinsfile}
-            onDone={() => setStep(Steps.AllSet)}
-            onOpen={() => setStep(Steps.Jenkinsfile)}
-            open={step === Steps.Jenkinsfile}
-          />
-
-          <AllSetStep
-            alm={alm}
-            open={step === Steps.AllSet}
-            stepNumber={4}
-            willRefreshAutomatically={willRefreshAutomatically}
-          />
         </>
       )}
     </>

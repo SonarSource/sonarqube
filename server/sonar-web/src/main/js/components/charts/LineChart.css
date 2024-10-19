@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,35 +19,7 @@
  */
 .line-chart-path {
   fill: none;
-  stroke: var(--blue);
-  stroke-width: 3px;
-}
-
-.line-chart-path.line-chart-path-1 {
-  stroke: var(--darkBlue);
-  stroke-dasharray: 3;
-}
-
-.line-chart-path.line-chart-path-2 {
-  stroke: #24c6e0;
-  stroke-dasharray: 10;
-}
-
-.line-chart-path.line-chart-path-legend.line-chart-path-2 {
-  stroke-dasharray: 7;
-}
-
-.line-chart-area {
-  fill: rgba(75, 159, 213, 0.3);
-  stroke-width: 0;
-}
-
-.line-chart-area.line-chart-area-1 {
-  fill: rgba(35, 106, 151, 0.3);
-}
-
-.line-chart-area.line-chart-area-2 {
-  fill: rgba(36, 198, 224, 0.3);
+  stroke-width: 2px;
 }
 
 .line-chart-point {
@@ -58,7 +30,6 @@
 
 .line-chart-tick {
   fill: var(--secondFontColor);
-  font-size: var(--smallFontSize);
 }
 
 .line-chart-tick-x {

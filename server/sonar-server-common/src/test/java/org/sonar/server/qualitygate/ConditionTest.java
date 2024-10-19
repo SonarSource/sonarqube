@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ public class ConditionTest {
   }
 
   @Test
-  public void constructor_throws_NPE_if_operator_is_null() {
+  public void constructor_throws_NPE_if_operator_operator_is_null() {
     assertThatThrownBy(() -> new Condition(METRIC_KEY, null, ERROR_THRESHOLD))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("operator can't be null");

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,60 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dict } from '../../types/types';
-import { getMessages } from '../l10nBundle';
-import { enhanceConditionWithMeasure, formatMeasure, isPeriodBestValue } from '../measures';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../constants';
+import {
+  areCCTMeasuresComputed,
+  enhanceConditionWithMeasure,
+  isPeriodBestValue,
+} from '../measures';
 import { mockQualityGateStatusCondition } from '../mocks/quality-gates';
-import { mockMeasureEnhanced, mockMetric } from '../testMocks';
-
-jest.unmock('../l10n');
-
-jest.mock('../l10nBundle', () => ({
-  getCurrentLocale: jest.fn().mockReturnValue('us'),
-  getMessages: jest.fn().mockReturnValue({}),
-}));
-
-const resetMessages = (messages: Dict<string>) =>
-  (getMessages as jest.Mock).mockReturnValue(messages);
-
-beforeAll(() => {
-  resetMessages({
-    'work_duration.x_days': '{0}d',
-    'work_duration.x_hours': '{0}h',
-    'work_duration.x_minutes': '{0}min',
-    'work_duration.about': '~ {0}',
-    'metric.level.ERROR': 'Error',
-    'metric.level.WARN': 'Warning',
-    'metric.level.OK': 'Ok',
-    'short_number_suffix.g': 'G',
-    'short_number_suffix.k': 'k',
-    'short_number_suffix.m': 'M',
-  });
-});
-
-const HOURS_IN_DAY = 8;
-const ONE_MINUTE = 1;
-const ONE_HOUR = ONE_MINUTE * 60;
-const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
+import { mockMeasure, mockMeasureEnhanced, mockMetric } from '../testMocks';
 
 describe('enhanceConditionWithMeasure', () => {
   it('should correctly map enhance conditions with measure data', () => {
     const measures = [
-      mockMeasureEnhanced({ metric: mockMetric({ key: 'bugs' }), period: undefined }),
-      mockMeasureEnhanced({ metric: mockMetric({ key: 'new_bugs' }) }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }), period: undefined }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) }),
     ];
 
     expect(
-      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'bugs' }), measures)
+      enhanceConditionWithMeasure(
+        mockQualityGateStatusCondition({ metric: MetricKey.bugs }),
+        measures,
+      ),
     ).toMatchObject({
-      measure: expect.objectContaining({ metric: expect.objectContaining({ key: 'bugs' }) }),
+      measure: expect.objectContaining({
+        metric: expect.objectContaining({ key: MetricKey.bugs }),
+      }),
     });
 
     expect(
-      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'new_bugs' }), measures)
+      enhanceConditionWithMeasure(
+        mockQualityGateStatusCondition({ metric: MetricKey.new_bugs }),
+        measures,
+      ),
     ).toMatchObject({
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: 'new_bugs' }),
+        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
       }),
       period: 1,
     });
@@ -86,161 +68,31 @@ describe('isPeriodBestValue', () => {
     expect(isPeriodBestValue(mockMeasureEnhanced({ period: undefined }))).toBe(false);
     expect(
       isPeriodBestValue(
-        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: false } })
-      )
+        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: false } }),
+      ),
     ).toBe(false);
     expect(
       isPeriodBestValue(
-        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: true } })
-      )
+        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: true } }),
+      ),
     ).toBe(true);
   });
 });
 
-describe('#formatMeasure()', () => {
-  it('should format INT', () => {
-    expect(formatMeasure(0, 'INT')).toBe('0');
-    expect(formatMeasure(1, 'INT')).toBe('1');
-    expect(formatMeasure(-5, 'INT')).toBe('-5');
-    expect(formatMeasure(999, 'INT')).toBe('999');
-    expect(formatMeasure(1000, 'INT')).toBe('1,000');
-    expect(formatMeasure(1529, 'INT')).toBe('1,529');
-    expect(formatMeasure(10000, 'INT')).toBe('10,000');
-    expect(formatMeasure(1234567890, 'INT')).toBe('1,234,567,890');
+describe('areCCTMeasuresComputed', () => {
+  it('returns true when measures include maintainability_,security_,reliability_issues', () => {
+    expect(
+      areCCTMeasuresComputed(CCT_SOFTWARE_QUALITY_METRICS.map((metric) => mockMeasure({ metric }))),
+    ).toBe(true);
   });
 
-  it('should format SHORT_INT', () => {
-    expect(formatMeasure(0, 'SHORT_INT')).toBe('0');
-    expect(formatMeasure(1, 'SHORT_INT')).toBe('1');
-    expect(formatMeasure(999, 'SHORT_INT')).toBe('999');
-    expect(formatMeasure(1000, 'SHORT_INT')).toBe('1k');
-    expect(formatMeasure(1529, 'SHORT_INT')).toBe('1.5k');
-    expect(formatMeasure(10000, 'SHORT_INT')).toBe('10k');
-    expect(formatMeasure(10678, 'SHORT_INT')).toBe('11k');
-    expect(formatMeasure(9467890, 'SHORT_INT')).toBe('9.5M');
-    expect(formatMeasure(994567890, 'SHORT_INT')).toBe('995M');
-    expect(formatMeasure(999000001, 'SHORT_INT')).toBe('999M');
-    expect(formatMeasure(999567890, 'SHORT_INT')).toBe('1G');
-    expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1.2G');
-    expect(formatMeasure(11234567890, 'SHORT_INT')).toBe('11G');
-  });
-
-  it('should format FLOAT', () => {
-    expect(formatMeasure(0.0, 'FLOAT')).toBe('0.0');
-    expect(formatMeasure(1.0, 'FLOAT')).toBe('1.0');
-    expect(formatMeasure(1.3, 'FLOAT')).toBe('1.3');
-    expect(formatMeasure(1.34, 'FLOAT')).toBe('1.34');
-    expect(formatMeasure(50.89, 'FLOAT')).toBe('50.89');
-    expect(formatMeasure(100.0, 'FLOAT')).toBe('100.0');
-    expect(formatMeasure(123.456, 'FLOAT')).toBe('123.456');
-    expect(formatMeasure(123456.7, 'FLOAT')).toBe('123,456.7');
-    expect(formatMeasure(1234567890.0, 'FLOAT')).toBe('1,234,567,890.0');
-  });
-
-  it('should respect FLOAT precision', () => {
-    expect(formatMeasure(0.1, 'FLOAT')).toBe('0.1');
-    expect(formatMeasure(0.12, 'FLOAT')).toBe('0.12');
-    expect(formatMeasure(0.12345, 'FLOAT')).toBe('0.12345');
-    expect(formatMeasure(0.123456, 'FLOAT')).toBe('0.12346');
-  });
-
-  it('should format PERCENT', () => {
-    expect(formatMeasure(0.0, 'PERCENT')).toBe('0.0%');
-    expect(formatMeasure(1.0, 'PERCENT')).toBe('1.0%');
-    expect(formatMeasure(1.3, 'PERCENT')).toBe('1.3%');
-    expect(formatMeasure(1.34, 'PERCENT')).toBe('1.3%');
-    expect(formatMeasure(50.89, 'PERCENT')).toBe('50.9%');
-    expect(formatMeasure(100.0, 'PERCENT')).toBe('100%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 0 })).toBe('50.9%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 1 })).toBe('50.9%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 2 })).toBe('50.89%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 3 })).toBe('50.890%');
-    expect(formatMeasure(50, 'PERCENT', { decimals: 0, omitExtraDecimalZeros: true })).toBe(
-      '50.0%'
-    );
-    expect(formatMeasure(50, 'PERCENT', { decimals: 1, omitExtraDecimalZeros: true })).toBe(
-      '50.0%'
-    );
-    expect(formatMeasure(50, 'PERCENT', { decimals: 3, omitExtraDecimalZeros: true })).toBe(
-      '50.0%'
-    );
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 3, omitExtraDecimalZeros: true })).toBe(
-      '50.89%'
-    );
-  });
-
-  it('should format WORK_DUR', () => {
-    expect(formatMeasure(0, 'WORK_DUR')).toBe('0');
-    expect(formatMeasure(5 * ONE_DAY, 'WORK_DUR')).toBe('5d');
-    expect(formatMeasure(2 * ONE_HOUR, 'WORK_DUR')).toBe('2h');
-    expect(formatMeasure(40 * ONE_MINUTE, 'WORK_DUR')).toBe('40min');
-    expect(formatMeasure(ONE_MINUTE, 'WORK_DUR')).toBe('1min');
-    expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, 'WORK_DUR')).toBe('5d 2h');
-    expect(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, 'WORK_DUR')).toBe('2h 1min');
-    expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'WORK_DUR')).toBe('5d 2h');
-    expect(formatMeasure(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'WORK_DUR')).toBe('15d');
-    expect(formatMeasure(-5 * ONE_DAY, 'WORK_DUR')).toBe('-5d');
-    expect(formatMeasure(-2 * ONE_HOUR, 'WORK_DUR')).toBe('-2h');
-    expect(formatMeasure(-1 * ONE_MINUTE, 'WORK_DUR')).toBe('-1min');
-  });
-
-  it('should format SHORT_WORK_DUR', () => {
-    expect(formatMeasure(0, 'SHORT_WORK_DUR')).toBe('0');
-    expect(formatMeasure(5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('5d');
-    expect(formatMeasure(2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('2h');
-    expect(formatMeasure(ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('1min');
-    expect(formatMeasure(40 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('40min');
-    expect(formatMeasure(58 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('1h');
-    expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('5d');
-    expect(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('2h');
-    expect(formatMeasure(ONE_HOUR + 55 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('2h');
-    expect(formatMeasure(3 * ONE_DAY + 6 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('4d');
-    expect(formatMeasure(7 * ONE_HOUR + 59 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('1d');
-    expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('5d');
-    expect(formatMeasure(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('15d');
-    expect(formatMeasure(7 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('7min');
-    expect(formatMeasure(-5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('-5d');
-    expect(formatMeasure(-2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('-2h');
-    expect(formatMeasure(-1 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('-1min');
-
-    expect(formatMeasure(1529 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1.5kd');
-    expect(formatMeasure(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1.2Md');
-    expect(formatMeasure(12345670 * ONE_DAY + 4 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('12Md');
-  });
-
-  it('should format RATING', () => {
-    expect(formatMeasure(1, 'RATING')).toBe('A');
-    expect(formatMeasure(2, 'RATING')).toBe('B');
-    expect(formatMeasure(3, 'RATING')).toBe('C');
-    expect(formatMeasure(4, 'RATING')).toBe('D');
-    expect(formatMeasure(5, 'RATING')).toBe('E');
-  });
-
-  it('should format LEVEL', () => {
-    expect(formatMeasure('ERROR', 'LEVEL')).toBe('Error');
-    expect(formatMeasure('WARN', 'LEVEL')).toBe('Warning');
-    expect(formatMeasure('OK', 'LEVEL')).toBe('Ok');
-    expect(formatMeasure('UNKNOWN', 'LEVEL')).toBe('UNKNOWN');
-  });
-
-  it('should format MILLISEC', () => {
-    expect(formatMeasure(0, 'MILLISEC')).toBe('0ms');
-    expect(formatMeasure(1, 'MILLISEC')).toBe('1ms');
-    expect(formatMeasure(173, 'MILLISEC')).toBe('173ms');
-    expect(formatMeasure(3649, 'MILLISEC')).toBe('4s');
-    expect(formatMeasure(893481, 'MILLISEC')).toBe('15min');
-    expect(formatMeasure(17862325, 'MILLISEC')).toBe('298min');
-  });
-
-  it('should not format unknown type', () => {
-    expect(formatMeasure('random value', 'RANDOM_TYPE')).toBe('random value');
-  });
-
-  it('should return null if value is empty string', () => {
-    expect(formatMeasure('', 'PERCENT')).toBe('');
-  });
-
-  it('should not fail with undefined', () => {
-    expect(formatMeasure(undefined, 'INT')).toBe('');
+  it('returns false otherwise', () => {
+    expect(areCCTMeasuresComputed([mockMeasure()])).toBe(false);
+    expect(
+      areCCTMeasuresComputed([
+        mockMeasure(),
+        mockMeasure({ metric: CCT_SOFTWARE_QUALITY_METRICS[0] }),
+      ]),
+    ).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,12 +19,14 @@
  */
 package org.sonar.server.user.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
@@ -42,11 +44,14 @@ public class UpdateLoginAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final UserUpdater userUpdater;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public UpdateLoginAction(DbClient dbClient, UserSession userSession, UserUpdater userUpdater) {
+  public UpdateLoginAction(DbClient dbClient, UserSession userSession, UserUpdater userUpdater,
+    ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userUpdater = userUpdater;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -56,7 +61,9 @@ public class UpdateLoginAction implements UsersWsAction {
         "Requires Administer System permission")
       .setSince("7.6")
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use PATCH api/v2/users-management/users/{id} instead"));
 
     action.createParam(PARAM_LOGIN)
       .setRequired(true)
@@ -74,6 +81,7 @@ public class UpdateLoginAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfInstanceIsManaged();
     String login = request.mandatoryParam(PARAM_LOGIN);
     String newLogin = request.mandatoryParam(PARAM_NEW_LOGIN);
     try (DbSession dbSession = dbClient.openSession(false)) {

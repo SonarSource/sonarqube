@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,11 @@
  */
 package org.sonar.server.authentication;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
-import org.sonar.api.utils.log.Loggers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class LogOAuthWarning implements Startable {
@@ -52,8 +52,8 @@ public class LogOAuthWarning implements Startable {
     }
     String publicRootUrl = server.getPublicRootUrl();
     if (StringUtils.startsWithIgnoreCase(publicRootUrl, "http:")) {
-      Loggers.get(getClass()).warn(
-        "For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to a HTTPS URL.");
+      LoggerFactory.getLogger(getClass()).warn(
+        "For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to an HTTPS URL.");
     }
   }
 

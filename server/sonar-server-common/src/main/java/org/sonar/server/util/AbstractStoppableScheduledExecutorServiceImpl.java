@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class AbstractStoppableScheduledExecutorServiceImpl<T extends ScheduledExecutorService> extends AbstractStoppableExecutorService<T>
+public abstract class AbstractStoppableScheduledExecutorServiceImpl<T extends ScheduledExecutorService> extends AbstractStoppableExecutorService<T>
   implements StoppableScheduledExecutorService {
-  public AbstractStoppableScheduledExecutorServiceImpl(T delegate) {
+  protected AbstractStoppableScheduledExecutorServiceImpl(T delegate) {
     super(delegate);
   }
 

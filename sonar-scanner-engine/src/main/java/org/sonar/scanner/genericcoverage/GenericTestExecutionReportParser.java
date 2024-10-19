@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,8 @@ import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.deprecated.test.DefaultTestCase;
 import org.sonar.scanner.deprecated.test.DefaultTestCase.Status;
 import org.sonar.scanner.deprecated.test.DefaultTestPlan;
@@ -50,7 +50,7 @@ public class GenericTestExecutionReportParser {
 
   private static final String OLD_ROOT_ELEMENT = "unitTest";
 
-  private static final Logger LOG = Loggers.get(GenericTestExecutionReportParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GenericTestExecutionReportParser.class);
 
   private static final String NAME_ATTR = "name";
   private static final String DURATION_ATTR = "duration";

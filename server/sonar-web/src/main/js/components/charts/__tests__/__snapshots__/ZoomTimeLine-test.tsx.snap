@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`should render correctly: no height 1`] = `<div />`;
-
-exports[`should render correctly: no width 1`] = `<div />`;

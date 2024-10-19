@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,121 +17,181 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable react/no-unused-prop-types */
 
+/* eslint-disable react/no-unused-prop-types */
+import styled from '@emotion/styled';
+import {
+  FlagErrorIcon,
+  FlagSuccessIcon,
+  FlagWarningIcon,
+  Link,
+  Spinner,
+  ThemeColors,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import { Alert, AlertProps } from '../../../components/ui/Alert';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import { IndexationNotificationType } from '../../../types/indexation';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 
 export interface IndexationNotificationRendererProps {
-  type: IndexationNotificationType;
-  percentCompleted: number;
-  isSystemAdmin: boolean;
+  completedCount?: number;
+  total?: number;
+  type?: IndexationNotificationType;
 }
 
-const NOTIFICATION_VARIANTS: { [key in IndexationNotificationType]: AlertProps['variant'] } = {
-  [IndexationNotificationType.InProgress]: 'warning',
-  [IndexationNotificationType.InProgressWithFailure]: 'error',
-  [IndexationNotificationType.Completed]: 'success',
-  [IndexationNotificationType.CompletedWithFailure]: 'error',
+const NOTIFICATION_COLORS: {
+  [key in IndexationNotificationType]: { background: ThemeColors; border: ThemeColors };
+} = {
+  [IndexationNotificationType.InProgress]: {
+    background: 'warningBackground',
+    border: 'warningBorder',
+  },
+  [IndexationNotificationType.InProgressWithFailure]: {
+    background: 'errorBackground',
+    border: 'errorBorder',
+  },
+  [IndexationNotificationType.Completed]: {
+    background: 'successBackground',
+    border: 'successBorder',
+  },
+  [IndexationNotificationType.CompletedWithFailure]: {
+    background: 'errorBackground',
+    border: 'errorBorder',
+  },
 };
 
 export default function IndexationNotificationRenderer(props: IndexationNotificationRendererProps) {
-  const { type } = props;
+  const { completedCount, total, type } = props;
 
   return (
-    <div className="indexation-notification-wrapper">
-      <Alert
-        className="indexation-notification-banner"
-        display="banner"
-        variant={NOTIFICATION_VARIANTS[type]}
+    <div className={type === undefined ? 'sw-hidden' : ''}>
+      <StyledBanner
+        className="sw-typo-default sw-py-3 sw-px-4 sw-gap-4"
+        type={type ?? IndexationNotificationType.Completed}
+        aria-live="assertive"
+        role="alert"
       >
-        <div className="display-flex-center">
-          {type === IndexationNotificationType.Completed && renderCompletedBanner(props)}
-          {type === IndexationNotificationType.CompletedWithFailure &&
-            renderCompletedWithFailureBanner(props)}
-          {type === IndexationNotificationType.InProgress && renderInProgressBanner(props)}
-          {type === IndexationNotificationType.InProgressWithFailure &&
-            renderInProgressWithFailureBanner(props)}
-        </div>
-      </Alert>
+        {type !== undefined && (
+          <>
+            {renderIcon(type)}
+            {type === IndexationNotificationType.Completed && renderCompletedBanner()}
+
+            {type === IndexationNotificationType.CompletedWithFailure &&
+              renderCompletedWithFailureBanner()}
+
+            {type === IndexationNotificationType.InProgress &&
+              renderInProgressBanner(completedCount as number, total as number)}
+
+            {type === IndexationNotificationType.InProgressWithFailure &&
+              renderInProgressWithFailureBanner(completedCount as number, total as number)}
+          </>
+        )}
+      </StyledBanner>
     </div>
   );
 }
 
-function renderCompletedBanner(_props: IndexationNotificationRendererProps) {
-  return <span className="spacer-right">{translate('indexation.completed')}</span>;
+function renderIcon(type: IndexationNotificationType) {
+  switch (type) {
+    case IndexationNotificationType.Completed:
+      return <FlagSuccessIcon />;
+    case IndexationNotificationType.CompletedWithFailure:
+    case IndexationNotificationType.InProgressWithFailure:
+      return <FlagErrorIcon />;
+    case IndexationNotificationType.InProgress:
+      return <FlagWarningIcon />;
+    default:
+      return null;
+  }
 }
 
-function renderCompletedWithFailureBanner(props: IndexationNotificationRendererProps) {
-  const { isSystemAdmin } = props;
+function renderCompletedBanner() {
+  return <span>{translate('indexation.completed')}</span>;
+}
 
+function renderCompletedWithFailureBanner() {
   return (
-    <span className="spacer-right">
+    <span>
       <FormattedMessage
-        id="indexation.completed_with_error"
         defaultMessage={translate('indexation.completed_with_error')}
+        id="indexation.completed_with_error"
         values={{
-          link: isSystemAdmin
-            ? renderBackgroundTasksPageLink(true, translate('indexation.completed_with_error.link'))
-            : translate('indexation.completed_with_error.link'),
+          link: renderBackgroundTasksPageLink(
+            true,
+            translate('indexation.completed_with_error.link'),
+          ),
         }}
       />
     </span>
   );
 }
 
-function renderInProgressBanner(props: IndexationNotificationRendererProps) {
-  const { percentCompleted, isSystemAdmin } = props;
-
+function renderInProgressBanner(completedCount: number, total: number) {
   return (
     <>
-      <span className="spacer-right">{translate('indexation.in_progress')}</span>
-      <i className="spinner spacer-right" />
-      <span className="spacer-right">
-        {translateWithParameters('indexation.progression', percentCompleted)}
+      <span>
+        <FormattedMessage id="indexation.in_progress" />{' '}
+        <FormattedMessage
+          id="indexation.features_partly_available"
+          values={{
+            link: renderIndexationDocPageLink(),
+          }}
+        />
       </span>
-      {isSystemAdmin && (
-        <span className="spacer-right">
-          <FormattedMessage
-            id="indexation.admin_link"
-            defaultMessage={translate('indexation.admin_link')}
-            values={{
-              link: renderBackgroundTasksPageLink(false, translate('background_tasks.page')),
-            }}
-          />
-        </span>
-      )}
+
+      <span className="sw-flex sw-items-center">
+        <Spinner className="sw-mr-1 -sw-mb-1/2" />
+        {translateWithParameters(
+          'indexation.progression',
+          completedCount.toString(),
+          total.toString(),
+        )}
+      </span>
+
+      <span>
+        <FormattedMessage
+          id="indexation.admin_link"
+          defaultMessage={translate('indexation.admin_link')}
+          values={{
+            link: renderBackgroundTasksPageLink(false, translate('background_tasks.page')),
+          }}
+        />
+      </span>
     </>
   );
 }
 
-function renderInProgressWithFailureBanner(props: IndexationNotificationRendererProps) {
-  const { percentCompleted, isSystemAdmin } = props;
-
+function renderInProgressWithFailureBanner(completedCount: number, total: number) {
   return (
     <>
-      <span className="spacer-right">{translate('indexation.in_progress')}</span>
-      <i className="spinner spacer-right" />
-      <span className="spacer-right">
+      <span>
+        <FormattedMessage id="indexation.in_progress" />{' '}
         <FormattedMessage
-          id="indexation.progression_with_error"
-          defaultMessage={translateWithParameters(
-            'indexation.progression_with_error',
-            percentCompleted
-          )}
+          id="indexation.features_partly_available"
           values={{
-            link: isSystemAdmin
-              ? renderBackgroundTasksPageLink(
-                  true,
-                  translate('indexation.progression_with_error.link')
-                )
-              : translate('indexation.progression_with_error.link'),
+            link: renderIndexationDocPageLink(),
+          }}
+        />
+      </span>
+
+      <span className="sw-flex sw-items-center">
+        <Spinner className="sw-mr-1 -sw-mb-1/2" />
+        <FormattedMessage
+          tagName="span"
+          id="indexation.progression_with_error"
+          values={{
+            count: completedCount,
+            total,
+            link: renderBackgroundTasksPageLink(
+              true,
+              translate('indexation.progression_with_error.link'),
+            ),
           }}
         />
       </span>
@@ -144,7 +204,7 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
     <Link
       to={{
         pathname: '/admin/background_tasks',
-        search: queryToSearch({
+        search: queryToSearchString({
           taskType: TaskTypes.IssueSync,
           status: hasError ? TaskStatuses.Failed : undefined,
         }),
@@ -154,3 +214,21 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
     </Link>
   );
 }
+
+function renderIndexationDocPageLink() {
+  return (
+    <DocumentationLink className="sw-whitespace-nowrap" to={DocLink.InstanceAdminReindexation}>
+      <FormattedMessage id="indexation.features_partly_available.link" />
+    </DocumentationLink>
+  );
+}
+
+const StyledBanner = styled.div<{ type: IndexationNotificationType }>`
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+
+  background-color: ${({ type }) => themeColor(NOTIFICATION_COLORS[type].background)};
+  border-bottom: ${({ type }) => themeBorder('default', NOTIFICATION_COLORS[type].border)};
+`;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface Webhook {
+export interface WebhookResponse {
+  hasSecret: boolean;
   key: string;
   latestDelivery?: WebhookDelivery;
   name: string;
+  url: string;
+}
+
+export interface WebhookBasePayload {
+  name: string;
   secret?: string;
   url: string;
+}
+
+export interface WebhookCreatePayload extends WebhookBasePayload {
+  project?: string;
+}
+
+export interface WebhookUpdatePayload extends WebhookBasePayload {
+  webhook: string;
 }
 
 export interface WebhookDelivery {
@@ -32,3 +46,11 @@ export interface WebhookDelivery {
   id: string;
   success: boolean;
 }
+
+export type WebhookSearchDeliveriesPayload = {
+  ceTaskId?: string;
+  componentKey?: string;
+  p?: number;
+  ps?: number;
+  webhook?: string;
+};

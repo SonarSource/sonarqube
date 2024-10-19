@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, Note, TextError } from 'design-system';
 import * as React from 'react';
-import { getValue, resetSettingValue, setSettingValue } from '../../../api/settings';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
+import {
+  useGetValueQuery,
+  useResetSettingsMutation,
+  useSaveValueMutation,
+} from '../../../queries/settings';
 import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
-import { isEmptyValue, isURLKind } from '../utils';
-import DefinitionRenderer from './DefinitionRenderer';
+import {
+  combineDefinitionAndSettingValue,
+  getSettingValue,
+  getUniqueName,
+  isDefaultOrInherited,
+  isEmptyValue,
+  isURLKind,
+} from '../utils';
+import DefinitionActions from './DefinitionActions';
+import DefinitionDescription from './DefinitionDescription';
+import Input from './inputs/Input';
 
 interface Props {
   component?: Component;
@@ -32,176 +48,218 @@ interface Props {
   initialSettingValue?: SettingValue;
 }
 
-interface State {
-  changedValue?: string;
-  isEditing: boolean;
-  loading: boolean;
-  success: boolean;
-  validationMessage?: string;
-  settingValue?: SettingValue;
-}
-
 const SAFE_SET_STATE_DELAY = 3000;
+const formNoop = (e: React.FormEvent<HTMLFormElement>) => e.preventDefault();
+type FieldValue = string | string[] | boolean;
 
-export default class Definition extends React.PureComponent<Props, State> {
-  timeout?: number;
-  mounted = false;
+export default function Definition(props: Readonly<Props>) {
+  const { component, definition, initialSettingValue } = props;
+  const timeout = React.useRef<number | undefined>();
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [changedValue, setChangedValue] = React.useState<FieldValue>();
+  const [validationMessage, setValidationMessage] = React.useState<string>();
+  const ref = React.useRef<HTMLElement>(null);
+  const name = getUniqueName(definition);
 
-  constructor(props: Props) {
-    super(props);
+  const { data: loadedSettingValue, isLoading } = useGetValueQuery({
+    key: definition.key,
+    component: component?.key,
+  });
 
-    this.state = {
-      isEditing: false,
-      loading: false,
-      success: false,
-      settingValue: props.initialSettingValue,
-    };
-  }
+  // WARNING: do *not* remove `?? undefined` below, it is required to change `null` to `undefined`!
+  // (Yes, it's ugly, we really shouldn't use `null` as the fallback value in useGetValueQuery)
+  // prettier-ignore
+  const settingValue = isLoading ? initialSettingValue : (loadedSettingValue ?? undefined);
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const { mutateAsync: resetSettingValue } = useResetSettingsMutation();
+  const { mutateAsync: saveSettingValue } = useSaveValueMutation();
 
-  componentWillUnmount() {
-    this.mounted = false;
-    clearTimeout(this.timeout);
-  }
+  React.useEffect(() => () => clearTimeout(timeout.current), []);
 
-  handleChange = (changedValue: any) => {
-    clearTimeout(this.timeout);
+  const handleChange = (changedValue: FieldValue) => {
+    clearTimeout(timeout.current);
 
-    this.setState({ changedValue, success: false }, this.handleCheck);
+    setChangedValue(changedValue);
+    setSuccess(false);
+    handleCheck(changedValue);
   };
 
-  handleReset = async () => {
-    const { component, definition } = this.props;
-
-    this.setState({ loading: true, success: false });
+  const handleReset = async () => {
+    setLoading(true);
+    setSuccess(false);
 
     try {
-      await resetSettingValue({ keys: definition.key, component: component?.key });
-      const settingValue = await getValue({ key: definition.key, component: component?.key });
+      await resetSettingValue({ keys: [definition.key], component: component?.key });
 
-      this.setState({
-        changedValue: undefined,
-        loading: false,
-        success: true,
-        validationMessage: undefined,
-        settingValue,
-      });
+      setChangedValue(undefined);
+      setLoading(false);
+      setSuccess(true);
+      ref.current?.focus();
+      setValidationMessage(undefined);
 
-      this.timeout = window.setTimeout(
-        () => this.setState({ success: false }),
-        SAFE_SET_STATE_DELAY
-      );
+      timeout.current = window.setTimeout(() => {
+        setSuccess(false);
+      }, SAFE_SET_STATE_DELAY);
     } catch (e) {
       const validationMessage = await parseError(e as Response);
-      this.setState({ loading: false, validationMessage });
+      setLoading(false);
+      setValidationMessage(validationMessage);
+      ref.current?.focus();
     }
   };
 
-  handleCancel = () => {
-    this.setState({ changedValue: undefined, validationMessage: undefined, isEditing: false });
+  const handleCancel = () => {
+    setChangedValue(undefined);
+    setValidationMessage(undefined);
+    setIsEditing(false);
   };
 
-  handleCheck = () => {
-    const { definition } = this.props;
-    const { changedValue } = this.state;
-
-    if (isEmptyValue(definition, changedValue)) {
+  const handleCheck = (value?: FieldValue) => {
+    if (isEmptyValue(definition, value)) {
       if (definition.defaultValue === undefined) {
-        this.setState({
-          validationMessage: translate('settings.state.value_cant_be_empty_no_default'),
-        });
+        setValidationMessage(translate('settings.state.value_cant_be_empty_no_default'));
       } else {
-        this.setState({ validationMessage: translate('settings.state.value_cant_be_empty') });
+        setValidationMessage(translate('settings.state.value_cant_be_empty'));
       }
+      ref.current?.focus();
+
       return false;
     }
 
     if (isURLKind(definition)) {
       try {
         // eslint-disable-next-line no-new
-        new URL(changedValue ?? '');
+        new URL(value?.toString() ?? '');
       } catch (e) {
-        this.setState({
-          validationMessage: translateWithParameters(
-            'settings.state.url_not_valid',
-            changedValue ?? ''
-          ),
-        });
+        setValidationMessage(
+          translateWithParameters('settings.state.url_not_valid', value?.toString() ?? ''),
+        );
+        ref.current?.focus();
+
         return false;
       }
     }
 
     if (definition.type === SettingType.JSON) {
       try {
-        JSON.parse(changedValue ?? '');
+        JSON.parse(value?.toString() ?? '');
       } catch (e) {
-        this.setState({ validationMessage: (e as Error).message });
+        setValidationMessage((e as Error).message);
+        ref.current?.focus();
 
         return false;
       }
     }
 
-    this.setState({ validationMessage: undefined });
+    setValidationMessage(undefined);
     return true;
   };
 
-  handleEditing = () => {
-    this.setState({ isEditing: true });
-  };
-
-  handleSave = async () => {
-    const { component, definition } = this.props;
-    const { changedValue } = this.state;
-
+  const handleSave = async () => {
     if (changedValue !== undefined) {
-      this.setState({ success: false });
+      setSuccess(false);
 
       if (isEmptyValue(definition, changedValue)) {
-        this.setState({ validationMessage: translate('settings.state.value_cant_be_empty') });
+        setValidationMessage(translate('settings.state.value_cant_be_empty'));
+        ref.current?.focus();
 
         return;
       }
 
-      this.setState({ loading: true });
+      setLoading(true);
 
       try {
-        await setSettingValue(definition, changedValue, component?.key);
-        const settingValue = await getValue({ key: definition.key, component: component?.key });
+        await saveSettingValue({ definition, newValue: changedValue, component: component?.key });
 
-        this.setState({
-          changedValue: undefined,
-          isEditing: false,
-          loading: false,
-          success: true,
-          settingValue,
-        });
+        setChangedValue(undefined);
+        setIsEditing(false);
+        setLoading(false);
+        setSuccess(true);
+        ref.current?.focus();
 
-        this.timeout = window.setTimeout(
-          () => this.setState({ success: false }),
-          SAFE_SET_STATE_DELAY
-        );
+        timeout.current = window.setTimeout(() => {
+          setSuccess(false);
+        }, SAFE_SET_STATE_DELAY);
       } catch (e) {
         const validationMessage = await parseError(e as Response);
-        this.setState({ loading: false, validationMessage });
+        setLoading(false);
+        setValidationMessage(validationMessage);
+        ref.current?.focus();
       }
     }
   };
 
-  render() {
-    const { definition } = this.props;
-    return (
-      <DefinitionRenderer
-        definition={definition}
-        onCancel={this.handleCancel}
-        onChange={this.handleChange}
-        onEditing={this.handleEditing}
-        onReset={this.handleReset}
-        onSave={this.handleSave}
-        {...this.state}
-      />
-    );
-  }
+  const hasError = validationMessage != null;
+  const hasValueChanged = changedValue != null;
+  const effectiveValue = hasValueChanged ? changedValue : getSettingValue(definition, settingValue);
+  const isDefault = isDefaultOrInherited(settingValue);
+
+  const settingDefinitionAndValue = combineDefinitionAndSettingValue(definition, settingValue);
+
+  return (
+    <div data-key={definition.key} data-testid={definition.key} className="sw-flex sw-gap-12">
+      <DefinitionDescription definition={definition} />
+      <div className="sw-flex-1">
+        <form onSubmit={formNoop}>
+          <Input
+            ariaDescribedBy={`definition-stats-${name}`}
+            hasValueChanged={hasValueChanged}
+            onCancel={handleCancel}
+            onChange={handleChange}
+            onSave={handleSave}
+            onEditing={() => setIsEditing(true)}
+            ref={ref}
+            isEditing={isEditing}
+            isInvalid={hasError}
+            setting={settingDefinitionAndValue}
+            value={effectiveValue}
+          />
+
+          <div className="sw-mt-2">
+            {loading && (
+              <div id={`definition-stats-${name}`} className="sw-flex">
+                <Spinner aria-busy />
+
+                <Note className="sw-ml-2">{translate('settings.state.saving')}</Note>
+              </div>
+            )}
+
+            {!loading && validationMessage && (
+              <div id={`definition-stats-${name}`}>
+                <TextError
+                  as="output"
+                  className="sw-whitespace-break-spaces"
+                  text={translateWithParameters(
+                    'settings.state.validation_failed',
+                    validationMessage,
+                  )}
+                />
+              </div>
+            )}
+
+            {!loading && !hasError && success && (
+              <FlagMessage id={`definition-stats-${name}`} variant="success">
+                {translate('settings.state.saved')}
+              </FlagMessage>
+            )}
+          </div>
+
+          <DefinitionActions
+            changedValue={changedValue}
+            definition={definition}
+            hasError={hasError}
+            hasValueChanged={hasValueChanged}
+            isDefault={isDefault}
+            isEditing={isEditing}
+            onCancel={handleCancel}
+            onReset={handleReset}
+            onSave={handleSave}
+            setting={settingDefinitionAndValue}
+          />
+        </form>
+      </div>
+    </div>
+  );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbTester;
@@ -49,8 +51,9 @@ import org.sonarqube.ws.Issues.Operation;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -62,7 +65,7 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
-import static org.sonar.db.issue.IssueTesting.newIssuechangeDto;
+import static org.sonar.db.issue.IssueTesting.newIssueChangeDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.index.IssueScope.MAIN;
@@ -122,6 +125,8 @@ public class SearchResponseFormatFormatOperationTest {
 
   private void assertIssueEqualsIssueDto(Issue issue, IssueDto issueDto) {
     assertThat(issue.getKey()).isEqualTo(issueDto.getKey());
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.valueOf(issueDto.getEffectiveCleanCodeAttribute().name()));
+    assertThat(issue.getCleanCodeAttributeCategory()).isEqualTo(Common.CleanCodeAttributeCategory.valueOf(issueDto.getEffectiveCleanCodeAttribute().getAttributeCategory().name()));
     assertThat(issue.getType().getNumber()).isEqualTo(issueDto.getType());
     assertThat(issue.getComponent()).isEqualTo(issueDto.getComponentKey());
     assertThat(issue.getRule()).isEqualTo(issueDto.getRuleKey().toString());
@@ -139,6 +144,14 @@ public class SearchResponseFormatFormatOperationTest {
     assertThat(issue.getCloseDate()).isEqualTo(formatDateTime(issueDto.getIssueCloseDate()));
     assertThat(issue.getQuickFixAvailable()).isEqualTo(issueDto.isQuickFixAvailable());
     assertThat(issue.getRuleDescriptionContextKey()).isEqualTo(issueDto.getOptionalRuleDescriptionContextKey().orElse(null));
+    assertThat(new ArrayList<>(issue.getCodeVariantsList())).containsExactlyInAnyOrderElementsOf(issueDto.getCodeVariants());
+    assertThat(issue.getImpactsList())
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactlyInAnyOrderElementsOf(issueDto.getEffectiveImpacts()
+        .entrySet()
+        .stream()
+        .map(entry -> tuple(Common.SoftwareQuality.valueOf(entry.getKey().name()), Common.ImpactSeverity.valueOf(entry.getValue().name())))
+        .collect(toList()));
   }
 
   @Test
@@ -251,7 +264,7 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_comments_on_issues() {
-    IssueChangeDto issueChangeDto = newIssuechangeDto(issueDto);
+    IssueChangeDto issueChangeDto = newIssueChangeDto(issueDto);
     searchResponseData.setComments(List.of(issueChangeDto));
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
@@ -268,21 +281,31 @@ public class SearchResponseFormatFormatOperationTest {
     assertThat(result.getIssue().hasSeverity()).isFalse();
   }
 
+  @Test
+  public void formatOperation_shouldReturnExpectedIssueStatus() {
+    issueDto.setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED);
+    issueDto.setResolution(org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX);
+
+    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+
+    assertThat(result.getIssue().getIssueStatus()).isEqualTo(IssueStatus.ACCEPTED.name());
+  }
+
   private SearchResponseData newSearchResponseDataMainBranch() {
-    ComponentDto projectDto = db.components().insertPublicProject();
+    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), projectDto.uuid()).get();
     return newSearchResponseData(projectDto, branchDto);
   }
 
   private SearchResponseData newSearchResponseDataBranch(String name) {
-    ProjectDto projectDto = db.components().insertPublicProjectDto();
+    ProjectDto projectDto = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(name));
     ComponentDto branchComponent = db.components().getComponentDto(branch);
     return newSearchResponseData(branchComponent, branch);
   }
 
   private SearchResponseData newSearchResponseDataPr(String name) {
-    ProjectDto projectDto = db.components().insertPublicProjectDto();
+    ProjectDto projectDto = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(name).setBranchType(BranchType.PULL_REQUEST));
     ComponentDto branchComponent = db.components().getComponentDto(branch);
     return newSearchResponseData(branchComponent, branch);
@@ -294,6 +317,7 @@ public class SearchResponseFormatFormatOperationTest {
     componentDto = component;
     issueDto = newIssue(ruleDto, component.branchUuid(), component.getKey(), component)
       .setType(CODE_SMELL)
+      .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
       .setRuleDescriptionContextKey("context_key_" + randomAlphanumeric(5))
       .setAssigneeUuid(userDto.getUuid())
       .setResolution("resolution_" + randomAlphanumeric(5))

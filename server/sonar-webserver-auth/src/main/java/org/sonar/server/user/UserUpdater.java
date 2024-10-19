@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,17 +21,17 @@ package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
@@ -42,7 +42,6 @@ import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.util.Validation;
 
@@ -50,23 +49,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static java.util.Arrays.stream;
-import static java.util.stream.Stream.concat;
+import static java.util.Collections.emptyList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.util.Slug.slugify;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
 public class UserUpdater {
-
   private static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
   private static final String PASSWORD_PARAM = "Password";
   private static final String NAME_PARAM = "Name";
   private static final String EMAIL_PARAM = "Email";
-  private static final Pattern START_WITH_SPECIFIC_AUTHORIZED_CHARACTERS = Pattern.compile("^[\\.\\-_@].*$");
+  private static final Pattern START_WITH_SPECIFIC_AUTHORIZED_CHARACTERS = Pattern.compile("\\w+");
   private static final Pattern CONTAINS_ONLY_AUTHORIZED_CHARACTERS = Pattern.compile("\\A\\w[\\w\\.\\-@]+\\z");
 
   public static final int LOGIN_MIN_LENGTH = 2;
@@ -76,20 +72,18 @@ public class UserUpdater {
 
   private final NewUserNotifier newUserNotifier;
   private final DbClient dbClient;
-  private final UserIndexer userIndexer;
   private final DefaultGroupFinder defaultGroupFinder;
-  private final Configuration config;
   private final AuditPersister auditPersister;
   private final CredentialsLocalAuthentication localAuthentication;
+  private final Random random = new SecureRandom();
+
 
   @Inject
-  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, Configuration config,
+  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, DefaultGroupFinder defaultGroupFinder, Configuration config,
     AuditPersister auditPersister, CredentialsLocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
-    this.userIndexer = userIndexer;
     this.defaultGroupFinder = defaultGroupFinder;
-    this.config = config;
     this.auditPersister = auditPersister;
     this.localAuthentication = localAuthentication;
   }
@@ -109,8 +103,13 @@ public class UserUpdater {
     UpdateUser updateUser = new UpdateUser()
       .setName(newUser.name())
       .setEmail(newUser.email())
-      .setScmAccounts(newUser.scmAccounts())
-      .setExternalIdentity(newUser.externalIdentity());
+      .setScmAccounts(newUser.scmAccounts());
+
+    Optional<ExternalIdentity> externalIdentity = Optional.ofNullable(newUser.externalIdentity());
+    updateUser.setExternalIdentityProvider(externalIdentity.map(ExternalIdentity::getProvider).orElse(null));
+    updateUser.setExternalIdentityProviderId(externalIdentity.map(ExternalIdentity::getId).orElse(null));
+    updateUser.setExternalIdentityProviderLogin(externalIdentity.map(ExternalIdentity::getLogin).orElse(null));
+
     String login = newUser.login();
     if (login != null) {
       updateUser.setLogin(login);
@@ -138,7 +137,7 @@ public class UserUpdater {
 
   private UserDto commitUser(DbSession dbSession, UserDto userDto, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
     beforeCommit.accept(userDto);
-    userIndexer.commitAndIndex(dbSession, concat(Stream.of(userDto), stream(otherUsersToIndex)).collect(toList()));
+    dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), userDto.getEmail());
     return userDto;
   }
@@ -175,7 +174,7 @@ public class UserUpdater {
       userDto.setScmAccounts(scmAccounts);
     }
 
-    setExternalIdentity(dbSession, userDto, newUser.externalIdentity());
+    setExternalIdentity(dbSession, userDto, ExternalIdentityLocal.fromExternalIdentity(newUser.externalIdentity()));
 
     checkRequest(messages.isEmpty(), messages);
     return userDto;
@@ -184,7 +183,7 @@ public class UserUpdater {
   private String generateUniqueLogin(DbSession dbSession, String userName) {
     String slugName = slugify(userName);
     for (int i = 0; i < 10; i++) {
-      String login = slugName + RandomUtils.nextInt(100_000);
+      String login = slugName + random.nextInt(100_000);
       UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
       if (existingUser == null) {
         return login;
@@ -240,13 +239,20 @@ public class UserUpdater {
   }
 
   private boolean updateExternalIdentity(DbSession dbSession, UpdateUser updateUser, UserDto userDto) {
-    ExternalIdentity externalIdentity = updateUser.externalIdentity();
-    if (updateUser.isExternalIdentityChanged() && !isSameExternalIdentity(userDto, externalIdentity)) {
-      setExternalIdentity(dbSession, userDto, externalIdentity);
-      return true;
+    if (externalIdentityChanged(updateUser)) {
+      ExternalIdentityLocal externalIdentityLocal = ExternalIdentityLocal.fromUpdateUser(updateUser);
+      if (!externalIdentityLocal.isSameExternalIdentity(userDto)) {
+        setExternalIdentity(dbSession, userDto, externalIdentityLocal);
+        return true;
+      }
     }
     return false;
   }
+
+  private static boolean externalIdentityChanged(UpdateUser updateUser) {
+    return updateUser.isExternalIdentityProviderChanged() || updateUser.isExternalIdentityProviderIdChanged() || updateUser.isExternalIdentityProviderLoginChanged();
+  }
+
 
   private boolean updatePassword(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String password = updateUser.password();
@@ -262,7 +268,7 @@ public class UserUpdater {
   private boolean updateScmAccounts(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String email = updateUser.email();
     List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
-    List<String> existingScmAccounts = userDto.getScmAccountsAsList();
+    List<String> existingScmAccounts = userDto.getSortedScmAccounts();
     if (updateUser.isScmAccountsChanged() && !(existingScmAccounts.containsAll(scmAccounts) && scmAccounts.containsAll(existingScmAccounts))) {
       if (!scmAccounts.isEmpty()) {
         String newOrOldEmail = email != null ? email : userDto.getEmail();
@@ -270,36 +276,30 @@ public class UserUpdater {
           userDto.setScmAccounts(scmAccounts);
         }
       } else {
-        userDto.setScmAccounts((String) null);
+        userDto.setScmAccounts(emptyList());
       }
       return true;
     }
     return false;
   }
 
-  private static boolean isSameExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
-    return externalIdentity != null
-      && !dto.isLocal()
-      && Objects.equals(dto.getExternalId(), externalIdentity.getId())
-      && Objects.equals(dto.getExternalLogin(), externalIdentity.getLogin())
-      && Objects.equals(dto.getExternalIdentityProvider(), externalIdentity.getProvider());
-  }
 
-  private void setExternalIdentity(DbSession dbSession, UserDto dto, @Nullable ExternalIdentity externalIdentity) {
-    if (externalIdentity == null) {
+  private void setExternalIdentity(DbSession dbSession, UserDto dto, ExternalIdentityLocal externalIdentity) {
+    if (externalIdentity.isEmpty()) {
       dto.setExternalLogin(dto.getLogin());
       dto.setExternalIdentityProvider(SQ_AUTHORITY);
       dto.setExternalId(dto.getLogin());
       dto.setLocal(true);
     } else {
-      dto.setExternalLogin(externalIdentity.getLogin());
-      dto.setExternalIdentityProvider(externalIdentity.getProvider());
-      dto.setExternalId(externalIdentity.getId());
+      dto.setExternalLogin(Optional.ofNullable(externalIdentity.login()).orElse(dto.getExternalLogin()));
+      dto.setExternalIdentityProvider(Optional.ofNullable(externalIdentity.provider()).orElse(dto.getExternalIdentityProvider()));
+      dto.setExternalId(Optional.ofNullable(externalIdentity.id()).orElse(dto.getExternalId()));
       dto.setLocal(false);
       dto.setSalt(null);
       dto.setCryptedPassword(null);
     }
-    UserDto existingUser = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, dto.getExternalId(), dto.getExternalIdentityProvider());
+    UserDto existingUser = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, dto.getExternalId(),
+      dto.getExternalIdentityProvider());
     checkArgument(existingUser == null || Objects.equals(dto.getUuid(), existingUser.getUuid()),
       "A user with provider id '%s' and identity provider '%s' already exists", dto.getExternalId(), dto.getExternalIdentityProvider());
   }
@@ -321,8 +321,8 @@ public class UserUpdater {
       } else if (login.length() > LOGIN_MAX_LENGTH) {
         messages.add(format(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, LOGIN_MAX_LENGTH));
         return false;
-      } else if (START_WITH_SPECIFIC_AUTHORIZED_CHARACTERS.matcher(login).matches()){
-        messages.add("Login should not start with .-_@");
+      } else if (!startWithUnderscoreOrAlphanumeric(login)) {
+        messages.add("Login should start with _ or alphanumeric.");
         return false;
       } else if (!CONTAINS_ONLY_AUTHORIZED_CHARACTERS.matcher(login).matches()) {
         messages.add("Login should contain only letters, numbers, and .-_@");
@@ -330,6 +330,14 @@ public class UserUpdater {
       }
     }
     return isValid;
+  }
+
+  private static boolean startWithUnderscoreOrAlphanumeric(String login) {
+    String firstCharacter = login.substring(0, 1);
+    if ("_".equals(firstCharacter)) {
+      return true;
+    }
+    return START_WITH_SPECIFIC_AUTHORIZED_CHARACTERS.matcher(firstCharacter).matches();
   }
 
   private static boolean validateNameFormat(@Nullable String name, List<String> messages) {
@@ -401,9 +409,9 @@ public class UserUpdater {
         .map(Strings::emptyToNull)
         .filter(Objects::nonNull)
         .sorted(String::compareToIgnoreCase)
-        .collect(toList(scmAccounts.size()));
+        .toList();
     }
-    return Collections.emptyList();
+    return emptyList();
   }
 
   private void checkLoginUniqueness(DbSession dbSession, String login) {
@@ -432,4 +440,31 @@ public class UserUpdater {
   private static boolean isUserAlreadyMemberOfDefaultGroup(GroupDto defaultGroup, List<GroupDto> userGroups) {
     return userGroups.stream().anyMatch(group -> defaultGroup.getUuid().equals(group.getUuid()));
   }
+
+  private record ExternalIdentityLocal(@Nullable String provider, @Nullable String id, @Nullable String login) {
+    private static ExternalIdentityLocal fromUpdateUser(UpdateUser updateUser) {
+      return new ExternalIdentityLocal(updateUser.externalIdentityProvider(), updateUser.externalIdentityProviderId(),
+          updateUser.externalIdentityProviderLogin());
+    }
+
+    private static ExternalIdentityLocal fromExternalIdentity(@Nullable ExternalIdentity externalIdentity) {
+      if (externalIdentity == null) {
+        return new ExternalIdentityLocal(null, null, null);
+      }
+      return new ExternalIdentityLocal(externalIdentity.getProvider(), externalIdentity.getId(), externalIdentity.getLogin());
+    }
+
+    boolean isEmpty() {
+      return provider == null && id == null && login == null;
+    }
+
+    private boolean isSameExternalIdentity(UserDto userDto) {
+      return !(provider == null && id == null && login == null)
+          && !userDto.isLocal()
+          && Objects.equals(userDto.getExternalIdentityProvider(), provider)
+          && Objects.equals(userDto.getExternalLogin(), login)
+          && Objects.equals(userDto.getExternalId(), id);
+    }
+  }
+
 }

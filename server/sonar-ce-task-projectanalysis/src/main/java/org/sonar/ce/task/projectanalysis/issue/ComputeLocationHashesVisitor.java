@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
@@ -34,16 +36,20 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.TaintChecker;
 
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 /**
- * This visitor will update the locations field of issues, by filling the hashes for all locations.
- * It only applies to issues that are taint vulnerabilities and that are new or were changed.
+ * This visitor will update the locations field of issues, by filling hashes for their locations:
+ * - Primary location hash: for all issues, when needed (ie. is missing or the issue is new/updated)
+ * - Secondary location hash: only for taint vulnerabilities and security hotspots, when needed (the issue is new/updated)
  * For performance reasons, it will read each source code file once and feed the lines to all locations in that file.
  */
 public class ComputeLocationHashesVisitor extends IssueVisitor {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ComputeLocationHashesVisitor.class);
+
   private static final Pattern MATCH_ALL_WHITESPACES = Pattern.compile("\\s");
-  private final List<DefaultIssue> issues = new LinkedList<>();
+  private final List<DefaultIssue> issuesForAllLocations = new LinkedList<>();
+  private final List<DefaultIssue> issuesForPrimaryLocation = new LinkedList<>();
   private final SourceLinesRepository sourceLinesRepository;
   private final TreeRootHolder treeRootHolder;
   private final TaintChecker taintChecker;
@@ -56,14 +62,43 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
 
   @Override
   public void beforeComponent(Component component) {
-    issues.clear();
+    issuesForAllLocations.clear();
+    issuesForPrimaryLocation.clear();
   }
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (taintChecker.isTaintVulnerability(issue) && !issue.isFromExternalRuleEngine() && (issue.isNew() || issue.locationsChanged())) {
-      issues.add(issue);
+    if (issueNeedsLocationHashes(issue)) {
+      if (shouldComputeAllLocationHashes(issue)) {
+        issuesForAllLocations.add(issue);
+      } else if (shouldComputePrimaryLocationHash(issue)) {
+        // Issues in this situation are not necessarily marked as changed, so we do it to ensure persistence
+        issue.setChanged(true);
+        issuesForPrimaryLocation.add(issue);
+      }
     }
+  }
+
+  private static boolean issueNeedsLocationHashes(DefaultIssue issue) {
+    DbIssues.Locations locations = issue.getLocations();
+    return !issue.isFromExternalRuleEngine()
+      && !issue.isBeingClosed()
+      && locations != null;
+  }
+
+  private boolean shouldComputeAllLocationHashes(DefaultIssue issue) {
+    return taintChecker.isTaintVulnerability(issue)
+      && isIssueUpdated(issue);
+  }
+
+  private static boolean shouldComputePrimaryLocationHash(DefaultIssue issue) {
+    DbIssues.Locations locations = issue.getLocations();
+    return (locations.hasTextRange() && !locations.hasChecksum())
+      || isIssueUpdated(issue);
+  }
+
+  private static boolean isIssueUpdated(DefaultIssue issue) {
+    return issue.isNew() || issue.locationsChanged();
   }
 
   @Override
@@ -71,19 +106,10 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
     Map<Component, List<Location>> locationsByComponent = new HashMap<>();
     List<LocationToSet> locationsToSet = new LinkedList<>();
 
-    for (DefaultIssue issue : issues) {
-      if (issue.getLocations() == null) {
-        continue;
-      }
-
-      DbIssues.Locations.Builder primaryLocationBuilder = ((DbIssues.Locations) issue.getLocations()).toBuilder();
-      boolean hasTextRange = addLocations(component, issue, locationsByComponent, primaryLocationBuilder);
-
-      // If any location was added (because it had a text range), we'll need to update the issue at the end with the new object containing the hashes
-      if (hasTextRange) {
-        locationsToSet.add(new LocationToSet(issue, primaryLocationBuilder));
-      }
-    }
+    // Issues that needs both primary and secondary locations hashes
+    extractForAllLocations(component, locationsByComponent, locationsToSet);
+    // Then issues that needs only primary locations
+    extractForPrimaryLocation(component, locationsByComponent, locationsToSet);
 
     // Feed lines to locations, component by component
     locationsByComponent.forEach(this::updateLocationsInComponent);
@@ -94,32 +120,47 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
     // set new locations to issues
     locationsToSet.forEach(LocationToSet::set);
 
-    issues.clear();
+    issuesForAllLocations.clear();
+    issuesForPrimaryLocation.clear();
   }
 
-  private boolean addLocations(Component component, DefaultIssue issue, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder primaryLocationBuilder) {
-    boolean hasTextRange = false;
+  private void extractForAllLocations(Component component, Map<Component, List<Location>> locationsByComponent, List<LocationToSet> locationsToSet) {
+    for (DefaultIssue issue : issuesForAllLocations) {
+      DbIssues.Locations.Builder locationsBuilder = ((DbIssues.Locations) issue.getLocations()).toBuilder();
+      addPrimaryLocation(component, locationsByComponent, locationsBuilder);
+      addSecondaryLocations(issue, locationsByComponent, locationsBuilder);
+      locationsToSet.add(new LocationToSet(issue, locationsBuilder));
+    }
+  }
 
-    // Add primary location
-    if (primaryLocationBuilder.hasTextRange()) {
-      hasTextRange = true;
-      PrimaryLocation primaryLocation = new PrimaryLocation(primaryLocationBuilder);
+  private void extractForPrimaryLocation(Component component, Map<Component, List<Location>> locationsByComponent, List<LocationToSet> locationsToSet) {
+    for (DefaultIssue issue : issuesForPrimaryLocation) {
+      DbIssues.Locations.Builder locationsBuilder = ((DbIssues.Locations) issue.getLocations()).toBuilder();
+      addPrimaryLocation(component, locationsByComponent, locationsBuilder);
+      locationsToSet.add(new LocationToSet(issue, locationsBuilder));
+    }
+  }
+
+  private static void addPrimaryLocation(Component component, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder locationsBuilder) {
+    if (locationsBuilder.hasTextRange()) {
+      PrimaryLocation primaryLocation = new PrimaryLocation(locationsBuilder);
       locationsByComponent.computeIfAbsent(component, c -> new LinkedList<>()).add(primaryLocation);
     }
+  }
 
-    // Add secondary locations
-    for (DbIssues.Flow.Builder flowBuilder : primaryLocationBuilder.getFlowBuilderList()) {
-      for (DbIssues.Location.Builder locationBuilder : flowBuilder.getLocationBuilderList()) {
-        if (locationBuilder.hasTextRange()) {
-          hasTextRange = true;
-          var componentUuid = defaultIfEmpty(locationBuilder.getComponentId(), issue.componentUuid());
-          Component locationComponent = treeRootHolder.getComponentByUuid(componentUuid);
-          locationsByComponent.computeIfAbsent(locationComponent, c -> new LinkedList<>()).add(new SecondaryLocation(locationBuilder));
-        }
-      }
-    }
+  private void addSecondaryLocations(DefaultIssue issue, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder locationsBuilder) {
+    List<DbIssues.Location.Builder> locationBuilders = locationsBuilder.getFlowBuilderList().stream()
+      .flatMap(flowBuilder -> flowBuilder.getLocationBuilderList().stream())
+      .filter(DbIssues.Location.Builder::hasTextRange)
+      .toList();
 
-    return hasTextRange;
+    locationBuilders.forEach(locationBuilder -> addSecondaryLocation(locationBuilder, issue, locationsByComponent));
+  }
+
+  private void addSecondaryLocation(DbIssues.Location.Builder locationBuilder, DefaultIssue issue, Map<Component, List<Location>> locationsByComponent) {
+    String componentUuid = defaultIfEmpty(locationBuilder.getComponentId(), issue.componentUuid());
+    Component locationComponent = treeRootHolder.getComponentByUuid(componentUuid);
+    locationsByComponent.computeIfAbsent(locationComponent, c -> new LinkedList<>()).add(new SecondaryLocation(locationBuilder));
   }
 
   private void updateLocationsInComponent(Component component, List<Location> locations) {
@@ -197,15 +238,19 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
       if (lineNumber > textRange.getEndLine() || lineNumber < textRange.getStartLine()) {
         return;
       }
-
-      if (lineNumber == textRange.getStartLine() && lineNumber == textRange.getEndLine()) {
-        hashBuilder.append(line, textRange.getStartOffset(), textRange.getEndOffset());
-      } else if (lineNumber == textRange.getStartLine()) {
-        hashBuilder.append(line, textRange.getStartOffset(), line.length());
-      } else if (lineNumber < textRange.getEndLine()) {
-        hashBuilder.append(line);
-      } else {
-        hashBuilder.append(line, 0, textRange.getEndOffset());
+      try {
+        if (lineNumber == textRange.getStartLine() && lineNumber == textRange.getEndLine()) {
+          hashBuilder.append(line, textRange.getStartOffset(), textRange.getEndOffset());
+        } else if (lineNumber == textRange.getStartLine()) {
+          hashBuilder.append(line, textRange.getStartOffset(), line.length());
+        } else if (lineNumber < textRange.getEndLine()) {
+          hashBuilder.append(line);
+        } else {
+          hashBuilder.append(line, 0, textRange.getEndOffset());
+        }
+      } catch (IndexOutOfBoundsException e) {
+        LOGGER.debug("Try to compute issue location hash from {} to {} on line ({} chars): {}",
+          textRange.getStartOffset(), textRange.getEndOffset(), line.length(), line);
       }
     }
 

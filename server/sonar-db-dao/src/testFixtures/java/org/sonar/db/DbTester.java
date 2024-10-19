@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,18 +21,22 @@ package org.sonar.db;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
+import org.sonar.db.anticipatedtransition.AnticipatedTransitionDbTester;
 import org.sonar.db.audit.AuditDbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
@@ -58,18 +62,18 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
 
 /**
  * This class should be called using @Rule.
- * Data is truncated between each tests. The schema is created between each test.
+ * Data is truncated between each test. The schema is created between each test.
  */
-public class DbTester extends AbstractDbTester<TestDbImpl> {
+public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEachCallback, AfterEachCallback {
 
-  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final UuidFactory uuidFactory;
   private final System2 system2;
   private final AuditPersister auditPersister;
   private DbClient client;
-  private DbSession session = null;
+  ThreadLocal<DbSessionContext> session = new ThreadLocal<>();
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
-  private final ProjectLinkDbTester componentLinkTester;
+  private final ProjectLinkDbTester projectLinkTester;
   private final FavoriteDbTester favoriteTester;
   private final EventDbTester eventTester;
   private final PermissionTemplateDbTester permissionTemplateTester;
@@ -89,16 +93,18 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final AlmSettingsDbTester almSettingsDbTester;
   private final AlmPatsDbTester almPatsDbtester;
   private final AuditDbTester auditDbTester;
+  private final AnticipatedTransitionDbTester anticipatedTransitionDbTester;
 
-  private DbTester(System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
+  private DbTester(UuidFactory uuidFactory, System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
+    this.uuidFactory = uuidFactory;
     this.system2 = system2;
     this.auditPersister = auditPersister;
 
     initDbClient();
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
-    this.componentLinkTester = new ProjectLinkDbTester(this);
+    this.projectLinkTester = new ProjectLinkDbTester(this);
     this.favoriteTester = new FavoriteDbTester(this);
     this.eventTester = new EventDbTester(this);
     this.permissionTemplateTester = new PermissionTemplateDbTester(this);
@@ -118,26 +124,31 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.almSettingsDbTester = new AlmSettingsDbTester(this);
     this.almPatsDbtester = new AlmPatsDbTester(this);
     this.auditDbTester = new AuditDbTester(this);
+    this.anticipatedTransitionDbTester = new AnticipatedTransitionDbTester(this);
   }
 
   public static DbTester create() {
-    return new DbTester(System2.INSTANCE, null, new NoOpAuditPersister());
+    return create(System2.INSTANCE, new NoOpAuditPersister());
   }
 
   public static DbTester create(AuditPersister auditPersister) {
-    return new DbTester(System2.INSTANCE, null, auditPersister);
-  }
-
-  public static DbTester create(System2 system2, AuditPersister auditPersister) {
-    return new DbTester(system2, null, auditPersister);
+    return create(System2.INSTANCE, auditPersister);
   }
 
   public static DbTester create(System2 system2) {
-    return new DbTester(system2, null, new NoOpAuditPersister());
+    return create(system2, new NoOpAuditPersister());
+  }
+
+  public static DbTester create(System2 system2, AuditPersister auditPersister) {
+    return new DbTester(new SequenceUuidFactory(), system2, null, auditPersister);
   }
 
   public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
-    return new DbTester(system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+    return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+  }
+
+  public static DbTester createWithDifferentUuidFactory(UuidFactory uuidFactory) {
+    return new DbTester(uuidFactory, System2.INSTANCE, null, new NoOpAuditPersister());
   }
 
   private void initDbClient() {
@@ -155,6 +166,11 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   @Override
+  public void beforeEach(ExtensionContext context) throws Exception {
+    before();
+  }
+
+  @Override
   protected void before() {
     db.start();
     db.truncateTables();
@@ -168,8 +184,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return componentTester;
   }
 
-  public ProjectLinkDbTester componentLinks() {
-    return componentLinkTester;
+  public ProjectLinkDbTester projectLinks() {
+    return projectLinkTester;
   }
 
   public FavoriteDbTester favorites() {
@@ -248,24 +264,44 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return auditDbTester;
   }
 
+  public AnticipatedTransitionDbTester anticipatedTransitions() {
+    return anticipatedTransitionDbTester;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) throws Exception {
+    after();
+  }
+
   @Override
   protected void after() {
-    if (session != null) {
-      session.rollback();
-      session.close();
+    if (session.get() != null) {
+      session.get().dbSession().rollback();
+      session.get().dbSession().close();
+      session.remove();
     }
     db.stop();
   }
 
   public DbSession getSession() {
-    if (session == null) {
-      session = db.getMyBatis().openSession(false);
+    return getSession(false);
+  }
+
+  public DbSession getSession(boolean batched) {
+    if (session.get() == null) {
+      session.set(new DbSessionContext(db.getMyBatis().openSession(batched), batched));
     }
-    return session;
+    return session.get().dbSession;
+  }
+
+  public void forceCommit() {
+    getSession().commit(true);
   }
 
   public void commit() {
-    getSession().commit();
+    if(session.get() != null && !session.get().isBatched()) {
+      getSession().commit();
+    }
   }
 
   public DbClient getDbClient() {
@@ -288,28 +324,11 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return super.selectFirst(selectSql, new DbSessionConnectionSupplier(dbSession));
   }
 
-  @Deprecated
-  public MyBatis myBatis() {
-    return db.getMyBatis();
-  }
-
-  @Deprecated
-  public Connection openConnection() throws SQLException {
-    return getConnection();
-  }
-
-  private Connection getConnection() throws SQLException {
-    return db.getDatabase().getDataSource().getConnection();
-  }
-
-  @Deprecated
-  public Database database() {
-    return db.getDatabase();
-  }
-
   public String getUrl() {
     return ((HikariDataSource) db.getDatabase().getDataSource()).getJdbcUrl();
   }
+
+  private record DbSessionContext(@NotNull DbSession dbSession, boolean isBatched){}
 
   private static class DbSessionConnectionSupplier implements ConnectionSupplier {
     private final DbSession dbSession;
@@ -335,8 +354,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
     public DbTesterMyBatisConfExtension(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
       this.mapperClasses = Stream.concat(
-        Stream.of(firstMapperClass),
-        Arrays.stream(otherMapperClasses))
+          Stream.of(firstMapperClass),
+          Arrays.stream(otherMapperClasses))
         .sorted(Comparator.comparing(Class::getName))
         .toArray(Class<?>[]::new);
     }

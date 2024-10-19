@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ListItem, NumberedListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
@@ -30,11 +31,11 @@ function renderSentenceWithFieldAndValue(props: {
     <FormattedMessage
       id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
       defaultMessage={translate(
-        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence'
+        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence',
       )}
       values={{
-        field: <strong>{field}</strong>,
-        value: <strong>{value}</strong>,
+        field: <b className="sw-font-semibold">{field}</b>,
+        value: <b className="sw-font-semibold">{value}</b>,
       }}
     />
   );
@@ -42,40 +43,40 @@ function renderSentenceWithFieldAndValue(props: {
 
 export default function JavaToolInstallation() {
   return (
-    <li>
+    <NumberedListItem>
       {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.title')}
-      <ul className="list-styled list-alpha">
-        <li>
+      <UnorderedList ticks className="sw-ml-12">
+        <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version',
             ),
-            value: '11',
+            value: '17',
           })}
           {' ' /* explicit space between the two strings */}
           {translate(
-            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.or_higher'
+            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.or_higher',
           )}
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture',
             ),
             value: 'x64',
           })}
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_source'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_source',
             ),
             value: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed',
             ),
           })}
-        </li>
-      </ul>
-    </li>
+        </ListItem>
+      </UnorderedList>
+    </NumberedListItem>
   );
 }

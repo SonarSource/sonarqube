@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,251 +17,202 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import {
+  ButtonSecondary,
+  HelperHintIcon,
+  Spinner,
+  SubHeadingHighlight,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Profile } from '../../../api/quality-profiles';
-import { deleteRule, getRuleDetails, updateRule } from '../../../api/rules';
-import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import DateFormatter from '../../../components/intl/DateFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Dict, RuleActivation, RuleDetails as TypeRuleDetails } from '../../../types/types';
-import { Activation, Query } from '../query';
+import {
+  useDeleteRuleMutation,
+  useRuleDetailsQuery,
+  useUpdateRuleMutation,
+} from '../../../queries/rules';
+import { Dict, RuleActivation } from '../../../types/types';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
 import RuleDetailsDescription from './RuleDetailsDescription';
+import RuleDetailsHeader from './RuleDetailsHeader';
 import RuleDetailsIssues from './RuleDetailsIssues';
-import RuleDetailsMeta from './RuleDetailsMeta';
 import RuleDetailsParameters from './RuleDetailsParameters';
 import RuleDetailsProfiles from './RuleDetailsProfiles';
 
 interface Props {
+  organization: string;
   allowCustomRules?: boolean;
+  canDeactivateInherited?: boolean;
   canWrite?: boolean;
-  onActivate: (profile: string, rule: string, activation: Activation) => void;
+  onActivate: (profile: string, rule: string, activation: RuleActivation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
-  onFilterChange: (changes: Partial<Query>) => void;
-  organization: string;
   referencedProfiles: Dict<Profile>;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   ruleKey: string;
   selectedProfile?: Profile;
 }
 
-interface State {
-  actives?: RuleActivation[];
-  loading: boolean;
-  ruleDetails?: TypeRuleDetails;
-}
+export default function RuleDetails(props: Readonly<Props>) {
+  const {
+    organization,
+    ruleKey,
+    allowCustomRules,
+    canWrite,
+    referencedProfiles,
+    canDeactivateInherited,
+    selectedProfile,
+    referencedRepositories,
+  } = props;
+  const { isLoading: loadingRule, data } = useRuleDetailsQuery({
+    actives: true,
+    key: ruleKey,
+  });
+  const { mutate: updateRule } = useUpdateRuleMutation();
+  const { mutate: deleteRule } = useDeleteRuleMutation({}, props.onDelete);
 
-export default class RuleDetails extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: true };
+  const { rule: ruleDetails, actives = [] } = data ?? {};
 
-  componentDidMount() {
-    this.mounted = true;
-    this.setState({ loading: true });
-    this.fetchRuleDetails();
-  }
+  const params = ruleDetails?.params ?? [];
+  const isCustom = !!ruleDetails?.templateKey;
+  const isEditable = canWrite && !!allowCustomRules && isCustom;
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.ruleKey !== this.props.ruleKey) {
-      this.setState({ loading: true });
-      this.fetchRuleDetails();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchRuleDetails = () => {
-    return getRuleDetails({
-      actives: true,
-      key: this.props.ruleKey,
-      organization: this.props.organization
-    }).then(
-      ({ actives, rule }) => {
-        if (this.mounted) {
-          this.setState({ actives, loading: false, ruleDetails: rule });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
+  const handleTagsChange = (tags: string[]) => {
+    updateRule({ key: ruleKey, tags: tags.join() });
   };
 
-  handleRuleChange = (ruleDetails: TypeRuleDetails) => {
-    if (this.mounted) {
-      this.setState({ ruleDetails });
+  const handleActivate = () => {
+    if (selectedProfile) {
+      const active = actives.find((active) => active.qProfile === selectedProfile.key);
+      if (active) {
+        props.onActivate(selectedProfile.key, ruleKey, active);
+      }
     }
   };
 
-  handleTagsChange = (tags: string[]) => {
-    // optimistic update
-    const oldTags = this.state.ruleDetails && this.state.ruleDetails.tags;
-    this.setState((state) =>
-      state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags } } : null
-    );
-    updateRule({
-      key: this.props.ruleKey,
-      organization: this.props.organization,
-      tags: tags.join(),
-    }).catch(() => {
-      if (this.mounted) {
-        this.setState((state) =>
-          state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags: oldTags } } : null
-        );
-      }
-    });
-  };
-
-  handleActivate = () => {
-    return this.fetchRuleDetails().then(() => {
-      const { ruleKey, selectedProfile } = this.props;
-      if (selectedProfile && this.state.actives) {
-        const active = this.state.actives.find((active) => active.qProfile === selectedProfile.key);
-        if (active) {
-          this.props.onActivate(selectedProfile.key, ruleKey, active);
-        }
-      }
-    });
-  };
-
-  handleDeactivate = () => {
-    return this.fetchRuleDetails().then(() => {
-      const { ruleKey, selectedProfile } = this.props;
-      if (
-        selectedProfile &&
-        this.state.actives &&
-        !this.state.actives.find((active) => active.qProfile === selectedProfile.key)
-      ) {
-        this.props.onDeactivate(selectedProfile.key, ruleKey);
-      }
-    });
-  };
-
-  handleDelete = () => {
-    return deleteRule({ key: this.props.ruleKey, organization: this.props.organization }).then(() =>
-      this.props.onDelete(this.props.ruleKey)
-    );
-  };
-
-  render() {
-    const { ruleDetails } = this.state;
-
-    if (!ruleDetails) {
-      return <div className="coding-rule-details" />;
+  const handleDeactivate = () => {
+    if (selectedProfile && actives.find((active) => active.qProfile === selectedProfile.key)) {
+      props.onDeactivate(selectedProfile.key, ruleKey);
     }
+  };
 
-    const { allowCustomRules, canWrite, referencedProfiles, organization } = this.props;
-    const { params = [] } = ruleDetails;
+  return (
+    <StyledRuleDetails className="it__coding-rule-details sw-p-6 sw-mt-6">
+      <Spinner loading={loadingRule}>
+        {ruleDetails && (
+          <>
+            <RuleDetailsHeader
+              organization={organization}
+              canWrite={canWrite}
+              onTagsChange={handleTagsChange}
+              referencedRepositories={referencedRepositories}
+              ruleDetails={ruleDetails}
+            />
 
-    const isCustom = !!ruleDetails.templateKey;
-    const isEditable = canWrite && !!this.props.allowCustomRules && isCustom;
+            <RuleDetailsDescription organization={organization} canWrite={canWrite} ruleDetails={ruleDetails} />
 
-    return (
-      <div className="coding-rule-details">
-        <DeferredSpinner loading={this.state.loading}>
-          <RuleDetailsMeta
-            canWrite={canWrite}
-            onFilterChange={this.props.onFilterChange}
-            onTagsChange={this.handleTagsChange}
-            organization={organization}
-            referencedRepositories={this.props.referencedRepositories}
-            ruleDetails={ruleDetails}
-          />
+            {params.length > 0 && <RuleDetailsParameters params={params} />}
 
-          <RuleDetailsDescription
-            canWrite={canWrite}
-            onChange={this.handleRuleChange}
-            organization={organization}
-            ruleDetails={ruleDetails}
-          />
-
-          {params.length > 0 && <RuleDetailsParameters params={params} />}
-
-          {isEditable && (
-            <div className="coding-rules-detail-description display-flex-center">
-              {/* `templateRule` is used to get rule meta data, `customRule` is used to get parameter values */}
-              {/* it's expected to pass the same rule to both parameters */}
-              <CustomRuleButton
-                customRule={ruleDetails}
-                onDone={this.handleRuleChange}
-                organization={organization}
-                templateRule={ruleDetails}
-              >
-                {({ onClick }) => (
-                  <Button
-                    className="js-edit-custom"
-                    id="coding-rules-detail-custom-rule-change"
-                    onClick={onClick}
-                  >
-                    {translate('edit')}
-                  </Button>
-                )}
-              </CustomRuleButton>
-              <ConfirmButton
-                confirmButtonText={translate('delete')}
-                isDestructive={true}
-                modalBody={translateWithParameters(
-                  'coding_rules.delete.custom.confirm',
-                  ruleDetails.name
-                )}
-                modalHeader={translate('coding_rules.delete_rule')}
-                onConfirm={this.handleDelete}
-              >
-                {({ onClick }) => (
-                  <>
-                    <Button
-                      className="button-red spacer-left js-delete"
-                      id="coding-rules-detail-rule-delete"
+            {isEditable && (
+              <div className="coding-rules-detail-description sw-flex sw-items-center">
+                {/* `templateRule` is used to get rule meta data, `customRule` is used to get parameter values */}
+                {/* it's expected to pass the same rule to both parameters */}
+                <CustomRuleButton organization={organization} customRule={ruleDetails} templateRule={ruleDetails}>
+                  {({ onClick }) => (
+                    <ButtonSecondary
+                      className="js-edit-custom"
+                      id="coding-rules-detail-custom-rule-change"
                       onClick={onClick}
                     >
-                      {translate('delete')}
-                    </Button>
-                    <HelpTooltip
-                      className="spacer-left"
-                      overlay={
-                        <div className="big-padded-top big-padded-bottom">
-                          {translate('coding_rules.custom_rule.removal')}
-                        </div>
-                      }
-                    />
-                  </>
-                )}
-              </ConfirmButton>
+                      {translate('edit')}
+                    </ButtonSecondary>
+                  )}
+                </CustomRuleButton>
+                <ConfirmButton
+                  confirmButtonText={translate('delete')}
+                  isDestructive
+                  modalBody={translateWithParameters(
+                    'coding_rules.delete.custom.confirm',
+                    ruleDetails.name,
+                  )}
+                  modalHeader={translate('coding_rules.delete_rule')}
+                  onConfirm={() => deleteRule({ key: ruleKey })}
+                >
+                  {({ onClick }) => (
+                    <>
+                      <Button
+                        className="sw-ml-2 js-delete"
+                        id="coding-rules-detail-rule-delete"
+                        onClick={onClick}
+                        variety={ButtonVariety.DangerOutline}
+                      >
+                        {translate('delete')}
+                      </Button>
+                      <HelpTooltip
+                        className="sw-ml-2"
+                        overlay={
+                          <div className="sw-py-4">
+                            {translate('coding_rules.custom_rule.removal')}
+                          </div>
+                        }
+                      >
+                        <HelperHintIcon />
+                      </HelpTooltip>
+                    </>
+                  )}
+                </ConfirmButton>
+              </div>
+            )}
+
+            {ruleDetails.isTemplate && (
+              <RuleDetailsCustomRules
+                organization={organization}
+                canChange={allowCustomRules && canWrite}
+                ruleDetails={ruleDetails}
+              />
+            )}
+
+            {!ruleDetails.isTemplate && (
+              <RuleDetailsProfiles
+                organization={organization}
+                activations={actives}
+                canDeactivateInherited={canDeactivateInherited}
+                onActivate={handleActivate}
+                onDeactivate={handleDeactivate}
+                referencedProfiles={referencedProfiles}
+                ruleDetails={ruleDetails}
+              />
+            )}
+
+            {!ruleDetails.isTemplate && ruleDetails.type !== 'SECURITY_HOTSPOT' && (
+              <RuleDetailsIssues organization={organization} ruleDetails={ruleDetails} />
+            )}
+
+            <div className="sw-my-8" data-meta="available-since">
+              <SubHeadingHighlight as="h3">
+                {translate('coding_rules.available_since')}
+              </SubHeadingHighlight>
+              <DateFormatter date={ruleDetails.createdAt} />
             </div>
-          )}
-
-          {ruleDetails.isTemplate && (
-            <RuleDetailsCustomRules
-              canChange={allowCustomRules && canWrite}
-              organization={organization}
-              ruleDetails={ruleDetails}
-            />
-          )}
-
-          {!ruleDetails.isTemplate && (
-            <RuleDetailsProfiles
-              activations={this.state.actives}
-              onActivate={this.handleActivate}
-              onDeactivate={this.handleDeactivate}
-              organization={organization}
-              referencedProfiles={referencedProfiles}
-              ruleDetails={ruleDetails}
-            />
-          )}
-
-          {!ruleDetails.isTemplate && ruleDetails.type !== 'SECURITY_HOTSPOT' && (
-            <RuleDetailsIssues organization={organization} ruleDetails={ruleDetails} />
-          )}
-        </DeferredSpinner>
-      </div>
-    );
-  }
+          </>
+        )}
+      </Spinner>
+    </StyledRuleDetails>
+  );
 }
+
+const StyledRuleDetails = styled.div`
+  box-sizing: border-box;
+  border-radius: 4px;
+  background-color: ${themeColor('filterbar')};
+  border: ${themeBorder('default', 'filterbarBorder')};
+  overflow-x: hidden;
+`;

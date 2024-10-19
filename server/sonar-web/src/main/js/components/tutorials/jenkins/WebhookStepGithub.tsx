@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, Link, ListItem, NumberedListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
-import CodeSnippet from '../../common/CodeSnippet';
-import Link from '../../common/Link';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import { buildGithubLink } from '../utils';
@@ -30,7 +29,7 @@ import { buildGithubLink } from '../utils';
 export interface WebhookStepGithubProps {
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
 }
 
 export default function WebhookStepGithub(props: WebhookStepGithubProps) {
@@ -45,57 +44,57 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
 
   return (
     <>
-      <li>
+      <NumberedListItem>
         <FormattedMessage
           defaultMessage={translate('onboarding.tutorial.with.jenkins.webhook.step1.sentence')}
           id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
           values={{
             link: linkUrl ? (
-              <Link to={linkUrl} target="_blank">
+              <Link to={linkUrl}>
                 {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}
               </Link>
             ) : (
-              <strong>
+              <strong className="sw-font-semibold">
                 {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}
               </strong>
             ),
           }}
         />
-        <ul className="list-styled">
-          <li className="abs-width-600">
+        <UnorderedList ticks className="sw-ml-12">
+          <ListItem>
             <p>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.github.step1.url" />
             </p>
-            <CodeSnippet isOneLine={true} snippet={webhookUrl} />
-          </li>
-        </ul>
-      </li>
-      <li>
+            <CodeSnippet className="sw-p-4" isOneLine snippet={webhookUrl} />
+          </ListItem>
+        </UnorderedList>
+      </NumberedListItem>
+      <NumberedListItem>
         <SentenceWithHighlights
           highlightKeys={['events', 'option']}
           translationKey="onboarding.tutorial.with.jenkins.webhook.github.step2"
         />
-        <ul className="list-styled">
-          <li>
-            <strong>
+        <UnorderedList ticks className="sw-ml-12">
+          <ListItem>
+            <strong className="sw-font-semibold">
               {translate('onboarding.tutorial.with.jenkins.webhook.github.step2.repo')}
             </strong>
-          </li>
+          </ListItem>
           {branchesEnabled && (
-            <li>
-              <strong>
+            <ListItem>
+              <strong className="sw-font-semibold">
                 {translate('onboarding.tutorial.with.jenkins.webhook.github.step2.pr')}
               </strong>
-            </li>
+            </ListItem>
           )}
-        </ul>
-      </li>
-      <li>
+        </UnorderedList>
+      </NumberedListItem>
+      <NumberedListItem>
         <SentenceWithHighlights
           highlightKeys={['add_webhook']}
           translationKey="onboarding.tutorial.with.jenkins.webhook.github.step3"
         />
-      </li>
+      </NumberedListItem>
     </>
   );
 }

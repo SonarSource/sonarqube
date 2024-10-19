@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 
@@ -30,98 +30,94 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class OracleTest {
+class OracleTest {
 
-  private Oracle underTest = new Oracle();
+  private final Oracle underTest = new Oracle();
 
   @Test
-  public void matchesJdbcURL() {
+  void matchesJdbcURL() {
     assertThat(underTest.matchesJdbcUrl("jdbc:oracle:thin:@localhost/XE")).isTrue();
     assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
-  public void testBooleanSqlValues() {
+  void testBooleanSqlValues() {
     assertThat(underTest.getTrueSqlValue()).isEqualTo("1");
     assertThat(underTest.getFalseSqlValue()).isEqualTo("0");
   }
 
   @Test
-  public void should_configure() {
+  void should_configure() {
     assertThat(underTest.getId()).isEqualTo("oracle");
     assertThat(underTest.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
     assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
   }
 
   @Test
-  public void testFetchSizeForScrolling() {
+  void testFetchSizeForScrolling() {
     assertThat(underTest.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 
   @Test
-  public void oracle_does_supportMigration() {
+  void oracle_does_supportMigration() {
     assertThat(underTest.supportsMigration()).isTrue();
   }
 
   @Test
-  public void getSqlFromDual() {
+  void getSqlFromDual() {
     assertThat(underTest.getSqlFromDual()).isEqualTo("from dual");
   }
 
   @Test
-  public void test_db_versions() throws Exception {
+  void test_db_versions() throws Exception {
     // oracle 11.0 is ok
-    DatabaseMetaData metadata = newMetadata( 11, 0, "12.1.0.1.0");
+    DatabaseMetaData metadata = newMetadata( 19, 0, "12.1.0.1.0");
     underTest.init(metadata);
 
-    // oracle 11.1 is noit
-    metadata = newMetadata(11, 1, "12.1.0.1.0");
+    // oracle 11.1 is ok
+    metadata = newMetadata(19, 1, "12.1.0.1.0");
     underTest.init(metadata);
 
     // oracle 11.2 is ok
-    metadata = newMetadata(11, 2, "12.1.0.1.0");
+    metadata = newMetadata(19, 2, "12.1.0.1.0");
     underTest.init(metadata);
 
-    // oracle 12 is ok
-    metadata = newMetadata(12, 0, "12.1.0.1.0");
+    // oracle 21 is ok
+    metadata = newMetadata(21, 1, "12.1.0.1.0");
     underTest.init(metadata);
 
-    // oracle 18 is ok
-    metadata = newMetadata(18, 0, "18.3.0.0.0");
-    underTest.init(metadata);
-
-    // oracle 10 is not supported
-    metadata = newMetadata(10, 2, "12.1.0.1.0");
+    // oracle 18 is not supported
+    metadata = newMetadata(18, 17, "12.1.0.1.0");
     try {
       underTest.init(metadata);
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Unsupported oracle version: 10.2. Minimal supported version is 11.0.");
+      assertThat(e).hasMessage("Unsupported oracle version: 18.17. Minimal supported version is 19.0.");
     }
   }
   
   @Test
-  public void test_driver_versions() throws Exception {
-    DatabaseMetaData metadata = newMetadata( 11, 2, "18.3.0.0.0");
+  void test_driver_versions() throws Exception {
+    DatabaseMetaData metadata = newMetadata( 19, 2, "18.3.0.0.0");
     underTest.init(metadata);
 
-    metadata = newMetadata(11, 2, "12.2.0.1.0");
-    underTest.init(metadata);
-    // no error
-
-    metadata = newMetadata(11, 2, "12.1.0.2.0");
+    metadata = newMetadata(19, 2, "12.2.0.1.0");
     underTest.init(metadata);
     // no error
 
-    metadata = newMetadata(11, 2, "12.1.0.1.0");
+    metadata = newMetadata(19, 2, "12.1.0.2.0");
     underTest.init(metadata);
     // no error
 
-    metadata = newMetadata(11, 2, "12.0.2");
+    metadata = newMetadata(19, 2, "12.1.0.1.0");
     underTest.init(metadata);
     // no error
 
-    metadata = newMetadata(11, 2, "11.1.0.2");
+    metadata = newMetadata(19, 2, "12.0.2");
+    underTest.init(metadata);
+    // no error
+
+    metadata = newMetadata(19, 2, "11.1.0.2");
     try {
       underTest.init(metadata);
       fail();
@@ -131,7 +127,7 @@ public class OracleTest {
   }
 
   @Test
-  public void supportsUpsert_returns_false() {
+  void supportsUpsert_returns_false() {
     assertThat(underTest.supportsUpsert()).isFalse();
   }
 

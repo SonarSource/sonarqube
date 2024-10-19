@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,11 +26,11 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,8 +39,8 @@ import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.time.DateUtils.addSeconds;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 import static org.sonar.process.ProcessProperties.Property.WEB_SESSION_TIMEOUT_IN_MIN;
 import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
 import static org.sonar.server.authentication.Cookies.SET_COOKIE;
@@ -80,7 +80,7 @@ public class JwtHttpHandler {
     this.jwtCsrfVerifier = jwtCsrfVerifier;
   }
 
-  public void generateToken(UserDto user, Map<String, Object> properties, HttpServletRequest request, HttpServletResponse response) {
+  public void generateToken(UserDto user, Map<String, Object> properties, HttpRequest request, HttpResponse response) {
     String csrfState = jwtCsrfVerifier.generateState(request, response, sessionTimeoutInSeconds);
     long expirationTime = system2.now() + sessionTimeoutInSeconds * 1000L;
     SessionTokenDto sessionToken = createSessionToken(user, expirationTime);
@@ -108,16 +108,16 @@ public class JwtHttpHandler {
     }
   }
 
-  public void generateToken(UserDto user, HttpServletRequest request, HttpServletResponse response) {
+  public void generateToken(UserDto user, HttpRequest request, HttpResponse response) {
     generateToken(user, Collections.emptyMap(), request, response);
   }
 
-  public Optional<UserDto> validateToken(HttpServletRequest request, HttpServletResponse response) {
+  public Optional<UserDto> validateToken(HttpRequest request, HttpResponse response) {
     Optional<Token> token = getToken(request, response);
     return token.map(Token::getUserDto);
   }
 
-  public Optional<Token> getToken(HttpServletRequest request, HttpServletResponse response) {
+  public Optional<Token> getToken(HttpRequest request, HttpResponse response) {
     Optional<String> encodedToken = getTokenFromCookie(request);
     if (!encodedToken.isPresent()) {
       return Optional.empty();
@@ -127,9 +127,9 @@ public class JwtHttpHandler {
     }
   }
 
-  private static Optional<String> getTokenFromCookie(HttpServletRequest request) {
+  private static Optional<String> getTokenFromCookie(HttpRequest request) {
     Optional<Cookie> jwtCookie = findCookie(JWT_COOKIE, request);
-    if (!jwtCookie.isPresent()) {
+    if (jwtCookie.isEmpty()) {
       return Optional.empty();
     }
     Cookie cookie = jwtCookie.get();
@@ -140,15 +140,15 @@ public class JwtHttpHandler {
     return Optional.of(token);
   }
 
-  private Optional<Token> validateToken(DbSession dbSession, String tokenEncoded, HttpServletRequest request, HttpServletResponse response) {
+  private Optional<Token> validateToken(DbSession dbSession, String tokenEncoded, HttpRequest request, HttpResponse response) {
     Optional<Claims> claims = jwtSerializer.decode(tokenEncoded);
-    if (!claims.isPresent()) {
+    if (claims.isEmpty()) {
       return Optional.empty();
     }
     Claims token = claims.get();
 
     Optional<SessionTokenDto> sessionToken = dbClient.sessionTokensDao().selectByUuid(dbSession, token.getId());
-    if (!sessionToken.isPresent()) {
+    if (sessionToken.isEmpty()) {
       return Optional.empty();
     }
     // Check on expiration is already done when decoding the JWT token, but here is done a double check with the expiration date from DB.
@@ -175,7 +175,7 @@ public class JwtHttpHandler {
     return new Date(lastFreshTime);
   }
 
-  private void refreshToken(DbSession dbSession, SessionTokenDto tokenFromDb, Claims tokenFromCookie, HttpServletRequest request, HttpServletResponse response) {
+  private void refreshToken(DbSession dbSession, SessionTokenDto tokenFromDb, Claims tokenFromCookie, HttpRequest request, HttpResponse response) {
     long expirationTime = system2.now() + sessionTimeoutInSeconds * 1000L;
     String refreshToken = jwtSerializer.refresh(tokenFromCookie, expirationTime);
     response.addHeader(SET_COOKIE, createJwtSession(request, JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
@@ -185,13 +185,13 @@ public class JwtHttpHandler {
     dbSession.commit();
   }
 
-  public void removeToken(HttpServletRequest request, HttpServletResponse response) {
+  public void removeToken(HttpRequest request, HttpResponse response) {
     removeSessionToken(request);
     response.addCookie(createCookie(request, JWT_COOKIE, null, 0));
     jwtCsrfVerifier.removeState(request, response);
   }
 
-  private void removeSessionToken(HttpServletRequest request) {
+  private void removeSessionToken(HttpRequest request) {
     Optional<Cookie> jwtCookie = findCookie(JWT_COOKIE, request);
     if (!jwtCookie.isPresent()) {
       return;
@@ -206,11 +206,11 @@ public class JwtHttpHandler {
     }
   }
 
-  private static Cookie createCookie(HttpServletRequest request, String name, @Nullable String value, int expirationInSeconds) {
+  private static Cookie createCookie(HttpRequest request, String name, @Nullable String value, int expirationInSeconds) {
     return newCookieBuilder(request).setName(name).setValue(value).setHttpOnly(true).setExpiry(expirationInSeconds).build();
   }
 
-  private static String createJwtSession(HttpServletRequest request, String name, @Nullable String value, int expirationInSeconds) {
+  private static String createJwtSession(HttpRequest request, String name, @Nullable String value, int expirationInSeconds) {
     return newCookieBuilder(request).setName(name).setValue(value).setHttpOnly(true).setExpiry(expirationInSeconds).setSameSite(SAMESITE_LAX).toValueString();
   }
 

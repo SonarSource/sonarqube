@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,10 @@ package org.sonar.core.platform;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -41,6 +43,7 @@ public class SpringComponentContainer implements StartableContainer {
   @Nullable
   protected final SpringComponentContainer parent;
   protected final List<SpringComponentContainer> children = new ArrayList<>();
+  private final Set<Class<?>> webConfigurationClasses = new HashSet<>();
 
   private final PropertyDefinitions propertyDefinitions;
   private final ComponentKeys componentKeys = new ComponentKeys();
@@ -55,6 +58,10 @@ public class SpringComponentContainer implements StartableContainer {
 
   protected SpringComponentContainer(SpringComponentContainer parent) {
     this(parent, parent.propertyDefinitions, emptyList(), new LazyUnlessStartableStrategy());
+  }
+
+  protected SpringComponentContainer(SpringComponentContainer parent, List<?> externalExtensions) {
+    this(parent, parent.propertyDefinitions, externalExtensions, new LazyUnlessStartableStrategy());
   }
 
   protected SpringComponentContainer(SpringComponentContainer parent, SpringInitStrategy initStrategy) {
@@ -95,8 +102,8 @@ public class SpringComponentContainer implements StartableContainer {
         }
         context.registerBean(componentKeys.ofClass(clazz), clazz);
         declareExtension("", o);
-      } else if (o instanceof Module) {
-        ((Module) o).configure(this);
+      } else if (o instanceof Module module) {
+        module.configure(this);
       } else if (o instanceof Iterable) {
         add(Iterables.toArray((Iterable<?>) o, Object.class));
       } else {
@@ -105,6 +112,34 @@ public class SpringComponentContainer implements StartableContainer {
       }
     }
     return this;
+  }
+
+  @Override
+  public void addWebApiV2ConfigurationClass(Class<?> clazz) {
+    webConfigurationClasses.add(clazz);
+  }
+
+  @Override
+  public Set<Class<?>> getWebApiV2ConfigurationClasses() {
+    return Set.copyOf(webConfigurationClasses);
+  }
+
+  @Override
+  public <T> T getParentComponentByType(Class<T> type) {
+    if (parent == null) {
+      throw new IllegalStateException("No parent container");
+    } else {
+      return parent.getComponentByType(type);
+    }
+  }
+
+  @Override
+  public <T> List<T> getParentComponentsByType(Class<T> type) {
+    if (parent == null) {
+      throw new IllegalStateException("No parent container");
+    } else {
+      return parent.getComponentsByType(type);
+    }
   }
 
   private <T> void registerInstance(T instance) {
@@ -148,6 +183,9 @@ public class SpringComponentContainer implements StartableContainer {
     }
   }
 
+  /**
+   * Lookup all beans of a given type but only in this container, not in its parents.
+   */
   @Override
   public <T> List<T> getComponentsByType(Class<T> type) {
     try {

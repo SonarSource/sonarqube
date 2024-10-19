@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,9 @@
   display: block;
   height: auto;
   box-sizing: border-box;
-  font-size: var(--baseFontSize);
-  font-weight: 300;
-  line-height: 1.5;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
   animation: fadeIn 0.3s forwards;
 }
 
@@ -50,16 +50,16 @@
 }
 
 .tooltip-inner {
-  max-width: 300px;
+  font: var(--echoes-typography-paragraph-small-regular);
+  max-width: 22rem;
   text-align: left;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: var(--echoes-border-radius-200);
   overflow: hidden;
   word-break: break-word;
-  padding: 12px 17px;
-  color: #fff;
-  background-color: #475760;
-  letter-spacing: 0.04em;
+  padding: var(--echoes-dimension-space-50) var(--echoes-dimension-space-150);
+  color: var(--echoes-color-text-on-color);
+  background-color: var(--echoes-color-background-inverse);
 }
 
 .tooltip-inner .alert {
@@ -68,8 +68,8 @@
 }
 
 .tooltip-inner a {
-  border-bottom-color: #8da6b3;
-  color: #a5d0ea;
+  border-bottom-color: #bdc6ff;
+  color: #bdc6ff;
 }
 
 .tooltip-inner hr {
@@ -88,7 +88,7 @@
   left: 50%;
   border-width: 5px 5px 0;
   transform: translateX(-5px);
-  border-top-color: #475760;
+  border-top-color: #2a2f40;
 }
 
 .tooltip.right .tooltip-arrow {
@@ -96,7 +96,7 @@
   left: 0;
   transform: translateY(-5px);
   border-width: 5px 5px 5px 0;
-  border-right-color: #475760;
+  border-right-color: #2a2f40;
 }
 
 .tooltip.left .tooltip-arrow {
@@ -104,7 +104,7 @@
   right: 0;
   transform: translateY(-5px);
   border-width: 5px 0 5px 5px;
-  border-left-color: #475760;
+  border-left-color: #2a2f40;
 }
 
 .tooltip.bottom .tooltip-arrow {
@@ -112,7 +112,7 @@
   left: 50%;
   transform: translateX(-5px);
   border-width: 0 5px 5px;
-  border-bottom-color: #475760;
+  border-bottom-color: #2a2f40;
 }
 
 /* Workaround for react issue with onMouseLeave in disabled buttons: https://github.com/facebook/react/issues/4251 */

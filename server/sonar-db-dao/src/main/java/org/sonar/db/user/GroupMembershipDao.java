@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,39 +20,42 @@
 package org.sonar.db.user;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupMembershipDao implements Dao {
   private static final String QUERY_PARAM_KEY = "query";
 
-  public List<GroupMembershipDto> selectGroups(DbSession session, GroupMembershipQuery query, String userUuid, int offset, int limit) {
-    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "userUuid", userUuid, "organizationUuid", query.organizationUuid());
-    return mapper(session).selectGroups(params, new RowBounds(offset, limit));
+  public List<GroupMembershipDto> selectGroups(DbSession session, GroupMembershipQuery query, String userUuid) {
+    Map<String, Object> params = Map.of(QUERY_PARAM_KEY, query,
+      "organizationUuid", query.organizationUuid(), "userUuid", userUuid,
+      "pagination", Pagination.forPage(query.pageIndex()).andSize(query.pageSize()));
+    return mapper(session).selectGroups(params);
   }
 
   public int countGroups(DbSession session, GroupMembershipQuery query, String userUuid) {
-    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "userUuid", userUuid, "organizationUuid", query.organizationUuid());
+    Map<String, Object> params = Map.of(QUERY_PARAM_KEY, query, "userUuid", userUuid, "organizationUuid", query.organizationUuid());
     return mapper(session).countGroups(params);
   }
 
-  public List<UserMembershipDto> selectMembers(DbSession session, UserMembershipQuery query, int offset, int limit) {
-    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "groupUuid", query.groupUuid(), "organizationUuid", query.organizationUuid());
-    return mapper(session).selectMembers(params, new RowBounds(offset, limit));
+  public List<UserMembershipDto> selectMembers(DbSession session, UserMembershipQuery query) {
+    Map<String, Object> params = Map.of(QUERY_PARAM_KEY, query, "groupUuid", query.groupUuid(),
+      "organizationUuid", query.organizationUuid(),
+      "pagination", Pagination.forPage(query.pageIndex()).andSize(query.pageSize()));
+    return mapper(session).selectMembers(params);
   }
 
   public int countMembers(DbSession session, UserMembershipQuery query) {
-    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "groupUuid", query.groupUuid(), "organizationUuid", query.organizationUuid());
+    Map<String, Object> params = Map.of(QUERY_PARAM_KEY, query, "groupUuid", query.groupUuid(), "organizationUuid", query.organizationUuid());
     return mapper(session).countMembers(params);
   }
 

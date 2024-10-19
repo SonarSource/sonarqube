@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,14 +25,17 @@ import java.io.IOException;
 import java.util.Collection;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
-import org.apache.commons.lang.CharUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.CharUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.ServerFileSystem;
+
+import static java.lang.String.format;
 
 /**
  * Scanner Engine JAR file(s) to be downloaded by sonar-scanner-api. There is currently only one JAR (see assembly.xml)
@@ -65,6 +68,8 @@ public class BatchIndex implements Startable {
           }
         }
       }
+    } else {
+      throw new IllegalStateException(format("%s folder not found", batchDir.getAbsolutePath()));
     }
     this.index = sb.toString();
   }
@@ -81,7 +86,7 @@ public class BatchIndex implements Startable {
   File getFile(String filename) {
     try {
       File input = new File(batchDir, filename);
-      if (!input.exists() || !FileUtils.directoryContains(batchDir, input)) {
+      if (!FilenameUtils.directoryContains(batchDir.getCanonicalPath(), input.getCanonicalPath()) || !input.exists()) {
         throw new NotFoundException("Bad filename: " + filename);
       }
       return input;

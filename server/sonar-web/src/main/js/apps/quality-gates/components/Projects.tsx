@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note } from 'design-system';
 import { find, without } from 'lodash';
 import * as React from 'react';
 import {
@@ -32,14 +33,14 @@ import { translate } from '../../../helpers/l10n';
 import { QualityGate } from '../../../types/types';
 
 interface Props {
+  organization?: string;
   canEdit?: boolean;
   qualityGate: QualityGate;
-  organization?: string;
 }
 
 interface State {
-  needToReload: boolean;
   lastSearchParams?: SelectListSearchParams;
+  needToReload: boolean;
   projects: Project[];
   projectsTotalCount?: number;
   selectedProjects: string[];
@@ -47,6 +48,7 @@ interface State {
 
 // exported for testing
 export interface Project {
+  isAiCodeAssured: boolean;
   key: string;
   name: string;
   selected: boolean;
@@ -107,8 +109,8 @@ export default class Projects extends React.PureComponent<Props, State> {
 
   handleSelect = (key: string) =>
     associateGateWithProject({
-      gateId: this.props.qualityGate.id,
       organization: this.props.organization,
+      gateName: this.props.qualityGate.name,
       projectKey: key,
     }).then(() => {
       if (this.mounted) {
@@ -121,7 +123,6 @@ export default class Projects extends React.PureComponent<Props, State> {
 
   handleUnselect = (key: string) =>
     dissociateGateWithProject({
-      gateId: this.props.qualityGate.id,
       organization: this.props.organization,
       projectKey: key,
     }).then(() => {
@@ -136,14 +137,19 @@ export default class Projects extends React.PureComponent<Props, State> {
   renderElement = (key: string): React.ReactNode => {
     const project = find(this.state.projects, { key });
     return (
-      <div className="select-list-list-item">
+      <div>
         {project === undefined ? (
           key
         ) : (
           <>
             {project.name}
             <br />
-            <span className="note">{project.key}</span>
+            <Note>{project.key}</Note>
+            {project.isAiCodeAssured && (
+              <p>
+                <Note>{translate('quality_gates.projects.ai_assured_message')}</Note>
+              </p>
+            )}
           </>
         )}
       </div>
@@ -162,6 +168,9 @@ export default class Projects extends React.PureComponent<Props, State> {
     return (
       <SelectList
         elements={this.state.projects.map((project) => project.key)}
+        disabledElements={this.state.projects
+          .filter((project) => project.isAiCodeAssured)
+          .map((project) => project.key)}
         elementsTotalCount={this.state.projectsTotalCount}
         labelAll={translate('quality_gates.projects.all')}
         labelSelected={translate('quality_gates.projects.with')}
@@ -177,7 +186,7 @@ export default class Projects extends React.PureComponent<Props, State> {
         readOnly={!this.props.canEdit}
         renderElement={this.renderElement}
         selectedElements={this.state.selectedProjects}
-        withPaging={true}
+        withPaging
         autoFocusSearch={false}
       />
     );

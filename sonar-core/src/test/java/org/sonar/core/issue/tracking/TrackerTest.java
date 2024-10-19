@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.trim;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackerTest {
@@ -459,20 +459,56 @@ public class TrackerTest {
     assertThat(tracking.baseFor(raw2)).isEqualTo(base1);
   }
 
+  @Test
+  public void match_issues_with_same_cve_id() {
+    FakeInput baseInput = new FakeInput();
+    Issue base = new Issue(null, "", RuleKey.of("sca", "use-of-vulnerable-dependency"), "Vulnerable", org.sonar.api.issue.Issue.STATUS_OPEN, new Date(), "CVE-1");
+    baseInput.addIssue(base);
+    FakeInput rawInput = new FakeInput();
+    Issue raw = new Issue(null, "", RuleKey.of("sca", "use-of-vulnerable-dependency"), "Vulnerable", org.sonar.api.issue.Issue.STATUS_OPEN, new Date(), "CVE-1");
+    rawInput.addIssue(raw);
+
+    Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
+
+    assertThat(tracking.getUnmatchedBases()).isEmpty();
+    assertThat(tracking.baseFor(raw)).isEqualTo(base);
+  }
+
+  @Test
+  public void do_not_match_issues_with_different_cve_id() {
+    FakeInput baseInput = new FakeInput();
+    Issue base = new Issue(null, "", RuleKey.of("sca", "use-of-vulnerable-dependency"), "Vulnerable", org.sonar.api.issue.Issue.STATUS_OPEN, new Date(), "CVE-1");
+    baseInput.addIssue(base);
+    FakeInput rawInput = new FakeInput();
+    Issue raw = new Issue(null, "", RuleKey.of("sca", "use-of-vulnerable-dependency"), "Vulnerable", org.sonar.api.issue.Issue.STATUS_OPEN, new Date(), "CVE-2");
+    rawInput.addIssue(raw);
+
+    Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
+
+    assertThat(tracking.getUnmatchedBases()).contains(base);
+    assertThat(tracking.baseFor(raw)).isNull();
+  }
+
   private static class Issue implements Trackable {
     private final RuleKey ruleKey;
     private final Integer line;
     private final String message, lineHash;
     private final String status;
     private final Date updateDate;
+    private final String cveId;
 
     Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, @Nullable String message, String status, Date updateDate) {
+      this(line, lineHash, ruleKey, message, status, updateDate, null);
+    }
+
+    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, @Nullable String message, String status, Date updateDate, @Nullable String cveId) {
       this.line = line;
       this.lineHash = lineHash;
       this.ruleKey = ruleKey;
       this.status = status;
       this.updateDate = updateDate;
       this.message = trim(message);
+      this.cveId = cveId;
     }
 
     @Override
@@ -504,6 +540,12 @@ public class TrackerTest {
     @Override
     public Date getUpdateDate() {
       return updateDate;
+    }
+
+    @CheckForNull
+    @Override
+    public String getCveId() {
+      return cveId;
     }
   }
 

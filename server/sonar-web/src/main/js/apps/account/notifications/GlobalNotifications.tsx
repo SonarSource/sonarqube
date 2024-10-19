@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Heading } from '@sonarsource/echoes-react';
+import { Table } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Notification, NotificationGlobalType } from '../../../types/notifications';
@@ -25,40 +28,34 @@ import NotificationsList from './NotificationsList';
 interface Props {
   addNotification: (n: Notification) => void;
   channels: string[];
+  header?: React.JSX.Element;
   notifications: Notification[];
   removeNotification: (n: Notification) => void;
   types: NotificationGlobalType[];
 }
 
-export default function GlobalNotifications(props: Props) {
+export default function GlobalNotifications(props: Readonly<Props>) {
   return (
-    <section className="boxed-group">
-      <h2>{translate('my_profile.overall_notifications.title')}</h2>
+    <>
+      <Heading as="h2" hasMarginBottom>
+        {translate('my_profile.overall_notifications.title')}
+      </Heading>
 
-      <div className="boxed-group-inner">
-        <table className="data zebra">
-          <thead>
-            <tr>
-              <th />
-              {props.channels.map((channel) => (
-                <th className="text-center" key={channel}>
-                  <h4>{translate('notification.channel', channel)}</h4>
-                </th>
-              ))}
-            </tr>
-          </thead>
+      {!props.header && (
+        <div className="sw-typo-semibold sw-mb-2">{translate('notifications.send_email')}</div>
+      )}
 
-          <NotificationsList
-            channels={props.channels}
-            checkboxId={getCheckboxId}
-            notifications={props.notifications}
-            onAdd={props.addNotification}
-            onRemove={props.removeNotification}
-            types={props.types}
-          />
-        </table>
-      </div>
-    </section>
+      <Table className="sw-w-full" columnCount={2} header={props.header ?? null}>
+        <NotificationsList
+          channels={props.channels}
+          checkboxId={getCheckboxId}
+          notifications={props.notifications}
+          onAdd={props.addNotification}
+          onRemove={props.removeNotification}
+          types={props.types}
+        />
+      </Table>
+    </>
   );
 }
 

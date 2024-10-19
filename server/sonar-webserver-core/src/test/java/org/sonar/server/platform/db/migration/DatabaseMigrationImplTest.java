@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,14 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
+import java.time.Instant;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -40,24 +41,24 @@ public class DatabaseMigrationImplTest {
   /**
    * Implementation of execute runs Runnable synchronously.
    */
-  private DatabaseMigrationExecutorService executorService = new DatabaseMigrationExecutorServiceAdaptor() {
+  private final DatabaseMigrationExecutorService executorService = new DatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(Runnable command) {
       command.run();
     }
   };
-  private MutableDatabaseMigrationState migrationState = new DatabaseMigrationStateImpl();
-  private Platform platform = mock(Platform.class);
-  private MigrationEngine migrationEngine = mock(MigrationEngine.class);
-  private InOrder inOrder = inOrder(platform, migrationEngine);
+  private final MutableDatabaseMigrationState migrationState = new DatabaseMigrationStateImpl();
+  private final Platform platform = mock(Platform.class);
+  private final MigrationEngine migrationEngine = mock(MigrationEngine.class);
+  private final InOrder inOrder = inOrder(platform, migrationEngine);
 
-  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, migrationEngine, platform);
+  private final DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, migrationEngine, platform);
 
   @Test
   public void startit_calls_MigrationEngine_execute() {
     underTest.startIt();
 
-    inOrder.verify(migrationEngine).execute();
+    inOrder.verify(migrationEngine).execute(any());
     inOrder.verify(platform).doStart();
     inOrder.verifyNoMoreInteractions();
   }
@@ -67,7 +68,7 @@ public class DatabaseMigrationImplTest {
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.SUCCEEDED);
-    assertThat(migrationState.getError()).isNull();
+    assertThat(migrationState.getError()).isEmpty();
     assertThat(migrationState.getStartedAt()).isNotNull();
   }
 
@@ -78,7 +79,7 @@ public class DatabaseMigrationImplTest {
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.FAILED);
-    assertThat(migrationState.getError()).isSameAs(AN_ERROR);
+    assertThat(migrationState.getError()).get().isSameAs(AN_ERROR);
     assertThat(migrationState.getStartedAt()).isNotNull();
   }
 
@@ -89,24 +90,26 @@ public class DatabaseMigrationImplTest {
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.FAILED);
-    assertThat(migrationState.getError()).isSameAs(AN_ERROR);
-    Date firstStartDate = migrationState.getStartedAt();
-    assertThat(firstStartDate).isNotNull();
+    assertThat(migrationState.getError()).get().isSameAs(AN_ERROR);
+    assertThat(migrationState.getStartedAt()).isPresent();
+    Instant firstStartDate = migrationState.getStartedAt().get();
 
     mockMigrationDoesNothing();
 
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.SUCCEEDED);
-    assertThat(migrationState.getError()).isNull();
-    assertThat(migrationState.getStartedAt()).isNotSameAs(firstStartDate);
+    assertThat(migrationState.getError()).isEmpty();
+    assertThat(migrationState.getStartedAt())
+      .get()
+      .isNotSameAs(firstStartDate);
   }
 
   private void mockMigrationThrowsError() {
-    doThrow(AN_ERROR).when(migrationEngine).execute();
+    doThrow(AN_ERROR).when(migrationEngine).execute(any());
   }
 
   private void mockMigrationDoesNothing() {
-    doNothing().when(migrationEngine).execute();
+    doNothing().when(migrationEngine).execute(any());
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,13 +21,13 @@ package org.sonar.scanner.sensor;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 
 public class ProjectSensorsExecutor {
-  private static final Logger LOG = Loggers.get(ProjectSensorsExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectSensorsExecutor.class);
   private static final Profiler profiler = Profiler.create(LOG);
   private final ProjectSensorExtensionDictionary selector;
   private final ScannerPluginRepository pluginRepo;

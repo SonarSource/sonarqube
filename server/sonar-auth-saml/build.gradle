@@ -9,16 +9,27 @@ dependencies {
 
     api "com.onelogin:java-saml"
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     compileOnlyApi 'com.squareup.okhttp3:okhttp'
-    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
     compileOnlyApi 'org.json:json'
     compileOnlyApi project(':server:sonar-db-dao')
+    compileOnlyApi project(':server:sonar-webserver-api')
     compileOnlyApi project(':sonar-core')
 
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
     testImplementation testFixtures(project(':server:sonar-db-dao'))
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+    // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+    useJUnitPlatform()
 }

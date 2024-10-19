@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,22 +22,21 @@ package org.sonar.db.purge.period;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class KeepOneFilterTest {
+class KeepOneFilterTest {
 
   private static List<String> analysisUuids(List<PurgeableAnalysisDto> snapshotDtos) {
-    return snapshotDtos.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(Collectors.toList());
+    return snapshotDtos.stream().map(PurgeableAnalysisDto::getAnalysisUuid).toList();
   }
 
   @Test
-  public void shouldOnlyOneSnapshotPerInterval() {
+  void shouldOnlyOneSnapshotPerInterval() {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
     List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.asList(
@@ -47,7 +46,7 @@ public class KeepOneFilterTest {
       DbCleanerTestUtils.createAnalysisWithDate("u4", "2011-05-19"), // may -> to be deleted
       DbCleanerTestUtils.createAnalysisWithDate("u5", "2011-06-01"), // june -> keep
       DbCleanerTestUtils.createAnalysisWithDate("u6", "2012-01-01") // out of scope -> keep
-      ));
+    ));
 
     assertThat(toDelete).hasSize(2);
 
@@ -55,7 +54,7 @@ public class KeepOneFilterTest {
   }
 
   @Test
-  public void shouldKeepNonDeletableSnapshots() {
+  void shouldKeepNonDeletableSnapshots() {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
     List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.asList(
@@ -63,7 +62,7 @@ public class KeepOneFilterTest {
       DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-05-02").setLast(true),
       DbCleanerTestUtils.createAnalysisWithDate("u3", "2011-05-19").setHasEvents(true).setLast(false),
       DbCleanerTestUtils.createAnalysisWithDate("u4", "2011-05-23") // to be deleted
-      ));
+    ));
 
     assertThat(toDelete).hasSize(2);
 
@@ -71,7 +70,7 @@ public class KeepOneFilterTest {
   }
 
   @Test
-  public void test_isDeletable() {
+  void test_isDeletable() {
     assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01"))).isTrue();
     assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01").setLast(true))).isFalse();
     assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01").setHasEvents(true))).isFalse();

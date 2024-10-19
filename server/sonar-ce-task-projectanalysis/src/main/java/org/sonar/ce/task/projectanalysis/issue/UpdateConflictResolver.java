@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,11 +20,10 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
 
 /**
  * Support concurrent modifications on issues made by analysis and users at the same time
@@ -32,12 +31,12 @@ import org.sonar.db.issue.IssueMapper;
  */
 public class UpdateConflictResolver {
 
-  private static final Logger LOG = Loggers.get(UpdateConflictResolver.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UpdateConflictResolver.class);
 
-  public void resolve(DefaultIssue issue, IssueDto dbIssue, IssueMapper mapper) {
+  public IssueDto resolve(DefaultIssue issue, IssueDto dbIssue) {
     LOG.debug("Resolve conflict on issue {}", issue.key());
     mergeFields(dbIssue, issue);
-    mapper.update(IssueDto.toDtoForUpdate(issue, System.currentTimeMillis()));
+    return IssueDto.toDtoForUpdate(issue, System.currentTimeMillis());
   }
 
   @VisibleForTesting

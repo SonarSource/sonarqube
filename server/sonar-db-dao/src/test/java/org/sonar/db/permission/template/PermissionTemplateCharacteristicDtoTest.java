@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,18 +20,19 @@
 package org.sonar.db.permission.template;
 
 import com.google.common.base.Strings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class PermissionTemplateCharacteristicDtoTest {
+class PermissionTemplateCharacteristicDtoTest {
 
   PermissionTemplateCharacteristicDto underTest = new PermissionTemplateCharacteristicDto();
 
   @Test
-  public void check_permission_field_length() {
+  void check_permission_field_length() {
     assertThatThrownBy(() -> underTest.setPermission(Strings.repeat("a", 65)))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Permission key length (65) is longer than the maximum authorized (64). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
+      .hasMessage("Permission key length (65) is longer than the maximum authorized (64). " +
+        "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
   }
 }

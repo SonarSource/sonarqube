@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,15 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.ce.task.projectanalysis.analysis.Analysis;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
@@ -32,7 +40,6 @@ import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -48,6 +55,9 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
   private final PullRequestSourceBranchMerger pullRequestSourceBranchMerger;
   private final FileStatuses fileStatuses;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final TrackerTargetBranchInputFactory targetInputFactory;
+
 
   public IntegrateIssuesVisitor(
     ProtoIssueCache protoIssueCache,
@@ -59,7 +69,11 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     SiblingsIssueMerger issueStatusCopier,
     ReferenceBranchComponentUuids referenceBranchComponentUuids,
     PullRequestSourceBranchMerger pullRequestSourceBranchMerger,
-    FileStatuses fileStatuses) {
+    FileStatuses fileStatuses,
+    AnalysisMetadataHolder analysisMetadataHolder,
+    TrackerTargetBranchInputFactory targetInputFactory
+  ) {
+
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.protoIssueCache = protoIssueCache;
     this.rawInputFactory = rawInputFactory;
@@ -71,39 +85,80 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.referenceBranchComponentUuids = referenceBranchComponentUuids;
     this.pullRequestSourceBranchMerger = pullRequestSourceBranchMerger;
     this.fileStatuses = fileStatuses;
+    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.targetInputFactory = targetInputFactory;
   }
 
   @Override
   public void visitAny(Component component) {
     try (CacheAppender<DefaultIssue> cacheAppender = protoIssueCache.newAppender()) {
       issueVisitors.beforeComponent(component);
+      Input<DefaultIssue> rawInput = rawInputFactory.create(component);
+      Input<DefaultIssue> targetInput = createTargetInputIfExist(component);
+      List<DefaultIssue> issues = getIssues(rawInput, targetInput, component);
 
-      if (fileStatuses.isDataUnchanged(component)) {
-        // we assume there's a previous analysis of the same branch
-        Input<DefaultIssue> baseIssues = baseInputFactory.create(component);
-        var issues = new LinkedList<>(baseIssues.getIssues());
-        processIssues(component, issues);
-        issueVisitors.beforeCaching(component);
-        appendIssuesToCache(cacheAppender, issues);
-      } else {
-        Input<DefaultIssue> rawInput = rawInputFactory.create(component);
-        TrackingResult tracking = issueTracking.track(component, rawInput);
-        var newOpenIssues = fillNewOpenIssues(component, tracking.newIssues(), rawInput);
-        var existingOpenIssues = fillExistingOpenIssues(tracking.issuesToMerge());
-        var closedIssues = closeIssues(tracking.issuesToClose());
-        var copiedIssues = copyIssues(tracking.issuesToCopy());
+      issueVisitors.onRawIssues(component, rawInput, targetInput);
+      processIssues(component, issues);
 
-        var issues = Stream.of(newOpenIssues, existingOpenIssues, closedIssues, copiedIssues)
-          .flatMap(Collection::stream)
-          .toList();
-        processIssues(component, issues);
-        issueVisitors.beforeCaching(component);
-        appendIssuesToCache(cacheAppender, issues);
-      }
+      issueVisitors.beforeCaching(component);
+      appendIssuesToCache(cacheAppender, issues);
       issueVisitors.afterComponent(component);
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getKey()), e);
+    } catch (Exception exception) {
+      throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getKey()), exception);
     }
+  }
+
+  @CheckForNull
+  private Input<DefaultIssue> createTargetInputIfExist(Component component) {
+    if (targetInputFactory.hasTargetBranchAnalysis()) {
+      return targetInputFactory.createForTargetBranch(component);
+    }
+    return null;
+  }
+
+  private List<DefaultIssue> getIssues(Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput, Component component) {
+    if (fileStatuses.isDataUnchanged(component)) {
+      // we assume there's a previous analysis of the same branch
+      return getIssuesForUnchangedFile(rawInput, targetInput, component);
+    } else {
+      return getRawIssues(rawInput, targetInput, component);
+    }
+  }
+
+  private List<DefaultIssue> getIssuesForUnchangedFile(Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput, Component component) {
+    Input<DefaultIssue> baseIssues = baseInputFactory.create(component);
+    Collection<DefaultIssue> issues = baseIssues.getIssues();
+    //In case of plugin update, issue impacts are potentially updated. We want to avoid incremental analysis in this case.
+    return hasAnyInvolvedPluginChangedSinceLastAnalysis(issues)
+      ? getRawIssues(rawInput, targetInput, component)
+      : new LinkedList<>(issues);
+  }
+
+  private boolean hasAnyInvolvedPluginChangedSinceLastAnalysis(Collection<DefaultIssue> issues) {
+    long lastAnalysisDate = Optional.ofNullable(analysisMetadataHolder.getBaseAnalysis()).map(Analysis::getCreatedAt).orElse(0L);
+    return getInvolvedPlugins(issues).stream()
+      .anyMatch(scannerPlugin -> lastAnalysisDate < scannerPlugin.getUpdatedAt());
+  }
+
+  private List<ScannerPlugin> getInvolvedPlugins(Collection<DefaultIssue> issues) {
+    Map<String, ScannerPlugin> scannerPluginsByKey = analysisMetadataHolder.getScannerPluginsByKey();
+    return issues.stream()
+      .map(DefaultIssue::getRuleKey)
+      .map(RuleKey::repository)
+      .map(scannerPluginsByKey::get)
+      .filter(Objects::nonNull)
+      .toList();
+  }
+
+  private List<DefaultIssue> getRawIssues(Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput, Component component) {
+    TrackingResult tracking = issueTracking.track(component, rawInput, targetInput);
+    var newOpenIssues = fillNewOpenIssues(component, tracking.newIssues(), rawInput);
+    var existingOpenIssues = fillExistingOpenIssues(tracking.issuesToMerge());
+    var closedIssues = closeIssues(tracking.issuesToClose());
+    var copiedIssues = copyIssues(tracking.issuesToCopy());
+    return Stream.of(newOpenIssues, existingOpenIssues, closedIssues, copiedIssues)
+      .flatMap(Collection::stream)
+      .toList();
   }
 
   private void processIssues(Component component, Collection<DefaultIssue> issues) {
@@ -111,14 +166,11 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   }
 
   private List<DefaultIssue> fillNewOpenIssues(Component component, Stream<DefaultIssue> newIssues, Input<DefaultIssue> rawInput) {
-    List<DefaultIssue> newIssuesList = newIssues
-      .peek(issueLifecycle::initNewOpenIssue)
-      .collect(MoreCollectors.toList());
-
+    List<DefaultIssue> newIssuesList = newIssues.toList();
     if (newIssuesList.isEmpty()) {
       return newIssuesList;
     }
-
+    newIssuesList.forEach(issueLifecycle::initNewOpenIssue);
     pullRequestSourceBranchMerger.tryMergeIssuesFromSourceBranchOfPullRequest(component, newIssuesList, rawInput);
     issueStatusCopier.tryMerge(component, newIssuesList);
     return newIssuesList;
@@ -137,9 +189,9 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
   private static List<DefaultIssue> closeIssues(Stream<DefaultIssue> issues) {
     return issues.map(issue ->
-    // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
-    issue.setBeingClosed(true)
-    // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
+        // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
+        issue.setBeingClosed(true)
+      // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
     ).toList();
   }
 

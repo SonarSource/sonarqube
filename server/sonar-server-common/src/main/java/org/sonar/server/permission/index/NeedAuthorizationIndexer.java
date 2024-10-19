@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,11 @@
  */
 package org.sonar.server.permission.index;
 
+import org.sonar.server.es.EventIndexer;
+
 /**
  * An {@link NeedAuthorizationIndexer} defines how
- * a {@link org.sonar.server.es.ProjectIndexer} populates
+ * a {@link EventIndexer} populates
  * the type named {@link WebAuthorizationTypeSupport#TYPE_AUTHORIZATION}, which
  * is used to verify that a user can access to projects.
  */

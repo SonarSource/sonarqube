@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultMessageFormatting;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.FlowType;
@@ -59,10 +60,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.sensor.issue.MessageFormatting.Type.CODE;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
-  static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
+  private static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
   private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("java", "NoSonarCheck");
 
   private DefaultInputProject project;
@@ -127,7 +130,10 @@ public class IssuePublisherTest {
       .forRule(JAVA_RULE_KEY)
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL)
       .setQuickFixAvailable(true)
-      .setRuleDescriptionContextKey(ruleDescriptionContextKey);
+      .setRuleDescriptionContextKey(ruleDescriptionContextKey)
+      .setCodeVariants(List.of("variant1", "variant2"))
+      .overrideImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
+      .overrideImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
 
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
 
@@ -139,6 +145,11 @@ public class IssuePublisherTest {
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
     assertThat(argument.getValue().getQuickFixAvailable()).isTrue();
     assertThat(argument.getValue().getRuleDescriptionContextKey()).isEqualTo(ruleDescriptionContextKey);
+    assertThat(argument.getValue().getCodeVariantsList()).containsExactly("variant1", "variant2");
+
+    ScannerReport.Impact impact1 = ScannerReport.Impact.newBuilder().setSoftwareQuality(MAINTAINABILITY.name()).setSeverity("HIGH").build();
+    ScannerReport.Impact impact2 = ScannerReport.Impact.newBuilder().setSoftwareQuality(RELIABILITY.name()).setSeverity("LOW").build();
+    assertThat(argument.getValue().getOverridenImpactsList()).containsExactly(impact1, impact2);
   }
 
   @Test
@@ -198,6 +209,25 @@ public class IssuePublisherTest {
     ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
     verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
+  }
+
+  @Test
+  public void initAndAddExternalIssue_whenImpactAndCleanCodeAttributeProvided_shouldPopulateReportFields() {
+    initModuleIssues();
+
+    DefaultExternalIssue issue = new DefaultExternalIssue(project)
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
+      .cleanCodeAttribute(CleanCodeAttribute.CLEAR)
+      .forRule(JAVA_RULE_KEY)
+      .addImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW);
+
+    moduleIssues.initAndAddExternalIssue(issue);
+
+    ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
+    verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.scannerId()), argument.capture());
+    assertThat(argument.getValue().getImpactsList()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+      .containsExactly(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.LOW.name()));
+    assertThat(argument.getValue().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR.name());
   }
 
   @Test

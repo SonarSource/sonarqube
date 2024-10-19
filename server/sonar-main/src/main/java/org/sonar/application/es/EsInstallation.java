@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,13 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.application.command.EsJvmOptions;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.Props;
 
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE;
@@ -73,6 +74,10 @@ public class EsInstallation {
   private final String keyStorePassword;
   @Nullable
   private final String trustStorePassword;
+  private final Path httpKeyStoreLocation;
+  @Nullable
+  private final String httpKeyStorePassword;
+  private final boolean httpEncryptionEnabled;
 
   public EsInstallation(Props props) {
     File sqHomeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
@@ -89,6 +94,9 @@ public class EsInstallation {
     this.keyStorePassword = props.value(CLUSTER_ES_KEYSTORE_PASSWORD.getKey());
     this.trustStoreLocation = getPath(props.value(CLUSTER_ES_TRUSTSTORE.getKey()));
     this.trustStorePassword = props.value(CLUSTER_ES_TRUSTSTORE_PASSWORD.getKey());
+    this.httpKeyStoreLocation = getPath(props.value(CLUSTER_ES_HTTP_KEYSTORE.getKey()));
+    this.httpKeyStorePassword = props.value(CLUSTER_ES_HTTP_KEYSTORE_PASSWORD.getKey());
+    this.httpEncryptionEnabled = securityEnabled && httpKeyStoreLocation != null;
   }
 
   private static Path getPath(@Nullable String path) {
@@ -97,14 +105,14 @@ public class EsInstallation {
 
   private static List<File> buildOutdatedSearchDirs(Props props) {
     String dataPath = props.nonNullValue(PATH_DATA.getKey());
-    return Stream.of("es", "es5", "es6")
+    return Stream.of("es", "es5", "es6", "es7")
       .map(t -> new File(dataPath, t))
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   private static File buildDataDir(Props props) {
     String dataPath = props.nonNullValue(PATH_DATA.getKey());
-    return new File(dataPath, "es7");
+    return new File(dataPath, "es8");
   }
 
   private static File buildLogPath(Props props) {
@@ -223,5 +231,17 @@ public class EsInstallation {
 
   public Optional<String> getTrustStorePassword() {
     return Optional.ofNullable(trustStorePassword);
+  }
+
+  public Path getHttpKeyStoreLocation() {
+    return httpKeyStoreLocation;
+  }
+
+  public Optional<String> getHttpKeyStorePassword() {
+    return Optional.ofNullable(httpKeyStorePassword);
+  }
+
+  public boolean isHttpEncryptionEnabled() {
+    return httpEncryptionEnabled;
   }
 }

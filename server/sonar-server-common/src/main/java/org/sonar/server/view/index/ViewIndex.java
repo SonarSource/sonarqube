@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,10 @@ import org.sonar.server.es.EsClient;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
+/**
+ * The View Index indexes all views, root and not root (APP, VW, SVW), and all projects that are computed under each view.
+ * It's based on the computation results, coming from the components table, not on the definition of those views.
+ */
 @ServerSide
 @ComputeEngineSide
 public class ViewIndex {

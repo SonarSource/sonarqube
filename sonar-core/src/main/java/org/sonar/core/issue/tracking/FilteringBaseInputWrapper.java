@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-
 class FilteringBaseInputWrapper<BASE extends Trackable> implements Input<BASE> {
   private final Input<BASE> baseInput;
   private final List<BASE> nonClosedIssues;
@@ -34,7 +32,7 @@ class FilteringBaseInputWrapper<BASE extends Trackable> implements Input<BASE> {
     Collection<BASE> baseIssues = baseInput.getIssues();
     this.nonClosedIssues = baseIssues.stream()
       .filter(baseInputFilter)
-      .collect(toList(baseIssues.size()));
+      .toList();
   }
 
   @Override

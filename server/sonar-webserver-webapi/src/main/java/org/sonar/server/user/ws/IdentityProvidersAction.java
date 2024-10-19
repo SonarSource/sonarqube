@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@ import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.IdentityProvidersWsResponse;
@@ -60,7 +59,7 @@ public class IdentityProvidersAction implements UsersWsAction {
     response.addAllIdentityProviders(identityProviderRepository.getAllEnabledAndSorted()
       .stream()
       .map(toWsIdentityProvider())
-      .collect(MoreCollectors.toList()));
+      .toList());
     return response.build();
   }
 

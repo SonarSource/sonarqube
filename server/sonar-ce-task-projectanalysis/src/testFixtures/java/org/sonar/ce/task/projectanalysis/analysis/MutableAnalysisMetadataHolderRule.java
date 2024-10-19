@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.project.Project;
@@ -30,7 +32,7 @@ import org.sonar.server.qualityprofile.QualityProfile;
 
 import static org.mockito.Mockito.mock;
 
-public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
+public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder, AfterEachCallback {
 
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl(editionProvider);
@@ -199,4 +201,10 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   public boolean isPullRequest() {
     return delegate.isPullRequest();
   }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) {
+    after();
+  }
+
 }

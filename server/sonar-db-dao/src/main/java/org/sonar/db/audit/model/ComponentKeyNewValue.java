@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ComponentKeyNewValue extends NewValue {
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   private final String componentUuid;
   private final String oldKey;
   private final String newKey;
@@ -34,6 +38,10 @@ public class ComponentKeyNewValue extends NewValue {
     this.newKey = newKey;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   public String getComponentUuid() {
     return componentUuid;
   }

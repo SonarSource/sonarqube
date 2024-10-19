@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -79,14 +79,12 @@ public class DismissAnalysisWarningAction implements CeWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
-    String userLogin = requireNonNull(userSession.getLogin());
     String projectKey = request.mandatoryParam(PARAM_COMPONENT_KEY);
     String messageKey = request.mandatoryParam(PARAM_MESSAGE_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto user = getUser(dbSession, userLogin);
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkProjectPermission(UserRole.USER, project);
+      userSession.checkEntityPermission(UserRole.USER, project);
 
       CeTaskMessageDto messageDto = dbClient.ceTaskMessageDao()
         .selectByUuid(dbSession, messageKey)
@@ -95,13 +93,14 @@ public class DismissAnalysisWarningAction implements CeWsAction {
         throw new IllegalArgumentException(format(MESSAGE_CANNOT_BE_DISMISSED, messageKey));
       }
 
-      Optional<UserDismissedMessageDto> result = dbClient.userDismissedMessagesDao().selectByUserAndProjectAndMessageType(dbSession, user, project, messageDto.getType());
+      Optional<UserDismissedMessageDto> result = dbClient.userDismissedMessagesDao().selectByUserAndProjectAndMessageType(dbSession,
+        userSession.getUuid(), project, messageDto.getType());
       if (!result.isPresent()) {
         dbClient.userDismissedMessagesDao().insert(dbSession, new UserDismissedMessageDto()
           .setUuid(Uuids.create())
-          .setUserUuid(user.getUuid())
+          .setUserUuid(userSession.getUuid())
           .setProjectUuid(project.getUuid())
-          .setCeMessageType(messageDto.getType()));
+          .setMessageType(messageDto.getType()));
         dbSession.commit();
       }
 
@@ -109,7 +108,4 @@ public class DismissAnalysisWarningAction implements CeWsAction {
     }
   }
 
-  private UserDto getUser(DbSession dbSession, String userLogin) {
-    return checkFound(dbClient.userDao().selectByLogin(dbSession, userLogin), "User '%s' not found", userLogin);
-  }
 }

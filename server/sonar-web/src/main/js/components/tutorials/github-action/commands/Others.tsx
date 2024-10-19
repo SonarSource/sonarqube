@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,20 +21,20 @@ import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import FinishButton from '../../components/FinishButton';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface OthersProps {
   branchesEnabled?: boolean;
-  mainBranchName: string;
   component: Component;
-  onDone: () => void;
+  mainBranchName: string;
+  monorepo?: boolean;
 }
 
 function otherYamlSteps(branchesEnabled: boolean) {
   let output = `
-      - uses: sonarsource/sonarqube-scan-action@master
+      - uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
@@ -57,20 +57,24 @@ function otherYamlSteps(branchesEnabled: boolean) {
 }
 
 export default function Others(props: OthersProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
   return (
     <>
-      <DefaultProjectKey component={component} />
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_LINUX,
-          otherYamlSteps(!!branchesEnabled)
-        )}
-      />
-      <FinishButton onClick={props.onDone} />
+      <DefaultProjectKey component={component} monorepo={monorepo} />
+
+      {monorepo ? (
+        <MonorepoDocLinkFallback />
+      ) : (
+        <CreateYmlFile
+          yamlFileName=".github/workflows/build.yml"
+          yamlTemplate={generateGitHubActionsYaml(
+            mainBranchName,
+            !!branchesEnabled,
+            GITHUB_ACTIONS_RUNS_ON_LINUX,
+            otherYamlSteps(!!branchesEnabled),
+          )}
+        />
+      )}
     </>
   );
 }

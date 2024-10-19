@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.DocWriteRequest;
@@ -55,8 +56,8 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.ProgressLogger;
 
@@ -71,7 +72,7 @@ import static java.lang.String.format;
  */
 public class BulkIndexer {
 
-  private static final Logger LOGGER = Loggers.get(BulkIndexer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(BulkIndexer.class);
   private static final ByteSizeValue FLUSH_BYTE_SIZE = new ByteSizeValue(1, ByteSizeUnit.MB);
   private static final int FLUSH_ACTIONS = -1;
   private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
@@ -189,11 +190,14 @@ public class BulkIndexer {
   }
 
   public void addDeletion(IndexType indexType, String id) {
-    add(new DeleteRequest(indexType.getMainType().getIndex().getName(), indexType.getMainType().getType(), id));
+    add(new DeleteRequest(indexType.getMainType().getIndex().getName())
+      .id(id));
   }
 
   public void addDeletion(IndexType indexType, String id, @Nullable String routing) {
-    add(new DeleteRequest(indexType.getMainType().getIndex().getName(), indexType.getMainType().getType(), id).routing(routing));
+    add(new DeleteRequest(indexType.getMainType().getIndex().getName())
+      .id(id)
+      .routing(routing));
   }
 
   /**
@@ -210,11 +214,14 @@ public class BulkIndexer {
   }
 
   private final class BulkProcessorListener implements Listener {
-    private final Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER);
+    // a map containing per each request the associated profiler
+    private final Map<BulkRequest, Profiler> profilerByRequest = new ConcurrentHashMap<>();
 
     @Override
     public void beforeBulk(long executionId, BulkRequest request) {
+      final Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER);
       profiler.start();
+      profilerByRequest.put(request, profiler);
     }
 
     @Override
@@ -239,9 +246,11 @@ public class BulkIndexer {
     }
 
     private void stopProfiler(BulkRequest request) {
-      if (profiler.isTraceEnabled()) {
+      final Profiler profiler = profilerByRequest.get(request);
+      if (Objects.nonNull(profiler) && profiler.isTraceEnabled()) {
         profiler.stopTrace(toString(request));
       }
+      profilerByRequest.remove(request);
     }
 
     private String toString(BulkRequest bulkRequest) {

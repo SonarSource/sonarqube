@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,64 +17,59 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { ContentCell, NumericalCell, Table, TableRow } from 'design-system';
 import * as React from 'react';
+import { AppStateContext } from '../../../app/components/app-state/AppStateContext';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { translate } from '../../../helpers/l10n';
-import { AppState } from '../../../types/appstate';
 import { EditionKey } from '../../../types/editions';
 import { Task as ITask } from '../../../types/tasks';
 import Task from './Task';
 
 interface Props {
-  tasks: ITask[];
   component?: unknown;
-  loading: boolean;
   onCancelTask: (task: ITask) => Promise<void>;
   onFilterTask: (task: ITask) => void;
-  appState: AppState;
+  tasks: ITask[];
 }
 
-export function Tasks({ tasks, component, loading, onCancelTask, onFilterTask, appState }: Props) {
-  const className = classNames('data zebra zebra-hover background-tasks', {
-    'new-loading': loading,
-  });
+const COLUMN_WIDTHS = [0, 'auto', 'auto', 0, 0, 0, 0];
+const COLUMN_WIDTHS_WITH_NODES = [0, 'auto', 'auto', 0, 0, 0, 0, 0];
+
+export function Tasks({ tasks, component, onCancelTask, onFilterTask }: Readonly<Props>) {
+  const appState = React.useContext(AppStateContext);
+  const isDataCenter = appState.edition === EditionKey.datacenter;
 
   return (
-    <div className="boxed-group boxed-group-inner">
-      <table className={className}>
-        <thead>
-          <tr>
-            <th>{translate('background_tasks.table.status')}</th>
-            <th>{translate('background_tasks.table.task')}</th>
-            <th>{translate('background_tasks.table.id')}</th>
-            <th>{translate('background_tasks.table.submitter')}</th>
-            {appState?.edition === EditionKey.datacenter && (
-              <th>{translate('background_tasks.table.nodeName')}</th>
-            )}
-            <th>&nbsp;</th>
-            <th className="text-right">{translate('background_tasks.table.submitted')}</th>
-            <th className="text-right">{translate('background_tasks.table.started')}</th>
-            <th className="text-right">{translate('background_tasks.table.finished')}</th>
-            <th className="text-right">{translate('background_tasks.table.duration')}</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task, index, tasks) => (
-            <Task
-              component={component}
-              key={task.id}
-              onCancelTask={onCancelTask}
-              onFilterTask={onFilterTask}
-              previousTask={index > 0 ? tasks[index - 1] : undefined}
-              task={task}
-              appState={appState}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table
+      columnCount={isDataCenter ? COLUMN_WIDTHS_WITH_NODES.length : COLUMN_WIDTHS.length}
+      columnWidths={isDataCenter ? COLUMN_WIDTHS_WITH_NODES : COLUMN_WIDTHS}
+      header={
+        <TableRow>
+          <ContentCell>{translate('background_tasks.table.status')}</ContentCell>
+          <ContentCell>{translate('background_tasks.table.task')}</ContentCell>
+          {isDataCenter && (
+            <ContentCell>{translate('background_tasks.table.nodeName')}</ContentCell>
+          )}
+          <ContentCell>{translate('background_tasks.table.submitted')}</ContentCell>
+          <NumericalCell>{translate('background_tasks.table.started')}</NumericalCell>
+          <NumericalCell>{translate('background_tasks.table.finished')}</NumericalCell>
+          <NumericalCell>{translate('background_tasks.table.duration')}</NumericalCell>
+          <ContentCell />
+        </TableRow>
+      }
+    >
+      {tasks.map((task, index) => (
+        <Task
+          component={component}
+          key={task.id}
+          taskIndex={index}
+          onCancelTask={onCancelTask}
+          onFilterTask={onFilterTask}
+          task={task}
+        />
+      ))}
+    </Table>
   );
 }
 

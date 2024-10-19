@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,7 +40,6 @@ import org.sonar.server.qualitygate.QualityGateCaycStatus;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -74,6 +73,9 @@ public class ShowAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
+        new Change("10.3", "'isDefault' field is added to the response"),
+        new Change("10.0", "Field 'id' in the response has been removed"),
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("9.9", "'caycStatus' field is added to the response"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."),
         new Change("8.4", "Field 'id' in the response is deprecated."),
@@ -82,11 +84,8 @@ public class ShowAction implements QualityGatesWsAction {
         new Change("7.0", "'actions' field is added in the response"))
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setDescription("ID of the quality gate. Either id or name must be set")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_NAME)
+      .setRequired(true)
       .setDescription("Name of the quality gate. Either id or name must be set")
       .setExampleValue("My Quality Gate");
 
@@ -95,13 +94,11 @@ public class ShowAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String id = request.param(PARAM_ID);
-    String name = request.param(PARAM_NAME);
-    checkOneOfIdOrNamePresent(id, name);
+    String name = request.mandatoryParam(PARAM_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QualityGateDto qualityGate = getByNameOrUuid(dbSession, organization, name, id);
+      QualityGateDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, name);
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, conditions);
       QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession, organization);
@@ -110,40 +107,30 @@ public class ShowAction implements QualityGatesWsAction {
     }
   }
 
-  private QualityGateDto getByNameOrUuid(DbSession dbSession, OrganizationDto organization, @Nullable String name, @Nullable String uuid) {
-    if (name != null) {
-      return checkFound(dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organization, name), "No quality gate has been found for name %s", name);
-    }
-    if (uuid != null) {
-      return wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
-    }
-    throw new IllegalArgumentException("No parameter has been set to identify a quality gate");
-  }
-
   public Collection<QualityGateConditionDto> getConditions(DbSession dbSession, QualityGateDto qualityGate) {
     return dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getUuid());
   }
 
   private Map<String, MetricDto> getMetricsByUuid(DbSession dbSession, Collection<QualityGateConditionDto> conditions) {
-    Set<String> metricUuids = conditions.stream().map(QualityGateConditionDto::getMetricUuid).collect(toSet());
-    return dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().filter(MetricDto::isEnabled).collect(uniqueIndex(MetricDto::getUuid));
+    Set<String> metricUuids = conditions.stream().map(QualityGateConditionDto::getMetricUuid).collect(Collectors.toSet());
+    return dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().filter(MetricDto::isEnabled).collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
   }
 
-  private ShowWsResponse buildResponse(DbSession dbSession, OrganizationDto organization, QualityGateDto qualityGate, QualityGateDto defaultQualityGate, Collection<QualityGateConditionDto> conditions,
-    Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus) {
+  private ShowWsResponse buildResponse(DbSession dbSession, OrganizationDto organization, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
+    Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus) {
     return ShowWsResponse.newBuilder()
-      .setId(qualityGate.getUuid())
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
+      .setIsDefault(qualityGate.getUuid().equals(defaultQualityGate.getUuid()))
       .setCaycStatus(caycStatus.toString())
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
-        .collect(toList()))
+        .toList())
       .setActions(wsSupport.getActions(dbSession, organization, qualityGate, defaultQualityGate))
       .build();
   }
 
-  private static Function<QualityGateConditionDto, ShowWsResponse.Condition> toWsCondition(Map<String, MetricDto> metricsByUuid) {
+  private Function<QualityGateConditionDto, ShowWsResponse.Condition> toWsCondition(Map<String, MetricDto> metricsByUuid) {
     return condition -> {
       String metricUuid = condition.getMetricUuid();
       MetricDto metric = metricsByUuid.get(metricUuid);
@@ -151,13 +138,11 @@ public class ShowAction implements QualityGatesWsAction {
       ShowWsResponse.Condition.Builder builder = ShowWsResponse.Condition.newBuilder()
         .setId(condition.getUuid())
         .setMetric(metric.getKey())
+        .setIsCaycCondition(qualityGateCaycChecker.isCaycCondition(metric))
         .setOp(condition.getOperator());
       ofNullable(condition.getErrorThreshold()).ifPresent(builder::setError);
       return builder.build();
     };
   }
 
-  private static void checkOneOfIdOrNamePresent(@Nullable String qGateUuid, @Nullable String qGateName) {
-    checkArgument(qGateUuid == null ^ qGateName == null, "Either '%s' or '%s' must be provided", PARAM_ID, PARAM_NAME);
-  }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { HelperHintIcon, Title } from 'design-system';
 import * as React from 'react';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import { Button } from '../../../components/controls/buttons';
-import ModalButton from '../../../components/controls/ModalButton';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
+import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import CreateQualityGateForm from './CreateQualityGateForm';
 
 interface Props {
-  canCreate: boolean;
-  refreshQualityGates: () => Promise<void>;
   organization: string;
+  canCreate: boolean;
 }
+
+function CreateQualityGateModal() {
+  const renderModal = React.useCallback(
+    ({ onClose }: ModalProps) => <CreateQualityGateForm onClose={onClose} />,
+    [],
+  );
 
 export default function ListHeader({ canCreate, refreshQualityGates, organization }: Props) {
   return (
+    <div>
+      <ModalButton modal={renderModal}>
+        {({ onClick }) => (
+          <Button data-test="quality-gates__add" onClick={onClick} variety={ButtonVariety.Primary}>
+            {translate('create')}
+          </Button>
+        )}
+      </ModalButton>
+    </div>
+  );
+}
     <div className="page-header">
       {canCreate && (
         <div className="page-actions">
@@ -49,19 +68,28 @@ export default function ListHeader({ canCreate, refreshQualityGates, organizatio
         </div>
       )}
 
-      <div className="display-flex-center">
-        <h1 className="page-title">{translate('quality_gates.page')}</h1>
-        <DocumentationTooltip
-          className="spacer-left"
+export default function ListHeader({ canCreate }: Readonly<Props>) {
+  return (
+    <div className="sw-flex sw-justify-between sw-pb-4">
+      <div className="sw-flex sw-justify-between">
+        <Title className="sw-flex sw-items-center sw-typo-lg-semibold sw-mb-0">
+          {translate('quality_gates.page')}
+        </Title>
+        <DocHelpTooltip
+          className="sw-ml-2"
           content={translate('quality_gates.help')}
           links={[
             {
+              href: DocLink.QualityGates,
               href: 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-gates',
               label: translate('learn_more'),
             },
           ]}
-        />
+        >
+          <HelperHintIcon />
+        </DocHelpTooltip>
       </div>
+      {canCreate && <CreateQualityGateModal />}
     </div>
   );
 }

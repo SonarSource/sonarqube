@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,87 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { last } from 'lodash';
+
+import styled from '@emotion/styled';
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import Link from '../../../../components/common/Link';
-import QualifierIcon from '../../../../components/icons/QualifierIcon';
-import { isMainBranch } from '../../../../helpers/branch-like';
+import Favorite from '../../../../components/controls/Favorite';
 import { getComponentOverviewUrl } from '../../../../helpers/urls';
-import { BranchLike } from '../../../../types/branch-like';
 import { Component } from '../../../../types/types';
-import { colors } from '../../../theme';
+import { CurrentUser, isLoggedIn } from '../../../../types/users';
 
 export interface BreadcrumbProps {
   component: Component;
-  currentBranchLike: BranchLike | undefined;
+  currentUser: CurrentUser;
 }
 
-export function Breadcrumb(props: BreadcrumbProps) {
-  const {
-    component: { breadcrumbs },
-    currentBranchLike,
-  } = props;
-  const lastBreadcrumbElement = last(breadcrumbs);
-  const isNotMainBranch = currentBranchLike && !isMainBranch(currentBranchLike);
+export function Breadcrumb(props: Readonly<BreadcrumbProps>) {
+  const { component, currentUser } = props;
 
   return (
-    <div className="big flex-shrink display-flex-center">
-      {breadcrumbs.map((breadcrumbElement, i) => {
-        const isFirst = i === 0;
-        const isNotLast = i < breadcrumbs.length - 1;
+    <div className="sw-text-sm sw-flex sw-justify-center">
+      {component.breadcrumbs.map((breadcrumbElement, i) => {
+        const isNotLast = i < component.breadcrumbs.length - 1;
         const isLast = !isNotLast;
-        const showQualifierIcon = isFirst && lastBreadcrumbElement;
-
-        const name =
-          isNotMainBranch || isNotLast ? (
-            <>
-              {showQualifierIcon && !isNotMainBranch && (
-                <QualifierIcon
-                  className="spacer-right"
-                  qualifier={lastBreadcrumbElement.qualifier}
-                  fill={colors.neutral800}
-                />
-              )}
-              <Link
-                className="link-no-underline"
-                to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}
-              >
-                {showQualifierIcon && isNotMainBranch && (
-                  <QualifierIcon
-                    className="spacer-right"
-                    qualifier={lastBreadcrumbElement.qualifier}
-                    fill={colors.primary}
-                  />
-                )}
-                {breadcrumbElement.name}
-              </Link>
-            </>
-          ) : (
-            <>
-              {showQualifierIcon && (
-                <QualifierIcon
-                  className="spacer-right"
-                  qualifier={lastBreadcrumbElement.qualifier}
-                  fill={colors.neutral800}
-                />
-              )}
-              {breadcrumbElement.name}
-            </>
-          );
 
         return (
-          <span className="flex-shrink display-flex-center" key={breadcrumbElement.key}>
-            {isLast ? (
-              <h1 className="text-ellipsis" title={breadcrumbElement.name}>
-                {name}
-              </h1>
-            ) : (
-              <span className="text-ellipsis" title={breadcrumbElement.name}>
-                {name}
-              </span>
+          <div key={breadcrumbElement.key} className="sw-flex sw-items-center">
+            {isLast && isLoggedIn(currentUser) && (
+              <Favorite
+                className="sw-mr-2"
+                component={component.key}
+                favorite={Boolean(component.isFavorite)}
+                qualifier={component.qualifier}
+              />
             )}
-            {isNotLast && <span className="slash-separator" />}
-          </span>
+
+            <LinkStandalone
+              highlight={LinkHighlight.Subdued}
+              className="js-project-link"
+              key={breadcrumbElement.name}
+              shouldBlurAfterClick
+              title={breadcrumbElement.name}
+              to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}
+            >
+              {breadcrumbElement.name}
+            </LinkStandalone>
+
+            {isNotLast && <SlashSeparator className="sw-mx-2" />}
+          </div>
         );
       })}
     </div>
@@ -105,3 +71,10 @@ export function Breadcrumb(props: BreadcrumbProps) {
 }
 
 export default React.memo(Breadcrumb);
+
+const SlashSeparator = styled.span`
+  &:after {
+    content: '/';
+    color: rgba(68, 68, 68, 0.3);
+  }
+`;

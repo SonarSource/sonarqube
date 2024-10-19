@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,20 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Table;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
@@ -62,7 +66,7 @@ public class ComponentTreeSort {
   }
 
   public static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest, List<MetricDto> metrics,
-                                                  Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
     List<String> sortParameters = wsRequest.getSort();
     if (sortParameters == null || sortParameters.isEmpty()) {
       return components;
@@ -112,14 +116,14 @@ public class ComponentTreeSort {
   }
 
   private static Ordering<ComponentDto> metricValueOrdering(ComponentTreeRequest wsRequest, List<MetricDto> metrics,
-                                                            Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    boolean isAscending = Optional.ofNullable(wsRequest.getAsc()).orElse(false);
     if (wsRequest.getMetricSort() == null) {
-      return componentNameOrdering(wsRequest.getAsc());
+      return componentNameOrdering(isAscending);
     }
     Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDto::getKey);
     MetricDto metric = metricsByKey.get(wsRequest.getMetricSort());
 
-    boolean isAscending = wsRequest.getAsc();
     ValueType metricValueType = ValueType.valueOf(metric.getValueType());
     if (NUMERIC_VALUE_TYPES.contains(metricValueType)) {
       return numericalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
@@ -127,22 +131,29 @@ public class ComponentTreeSort {
       return stringOrdering(isAscending, new ComponentDtoToTextualMeasureValue(metric, measuresByComponentUuidAndMetric));
     } else if (ValueType.LEVEL.equals(ValueType.valueOf(metric.getValueType()))) {
       return levelMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
+    } else if (ValueType.DATA.equals(ValueType.valueOf(metric.getValueType()))
+               && DataSupportedMetrics.IMPACTS_SUPPORTED_METRICS.contains(metric.getKey())) {
+      return totalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     }
 
     throw new IllegalStateException("Unrecognized metric value type: " + metric.getValueType());
   }
 
   private static Ordering<ComponentDto> metricPeriodOrdering(ComponentTreeRequest wsRequest, List<MetricDto> metrics,
-                                                             Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    boolean isAscending = Optional.ofNullable(wsRequest.getAsc()).orElse(false);
     if (wsRequest.getMetricSort() == null || wsRequest.getMetricPeriodSort() == null) {
-      return componentNameOrdering(wsRequest.getAsc());
+      return componentNameOrdering(isAscending);
     }
     Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDto::getKey);
     MetricDto metric = metricsByKey.get(wsRequest.getMetricSort());
 
     ValueType metricValueType = ValueType.valueOf(metric.getValueType());
     if (NUMERIC_VALUE_TYPES.contains(metricValueType)) {
-      return numericalMetricPeriodOrdering(wsRequest, metric, measuresByComponentUuidAndMetric);
+      return numericalMetricPeriodOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
+    } else if (ValueType.DATA.equals(metricValueType)
+               && DataSupportedMetrics.IMPACTS_SUPPORTED_METRICS.contains(metric.getKey())) {
+      return totalNewPeriodMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     }
 
     throw BadRequestException.create(format("Impossible to sort metric '%s' by measure period.", metric.getKey()));
@@ -150,36 +161,47 @@ public class ComponentTreeSort {
 
   private static Ordering<ComponentDto> numericalMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
     Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
-    Ordering<Double> ordering = Ordering.natural();
+    Ordering<Double> ordering = getOrdering(isAscending);
+
+    return ordering.onResultOf(new ComponentDtoToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
+  }
+
+  @NotNull
+  private static <T extends Comparable<T>> Ordering<T> getOrdering(boolean isAscending) {
+    Ordering<T> ordering = Ordering.natural();
 
     if (!isAscending) {
       ordering = ordering.reverse();
     }
-
-    return ordering.nullsLast().onResultOf(new ComponentDtoToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
+    return ordering.nullsLast();
   }
 
-  private static Ordering<ComponentDto> numericalMetricPeriodOrdering(ComponentTreeRequest request, @Nullable MetricDto metric,
-                                                                      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
-    Ordering<Double> ordering = Ordering.natural();
+  private static Ordering<ComponentDto> totalMetricOrdering(boolean isAscending, MetricDto metric,
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Ordering<Long> ordering = getOrdering(isAscending);
+    return ordering.onResultOf(new ComponentDtoToTotalImpactMeasureValue(metric, measuresByComponentUuidAndMetric, false));
+  }
 
-    if (!request.getAsc()) {
-      ordering = ordering.reverse();
-    }
+  private static Ordering<ComponentDto> totalNewPeriodMetricOrdering(boolean isAscending, MetricDto metric,
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Ordering<Long> ordering = getOrdering(isAscending);
+    return ordering.onResultOf(new ComponentDtoToTotalImpactMeasureValue(metric, measuresByComponentUuidAndMetric, true));
+  }
 
-    return ordering.nullsLast().onResultOf(new ComponentDtoToMeasureVariationValue(metric, measuresByComponentUuidAndMetric));
+
+  private static Ordering<ComponentDto> numericalMetricPeriodOrdering(boolean isAscending, @Nullable MetricDto metric,
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Ordering<Double> ordering = getOrdering(isAscending);
+
+    return ordering.onResultOf(new ComponentDtoToMeasureVariationValue(metric, measuresByComponentUuidAndMetric));
   }
 
   private static Ordering<ComponentDto> levelMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
     Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
-    Ordering<Integer> ordering = Ordering.natural();
+    // inverse the order of org.sonar.api.measures.Metric.Level enum
+    Ordering<Integer> ordering = getOrdering(!isAscending);
 
-    // inverse the order of org.sonar.api.measures.Metric.Level
-    if (isAscending) {
-      ordering = ordering.reverse();
-    }
-
-    return ordering.nullsLast().onResultOf(new ComponentDtoToLevelIndex(metric, measuresByComponentUuidAndMetric));
+    return ordering.onResultOf(new ComponentDtoToLevelIndex(metric, measuresByComponentUuidAndMetric));
   }
 
   private static class ComponentDtoToNumericalMeasureValue implements Function<ComponentDto, Double> {
@@ -262,6 +284,36 @@ public class ComponentTreeSort {
       }
 
       return measure.getData();
+    }
+  }
+
+  private static class ComponentDtoToTotalImpactMeasureValue implements Function<ComponentDto, Long> {
+    private final MetricDto metric;
+    private final Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric;
+    private final boolean onlyNewPeriodMeasures;
+
+    //Store the total value for each component to avoid multiple deserialization of the same measure
+    Map<String, Long> totalByComponentUuid = new HashMap<>();
+
+    private ComponentDtoToTotalImpactMeasureValue(@Nullable MetricDto metric,
+      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, boolean onlyNewPeriodMeasures) {
+      this.metric = metric;
+      this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
+      this.onlyNewPeriodMeasures = onlyNewPeriodMeasures;
+    }
+
+    @Override
+    public Long apply(@Nonnull ComponentDto input) {
+      if (onlyNewPeriodMeasures && metric != null && !metric.getKey().startsWith("new_")) {
+        return null;
+      }
+      return totalByComponentUuid.computeIfAbsent(input.uuid(),
+        k -> {
+          ComponentTreeData.Measure measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
+          return Optional.ofNullable(measure).map(ComponentTreeData.Measure::getData)
+            .map(data -> ImpactMeasureBuilder.fromString(measure.getData()).getTotal())
+            .orElse(null);
+        });
     }
   }
 

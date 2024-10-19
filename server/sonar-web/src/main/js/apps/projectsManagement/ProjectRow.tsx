@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Checkbox, LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import { ActionCell, Badge, ContentCell, Note, TableRow } from 'design-system';
 import * as React from 'react';
-import { Project } from '../../api/components';
-import Link from '../../components/common/Link';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { Project } from '../../api/project-management';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
-import Checkbox from '../../components/controls/Checkbox';
 import Tooltip from '../../components/controls/Tooltip';
-import QualifierIcon from '../../components/icons/QualifierIcon';
 import DateFormatter from '../../components/intl/DateFormatter';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../helpers/urls';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
+import { useGilabProvisioningEnabledQuery } from '../../queries/identity-provider/gitlab';
 import { LoggedInUser } from '../../types/users';
-import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 
 interface Props {
@@ -37,55 +40,55 @@ interface Props {
   selected: boolean;
 }
 
-export default class ProjectRow extends React.PureComponent<Props> {
-  handleProjectCheck = (checked: boolean) => {
-    this.props.onProjectCheck(this.props.project, checked);
+export default function ProjectRow(props: Readonly<Props>) {
+  const { currentUser, project, selected } = props;
+  const { data: githubProvisioningEnabled } = useGithubProvisioningEnabledQuery();
+  const { data: gitlabProbivisioningEnabled } = useGilabProvisioningEnabledQuery();
+
+  const handleProjectCheck = (checked: boolean) => {
+    props.onProjectCheck(project, checked);
   };
 
-  render() {
-    const { project, selected } = this.props;
-
-    return (
-      <tr data-project-key={project.key}>
-        <td className="thin">
-          <Checkbox checked={selected} onCheck={this.handleProjectCheck} />
-        </td>
-
-        <td className="nowrap hide-overflow project-row-text-cell">
-          <Link
-            className="link-no-underline"
-            to={getComponentOverviewUrl(project.key, project.qualifier)}
-          >
-            <QualifierIcon className="little-spacer-right" qualifier={project.qualifier} />
-
-            <Tooltip overlay={project.name} placement="left">
-              <span>{project.name}</span>
-            </Tooltip>
-          </Link>
-        </td>
-
-        <td className="thin nowrap">
-          <PrivacyBadgeContainer qualifier={project.qualifier} visibility={project.visibility} />
-        </td>
-
-        <td className="nowrap hide-overflow project-row-text-cell">
-          <Tooltip overlay={project.key} placement="left">
-            <span className="note">{project.key}</span>
+  return (
+    <TableRow data-project-key={project.key}>
+      <ContentCell>
+        <Checkbox
+          ariaLabel={translateWithParameters('projects_management.select_project', project.name)}
+          checked={selected}
+          onCheck={handleProjectCheck}
+        />
+      </ContentCell>
+      <ContentCell className="it__project-row-text-cell">
+        <LinkStandalone
+          highlight={LinkHighlight.CurrentColor}
+          to={getComponentOverviewUrl(project.key, project.qualifier)}
+        >
+          <Tooltip content={project.name} side="left">
+            <span>{project.name}</span>
           </Tooltip>
-        </td>
-
-        <td className="thin nowrap text-right">
-          {project.lastAnalysisDate ? (
-            <DateFormatter date={project.lastAnalysisDate} />
-          ) : (
-            <span className="note">—</span>
-          )}
-        </td>
-
-        <td className="thin nowrap">
-          <ProjectRowActions currentUser={this.props.currentUser} project={project} />
-        </td>
-      </tr>
-    );
-  }
+        </LinkStandalone>
+        {project.qualifier === ComponentQualifier.Project &&
+          (githubProvisioningEnabled || gitlabProbivisioningEnabled) &&
+          !project.managed && <Badge className="sw-ml-1">{translate('local')}</Badge>}
+      </ContentCell>
+      <ContentCell>
+        <PrivacyBadgeContainer qualifier={project.qualifier} visibility={project.visibility} />
+      </ContentCell>
+      <ContentCell className="it__project-row-text-cell">
+        <Tooltip content={project.key} side="left">
+          <Note>{project.key}</Note>
+        </Tooltip>
+      </ContentCell>
+      <ContentCell>
+        {project.lastAnalysisDate ? (
+          <DateFormatter date={project.lastAnalysisDate} />
+        ) : (
+          <Note>—</Note>
+        )}
+      </ContentCell>
+      <ActionCell>
+        <ProjectRowActions currentUser={currentUser} project={project} />
+      </ActionCell>
+    </TableRow>
+  );
 }

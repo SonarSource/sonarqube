@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,9 @@
  */
 package org.sonar.db.user;
 
-import org.sonar.db.ce.CeTaskMessageType;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.db.dismissmessage.MessageType;
 
 public class UserDismissedMessageDto {
 
@@ -31,11 +33,12 @@ public class UserDismissedMessageDto {
   /**
    * Uuid of the project for which the message type was dismissed
    */
+  @CheckForNull
   private String projectUuid;
   /**
    * Message type of the dismissed message
    */
-  private CeTaskMessageType ceMessageType;
+  private MessageType messageType;
   /**
    * Technical creation date
    */
@@ -67,17 +70,17 @@ public class UserDismissedMessageDto {
     return projectUuid;
   }
 
-  public UserDismissedMessageDto setProjectUuid(String projectUuid) {
+  public UserDismissedMessageDto setProjectUuid(@Nullable String projectUuid) {
     this.projectUuid = projectUuid;
     return this;
   }
 
-  public CeTaskMessageType getCeMessageType() {
-    return ceMessageType;
+  public MessageType getMessageType() {
+    return messageType;
   }
 
-  public UserDismissedMessageDto setCeMessageType(CeTaskMessageType ceMessageType) {
-    this.ceMessageType = ceMessageType;
+  public UserDismissedMessageDto setMessageType(MessageType messageType) {
+    this.messageType = messageType;
     return this;
   }
 

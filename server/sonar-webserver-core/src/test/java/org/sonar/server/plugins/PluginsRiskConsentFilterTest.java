@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,15 +20,14 @@
 package org.sonar.server.plugins;
 
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.core.extension.PluginRiskConsent;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -44,8 +43,8 @@ public class PluginsRiskConsentFilterTest {
   private Configuration configuration;
   private ThreadLocalUserSession userSession;
 
-  private ServletRequest servletRequest;
-  private HttpServletResponse servletResponse;
+  private HttpRequest request;
+  private HttpResponse response;
   private FilterChain chain;
 
   @Before
@@ -54,8 +53,8 @@ public class PluginsRiskConsentFilterTest {
     when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.REQUIRED.name()));
     userSession = mock(ThreadLocalUserSession.class);
 
-    servletRequest = mock(HttpServletRequest.class);
-    servletResponse = mock(HttpServletResponse.class);
+    request = mock(HttpRequest.class);
+    response = mock(HttpResponse.class);
     chain = mock(FilterChain.class);
   }
 
@@ -65,9 +64,9 @@ public class PluginsRiskConsentFilterTest {
 
     when(userSession.hasSession()).thenReturn(true);
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(0)).sendRedirect(Mockito.anyString());
+    verify(response, times(0)).sendRedirect(Mockito.anyString());
   }
 
   @Test
@@ -77,9 +76,9 @@ public class PluginsRiskConsentFilterTest {
     when(userSession.hasSession()).thenReturn(true);
     when(userSession.isLoggedIn()).thenReturn(false);
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(0)).sendRedirect(Mockito.anyString());
+    verify(response, times(0)).sendRedirect(Mockito.anyString());
   }
 
   @Test
@@ -90,9 +89,9 @@ public class PluginsRiskConsentFilterTest {
     when(userSession.isLoggedIn()).thenReturn(false);
     when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.REQUIRED.name()));
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(0)).sendRedirect(Mockito.anyString());
+    verify(response, times(0)).sendRedirect(Mockito.anyString());
   }
 
   @Test
@@ -103,9 +102,9 @@ public class PluginsRiskConsentFilterTest {
     when(userSession.isLoggedIn()).thenReturn(false);
     when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.ACCEPTED.name()));
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(0)).sendRedirect(Mockito.anyString());
+    verify(response, times(0)).sendRedirect(Mockito.anyString());
   }
 
   @Test
@@ -116,9 +115,9 @@ public class PluginsRiskConsentFilterTest {
     when(userSession.isLoggedIn()).thenReturn(true);
     when(userSession.isSystemAdministrator()).thenReturn(false);
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(0)).sendRedirect(Mockito.anyString());
+    verify(response, times(0)).sendRedirect(Mockito.anyString());
   }
 
   @Test
@@ -130,9 +129,9 @@ public class PluginsRiskConsentFilterTest {
     when(userSession.isSystemAdministrator()).thenReturn(false);
     when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.REQUIRED.name()));
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(0)).sendRedirect(Mockito.anyString());
+    verify(response, times(0)).sendRedirect(Mockito.anyString());
   }
 
   @Test
@@ -143,9 +142,9 @@ public class PluginsRiskConsentFilterTest {
     when(userSession.isLoggedIn()).thenReturn(true);
     when(userSession.isSystemAdministrator()).thenReturn(true);
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(1)).sendRedirect(Mockito.anyString());
+    verify(response, times(1)).sendRedirect(Mockito.anyString());
   }
 
   @Test
@@ -157,16 +156,16 @@ public class PluginsRiskConsentFilterTest {
     when(userSession.isSystemAdministrator()).thenReturn(true);
     when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.ACCEPTED.name()));
 
-    consentFilter.doFilter(servletRequest, servletResponse, chain);
+    consentFilter.doFilter(request, response, chain);
 
-    verify(servletResponse, times(0)).sendRedirect(Mockito.anyString());
+    verify(response, times(0)).sendRedirect(Mockito.anyString());
   }
 
   @Test
   public void doGetPattern_excludesNotEmpty() {
     PluginsRiskConsentFilter consentFilter = new PluginsRiskConsentFilter(configuration, userSession);
 
-    ServletFilter.UrlPattern urlPattern = consentFilter.doGetPattern();
+    UrlPattern urlPattern = consentFilter.doGetPattern();
 
     assertThat(urlPattern.getExclusions()).isNotEmpty();
 

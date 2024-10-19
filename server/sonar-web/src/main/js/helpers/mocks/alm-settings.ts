@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ import {
 } from '../../types/alm-settings';
 
 export function mockAlmSettingsInstance(
-  overrides: Partial<AlmSettingsInstance> = {}
+  overrides: Partial<AlmSettingsInstance> = {},
 ): AlmSettingsInstance {
   return {
     alm: AlmKeys.GitHub,
@@ -48,7 +48,7 @@ export function mockAlmSettingsInstance(
 }
 
 export function mockBitbucketCloudAlmSettingsInstance(
-  overrides: Partial<AlmSettingsInstance> = {}
+  overrides: Partial<AlmSettingsInstance> = {},
 ): AlmSettingsInstance {
   return {
     alm: AlmKeys.BitbucketCloud,
@@ -58,7 +58,7 @@ export function mockBitbucketCloudAlmSettingsInstance(
 }
 
 export function mockAzureBindingDefinition(
-  overrides: Partial<AzureBindingDefinition> = {}
+  overrides: Partial<AzureBindingDefinition> = {},
 ): AzureBindingDefinition {
   return {
     key: 'key',
@@ -68,7 +68,7 @@ export function mockAzureBindingDefinition(
 }
 
 export function mockBitbucketServerBindingDefinition(
-  overrides: Partial<BitbucketServerBindingDefinition> = {}
+  overrides: Partial<BitbucketServerBindingDefinition> = {},
 ): BitbucketServerBindingDefinition {
   return {
     key: 'key',
@@ -79,7 +79,7 @@ export function mockBitbucketServerBindingDefinition(
 }
 
 export function mockBitbucketCloudBindingDefinition(
-  overrides: Partial<BitbucketCloudBindingDefinition> = {}
+  overrides: Partial<BitbucketCloudBindingDefinition> = {},
 ): BitbucketCloudBindingDefinition {
   return {
     key: 'key',
@@ -91,7 +91,7 @@ export function mockBitbucketCloudBindingDefinition(
 }
 
 export function mockGithubBindingDefinition(
-  overrides: Partial<GithubBindingDefinition> = {}
+  overrides: Partial<GithubBindingDefinition> = {},
 ): GithubBindingDefinition {
   return {
     key: 'key',
@@ -106,7 +106,7 @@ export function mockGithubBindingDefinition(
 }
 
 export function mockGitlabBindingDefinition(
-  overrides: Partial<GitlabBindingDefinition> = {}
+  overrides: Partial<GitlabBindingDefinition> = {},
 ): GitlabBindingDefinition {
   return {
     key: 'foo',
@@ -116,18 +116,19 @@ export function mockGitlabBindingDefinition(
 }
 
 export function mockProjectAlmBindingResponse(
-  overrides: Partial<ProjectAlmBindingResponse> = {}
+  overrides: Partial<ProjectAlmBindingResponse> = {},
 ): ProjectAlmBindingResponse {
   return {
     alm: AlmKeys.GitHub,
     key: 'foo',
+    repository: 'repo',
     monorepo: false,
     ...overrides,
   };
 }
 
 export function mockProjectBitbucketBindingResponse(
-  overrides: Partial<ProjectBitbucketBindingResponse> = {}
+  overrides: Partial<ProjectBitbucketBindingResponse> = {},
 ): ProjectBitbucketBindingResponse {
   return {
     alm: AlmKeys.BitbucketServer,
@@ -140,7 +141,7 @@ export function mockProjectBitbucketBindingResponse(
 }
 
 export function mockProjectBitbucketCloudBindingResponse(
-  overrides: Partial<ProjectBitbucketCloudBindingResponse> = {}
+  overrides: Partial<ProjectBitbucketCloudBindingResponse> = {},
 ): ProjectBitbucketCloudBindingResponse {
   return {
     alm: AlmKeys.BitbucketCloud,
@@ -152,7 +153,7 @@ export function mockProjectBitbucketCloudBindingResponse(
 }
 
 export function mockProjectGithubBindingResponse(
-  overrides: Partial<ProjectGitHubBindingResponse> = {}
+  overrides: Partial<ProjectGitHubBindingResponse> = {},
 ): ProjectGitHubBindingResponse {
   return {
     alm: AlmKeys.GitHub,
@@ -164,7 +165,7 @@ export function mockProjectGithubBindingResponse(
 }
 
 export function mockProjectGitLabBindingResponse(
-  overrides: Partial<ProjectGitLabBindingResponse> = {}
+  overrides: Partial<ProjectGitLabBindingResponse> = {},
 ): ProjectGitLabBindingResponse {
   return {
     alm: AlmKeys.GitLab,
@@ -177,7 +178,7 @@ export function mockProjectGitLabBindingResponse(
 }
 
 export function mockProjectAzureBindingResponse(
-  overrides: Partial<ProjectAzureBindingResponse> = {}
+  overrides: Partial<ProjectAzureBindingResponse> = {},
 ): ProjectAzureBindingResponse {
   return {
     alm: AlmKeys.Azure,
@@ -191,7 +192,7 @@ export function mockProjectAzureBindingResponse(
 }
 
 export function mockAlmSettingsBindingStatus(
-  overrides: Partial<AlmSettingsBindingStatus>
+  overrides: Partial<AlmSettingsBindingStatus>,
 ): AlmSettingsBindingStatus {
   return {
     alertSuccess: false,
@@ -202,7 +203,7 @@ export function mockAlmSettingsBindingStatus(
 }
 
 export function mockProjectAlmBindingConfigurationErrors(
-  overrides: Partial<ProjectAlmBindingConfigurationErrors> = {}
+  overrides: Partial<ProjectAlmBindingConfigurationErrors> = {},
 ): ProjectAlmBindingConfigurationErrors {
   return {
     scope: ProjectAlmBindingConfigurationErrorScope.Global,

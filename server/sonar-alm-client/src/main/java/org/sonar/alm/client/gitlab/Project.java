@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,6 +43,9 @@ public class Project {
   @SerializedName("path_with_namespace")
   private final String pathWithNamespace;
 
+  @SerializedName("visibility")
+  private String visibility;
+
   @SerializedName("web_url")
   private String webUrl;
 
@@ -75,7 +78,7 @@ public class Project {
   public static List<Project> parseJsonArray(String json) {
     Gson gson = new Gson();
     return gson.fromJson(json, new TypeToken<LinkedList<Project>>() {
-    }.getType());
+    });
   }
 
   public long getId() {
@@ -98,8 +101,11 @@ public class Project {
     return pathWithNamespace;
   }
 
+  public String getVisibility() {
+    return visibility;
+  }
+
   public String getWebUrl() {
     return webUrl;
   }
-
 }

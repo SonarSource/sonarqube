@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,20 +19,17 @@
  */
 package org.sonar.server.measure.index;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -53,7 +50,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
@@ -61,7 +57,6 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -72,8 +67,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_QUALIFIER;
 
-@RunWith(DataProviderRunner.class)
-public class ProjectMeasuresIndexTest {
+class ProjectMeasuresIndexTest {
 
   private static final String MAINTAINABILITY_RATING = "sqale_rating";
   private static final String NEW_MAINTAINABILITY_RATING_KEY = "new_maintainability_rating";
@@ -83,6 +77,15 @@ public class ProjectMeasuresIndexTest {
   private static final String NEW_SECURITY_RATING = "new_security_rating";
   private static final String SECURITY_REVIEW_RATING = "security_review_rating";
   private static final String NEW_SECURITY_REVIEW_RATING = "new_security_review_rating";
+
+  //Software quality ratings
+  private static final String SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY = "software_quality_maintainability_rating";
+  private static final String NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY = "new_software_quality_maintainability_rating";
+  private static final String SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "software_quality_reliability_rating";
+  private static final String NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "new_software_quality_reliability_rating";
+  private static final String SOFTWARE_QUALITY_SECURITY_RATING_KEY = "software_quality_security_rating";
+  private static final String NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY = "new_software_quality_security_rating";
+
   private static final String SECURITY_HOTSPOTS_REVIEWED = "security_hotspots_reviewed";
   private static final String NEW_SECURITY_HOTSPOTS_REVIEWED = "new_security_hotspots_reviewed";
   private static final String COVERAGE = "coverage";
@@ -104,28 +107,40 @@ public class ProjectMeasuresIndexTest {
   private static final GroupDto GROUP1 = newGroupDto();
   private static final GroupDto GROUP2 = newGroupDto();
 
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
-  @DataProvider
-  public static Object[][] rating_metric_keys() {
-    return new Object[][] {{MAINTAINABILITY_RATING}, {NEW_MAINTAINABILITY_RATING_KEY}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING},
-      {SECURITY_REVIEW_RATING}, {NEW_SECURITY_REVIEW_RATING}};
+  private static String[] rating_metric_keys() {
+    return new String[]{
+      MAINTAINABILITY_RATING, NEW_MAINTAINABILITY_RATING_KEY,
+      RELIABILITY_RATING, NEW_RELIABILITY_RATING,
+      SECURITY_RATING, NEW_SECURITY_RATING,
+      SECURITY_REVIEW_RATING, NEW_SECURITY_REVIEW_RATING
+    };
   }
 
-  private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
-  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, projectMeasureIndexer);
-  private ProjectMeasuresIndex underTest = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
+  private static String[] software_quality_rating_metric_keys() {
+    return new String[]{
+      SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY, NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
+      SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
+      SOFTWARE_QUALITY_SECURITY_RATING_KEY, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY
+    };
+  }
+
+  private final ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
+  private final PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, projectMeasureIndexer);
+  private final ProjectMeasuresIndex underTest = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession),
+    System2.INSTANCE);
 
   @Test
-  public void return_empty_if_no_projects() {
+  void return_empty_if_no_projects() {
     assertNoResults(new ProjectMeasuresQuery());
   }
 
   @Test
-  public void default_sort_is_by_ascending_case_insensitive_name_then_by_key() {
+  void default_sort_is_by_ascending_case_insensitive_name_then_by_key() {
     ComponentDto windows = ComponentTesting.newPrivateProjectDto().setUuid("windows").setName("Windows").setKey("project1");
     ComponentDto apachee = ComponentTesting.newPrivateProjectDto().setUuid("apachee").setName("apachee").setKey("project2");
     ComponentDto apache1 = ComponentTesting.newPrivateProjectDto().setUuid("apache-1").setName("Apache").setKey("project3");
@@ -136,7 +151,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void sort_by_insensitive_name() {
+  void sort_by_insensitive_name() {
     ComponentDto windows = ComponentTesting.newPrivateProjectDto().setUuid("windows").setName("Windows");
     ComponentDto apachee = ComponentTesting.newPrivateProjectDto().setUuid("apachee").setName("apachee");
     ComponentDto apache = ComponentTesting.newPrivateProjectDto().setUuid("apache").setName("Apache");
@@ -147,7 +162,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void sort_by_ncloc() {
+  void sort_by_ncloc() {
     index(
       newDoc(PROJECT1, NCLOC, 15_000d),
       newDoc(PROJECT2, NCLOC, 30_000d),
@@ -158,7 +173,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void sort_by_a_metric_then_by_name_then_by_key() {
+  void sort_by_a_metric_then_by_name_then_by_key() {
     ComponentDto windows = ComponentTesting.newPrivateProjectDto().setUuid("windows").setName("Windows").setKey("project1");
     ComponentDto apachee = ComponentTesting.newPrivateProjectDto().setUuid("apachee").setName("apachee").setKey("project2");
     ComponentDto apache1 = ComponentTesting.newPrivateProjectDto().setUuid("apache-1").setName("Apache").setKey("project3");
@@ -174,7 +189,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void sort_by_quality_gate_status() {
+  void sort_by_quality_gate_status() {
     ComponentDto project4 = ComponentTesting.newPrivateProjectDto().setUuid("Project-4").setName("Project 4").setKey("key-4");
     index(
       newDoc(PROJECT1).setQualityGateStatus(OK.name()),
@@ -186,7 +201,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void sort_by_quality_gate_status_then_by_name_then_by_key() {
+  void sort_by_quality_gate_status_then_by_name_then_by_key() {
     ComponentDto windows = ComponentTesting.newPrivateProjectDto().setUuid("windows").setName("Windows").setKey("project1");
     ComponentDto apachee = ComponentTesting.newPrivateProjectDto().setUuid("apachee").setName("apachee").setKey("project2");
     ComponentDto apache1 = ComponentTesting.newPrivateProjectDto().setUuid("apache-1").setName("Apache").setKey("project3");
@@ -202,7 +217,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void paginate_results() {
+  void paginate_results() {
     IntStream.rangeClosed(1, 9)
       .forEach(i -> index(newDoc(newPrivateProjectDto("P" + i))));
 
@@ -213,7 +228,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_with_lower_than() {
+  void filter_with_lower_than() {
     index(
       newDoc(PROJECT1, COVERAGE, 79d, NCLOC, 10_000d),
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 10_000d),
@@ -226,7 +241,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_with_lower_than_or_equals() {
+  void filter_with_lower_than_or_equals() {
     index(
       newDoc(PROJECT1, COVERAGE, 79d, NCLOC, 10_000d),
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 10_000d),
@@ -239,7 +254,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_with_greater_than() {
+  void filter_with_greater_than() {
     index(
       newDoc(PROJECT1, COVERAGE, 80d, NCLOC, 30_000d),
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 30_001d),
@@ -253,7 +268,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_with_greater_than_or_equals() {
+  void filter_with_greater_than_or_equals() {
     index(
       newDoc(PROJECT1, COVERAGE, 80d, NCLOC, 30_000d),
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 30_001d),
@@ -267,7 +282,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_with_equals() {
+  void filter_with_equals() {
     index(
       newDoc(PROJECT1, COVERAGE, 79d, NCLOC, 10_000d),
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 10_000d),
@@ -280,7 +295,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_no_data_with_several_projects() {
+  void filter_on_no_data_with_several_projects() {
     index(
       newDoc(PROJECT1, NCLOC, 1d),
       newDoc(PROJECT2, DUPLICATION, 80d));
@@ -292,7 +307,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_no_data_should_not_return_projects_with_data_and_other_measures() {
+  void filter_on_no_data_should_not_return_projects_with_data_and_other_measures() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     index(newDoc(project, DUPLICATION, 80d, NCLOC, 1d));
 
@@ -302,7 +317,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_no_data_should_not_return_projects_with_data() {
+  void filter_on_no_data_should_not_return_projects_with_data() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     index(newDoc(project, DUPLICATION, 80d));
 
@@ -312,7 +327,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_no_data_should_return_projects_with_no_data() {
+  void filter_on_no_data_should_return_projects_with_no_data() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     index(newDoc(project, NCLOC, 1d));
 
@@ -322,7 +337,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_several_metrics() {
+  void filter_on_several_metrics() {
     index(
       newDoc(PROJECT1, COVERAGE, 81d, NCLOC, 10_001d),
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 10_001d),
@@ -336,7 +351,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_security_hotspots_reviewed() {
+  void facet_security_hotspots_reviewed() {
     index(
       // 2 docs with no measure
       newDocWithNoMeasure(),
@@ -373,7 +388,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_new_security_hotspots_reviewed() {
+  void facet_new_security_hotspots_reviewed() {
     index(
       // 2 docs with no measure
       newDocWithNoMeasure(),
@@ -410,7 +425,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_quality_gate_status() {
+  void filter_on_quality_gate_status() {
     index(
       newDoc(PROJECT1).setQualityGateStatus(OK.name()),
       newDoc(PROJECT2).setQualityGateStatus(OK.name()),
@@ -421,7 +436,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_languages() {
+  void filter_on_languages() {
     ComponentDto project4 = ComponentTesting.newPrivateProjectDto().setUuid("Project-4").setName("Project 4").setKey("key-4");
     index(
       newDoc(PROJECT1).setLanguages(singletonList("java")),
@@ -435,7 +450,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_query_text() {
+  void filter_on_query_text() {
     ComponentDto windows = ComponentTesting.newPrivateProjectDto().setUuid("windows").setName("Windows").setKey("project1");
     ComponentDto apachee = ComponentTesting.newPrivateProjectDto().setUuid("apachee").setName("apachee").setKey("project2");
     ComponentDto apache1 = ComponentTesting.newPrivateProjectDto().setUuid("apache-1").setName("Apache").setKey("project3");
@@ -448,7 +463,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_ids() {
+  void filter_on_ids() {
     index(
       newDoc(PROJECT1),
       newDoc(PROJECT2),
@@ -459,7 +474,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_tags() {
+  void filter_on_tags() {
     index(
       newDoc(PROJECT1).setTags(newArrayList("finance", "platform")),
       newDoc(PROJECT2).setTags(newArrayList("marketing", "platform")),
@@ -473,7 +488,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void filter_on_qualifier() {
+  void filter_on_qualifier() {
     index(newDoc(PROJECT1), newDoc(PROJECT2), newDoc(PROJECT3),
       newDoc(APP1), newDoc(APP2), newDoc(APP3));
 
@@ -491,7 +506,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_correct_number_of_total_if_exceeds_index_max_results() {
+  void return_correct_number_of_total_if_exceeds_index_max_results() {
     index(IntStream.range(0, 12_000)
       .mapToObj(operand -> newDoc(ComponentTesting.newPrivateProjectDto()))
       .toArray(ProjectMeasuresDoc[]::new));
@@ -502,7 +517,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_only_projects_and_applications_authorized_for_user() {
+  void return_only_projects_and_applications_authorized_for_user() {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2),
       newDoc(APP1), newDoc(APP2));
     indexForUser(USER2, newDoc(PROJECT3), newDoc(APP3));
@@ -512,7 +527,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_only_projects_and_applications_authorized_for_user_groups() {
+  void return_only_projects_and_applications_authorized_for_user_groups() {
     indexForGroup(GROUP1, newDoc(PROJECT1), newDoc(PROJECT2),
       newDoc(APP1), newDoc(APP2));
     indexForGroup(GROUP2, newDoc(PROJECT3));
@@ -522,7 +537,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_only_projects_and_applications_authorized_for_user_and_groups() {
+  void return_only_projects_and_applications_authorized_for_user_and_groups() {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2),
       newDoc(APP1), newDoc(APP2));
     indexForGroup(GROUP1, newDoc(PROJECT3));
@@ -532,7 +547,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void anonymous_user_can_only_access_projects_and_applications_authorized_for_anyone() {
+  void anonymous_user_can_only_access_projects_and_applications_authorized_for_anyone() {
     index(newDoc(PROJECT1), newDoc(APP1));
     indexForUser(USER1, newDoc(PROJECT2), newDoc(APP2));
 
@@ -541,7 +556,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_all_projects_and_applications_when_setIgnoreAuthorization_is_true() {
+  void return_all_projects_and_applications_when_setIgnoreAuthorization_is_true() {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2), newDoc(APP1), newDoc(APP2));
     indexForUser(USER2, newDoc(PROJECT3), newDoc(APP3));
     userSession.logIn(USER1);
@@ -551,7 +566,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void does_not_return_facet_when_no_facets_in_options() {
+  void does_not_return_facet_when_no_facets_in_options() {
     index(
       newDoc(PROJECT1, NCLOC, 10d, COVERAGE_KEY, 30d, MAINTAINABILITY_RATING, 3d)
         .setQualityGateStatus(OK.name()));
@@ -562,7 +577,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_ncloc() {
+  void facet_ncloc() {
     index(
       // 3 docs with ncloc<1K
       newDoc(NCLOC, 0d),
@@ -597,7 +612,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_ncloc_is_sticky() {
+  void facet_ncloc_is_sticky() {
     index(
       // 1 docs with ncloc<1K
       newDoc(NCLOC, 999d, COVERAGE, 0d, DUPLICATION, 0d),
@@ -637,7 +652,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_ncloc_contains_only_projects_authorized_for_user() {
+  void facet_ncloc_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // docs with ncloc<1K
@@ -669,7 +684,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_new_lines() {
+  void facet_new_lines() {
     index(
       // 3 docs with ncloc<1K
       newDoc(NEW_LINES, 0d),
@@ -704,7 +719,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_coverage() {
+  void facet_coverage() {
     index(
       // 1 doc with no coverage
       newDocWithNoMeasure(),
@@ -742,7 +757,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_coverage_is_sticky() {
+  void facet_coverage_is_sticky() {
     index(
       // docs with no coverage
       newDoc(NCLOC, 999d, DUPLICATION, 0d),
@@ -786,7 +801,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_coverage_contains_only_projects_authorized_for_user() {
+  void facet_coverage_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // 1 doc with no coverage
@@ -824,7 +839,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_new_coverage() {
+  void facet_new_coverage() {
     index(
       // 1 doc with no coverage
       newDocWithNoMeasure(),
@@ -862,7 +877,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_duplicated_lines_density() {
+  void facet_duplicated_lines_density() {
     index(
       // 1 doc with no duplication
       newDocWithNoMeasure(),
@@ -900,7 +915,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_duplicated_lines_density_is_sticky() {
+  void facet_duplicated_lines_density_is_sticky() {
     index(
       // docs with no duplication
       newDoc(NCLOC, 50_001d, COVERAGE, 29d),
@@ -940,7 +955,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_duplicated_lines_density_contains_only_projects_authorized_for_user() {
+  void facet_duplicated_lines_density_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // docs with no duplication
@@ -978,7 +993,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_new_duplicated_lines_density() {
+  void facet_new_duplicated_lines_density() {
     index(
       // 2 docs with no measure
       newDocWithNoMeasure(),
@@ -1016,9 +1031,9 @@ public class ProjectMeasuresIndexTest {
       entry("20.0-*", 5L));
   }
 
-  @Test
-  @UseDataProvider("rating_metric_keys")
-  public void facet_on_rating(String metricKey) {
+  @ParameterizedTest
+  @MethodSource("rating_metric_keys")
+  void facet_on_rating(String metricKey) {
     index(
       // 3 docs with rating A
       newDoc(metricKey, 1d),
@@ -1052,9 +1067,42 @@ public class ProjectMeasuresIndexTest {
       entry("5", 5L));
   }
 
-  @Test
-  @UseDataProvider("rating_metric_keys")
-  public void facet_on_rating_is_sticky(String metricKey) {
+  @ParameterizedTest
+  @MethodSource("software_quality_rating_metric_keys")
+  void facet_on_software_quality_rating(String metricKey) {
+    index(
+      // 3 docs with rating A
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
+      // 2 docs with rating B
+      newDoc(metricKey, 2d),
+      newDoc(metricKey, 2d),
+      // 4 docs with rating C
+      newDoc(metricKey, 3d),
+      newDoc(metricKey, 3d),
+      newDoc(metricKey, 3d),
+      newDoc(metricKey, 3d),
+      // 2 docs with rating D
+      newDoc(metricKey, 4d),
+      newDoc(metricKey, 4d),
+      // 1 doc with rating E
+      newDoc(metricKey, 5d));
+
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(metricKey)).getFacets();
+
+    assertThat(facets.get(metricKey)).containsExactly(
+      entry("1", 3L),
+      entry("2", 2L),
+      entry("3", 4L),
+      entry("4", 2L),
+      entry("5", 1L));
+  }
+
+  @ParameterizedTest
+  @MethodSource("rating_metric_keys")
+  void facet_on_rating_is_sticky(String metricKey) {
     index(
       // docs with rating A
       newDoc(metricKey, 1d, NCLOC, 100d, COVERAGE, 0d),
@@ -1096,9 +1144,84 @@ public class ProjectMeasuresIndexTest {
       entry("500000.0-*", 0L));
   }
 
-  @Test
-  @UseDataProvider("rating_metric_keys")
-  public void facet_on_rating_contains_only_projects_authorized_for_user(String metricKey) {
+  @ParameterizedTest
+  @MethodSource("software_quality_rating_metric_keys")
+  void facet_on_software_quality_rating_is_sticky(String metricKey) {
+    index(
+      // docs with rating A
+      newDoc(metricKey, 1d, NCLOC, 100d, COVERAGE, 0d),
+      newDoc(metricKey, 1d, NCLOC, 200d, COVERAGE, 0d),
+      newDoc(metricKey, 1d, NCLOC, 999d, COVERAGE, 0d),
+      // docs with rating B
+      newDoc(metricKey, 2d, NCLOC, 2000d, COVERAGE, 0d),
+      newDoc(metricKey, 2d, NCLOC, 5000d, COVERAGE, 0d),
+      // docs with rating C
+      newDoc(metricKey, 3d, NCLOC, 20000d, COVERAGE, 0d),
+      newDoc(metricKey, 3d, NCLOC, 30000d, COVERAGE, 0d),
+      newDoc(metricKey, 3d, NCLOC, 40000d, COVERAGE, 0d),
+      newDoc(metricKey, 3d, NCLOC, 50000d, COVERAGE, 0d),
+      // docs with rating D
+      newDoc(metricKey, 4d, NCLOC, 120000d, COVERAGE, 0d),
+      // docs with rating E
+      newDoc(metricKey, 5d, NCLOC, 120000d, COVERAGE, 0d));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery()
+        .addMetricCriterion(MetricCriterion.create(metricKey, Operator.LT, 3d))
+        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
+      new SearchOptions().addFacets(metricKey, NCLOC)).getFacets();
+
+    // Sticky facet on maintainability rating does not take into account maintainability rating filter
+    assertThat(facets.get(metricKey)).containsExactly(
+      entry("1", 3L),
+      entry("2", 2L),
+      entry("3", 4L),
+      entry("4", 1L),
+      entry("5", 1L));
+    // But facet on ncloc does well take into into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 3L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 0L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
+  }
+
+  @ParameterizedTest
+  @MethodSource("rating_metric_keys")
+  void facet_on_rating_contains_only_projects_authorized_for_user(String metricKey) {
+    // User can see these projects
+    indexForUser(USER1,
+      // 3 docs with rating A
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
+      // 2 docs with rating B
+      newDoc(metricKey, 2d),
+      newDoc(metricKey, 2d));
+
+    // User cannot see these projects
+    indexForUser(USER2,
+      // docs with rating C
+      newDoc(metricKey, 3d),
+      // docs with rating D
+      newDoc(metricKey, 4d),
+      // docs with rating E
+      newDoc(metricKey, 5d));
+
+    userSession.logIn(USER1);
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(metricKey)).getFacets();
+
+    assertThat(facets.get(metricKey)).containsExactly(
+      entry("1", 3L),
+      entry("2", 2L),
+      entry("3", 0L),
+      entry("4", 0L),
+      entry("5", 0L));
+  }
+
+  @ParameterizedTest
+  @MethodSource("software_quality_rating_metric_keys")
+  void facet_on_software_quality_rating_contains_only_projects_authorized_for_user(String metricKey) {
     // User can see these projects
     indexForUser(USER1,
       // 3 docs with rating A
@@ -1130,7 +1253,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_quality_gate() {
+  void facet_quality_gate() {
     index(
       // 2 docs with QG OK
       newDoc().setQualityGateStatus(OK.name()),
@@ -1145,12 +1268,11 @@ public class ProjectMeasuresIndexTest {
 
     assertThat(result).containsOnly(
       entry(ERROR.name(), 4L),
-      entry(OK.name(), 2L),
-      entry(WARN.name(), 0L));
+      entry(OK.name(), 2L));
   }
 
   @Test
-  public void facet_quality_gate_is_sticky() {
+  void facet_quality_gate_is_sticky() {
     index(
       // 2 docs with QG OK
       newDoc(NCLOC, 10d, COVERAGE, 0d).setQualityGateStatus(OK.name()),
@@ -1169,8 +1291,7 @@ public class ProjectMeasuresIndexTest {
     // Sticky facet on quality gate does not take into account quality gate filter
     assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
       entry(OK.name(), 2L),
-      entry(ERROR.name(), 3L),
-      entry(WARN.name(), 0L));
+      entry(ERROR.name(), 3L));
     // But facet on ncloc does well take into into filters
     assertThat(facets.get(NCLOC)).containsExactly(
       entry("*-1000.0", 1L),
@@ -1181,7 +1302,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_quality_gate_contains_only_projects_authorized_for_user() {
+  void facet_quality_gate_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // 2 docs with QG OK
@@ -1201,58 +1322,11 @@ public class ProjectMeasuresIndexTest {
 
     assertThat(result).containsOnly(
       entry(ERROR.name(), 0L),
-      entry(OK.name(), 2L),
-      entry(WARN.name(), 0L));
-  }
-
-  @Test
-  public void facet_quality_gate_using_deprecated_warning() {
-    index(
-      // 2 docs with QG OK
-      newDoc().setQualityGateStatus(OK.name()),
-      newDoc().setQualityGateStatus(OK.name()),
-      // 3 docs with QG WARN
-      newDoc().setQualityGateStatus(WARN.name()),
-      newDoc().setQualityGateStatus(WARN.name()),
-      newDoc().setQualityGateStatus(WARN.name()),
-      // 4 docs with QG ERROR
-      newDoc().setQualityGateStatus(ERROR.name()),
-      newDoc().setQualityGateStatus(ERROR.name()),
-      newDoc().setQualityGateStatus(ERROR.name()),
-      newDoc().setQualityGateStatus(ERROR.name()));
-
-    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);
-
-    assertThat(result).containsOnly(
-      entry(ERROR.name(), 4L),
-      entry(WARN.name(), 3L),
       entry(OK.name(), 2L));
   }
 
   @Test
-  public void facet_quality_gate_does_not_return_deprecated_warning_when_set_ignore_warning_is_true() {
-    index(
-      // 2 docs with QG OK
-      newDoc().setQualityGateStatus(OK.name()),
-      newDoc().setQualityGateStatus(OK.name()),
-      // 4 docs with QG ERROR
-      newDoc().setQualityGateStatus(ERROR.name()),
-      newDoc().setQualityGateStatus(ERROR.name()),
-      newDoc().setQualityGateStatus(ERROR.name()),
-      newDoc().setQualityGateStatus(ERROR.name()));
-
-    assertThat(underTest.search(new ProjectMeasuresQuery().setIgnoreWarning(true), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY)).containsOnly(
-      entry(ERROR.name(), 4L),
-      entry(OK.name(), 2L));
-    assertThat(underTest.search(new ProjectMeasuresQuery().setIgnoreWarning(false), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY))
-      .containsOnly(
-        entry(ERROR.name(), 4L),
-        entry(WARN.name(), 0L),
-        entry(OK.name(), 2L));
-  }
-
-  @Test
-  public void facet_languages() {
+  void facet_languages() {
     index(
       newDoc().setLanguages(singletonList("java")),
       newDoc().setLanguages(singletonList("java")),
@@ -1271,7 +1345,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_languages_is_limited_to_10_languages() {
+  void facet_languages_is_limited_to_10_languages() {
     index(
       newDoc().setLanguages(asList("<null>", "java", "xoo", "css", "cpp")),
       newDoc().setLanguages(asList("xml", "php", "python", "perl", "ruby")),
@@ -1283,7 +1357,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_languages_is_sticky() {
+  void facet_languages_is_sticky() {
     index(
       newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
       newDoc(NCLOC, 10d).setLanguages(singletonList("java")),
@@ -1293,7 +1367,7 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 5000d).setLanguages(asList("<null>", "java", "xoo")));
 
     Facets facets = underTest.search(
-      new ProjectMeasuresQuery().setLanguages(ImmutableSet.of("java")),
+      new ProjectMeasuresQuery().setLanguages(Set.of("java")),
       new SearchOptions().addFacets(LANGUAGES, NCLOC)).getFacets();
 
     // Sticky facet on language does not take into account language filter
@@ -1312,13 +1386,14 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_languages_returns_more_than_10_languages_when_languages_filter_contains_value_not_in_top_10() {
+  void facet_languages_returns_more_than_10_languages_when_languages_filter_contains_value_not_in_top_10() {
     index(
       newDoc().setLanguages(asList("<null>", "java", "xoo", "css", "cpp")),
       newDoc().setLanguages(asList("xml", "php", "python", "perl", "ruby")),
       newDoc().setLanguages(asList("js", "scala")));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery().setLanguages(ImmutableSet.of("xoo", "xml")), new SearchOptions().addFacets(LANGUAGES)).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery().setLanguages(Set.of("xoo", "xml")),
+      new SearchOptions().addFacets(LANGUAGES)).getFacets();
 
     assertThat(facets.get(LANGUAGES)).containsOnly(
       entry("<null>", 1L),
@@ -1336,7 +1411,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_languages_contains_only_projects_authorized_for_user() {
+  void facet_languages_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       newDoc().setLanguages(singletonList("java")),
@@ -1356,7 +1431,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_qualifier() {
+  void facet_qualifier() {
     index(
       // 2 docs with qualifier APP
       newDoc().setQualifier(APP),
@@ -1375,7 +1450,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_qualifier_is_sticky() {
+  void facet_qualifier_is_sticky() {
     index(
       // 2 docs with qualifier APP
       newDoc(NCLOC, 10d, COVERAGE, 0d).setQualifier(APP),
@@ -1405,7 +1480,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_qualifier_contains_only_app_and_projects_authorized_for_user() {
+  void facet_qualifier_contains_only_app_and_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // 3 docs with qualifier APP, PROJECT
@@ -1430,7 +1505,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_tags() {
+  void facet_tags() {
     index(
       newDoc().setTags(newArrayList("finance", "offshore", "java")),
       newDoc().setTags(newArrayList("finance", "javascript")),
@@ -1450,7 +1525,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_tags_is_sticky() {
+  void facet_tags_is_sticky() {
     index(
       newDoc().setTags(newArrayList("finance")).setQualityGateStatus(OK.name()),
       newDoc().setTags(newArrayList("finance")).setQualityGateStatus(ERROR.name()),
@@ -1466,12 +1541,11 @@ public class ProjectMeasuresIndexTest {
       entry("cpp", 1L));
     assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
       entry(OK.name(), 0L),
-      entry(ERROR.name(), 1L),
-      entry(WARN.name(), 0L));
+      entry(ERROR.name(), 1L));
   }
 
   @Test
-  public void facet_tags_returns_10_elements_by_default() {
+  void facet_tags_returns_10_elements_by_default() {
     index(
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
@@ -1483,13 +1557,14 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_tags_returns_more_than_10_tags_when_tags_filter_contains_value_not_in_top_10() {
+  void facet_tags_returns_more_than_10_tags_when_tags_filter_contains_value_not_in_top_10() {
     index(
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
       newDoc().setTags(newArrayList("solo", "solo2")));
 
-    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(ImmutableSet.of("solo", "solo2")), new SearchOptions().addFacets(FIELD_TAGS)).getFacets()
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(Set.of("solo", "solo2")),
+        new SearchOptions().addFacets(FIELD_TAGS)).getFacets()
       .get(FIELD_TAGS);
 
     assertThat(result).hasSize(12).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10", "solo",
@@ -1497,7 +1572,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void search_tags() {
+  void search_tags() {
     index(
       newDoc().setTags(newArrayList("finance", "offshore", "java")),
       newDoc().setTags(newArrayList("official", "javascript")),
@@ -1506,13 +1581,13 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags("off", 1,10);
+    List<String> result = underTest.searchTags("off", 1, 10);
 
     assertThat(result).containsOnly("offshore", "official", "Madhoff");
   }
 
   @Test
-  public void search_tags_return_all_tags() {
+  void search_tags_return_all_tags() {
     index(
       newDoc().setTags(newArrayList("finance", "offshore", "java")),
       newDoc().setTags(newArrayList("official", "javascript")),
@@ -1527,7 +1602,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void search_tags_in_lexical_order() {
+  void search_tags_in_lexical_order() {
     index(
       newDoc().setTags(newArrayList("finance", "offshore", "java")),
       newDoc().setTags(newArrayList("official", "javascript")),
@@ -1536,13 +1611,13 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 1,10);
+    List<String> result = underTest.searchTags(null, 1, 10);
 
     assertThat(result).containsExactly("Madhoff", "finance", "java", "javascript", "marketing", "official", "offshore");
   }
 
   @Test
-  public void search_tags_follows_paging() {
+  void search_tags_follows_paging() {
     index(
       newDoc().setTags(newArrayList("finance", "offshore", "java")),
       newDoc().setTags(newArrayList("official", "javascript")),
@@ -1551,21 +1626,21 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 1,3);
+    List<String> result = underTest.searchTags(null, 1, 3);
     assertThat(result).containsExactly("Madhoff", "finance", "java");
 
-    result = underTest.searchTags(null, 2,3);
+    result = underTest.searchTags(null, 2, 3);
     assertThat(result).containsExactly("javascript", "marketing", "official");
 
-    result = underTest.searchTags(null, 3,3);
+    result = underTest.searchTags(null, 3, 3);
     assertThat(result).containsExactly("offshore");
 
-    result = underTest.searchTags(null, 3,4);
+    result = underTest.searchTags(null, 3, 4);
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void search_tags_returns_nothing_if_page_too_large() {
+  void search_tags_returns_nothing_if_page_too_large() {
     index(
       newDoc().setTags(newArrayList("finance", "offshore", "java")),
       newDoc().setTags(newArrayList("official", "javascript")),
@@ -1574,13 +1649,13 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 10,2);
+    List<String> result = underTest.searchTags(null, 10, 2);
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void search_tags_only_of_authorized_projects() {
+  void search_tags_only_of_authorized_projects() {
     indexForUser(USER1,
       newDoc(PROJECT1).setTags(singletonList("finance")),
       newDoc(PROJECT2).setTags(singletonList("marketing")));
@@ -1589,36 +1664,36 @@ public class ProjectMeasuresIndexTest {
 
     userSession.logIn(USER1);
 
-    List<String> result = underTest.searchTags(null, 1,10);
+    List<String> result = underTest.searchTags(null, 1, 10);
 
     assertThat(result).containsOnly("finance", "marketing");
   }
 
   @Test
-  public void search_tags_with_no_tags() {
-    List<String> result = underTest.searchTags("whatever", 1,10);
+  void search_tags_with_no_tags() {
+    List<String> result = underTest.searchTags("whatever", 1, 10);
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void search_tags_with_page_size_at_0() {
+  void search_tags_with_page_size_at_0() {
     index(newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 1,0);
+    List<String> result = underTest.searchTags(null, 1, 0);
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void search_statistics() {
+  void search_statistics() {
     es.putDocuments(TYPE_PROJECT_MEASURES,
       newDoc("lines", 10, "coverage", 80)
         .setLanguages(Arrays.asList("java", "cs", "js"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 200, "cs", 250, "js", 50)),
+        .setNclocLanguageDistributionFromMap(Map.of("java", 200, "cs", 250, "js", 50)),
       newDoc("lines", 20, "coverage", 80)
         .setLanguages(Arrays.asList("java", "python", "kotlin"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)));
+        .setNclocLanguageDistributionFromMap(Map.of("java", 300, "python", 100, "kotlin", 404)));
 
     ProjectMeasuresStatistics result = underTest.searchSupportStatistics();
 
@@ -1630,16 +1705,15 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void search_statistics_for_large_instances() {
+  void search_statistics_for_large_instances() {
     int nbProjects = 25000;
     int javaLocByProjects = 100;
     int jsLocByProjects = 900;
     int csLocByProjects = 2;
 
-    ProjectMeasuresDoc[] documents = IntStream.range(0, nbProjects).mapToObj(i ->
-      newDoc("lines", 10, "coverage", 80)
-        .setLanguages(asList("java", "cs", "js"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", javaLocByProjects, "cs", csLocByProjects, "js", jsLocByProjects))).toArray(ProjectMeasuresDoc[]::new);
+    ProjectMeasuresDoc[] documents = IntStream.range(0, nbProjects).mapToObj(i -> newDoc("lines", 10, "coverage", 80)
+      .setLanguages(asList("java", "cs", "js"))
+      .setNclocLanguageDistributionFromMap(Map.of("java", javaLocByProjects, "cs", csLocByProjects, "js", jsLocByProjects))).toArray(ProjectMeasuresDoc[]::new);
 
     es.putDocuments(TYPE_PROJECT_MEASURES, documents);
 
@@ -1654,29 +1728,29 @@ public class ProjectMeasuresIndexTest {
 
     assertThat(result.getNclocByLanguage())
       .hasSize(3)
-      .containsEntry("java",(long) nbProjects * javaLocByProjects)
-      .containsEntry("cs",(long) nbProjects * csLocByProjects)
-      .containsEntry("js",(long) nbProjects * jsLocByProjects);
+      .containsEntry("java", (long) nbProjects * javaLocByProjects)
+      .containsEntry("cs", (long) nbProjects * csLocByProjects)
+      .containsEntry("js", (long) nbProjects * jsLocByProjects);
   }
 
   @Test
-  public void search_statistics_should_ignore_applications() {
+  void search_statistics_should_ignore_applications() {
     es.putDocuments(TYPE_PROJECT_MEASURES,
       // insert projects
       newDoc(ComponentTesting.newPrivateProjectDto(), "lines", 10, "coverage", 80)
         .setLanguages(Arrays.asList("java", "cs", "js"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 200, "cs", 250, "js", 50)),
+        .setNclocLanguageDistributionFromMap(Map.of("java", 200, "cs", 250, "js", 50)),
       newDoc(ComponentTesting.newPrivateProjectDto(), "lines", 20, "coverage", 80)
         .setLanguages(Arrays.asList("java", "python", "kotlin"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)),
+        .setNclocLanguageDistributionFromMap(Map.of("java", 300, "python", 100, "kotlin", 404)),
 
       // insert applications
       newDoc(ComponentTesting.newApplication(), "lines", 1000, "coverage", 70)
         .setLanguages(Arrays.asList("java", "python", "kotlin"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)),
+        .setNclocLanguageDistributionFromMap(Map.of("java", 300, "python", 100, "kotlin", 404)),
       newDoc(ComponentTesting.newApplication(), "lines", 20, "coverage", 80)
         .setLanguages(Arrays.asList("java", "python", "kotlin"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)));
+        .setNclocLanguageDistributionFromMap(Map.of("java", 300, "python", 100, "kotlin", 404)));
 
     ProjectMeasuresStatistics result = underTest.searchSupportStatistics();
 
@@ -1688,15 +1762,15 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void search_statistics_should_count_0_if_no_projects() {
+  void search_statistics_should_count_0_if_no_projects() {
     es.putDocuments(TYPE_PROJECT_MEASURES,
       // insert applications
       newDoc(ComponentTesting.newApplication(), "lines", 1000, "coverage", 70)
-        .setLanguages(Arrays.asList("java", "python", "kotlin"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)),
+        .setLanguages(Arrays.asList("java", "Map", "kotlin"))
+        .setNclocLanguageDistributionFromMap(Map.of("java", 300, "python", 100, "kotlin", 404)),
       newDoc(ComponentTesting.newApplication(), "lines", 20, "coverage", 80)
         .setLanguages(Arrays.asList("java", "python", "kotlin"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)));
+        .setNclocLanguageDistributionFromMap(Map.of("java", 300, "python", 100, "kotlin", 404)));
 
     ProjectMeasuresStatistics result = underTest.searchSupportStatistics();
 
@@ -1705,14 +1779,14 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void fail_if_page_size_greater_than_100() {
+  void fail_if_page_size_greater_than_100() {
     assertThatThrownBy(() -> underTest.searchTags("whatever", 1, 101))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Page size must be lower than or equals to 100");
   }
 
   @Test
-  public void fail_if_page_greater_than_20() {
+  void fail_if_page_greater_than_20() {
     assertThatThrownBy(() -> underTest.searchTags("whatever", 21, 100))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Page must be between 0 and 20");
@@ -1720,17 +1794,17 @@ public class ProjectMeasuresIndexTest {
 
   private void index(ProjectMeasuresDoc... docs) {
     es.putDocuments(TYPE_PROJECT_MEASURES, docs);
-    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).allowAnyone()).collect(toList()));
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).allowAnyone()).toList());
   }
 
   private void indexForUser(UserDto user, ProjectMeasuresDoc... docs) {
     es.putDocuments(TYPE_PROJECT_MEASURES, docs);
-    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addUserUuid(user.getUuid())).collect(toList()));
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addUserUuid(user.getUuid())).toList());
   }
 
   private void indexForGroup(GroupDto group, ProjectMeasuresDoc... docs) {
     es.putDocuments(TYPE_PROJECT_MEASURES, docs);
-    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addGroupUuid(group.getUuid())).collect(toList()));
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addGroupUuid(group.getUuid())).toList());
   }
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {
@@ -1758,7 +1832,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   private static Map<String, Object> newMeasure(String key, Object value) {
-    return ImmutableMap.of("key", key, "value", value);
+    return Map.of("key", key, "value", value);
   }
 
   private static ProjectMeasuresDoc newDocWithNoMeasure() {

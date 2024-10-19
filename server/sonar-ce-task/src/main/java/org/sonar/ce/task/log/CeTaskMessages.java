@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -49,9 +49,9 @@ public interface CeTaskMessages {
   class Message {
     private final String text;
     private final long timestamp;
-    private final CeTaskMessageType type;
+    private final MessageType type;
 
-    public Message(String text, long timestamp, CeTaskMessageType type) {
+    public Message(String text, long timestamp, MessageType type) {
       requireNonNull(text, "Text can't be null");
       checkArgument(!text.isEmpty(), "Text can't be empty");
       checkArgument(timestamp >= 0, "Timestamp can't be less than 0");
@@ -61,7 +61,7 @@ public interface CeTaskMessages {
     }
 
     public Message(String text, long timestamp) {
-      this(text, timestamp, CeTaskMessageType.GENERIC);
+      this(text, timestamp, MessageType.GENERIC);
     }
 
     public String getText() {
@@ -72,7 +72,7 @@ public interface CeTaskMessages {
       return timestamp;
     }
 
-    public CeTaskMessageType getType() {
+    public MessageType getType() {
       return type;
     }
 

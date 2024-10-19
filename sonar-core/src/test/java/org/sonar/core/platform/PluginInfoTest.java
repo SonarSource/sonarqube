@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -190,6 +190,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getMinimalSonarPluginApiVersion()).isNull();
     assertThat(pluginInfo.getRequiredPlugins()).isEmpty();
     assertThat(pluginInfo.isSonarLintSupported()).isFalse();
+    assertThat(pluginInfo.getRequiredForLanguages()).isEmpty();
   }
 
   @Test
@@ -210,6 +211,7 @@ public class PluginInfoTest {
     manifest.setIssueTrackerUrl("http://jira.com");
     manifest.setRequirePlugins(new String[] {"java:2.0", "pmd:1.3"});
     manifest.setSonarLintSupported(true);
+    manifest.setRequiredForLanguages(new String[]{"java", "xml"});
 
     File jarFile = temp.newFile();
     PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
@@ -225,6 +227,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getMinimalSonarPluginApiVersion().getName()).isEqualTo("4.5.1");
     assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsOnly("java", "pmd");
     assertThat(pluginInfo.isSonarLintSupported()).isTrue();
+    assertThat(pluginInfo.getRequiredForLanguages()).containsOnly("java", "xml");
   }
 
   @Test

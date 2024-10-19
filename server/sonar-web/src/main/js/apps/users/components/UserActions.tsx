@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,96 +17,93 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  ButtonIcon,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownDivider,
-  ActionsDropdownItem,
-} from '../../../components/controls/ActionsDropdown';
-import { translate } from '../../../helpers/l10n';
-import { isUserActive, User } from '../../../types/users';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Provider } from '../../../types/types';
+import { RestUserDetailed, isUserActive } from '../../../types/users';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
 
 interface Props {
-  isCurrentUser: boolean;
-  onUpdateUsers: () => void;
-  user: User;
+  manageProvider: Provider | undefined;
+  user: RestUserDetailed;
 }
 
-interface State {
-  openForm?: string;
-}
+export default function UserActions(props: Props) {
+  const { user, manageProvider } = props;
 
-export default class UserActions extends React.PureComponent<Props, State> {
-  state: State = {};
+  const [openForm, setOpenForm] = React.useState<string | undefined>(undefined);
 
-  handleOpenDeactivateForm = () => {
-    this.setState({ openForm: 'deactivate' });
-  };
+  const isInstanceManaged = manageProvider !== undefined;
 
-  handleOpenPasswordForm = () => {
-    this.setState({ openForm: 'password' });
-  };
+  const isUserLocal = isInstanceManaged && !user.managed;
 
-  handleOpenUpdateForm = () => {
-    this.setState({ openForm: 'update' });
-  };
+  return (
+    <>
+      <DropdownMenu.Root
+        items={
+          <>
+            <DropdownMenu.ItemButton
+              className="it__user-update"
+              key="update"
+              onClick={() => setOpenForm('update')}
+            >
+              {isInstanceManaged ? translate('update_scm') : translate('update_details')}
+            </DropdownMenu.ItemButton>
 
-  handleCloseForm = () => {
-    this.setState({ openForm: undefined });
-  };
+            {!isInstanceManaged && user.local && (
+              <DropdownMenu.ItemButton
+                className="it__user-change-password"
+                key="change_password"
+                onClick={() => setOpenForm('password')}
+              >
+                {translate('my_profile.password.title')}
+              </DropdownMenu.ItemButton>
+            )}
+            {isUserActive(user) && !isInstanceManaged && <DropdownMenu.Separator key="separator" />}
 
-  renderActions = () => {
-    const { user } = this.props;
-    return (
-      <ActionsDropdown>
-        <ActionsDropdownItem className="js-user-update" onClick={this.handleOpenUpdateForm}>
-          {translate('update_details')}
-        </ActionsDropdownItem>
-        {user.local && (
-          <ActionsDropdownItem
-            className="js-user-change-password"
-            onClick={this.handleOpenPasswordForm}
-          >
-            {translate('my_profile.password.title')}
-          </ActionsDropdownItem>
-        )}
-        <ActionsDropdownDivider />
-        {isUserActive(user) && (
-          <ActionsDropdownItem
-            className="js-user-deactivate"
-            destructive={true}
-            onClick={this.handleOpenDeactivateForm}
-          >
-            {translate('users.deactivate')}
-          </ActionsDropdownItem>
-        )}
-      </ActionsDropdown>
-    );
-  };
+            {isUserActive(user) && (!isInstanceManaged || isUserLocal) && (
+              <DropdownMenu.ItemButtonDestructive
+                className="it__user-deactivate"
+                key="deactivate"
+                onClick={() => setOpenForm('deactivate')}
+              >
+                {translate('users.deactivate')}
+              </DropdownMenu.ItemButtonDestructive>
+            )}
+          </>
+        }
+      >
+        <ButtonIcon
+          id={`user-settings-action-dropdown-${user.login}`}
+          className="it__user-actions-toggle"
+          Icon={IconMoreVertical}
+          ariaLabel={translateWithParameters('users.manage_user', user.login)}
+          variety={ButtonVariety.DefaultGhost}
+        />
+      </DropdownMenu.Root>
 
-  render() {
-    const { openForm } = this.state;
-    const { isCurrentUser, onUpdateUsers, user } = this.props;
-
-    return (
-      <>
-        {this.renderActions()}
-        {openForm === 'deactivate' && isUserActive(user) && (
-          <DeactivateForm
-            onClose={this.handleCloseForm}
-            onUpdateUsers={onUpdateUsers}
-            user={user}
-          />
-        )}
-        {openForm === 'password' && (
-          <PasswordForm isCurrentUser={isCurrentUser} onClose={this.handleCloseForm} user={user} />
-        )}
-        {openForm === 'update' && (
-          <UserForm onClose={this.handleCloseForm} onUpdateUsers={onUpdateUsers} user={user} />
-        )}
-      </>
-    );
-  }
+      {openForm === 'deactivate' && isUserActive(user) && (
+        <DeactivateForm onClose={() => setOpenForm(undefined)} user={user} />
+      )}
+      {openForm === 'password' && (
+        <PasswordForm onClose={() => setOpenForm(undefined)} user={user} />
+      )}
+      {openForm === 'update' && (
+        <UserForm
+          onClose={() => setOpenForm(undefined)}
+          user={user}
+          isInstanceManaged={isInstanceManaged}
+        />
+      )}
+    </>
+  );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,13 @@
  */
 package org.sonar.server.hotspot.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -42,6 +42,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.Locations;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
@@ -49,11 +50,11 @@ import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.component.ComponentFinder.ProjectAndBranch;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
-import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.ws.MessageFormattingUtils;
@@ -75,7 +76,6 @@ import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSe
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -86,16 +86,14 @@ public class ShowAction implements HotspotsWsAction {
   private final DbClient dbClient;
   private final HotspotWsSupport hotspotWsSupport;
   private final HotspotWsResponseFormatter responseFormatter;
-  private final TextRangeResponseFormatter textRangeFormatter;
   private final UserResponseFormatter userFormatter;
   private final IssueChangeWSSupport issueChangeSupport;
 
-  public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter,
+  public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, HotspotWsResponseFormatter responseFormatter,
     UserResponseFormatter userFormatter, IssueChangeWSSupport issueChangeSupport) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.responseFormatter = responseFormatter;
-    this.textRangeFormatter = textRangeFormatter;
     this.userFormatter = userFormatter;
     this.issueChangeSupport = issueChangeSupport;
   }
@@ -108,6 +106,7 @@ public class ShowAction implements HotspotsWsAction {
       .setDescription("Provides the details of a Security Hotspot.")
       .setSince("8.1")
       .setChangelog(
+        new Change("10.1", "Add the 'codeVariants' response field"),
         new Change("9.5", "The fields rule.riskDescription, rule.fixRecommendations, rule.vulnerabilityDescription of the response are deprecated."
           + " /api/rules/show endpoint should be used to fetch rule descriptions."),
         new Change("9.7", "Hotspot flows in the response may contain a description and a type"),
@@ -171,13 +170,14 @@ public class ShowAction implements HotspotsWsAction {
     builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
     users.getAssignee().map(UserDto::getLogin).ifPresent(builder::setAssignee);
     Optional.ofNullable(hotspot.getAuthorLogin()).ifPresent(builder::setAuthor);
+    builder.addAllCodeVariants(hotspot.getCodeVariants());
   }
 
   private void formatComponents(Components components, ShowWsResponse.Builder responseBuilder) {
     responseBuilder
-      .setProject(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getProject(), components.getBranch(), components.getPullRequest()))
+      .setProject(responseFormatter.formatProject(Hotspots.Component.newBuilder(), components.getProjectDto(), components.getBranch(), components.getPullRequest()))
       .setComponent(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getComponent(), components.getBranch(), components.getPullRequest()));
-    responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
+    responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProjectDto()));
   }
 
   private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDto ruleDto) {
@@ -216,7 +216,7 @@ public class ShowAction implements HotspotsWsAction {
   }
 
   private void formatTextRange(ShowWsResponse.Builder hotspotBuilder, IssueDto hotspot) {
-    textRangeFormatter.formatTextRange(hotspot, hotspotBuilder::setTextRange);
+    responseFormatter.formatTextRange(hotspot, hotspotBuilder::setTextRange);
   }
 
   private void formatFlows(DbSession dbSession, ShowWsResponse.Builder hotspotBuilder, IssueDto hotspot) {
@@ -229,7 +229,7 @@ public class ShowAction implements HotspotsWsAction {
     Set<String> componentUuids = readComponentUuidsFromLocations(hotspot, locations);
     Map<String, ComponentDto> componentsByUuids = loadComponents(dbSession, componentUuids);
 
-    hotspotBuilder.addAllFlows(textRangeFormatter.formatFlows(locations, hotspotBuilder.getComponent().getKey(), componentsByUuids));
+    hotspotBuilder.addAllFlows(responseFormatter.formatFlows(locations, hotspotBuilder.getComponent().getKey(), componentsByUuids));
   }
 
   private static Set<String> readComponentUuidsFromLocations(IssueDto hotspot, Locations locations) {
@@ -263,10 +263,9 @@ public class ShowAction implements HotspotsWsAction {
     Set<UserDto> preloadedUsers = Stream.of(users.getAssignee(), users.getAuthor())
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .collect(toSet());
-    Set<ComponentDto> preloadedComponents = ImmutableSet.of(components.project, components.component);
+      .collect(Collectors.toSet());
     FormattingContext formattingContext = issueChangeSupport
-      .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, preloadedUsers, preloadedComponents);
+      .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, preloadedUsers, Set.of(components.component));
 
     issueChangeSupport.formatChangelog(hotspot, formattingContext)
       .forEach(responseBuilder::addChangelog);
@@ -296,27 +295,23 @@ public class ShowAction implements HotspotsWsAction {
 
   private Components loadComponents(DbSession dbSession, IssueDto hotspot) {
     String componentUuid = hotspot.getComponentUuid();
-
-    ComponentDto project = hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
-    BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, project.branchUuid()).orElseThrow(() -> new IllegalStateException("Can't find branch " + project.branchUuid()));
-
     checkArgument(componentUuid != null, "Hotspot '%s' has no component", hotspot.getKee());
-    boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
-    ComponentDto component = hotspotOnProject ? project
-      : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
-        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
-    return new Components(project, component, branch);
+    ProjectAndBranch projectAndBranch = hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
+    BranchDto branch = projectAndBranch.getBranch();
+    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid)
+        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+    return new Components(projectAndBranch.getProject(), component, branch);
   }
 
   private static final class Components {
-    private final ComponentDto project;
+    private final ProjectDto project;
     private final ComponentDto component;
     private final String branch;
     private final String pullRequest;
 
-    private Components(ComponentDto project, ComponentDto component, BranchDto branch) {
-      this.project = project;
+    private Components(ProjectDto projectDto, ComponentDto component, BranchDto branch) {
+      this.project = projectDto;
       this.component = component;
       if (branch.isMain()) {
         this.branch = null;
@@ -330,6 +325,10 @@ public class ShowAction implements HotspotsWsAction {
       }
     }
 
+    public ProjectDto getProjectDto() {
+      return project;
+    }
+
     @CheckForNull
     public String getBranch() {
       return branch;
@@ -338,10 +337,6 @@ public class ShowAction implements HotspotsWsAction {
     @CheckForNull
     public String getPullRequest() {
       return pullRequest;
-    }
-
-    public ComponentDto getProject() {
-      return project;
     }
 
     public ComponentDto getComponent() {

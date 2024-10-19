@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,16 @@
  */
 package org.sonar.scanner.ci.vendors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
+import org.sonar.scanner.ci.DevOpsPlatformInfo;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Support of https://github.com/features/actions
@@ -35,7 +37,11 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
  */
 public class GithubActions implements CiVendor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(GithubActions.class);
+
   private static final String PROPERTY_COMMIT = "GITHUB_SHA";
+  public static final String GITHUB_REPOSITORY_ENV_VAR = "GITHUB_REPOSITORY";
+  public static final String GITHUB_API_URL_ENV_VAR = "GITHUB_API_URL";
 
   private final System2 system;
 
@@ -57,8 +63,16 @@ public class GithubActions implements CiVendor {
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable(PROPERTY_COMMIT);
     if (isEmpty(revision)) {
-      Loggers.get(getClass()).warn("Missing environment variable " + PROPERTY_COMMIT);
+      LOG.warn("Missing environment variable " + PROPERTY_COMMIT);
     }
-    return new CiConfigurationImpl(revision, getName());
+
+    String githubRepository = system.envVariable(GITHUB_REPOSITORY_ENV_VAR);
+    String githubApiUrl = system.envVariable(GITHUB_API_URL_ENV_VAR);
+    if (isEmpty(githubRepository) || isEmpty(githubApiUrl)) {
+      LOG.warn("Missing or empty environment variables: {}, and/or {}", GITHUB_API_URL_ENV_VAR, GITHUB_REPOSITORY_ENV_VAR);
+      return new CiConfigurationImpl(revision, getName());
+    }
+    return new CiConfigurationImpl(revision, getName(), new DevOpsPlatformInfo(githubApiUrl, githubRepository));
+
   }
 }

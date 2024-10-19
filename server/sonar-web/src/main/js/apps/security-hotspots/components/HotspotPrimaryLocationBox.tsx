@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,61 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { IssueMessageHighlighting, LineFinding } from 'design-system';
 import * as React from 'react';
-import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { ButtonLink } from '../../../components/controls/buttons';
-import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
-import { translate } from '../../../helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
-import { CurrentUser, isLoggedIn } from '../../../types/users';
-import './HotspotPrimaryLocationBox.css';
+
+const SCROLL_DELAY = 100;
+const SCROLL_TOP_OFFSET = 100; // 5 lines above
+const SCROLL_BOTTOM_OFFSET = 28; // 1 line below + margin
 
 export interface HotspotPrimaryLocationBoxProps {
   hotspot: Hotspot;
-  onCommentClick: () => void;
-  currentUser: CurrentUser;
-  scroll: (element: HTMLElement, offset?: number) => void;
   secondaryLocationSelected: boolean;
 }
 
-export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
-  const { hotspot, currentUser, secondaryLocationSelected } = props;
+export default function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
+  const { hotspot, secondaryLocationSelected } = props;
 
   const locationRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const { current } = locationRef;
-    if (current && !secondaryLocationSelected) {
-      props.scroll(current);
+    if (locationRef.current && !secondaryLocationSelected) {
+      // We need this delay to let the parent resize itself before scrolling
+      setTimeout(() => {
+        locationRef.current?.scrollIntoView({
+          block: 'nearest',
+          behavior: 'smooth',
+        });
+      }, SCROLL_DELAY);
     }
-  });
+  }, [locationRef, secondaryLocationSelected]);
 
   return (
     <div
-      className={classNames(
-        'hotspot-primary-location',
-        'display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right',
-        `hotspot-risk-exposure-${hotspot.rule.vulnerabilityProbability}`
-      )}
+      style={{
+        scrollMarginTop: `${SCROLL_TOP_OFFSET}px`,
+        scrollMarginBottom: `${SCROLL_BOTTOM_OFFSET}px`,
+      }}
       ref={locationRef}
     >
-      <div className="text-bold">
-        <IssueMessageHighlighting
-          message={hotspot.message}
-          messageFormattings={hotspot.messageFormattings}
-        />
-      </div>
-      {isLoggedIn(currentUser) && (
-        <ButtonLink
-          className="nowrap big-spacer-left it__hs-add-comment"
-          onClick={props.onCommentClick}
-        >
-          {translate('hotspots.comment.open')}
-        </ButtonLink>
-      )}
+      <LineFinding
+        issueKey={hotspot.key}
+        message={
+          <IssueMessageHighlighting
+            message={hotspot.message}
+            messageFormattings={hotspot.messageFormattings}
+          />
+        }
+        selected
+        className="sw-cursor-default"
+      />
     </div>
   );
 }
-
-export default withCurrentUserContext(HotspotPrimaryLocationBox);

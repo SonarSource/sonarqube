@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,369 +17,309 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import { Button, ButtonVariety, Modal } from '@sonarsource/echoes-react';
+import {
+  FlagMessage,
+  FormField,
+  InputField,
+  InputSelect,
+  InputTextArea,
+  LabelValueSelectOption,
+  Note,
+  Switch,
+} from 'design-system';
 import * as React from 'react';
-import { OptionTypeBase } from 'react-select';
-import { activateRule, Profile } from '../../../api/quality-profiles';
-import { ResetButtonLink, SubmitButton, DeleteButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
-import { Alert } from '../../../components/ui/Alert';
-import { translate } from '../../../helpers/l10n';
+import { useIntl } from 'react-intl';
+import { Profile } from '../../../api/quality-profiles';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { sanitizeString } from '../../../helpers/sanitize';
+import { useActivateRuleMutation } from '../../../queries/quality-profiles';
+import { Feature } from '../../../types/features';
+import { IssueSeverity } from '../../../types/issues';
 import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import { sortProfiles } from '../../quality-profiles/utils';
 import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
+  organization: string | undefined;
   activation?: RuleActivation;
+  isOpen: boolean;
   modalHeader: string;
   onClose: () => void;
-  onDone: (severity: string) => Promise<void>;
-  // eslint-disable-next-line react/no-unused-prop-types
-  organization: string | undefined;
+  onDone?: (severity: string, prioritizedRule: boolean) => Promise<void> | void;
+  onOpenChange: (isOpen: boolean) => void;
   profiles: Profile[];
   rule: Rule | RuleDetails;
 }
 
-interface ProfileWithDeph extends Profile {
+interface ProfileWithDepth extends Profile {
   depth: number;
 }
 
-interface State {
-  params: Dict<string | any>;
-  allParams: T.Dict<string | any>;
-  profile?: ProfileWithDeph;
-  severity: string;
-  submitting: boolean;
+const MIN_PROFILES_TO_ENABLE_SELECT = 2;
+const FORM_ID = 'rule-activation-modal-form';
+
+export default function ActivationFormModal(props: Readonly<Props>) {
+  const { activation, rule, profiles, modalHeader, isOpen, onOpenChange } = props;
+  const { mutate: activateRule, isPending: submitting } = useActivateRuleMutation((data) => {
+    props.onDone?.(data.severity as string, data.prioritizedRule as boolean);
+    props.onClose();
+  });
+  const { hasFeature } = useAvailableFeatures();
+  const intl = useIntl();
+  const [changedPrioritizedRule, setChangedPrioritizedRule] = React.useState<boolean | undefined>(
+    undefined,
+  );
+  const [changedProfile, setChangedProfile] = React.useState<ProfileWithDepth | undefined>(
+    undefined,
+  );
+  const [changedParams, setChangedParams] = React.useState<Record<string, string> | undefined>(
+    undefined,
+  );
+  const [changedSeverity, setChangedSeverity] = React.useState<IssueSeverity | undefined>(
+    undefined,
+  );
+
+  const profilesWithDepth = React.useMemo(() => {
+    return getQualityProfilesWithDepth(profiles, rule.lang);
+  }, [profiles, rule.lang]);
+
+  const prioritizedRule =
+    changedPrioritizedRule ?? (activation ? activation.prioritizedRule : false);
+  const profile = changedProfile ?? profilesWithDepth[0];
+  const params = changedParams ?? getRuleParams({ activation, rule });
+  const severity =
+    changedSeverity ?? ((activation ? activation.severity : rule.severity) as IssueSeverity);
+  const profileOptions = profilesWithDepth.map((p) => ({ label: p.name, value: p }));
+  const isCustomRule = !!(rule as RuleDetails).templateKey;
+  const activeInAllProfiles = profilesWithDepth.length <= 0;
+  const isUpdateMode = !!activation;
+
+  const paramsDelimiter = ";";
+  const keyValueDelimiter = "=";
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setChangedPrioritizedRule(undefined);
+      setChangedProfile(undefined);
+      setChangedParams(undefined);
+      setChangedSeverity(undefined);
+    }
+  }, [isOpen]);
+
+  const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = {
+      key: profile?.key ?? '',
+      params,
+      rule: rule.key,
+      severity,
+      prioritizedRule,
+    };
+    activateRule(data);
+  };
+
+  const handleParameterChange = (
+    event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = event.currentTarget;
+    setChangedParams({ ...params, [name]: value });
+  };
+
+  return (
+    <Modal
+      title={modalHeader}
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      primaryButton={
+        <Button
+          variety={ButtonVariety.Primary}
+          isDisabled={submitting || activeInAllProfiles}
+          isLoading={submitting}
+          form={FORM_ID}
+          type="submit"
+        >
+          {isUpdateMode
+            ? intl.formatMessage({ id: 'save' })
+            : intl.formatMessage({ id: 'coding_rules.activate' })}
+        </Button>
+      }
+      secondaryButton={
+        <Button variety={ButtonVariety.Default} isDisabled={submitting} onClick={props.onClose}>
+          {intl.formatMessage({ id: 'cancel' })}
+        </Button>
+      }
+      content={
+        <form className="sw-pb-10" id={FORM_ID} onSubmit={handleFormSubmit}>
+          {!isUpdateMode && activeInAllProfiles && (
+            <FlagMessage className="sw-mb-2" variant="info">
+              {intl.formatMessage({ id: 'coding_rules.active_in_all_profiles' })}
+            </FlagMessage>
+          )}
+
+          <FormField
+            ariaLabel={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
+            label={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
+            htmlFor="coding-rules-quality-profile-select-input"
+          >
+            <InputSelect
+              id="coding-rules-quality-profile-select"
+              inputId="coding-rules-quality-profile-select-input"
+              isClearable={false}
+              isDisabled={submitting || profilesWithDepth.length < MIN_PROFILES_TO_ENABLE_SELECT}
+              onChange={({ value }: LabelValueSelectOption<ProfileWithDepth>) => {
+                setChangedProfile(value);
+              }}
+              getOptionLabel={({ value }: LabelValueSelectOption<ProfileWithDepth>) =>
+                '   '.repeat(value.depth) + value.name
+              }
+              options={profileOptions}
+              value={profileOptions.find(({ value }) => value.key === profile?.key)}
+            />
+          </FormField>
+
+          {hasFeature(Feature.PrioritizedRules) && (
+            <FormField
+              ariaLabel={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
+              label={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
+              description={
+                <div className="sw-text-xs">
+                  {intl.formatMessage({ id: 'coding_rules.prioritized_rule.note' })}
+                  <DocumentationLink
+                    className="sw-ml-2 sw-whitespace-nowrap"
+                    to={DocLink.InstanceAdminQualityProfilesPrioritizingRules}
+                  >
+                    {intl.formatMessage({ id: 'learn_more' })}
+                  </DocumentationLink>
+                </div>
+              }
+            >
+              <label
+                id="coding-rules-prioritized-rule"
+                className="sw-flex sw-items-center sw-gap-2"
+              >
+                <Switch
+                  onChange={setChangedPrioritizedRule}
+                  name={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
+                  value={prioritizedRule}
+                />
+                <span className="sw-text-xs">
+                  {intl.formatMessage({ id: 'coding_rules.prioritized_rule.switch_label' })}
+                </span>
+              </label>
+            </FormField>
+          )}
+
+          <FormField
+            ariaLabel={intl.formatMessage({ id: 'severity_deprecated' })}
+            label={intl.formatMessage({ id: 'severity_deprecated' })}
+            htmlFor="coding-rules-severity-select"
+          >
+            <SeveritySelect
+              isDisabled={submitting}
+              onChange={({ value }: LabelValueSelectOption<IssueSeverity>) => {
+                setChangedSeverity(value);
+              }}
+              severity={severity}
+            />
+            <FlagMessage className="sw-mb-4 sw-mt-2" variant="info">
+              <div>
+                {intl.formatMessage({ id: 'coding_rules.severity_deprecated' })}
+                <DocumentationLink
+                  className="sw-ml-2 sw-whitespace-nowrap"
+                  to={DocLink.CleanCodeIntroduction}
+                >
+                  {intl.formatMessage({ id: 'learn_more' })}
+                </DocumentationLink>
+              </div>
+            </FlagMessage>
+          </FormField>
+
+          {isCustomRule ? (
+            <Note as="p" className="sw-my-4">
+              {intl.formatMessage({ id: 'coding_rules.custom_rule.activation_notice' })}
+            </Note>
+          ) : (
+            rule.params?.map((param) => (
+              <FormField label={param.key} key={param.key} htmlFor={param.key}>
+                {param.type === 'TEXT' ? (
+                  <InputTextArea
+                    id={param.key}
+                    disabled={submitting}
+                    name={param.key}
+                    onChange={handleParameterChange}
+                    placeholder={param.defaultValue}
+                    rows={3}
+                    size="full"
+                    value={params[param.key] ?? ''}
+                  />
+                ) : (
+                  <InputField
+                    id={param.key}
+                    disabled={submitting}
+                    name={param.key}
+                    onChange={handleParameterChange}
+                    placeholder={param.defaultValue}
+                    size="full"
+                    type="text"
+                    value={params[param.key] ?? ''}
+                  />
+                )}
+                {param.htmlDesc !== undefined && (
+                  <Note
+                    as="div"
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
+                  />
+                )}
+              </FormField>
+            ))
+          )}
+        </form>
+      }
+    />
+  );
 }
 
-export default class ActivationFormModal extends React.PureComponent<Props, State> {
-  mounted = false;
-    paramsDelimiter = ";";
-    keyValueDelimiter = "=";
+function getQualityProfilesWithDepth(
+  profiles: Profile[] = [],
+  ruleLang?: string,
+): ProfileWithDepth[] {
+  return sortProfiles(
+    profiles.filter(
+      (profile) =>
+        !profile.isBuiltIn &&
+        profile.actions &&
+        profile.actions.edit &&
+        profile.language === ruleLang,
+    ),
+  ).map((profile) => ({
+    ...profile,
+    // Decrease depth by 1, so the top level starts at 0
+    depth: profile.depth - 1,
+  }));
+}
 
-  constructor(props: Props) {
-    super(props);
-    const profilesWithDepth = this.getQualityProfilesWithDepth(props);
-    this.state = {
-      params: this.getDefaultParams(props),
-      allParams: this.getAllParams(props),
-      profile: profilesWithDepth.length > 0 ? profilesWithDepth[0] : undefined,
-      severity: props.activation ? props.activation.severity : props.rule.severity,
-      submitting: false,
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  getDefaultParams = ({ activation, rule } = this.props) => {
-    const params: Dict<any> = {};
-    if (rule && rule.params) {
-      for (const param of rule.params) {
-         if (param.type == "KEY_VALUE_MAP") {
-          let paramsArray: String[] = [];
-          if (param.defaultValue) {
-            paramsArray = param.defaultValue.split(this.paramsDelimiter);
-          }
-          paramsArray.push(this.keyValueDelimiter);
-          params[param.key] = paramsArray.map((object: any) => object.split(this.keyValueDelimiter));
-        } else {
-          params[param.key] = param.defaultValue || '';
-        }
-      }
-      if (activation && activation.params) {
-        for (const param of activation.params) {
-         if (typeof (params[param.key]) !== 'string') {
-           let paramsArray: String[] = [];
-           paramsArray = param.value.split(this.paramsDelimiter);
-           paramsArray.push(this.keyValueDelimiter);
-           params[param.key] = paramsArray.map((object: any) => object.split(this.keyValueDelimiter));
-         } else {
-           params[param.key] = param.value || '';
-         }
-        }
+function getRuleParams({
+  activation,
+  rule,
+}: {
+  activation?: RuleActivation;
+  rule: RuleDetails | Rule;
+}) {
+  const params: Dict<string> = {};
+  if (rule?.params) {
+    for (const param of rule.params) {
+      params[param.key] = param.defaultValue ?? '';
+    }
+    if (activation?.params) {
+      for (const param of activation.params) {
+        params[param.key] = param.value;
       }
     }
-    return params;
-  };
-
-// Unlike other param types, SINGLE_SELECT_LIST has predefined list of values from which user can choose from.
-  getAllParams = ({ rule } = this.props) => {
-    const params: T.Dict<any> = {};
-    if (rule && rule.params) {
-      for (const param of rule.params) {
-        if (param.type.startsWith("SINGLE_SELECT_LIST")) {
-          let list: String;
-          list = param.type.substring(param.type.indexOf('\"') + 1);
-          list = list.substring(0, list.indexOf(',\"'));
-          params[param.key] = list.split(',');
-        }
-      }
-    }
-    return params;
-  };
-
- getParamsFromMap = () => {
-    let stateParams = { ...this.state.params };
-    const { params = [] } = this.props.rule;
-    params.map(param => {
-      if (param.type == 'KEY_VALUE_MAP') {
-        stateParams[param.key].pop();
-        let res = '';
-        let row = stateParams[param.key].length;
-        stateParams[param.key].map((param: string[], index: number) => {
-          res = res + param[0] + this.keyValueDelimiter + param[1];
-          if (index + 1 != row) {
-            res = res + this.paramsDelimiter;
-          }
-        })
-        stateParams[param.key] = res;
-      }
-    })
-    return stateParams;
   }
-
-  // Choose QP which a user can administrate, which are the same language and which are not built-in
-  getQualityProfilesWithDepth = ({ profiles } = this.props) => {
-    return sortProfiles(
-      profiles.filter(
-        (profile) =>
-          !profile.isBuiltIn &&
-          profile.actions &&
-          profile.actions.edit &&
-          profile.language === this.props.rule.lang
-      )
-    ).map((profile) => ({
-      ...profile,
-      // Decrease depth by 1, so the top level starts at 0
-      depth: profile.depth - 1,
-    }));
-  };
-
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    this.setState({ submitting: true });
-    const data = {
-      key: this.state.profile?.key || '',
-      organization: this.props.organization,
-      params: this.getParamsFromMap(),
-      rule: this.props.rule.key,
-      severity: this.state.severity,
-    };
-    activateRule(data)
-      .then(() => this.props.onDone(data.severity))
-      .then(
-        () => {
-          if (this.mounted) {
-            this.setState({ submitting: false });
-            this.props.onClose();
-          }
-        },
-        () => {
-          if (this.mounted) {
-            this.setState({ submitting: false });
-          }
-        }
-      );
-  };
-
-  handleParameterChange = (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.currentTarget;
-    this.setState((state: State) => ({ params: { ...state.params, [name]: value } }));
-  };
-
-  handleSingleSelectListChange = ({ value, labelKey }: { label: string, value: string, labelKey: string }) => {
-    let params = { ...this.state.params };
-    params[labelKey] = value;
-    this.setState({ params });
-  };
-
-  handleProfileChange = (profile: ProfileWithDeph) => {
-    this.setState({ profile });
-  };
-
-  handleSeverityChange = ({ value }: OptionTypeBase) => {
-    this.setState({ severity: value });
-  };
-
-handleKeyChange = (index: any, value: any, paramKey: any) => {
-    let params = { ...this.state.params };
-    params[paramKey][index][0] = value;
-    if (index === params[paramKey].length - 1) {
-      params[paramKey].splice(index + 1, 0, ['', '']);
-    }
-    this.setState({ params });
-  };
-
-  handleValueChange = (index: any, value: any, paramKey: any) => {
-    let params = { ...this.state.params };
-    params[paramKey][index][1] = value;
-    if (index === params[paramKey].length - 1) {
-      params[paramKey].splice(index + 1, 0, ['', '']);
-    }
-    this.setState({ params });
-  };
-
-  handleDeleteValue = (index: number, paramKey: any) => {
-    let params = { ...this.state.params };
-    params[paramKey].splice(index, 1);
-    this.setState({ params });
-  };
-
-  render() {
-    const { activation, rule } = this.props;
-    const { profile, severity, submitting } = this.state;
-    const { params = [] } = rule;
-    const profilesWithDepth = this.getQualityProfilesWithDepth();
-    const isCustomRule = !!(rule as RuleDetails).templateKey;
-    const activeInAllProfiles = profilesWithDepth.length <= 0;
-    const isUpdateMode = !!activation;
-    
-    return (
-      <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose} size="small">
-        <form onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{this.props.modalHeader}</h2>
-          </div>
-
-          <div className={classNames('modal-body', { 'modal-container': params.length > 0 })}>
-            {!isUpdateMode && activeInAllProfiles && (
-              <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
-            )}
-
-            <div className="modal-field">
-              <label id="coding-rules-quality-profile-select-label">
-                {translate('coding_rules.quality_profile')}
-              </label>
-              <Select
-                aria-labelledby="coding-rules-quality-profile-select-label"
-                id="coding-rules-quality-profile-select"
-                isClearable={false}
-                isDisabled={submitting || profilesWithDepth.length === 1}
-                onChange={this.handleProfileChange}
-                getOptionLabel={(p) => '   '.repeat(p.depth) + p.name}
-                options={profilesWithDepth}
-                value={profile}
-              />
-            </div>
-            <div className="modal-field">
-              <label id="coding-rules-severity-select">{translate('severity')}</label>
-              <SeveritySelect
-                isDisabled={submitting}
-                ariaLabelledby="coding-rules-severity-select"
-                onChange={this.handleSeverityChange}
-                severity={severity}
-              />
-            </div>
-            {isCustomRule ? (
-              <div className="modal-field">
-                <p className="note">{translate('coding_rules.custom_rule.activation_notice')}</p>
-              </div>
-            ) : (
-              params.map((param) => (
-                <div className="modal-field" key={param.key}>
-                  <label title={param.key}>{param.key}</label>
-                    {param.type === 'TEXT' &&
-                      (
-                        <textarea
-                          disabled={submitting}
-                          name={param.key}
-                          onChange={this.handleParameterChange}
-                          placeholder={param.defaultValue}
-                          rows={3}
-                          value={this.state.params[param.key] || ''}
-                        />
-                      )
-                    }
-                    {param.type.startsWith('SINGLE_SELECT_LIST') &&
-                      ( <Select
-                          className="js-list"
-                          clearable={false}
-                          onChange={this.handleSingleSelectListChange}
-                          options={this.state.allParams[param.key].map((item: string) => ({
-                            labelKey: param.key,
-                            label: item,
-                            value: item
-                          }))}
-                          value={{labelKey: param.key, label: this.state.params[param.key], value: this.state.params[param.key]}}
-                        />)
-                    }
-                    {param.type === 'KEY_VALUE_MAP' &&
-                      (
-                        <ul>
-                          {this.state.params[param.key].map((value: any, index: number) =>
-                            <li className="spacer-bottom display-flex-row " key={index}>
-                              <input
-                                disabled={submitting}
-                                className="coding-rule-map-input"
-                                onChange={e => this.handleKeyChange(index, e.target.value, param.key)}
-                                name={"key" + index}
-                                type="text"
-                                value={value[0]} />
-
-                              <input
-                                disabled={submitting}
-                                className="coding-rule-map-input"
-                                onChange={e => this.handleValueChange(index, e.target.value, param.key)}
-                                name={"value" + index}
-                                type="text"
-                                value={value[1]} />
-
-                              {!(index === this.state.params[param.key].length - 1) && (
-                                <div className="display-inline-block spacer-left">
-                                  <DeleteButton
-                                    className="js-remove-value"
-                                    onClick={() => this.handleDeleteValue(index, param.key)}
-                                  />
-                                </div>
-                              )}
-                            </li>
-                          )}
-                        </ul>
-                      )
-                     }
-                     {param.type !== 'KEY_VALUE_MAP' && !param.type.startsWith('SINGLE_SELECT_LIST') && param.type !== 'TEXT' &&
-                      (
-                        <input
-                          disabled={submitting}
-                          name={param.key}
-                          onChange={this.handleParameterChange}
-                          placeholder={param.defaultValue}
-                          type="text"
-                          value={this.state.params[param.key] || ''}
-                        />
-                      )
-                    }
-                  {param.htmlDesc !== undefined && (
-                    <div
-                      className="note"
-                      // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-                    />
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-
-          <footer className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitting || activeInAllProfiles}>
-              {isUpdateMode ? translate('save') : translate('coding_rules.activate')}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
-    );
-  }
+  return params;
 }

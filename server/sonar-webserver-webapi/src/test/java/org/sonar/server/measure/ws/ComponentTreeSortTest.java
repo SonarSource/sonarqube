@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,9 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.resources.Qualifiers;
@@ -32,6 +33,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
@@ -44,17 +46,20 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.PATH_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeData.Measure.createFromMeasureDto;
 
-public class ComponentTreeSortTest {
+class ComponentTreeSortTest {
   private static final String NUM_METRIC_KEY = "violations";
   private static final String NEW_METRIC_KEY = "new_violations";
   private static final String TEXT_METRIC_KEY = "sqale_index";
+
+  private static final String DATA_IMPACT_METRIC_KEY = "reliability_issues";
+  private static final String NEW_DATA_IMPACT_METRIC_KEY = "new_reliability_issues";
 
   private List<MetricDto> metrics;
   private Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric;
   private List<ComponentDto> components;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     components = newArrayList(
       newComponentWithoutSnapshotId("name-1", "qualifier-2", "path-9"),
       newComponentWithoutSnapshotId("name-3", "qualifier-3", "path-8"),
@@ -75,8 +80,14 @@ public class ComponentTreeSortTest {
     MetricDto sqaleIndexMetric = newMetricDto()
       .setKey(TEXT_METRIC_KEY)
       .setValueType(ValueType.STRING.name());
+    MetricDto reliabilityIssueMetric = newMetricDto()
+      .setKey(DATA_IMPACT_METRIC_KEY)
+      .setValueType(ValueType.DATA.name());
+    MetricDto newReliabilityIssueMetric = newMetricDto()
+      .setKey(NEW_DATA_IMPACT_METRIC_KEY)
+      .setValueType(ValueType.DATA.name());
 
-    metrics = newArrayList(violationsMetric, sqaleIndexMetric, newViolationsMetric);
+    metrics = newArrayList(violationsMetric, sqaleIndexMetric, newViolationsMetric, reliabilityIssueMetric, newReliabilityIssueMetric);
 
     measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), 2);
     // same number than path field
@@ -85,12 +96,23 @@ public class ComponentTreeSortTest {
       measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMeasureDto(new LiveMeasureDto().setValue(currentValue)));
       measuresByComponentUuidAndMetric.put(component.uuid(), newViolationsMetric, createFromMeasureDto(new LiveMeasureDto().setValue(currentValue)));
       measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMeasureDto(new LiveMeasureDto().setData(String.valueOf(currentValue))));
+      measuresByComponentUuidAndMetric.put(component.uuid(), reliabilityIssueMetric, createFromMeasureDto(new LiveMeasureDto().setData(buildJsonImpact((int) currentValue))));
+      measuresByComponentUuidAndMetric.put(component.uuid(), newReliabilityIssueMetric, createFromMeasureDto(new LiveMeasureDto().setData(buildJsonImpact((int) currentValue))));
       currentValue--;
     }
   }
 
+  private static String buildJsonImpact(int currentValue) {
+    return String.valueOf(ImpactMeasureBuilder.newInstance()
+      .setSeverity(Severity.HIGH, currentValue)
+      .setSeverity(Severity.MEDIUM, currentValue)
+      .setSeverity(Severity.LOW, currentValue)
+      .setTotal(currentValue)
+      .buildAsString());
+  }
+
   @Test
-  public void sort_by_names() {
+  void sort_by_names() {
     ComponentTreeRequest wsRequest = newRequest(singletonList(NAME_SORT), true, null);
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -99,7 +121,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_qualifier() {
+  void sort_by_qualifier() {
     ComponentTreeRequest wsRequest = newRequest(singletonList(QUALIFIER_SORT), false, null);
 
     List<ComponentDto> result = sortComponents(wsRequest);
@@ -109,7 +131,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_path() {
+  void sort_by_path() {
     ComponentTreeRequest wsRequest = newRequest(singletonList(PATH_SORT), true, null);
 
     List<ComponentDto> result = sortComponents(wsRequest);
@@ -119,7 +141,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_numerical_metric_key_ascending() {
+  void sort_by_numerical_metric_key_ascending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, NUM_METRIC_KEY);
 
@@ -130,7 +152,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_numerical_metric_key_descending() {
+  void sort_by_numerical_metric_key_descending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY);
 
@@ -141,7 +163,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_name_ascending_in_case_of_equality() {
+  void sort_by_name_ascending_in_case_of_equality() {
     components = newArrayList(
       newComponentWithoutSnapshotId("PROJECT 12", Qualifiers.PROJECT, "PROJECT_PATH_1"),
       newComponentWithoutSnapshotId("PROJECT 11", Qualifiers.PROJECT, "PROJECT_PATH_1"),
@@ -155,7 +177,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_alert_status_ascending() {
+  void sort_by_alert_status_ascending() {
     components = newArrayList(
       newComponentWithoutSnapshotId("PROJECT OK 1", Qualifiers.PROJECT, "PROJECT_OK_PATH_1"),
       newComponentWithoutSnapshotId("PROJECT ERROR 1", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_1"),
@@ -181,7 +203,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_numerical_metric_period_1_key_descending() {
+  void sort_by_numerical_metric_period_1_key_descending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), false, NEW_METRIC_KEY).setMetricPeriodSort(1);
 
@@ -192,7 +214,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_numerical_metric_period_1_key_ascending() {
+  void sort_by_numerical_metric_period_1_key_ascending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), true, NEW_METRIC_KEY).setMetricPeriodSort(1);
 
@@ -203,7 +225,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_numerical_metric_period_5_key() {
+  void sort_by_numerical_metric_period_5_key() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY).setMetricPeriodSort(5);
 
@@ -214,7 +236,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_textual_metric_key_ascending() {
+  void sort_by_textual_metric_key_ascending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, TEXT_METRIC_KEY);
 
@@ -225,7 +247,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_textual_metric_key_descending() {
+  void sort_by_textual_metric_key_descending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, TEXT_METRIC_KEY);
 
@@ -236,7 +258,7 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_on_multiple_fields() {
+  void sort_on_multiple_fields() {
     components = newArrayList(
       newComponentWithoutSnapshotId("name-1", "qualifier-1", "path-2"),
       newComponentWithoutSnapshotId("name-1", "qualifier-1", "path-3"),
@@ -247,6 +269,50 @@ public class ComponentTreeSortTest {
 
     assertThat(result).extracting("path")
       .containsExactly("path-1", "path-2", "path-3");
+  }
+
+  @Test
+  void sortComponent_whenMetricIsImpactDataType_shouldOrderByTotalAscending() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, DATA_IMPACT_METRIC_KEY);
+
+    List<ComponentDto> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("path")
+      .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9", "path-without-measure");
+  }
+
+  @Test
+  void sortComponent_whenMetricIsImpactDataType_shouldOrderByTotalDescending() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, DATA_IMPACT_METRIC_KEY);
+
+    List<ComponentDto> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("path")
+      .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
+  }
+
+  @Test
+  void sortComponent_whenMetricIsNewAndMetricPeriodSort_shouldOrderByTotal() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), false, NEW_DATA_IMPACT_METRIC_KEY).setMetricPeriodSort(1);
+
+    List<ComponentDto> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("path")
+      .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
+  }
+
+  @Test
+  void sortComponent_whenMetricIsNotNewAndMetricPeriodSort_shouldNotOrder() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), false, DATA_IMPACT_METRIC_KEY).setMetricPeriodSort(1);
+
+    List<ComponentDto> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("path")
+      .containsExactly("path-9", "path-7", "path-8", "path-6", "path-3", "path-4", "path-5", "path-1", "path-2", "path-without-measure");
   }
 
   private List<ComponentDto> sortComponents(ComponentTreeRequest wsRequest) {

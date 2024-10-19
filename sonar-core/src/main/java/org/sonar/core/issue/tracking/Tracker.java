@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.scanner.ScannerSide;
-
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 @ScannerSide
 public class Tracker<RAW extends Trackable, BASE extends Trackable> extends AbstractTracker<RAW, BASE> {
@@ -97,6 +95,6 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> extends Abst
     Collection<BASE> nonClosedIssues = nonClosedTracking.getBaseInput().getIssues();
     Collection<BASE> closeIssues = closedTracking.getBaseInput().getIssues();
     return Stream.concat(nonClosedIssues.stream(), closeIssues.stream())
-      .collect(toList(nonClosedIssues.size() + closeIssues.size()));
+      .toList();
   }
 }

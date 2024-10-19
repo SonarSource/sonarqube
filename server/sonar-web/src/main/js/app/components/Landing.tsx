@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,18 +22,17 @@ import { Navigate, To } from 'react-router-dom';
 import { getHomePageUrl, isDeploymentForAmazon, isDeploymentForCodeScan } from '../../helpers/urls';
 import { AppState } from '../../types/appstate';
 import { CurrentUser, isLoggedIn } from '../../types/users';
-import withAppStateContext from './app-state/withAppStateContext';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
-
+import withAppStateContext from './app-state/withAppStateContext';
 
 export interface LandingProps {
-  appState: AppState
+  appState: AppState;
   currentUser: CurrentUser;
 }
 
-function getRedirectURL(currentUser: any){
+function getRedirectURL(currentUser: any) {
   let redirectUrl: To = "";
-  if(currentUser.homepage) {
+  if (currentUser.homepage) {
     redirectUrl = getHomePageUrl(currentUser.homepage);
   } else {
     redirectUrl = '/projects';
@@ -41,29 +40,24 @@ function getRedirectURL(currentUser: any){
   return redirectUrl;
 }
 
-function Landing({ appState, currentUser }: LandingProps) {
+export function Landing({ appState, currentUser }: LandingProps) {
   const { whiteLabel } = appState
-  let redirectUrl: To = "";
-
-  if(isLoggedIn(currentUser)) {
-    if(isDeploymentForCodeScan(whiteLabel)) {
-      if(!currentUser.onboarded) {
+  let redirectUrl: To;
+  if (isLoggedIn(currentUser)) {
+    if (isDeploymentForCodeScan(whiteLabel)) {
+      if (!currentUser.onboarded) {
         redirectUrl = '/home'
       } else {
         redirectUrl = getRedirectURL(currentUser);
       }
-    } else if(isDeploymentForAmazon(whiteLabel)) {
+    } else if (isDeploymentForAmazon(whiteLabel)) {
       redirectUrl = getRedirectURL(currentUser);
-    }      
+    }
   } else {
     redirectUrl = '/sessions/new';
   }
-  
-  return <Navigate to={redirectUrl} replace={true} />;
+
+  return <Navigate to={redirectUrl} replace />;
 }
 
 export default withCurrentUserContext(withAppStateContext(Landing));
-
-
-
-

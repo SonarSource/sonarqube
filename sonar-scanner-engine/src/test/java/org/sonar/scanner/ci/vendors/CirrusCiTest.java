@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,9 @@ package org.sonar.scanner.ci.vendors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiVendor;
 
@@ -77,7 +77,7 @@ public class CirrusCiTest {
     CiConfiguration configuration = underTest.loadConfiguration();
 
     assertThat(configuration.getScmRevision()).isEmpty();
-    assertThat(logs.logs(LoggerLevel.WARN)).contains("Missing environment variable CIRRUS_CHANGE_IN_REPO");
+    assertThat(logs.logs(Level.WARN)).contains("Missing environment variable CIRRUS_CHANGE_IN_REPO");
   }
 
   private void setEnvVariable(String key, @Nullable String value) {

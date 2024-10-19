@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,49 +17,84 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ClipboardIconButton,
+  IssueMessageHighlighting,
+  LightLabel,
+  LightPrimary,
+  Link,
+  LinkIcon,
+  StyledPageTitle,
+} from 'design-system';
 import React from 'react';
-import { Component } from '../../../../js/types/types';
-import Link from '../../../components/common/Link';
-import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
+import { getComponentSecurityHotspotsUrl } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import { getRuleUrl } from '../../../helpers/urls';
+import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
+import { useRefreshBranchStatus } from '../../../queries/branch';
+import { BranchLike } from '../../../types/branch-like';
+import { SecurityStandard, Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
-
-import Assignee from './assignee/Assignee';
+import { Component } from '../../../types/types';
+import HotspotHeaderRightSection from './HotspotHeaderRightSection';
 import Status from './status/Status';
 
 export interface HotspotHeaderProps {
-  component:Component;
+  branchLike?: BranchLike;
+  component: Component;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  standards?: Standards;
 }
 
 export function HotspotHeader(props: HotspotHeaderProps) {
-  const { hotspot, component } = props;
-  const { message, messageFormattings, rule } = hotspot;
+  const { branchLike, component, hotspot, standards } = props;
+  const { message, messageFormattings, rule, key } = hotspot;
+  const refreshBranchStatus = useRefreshBranchStatus(component.key);
+
+  const permalink = getPathUrlAsString(
+    getComponentSecurityHotspotsUrl(component.key, branchLike, {
+      hotspots: key,
+    }),
+    false,
+  );
+
+  const categoryStandard = standards?.[SecurityStandard.SONARSOURCE][rule.securityCategory]?.title;
+  const handleStatusChange = async (statusOption: HotspotStatusOption) => {
+    await props.onUpdateHotspot(true, statusOption);
+    refreshBranchStatus();
+  };
+
   return (
-    <div className="huge-spacer-bottom hotspot-header">
-      <div className="display-flex-column big-spacer-bottom">
-        <div className="big text-bold">
-          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        </div>
-        <div className="spacer-top">
-          <span className="note padded-right">{rule.name}</span>
-          <Link className="small" to={getRuleUrl(rule.key, component.organization )} target="_blank">
-            {rule.key}
-          </Link>
-        </div>
-      </div>
-      <div className="display-flex-space-between">
-        <Status
-          hotspot={hotspot}
-          onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
-        />
-        <div className="display-flex-end">
-          <div className="display-inline-flex-center it__hs-assignee">
-            <div className="big-spacer-right">{`${translate('assignee')}: `}</div>
-            <Assignee hotspot={hotspot} organization={component.organization} onAssigneeChange={props.onUpdateHotspot} />
+    <div>
+      <div className="sw-flex sw-justify-between sw-gap-8 hotspot-header">
+        <div className="sw-flex-1">
+          <StyledPageTitle as="h1" className="sw-whitespace-normal sw-overflow-visible">
+            <LightPrimary>
+              <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+            </LightPrimary>
+            <ClipboardIconButton
+              Icon={LinkIcon}
+              copiedLabel={translate('copied_action')}
+              copyLabel={translate('copy_to_clipboard')}
+              className="sw-ml-2"
+              copyValue={permalink}
+              discreet
+            />
+          </StyledPageTitle>
+          <div className="sw-mt-2 sw-mb-4 sw-typo-default">
+            <LightLabel>{rule.name}</LightLabel>
+            <Link className="sw-ml-1" to={getRuleUrl(rule.key)} target="_blank">
+              {rule.key}
+            </Link>
           </div>
+          <Status hotspot={hotspot} onStatusChange={handleStatusChange} />
+        </div>
+        <div className="sw-flex sw-flex-col sw-gap-4">
+          <HotspotHeaderRightSection
+            hotspot={hotspot}
+            categoryStandard={categoryStandard}
+            onUpdateHotspot={props.onUpdateHotspot}
+          />
         </div>
       </div>
     </div>

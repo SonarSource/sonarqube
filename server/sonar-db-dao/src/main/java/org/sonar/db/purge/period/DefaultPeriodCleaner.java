@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,11 +23,10 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
@@ -35,7 +34,7 @@ import org.sonar.db.purge.PurgeableAnalysisDto;
 
 public class DefaultPeriodCleaner {
 
-  private static final Logger LOG = Loggers.get(DefaultPeriodCleaner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
   private final PurgeDao purgeDao;
   private final PurgeProfiler profiler;
 
@@ -68,11 +67,11 @@ public class DefaultPeriodCleaner {
     }
     purgeDao.deleteAnalyses(
       session, profiler,
-      snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(MoreCollectors.toList(snapshots.size())));
+      snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).toList());
     return snapshots;
   }
 
   private List<PurgeableAnalysisDto> selectAnalysesOfComponent(String componentUuid, DbSession session) {
-    return purgeDao.selectPurgeableAnalyses(componentUuid, session);
+    return purgeDao.selectProcessedAnalysisByComponentUuid(componentUuid, session);
   }
 }

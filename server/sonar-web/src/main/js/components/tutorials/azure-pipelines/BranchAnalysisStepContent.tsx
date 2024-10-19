@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,50 +19,32 @@
  */
 import * as React from 'react';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
 import { Component } from '../../../types/types';
-import RenderOptions from '../components/RenderOptions';
-import { BuildTools } from '../types';
+import BuildConfigSelection from '../components/BuildConfigSelection';
+import { TutorialConfig, TutorialModes } from '../types';
 import AnalysisCommand from './commands/AnalysisCommand';
 
 export interface BranchesAnalysisStepProps {
-  languages: Languages;
   component: Component;
-
-  onStepValidationChange: (isValid: boolean) => void;
+  config: TutorialConfig;
+  languages: Languages;
+  setConfig: (config: TutorialConfig) => void;
 }
 
-const BUILD_TOOLS_ORDERED: Array<BuildTools> = [
-  BuildTools.DotNet,
-  BuildTools.Maven,
-  BuildTools.Gradle,
-  BuildTools.CFamily,
-  BuildTools.Other,
-];
-
 export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
-  const { component, onStepValidationChange, languages } = props;
+  const { config, setConfig, component, languages } = props;
 
-  const [buildTechnology, setBuildTechnology] = React.useState<BuildTools | undefined>();
-  const buildToolsList = languages['c']
-    ? BUILD_TOOLS_ORDERED
-    : BUILD_TOOLS_ORDERED.filter((t) => t !== BuildTools.CFamily);
   return (
     <>
-      <span>{translate('onboarding.build')}</span>
-      <RenderOptions
-        label={translate('onboarding.build')}
-        checked={buildTechnology}
-        onCheck={(value) => setBuildTechnology(value as BuildTools)}
-        optionLabelKey="onboarding.build"
-        options={buildToolsList}
+      <BuildConfigSelection
+        ci={TutorialModes.AzurePipelines}
+        config={config}
+        supportCFamily={Boolean(languages['c'])}
+        onSetConfig={setConfig}
       />
-      <AnalysisCommand
-        onStepValidationChange={onStepValidationChange}
-        buildTool={buildTechnology}
-        projectKey={component.key}
-      />
+
+      <AnalysisCommand config={config} projectKey={component.key} projectName={component.name} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,34 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce } from 'lodash';
 import * as React from 'react';
-import { getParents } from '../../api/components';
-import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
-import { isPullRequest } from '../../helpers/branch-like';
-import { scrollToElement } from '../../helpers/scrolling';
-import { BranchLike } from '../../types/branch-like';
-import { Issue, SourceViewerFile } from '../../types/types';
+import { SourceViewerFile } from '../../types/types';
 import SourceViewer from '../SourceViewer/SourceViewer';
-import { ComponentDescriptor } from './context';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
+import { ComponentDescriptor } from './context';
 
 export interface Props extends Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
   component: ComponentDescriptor;
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   height: number;
   onClose: (componentKey: string) => void;
   onLoad: (details: { key: string; name: string; qualifier: string }) => void;
 }
 
-export class WorkspaceComponentViewer extends React.PureComponent<Props> {
+export default class WorkspaceComponentViewer extends React.PureComponent<Props> {
   container?: HTMLElement | null;
-
-  constructor(props: Props) {
-    super(props);
-    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
-  }
 
   componentDidMount() {
     if (document.documentElement) {
@@ -62,10 +50,6 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
     this.props.onClose(this.props.component.key);
   };
 
-  handleIssueChange = (_: Issue) => {
-    this.refreshBranchStatus();
-  };
-
   handleLoaded = (component: SourceViewerFile) => {
     this.props.onLoad({
       key: this.props.component.key,
@@ -75,31 +59,11 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
 
     if (this.container && this.props.component.line) {
       const row = this.container.querySelector(
-        `.source-line[data-line-number="${this.props.component.line}"]`
+        `.it__source-line[data-line-number="${this.props.component.line}"]`,
       );
       if (row) {
-        scrollToElement(row, {
-          smooth: false,
-          parent: this.container,
-          topOffset: 50,
-          bottomOffset: 50,
-        });
+        row.scrollIntoView({ block: 'center' });
       }
-    }
-  };
-
-  refreshBranchStatus = () => {
-    const { component } = this.props;
-    const { branchLike } = component;
-    if (branchLike && isPullRequest(branchLike)) {
-      getParents(component.key).then(
-        (parents?: any[]) => {
-          if (parents && parents.length > 0) {
-            this.props.fetchBranchStatus(branchLike, parents.pop().key);
-          }
-        },
-        () => {}
-      );
     }
   };
 
@@ -121,6 +85,7 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
 
         <div
           className="workspace-viewer-container"
+          role="complementary"
           ref={(node) => (this.container = node)}
           style={{ height: this.props.height }}
         >
@@ -128,8 +93,8 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
             aroundLine={component.line}
             branchLike={component.branchLike}
             component={component.key}
+            hidePinOption
             highlightedLine={component.line}
-            onIssueChange={this.handleIssueChange}
             onLoaded={this.handleLoaded}
           />
         </div>
@@ -137,5 +102,3 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
     );
   }
 }
-
-export default withBranchStatusActions(WorkspaceComponentViewer);

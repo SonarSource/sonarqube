@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -255,12 +255,13 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private void hardStopImpl() {
     try {
       hardStopAll();
-      finalizeStop();
     } catch (InterruptedException e) {
       // ignore and assume SQ stop is handled by another thread
       LOG.debug("Stopping all processes was interrupted in the middle of a hard stop" +
         " (current thread name is \"{}\")", Thread.currentThread().getName());
       Thread.currentThread().interrupt();
+    } finally {
+      finalizeStop();
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 import { ComponentMeasure, ComponentMeasureEnhanced } from '../types/types';
 
 export function getComponentMeasureUniqueKey(
-  component?: ComponentMeasure | ComponentMeasureEnhanced
+  component?: ComponentMeasure | ComponentMeasureEnhanced,
 ) {
   return component ? [component.key, component.branch].filter((s) => !!s).join('/') : undefined;
 }

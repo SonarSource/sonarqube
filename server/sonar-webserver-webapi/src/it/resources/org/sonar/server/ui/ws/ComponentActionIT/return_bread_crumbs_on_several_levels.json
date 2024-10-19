@@ -1,0 +1,23 @@
+{
+  "key": "polop:src/main/xoo/Source.xoo",
+  "id": "cdef",
+  "name": "Source.xoo",
+  "isFavorite": false,
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    },
+    {
+      "key": "polop:src/main/xoo",
+      "name": "src/main/xoo",
+      "qualifier": "DIR"
+    },
+    {
+      "key": "polop:src/main/xoo/Source.xoo",
+      "name": "Source.xoo",
+      "qualifier": "FIL"
+    }
+  ]
+}

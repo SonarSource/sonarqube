@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,18 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class AnalysisPropertyDtoTest {
+class AnalysisPropertyDtoTest {
 
   private AnalysisPropertyDto underTest;
 
   @Test
-  public void null_key_should_throw_NPE() {
+  void null_key_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
     assertThatThrownBy(() -> underTest.setKey(null))
@@ -39,7 +39,7 @@ public class AnalysisPropertyDtoTest {
   }
 
   @Test
-  public void null_value_should_throw_NPE() {
+  void null_value_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
     assertThatThrownBy(() -> underTest.setValue(null))
@@ -48,7 +48,7 @@ public class AnalysisPropertyDtoTest {
   }
 
   @Test
-  public void null_uuid_should_throw_NPE() {
+  void null_uuid_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
     assertThatThrownBy(() -> underTest.setUuid(null))
@@ -57,7 +57,7 @@ public class AnalysisPropertyDtoTest {
   }
 
   @Test
-  public void null_analysis_uuid_should_throw_NPE() {
+  void null_analysis_uuid_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
     assertThatThrownBy(() -> underTest.setAnalysisUuid(null))
@@ -66,7 +66,7 @@ public class AnalysisPropertyDtoTest {
   }
 
   @Test
-  public void test_equality() {
+  void test_equality() {
     underTest = new AnalysisPropertyDto()
       .setUuid(randomAlphanumeric(40))
       .setAnalysisUuid(randomAlphanumeric(40))
@@ -107,7 +107,7 @@ public class AnalysisPropertyDtoTest {
   }
 
   @Test
-  public void test_hashcode() {
+  void test_hashcode() {
     underTest = new AnalysisPropertyDto()
       .setUuid(randomAlphanumeric(40))
       .setAnalysisUuid(randomAlphanumeric(40))

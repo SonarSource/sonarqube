@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,10 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
@@ -38,10 +38,11 @@ import org.sonar.duplications.block.ByteArray;
 import static com.google.common.base.Strings.padStart;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
@@ -59,10 +60,12 @@ public class IntegrateCrossProjectDuplicationsTest {
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create();
 
-  private TestSystem2 system = new TestSystem2();
-  private MapSettings settings = new MapSettings();
-  private CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
-  private IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository, ceTaskMessages, system);
+  private final TestSystem2 system = new TestSystem2();
+  private final MapSettings settings = new MapSettings();
+  private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
+  private final CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder = mock(CrossProjectDuplicationStatusHolder.class);
+  private final IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(crossProjectDuplicationStatusHolder, settings.asConfig(),
+    duplicationRepository, ceTaskMessages, system);
 
   @Test
   public void add_duplications_from_two_blocks() {
@@ -296,7 +299,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
+    assertThat(logTester.logs(Level.WARN)).containsOnly(
       "Too many duplication references on file " + ORIGIN_FILE_KEY + " for block at line 30. Keeping only the first 100 references.");
     Iterable<Duplication> duplications = duplicationRepository.getDuplications(ORIGIN_FILE);
     assertThat(duplications).hasSize(1);
@@ -331,15 +334,15 @@ public class IntegrateCrossProjectDuplicationsTest {
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
     assertThat(duplicationRepository.getDuplications(ORIGIN_FILE)).hasSize(100);
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Too many duplication groups on file " + ORIGIN_FILE_KEY + ". Keeping only the first 100 groups.");
+    assertThat(logTester.logs(Level.WARN)).containsOnly("Too many duplication groups on file " + ORIGIN_FILE_KEY + ". Keeping only the first 100 groups.");
   }
 
   @Test
   public void log_warning_if_this_deprecated_feature_is_enabled() {
-    settings.setProperty("sonar.cpd.cross_project", "true");
+    when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     system.setNow(1000L);
 
-    new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository, ceTaskMessages, system);
+    new IntegrateCrossProjectDuplications(crossProjectDuplicationStatusHolder, settings.asConfig(), duplicationRepository, ceTaskMessages, system);
 
     assertThat(logTester.logs()).containsExactly("This analysis uses the deprecated cross-project duplication feature.");
     verify(ceTaskMessages).add(new CeTaskMessages.Message("This project uses the deprecated cross-project duplication feature.", 1000L));

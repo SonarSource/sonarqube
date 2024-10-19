@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
+import { Link, Table } from 'design-system';
 import * as React from 'react';
-import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import { translate } from '../../../helpers/l10n';
+import { getProjectUrl } from '../../../helpers/urls';
 import {
   Notification,
   NotificationProject,
@@ -30,63 +32,62 @@ import NotificationsList from './NotificationsList';
 interface Props {
   addNotification: (n: Notification) => void;
   channels: string[];
-  collapsed: boolean;
+  header?: React.JSX.Element;
   notifications: Notification[];
   project: NotificationProject;
   removeNotification: (n: Notification) => void;
   types: NotificationProjectType[];
 }
 
-export default function ProjectNotifications(props: Props) {
-  const { collapsed, project, channels } = props;
-  const [isCollapsed, setCollapsed] = React.useState<boolean>(collapsed);
-
+export default function ProjectNotifications({
+  addNotification,
+  channels,
+  header,
+  notifications,
+  project,
+  removeNotification,
+  types,
+}: Readonly<Props>) {
   const getCheckboxId = (type: string, channel: string) => {
-    return `project-notification-${props.project.project}-${type}-${channel}`;
+    return `project-notification-${project.project}-${type}-${channel}`;
   };
 
   const handleAddNotification = ({ channel, type }: { channel: string; type: string }) => {
-    props.addNotification({ ...props.project, channel, type });
+    addNotification({ ...project, channel, type });
   };
 
   const handleRemoveNotification = ({ channel, type }: { channel: string; type: string }) => {
-    props.removeNotification({
-      ...props.project,
+    removeNotification({
+      ...project,
       channel,
       type,
     });
   };
 
-  const toggleExpanded = () => setCollapsed(!isCollapsed);
-
   return (
-    <BoxedGroupAccordion
-      onClick={toggleExpanded}
-      open={!isCollapsed}
-      title={<h4 className="display-inline-block">{project.projectName}</h4>}
-    >
-      <table className="data zebra notifications-table" key={project.project}>
-        <thead>
-          <tr>
-            <th aria-label={translate('project')} />
-            {channels.map((channel) => (
-              <th className="text-center" key={channel}>
-                <h4>{translate('notification.channel', channel)}</h4>
-              </th>
-            ))}
-          </tr>
-        </thead>
+    <div className="sw-my-6">
+      <div className="sw-mb-4">
+        <Link to={getProjectUrl(project.project)}>{project.projectName}</Link>
+      </div>
+      {!header && (
+        <div className="sw-typo-semibold sw-mb-2">{translate('notifications.send_email')}</div>
+      )}
 
+      <Table
+        className={classNames('sw-w-full', { 'sw-mt-4': header })}
+        columnCount={2}
+        header={header ?? null}
+      >
         <NotificationsList
-          channels={props.channels}
+          channels={channels}
           checkboxId={getCheckboxId}
-          notifications={props.notifications}
+          notifications={notifications}
           onAdd={handleAddNotification}
           onRemove={handleRemoveNotification}
-          project={true}
-          types={props.types}
+          project
+          types={types}
         />
-      </table>
-    </BoxedGroupAccordion>
+      </Table>
+    </div>
   );
 }

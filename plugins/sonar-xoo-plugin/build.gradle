@@ -2,15 +2,16 @@
 dependencies {
   api 'com.google.guava:guava'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'org.apache.commons:commons-csv'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-plugin-api-impl')
 }
 
@@ -21,7 +22,7 @@ jar {
       'Plugin-Version': project.version,
       'Plugin-Class': 'org.sonar.xoo.XooPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': project.version,
+      'Sonar-Version': project.pluginApiVersion,
       'SonarLint-Supported': 'true',
       'Plugin-Name': 'Xoo'
     )
@@ -32,11 +33,6 @@ jar {
 }
 
 artifactoryPublish.skip = false
-
-// Produce Java 11 bytecode while making sure the code does not use any APIs from Java 17
-tasks.withType(JavaCompile) {
-  options.release = 11
-}
 
 publishing {
   publications {

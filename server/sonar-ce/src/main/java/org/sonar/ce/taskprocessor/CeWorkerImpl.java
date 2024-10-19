@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,8 @@ import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskInterruptedException;
@@ -52,7 +52,7 @@ import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 
 public class CeWorkerImpl implements CeWorker {
 
-  private static final Logger LOG = Loggers.get(CeWorkerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CeWorkerImpl.class);
 
   private final int ordinal;
   private final String uuid;
@@ -270,7 +270,7 @@ public class CeWorkerImpl implements CeWorker {
   private static Profiler startLogProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG)
       .logTimeLast(true)
-      .addContext("project", task.getMainComponent().flatMap(CeTask.Component::getKey).orElse(null))
+      .addContext("project", task.getEntity().flatMap(CeTask.Component::getKey).orElse(null))
       .addContext("type", task.getType());
     for (Map.Entry<String, String> characteristic : task.getCharacteristics().entrySet()) {
       profiler.addContext(characteristic.getKey(), characteristic.getValue());

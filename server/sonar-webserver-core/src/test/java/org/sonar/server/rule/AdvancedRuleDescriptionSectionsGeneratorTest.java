@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -91,72 +91,56 @@ public class AdvancedRuleDescriptionSectionsGeneratorTest {
   @Mock
   private RulesDefinition.Rule rule;
 
-  @Mock
-  private RuleDescriptionSectionDto LEGACY_SECTION;
-
-  @Mock
-  private LegacyIssueRuleDescriptionSectionsGenerator legacyIssueRuleDescriptionSectionsGenerator;
-
   @InjectMocks
   private AdvancedRuleDescriptionSectionsGenerator generator;
 
   @Before
   public void before() {
     when(uuidFactory.create()).thenReturn(UUID_1).thenReturn(UUID_2);
-    when(legacyIssueRuleDescriptionSectionsGenerator.generateSections(rule)).thenReturn(Set.of(LEGACY_SECTION));
   }
 
   @Test
-  public void generateSections_whenOneSection_createsOneSectionAndDefault() {
+  public void generateSections_whenOneSection_createsOneSection() {
     when(rule.ruleDescriptionSections()).thenReturn(List.of(SECTION_1));
 
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = generator.generateSections(rule);
 
     assertThat(ruleDescriptionSectionDtos)
       .usingRecursiveFieldByFieldElementComparator()
-      .containsExactlyInAnyOrder(EXPECTED_SECTION_1, LEGACY_SECTION);
+      .containsExactlyInAnyOrder(EXPECTED_SECTION_1);
   }
 
   @Test
-  public void generateSections_whenTwoSections_createsTwoSectionsAndDefault() {
+  public void generateSections_whenTwoSections_createsTwoSections() {
     when(rule.ruleDescriptionSections()).thenReturn(List.of(SECTION_1, SECTION_2));
 
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = generator.generateSections(rule);
 
     assertThat(ruleDescriptionSectionDtos)
       .usingRecursiveFieldByFieldElementComparator()
-      .containsExactlyInAnyOrder(EXPECTED_SECTION_1, EXPECTED_SECTION_2, LEGACY_SECTION);
+      .containsExactlyInAnyOrder(EXPECTED_SECTION_1, EXPECTED_SECTION_2);
   }
 
   @Test
-  public void generateSections_whenTwoContextSpecificSections_createsTwoSectionsAndDefault() {
+  public void generateSections_whenTwoContextSpecificSections_createsTwoSections() {
     when(rule.ruleDescriptionSections()).thenReturn(List.of(SECTION_3_WITH_CTX_1, SECTION_3_WITH_CTX_2));
 
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = generator.generateSections(rule);
 
     assertThat(ruleDescriptionSectionDtos)
       .usingRecursiveFieldByFieldElementComparator()
-      .containsExactlyInAnyOrder(EXPECTED_SECTION_3_WITH_CTX_1, EXPECTED_SECTION_3_WITH_CTX_2, LEGACY_SECTION);
+      .containsExactlyInAnyOrder(EXPECTED_SECTION_3_WITH_CTX_1, EXPECTED_SECTION_3_WITH_CTX_2);
   }
 
   @Test
-  public void generateSections_whenContextSpecificSectionsAndNonContextSpecificSection_createsTwoSectionsAndDefault() {
+  public void generateSections_whenContextSpecificSectionsAndNonContextSpecificSection_createsTwoSections() {
     when(rule.ruleDescriptionSections()).thenReturn(List.of(SECTION_1, SECTION_3_WITH_CTX_2));
 
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = generator.generateSections(rule);
 
     assertThat(ruleDescriptionSectionDtos)
       .usingRecursiveFieldByFieldElementComparator()
-      .containsExactlyInAnyOrder(EXPECTED_SECTION_1, EXPECTED_SECTION_3_WITH_CTX_2, LEGACY_SECTION);
-  }
-
-  @Test
-  public void generateSections_whenNoSections_returnsDefault() {
-    when(rule.ruleDescriptionSections()).thenReturn(emptyList());
-
-    Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = generator.generateSections(rule);
-
-    assertThat(ruleDescriptionSectionDtos).containsOnly(LEGACY_SECTION);
+      .containsExactlyInAnyOrder(EXPECTED_SECTION_1, EXPECTED_SECTION_3_WITH_CTX_2);
   }
 
 }

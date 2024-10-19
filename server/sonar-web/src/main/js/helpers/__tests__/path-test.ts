@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,14 +41,14 @@ describe('#collapsedDirFromPath()', () => {
 
   it('should cut long path', () => {
     expect(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')).toBe(
-      'src/.../js/components/navigator/app/models/'
+      'src/.../components/navigator/app/models/',
     );
   });
 
   it('should cut very long path', () => {
     expect(
-      collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js')
-    ).toBe('src/.../js/components/navigator/app/models/');
+      collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js'),
+    ).toBe('src/.../components/navigator/app/models/');
   });
 });
 
@@ -77,7 +77,7 @@ describe('#fileFromPath()', () => {
 describe('#cutLongWords', () => {
   it('should cut the long work in the middle', () => {
     expect(cutLongWords('This is a reallylongwordthatdontexistforthe test')).toBe(
-      'This is a reallylongwordthatdontexistfor... test'
+      'This is a reallylongwordthatdontexistfor... test',
     );
   });
 

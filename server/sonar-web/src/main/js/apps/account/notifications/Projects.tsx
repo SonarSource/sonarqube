@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety, Heading } from '@sonarsource/echoes-react';
+import { InputSearch, Note } from 'design-system';
 import { groupBy, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
-import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
 import {
   Notification,
@@ -33,12 +34,11 @@ import ProjectNotifications from './ProjectNotifications';
 export interface Props {
   addNotification: (n: Notification) => void;
   channels: string[];
+  header?: React.JSX.Element;
   notifications: Notification[];
   removeNotification: (n: Notification) => void;
   types: NotificationProjectType[];
 }
-
-const THRESHOLD_COLLAPSED = 3;
 
 interface State {
   addedProjects: NotificationProject[];
@@ -61,7 +61,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   };
 
   filterSearch = (project: NotificationProject, search: string) => {
-    return project.projectName && project.projectName.toLowerCase().includes(search);
+    return project.projectName?.toLowerCase().includes(search);
   };
 
   handleAddProject = (project: NotificationProject) => {
@@ -94,6 +94,7 @@ export default class Projects extends React.PureComponent<Props, State> {
 
   removeNotification = (removed: Notification, allProjects: NotificationProject[]) => {
     const projectToRemove = allProjects.find((p) => p.project === removed.project);
+
     if (projectToRemove) {
       this.handleAddProject(projectToRemove);
     }
@@ -106,27 +107,28 @@ export default class Projects extends React.PureComponent<Props, State> {
     const { addedProjects, search } = this.state;
 
     const projects = uniqBy(notifications, ({ project }) => project).filter(
-      isNotificationProject
+      isNotificationProject,
     ) as NotificationProject[];
+
     const notificationsByProject = groupBy(notifications, (n) => n.project);
     const allProjects = uniqBy([...addedProjects, ...projects], (project) => project.project);
+
     const filteredProjects = sortBy(allProjects, 'projectName').filter((p) =>
-      this.filterSearch(p, search)
+      this.filterSearch(p, search),
     );
-    const shouldBeCollapsed = Object.keys(notificationsByProject).length > THRESHOLD_COLLAPSED;
 
     return (
-      <section className="boxed-group" data-test="account__project-notifications">
-        <div className="boxed-group-inner">
-          <div className="page-actions">
-            <Button onClick={this.openModal}>
-              <span data-test="account__add-project-notification">
-                {translate('my_profile.per_project_notifications.add')}
-              </span>
-            </Button>
-          </div>
+      <section data-test="account__project-notifications">
+        <div className="sw-flex sw-justify-between">
+          <Heading as="h2" hasMarginBottom>
+            {translate('my_profile.per_project_notifications.title')}
+          </Heading>
 
-          <h2>{translate('my_profile.per_project_notifications.title')}</h2>
+          <Button onClick={this.openModal} variety={ButtonVariety.Primary}>
+            <span data-test="account__add-project-notification">
+              {translate('my_profile.per_project_notifications.add')}
+            </span>
+          </Button>
         </div>
 
         {this.state.showModal && (
@@ -137,37 +139,32 @@ export default class Projects extends React.PureComponent<Props, State> {
           />
         )}
 
-        <div className="boxed-group-inner">
+        <div>
           {allProjects.length === 0 && (
-            <div className="note">{translate('my_account.no_project_notifications')}</div>
+            <Note>{translate('my_account.no_project_notifications')}</Note>
           )}
 
           {allProjects.length > 0 && (
-            <div className="big-spacer-bottom">
-              <SearchBox
+            <div className="sw-mb-4">
+              <InputSearch
                 onChange={this.handleSearch}
                 placeholder={translate('search.search_for_projects')}
               />
             </div>
           )}
 
-          {filteredProjects.map((project) => {
-            const collapsed = addedProjects.find((p) => p.project === project.project)
-              ? false
-              : shouldBeCollapsed;
-            return (
-              <ProjectNotifications
-                addNotification={this.props.addNotification}
-                channels={this.props.channels}
-                collapsed={collapsed}
-                key={project.project}
-                notifications={notificationsByProject[project.project] || []}
-                project={project}
-                removeNotification={(n) => this.removeNotification(n, allProjects)}
-                types={this.props.types}
-              />
-            );
-          })}
+          {filteredProjects.map((project) => (
+            <ProjectNotifications
+              addNotification={this.props.addNotification}
+              channels={this.props.channels}
+              header={this.props.header}
+              key={project.project}
+              notifications={notificationsByProject[project.project] || []}
+              project={project}
+              removeNotification={(n) => this.removeNotification(n, allProjects)}
+              types={this.props.types}
+            />
+          ))}
         </div>
       </section>
     );

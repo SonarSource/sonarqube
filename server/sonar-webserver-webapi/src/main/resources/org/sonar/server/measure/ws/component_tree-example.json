@@ -16,6 +16,10 @@
         }
       },
       {
+        "metric": "accepted_issues",
+        "value": "10"
+      },
+      {
         "metric": "complexity",
         "value": "42"
       },
@@ -42,6 +46,10 @@
         {
           "metric": "complexity",
           "value": "12"
+        },
+        {
+          "metric": "accepted_issues",
+          "value": "10"
         },
         {
           "metric": "ncloc",
@@ -81,6 +89,10 @@
           "value": "35"
         },
         {
+          "metric": "accepted_issues",
+          "value": "10"
+        },
+        {
           "metric": "ncloc",
           "value": "217"
         }
@@ -118,6 +130,16 @@
       "qualitative": true,
       "hidden": false,
       "bestValue": "0"
+    },
+    {
+      "key": "accepted_issues",
+      "name": "Accepted Issues",
+      "description": "Accepted issues",
+      "domain": "Issues",
+      "type": "INT",
+      "higherValuesAreBetter": false,
+      "qualitative": false,
+      "hidden": false
     }
   ],
   "period": {

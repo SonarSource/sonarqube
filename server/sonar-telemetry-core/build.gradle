@@ -1,0 +1,24 @@
+description = 'Module providing the core classes and interfaces for telemetry metrics in SonarQube.'
+
+sonar {
+    properties {
+        property 'sonar.projectName', "${projectTitle} :: Server :: Telemetry Core"
+    }
+}
+
+dependencies {
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+tasks.test {
+    useJUnitPlatform()
+}

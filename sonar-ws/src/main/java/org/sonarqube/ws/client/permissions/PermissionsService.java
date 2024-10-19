@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,6 @@ public class PermissionsService extends BaseService {
   public void addGroup(AddGroupRequest request) {
     call(
       new PostRequest(path("add_group"))
-        .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
         .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
@@ -73,7 +72,6 @@ public class PermissionsService extends BaseService {
   public void addGroupToTemplate(AddGroupToTemplateRequest request) {
     call(
       new PostRequest(path("add_group_to_template"))
-        .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
         .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
@@ -245,7 +243,6 @@ public class PermissionsService extends BaseService {
   public void removeGroup(RemoveGroupRequest request) {
     call(
       new PostRequest(path("remove_group"))
-        .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
         .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
@@ -265,7 +262,6 @@ public class PermissionsService extends BaseService {
   public void removeGroupFromTemplate(RemoveGroupFromTemplateRequest request) {
     call(
       new PostRequest(path("remove_group_from_template"))
-        .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
         .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())

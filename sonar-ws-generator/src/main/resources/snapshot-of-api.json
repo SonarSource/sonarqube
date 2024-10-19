@@ -5522,48 +5522,6 @@
       ]
     },
     {
-      "path": "api/properties",
-      "since": "2.6",
-      "description": "This web service is deprecated, please use api/settings instead.",
-      "actions": [
-        {
-          "key": "index",
-          "description": "This web service is deprecated, please use api/settings/values instead.",
-          "since": "2.6",
-          "deprecatedSince": "6.3",
-          "internal": false,
-          "post": false,
-          "hasResponseExample": true,
-          "changelog": [],
-          "params": [
-            {
-              "key": "format",
-              "description": "Only json response format is available",
-              "required": false,
-              "internal": false,
-              "possibleValues": [
-                "json"
-              ]
-            },
-            {
-              "key": "id",
-              "description": "Setting key",
-              "required": false,
-              "internal": false,
-              "exampleValue": "sonar.test.inclusions"
-            },
-            {
-              "key": "resource",
-              "description": "Component key or database id",
-              "required": false,
-              "internal": false,
-              "exampleValue": "my_project"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "path": "api/qualitygates",
       "since": "4.3",
       "description": "Manage quality gates, including conditions and project association.",
@@ -6379,7 +6337,7 @@
         },
         {
           "key": "add_project",
-          "description": "Associate a project with a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li>  <li>Administer right on the specified project</li></ul>",
+          "description": "Associate a project with a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Administer right on the specified project</li></ul>",
           "since": "5.2",
           "internal": false,
           "post": true,
@@ -9129,48 +9087,10 @@
       ]
     },
     {
-      "path": "api/timemachine",
-      "since": "2.10",
-      "description": "Removed since 6.3, please use api/measures/search_history instead",
-      "actions": [
-        {
-          "key": "index",
-          "description": "The web service is removed and you're invited to use api/measures/search_history instead",
-          "since": "2.10",
-          "deprecatedSince": "6.3",
-          "internal": false,
-          "post": false,
-          "hasResponseExample": true,
-          "changelog": []
-        }
-      ]
-    },
-    {
       "path": "api/updatecenter",
       "since": "2.10",
       "description": "Get list of installed plugins",
       "actions": [
-        {
-          "key": "installed_plugins",
-          "description": "Get the list of all the plugins installed on the SonarQube instance",
-          "since": "2.10",
-          "deprecatedSince": "6.3",
-          "internal": true,
-          "post": false,
-          "hasResponseExample": true,
-          "changelog": [],
-          "params": [
-            {
-              "key": "format",
-              "description": "Only json response format is available",
-              "required": false,
-              "internal": false,
-              "possibleValues": [
-                "json"
-              ]
-            }
-          ]
-        },
         {
           "key": "upload",
           "description": "Upload a plugin.<br /> Requires 'Administer System' permission.",

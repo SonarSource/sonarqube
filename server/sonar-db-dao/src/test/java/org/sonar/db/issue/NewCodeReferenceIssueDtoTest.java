@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,14 @@
  */
 package org.sonar.db.issue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.core.util.UuidFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class NewCodeReferenceIssueDtoTest {
+class NewCodeReferenceIssueDtoTest {
 
   private static final IssueDto ISSUE_DTO = mock(IssueDto.class);
   private static final String KEY = "issue-key";
@@ -34,7 +34,7 @@ public class NewCodeReferenceIssueDtoTest {
   private static final UuidFactory UUID_FACTORY = mock(UuidFactory.class);
 
   @Test
-  public void create_from_issue_dto() {
+  void create_from_issue_dto() {
     when(ISSUE_DTO.getKey()).thenReturn(KEY);
     when(UUID_FACTORY.create()).thenReturn(UUID);
     long now = System.currentTimeMillis();
@@ -47,7 +47,7 @@ public class NewCodeReferenceIssueDtoTest {
   }
 
   @Test
-  public void create_from_issue_key() {
+  void create_from_issue_key() {
     when(UUID_FACTORY.create()).thenReturn(UUID);
     long now = System.currentTimeMillis();
 

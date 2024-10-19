@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginInfo.RequiredPlugin;
 import org.sonar.updatecenter.common.Version;
@@ -73,7 +73,7 @@ public class PluginRequirementsValidatorTest {
 
     assertThat(underTest.isCompatible(pluginWithoutBase)).isFalse();
     assertThat(underTest.isCompatible(pluginWithBase)).isTrue();
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Plugin plugin-without-base-plugin [plugin-without-base-plugin] is ignored"
         + " because its base plugin [not-existing-base-plugin] is not installed");
   }
@@ -96,7 +96,7 @@ public class PluginRequirementsValidatorTest {
 
     assertThat(underTest.isCompatible(pluginWithoutRequired)).isFalse();
     assertThat(underTest.isCompatible(pluginWithRequired)).isTrue();
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Plugin plugin-without-required-plugin [plugin-without-required-plugin] is ignored"
         + " because the required plugin [notexistingrequired] is not installed");
   }
@@ -119,7 +119,7 @@ public class PluginRequirementsValidatorTest {
 
     assertThat(underTest.isCompatible(pluginWithoutRequired)).isFalse();
     assertThat(underTest.isCompatible(pluginWithRequired)).isTrue();
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Plugin plugin-without-required-plugin [plugin-without-required-plugin] is ignored"
         + " because the version 1.5 of required plugin [required] is not installed");
   }

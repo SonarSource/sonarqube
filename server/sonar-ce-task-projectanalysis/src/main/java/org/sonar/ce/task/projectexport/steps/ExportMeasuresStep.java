@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DatabaseUtils;
@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.db.DatabaseUtils.getDouble;
 import static org.sonar.db.DatabaseUtils.getString;
 
@@ -79,7 +79,7 @@ public class ExportMeasuresStep implements ComputationStep {
         output.write(measure);
         count++;
       }
-      Loggers.get(getClass()).debug("{} measures exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} measures exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Measure Export failed after processing %d measures successfully", count), e);
     }

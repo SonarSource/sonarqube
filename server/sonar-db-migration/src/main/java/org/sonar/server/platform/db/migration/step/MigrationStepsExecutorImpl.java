@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,43 +20,73 @@
 package org.sonar.server.platform.db.migration.step;
 
 import java.util.List;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.Container;
 import org.sonar.core.util.logs.Profiler;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
-  private static final Logger LOGGER = Loggers.get("DbMigrations");
-  private static final String GLOBAL_START_MESSAGE = "Executing DB migrations...";
-  private static final String GLOBAL_END_MESSAGE = "Executed DB migrations: {}";
-  private static final String STEP_START_PATTERN = "{}...";
-  private static final String STEP_STOP_PATTERN = "{}: {}";
+  private static final Logger LOGGER = LoggerFactory.getLogger("DbMigrations");
+  private static final String GLOBAL_START_MESSAGE = "Executing {} DB migrations...";
+  private static final String GLOBAL_END_MESSAGE = "Executed {}/{} DB migrations: {}";
+  private static final String STEP_START_PATTERN = "{}/{} {}...";
+  private static final String STEP_STOP_PATTERN = "{}/{} {}: {}";
 
   private final Container migrationContainer;
   private final MigrationHistory migrationHistory;
+  private final MutableDatabaseMigrationState databaseMigrationState;
+  private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider;
+  private final TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider;
+  private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider;
+  private final TelemetryDbMigrationStepDurationProvider telemetryDbMigrationStepDurationProvider;
 
-  public MigrationStepsExecutorImpl(Container migrationContainer, MigrationHistory migrationHistory) {
+  public MigrationStepsExecutorImpl(Container migrationContainer, MigrationHistory migrationHistory, MutableDatabaseMigrationState databaseMigrationState,
+    TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider, TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider,
+    TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider, TelemetryDbMigrationStepDurationProvider stepDurationProvider) {
     this.migrationContainer = migrationContainer;
     this.migrationHistory = migrationHistory;
+    this.databaseMigrationState = databaseMigrationState;
+    this.telemetryDbMigrationTotalTimeProvider = telemetryDbMigrationTotalTimeProvider;
+    this.telemetryDbMigrationStepsProvider = telemetryDbMigrationStepsProvider;
+    this.telemetryDbMigrationSuccessProvider = telemetryDbMigrationSuccessProvider;
+    this.telemetryDbMigrationStepDurationProvider = stepDurationProvider;
   }
 
   @Override
-  public void execute(List<RegisteredMigrationStep> steps) {
+  public void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener) {
     Profiler globalProfiler = Profiler.create(LOGGER);
-    globalProfiler.startInfo(GLOBAL_START_MESSAGE);
+    globalProfiler.startInfo(GLOBAL_START_MESSAGE, databaseMigrationState.getTotalMigrations());
     boolean allStepsExecuted = false;
     try {
-      steps.forEach(this::execute);
+      for (RegisteredMigrationStep step : steps) {
+        this.execute(step);
+        listener.onMigrationStepCompleted();
+      }
       allStepsExecuted = true;
     } finally {
+      long dbMigrationDuration = 0L;
       if (allStepsExecuted) {
-        globalProfiler.stopInfo(GLOBAL_END_MESSAGE, "success");
+        dbMigrationDuration = globalProfiler.stopInfo(GLOBAL_END_MESSAGE,
+          databaseMigrationState.getCompletedMigrations(),
+          databaseMigrationState.getTotalMigrations(),
+          "success");
       } else {
-        globalProfiler.stopError(GLOBAL_END_MESSAGE, "failure");
+        dbMigrationDuration = globalProfiler.stopError(GLOBAL_END_MESSAGE,
+          databaseMigrationState.getCompletedMigrations(),
+          databaseMigrationState.getTotalMigrations(),
+          "failure");
       }
+      telemetryDbMigrationTotalTimeProvider.setDbMigrationTotalTime(dbMigrationDuration);
+      telemetryDbMigrationStepsProvider.setDbMigrationCompletedSteps(databaseMigrationState.getCompletedMigrations());
+      telemetryDbMigrationSuccessProvider.setDbMigrationSuccess(allStepsExecuted);
     }
   }
 
@@ -69,7 +99,10 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
 
   private void execute(RegisteredMigrationStep step, MigrationStep migrationStep) {
     Profiler stepProfiler = Profiler.create(LOGGER);
-    stepProfiler.startInfo(STEP_START_PATTERN, step);
+    stepProfiler.startInfo(STEP_START_PATTERN,
+      databaseMigrationState.getCompletedMigrations() + 1,
+      databaseMigrationState.getTotalMigrations(),
+      step);
     boolean done = false;
     try {
       migrationStep.execute();
@@ -79,9 +112,18 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
       throw new MigrationStepExecutionException(step, e);
     } finally {
       if (done) {
-        stepProfiler.stopInfo(STEP_STOP_PATTERN, step, "success");
+        long durationInMiliseconds = stepProfiler.stopInfo(STEP_STOP_PATTERN,
+          databaseMigrationState.getCompletedMigrations() + 1,
+          databaseMigrationState.getTotalMigrations(),
+          step,
+          "success");
+        telemetryDbMigrationStepDurationProvider.addCompletedStep(step.getMigrationNumber(), durationInMiliseconds);
       } else {
-        stepProfiler.stopError(STEP_STOP_PATTERN, step, "failure");
+        stepProfiler.stopError(STEP_STOP_PATTERN,
+          databaseMigrationState.getCompletedMigrations() + 1,
+          databaseMigrationState.getTotalMigrations(),
+          step,
+          "failure");
       }
     }
   }

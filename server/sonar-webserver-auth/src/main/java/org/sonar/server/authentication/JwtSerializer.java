@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.MacAlgorithm;
 import io.jsonwebtoken.security.SignatureException;
 import java.util.Base64;
 import java.util.Collections;
@@ -42,7 +42,6 @@ import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 
@@ -52,7 +51,8 @@ import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 @ServerSide
 public class JwtSerializer implements Startable {
 
-  private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
+  private static final MacAlgorithm SIGNATURE_ALGORITHM = Jwts.SIG.HS256;
+  private static final String HS256_JCA_NAME = "HmacSHA256";
 
   static final String LAST_REFRESH_TIME_PARAM = "lastRefreshTime";
 
@@ -82,12 +82,12 @@ public class JwtSerializer implements Startable {
   String encode(JwtSession jwtSession) {
     checkIsStarted();
     return Jwts.builder()
-      .addClaims(jwtSession.getProperties())
+      .claims(jwtSession.getProperties())
       .claim(LAST_REFRESH_TIME_PARAM, system2.now())
-      .setId(jwtSession.getSessionTokenUuid())
-      .setSubject(jwtSession.getUserLogin())
-      .setIssuedAt(new Date(system2.now()))
-      .setExpiration(new Date(jwtSession.getExpirationTime()))
+      .id(jwtSession.getSessionTokenUuid())
+      .subject(jwtSession.getUserLogin())
+      .issuedAt(new Date(system2.now()))
+      .expiration(new Date(jwtSession.getExpirationTime()))
       .signWith(secretKey, SIGNATURE_ALGORITHM)
       .compact();
   }
@@ -96,11 +96,11 @@ public class JwtSerializer implements Startable {
     checkIsStarted();
     Claims claims = null;
     try {
-      claims = Jwts.parserBuilder()
-        .setSigningKey(secretKey)
+      claims = Jwts.parser()
+        .verifyWith(secretKey)
         .build()
-        .parseClaimsJws(token)
-        .getBody();
+        .parseSignedClaims(token)
+        .getPayload();
       requireNonNull(claims.getId(), "Token id hasn't been found");
       requireNonNull(claims.getSubject(), "Token subject hasn't been found");
       requireNonNull(claims.getExpiration(), "Token expiration date hasn't been found");
@@ -120,20 +120,20 @@ public class JwtSerializer implements Startable {
   String refresh(Claims token, long expirationTime) {
     checkIsStarted();
     return Jwts.builder()
-      .setClaims(token)
+      .claims(token)
       .claim(LAST_REFRESH_TIME_PARAM, system2.now())
-      .setExpiration(new Date(expirationTime))
+      .expiration(new Date(expirationTime))
       .signWith(secretKey, SIGNATURE_ALGORITHM)
       .compact();
   }
 
   private static SecretKey generateSecretKey() {
-    return generateKey(SIGNATURE_ALGORITHM);
+    return SIGNATURE_ALGORITHM.key().build();
   }
 
   private static SecretKey decodeSecretKeyProperty(String base64SecretKey) {
     byte[] decodedKey = Base64.getDecoder().decode(base64SecretKey);
-    return new SecretKeySpec(decodedKey, 0, decodedKey.length, SIGNATURE_ALGORITHM.getJcaName());
+    return new SecretKeySpec(decodedKey, 0, decodedKey.length, HS256_JCA_NAME);
   }
 
   private void checkIsStarted() {

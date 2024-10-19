@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,8 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.xoo.Xoo;
 
@@ -63,6 +65,9 @@ public class OneExternalIssuePerLineSensor implements Sensor {
         .description("blah blah")
         .severity(Severity.BLOCKER)
         .type(RuleType.BUG)
+        .cleanCodeAttribute(CleanCodeAttribute.CLEAR)
+        .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)
+        .addDefaultImpact(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)
         .save();
     }
   }
@@ -78,6 +83,8 @@ public class OneExternalIssuePerLineSensor implements Sensor {
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
         .severity(Severity.valueOf(SEVERITY))
+        //Overrides default impact from the adhoc rule
+        .addImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
         .remediationEffortMinutes(EFFORT)
         .type(TYPE)
         .save();

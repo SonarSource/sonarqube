@@ -21,7 +21,6 @@
     r.def_remediation_gap_mult as "defRemediationGapMultiplier",
     r.def_remediation_base_effort as "defRemediationBaseEffort",
     r.gap_description as "gapDescription",
-    r.system_tags as "systemTagsField",
     r.security_standards as "securityStandardsField",
     r.rule_type as "type",
     r.plugin_key as "pluginKey",
@@ -40,7 +39,8 @@
     rm.ad_hoc_description as "adHocDescription",
     rm.ad_hoc_severity as "adHocSeverity",
     rm.ad_hoc_type as "adHocType",
-    r.education_principles as "educationPrinciplesField"
+    r.education_principles as "educationPrinciplesField",
+    r.clean_code_attribute as "cleanCodeAttribute"
   </sql>
 
   <sql id="leftOuterJoinRulesMetadata">
@@ -59,14 +59,34 @@
       rds.rule_uuid = r.uuid
   </sql>
 
+  <sql id="leftOuterJoinRulesDefaultImpacts">
+    left outer join rules_default_impacts rdi on
+      rdi.rule_uuid = r.uuid
+  </sql>
+
+  <sql id="leftOuterJoinRulesTags">
+    left outer join rule_tags rt on
+      rt.rule_uuid = r.uuid
+  </sql>
+
   <sql id="selectJoinedTablesColumns">
+    <!-- rule default impacts -->
+    rdi.rule_uuid as "rdi_ruleUuid",
+    rdi.software_quality as "rdi_softwareQuality",
+    rdi.severity as "rdi_severity",
+    <!-- rule tags -->
+    CASE WHEN rt.is_system_tag = ${_true} THEN rt.value ELSE NULL END as rt_systemTags,
+    CASE WHEN rt.is_system_tag = ${_false} THEN rt.value ELSE NULL END as rt_tags,
+    rt.is_system_tag as "rt_isSystemTag",
+    rt.value as "rt_value",
+    <!-- rule description sections -->
     rds.content as "rds_content",
     rds.uuid as "rds_uuid",
     rds.kee as "rds_kee",
     rds.context_key as "rds_contextKey",
     rds.context_display_name as "rds_contextDisplayName",
+    <!-- rule -->
     r.uuid as "r_uuid",
-
     <include refid="ruleColumns"/>
   </sql>
 
@@ -87,6 +107,9 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
+    order by r.uuid
   </select>
 
   <resultMap id="ruleResultMap" type="org.sonar.db.rule.RuleDto" autoMapping="true">
@@ -103,9 +126,17 @@
         </constructor>
       </association>
     </collection>
+    <collection property="defaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality" javaType="java.util.Set" ofType="Impact">
+     <result property="softwareQuality" column="rdi_softwareQuality"/>
+     <result property="severity" column="rdi_severity"/>
+    </collection>
+    <collection property="systemTags" column="rt_systemTags" notNullColumn="rt_systemTags" javaType="java.util.Set" ofType="string">
+     <result column="rt_systemTags"/>
+    </collection>
+    <collection property="tags" column="rt_tags" notNullColumn="rt_tags" javaType="java.util.Set" ofType="string">
+     <result column="rt_tags"/>
+    </collection>
   </resultMap>
-
-
 
   <select id="selectEnabled" resultMap="ruleResultMap">
     select
@@ -114,8 +145,11 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.status != 'REMOVED'
+    order by r.uuid
   </select>
 
   <select id="selectByUuid" parameterType="map" resultMap="ruleResultMap">
@@ -125,8 +159,11 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.uuid=#{uuid,jdbcType=VARCHAR}
+    order by r.uuid
   </select>
 
   <select id="selectByUuids" parameterType="map" resultMap="ruleResultMap">
@@ -149,11 +186,14 @@
       rules r
     <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
         r.uuid=#{uuid,jdbcType=VARCHAR}
       </foreach>
     and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
+    order by r.uuid
   </select>
 
   <select id="selectByKey" parameterType="map" resultMap="ruleResultMap">
@@ -175,9 +215,12 @@
       rules r
     <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
+    order by r.uuid
   </select>
 
   <select id="selectByOrganizationAndKey" parameterType="map" resultMap="ruleResultMap">
@@ -239,10 +282,13 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
         (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
       </foreach>
+    order by r.uuid
   </select>
 
   <select id="selectIndexingRulesByUuids" parameterType="map" resultType="org.sonar.db.rule.RuleForIndexingDto">
@@ -292,6 +338,8 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.status != 'REMOVED'
       <if test="query.repositoryKey!=null">
@@ -304,6 +352,7 @@
         and r.plugin_config_key = #{query.configKey,jdbcType=VARCHAR}
       </if>
     order by
+      r.uuid,
       r.updated_at desc
   </select>
 
@@ -314,12 +363,15 @@
     rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.status != 'REMOVED' and r.is_external=${_false} and r.is_template=${_false}
       and r.rule_type in
     <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
       and r.language in
     <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
+    order by r.uuid
   </select>
 
   <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleDto" fetchSize="${_scrollFetchSize}"
@@ -331,10 +383,22 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     where
-      r.status in ('READY', 'DEPRECATED')
-      and r.is_external=${_false}
-      and r.language=#{language, jdbcType=VARCHAR}
+      <include refid="conditionNotExternalRulesByLanguage" />
   </select>
+
+  <select id="countByLanguage" resultType="java.lang.Long">
+  select count(*)
+  from
+    rules r
+  where
+    <include refid="conditionNotExternalRulesByLanguage" />
+  </select>
+
+  <sql id="conditionNotExternalRulesByLanguage">
+    r.status in ('READY', 'DEPRECATED', 'BETA')
+    and r.is_external=${_false}
+    and r.language=#{language, jdbcType=VARCHAR}
+  </sql>
 
   <insert id="insertRuleDescriptionSection" parameterType="Map" useGeneratedKeys="false">
     insert into rule_desc_sections (
@@ -375,11 +439,11 @@
       def_remediation_gap_mult,
       def_remediation_base_effort,
       gap_description,
-      system_tags,
       security_standards,
       rule_type,
       scope,
       education_principles,
+      clean_code_attribute,
       created_at,
       updated_at,
       organization_uuid
@@ -403,15 +467,31 @@
       #{defRemediationGapMultiplier,jdbcType=VARCHAR},
       #{defRemediationBaseEffort,jdbcType=VARCHAR},
       #{gapDescription,jdbcType=VARCHAR},
-      #{systemTagsField,jdbcType=VARCHAR},
       #{securityStandardsField,jdbcType=VARCHAR},
       #{type,jdbcType=TINYINT},
       #{scope,jdbcType=VARCHAR},
       #{educationPrinciplesField,jdbcType=VARCHAR},
+      #{cleanCodeAttribute,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT},
       #{organizationUuid,jdbcType=VARCHAR}
     )
+  </insert>
+
+  <insert id="insertRuleDefaultImpact" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO rules_default_impacts (rule_uuid, software_quality, severity)
+    VALUES (
+    #{ruleUuid,jdbcType=VARCHAR},
+    #{dto.softwareQuality,jdbcType=VARCHAR},
+    #{dto.severity,jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="insertRuleTag" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO rule_tags (rule_uuid, value, is_system_tag)
+    VALUES (
+    #{ruleUuid,jdbcType=VARCHAR},
+    #{value,jdbcType=VARCHAR},
+    #{isSystemTag,jdbcType=BOOLEAN})
   </insert>
 
   <update id="updateRule" parameterType="org.sonar.db.rule.RuleDto">
@@ -433,7 +513,6 @@
       def_remediation_gap_mult=#{defRemediationGapMultiplier,jdbcType=VARCHAR},
       def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
       gap_description=#{gapDescription,jdbcType=VARCHAR},
-      system_tags=#{systemTagsField,jdbcType=VARCHAR},
       security_standards=#{securityStandardsField,jdbcType=VARCHAR},
       scope=#{scope,jdbcType=VARCHAR},
       rule_type=#{type,jdbcType=TINYINT},
@@ -508,11 +587,12 @@
       remediation_function=#{remediationFunction,jdbcType=VARCHAR},
       remediation_gap_mult=#{remediationGapMultiplier,jdbcType=VARCHAR},
       remediation_base_effort=#{remediationBaseEffort,jdbcType=VARCHAR},
-      tags=#{tagsField,jdbcType=VARCHAR},
       ad_hoc_name=#{adHocName,jdbcType=VARCHAR},
       ad_hoc_description=#{adHocDescription,jdbcType=CLOB},
       ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
       ad_hoc_type=#{adHocType,jdbcType=TINYINT},
+      education_principles=#{educationPrinciplesField,jdbcType=VARCHAR},
+      clean_code_attribute=#{cleanCodeAttribute,jdbcType=VARCHAR},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
@@ -525,6 +605,20 @@
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
       and organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteRuleDefaultImpacts" parameterType="String">
+    delete from
+      rules_default_impacts
+    where
+      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteRuleTags" parameterType="String">
+    delete from
+      rule_tags
+    where
+      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteParams" parameterType="String">
@@ -678,5 +772,51 @@
       #{createdAt,jdbcType=BIGINT}
     )
   </insert>
+
+  <select id="selectTags" resultType="string">
+    SELECT DISTINCT value FROM
+    rule_tags rt
+    WHERE lower(value) like #{query}
+    ORDER BY value
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="selectRules">
+    select r.uuid from rules r
+    <include refid="queryList"/>
+    <choose>
+      <when test="query.sortField == 'createdAt'">
+        order by r.created_at ${query.sortDirection}
+      </when>
+      <otherwise>
+        order by r.uuid
+      </otherwise>
+    </choose>
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" resultType="long">
+    select count(r.uuid) from rules r
+    <include refid="queryList"/>
+  </select>
+
+  <sql id="queryList">
+    <if test="query.profileUuid != null">
+      inner join active_rules ar on ar.rule_uuid = r.uuid
+    </if>
+    where
+    r.status != 'REMOVED'
+    and r.is_external = ${_false}
+    <if test="query.createdAt != null">
+      and r.created_at &gt;= #{query.createdAt,jdbcType=BIGINT}
+    </if>
+    <if test="query.language != null">
+      and r.language = #{query.language,jdbcType=VARCHAR}
+    </if>
+    <if test="query.profileUuid != null">
+      and ar.profile_uuid = #{query.profileUuid,jdbcType=VARCHAR}
+    </if>
+  </sql>
+
 </mapper>
 

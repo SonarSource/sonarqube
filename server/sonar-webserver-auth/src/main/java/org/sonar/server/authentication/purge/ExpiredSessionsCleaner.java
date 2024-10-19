@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,15 +21,15 @@ package org.sonar.server.authentication.purge;
 
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.util.GlobalLockManager;
 
 public class ExpiredSessionsCleaner implements Startable {
 
-  private static final Logger LOG = Loggers.get(ExpiredSessionsCleaner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExpiredSessionsCleaner.class);
 
   private static final long PERIOD_IN_SECONDS = 24 * 60 * 60L;
   private static final String LOCK_NAME = "SessionCleaner";

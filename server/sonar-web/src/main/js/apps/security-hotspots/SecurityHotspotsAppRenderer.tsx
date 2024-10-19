@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,34 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  LAYOUT_FOOTER_HEIGHT,
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LAYOUT_PROJECT_NAV_HEIGHT,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  Spinner,
+  themeBorder,
+  themeColor,
+} from 'design-system';
+import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
-import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
-import { isBranch } from '../../helpers/branch-like';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
+import { isBranch } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { translate } from '../../helpers/l10n';
-import { scrollToElement } from '../../helpers/scrolling';
+import useFollowScroll from '../../hooks/useFollowScroll';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/security-hotspots';
 import { Component, StandardSecurityCategories } from '../../types/types';
 import EmptyHotspotsPage from './components/EmptyHotspotsPage';
-import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
+import HotspotListMeta from './components/HotspotListMeta';
+import HotspotSidebarHeader from './components/HotspotSidebarHeader';
 import HotspotSimpleList from './components/HotspotSimpleList';
+import HotspotFilterByStatus from './components/HotspotStatusFilter';
 import HotspotViewer from './components/HotspotViewer';
-import './styles.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
   component: Component;
-  filterByCategory?: {
-    standard: SecurityStandard;
-    category: string;
-  };
   filterByCWE?: string;
+  filterByCategory?: {
+    category: string;
+    standard: SecurityStandard;
+  };
   filterByFile?: string;
   filters: HotspotFilters;
   hotspots: RawHotspot[];
@@ -56,15 +70,18 @@ export interface SecurityHotspotsAppRendererProps {
   loadingMore: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
   onHotspotClick: (hotspot: RawHotspot) => void;
-  onLocationClick: (index?: number) => void;
   onLoadMore: () => void;
+  onLocationClick: (index?: number) => void;
+  onShowAllHotspots: VoidFunction;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
+  securityCategories: StandardSecurityCategories;
   selectedHotspot?: RawHotspot;
   selectedHotspotLocation?: number;
-  securityCategories: StandardSecurityCategories;
   standards: Standards;
 }
+
+const STICKY_HEADER_HEIGHT = 73;
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
   const {
@@ -81,112 +98,196 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     loading,
     loadingMeasure,
     loadingMore,
+    onChangeFilters,
+    onShowAllHotspots,
     securityCategories,
     selectedHotspot,
     selectedHotspotLocation,
     standards,
   } = props;
 
-  const scrollableRef = React.useRef(null);
+  const isProject = component.qualifier === ComponentQualifier.Project;
 
-  React.useEffect(() => {
-    const parent = scrollableRef.current;
-    const element =
-      selectedHotspot && document.querySelector(`[data-hotspot-key="${selectedHotspot.key}"]`);
-    if (parent && element) {
-      scrollToElement(element, { parent, smooth: true, topOffset: 100, bottomOffset: 100 });
+  const { top: topScroll } = useFollowScroll();
+
+  const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
+
+  const footerVisibleHeight =
+    distanceFromBottom > -LAYOUT_FOOTER_HEIGHT ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom : 0;
+
+  function getTranslationEmptyRootKey() {
+    let translationRoot;
+
+    if (!isEmpty(filterByFile)) {
+      translationRoot = 'no_hotspots_for_file';
+    } else if (isStaticListOfHotspots) {
+      translationRoot = 'no_hotspots_for_keys';
+    } else if (
+      filters.assignedToMe ||
+      (isBranch(branchLike) && filters.inNewCodePeriod) ||
+      filters.status !== HotspotStatusFilter.TO_REVIEW
+    ) {
+      translationRoot = 'no_hotspots_for_filters';
+    } else {
+      translationRoot = 'no_hotspots';
     }
-  }, [selectedHotspot]);
+
+    return translationRoot;
+  }
 
   return (
-    <div id="security_hotspots">
-      <Suggestions suggestions="security_hotspots" />
+    <>
       <Helmet title={translate('hotspots.page')} />
+
       <A11ySkipTarget anchor="security_hotspots_main" />
 
-      <FilterBar
-        component={component}
-        filters={filters}
-        hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-        isStaticListOfHotspots={isStaticListOfHotspots}
-        loadingMeasure={loadingMeasure}
-        onBranch={isBranch(branchLike)}
-        onChangeFilters={props.onChangeFilters}
-      />
-
-      {loading && (
-        <div className="layout-page">
-          <div className="layout-page-side-inner">
-            <DeferredSpinner className="big-spacer-top" />
-          </div>
-        </div>
-      )}
-
-      {!loading &&
-        (hotspots.length === 0 || !selectedHotspot ? (
-          <EmptyHotspotsPage
-            filtered={
-              filters.assignedToMe ||
-              (isBranch(branchLike) && filters.inNewCodePeriod) ||
-              filters.status !== HotspotStatusFilter.TO_REVIEW
-            }
-            filterByFile={Boolean(filterByFile)}
-            isStaticListOfHotspots={isStaticListOfHotspots}
-          />
-        ) : (
-          <div className="layout-page">
-            <ScreenPositionHelper className="layout-page-side-outer">
-              {({ top }) => (
-                <div className="layout-page-side" ref={scrollableRef} style={{ top }}>
-                  <div className="layout-page-side-inner">
-                    {filterByCategory || filterByCWE || filterByFile ? (
-                      <HotspotSimpleList
-                        filterByCategory={filterByCategory}
-                        filterByCWE={filterByCWE}
-                        filterByFile={filterByFile}
-                        hotspots={hotspots}
-                        hotspotsTotal={hotspotsTotal}
-                        loadingMore={loadingMore}
-                        onHotspotClick={props.onHotspotClick}
-                        onLoadMore={props.onLoadMore}
-                        onLocationClick={props.onLocationClick}
-                        selectedHotspotLocation={selectedHotspotLocation}
-                        selectedHotspot={selectedHotspot}
-                        standards={standards}
-                      />
-                    ) : (
-                      <HotspotList
-                        hotspots={hotspots}
-                        hotspotsTotal={hotspotsTotal}
-                        isStaticListOfHotspots={isStaticListOfHotspots}
-                        loadingMore={loadingMore}
-                        onHotspotClick={props.onHotspotClick}
-                        onLoadMore={props.onLoadMore}
-                        onLocationClick={props.onLocationClick}
-                        securityCategories={securityCategories}
-                        selectedHotspot={selectedHotspot}
-                        selectedHotspotLocation={selectedHotspotLocation}
-                        statusFilter={filters.status}
-                      />
-                    )}
-                  </div>
-                </div>
+      <LargeCenteredLayout id={MetricKey.security_hotspots}>
+        <PageContentFontWrapper>
+          <div className="sw-grid sw-grid-cols-12 sw-w-full">
+            <StyledSidebar
+              aria-label={translate('hotspots.list')}
+              className="sw-z-filterbar sw-col-span-4"
+            >
+              {isProject && (
+                <StyledSidebarHeader className="sw-w-full sw-px-4 sw-py-2">
+                  <HotspotSidebarHeader
+                    branchLike={branchLike}
+                    filters={filters}
+                    hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                    isStaticListOfHotspots={isStaticListOfHotspots}
+                    loadingMeasure={loadingMeasure}
+                    onChangeFilters={onChangeFilters}
+                  />
+                </StyledSidebarHeader>
               )}
-            </ScreenPositionHelper>
 
-            <div className="layout-page-main">
-              <HotspotViewer
-                component={component}
-                hotspotKey={selectedHotspot.key}
-                hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-                onSwitchStatusFilter={props.onSwitchStatusFilter}
-                onUpdateHotspot={props.onUpdateHotspot}
-                onLocationClick={props.onLocationClick}
-                selectedHotspotLocation={selectedHotspotLocation}
-              />
-            </div>
+              <StyledSidebarContent
+                className="sw-p-4 it__hotspot-list"
+                style={{
+                  height: `calc(
+                    100vh - ${
+                      LAYOUT_GLOBAL_NAV_HEIGHT +
+                      LAYOUT_PROJECT_NAV_HEIGHT +
+                      STICKY_HEADER_HEIGHT -
+                      footerVisibleHeight
+                    }px
+                  )`,
+                  top: `${
+                    LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + STICKY_HEADER_HEIGHT
+                  }px`,
+                }}
+              >
+                <HotspotFilterByStatus
+                  filters={filters}
+                  isStaticListOfHotspots={isStaticListOfHotspots}
+                  onChangeFilters={onChangeFilters}
+                  onShowAllHotspots={onShowAllHotspots}
+                />
+                <HotspotListMeta
+                  loading={loading}
+                  hotspotsTotal={hotspotsTotal}
+                  statusFilter={filters.status}
+                  isStaticListOfHotspots={isStaticListOfHotspots}
+                  hasSelectedHotspot={Boolean(selectedHotspot)}
+                  emptyTranslationKey={getTranslationEmptyRootKey()}
+                />
+                <Spinner className="sw-mt-3" loading={loading}>
+                  {hotspots.length > 0 && selectedHotspot && (
+                    <>
+                      {filterByCategory || filterByCWE || filterByFile ? (
+                        <HotspotSimpleList
+                          filterByCategory={filterByCategory}
+                          filterByCWE={filterByCWE}
+                          filterByFile={filterByFile}
+                          hotspots={hotspots}
+                          hotspotsTotal={hotspotsTotal}
+                          loadingMore={loadingMore}
+                          onHotspotClick={props.onHotspotClick}
+                          onLoadMore={props.onLoadMore}
+                          onLocationClick={props.onLocationClick}
+                          selectedHotspot={selectedHotspot}
+                          selectedHotspotLocation={selectedHotspotLocation}
+                          standards={standards}
+                        />
+                      ) : (
+                        <HotspotList
+                          hotspots={hotspots}
+                          hotspotsTotal={hotspotsTotal}
+                          loadingMore={loadingMore}
+                          onHotspotClick={props.onHotspotClick}
+                          onLoadMore={props.onLoadMore}
+                          onLocationClick={props.onLocationClick}
+                          securityCategories={securityCategories}
+                          selectedHotspot={selectedHotspot}
+                          selectedHotspotLocation={selectedHotspotLocation}
+                        />
+                      )}
+                    </>
+                  )}
+                </Spinner>
+              </StyledSidebarContent>
+            </StyledSidebar>
+
+            <StyledMain className="sw-col-span-8 sw-relative sw-ml-12">
+              {hotspots.length === 0 || !selectedHotspot ? (
+                <EmptyHotspotsPage
+                  filterByFile={Boolean(filterByFile)}
+                  filtered={
+                    filters.assignedToMe ||
+                    (isBranch(branchLike) && filters.inNewCodePeriod) ||
+                    filters.status !== HotspotStatusFilter.TO_REVIEW
+                  }
+                  isStaticListOfHotspots={isStaticListOfHotspots}
+                  emptyTranslationKey={getTranslationEmptyRootKey()}
+                />
+              ) : (
+                <HotspotViewer
+                  component={component}
+                  hotspotKey={selectedHotspot.key}
+                  cveId={selectedHotspot.cveId}
+                  hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                  onLocationClick={props.onLocationClick}
+                  onSwitchStatusFilter={props.onSwitchStatusFilter}
+                  onUpdateHotspot={props.onUpdateHotspot}
+                  selectedHotspotLocation={selectedHotspotLocation}
+                  standards={standards}
+                />
+              )}
+            </StyledMain>
           </div>
-        ))}
-    </div>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    </>
   );
 }
+
+const StyledSidebar = withTheme(styled.section`
+  box-sizing: border-box;
+
+  background-color: ${themeColor('filterbar')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+`);
+
+const StyledSidebarContent = styled.div`
+  position: sticky;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
+`;
+
+const StyledSidebarHeader = withTheme(styled.div`
+  position: sticky;
+  box-sizing: border-box;
+  background-color: inherit;
+  border-bottom: ${themeBorder('default')};
+  z-index: 1;
+  height: ${STICKY_HEADER_HEIGHT}px;
+  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT}px;
+`);
+
+const StyledMain = styled.main`
+  flex-grow: 1;
+  background-color: ${themeColor('backgroundSecondary')};
+  border-left: ${themeBorder('default')};
+  border-right: ${themeBorder('default')};
+`;

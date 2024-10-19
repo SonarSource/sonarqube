@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,14 +31,17 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.component.ProjectLastAnalysisDateDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.project.Visibility;
@@ -48,11 +51,13 @@ import org.sonarqube.ws.Projects.SearchWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.Visibility.PUBLIC;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -73,22 +78,28 @@ public class SearchAction implements ProjectsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final ProjectsWsSupport wsSupport;
+  private final ManagedProjectService managedProjectService;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, ProjectsWsSupport wsSupport) {
+  public SearchAction(DbClient dbClient, UserSession userSession, ManagedProjectService managedProjectService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.wsSupport = wsSupport;
+    this.managedProjectService = managedProjectService;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setSince("6.3")
-      .setDescription("Search for projects or views to administrate them.<br>" +
-        "Requires 'Administer System' permission")
+      .setDescription("""
+        Search for projects or views to administrate them.
+        <ul>
+          <li>The response field 'lastAnalysisDate' takes into account the analysis of all branches and pull requests, not only the main branch.</li>
+          <li>The response field 'revision' takes into account the analysis of the main branch only.</li>
+        </ul>
+        Requires 'Administer System' permission""")
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setResponseExample(getClass().getResource("search-example.json"))
+      .setChangelog(new Change("10.2", "Response includes 'managed' field."))
       .setChangelog(new Change("9.1", "The parameter '" + PARAM_ANALYZED_BEFORE + "' and the field 'lastAnalysisDate' of the returned projects "
         + "take into account the analysis of all branches and pull requests, not only the main branch."))
       .setHandler(this);
@@ -109,7 +120,7 @@ public class SearchAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-          "If no visibility is specified, the default project visibility will be used.",
+        "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -161,27 +172,45 @@ public class SearchAction implements ProjectsWsAction {
 
   private SearchWsResponse doHandle(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request.getOrganization());
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.getOrganization())
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.getOrganization()));
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
-      ComponentQuery query = buildDbQuery(request);
+      ComponentQuery query = buildDbQuery(request, organization);
       Paging paging = buildPaging(dbSession, request, organization, query);
-      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, paging.offset(), paging.pageSize());
-      Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(MoreCollectors.toHashSet(components.size()));
-      Map<String, Long> lastAnalysisDateByComponentUuid = dbClient.snapshotDao().selectLastAnalysisDateByProjects(dbSession, componentUuids).stream()
+      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, query, forPage(paging.pageIndex()).andSize(paging.pageSize()));
+      Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(Collectors.toSet());
+      List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, componentUuids);
+      Map<String, String> componentUuidToProjectUuid = branchDtos.stream().collect(Collectors.toMap(BranchDto::getUuid,BranchDto::getProjectUuid));
+      Map<String, Boolean> projectUuidToManaged = managedProjectService.getProjectUuidToManaged(dbSession, new HashSet<>(componentUuidToProjectUuid.values()));
+      Map<String, Boolean> componentUuidToManaged = toComponentUuidToManaged(componentUuidToProjectUuid, projectUuidToManaged);
+      Map<String, Long> lastAnalysisDateByComponentUuid = dbClient.snapshotDao().selectLastAnalysisDateByProjectUuids(dbSession, componentUuidToProjectUuid.values()).stream()
         .collect(Collectors.toMap(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate));
       Map<String, SnapshotDto> snapshotsByComponentUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, componentUuids).stream()
-        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid, identity()));
+        .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, identity()));
 
-      return buildResponse(components, organization, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, paging);
+      return buildResponse(organization, components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, componentUuidToProjectUuid, componentUuidToManaged, paging)
     }
   }
 
-  static ComponentQuery buildDbQuery(SearchRequest request) {
+  private Map<String, Boolean> toComponentUuidToManaged(Map<String, String> componentUuidToProjectUuid, Map<String, Boolean> projectUuidToManaged) {
+    return componentUuidToProjectUuid.keySet().stream()
+        .collect(toMap(identity(), componentUuid -> isComponentManaged(
+            componentUuidToProjectUuid.get(componentUuid),
+            projectUuidToManaged))
+        );
+  }
+
+  private boolean isComponentManaged(String projectUuid, Map<String, Boolean> projectUuidToManaged) {
+    return ofNullable(projectUuidToManaged.get(projectUuid)).orElse(false);
+  }
+
+  static ComponentQuery buildDbQuery(SearchRequest request, OrganizationDto organization) {
     List<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
+      .setOrganizationUuid(organization.getUuid())
+      .setQualifiers(qualifiers.toArray(new String[0]));
 
     ofNullable(request.getQuery()).ifPresent(q -> {
       query.setNameOrKeyQuery(q);
@@ -202,8 +231,8 @@ public class SearchAction implements ProjectsWsAction {
       .andTotal(total);
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Map<String, SnapshotDto> snapshotsByComponentUuid,
-    Map<String, Long> lastAnalysisDateByComponentUuid, Paging paging) {
+  private static SearchWsResponse buildResponse(OrganizationDto organization, List<ComponentDto> components, Map<String, SnapshotDto> snapshotsByComponentUuid,
+    Map<String, Long> lastAnalysisDateByComponentUuid, Map<String, String> projectUuidByComponentUuid, Map<String, Boolean> componentUuidToManaged, Paging paging) {
     SearchWsResponse.Builder responseBuilder = newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -212,16 +241,17 @@ public class SearchAction implements ProjectsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToProject(organization, dto, snapshotsByComponentUuid.get(dto.uuid()), lastAnalysisDateByComponentUuid.get(dto.uuid())))
+      .map(dto -> dtoToProject(organization, dto, snapshotsByComponentUuid.get(dto.uuid()), lastAnalysisDateByComponentUuid.get(projectUuidByComponentUuid.get(dto.uuid())),
+        PROJECT.equals(dto.qualifier()) ? componentUuidToManaged.get(dto.uuid()) : null))
       .forEach(responseBuilder::addComponents);
     return responseBuilder.build();
   }
 
-  private static Component dtoToProject(OrganizationDto organization, ComponentDto dto, @Nullable SnapshotDto snapshot, @Nullable Long lastAnalysisDate) {
+  private static Component dtoToProject(OrganizationDto organization, ComponentDto dto, @Nullable SnapshotDto snapshot, @Nullable Long lastAnalysisDate, @Nullable Boolean isManaged) {
     checkArgument(
-            organization.getUuid().equals(dto.getOrganizationUuid()),
-            "No Organization found for uuid '%s'",
-            dto.getOrganizationUuid());
+        organization.getUuid().equals(dto.getOrganizationUuid()),
+        "No Organization found for uuid '%s'",
+        dto.getOrganizationUuid());
 
     Component.Builder builder = Component.newBuilder()
       .setOrganization(organization.getKey())
@@ -229,10 +259,9 @@ public class SearchAction implements ProjectsWsAction {
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());
-    if (snapshot != null) {
-      ofNullable(lastAnalysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
-      ofNullable(snapshot.getRevision()).ifPresent(builder::setRevision);
-    }
+    ofNullable(snapshot).map(SnapshotDto::getRevision).ifPresent(builder::setRevision);
+    ofNullable(lastAnalysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
+    ofNullable(isManaged).ifPresent(builder::setManaged);
 
     return builder.build();
   }

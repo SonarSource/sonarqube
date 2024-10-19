@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,14 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getWrappedDisplayName } from '../../../components/hoc/utils';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { CurrentUserContext, CurrentUserContextInterface } from './CurrentUserContext';
 
 export default function withCurrentUserContext<P>(
-  WrappedComponent: React.ComponentType<P & Pick<CurrentUserContextInterface, 'currentUser'>>
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<
+      React.PropsWithChildren<P & Pick<CurrentUserContextInterface, 'currentUser'>>
+    >
+  >,
 ) {
   return class WithCurrentUserContext extends React.PureComponent<
-    Omit<P, keyof CurrentUserContextInterface>
+    Omit<P, 'currentUser' | 'updateCurrentUserHomepage' | 'updateDismissedNotices'>
   > {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withCurrentUserContext');
 

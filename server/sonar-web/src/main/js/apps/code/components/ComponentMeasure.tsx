@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,35 +17,96 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ContentCell, NumericalCell, QualityGateIndicator, RatingCell } from 'design-system';
 import * as React from 'react';
-import Measure from '../../../components/measure/Measure';
+import Measure from '~sonar-aligned/components/measure/Measure';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { Status } from '~sonar-aligned/types/common';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import { getLeakValue } from '../../../components/measure/utils';
-import { isDiffMetric } from '../../../helpers/measures';
-import { ComponentMeasure as TypeComponentMeasure, Metric } from '../../../types/types';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  OLD_TO_NEW_TAXONOMY_METRICS_MAP,
+} from '../../../helpers/constants';
+import {
+  areCCTMeasuresComputed as areCCTMeasuresComputedFn,
+  isDiffMetric,
+} from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
+import { isApplication, isProject } from '../../../types/component';
+import { Metric, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
 
 interface Props {
+  branchLike?: BranchLike;
   component: TypeComponentMeasure;
   metric: Metric;
 }
 
-export default class ComponentMeasure extends React.PureComponent<Props> {
-  render() {
-    const { component, metric } = this.props;
-    const isProject = component.qualifier === 'TRK';
-    const isReleasability = metric.key === 'releasability_rating';
+export default function ComponentMeasure(props: Props) {
+  const { component, metric, branchLike } = props;
+  const isProjectLike = isProject(component.qualifier) || isApplication(component.qualifier);
+  const isReleasability = metric.key === MetricKey.releasability_rating;
 
-    const finalMetricKey = isProject && isReleasability ? 'alert_status' : metric.key;
-    const finalMetricType = isProject && isReleasability ? 'LEVEL' : metric.type;
+  let finalMetricKey = isProjectLike && isReleasability ? MetricKey.alert_status : metric.key;
+  const finalMetricType = isProjectLike && isReleasability ? MetricType.Level : metric.type;
 
-    const measure =
-      Array.isArray(component.measures) &&
-      component.measures.find((measure) => measure.metric === finalMetricKey);
+  const areCCTMeasasuresComputed = areCCTMeasuresComputedFn(component.measures);
+  finalMetricKey = areCCTMeasasuresComputed
+    ? (OLD_TO_NEW_TAXONOMY_METRICS_MAP[finalMetricKey as MetricKey] ?? finalMetricKey)
+    : finalMetricKey;
 
-    if (!measure) {
-      return measure === false ? <span /> : <span>—</span>;
+  const measure = Array.isArray(component.measures)
+    ? component.measures.find((measure) => measure.metric === finalMetricKey)
+    : undefined;
+
+  let value;
+  if (
+    measure?.value !== undefined &&
+    CCT_SOFTWARE_QUALITY_METRICS.includes(measure.metric as MetricKey)
+  ) {
+    value = JSON.parse(measure.value).total;
+  } else {
+    value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure?.value;
+  }
+
+  switch (finalMetricType) {
+    case MetricType.Level: {
+      const formatted = formatMeasure(value, MetricType.Level);
+
+      return (
+        <ContentCell className="sw-whitespace-nowrap">
+          <QualityGateIndicator
+            status={(value as Status) ?? 'NONE'}
+            className="sw-mr-2"
+            size="sm"
+          />
+          <span>{formatted}</span>
+        </ContentCell>
+      );
     }
-
-    const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure.value;
-    return <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />;
+    case MetricType.Rating:
+      return (
+        <RatingCell className="sw-whitespace-nowrap">
+          <RatingComponent
+            branchLike={branchLike}
+            componentKey={component.key}
+            ratingMetric={metric.key as MetricKey}
+          />
+        </RatingCell>
+      );
+    default:
+      return (
+        <NumericalCell className="sw-whitespace-nowrap">
+          <Measure
+            branchLike={branchLike}
+            componentKey={component.key}
+            metricKey={finalMetricKey}
+            metricType={finalMetricType}
+            value={value}
+          />
+        </NumericalCell>
+      );
   }
 }

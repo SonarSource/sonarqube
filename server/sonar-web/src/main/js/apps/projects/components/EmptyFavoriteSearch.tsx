@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,37 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FishVisual, Highlight, StandoutLink } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import '../../../components/common/EmptySearch.css';
-import Link from '../../../components/common/Link';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import { Dict } from '../../../types/types';
 import { Query } from '../query';
 
 export default function EmptyFavoriteSearch({ query }: { query: Query }) {
   return (
-    <div aria-live="assertive" className="empty-search">
-      <h3>{translate('no_results_search.favorites')}</h3>
-      <p className="big-spacer-top">
+    <div aria-live="assertive" className="sw-py-8 sw-text-center">
+      <FishVisual />
+      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
+        {translate('no_results_search.favorites')}
+      </Highlight>
+      <div className="sw-my-4 sw-typo-default">
         <FormattedMessage
           defaultMessage={translate('no_results_search.favorites.2')}
           id="no_results_search.favorites.2"
           values={{
             url: (
-              <Link
+              <StandoutLink
                 to={{
                   pathname: '/projects',
-                  search: queryToSearch(query as Dict<string | undefined | number>),
+                  search: queryToSearchString(query as Dict<string | undefined | number>),
                 }}
               >
                 {translate('all')}
-              </Link>
+              </StandoutLink>
             ),
           }}
         />
-      </p>
+      </div>
     </div>
   );
 }

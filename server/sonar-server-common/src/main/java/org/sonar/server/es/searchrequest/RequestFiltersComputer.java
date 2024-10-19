@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -81,7 +81,7 @@ public class RequestFiltersComputer {
     Set<FilterScope> enabledStickyTopAggregationtedFieldNames = topAggregations.stream()
       .filter(TopAggregationDefinition::isSticky)
       .map(TopAggregationDefinition::getFilterScope)
-      .collect(MoreCollectors.toSet(topAggregations.size()));
+      .collect(Collectors.toSet());
 
     // use LinkedHashMap over MoreCollectors.uniqueIndex to preserve order and write UTs more easily
     Map<FilterNameAndScope, QueryBuilder> res = new LinkedHashMap<>();

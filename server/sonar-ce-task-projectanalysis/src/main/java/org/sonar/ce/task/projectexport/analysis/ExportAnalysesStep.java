@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.db.DatabaseUtils.getString;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 
@@ -49,10 +49,10 @@ public class ExportAnalysesStep implements ComputationStep {
     " s.period1_mode, s.period1_param, s.period1_date," +
     " s.uuid, s.build_string" +
     " from snapshots s" +
-    " inner join components p on s.component_uuid=p.uuid" +
+    " inner join components p on s.root_component_uuid=p.uuid" +
     " inner join project_branches pb on pb.uuid=p.uuid" +
     " where pb.project_uuid=? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge=? and s.status=? and p.enabled=?" +
-    " order by s.build_date asc";
+    " order by s.analysis_date asc";
 
   private final DbClient dbClient;
   private final ProjectHolder projectHolder;
@@ -83,7 +83,7 @@ public class ExportAnalysesStep implements ComputationStep {
         output.write(analysis);
         count++;
       }
-      Loggers.get(getClass()).debug("{} analyses exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} analyses exported", count);
 
     } catch (Exception e) {
       throw new IllegalStateException(format("Analysis Export failed after processing %d analyses successfully", count), e);

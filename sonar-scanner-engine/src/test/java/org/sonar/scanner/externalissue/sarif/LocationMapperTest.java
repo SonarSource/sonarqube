@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,14 +30,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.scanner.fs.InputProject;
-import org.sonar.core.sarif.Location;
-import org.sonar.core.sarif.Result;
+import org.sonar.sarif.pojo.Location;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -48,7 +48,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LocationMapperTest {
 
-  private static final String TEST_MESSAGE = "test message";
   private static final String URI_TEST = "URI_TEST";
   private static final String EXPECTED_MESSAGE_URI_MISSING = "The field location.physicalLocation.artifactLocation.uri is not set.";
 
@@ -65,8 +64,6 @@ public class LocationMapperTest {
   private NewIssueLocation newIssueLocation;
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-  private Result result;
-  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private Location location;
 
   @Mock
@@ -74,40 +71,39 @@ public class LocationMapperTest {
 
   @Before
   public void setup() {
-    when(newIssueLocation.message(any())).thenReturn(newIssueLocation);
     when(newIssueLocation.on(any())).thenReturn(newIssueLocation);
     when(newIssueLocation.at(any())).thenReturn(newIssueLocation);
     when(sensorContext.project()).thenReturn(mock(InputProject.class));
 
-    when(result.getMessage().getText()).thenReturn(TEST_MESSAGE);
-
     when(location.getPhysicalLocation().getArtifactLocation().getUri()).thenReturn(URI_TEST);
-
-    FilePredicate filePredicate = mock(FilePredicate.class);
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    when(predicates.is(any())).thenReturn(filePredicate);
-
-    when(sensorContext.fileSystem().inputFile(filePredicate)).thenReturn(inputFile);
-
+    when(sensorContext.fileSystem().inputFile(any(FilePredicate.class))).thenReturn(inputFile);
   }
 
   @Test
-  public void fillIssueInProjectLocation_shouldFillRelevantFields() {
-    NewIssueLocation actualIssueLocation = locationMapper.fillIssueInProjectLocation(result, newIssueLocation);
-
-    assertThat(actualIssueLocation).isEqualTo(newIssueLocation);
-    verify(newIssueLocation).message(TEST_MESSAGE);
-    verify(newIssueLocation).on(sensorContext.project());
-    verifyNoMoreInteractions(newIssueLocation);
+  public void isPredicate_whenDifferentFile_returnsFalse() {
+    Path path = Paths.get("file");
+    InputFile inputFile = mock(InputFile.class);
+    when((inputFile.path())).thenReturn(Paths.get("file2"));
+    LocationMapper.IsPredicate isPredicate = new LocationMapper.IsPredicate(path);
+    assertThat(isPredicate.apply(inputFile)).isFalse();
   }
 
   @Test
-  public void fillIssueInFileLocation_whenFileNotFound_returnsNull() {
+  public void isPredicate_whenSameFile_returnsTrue() {
+    Path path = Paths.get("file");
+    InputFile inputFile = mock(InputFile.class);
+    when((inputFile.path())).thenReturn(path);
+    LocationMapper.IsPredicate isPredicate = new LocationMapper.IsPredicate(path);
+    assertThat(isPredicate.apply(inputFile)).isTrue();
+  }
+
+  @Test
+  public void fillIssueInFileLocation_whenFileNotFound_returnsFalse() {
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(null);
 
-    NewIssueLocation actualIssueLocation = locationMapper.fillIssueInFileLocation(result, newIssueLocation, location);
+    boolean success = locationMapper.fillIssueInFileLocation(newIssueLocation, location);
 
-    assertThat(actualIssueLocation).isNull();
+    assertThat(success).isFalse();
   }
 
   @Test
@@ -115,10 +111,9 @@ public class LocationMapperTest {
     when(regionMapper.mapRegion(location.getPhysicalLocation().getRegion(), inputFile))
       .thenReturn(Optional.empty());
 
-    NewIssueLocation actualIssueLocation = locationMapper.fillIssueInFileLocation(result, newIssueLocation, location);
+    boolean success = locationMapper.fillIssueInFileLocation(newIssueLocation, location);
 
-    assertThat(actualIssueLocation).isSameAs(newIssueLocation);
-    verify(newIssueLocation).message(TEST_MESSAGE);
+    assertThat(success).isTrue();
     verify(newIssueLocation).on(inputFile);
     verifyNoMoreInteractions(newIssueLocation);
   }
@@ -129,10 +124,9 @@ public class LocationMapperTest {
     when(regionMapper.mapRegion(location.getPhysicalLocation().getRegion(), inputFile))
       .thenReturn(Optional.of(textRange));
 
-    NewIssueLocation actualIssueLocation = locationMapper.fillIssueInFileLocation(result, newIssueLocation, location);
+    boolean success = locationMapper.fillIssueInFileLocation(newIssueLocation, location);
 
-    assertThat(actualIssueLocation).isSameAs(newIssueLocation);
-    verify(newIssueLocation).message(TEST_MESSAGE);
+    assertThat(success).isTrue();
     verify(newIssueLocation).on(inputFile);
     verify(newIssueLocation).at(textRange);
     verifyNoMoreInteractions(newIssueLocation);
@@ -143,7 +137,7 @@ public class LocationMapperTest {
     when(location.getPhysicalLocation().getArtifactLocation().getUri()).thenReturn(null);
 
     assertThatIllegalArgumentException()
-      .isThrownBy(() -> locationMapper.fillIssueInFileLocation(result, newIssueLocation, location))
+      .isThrownBy(() -> locationMapper.fillIssueInFileLocation(newIssueLocation, location))
       .withMessage(EXPECTED_MESSAGE_URI_MISSING);
   }
 
@@ -152,7 +146,7 @@ public class LocationMapperTest {
     when(location.getPhysicalLocation().getArtifactLocation()).thenReturn(null);
 
     assertThatIllegalArgumentException()
-      .isThrownBy(() -> locationMapper.fillIssueInFileLocation(result, newIssueLocation, location))
+      .isThrownBy(() -> locationMapper.fillIssueInFileLocation(newIssueLocation, location))
       .withMessage(EXPECTED_MESSAGE_URI_MISSING);
   }
 
@@ -161,7 +155,7 @@ public class LocationMapperTest {
     when(location.getPhysicalLocation().getArtifactLocation()).thenReturn(null);
 
     assertThatIllegalArgumentException()
-      .isThrownBy(() -> locationMapper.fillIssueInFileLocation(result, newIssueLocation, location))
+      .isThrownBy(() -> locationMapper.fillIssueInFileLocation(newIssueLocation, location))
       .withMessage(EXPECTED_MESSAGE_URI_MISSING);
   }
 

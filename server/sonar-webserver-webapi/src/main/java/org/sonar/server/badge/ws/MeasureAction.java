@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,15 +21,11 @@ package org.sonar.server.badge.ws;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.EnumMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
@@ -38,14 +34,10 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.Rating;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.io.IOUtils.write;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
@@ -59,12 +51,9 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.measures.Metric.Level;
-import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
-import static org.sonar.server.badge.ws.ETagUtils.RFC1123_DATE;
-import static org.sonar.server.badge.ws.ETagUtils.getETag;
+import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.server.badge.ws.SvgFormatter.formatDuration;
 import static org.sonar.server.badge.ws.SvgFormatter.formatNumeric;
 import static org.sonar.server.badge.ws.SvgFormatter.formatPercent;
@@ -74,9 +63,8 @@ import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
 import static org.sonar.server.measure.Rating.valueOf;
-import static org.sonarqube.ws.MediaTypes.SVG;
 
-public class MeasureAction implements ProjectBadgesWsAction {
+public class MeasureAction extends AbstractProjectBadgesWsAction {
 
   private static final String PARAM_METRIC = "metric";
 
@@ -95,14 +83,14 @@ public class MeasureAction implements ProjectBadgesWsAction {
     .put(VULNERABILITIES_KEY, "vulnerabilities")
     .build();
 
+  private static final String[] DEPRECATED_METRIC_KEYS = {BUGS_KEY, CODE_SMELLS_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY};
+
   private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(Map.of(
     OK, "passed",
-    WARN, "warning",
     ERROR, "failed"));
 
   private static final Map<Level, Color> COLOR_BY_QUALITY_GATE_STATUS = new EnumMap<>(Map.of(
     OK, Color.QUALITY_GATE_OK,
-    WARN, Color.QUALITY_GATE_WARN,
     ERROR, Color.QUALITY_GATE_ERROR));
 
   private static final Map<Rating, Color> COLOR_BY_RATING = new EnumMap<>(Map.of(
@@ -113,13 +101,10 @@ public class MeasureAction implements ProjectBadgesWsAction {
     E, Color.RATING_E));
 
   private final DbClient dbClient;
-  private final ProjectBadgesSupport support;
-  private final SvgGenerator svgGenerator;
 
   public MeasureAction(DbClient dbClient, ProjectBadgesSupport support, SvgGenerator svgGenerator) {
+    super(support, svgGenerator);
     this.dbClient = dbClient;
-    this.support = support;
-    this.svgGenerator = svgGenerator;
   }
 
   @Override
@@ -129,6 +114,8 @@ public class MeasureAction implements ProjectBadgesWsAction {
       .setDescription("Generate badge for project's measure as an SVG.<br/>" +
         "Requires 'Browse' permission on the specified project.")
       .setSince("7.1")
+      .setChangelog(new Change("10.4", String.format("The following metric keys are now deprecated: %s", String.join(", ",
+        DEPRECATED_METRIC_KEYS))))
       .setResponseExample(Resources.getResource(getClass(), "measure-example.svg"));
     support.addProjectAndBranchParams(action);
     action.createParam(PARAM_METRIC)
@@ -138,30 +125,14 @@ public class MeasureAction implements ProjectBadgesWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-    response.setHeader("Cache-Control", "no-cache");
-    response.stream().setMediaType(SVG);
-    String metricKey = request.mandatoryParam(PARAM_METRIC);
+  protected String getBadge(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      support.validateToken(request);
+      String metricKey = request.mandatoryParam(PARAM_METRIC);
       BranchDto branch = support.getBranch(dbSession, request);
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
       LiveMeasureDto measure = getMeasure(dbSession, branch, metricKey);
-      String result = generateSvg(metric, measure);
-      String eTag = getETag(result);
-      Optional<String> requestedETag = request.header("If-None-Match");
-      if (requestedETag.filter(eTag::equals).isPresent()) {
-        response.stream().setStatus(304);
-        return;
-      }
-      response.setHeader("ETag", eTag);
-      write(result, response.stream().output(), UTF_8);
-    } catch (ProjectBadgesException | ForbiddenException | NotFoundException e) {
-      // There is an issue, so do not return any ETag but make this response expire now
-      SimpleDateFormat sdf = new SimpleDateFormat(RFC1123_DATE, Locale.US);
-      response.setHeader("Expires", sdf.format(new Date()));
-      write(svgGenerator.generateError(e.getMessage()), response.stream().output(), UTF_8);
+      return generateSvg(metric, measure);
     }
   }
 

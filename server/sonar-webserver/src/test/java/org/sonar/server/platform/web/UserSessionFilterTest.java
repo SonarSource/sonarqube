@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,17 +26,21 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.setting.ThreadLocalSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -72,7 +76,7 @@ public class UserSessionFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
-    verify(userSessionInitializer).initUserSession(request, response);
+    verify(userSessionInitializer).initUserSession(any(JavaxHttpRequest.class), any(JavaxHttpResponse.class));
   }
 
   @Test
@@ -82,7 +86,7 @@ public class UserSessionFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(chain, never()).doFilter(request, response);
-    verify(userSessionInitializer).initUserSession(request, response);
+    verify(userSessionInitializer).initUserSession(any(JavaxHttpRequest.class), any(JavaxHttpResponse.class));
   }
 
   @Test
@@ -155,14 +159,15 @@ public class UserSessionFilterTest {
   @Test
   public void just_for_fun_and_coverage() {
     UserSessionFilter filter = new UserSessionFilter();
-    filter.init(mock(FilterConfig.class));
-    filter.destroy();
-    // do not fail
+
+    FilterConfig filterConfig = mock(FilterConfig.class);
+    Assertions.assertThatNoException().isThrownBy(() -> filter.init(filterConfig));
+    Assertions.assertThatNoException().isThrownBy(filter::destroy);
   }
 
   private void mockUserSessionInitializer(boolean value) {
     when(container.getOptionalComponentByType(UserSessionInitializer.class)).thenReturn(Optional.of(userSessionInitializer));
-    when(userSessionInitializer.initUserSession(request, response)).thenReturn(value);
+    when(userSessionInitializer.initUserSession(any(JavaxHttpRequest.class), any(JavaxHttpResponse.class))).thenReturn(value);
   }
 
   private RuntimeException mockUserSessionInitializerRemoveUserSessionFailing() {

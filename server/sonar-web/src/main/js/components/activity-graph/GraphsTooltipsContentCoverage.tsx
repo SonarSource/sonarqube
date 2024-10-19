@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TableSeparator } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { translate } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
-import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 
 export interface GraphsTooltipsContentCoverageProps {
@@ -33,36 +34,30 @@ export default function GraphsTooltipsContentCoverage(props: GraphsTooltipsConte
   const { addSeparator, measuresHistory, tooltipIdx } = props;
   const uncovered = measuresHistory.find((measure) => measure.metric === MetricKey.uncovered_lines);
   const coverage = measuresHistory.find((measure) => measure.metric === MetricKey.coverage);
-  if (!uncovered || !uncovered.history[tooltipIdx] || !coverage || !coverage.history[tooltipIdx]) {
+  if (!uncovered?.history[tooltipIdx] || !coverage?.history[tooltipIdx]) {
     return null;
   }
   const uncoveredValue = uncovered.history[tooltipIdx].value;
   const coverageValue = coverage.history[tooltipIdx].value;
   return (
-    <tbody>
-      {addSeparator && (
-        <tr>
-          <td className="activity-graph-tooltip-separator" colSpan={3}>
-            <hr />
-          </td>
-        </tr>
-      )}
+    <>
+      {addSeparator && <TableSeparator />}
       {uncoveredValue && (
-        <tr className="activity-graph-tooltip-line">
-          <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
-            {formatMeasure(uncoveredValue, 'SHORT_INT')}
+        <tr className="sw-h-8">
+          <td className="sw-font-bold sw-text-right sw-pr-2 thin" colSpan={2}>
+            {formatMeasure(uncoveredValue, MetricType.ShortInteger)}
           </td>
           <td>{translate('metric.uncovered_lines.name')}</td>
         </tr>
       )}
       {coverageValue && (
-        <tr className="activity-graph-tooltip-line">
-          <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
-            {formatMeasure(coverageValue, 'PERCENT')}
+        <tr className="sw-h-8">
+          <td className="sw-font-bold sw-text-right sw-pr-2 thin" colSpan={2}>
+            {formatMeasure(coverageValue, MetricType.Percent)}
           </td>
           <td>{translate('metric.coverage.name')}</td>
         </tr>
       )}
-    </tbody>
+    </>
   );
 }

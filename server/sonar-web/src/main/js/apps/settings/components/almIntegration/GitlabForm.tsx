@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Link from '../../../../components/common/Link';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys, GitlabBindingDefinition } from '../../../../types/alm-settings';
+import { GitlabBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface GitlabFormProps {
@@ -33,11 +34,11 @@ export interface GitlabFormProps {
 
 export default function GitlabForm(props: GitlabFormProps) {
   const { formData, onFieldChange } = props;
-
+  const toStatic = useDocUrl(DocLink.AlmGitLabIntegration);
   return (
     <>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.gitlab.help')}
         id="name.gitlab"
         onFieldChange={onFieldChange}
@@ -51,6 +52,9 @@ export default function GitlabForm(props: GitlabFormProps) {
             {translate('settings.almintegration.form.url.gitlab.help')}
             <br />
             <em>https://gitlab.com/api/v4</em>
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.pat_warning')}
           </>
         }
         id="url.gitlab"
@@ -63,7 +67,7 @@ export default function GitlabForm(props: GitlabFormProps) {
         help={
           <FormattedMessage
             defaultMessage={translate(
-              `settings.almintegration.form.personal_access_token.gitlab.help`
+              `settings.almintegration.form.personal_access_token.gitlab.help`,
             )}
             id="settings.almintegration.form.personal_access_token.gitlab.help"
             values={{
@@ -77,22 +81,18 @@ export default function GitlabForm(props: GitlabFormProps) {
               ),
               permission: <strong>Reporter</strong>,
               scope: <strong>api</strong>,
-              doc_link: (
-                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
-                  {translate('learn_more')}
-                </DocLink>
-              ),
+              doc_link: <Link to={toStatic}>{translate('learn_more')}</Link>,
             }}
           />
         }
         id="personal_access_token"
-        isTextArea={true}
+        isTextArea
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken}
         maxLength={2000}
-        isSecret={true}
+        isSecret
       />
     </>
   );

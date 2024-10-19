@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,23 +25,24 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.function.Consumer;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -55,14 +56,20 @@ public class WebServiceEngineTest {
   @Rule
   public LogTester logTester = new LogTester();
 
+  @Before
+  public void setup() {
+    logTester.setLevel(Level.DEBUG);
+  }
+
   @Test
   public void load_ws_definitions_at_startup() {
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
       newWs("api/foo/index", a -> {
       }),
       newWs("api/bar/index", a -> {
       })
-    });
+    },
+      new ActionInterceptor[] {});
     underTest.start();
     try {
       assertThat(underTest.controllers())
@@ -75,7 +82,7 @@ public class WebServiceEngineTest {
 
   @DataProvider
   public static Object[][] responseData() {
-    return new Object[][]{
+    return new Object[][] {
       {"/api/ping", "pong", 200},
       {"api/ping", "pong", 200},
       {"api/ping.json", "pong", 200},
@@ -141,7 +148,7 @@ public class WebServiceEngineTest {
 
   @DataProvider
   public static String[] verbs() {
-    return new String[]{
+    return new String[] {
       "PUT", "DELETE", "HEAD", "PATCH", "CONNECT", "OPTIONS", "TRACE"
     };
   }
@@ -266,7 +273,7 @@ public class WebServiceEngineTest {
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"An error has occurred. Please contact your administrator\"}]}");
     assertThat(response.status()).isEqualTo(500);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).filteredOn(l -> l.contains("Fail to process request api/foo")).isNotEmpty();
+    assertThat(logTester.logs(Level.ERROR)).filteredOn(l -> l.contains("Fail to process request api/foo")).isNotEmpty();
   }
 
   @Test
@@ -281,7 +288,7 @@ public class WebServiceEngineTest {
       "{\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.status()).isEqualTo(400);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -299,7 +306,7 @@ public class WebServiceEngineTest {
       + "]}");
     assertThat(response.status()).isEqualTo(400);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -314,7 +321,7 @@ public class WebServiceEngineTest {
       "{\"scope\":\"PROJECT\",\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.status()).isEqualTo(400);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -349,7 +356,7 @@ public class WebServiceEngineTest {
     // response is committed (status is already sent), so status can't be changed
     verify(response.stream(), never()).setStatus(anyInt());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request api/foo has been aborted by client");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Request api/foo has been aborted by client");
   }
 
   @Test
@@ -360,7 +367,7 @@ public class WebServiceEngineTest {
     run(request, response, newClientAbortWs());
 
     verify(response.stream()).setStatus(299);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request api/foo has been aborted by client");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Request api/foo has been aborted by client");
   }
 
   @Test
@@ -372,7 +379,7 @@ public class WebServiceEngineTest {
 
     // response is committed (status is already sent), so status can't be changed
     verify(response.stream(), never()).setStatus(anyInt());
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request api/foo");
+    assertThat(logTester.logs(Level.ERROR)).contains("Fail to process request api/foo");
   }
 
   @Test
@@ -383,19 +390,20 @@ public class WebServiceEngineTest {
     run(request, response, newFailWs());
 
     verify(response.stream()).setStatus(500);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request api/foo");
+    assertThat(logTester.logs(Level.ERROR)).contains("Fail to process request api/foo");
   }
 
   @Test
   public void fail_when_start_in_not_called() {
     Request request = new TestRequest().setPath("/api/ping");
     DumbResponse response = new DumbResponse();
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{newPingWs(a -> {
-    })});
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
+      newPingWs(a -> {
+      })}, new ActionInterceptor[] {});
 
     underTest.execute(request, response);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request /api/ping");
+    assertThat(logTester.logs(Level.ERROR)).contains("Fail to process request /api/ping");
   }
 
   private static WebService newWs(String path, Consumer<WebService.NewAction> consumer) {
@@ -428,7 +436,7 @@ public class WebServiceEngineTest {
   }
 
   private static Response run(Request request, Response response, WebService... webServices) {
-    WebServiceEngine underTest = new WebServiceEngine(webServices);
+    WebServiceEngine underTest = new WebServiceEngine(webServices, new ActionInterceptor[] {});
     underTest.start();
     try {
       underTest.execute(request, response);

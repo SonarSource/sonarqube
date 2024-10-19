@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function dotNetExample(
-  branchesEnabled: boolean,
-  mainBranchName: string,
-  projectKey: string
-) {
-  return `image: mcr.microsoft.com/dotnet/core/sdk:latest
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+
+const dotNetExample: BuildToolExampleBuilder = ({
+  branchesEnabled,
+  mainBranchName,
+  projectKey,
+}) => {
+  return `image: mcr.microsoft.com/dotnet/sdk:7.0
 
 definitions:
   steps:
@@ -32,13 +34,11 @@ definitions:
           - dotnetcore
           - sonar
         script:
-          - apt-get update
-          - apt-get install --yes openjdk-11-jre
           - dotnet tool install --global dotnet-sonarscanner
           - export PATH="$PATH:/root/.dotnet/tools"
-          - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.login=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
+          - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.token=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
           - dotnet build 
-          - dotnet sonarscanner end /d:"sonar.login=\${SONAR_TOKEN}"
+          - dotnet sonarscanner end /d:"sonar.token=\${SONAR_TOKEN}"
   caches:
     sonar: ~/.sonar
 
@@ -54,4 +54,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default dotNetExample;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,14 +31,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.common.group.service.GroupMembershipService;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
@@ -47,27 +47,37 @@ import static org.sonar.server.usergroups.ws.GroupWsSupport.defineLoginWsParamet
 
 public class AddUserAction implements UserGroupsWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(AddUserAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
-  private final Logger logger = Loggers.get(AddUserAction.class);
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  private final GroupMembershipService groupMembershipService;
+
+  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker,
+    GroupMembershipService groupMembershipService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.managedInstanceChecker = managedInstanceChecker;
+    this.groupMembershipService = groupMembershipService;
   }
 
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("add_user")
       .setDescription(format("Add a user to a group.<br />" +
-        "'%s' or '%s' must be provided.<br />" +
-        "Requires the following permission: 'Administer System'.", PARAM_GROUP_ID, PARAM_GROUP_NAME))
+                             "'%s' must be provided.<br />" +
+                             "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use POST /api/v2/authorizations/group-memberships instead"),
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
     defineGroupWsParameters(action);
@@ -79,32 +89,22 @@ public class AddUserAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupDto group = support.findGroupDto(dbSession, request);
       userSession.checkLoggedIn().checkPermission(ADMINISTER, group.getOrganizationUuid());
+      managedInstanceChecker.throwIfInstanceIsManaged();
 
       String login = request.mandatoryParam(PARAM_LOGIN);
-      UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
       checkFound(user, "Could not find a user with login '%s'", login);
 
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY));
       checkMembership(dbSession, organization, user);
-      support.checkGroupIsNotDefault(dbSession, group);
       logger.info("Add User: {} to UserGroup:{} :: groupId: {}, organization: {}, orgId: {} and LoggedInUser: {} ",
-              login, group.getName(), group.getUuid(), organization.getName(), organization.getUuid(), userSession.getLogin());
-      if (!isMemberOf(dbSession, user, group)) {
-        UserGroupDto membershipDto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
-        dbClient.userGroupDao().insert(dbSession, membershipDto, group.getName(), login);
-        dbSession.commit();
-      }
+          login, group.getName(), group.getUuid(), organization.getName(), organization.getUuid(), userSession.getLogin());
+
+      groupMembershipService.addMembership(group.getUuid(), user.getUuid());
+      dbSession.commit();
 
       response.noContent();
     }
   }
 
-  private boolean isMemberOf(DbSession dbSession, UserDto user, GroupDto group) {
-    return dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid()).contains(group.getUuid());
-  }
-
-  private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getUuid()).isPresent(),
-            "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
-  }
 }

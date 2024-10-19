@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -105,11 +105,13 @@ public class CeTaskProcessorRepositoryImplTest {
 
   private static CeTask createCeTask(String ceTaskType, String key) {
     CeTask.Component component = new CeTask.Component("uuid_" + key, key, "name_" + key);
+    CeTask.Component entity = new CeTask.Component("uuid_entity_" + key, key, "name_" + key);
+
     return new CeTask.Builder()
       .setType(ceTaskType)
       .setUuid("task_uuid_" + key)
       .setComponent(component)
-      .setMainComponent(component)
+      .setEntity(entity)
       .build();
   }
 

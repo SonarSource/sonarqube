@@ -16,9 +16,9 @@
     where branch_uuid in (
       select sac.branch_uuid from scanner_analysis_cache sac
       left outer join snapshots s on
-        sac.branch_uuid = s.component_uuid
+        sac.branch_uuid = s.root_component_uuid
       where
-        s.build_date &lt; #{timestamp,jdbcType=BIGINT} and s.islast=${_true}
+        s.analysis_date &lt; #{timestamp,jdbcType=BIGINT} and s.islast=${_true}
         or s.islast is null
     )
   </delete>

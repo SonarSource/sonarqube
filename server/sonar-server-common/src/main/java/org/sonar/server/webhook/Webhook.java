@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import static java.util.Optional.ofNullable;
 public class Webhook {
 
   private final String uuid;
-  private final String componentUuid;
+  private final String projectUuid;
   @Nullable
   private final String ceTaskUuid;
   @Nullable
@@ -40,10 +40,10 @@ public class Webhook {
   @Nullable
   private final String secret;
 
-  public Webhook(String uuid, String componentUuid, @Nullable String ceTaskUuid,
+  public Webhook(String uuid, String projectUuid, @Nullable String ceTaskUuid,
     @Nullable String analysisUuid, String name, String url, @Nullable String secret) {
     this.uuid = uuid;
-    this.componentUuid = requireNonNull(componentUuid);
+    this.projectUuid = requireNonNull(projectUuid);
     this.ceTaskUuid = ceTaskUuid;
     this.analysisUuid = analysisUuid;
     this.name = requireNonNull(name);
@@ -51,8 +51,8 @@ public class Webhook {
     this.secret = secret;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
   public Optional<String> getCeTaskUuid() {

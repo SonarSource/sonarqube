@@ -14,7 +14,8 @@
     pb.merge_branch_uuid as mergeBranchUuid,
     pb.pull_request_binary as pullRequestBinary,
     pb.exclude_from_purge as excludeFromPurge,
-    pb.need_issue_sync as needIssueSync
+    pb.need_issue_sync as needIssueSync,
+    pb.is_main as isMain
   </sql>
 
   <sql id="projectColumns">
@@ -201,5 +202,14 @@
     WHERE
       application_branch_uuid=#{applicationBranchUuid,jdbcType=VARCHAR}
   </delete>
+
+
+  <select id="selectProjectsMainBranchesOfApplication" parameterType="string" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="branchColumns"/>
+    from project_branches pb
+    where
+    pb.project_uuid IN ( select project_uuid from app_projects where application_uuid = #{applicationUuid, jdbcType=VARCHAR} )
+    and is_main = ${_true}
+  </select>
 
 </mapper>

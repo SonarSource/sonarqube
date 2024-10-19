@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -33,13 +30,13 @@ public class UserRegistration {
   private final UserIdentity userIdentity;
   private final IdentityProvider provider;
   private final AuthenticationEvent.Source source;
-  private final Set<String> organizationAlmIds;
+  private final boolean managed;
 
   UserRegistration(Builder builder) {
     this.userIdentity = builder.userIdentity;
     this.provider = builder.provider;
     this.source = builder.source;
-    this.organizationAlmIds = builder.organizationAlmIds;
+    this.managed = builder.managed;
   }
 
   public UserIdentity getUserIdentity() {
@@ -54,9 +51,8 @@ public class UserRegistration {
     return source;
   }
 
-  @CheckForNull
-  public Set<String> getOrganizationAlmIds() {
-    return organizationAlmIds;
+  public boolean managed() {
+    return managed;
   }
 
   public static UserRegistration.Builder builder() {
@@ -67,7 +63,7 @@ public class UserRegistration {
     private UserIdentity userIdentity;
     private IdentityProvider provider;
     private AuthenticationEvent.Source source;
-    private Set<String> organizationAlmIds;
+    private boolean managed = false;
 
     public Builder setUserIdentity(UserIdentity userIdentity) {
       this.userIdentity = userIdentity;
@@ -84,12 +80,8 @@ public class UserRegistration {
       return this;
     }
 
-    /**
-     * List of ALM organization the user is member of.
-     * When set to null, it means that no organization membership synchronization should be done.
-     */
-    public Builder setOrganizationAlmIds(@Nullable Set<String> organizationAlmIds) {
-      this.organizationAlmIds = organizationAlmIds;
+    public Builder setManaged(boolean managed) {
+      this.managed = managed;
       return this;
     }
 

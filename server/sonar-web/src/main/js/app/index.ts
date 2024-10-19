@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+/* NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS (in config/utils) */
+/* understand. It will _not_, however, polyfill missing API methods, such as                    */
+/* String.prototype.replaceAll. This is why we also import core-js.                             */
+import 'core-js/stable';
+/*                                                                                              */
+import axios from 'axios';
+import { addGlobalErrorMessage } from 'design-system';
+import 'react-day-picker/dist/style.css';
 import { getAvailableFeatures } from '../api/features';
 import { getGlobalNavigation } from '../api/navigation';
 import { getCurrentUser } from '../api/users';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
 import { loadL10nBundle } from '../helpers/l10nBundle';
-import { getBaseUrl, getSystemStatus } from '../helpers/system';
+import { axiosToCatch, parseErrorResponse } from '../helpers/request';
+import { getBaseUrl, getSystemStatus, initAppVariables } from '../helpers/system';
 import './styles/sonar.ts';
 import { getUserOrganizations } from "../api/organizations";
 
 installWebAnalyticsHandler();
 installExtensionsHandler();
+initAppVariables();
 initApplication();
 
 async function initApplication() {
+  axiosToCatch.interceptors.response.use((response) => response.data);
+  axiosToCatch.defaults.baseURL = getBaseUrl();
+  axiosToCatch.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
+  axios.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
+  axios.defaults.baseURL = getBaseUrl();
+
+  axios.interceptors.response.use(
+    (response) => response.data,
+    (error) => {
+      const { response } = error;
+      addGlobalErrorMessage(parseErrorResponse(response));
+
+      return Promise.reject(response);
+    },
+  );
+
   const [userOrganizations] = await Promise.all([
     isMainApp() ? getUserOrganizations() : undefined
   ]).catch((error) => {
@@ -51,11 +78,12 @@ async function initApplication() {
   });
 
   const startReactApp = await import('./utils/startReactApp').then((i) => i.default);
-  startReactApp(l10nBundle.locale, userOrganizations, currentUser, appState, availableFeatures);
+  startReactApp(l10nBundle, userOrganizations, currentUser, appState, availableFeatures);
 }
 
 function isMainApp() {
   const { pathname } = window.location;
+
   return (
     getSystemStatus() === 'UP' &&
     !pathname.startsWith(`${getBaseUrl()}/sessions`) &&

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -78,17 +79,23 @@ public class RenameAction implements BranchWsAction {
       checkPermission(project);
 
       Optional<BranchDto> existingBranch = dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), newBranchName);
-      checkArgument(!existingBranch.filter(b -> !b.isMain()).isPresent(),
+      checkArgument(existingBranch.filter(b -> !b.isMain()).isEmpty(),
         "Impossible to update branch name: a branch with name \"%s\" already exists in the project.", newBranchName);
 
-      dbClient.branchDao().updateBranchName(dbSession, project.getUuid(), newBranchName);
+      BranchDto mainBranchDto = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid())
+        .orElseThrow(() -> new NotFoundException("Cannot find main branch for project: " + project.getUuid()));
+
+      dbClient.branchDao().updateBranchName(dbSession, mainBranchDto.getUuid(), newBranchName);
+
+      dbClient.newCodePeriodDao().updateBranchReferenceValues(dbSession, mainBranchDto, newBranchName);
+
       dbSession.commit();
       response.noContent();
     }
   }
 
   private void checkPermission(ProjectDto project) {
-    userSession.checkProjectPermission(UserRole.ADMIN, project);
+    userSession.checkEntityPermission(UserRole.ADMIN, project);
   }
 
 }

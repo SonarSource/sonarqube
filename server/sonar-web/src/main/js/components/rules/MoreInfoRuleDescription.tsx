@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,31 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { Button } from '@sonarsource/echoes-react';
+import { FlagMessage, SubTitle, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { Dict } from '../../types/types';
-import { ButtonLink } from '../controls/buttons';
-import { Alert } from '../ui/Alert';
+import RuleDescription from './RuleDescription';
 import DefenseInDepth from './educationPrinciples/DefenseInDepth';
 import NeverTrustUserInput from './educationPrinciples/NeverTrustUserInput';
-import RuleDescription from './RuleDescription';
-import './style.css';
 
 interface Props {
-  sections?: RuleDescriptionSection[];
-  educationPrinciples?: string[];
   displayEducationalPrinciplesNotification?: boolean;
+  educationPrinciples?: string[];
   educationPrinciplesRef?: React.RefObject<HTMLDivElement>;
+  language?: string;
+  sections?: RuleDescriptionSection[];
 }
 
-const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType> = {
+const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType<React.PropsWithChildren>> = {
   defense_in_depth: DefenseInDepth,
   never_trust_user_input: NeverTrustUserInput,
 };
-export default class MoreInfoRuleDescription extends React.PureComponent<Props, {}> {
+
+export default class MoreInfoRuleDescription extends React.PureComponent<Props> {
   handleNotificationScroll = () => {
     const element = this.props.educationPrinciplesRef?.current;
+
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
     }
@@ -50,47 +53,53 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
   render() {
     const {
       displayEducationalPrinciplesNotification,
+      language,
       sections = [],
       educationPrinciples = [],
       educationPrinciplesRef,
     } = this.props;
+
     return (
-      <div className="padded rule-desc">
+      <div className="sw-my-6 rule-desc">
         {displayEducationalPrinciplesNotification && (
-          <Alert variant="info">
-            <p className="little-spacer-bottom little-spacer-top">
-              {translate('coding_rules.more_info.notification_message')}
-            </p>
-            <ButtonLink
+          <FlagMessage variant="info">
+            <p className="sw-my-1">{translate('coding_rules.more_info.notification_message')}</p>
+
+            <Button
+              className="sw-whitespace-nowrap"
               onClick={() => {
                 this.handleNotificationScroll();
               }}
             >
               {translate('coding_rules.more_info.scroll_message')}
-            </ButtonLink>
-          </Alert>
+            </Button>
+          </FlagMessage>
         )}
+
         {sections.length > 0 && (
           <>
-            <h2>{translate('coding_rules.more_info.resources.title')}</h2>
-            <RuleDescription sections={sections} />
+            <SubTitle>{translate('coding_rules.more_info.resources.title')}</SubTitle>
+            <RuleDescription language={language} sections={sections} />
           </>
         )}
 
         {educationPrinciples.length > 0 && (
           <>
-            <h2 ref={educationPrinciplesRef}>
+            <SubTitle ref={educationPrinciplesRef}>
               {translate('coding_rules.more_info.education_principles.title')}
-            </h2>
+            </SubTitle>
+
             {educationPrinciples.map((key) => {
               const Concept = EDUCATION_PRINCIPLES_MAP[key];
+
               if (Concept === undefined) {
                 return null;
               }
+
               return (
-                <div key={key} className="education-principles big-spacer-top big-padded">
+                <StyledEducationPrinciples key={key} className="sw-mt-4 sw-p-4 sw-rounded-1">
                   <Concept />
-                </div>
+                </StyledEducationPrinciples>
               );
             })}
           </>
@@ -99,3 +108,12 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
     );
   }
 }
+
+const StyledEducationPrinciples = styled.div`
+  background-color: ${themeColor('educationPrincipleBackground')};
+  border: ${themeBorder('default', 'educationPrincipleBorder')};
+
+  & h3:first-of-type {
+    margin-top: 0;
+  }
+`;

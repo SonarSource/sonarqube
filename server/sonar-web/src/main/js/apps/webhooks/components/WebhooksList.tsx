@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,50 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, ContentCell, Table, TableRow } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
 import WebhookItem from './WebhookItem';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
-  onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhooks: Webhook[];
+  onUpdate: (data: WebhookUpdatePayload) => Promise<void>;
+  webhooks: WebhookResponse[];
 }
 
-export default class WebhooksList extends React.PureComponent<Props> {
-  renderHeader = () => (
-    <thead>
-      <tr>
-        <th>{translate('name')}</th>
-        <th>{translate('webhooks.url')}</th>
-        <th>{translate('webhooks.secret_header')}</th>
-        <th>{translate('webhooks.last_execution')}</th>
-        <th />
-      </tr>
-    </thead>
+const COLUMN_WIDTHS = ['auto', 'auto', 'auto', 'auto', '5%'];
+
+export default function WebhooksList({ webhooks, onDelete, onUpdate }: Props) {
+  if (webhooks.length < 1) {
+    return <p className="it__webhook-empty-list">{translate('webhooks.no_result')}</p>;
+  }
+
+  const tableHeader = (
+    <TableRow>
+      <ContentCell>{translate('name')}</ContentCell>
+      <ContentCell>{translate('webhooks.url')}</ContentCell>
+      <ContentCell>{translate('webhooks.secret_header')}</ContentCell>
+      <ContentCell>{translate('webhooks.last_execution')}</ContentCell>
+      <ActionCell>{translate('actions')}</ActionCell>
+    </TableRow>
   );
 
-  render() {
-    const { webhooks } = this.props;
-    if (webhooks.length < 1) {
-      return <p>{translate('webhooks.no_result')}</p>;
-    }
-    return (
-      <table className="data zebra">
-        {this.renderHeader()}
-        <tbody>
-          {sortBy(webhooks, (webhook) => webhook.name.toLowerCase()).map((webhook) => (
-            <WebhookItem
-              key={webhook.key}
-              onDelete={this.props.onDelete}
-              onUpdate={this.props.onUpdate}
-              webhook={webhook}
-            />
-          ))}
-        </tbody>
-      </table>
-    );
-  }
+  return (
+    <Table
+      className="it__webhooks-list"
+      noHeaderTopBorder
+      columnCount={COLUMN_WIDTHS.length}
+      columnWidths={COLUMN_WIDTHS}
+      header={tableHeader}
+    >
+      {sortBy(webhooks, (webhook) => webhook.name.toLowerCase()).map((webhook) => (
+        <WebhookItem key={webhook.key} onDelete={onDelete} onUpdate={onUpdate} webhook={webhook} />
+      ))}
+    </Table>
+  );
 }

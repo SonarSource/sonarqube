@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,8 @@ public class SearchRequest {
   private String p;
   private String ps;
   private String q;
+  private Boolean deactivated;
+  private Boolean managed;
 
   /**
    * Example value: "42"
@@ -67,5 +69,23 @@ public class SearchRequest {
 
   public String getQ() {
     return q;
+  }
+
+  public Boolean getDeactivated() {
+    return deactivated;
+  }
+
+  public SearchRequest setDeactivated(Boolean deactivated) {
+    this.deactivated = deactivated;
+    return this;
+  }
+
+  public Boolean getManaged() {
+    return managed;
+  }
+
+  public SearchRequest setManaged(Boolean managed) {
+    this.managed = managed;
+    return this;
   }
 }

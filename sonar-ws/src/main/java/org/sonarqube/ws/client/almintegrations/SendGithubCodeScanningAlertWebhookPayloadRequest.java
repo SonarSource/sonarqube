@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
+ *
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/webhook_github">Further information about this action online (including a response example)</a>
  * @since 9.7
  */
@@ -33,6 +34,8 @@ public class SendGithubCodeScanningAlertWebhookPayloadRequest {
   private String githubEventHeader;
   private String githubSignatureHeader;
   private String githubSignature256Header;
+
+  private String githubAppId;
 
   /**
    * This is a mandatory parameter.
@@ -80,5 +83,14 @@ public class SendGithubCodeScanningAlertWebhookPayloadRequest {
 
   public String getGithubSignature256Header() {
     return githubSignature256Header;
+  }
+
+  public String getGithubAppId() {
+    return githubAppId;
+  }
+
+  public SendGithubCodeScanningAlertWebhookPayloadRequest setGithubAppId(String githubAppId) {
+    this.githubAppId = githubAppId;
+    return this;
   }
 }

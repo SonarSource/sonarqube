@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.server.platform;
 
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.SumNclocDbQuery;
 
 public class StatisticsSupport {
 
@@ -33,10 +32,7 @@ public class StatisticsSupport {
 
   public long getLinesOfCode(){
     try (DbSession dbSession = dbClient.openSession(false)) {
-      SumNclocDbQuery query = SumNclocDbQuery.builder()
-        .setOnlyPrivateProjects(false)
-        .build();
-      return dbClient.liveMeasureDao().sumNclocOfBiggestBranch(dbSession, query);
+      return dbClient.projectDao().getNclocSum(dbSession);
     }
   }
 }

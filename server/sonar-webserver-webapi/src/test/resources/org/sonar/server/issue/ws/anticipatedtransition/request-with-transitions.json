@@ -1,0 +1,20 @@
+[
+  {
+    "ruleKey": "squid:S0001",
+    "issueMessage": "issueMessage1",
+    "filePath": "filePath1",
+    "line": 1,
+    "lineHash": "lineHash1",
+    "transition": "wontfix",
+    "comment": "comment1"
+  },
+  {
+    "ruleKey": "squid:S0002",
+    "issueMessage": "issueMessage2",
+    "filePath": "filePath2",
+    "line": 2,
+    "lineHash": "lineHash2",
+    "transition": "falsepositive",
+    "comment": "comment2"
+  }
+]

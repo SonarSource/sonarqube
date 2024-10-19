@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+<!-- This logback configuration is used when the scanner engine is bootstrapped using the SonarScannerCli class. -->
+
+<configuration scan="false">
+  <import class="ch.qos.logback.core.ConsoleAppender"/>
+
+  <appender name="STDOUT" class="ConsoleAppender">
+    <encoder class="org.sonar.scanner.bootstrap.ScannerLogbackEncoder"/>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+  <!-- BeanUtils generate too many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.apache.commons.beanutils.converters" level="WARN"/>
+
+  <!-- FileSnapshot generate too many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.eclipse.jgit.internal.storage.file" level="INFO"/>
+
+  <!-- Spring generates too many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.springframework" level="INFO"/>
+
+  <!-- AbstractApplicationContext generate too verbose warning if warn is Enabled -->
+  <logger name="org.springframework.context.annotation.AnnotationConfigApplicationContext" level="ERROR"/>
+
+  <logger name="org.sonar.core.platform.PriorityBeanFactory" level="INFO"/>
+
+  <!-- CertificateUtils is too verbose when loading system certificates -->
+  <logger name="nl.altindag.ssl.util.CertificateUtils" level="INFO"/>
+
+
+</configuration>

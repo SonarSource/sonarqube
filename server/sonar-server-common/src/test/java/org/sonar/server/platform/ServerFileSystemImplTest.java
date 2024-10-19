@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,8 +75,6 @@ public class ServerFileSystemImplTest {
     assertThat(underTest.getDownloadedPluginsDir()).isEqualTo(new File(homeDir.getAbsolutePath() + "/extensions/downloads"));
     assertThat(underTest.getInstalledBundledPluginsDir()).isEqualTo(new File(homeDir.getAbsolutePath() + "/lib/extensions"));
     assertThat(underTest.getInstalledExternalPluginsDir()).isEqualTo(new File(homeDir.getAbsolutePath() + "/extensions/plugins"));
-
-    assertThat(underTest.getPluginIndex()).isEqualTo(new File(dataDir.getAbsolutePath() + "/web/deploy/plugins/index.txt"));
 
     assertThat(underTest.getUninstalledPluginsDir()).isEqualTo(new File(tempDir.getAbsolutePath() + "/uninstalled-plugins"));
   }

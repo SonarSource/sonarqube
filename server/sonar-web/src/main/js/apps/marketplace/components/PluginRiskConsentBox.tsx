@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Card, DarkLabel } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { EditionKey } from '../../../types/editions';
 import { RiskConsent } from '../../../types/plugins';
@@ -29,7 +30,7 @@ export interface PluginRiskConsentBoxProps {
   riskConsent?: RiskConsent;
 }
 
-export default function PluginRiskConsentBox(props: PluginRiskConsentBoxProps) {
+export default function PluginRiskConsentBox(props: Readonly<PluginRiskConsentBoxProps>) {
   const { currentEdition, riskConsent } = props;
 
   if (riskConsent === RiskConsent.Accepted) {
@@ -37,20 +38,16 @@ export default function PluginRiskConsentBox(props: PluginRiskConsentBoxProps) {
   }
 
   return (
-    <div className="boxed-group it__plugin_risk_consent_box">
-      <h2>{translate('marketplace.risk_consent.title')}</h2>
-      <div className="boxed-group-inner">
-        <p>{translate('marketplace.risk_consent.description')}</p>
-        {currentEdition === EditionKey.community && (
-          <p className="spacer-top">{translate('marketplace.risk_consent.installation')}</p>
-        )}
-        <Button
-          className="display-block big-spacer-top button-primary"
-          onClick={props.acknowledgeRisk}
-        >
-          {translate('marketplace.risk_consent.action')}
-        </Button>
-      </div>
-    </div>
+    <Card className="sw-mt-6 it__plugin_risk_consent_box">
+      <DarkLabel>{translate('marketplace.risk_consent.title')}</DarkLabel>
+
+      <p className="sw-mt-2">{translate('marketplace.risk_consent.description')}</p>
+      {currentEdition === EditionKey.community && (
+        <p className="sw-mt-2">{translate('marketplace.risk_consent.installation')}</p>
+      )}
+      <Button className="sw-mt-4" onClick={props.acknowledgeRisk} variety={ButtonVariety.Primary}>
+        {translate('marketplace.risk_consent.action')}
+      </Button>
+    </Card>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 public class OneBlockerIssuePerFileSensor extends AbstractXooRuleSensor {
@@ -42,6 +43,7 @@ public class OneBlockerIssuePerFileSensor extends AbstractXooRuleSensor {
 
   @Override protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
     NewIssue newIssue = context.newIssue()
+      .overrideImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
       .overrideSeverity(Severity.BLOCKER)
       .forRule(ruleKey);
     newIssue.at(newIssue.newLocation()

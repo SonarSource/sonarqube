@@ -44,6 +44,8 @@ message SearchWsResponse {
     optional string externalProvider = 10;
     optional string avatar = 11;
     optional string lastConnectionDate = 12;
+    optional bool managed = 13;
+    optional string sonarLintLastConnectionDate = 14;
   }
 
   message Groups {

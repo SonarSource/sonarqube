@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.util.Collection;
 import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
@@ -47,7 +48,13 @@ public class ExtensionInstaller {
     }
 
     // plugin extensions
-    for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
+    installExtensionsForPlugins(container, matcher, pluginRepository.getPluginInfos());
+
+    return this;
+  }
+
+  public void installExtensionsForPlugins(ExtensionContainer container, ExtensionMatcher matcher, Collection<PluginInfo> pluginInfos) {
+    for (PluginInfo pluginInfo : pluginInfos) {
       Plugin plugin = pluginRepository.getPluginInstance(pluginInfo.getKey());
       Plugin.Context context = new PluginContextImpl.Builder()
         .setSonarRuntime(sonarRuntime)
@@ -59,8 +66,6 @@ public class ExtensionInstaller {
         doInstall(container, matcher, pluginInfo, extension);
       }
     }
-
-    return this;
   }
 
   private static void doInstall(ExtensionContainer container, ExtensionMatcher matcher, @Nullable PluginInfo pluginInfo, Object extension) {

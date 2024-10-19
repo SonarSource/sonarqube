@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from '@sonarsource/echoes-react';
+import { FlagMessage, SubTitle, ToggleButton } from 'design-system';
 import * as React from 'react';
-import BoxedTabs from '../../../../components/controls/BoxedTabs';
+import { FormattedMessage } from 'react-intl';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
+import { isDefined } from '../../../../helpers/types';
+import { useGetValuesQuery } from '../../../../queries/settings';
 import {
   AlmKeys,
   AlmSettingsBindingDefinitions,
   AlmSettingsBindingStatus,
 } from '../../../../types/alm-settings';
+import { SettingsKey } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
 import { AlmTabs } from './AlmIntegration';
 import AlmTab from './AlmTab';
@@ -35,8 +41,8 @@ export interface AlmIntegrationRendererProps {
   branchesEnabled: boolean;
   currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
-  definitions: AlmSettingsBindingDefinitions;
   definitionStatus: Dict<AlmSettingsBindingStatus>;
+  definitions: AlmSettingsBindingDefinitions;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
@@ -51,64 +57,44 @@ export interface AlmIntegrationRendererProps {
 
 const tabs = [
   {
-    key: AlmKeys.GitHub,
     label: (
       <>
-        <img
-          alt="github"
-          className="spacer-right"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/github.svg`}
-        />
-        GitHub
+        <Image alt="github" className="sw-mr-2" height={16} src="/images/alm/github.svg" />
+        {translate('settings.almintegration.tab.github')}
       </>
     ),
+    value: AlmKeys.GitHub,
   },
   {
-    key: AlmKeys.BitbucketServer,
     label: (
       <>
-        <img
-          alt="bitbucket"
-          className="spacer-right"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-        />
-        Bitbucket
+        <Image alt="bitbucket" className="sw-mr-2" height={16} src="/images/alm/bitbucket.svg" />
+        {translate('settings.almintegration.tab.bitbucket')}
       </>
     ),
+    value: AlmKeys.BitbucketServer,
   },
   {
-    key: AlmKeys.Azure,
     label: (
       <>
-        <img
-          alt="azure"
-          className="spacer-right"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/azure.svg`}
-        />
-        Azure DevOps
+        <Image alt="azure" className="sw-mr-2" height={16} src="/images/alm/azure.svg" />
+        {translate('settings.almintegration.tab.azure')}
       </>
     ),
+    value: AlmKeys.Azure,
   },
   {
-    key: AlmKeys.GitLab,
     label: (
       <>
-        <img
-          alt="gitlab"
-          className="spacer-right"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-        />
-        GitLab
+        <Image alt="gitlab" className="sw-mr-2" height={16} src="/images/alm/gitlab.svg" />
+        {translate('settings.almintegration.tab.gitlab')}
       </>
     ),
+    value: AlmKeys.GitLab,
   },
 ];
 
-export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProps) {
+export default function AlmIntegrationRenderer(props: Readonly<AlmIntegrationRendererProps>) {
   const {
     definitionKeyForDeletion,
     definitions,
@@ -128,17 +114,43 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
     [AlmKeys.BitbucketServer]: [...definitions.bitbucket, ...definitions.bitbucketcloud],
   };
 
+  const { data, isLoading } = useGetValuesQuery([SettingsKey.ServerBaseUrl]);
+  const hasServerBaseUrl = data?.length === 1 && data[0]?.value !== undefined;
+
   return (
     <>
-      <header className="page-header">
-        <h1 className="page-title">{translate('settings.almintegration.title')}</h1>
+      <header className="sw-mb-5">
+        <SubTitle>{translate('settings.almintegration.title')}</SubTitle>
       </header>
 
-      <div className="markdown small spacer-top big-spacer-bottom">
-        {translate('settings.almintegration.description')}
-      </div>
+      {!hasServerBaseUrl && !isLoading && branchesEnabled && (
+        <FlagMessage variant="warning">
+          <p>
+            <FormattedMessage
+              id="settings.almintegration.empty.server_base_url"
+              defaultMessage={translate('settings.almintegration.empty.server_base_url')}
+              values={{
+                serverBaseUrl: (
+                  <Link to="/admin/settings?category=general#sonar.core.serverBaseURL">
+                    {translate('settings.almintegration.empty.server_base_url.setting_link')}
+                  </Link>
+                ),
+              }}
+            />
+          </p>
+        </FlagMessage>
+      )}
 
-      <BoxedTabs onSelect={props.onSelectAlmTab} selected={currentAlmTab} tabs={tabs} />
+      <div className="sw-my-4">{translate('settings.almintegration.description')}</div>
+
+      <div className="sw-mb-6">
+        <ToggleButton
+          onChange={props.onSelectAlmTab}
+          options={tabs}
+          role="tablist"
+          value={currentAlmTab}
+        />
+      </div>
 
       <AlmTab
         almTab={currentAlmTab}
@@ -153,14 +165,13 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
         onUpdateDefinitions={props.onUpdateDefinitions}
       />
 
-      {definitionKeyForDeletion && (
-        <DeleteModal
-          id={definitionKeyForDeletion}
-          onCancel={props.onCancelDelete}
-          onDelete={props.onConfirmDelete}
-          projectCount={projectCount}
-        />
-      )}
+      <DeleteModal
+        id={definitionKeyForDeletion}
+        isOpen={isDefined(definitionKeyForDeletion)}
+        onCancel={props.onCancelDelete}
+        onDelete={props.onConfirmDelete}
+        projectCount={projectCount}
+      />
     </>
   );
 }

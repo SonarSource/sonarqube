@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,7 @@ package org.sonar.db.purge;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -35,7 +33,7 @@ class PurgeCommands {
 
   private static final int MAX_SNAPSHOTS_PER_QUERY = 1000;
   private static final int MAX_RESOURCES_PER_QUERY = 1000;
-  private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
+  private static final String[] UNPROCESSED_STATUS = new String[]{"U"};
 
   private final DbSession session;
   private final PurgeMapper purgeMapper;
@@ -57,12 +55,14 @@ class PurgeCommands {
     return purgeMapper.selectAnalysisUuids(query);
   }
 
-  void deleteAnalyses(String rootComponentUuid) {
+  void deleteEventComponentChanges(String rootComponentUuid) {
     profiler.start("deleteAnalyses (event_component_changes)");
     purgeMapper.deleteEventComponentChangesByComponentUuid(rootComponentUuid);
     session.commit();
     profiler.stop();
+  }
 
+  void deleteAnalyses(String rootComponentUuid) {
     profiler.start("deleteAnalyses (events)");
     purgeMapper.deleteEventsByComponentUuid(rootComponentUuid);
     session.commit();
@@ -139,46 +139,35 @@ class PurgeCommands {
   }
 
   void purgeDisabledComponents(String rootComponentUuid, Collection<String> disabledComponentUuids, PurgeListener listener) {
-    Set<String> missedDisabledComponentUuids = new HashSet<>();
 
     profiler.start("purgeDisabledComponents (file_sources)");
-    missedDisabledComponentUuids.addAll(
       executeLargeInputs(
         purgeMapper.selectDisabledComponentsWithFileSource(rootComponentUuid),
         input -> {
           purgeMapper.deleteFileSourcesByFileUuid(input);
           return input;
-        }));
+        });
     profiler.stop();
 
     profiler.start("purgeDisabledComponents (unresolved_issues)");
-    missedDisabledComponentUuids.addAll(
       executeLargeInputs(
         purgeMapper.selectDisabledComponentsWithUnresolvedIssues(rootComponentUuid),
         input -> {
           purgeMapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
           return input;
-        }));
+        });
     profiler.stop();
 
     profiler.start("purgeDisabledComponents (live_measures)");
-    missedDisabledComponentUuids.addAll(
       executeLargeInputs(
         purgeMapper.selectDisabledComponentsWithLiveMeasures(rootComponentUuid),
         input -> {
           purgeMapper.deleteLiveMeasuresByComponentUuids(input);
           return input;
-        }));
+        });
     profiler.stop();
 
     session.commit();
-
-    // notify listener for any disabled component we found child data for which isn't part of the disabled components
-    // provided
-    missedDisabledComponentUuids.removeAll(disabledComponentUuids);
-    if (!missedDisabledComponentUuids.isEmpty()) {
-      listener.onComponentsDisabling(rootComponentUuid, missedDisabledComponentUuids);
-    }
   }
 
   private void deleteAnalysisDuplications(List<List<String>> snapshotUuidsPartitions) {
@@ -188,14 +177,14 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deletePermissions(String rootUuid) {
+  void deletePermissions(String entityUuid) {
     profiler.start("deletePermissions (group_roles)");
-    purgeMapper.deleteGroupRolesByComponentUuid(rootUuid);
+    purgeMapper.deleteGroupRolesByEntityUuid(entityUuid);
     session.commit();
     profiler.stop();
 
     profiler.start("deletePermissions (user_roles)");
-    purgeMapper.deleteUserRolesByComponentUuid(rootUuid);
+    purgeMapper.deleteUserRolesByEntityUuid(entityUuid);
     session.commit();
     profiler.stop();
   }
@@ -208,6 +197,11 @@ class PurgeCommands {
 
     profiler.start("deleteIssues (new_code_reference_issues)");
     purgeMapper.deleteNewCodeReferenceIssuesByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteIssues (issues_impacts)");
+    purgeMapper.deleteIssuesImpactsByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
 
@@ -224,14 +218,24 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteByRootAndModulesOrSubviews(List<String> rootAndModulesOrSubviewsUuids) {
-    if (rootAndModulesOrSubviewsUuids.isEmpty()) {
+  void deleteByRootAndSubviews(List<String> rootAndSubviewsUuids) {
+    if (rootAndSubviewsUuids.isEmpty()) {
       return;
     }
-    List<List<String>> uuidsPartitions = Lists.partition(rootAndModulesOrSubviewsUuids, MAX_RESOURCES_PER_QUERY);
+    List<List<String>> uuidsPartitions = Lists.partition(rootAndSubviewsUuids, MAX_RESOURCES_PER_QUERY);
 
-    profiler.start("deleteByRootAndModulesOrSubviews (properties)");
-    uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
+    profiler.start("deleteByRootAndSubviews (properties)");
+    uuidsPartitions.forEach(purgeMapper::deletePropertiesByEntityUuids);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteByRootAndSubviews (report_schedules)");
+    uuidsPartitions.forEach(purgeMapper::deleteReportSchedulesByPortfolioUuids);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteByRootAndSubviews (report_subscriptions)");
+    uuidsPartitions.forEach(purgeMapper::deleteReportSubscriptionsByPortfolioUuids);
     session.commit();
     profiler.stop();
   }
@@ -243,7 +247,7 @@ class PurgeCommands {
     List<List<String>> uuidsPartitions = Lists.partition(disabledComponentsWithoutIssue, MAX_RESOURCES_PER_QUERY);
 
     profiler.start("deleteDisabledComponentsWithoutIssues (properties)");
-    uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
+    uuidsPartitions.forEach(purgeMapper::deletePropertiesByEntityUuids);
     session.commit();
     profiler.stop();
 
@@ -253,9 +257,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteOutdatedProperties(String branchUuid) {
+  void deleteOutdatedProperties(String entityUuid) {
     profiler.start("deleteOutdatedProperties (properties)");
-    purgeMapper.deletePropertiesByComponentUuids(List.of(branchUuid));
+    purgeMapper.deletePropertiesByEntityUuids(List.of(entityUuid));
     session.commit();
     profiler.stop();
   }
@@ -267,9 +271,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteComponentsByMainBranchProjectUuid(String uuid) {
-    profiler.start("deleteComponentsByMainBranchProjectUuid (projects)");
-    purgeMapper.deleteComponentsByMainBranchProjectUuid(uuid);
+  void deleteNonMainBranchComponentsByProjectUuid(String uuid) {
+    profiler.start("deleteNonMainBranchComponentsByProjectUuid (projects)");
+    purgeMapper.deleteNonMainBranchComponentsByProjectUuid(uuid);
     session.commit();
     profiler.stop();
   }
@@ -312,54 +316,54 @@ class PurgeCommands {
 
   void deleteCeActivity(String rootUuid) {
     profiler.start("deleteCeActivity (ce_scanner_context)");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_task_characteristics)");
-    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_task_input)");
-    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_task_message)");
-    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_activity)");
-    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
   }
 
-  void deleteCeActivityBefore(@Nullable String rootUuid, long createdAt) {
+  void deleteCeActivityBefore(@Nullable String rootUuid, @Nullable String entityUuidToPurge, long createdAt) {
     profiler.start("deleteCeActivityBefore (ce_scanner_context)");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_task_characteristics)");
-    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_task_input)");
-    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_task_message)");
-    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_activity)");
-    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
   }
 
-  void deleteCeScannerContextBefore(@Nullable String rootUuid, long createdAt) {
+  void deleteCeScannerContextBefore(@Nullable String rootUuid, @Nullable String entityUuidToPurge, long createdAt) {
     // assuming CeScannerContext of rows in table CE_QUEUE can't be older than createdAt
     profiler.start("deleteCeScannerContextBefore");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
   }
 
@@ -396,13 +400,6 @@ class PurgeCommands {
   void deleteWebhookDeliveries(String rootUuid) {
     profiler.start("deleteWebhookDeliveries (webhook_deliveries)");
     purgeMapper.deleteWebhookDeliveriesByProjectUuid(rootUuid);
-    session.commit();
-    profiler.stop();
-  }
-
-  void deleteProjectMappings(String rootUuid) {
-    profiler.start("deleteProjectMappings (project_mappings)");
-    purgeMapper.deleteProjectMappingsByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
   }
@@ -459,9 +456,16 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteNewCodePeriods(String rootUuid) {
+  void deleteNewCodePeriodsForProject(String projectUuid) {
     profiler.start("deleteNewCodePeriods (new_code_periods)");
-    purgeMapper.deleteNewCodePeriodsByRootUuid(rootUuid);
+    purgeMapper.deleteNewCodePeriodsByProjectUuid(projectUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  void deleteNewCodePeriodsForBranch(String branchUuid) {
+    profiler.start("deleteNewCodePeriods (new_code_periods)");
+    purgeMapper.deleteNewCodePeriodsByBranchUuid(branchUuid);
     session.commit();
     profiler.stop();
   }
@@ -485,11 +489,38 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  public void deleteScannerCache(String rootUuid) {
+  public void deleteScannerCache(String branchUuid) {
     profiler.start("deleteScannerCache (scanner_analysis_cache)");
-    purgeMapper.deleteScannerAnalysisCacheByBranchUuid(rootUuid);
+    purgeMapper.deleteScannerAnalysisCacheByBranchUuid(branchUuid);
     session.commit();
     profiler.stop();
   }
 
+  public void deleteReportSchedules(String rootUuid) {
+    profiler.start("deleteReportSchedules (report_schedules)");
+    purgeMapper.deleteReportSchedulesByBranchUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  public void deleteReportSubscriptions(String branchUuid) {
+    profiler.start("deleteReportSubscriptions (report_subscriptions)");
+    purgeMapper.deleteReportSubscriptionsByBranchUuid(branchUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  public void deleteAnticipatedTransitions(String projectUuid, long createdAt) {
+    profiler.start("deleteAnticipatedTransitions (anticipated_transitions)");
+    purgeMapper.deleteAnticipatedTransitionsByProjectUuidAndCreationDate(projectUuid, createdAt);
+    session.commit();
+    profiler.stop();
+  }
+
+  public void deleteIssuesFixed(String branchUuid) {
+    profiler.start("deleteIssuesFixed (issues_fixed)");
+    purgeMapper.deleteIssuesFixedByBranchUuid(branchUuid);
+    session.commit();
+    profiler.stop();
+  }
 }

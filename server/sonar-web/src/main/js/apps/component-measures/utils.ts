@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,10 +18,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
+import { isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { enhanceMeasure } from '../../components/measure/utils';
-import { isBranch, isPullRequest } from '../../helpers/branch-like';
-import { getLocalizedMetricName } from '../../helpers/l10n';
-import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  HIDDEN_METRICS,
+  LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+  LEAK_OLD_TAXONOMY_METRICS,
+  LEAK_OLD_TAXONOMY_RATINGS,
+  OLD_TAXONOMY_METRICS,
+  OLD_TAXONOMY_RATINGS,
+  SOFTWARE_QUALITY_RATING_METRICS,
+} from '../../helpers/constants';
+import { getLocalizedMetricName, translate } from '../../helpers/l10n';
+import {
+  areCCTMeasuresComputed,
+  areLeakCCTMeasuresComputed,
+  areSoftwareQualityRatingsComputed,
+  getCCTMeasureValue,
+  getDisplayMetrics,
+  isDiffMetric,
+  MEASURES_REDIRECTION,
+} from '../../helpers/measures';
 import {
   cleanQuery,
   parseAsOptionalBoolean,
@@ -29,9 +50,7 @@ import {
   serializeString,
 } from '../../helpers/query';
 import { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
-import { MeasurePageView } from '../../types/measures';
-import { MetricKey } from '../../types/metrics';
+import { Domain, MeasurePageView } from '../../types/measures';
 import {
   ComponentMeasure,
   ComponentMeasureEnhanced,
@@ -39,46 +58,131 @@ import {
   Measure,
   MeasureEnhanced,
   Metric,
-  RawQuery,
 } from '../../types/types';
-import { bubbles } from './config/bubbles';
+import { BubblesByDomain } from './config/bubbles';
 import { domains } from './config/domains';
 
 export const BUBBLES_FETCH_LIMIT = 50;
 export const PROJECT_OVERVEW = 'project_overview';
-export const DEFAULT_VIEW: MeasurePageView = 'tree';
+export const DEFAULT_VIEW = MeasurePageView.tree;
 export const DEFAULT_METRIC = PROJECT_OVERVEW;
 export const KNOWN_DOMAINS = [
   'Releasability',
-  'Reliability',
   'Security',
-  'SecurityReview',
+  'Reliability',
   'Maintainability',
+  'SecurityReview',
   'Coverage',
   'Duplications',
   'Size',
   'Complexity',
 ];
-const BANNED_MEASURES = [
-  'blocker_violations',
-  'new_blocker_violations',
-  'critical_violations',
-  'new_critical_violations',
-  'major_violations',
-  'new_major_violations',
-  'minor_violations',
-  'new_minor_violations',
-  'info_violations',
-  'new_info_violations',
+
+const DEPRECATED_METRICS = [
+  MetricKey.blocker_violations,
+  MetricKey.new_blocker_violations,
+  MetricKey.critical_violations,
+  MetricKey.new_critical_violations,
+  MetricKey.major_violations,
+  MetricKey.new_major_violations,
+  MetricKey.info_violations,
+  MetricKey.new_info_violations,
+  MetricKey.minor_violations,
+  MetricKey.new_minor_violations,
+  MetricKey.high_impact_accepted_issues,
 ];
 
+const ISSUES_METRICS = [
+  MetricKey.accepted_issues,
+  MetricKey.new_accepted_issues,
+  MetricKey.confirmed_issues,
+  MetricKey.false_positive_issues,
+  MetricKey.violations,
+  MetricKey.new_violations,
+];
+
+export const populateDomainsFromMeasures = memoize(
+  (measures: MeasureEnhanced[], isLegacy = false): Domain[] => {
+    let populatedMeasures = measures
+      .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
+      .map((measure) => {
+        const isDiff = isDiffMetric(measure.metric.key);
+        const calculatedValue = getCCTMeasureValue(
+          measure.metric.key,
+          isDiff ? measure.leak : measure.value,
+        );
+
+        return {
+          ...measure,
+          ...{ [isDiff ? 'leak' : 'value']: calculatedValue },
+        };
+      });
+
+    if (areLeakCCTMeasuresComputed(measures)) {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    } else {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !LEAK_CCT_SOFTWARE_QUALITY_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    }
+
+    // Both new and overall code will exist after next analysis
+    if (!isLegacy && areSoftwareQualityRatingsComputed(measures)) {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) =>
+          !OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey) &&
+          !LEAK_OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey),
+      );
+    } else {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !SOFTWARE_QUALITY_RATING_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    }
+
+    if (areCCTMeasuresComputed(measures)) {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    } else {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !CCT_SOFTWARE_QUALITY_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    }
+
+    return groupByDomains(populatedMeasures);
+  },
+);
+
+export function getMetricSubnavigationName(
+  metric: Metric,
+  translateFn: (metric: Metric) => string,
+  isDiff = false,
+) {
+  if (
+    [
+      ...LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+      ...CCT_SOFTWARE_QUALITY_METRICS,
+      ...ISSUES_METRICS,
+      ...OLD_TAXONOMY_METRICS,
+      ...LEAK_OLD_TAXONOMY_METRICS,
+    ].includes(metric.key as MetricKey)
+  ) {
+    return translate(
+      `component_measures.metric.${metric.key}.${isDiff ? 'detailed_name' : 'name'}`,
+    );
+  }
+  return translateFn(metric);
+}
+
 export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
-  return measures.filter((measure) => !BANNED_MEASURES.includes(measure.metric.key));
+  return measures.filter((measure) => !HIDDEN_METRICS.includes(measure.metric.key as MetricKey));
 }
 
 export function sortMeasures(
   domainName: string,
-  measures: Array<MeasureEnhanced | string>
+  measures: Array<MeasureEnhanced | string>,
 ): Array<MeasureEnhanced | string> {
   const config = domains[domainName] || {};
   const configOrder = config.order || [];
@@ -106,7 +210,7 @@ export function addMeasureCategories(domainName: string, measures: MeasureEnhanc
 export function enhanceComponent(
   component: ComponentMeasure,
   metric: Pick<Metric, 'key'> | undefined,
-  metrics: Dict<Metric>
+  metrics: Dict<Metric>,
 ): ComponentMeasureEnhanced {
   if (!component.measures) {
     return { ...component, measures: [] };
@@ -133,10 +237,10 @@ export function isSecurityReviewMetric(metricKey: MetricKey | string): boolean {
 export function banQualityGateMeasure({ measures = [], qualifier }: ComponentMeasure): Measure[] {
   const bannedMetrics: string[] = [];
   if (ComponentQualifier.Portfolio !== qualifier && ComponentQualifier.SubPortfolio !== qualifier) {
-    bannedMetrics.push('alert_status');
+    bannedMetrics.push(MetricKey.alert_status);
   }
   if (qualifier === ComponentQualifier.Application) {
-    bannedMetrics.push('releasability_rating', 'releasability_effort');
+    bannedMetrics.push(MetricKey.releasability_rating, MetricKey.releasability_effort);
   }
   return measures.filter((measure) => !bannedMetrics.includes(measure.metric));
 }
@@ -148,7 +252,7 @@ export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
   }));
 
   return sortBy(domains, [
-    (domain: { name: string; measures: MeasureEnhanced[] }) => {
+    (domain: { measures: MeasureEnhanced[]; name: string }) => {
       const idx = KNOWN_DOMAINS.indexOf(domain.name);
       return idx >= 0 ? idx : KNOWN_DOMAINS.length;
     },
@@ -157,23 +261,28 @@ export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
 });
 
 export function hasList(metric: string): boolean {
-  return !['releasability_rating', 'releasability_effort'].includes(metric);
+  return ![MetricKey.releasability_rating, MetricKey.releasability_effort].includes(
+    metric as MetricKey,
+  );
 }
 
 export function hasTree(metric: string): boolean {
-  return metric !== 'alert_status';
+  return metric !== MetricKey.alert_status;
 }
 
 export function hasTreemap(metric: string, type: string): boolean {
-  return ['PERCENT', 'RATING', 'LEVEL'].includes(type) && hasTree(metric);
+  return (
+    [MetricType.Percent, MetricType.Rating, MetricType.Level].includes(type as MetricType) &&
+    hasTree(metric)
+  );
 }
 
-export function hasBubbleChart(domainName: string): boolean {
-  return bubbles[domainName] !== undefined;
+export function hasBubbleChart(bubblesByDomain: BubblesByDomain, domainName: string): boolean {
+  return bubblesByDomain[domainName] !== undefined;
 }
 
 export function hasFacetStat(metric: string): boolean {
-  return metric !== 'alert_status';
+  return metric !== MetricKey.alert_status;
 }
 
 export function hasFullMeasures(branch?: BranchLike) {
@@ -185,13 +294,17 @@ export function getMeasuresPageMetricKeys(metrics: Dict<Metric>, branch?: Branch
 
   if (isPullRequest(branch)) {
     return metricKeys.filter((key) => isDiffMetric(key));
-  } else {
-    return metricKeys;
   }
+
+  return metricKeys;
 }
 
-export function getBubbleMetrics(domain: string, metrics: Dict<Metric>) {
-  const conf = bubbles[domain];
+export function getBubbleMetrics(
+  bubblesByDomain: BubblesByDomain,
+  domain: string,
+  metrics: Dict<Metric>,
+) {
+  const conf = bubblesByDomain[domain];
   return {
     x: metrics[conf.x],
     y: metrics[conf.y],
@@ -200,33 +313,34 @@ export function getBubbleMetrics(domain: string, metrics: Dict<Metric>) {
   };
 }
 
-export function getBubbleYDomain(domain: string) {
-  return bubbles[domain].yDomain;
+export function getBubbleYDomain(bubblesByDomain: BubblesByDomain, domain: string) {
+  return bubblesByDomain[domain].yDomain;
 }
 
 export function isProjectOverview(metric: string) {
   return metric === PROJECT_OVERVEW;
 }
 
-function parseView(metric: string, rawView?: string): MeasurePageView {
+function parseView(metric: MetricKey, rawView?: string): MeasurePageView {
   const view = (parseAsString(rawView) || DEFAULT_VIEW) as MeasurePageView;
   if (!hasTree(metric)) {
-    return 'list';
-  } else if (view === 'list' && !hasList(metric)) {
-    return 'tree';
+    return MeasurePageView.list;
+  } else if (view === MeasurePageView.list && !hasList(metric)) {
+    return MeasurePageView.tree;
   }
   return view;
 }
 
 export interface Query {
+  asc?: boolean;
   metric: string;
   selected?: string;
   view: MeasurePageView;
-  asc?: boolean;
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => {
-  const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
+  const parsedMetric = parseAsString<MetricKey>(urlQuery['metric']) || DEFAULT_METRIC;
+  const metric = MEASURES_REDIRECTION[parsedMetric] ?? parsedMetric;
   return {
     metric,
     selected: parseAsString(urlQuery['selected']),

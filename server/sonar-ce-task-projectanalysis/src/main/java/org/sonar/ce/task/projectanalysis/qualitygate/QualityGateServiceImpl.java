@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,8 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.project.Project;
-
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class QualityGateServiceImpl implements QualityGateService {
   private final DbClient dbClient;
@@ -68,7 +66,7 @@ public class QualityGateServiceImpl implements QualityGateService {
         .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold()))
         .orElse(null))
       .filter(Objects::nonNull)
-      .collect(toList(dtos.size()));
+      .toList();
 
     return new QualityGate(qualityGateDto.getUuid(), qualityGateDto.getName(), conditions);
   }

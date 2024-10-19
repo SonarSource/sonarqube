@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,15 +24,19 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
@@ -42,6 +46,8 @@ import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 
 import static java.util.stream.Collectors.joining;
+import static org.sonar.server.rule.index.RuleIndexDefinition.SUB_FIELD_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 
 /**
@@ -286,6 +292,23 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
+  public RuleDoc setCleanCodeAttributeCategory(@Nullable String cleanCodeAttributeCategory) {
+    setField(RuleIndexDefinition.FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY, cleanCodeAttributeCategory);
+    return this;
+  }
+
+  public RuleDoc setImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    List<Map<String, String>> convertedMap = impacts
+      .entrySet()
+      .stream()
+      .map(entry -> Map.of(
+        SUB_FIELD_SOFTWARE_QUALITY, entry.getKey().name(),
+        SUB_FIELD_SEVERITY, entry.getValue().name()))
+      .toList();
+    setField(RuleIndexDefinition.FIELD_RULE_IMPACTS, convertedMap);
+    return this;
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
@@ -309,12 +332,22 @@ public class RuleDoc extends BaseDoc {
       .setRuleKey(dto.getPluginRuleKey())
       .setSeverity(dto.getSeverityAsString())
       .setStatus(dto.getStatus().toString())
-      .setType(dto.getTypeAsRuleType())
+      .setType(getType(dto))
       .setOrganizationUuid(dto.getOrganizationUuid())
       .setCreatedAt(dto.getCreatedAt())
       .setUpdatedAt(dto.getUpdatedAt())
       .setHtmlDescription(getConcatenatedSectionsInHtml(dto))
-      .setTemplateKey(getRuleKey(dto));
+      .setTemplateKey(getRuleKey(dto))
+      .setCleanCodeAttributeCategory(dto.getTypeAsRuleType() != RuleType.SECURITY_HOTSPOT ? dto.getCleanCodeAttributeCategory() : null)
+      .setImpacts(dto.getImpacts().stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)));
+  }
+
+  @CheckForNull
+  private static RuleType getType(RuleForIndexingDto dto) {
+    if (dto.isAdHoc() && dto.getAdHocType() != null) {
+      return RuleType.valueOf(dto.getAdHocType());
+    }
+    return dto.getTypeAsRuleType();
   }
 
   @CheckForNull

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -48,7 +48,10 @@ public class IssueIteratorForMultipleChunks implements IssueIterator {
 
   @Override
   public IssueDoc next() {
-    if (currentChunk == null || !currentChunk.hasNext()) {
+    if (currentChunk == null) {
+      currentChunk = nextChunk();
+    } else if (!currentChunk.hasNext()) {
+      currentChunk.close();
       currentChunk = nextChunk();
     }
     return currentChunk.next();

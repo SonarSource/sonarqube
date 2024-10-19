@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,30 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel } from 'design-system';
 import { difference } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
+import { Router } from '~sonar-aligned/types/router';
 import {
   deletePermissionTemplate,
   setDefaultPermissionTemplate,
   updatePermissionTemplate,
 } from '../../../api/permissions';
-import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Organization, PermissionTemplate } from '../../../types/types';
+import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 interface Props {
+  organization: Organization;
   fromDetails?: boolean;
   permissionTemplate: PermissionTemplate;
   refresh: () => void;
   router: Router;
   topQualifiers: string[];
-  organization: Organization;
 }
 
 interface State {
@@ -48,7 +49,7 @@ interface State {
   updateModal: boolean;
 }
 
-export class ActionsCell extends React.PureComponent<Props, State> {
+class ActionsCell extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { deleteForm: false, updateModal: false };
 
@@ -76,7 +77,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
     projectKeyPattern: string;
   }) => {
     return updatePermissionTemplate({ id: this.props.permissionTemplate.id, ...data }).then(
-      this.props.refresh
+      this.props.refresh,
     );
   };
 
@@ -92,7 +93,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
 
   handleDeleteSubmit = () => {
     return deletePermissionTemplate({ templateId: this.props.permissionTemplate.id }).then(() => {
-      this.props.router.replace(`/organizations/${this.props.organization.kee}/permission_templates`);
+      this.props.router.replace(`/organizations/${this.props.organization.kee}/${PERMISSION_TEMPLATES_PATH}``);
       this.props.refresh();
     });
   };
@@ -100,7 +101,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
   setDefault = (qualifier: string) => () => {
     setDefaultPermissionTemplate(this.props.permissionTemplate.id, qualifier, this.props.organization.kee).then(
       this.props.refresh,
-      () => {}
+      () => {},
     );
   };
 
@@ -122,14 +123,14 @@ export class ActionsCell extends React.PureComponent<Props, State> {
 
   renderSetDefaultLink(qualifier: string, child: React.ReactNode) {
     return (
-      <ActionsDropdownItem
+      <ItemButton
         className="js-set-default"
         data-qualifier={qualifier}
         key={qualifier}
         onClick={this.setDefault(qualifier)}
       >
         {child}
-      </ActionsDropdownItem>
+      </ItemButton>
     );
   }
 
@@ -137,8 +138,8 @@ export class ActionsCell extends React.PureComponent<Props, State> {
     return availableQualifiers.map((qualifier) =>
       this.renderSetDefaultLink(
         qualifier,
-        <span>{translate('permission_templates.set_default')}</span>
-      )
+        <span>{translate('permission_templates.set_default')}</span>,
+      ),
     );
   }
 
@@ -147,10 +148,9 @@ export class ActionsCell extends React.PureComponent<Props, State> {
       this.renderSetDefaultLink(
         qualifier,
         <span>
-          {translate('permission_templates.set_default_for')}{' '}
-          <QualifierIcon qualifier={qualifier} /> {translate('qualifiers', qualifier)}
-        </span>
-      )
+          {translate('permission_templates.set_default_for')} {translate('qualifiers', qualifier)}
+        </span>,
+      ),
     );
   }
 
@@ -159,30 +159,37 @@ export class ActionsCell extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <ActionsDropdown>
-          {this.renderSetDefaultsControl()}
+        <ActionsDropdown
+          allowResizing
+          id={`permission-template-actions-${t.id}`}
+          zLevel={PopupZLevel.Global}
+          toggleClassName="it__permission-actions"
+          ariaLabel={translateWithParameters('permission_templates.show_actions_for_x', t.name)}
+        >
+          <>
+            {this.renderSetDefaultsControl()}
 
-          {!this.props.fromDetails && (
-            <ActionsDropdownItem
-              to={{ pathname: `/organizations/${organization.kee}/permission_templates`, search: queryToSearch({ id: t.id }) }}
-            >
-              {translate('edit_permissions')}
-            </ActionsDropdownItem>
-          )}
+            {!this.props.fromDetails && (
+              <ItemLink
+                to={{
+                  pathname: PERMISSION_TEMPLATES_PATH,
+                  search: queryToSearchString({ id: t.id }),
+                }}
+              >
+                {translate('edit_permissions')}
+              </ItemLink>
+            )}
 
-          <ActionsDropdownItem className="js-update" onClick={this.handleUpdateClick}>
-            {translate('update_details')}
-          </ActionsDropdownItem>
+            <ItemButton className="js-update" onClick={this.handleUpdateClick}>
+              {translate('update_details')}
+            </ItemButton>
 
-          {t.defaultFor.length === 0 && (
-            <ActionsDropdownItem
-              className="js-delete"
-              destructive={true}
-              onClick={this.handleDeleteClick}
-            >
-              {translate('delete')}
-            </ActionsDropdownItem>
-          )}
+            {t.defaultFor.length === 0 && (
+              <ItemButton className="js-delete" onClick={this.handleDeleteClick}>
+                {translate('delete')}
+              </ItemButton>
+            )}
+          </>
         </ActionsDropdown>
 
         {this.state.updateModal && (

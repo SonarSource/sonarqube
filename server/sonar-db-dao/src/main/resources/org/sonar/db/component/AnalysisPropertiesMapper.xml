@@ -33,12 +33,15 @@
 
   <select id="selectAnalysisPropertyValueInLastAnalysisPerProject" parameterType="string" resultType="AnalysisPropertyValuePerProject">
     select
-      cp.uuid as "projectUuid", ap.text_value as "propertyValue"
+      pb.project_uuid as "projectUuid", ap.text_value as "propertyValue"
     from components cp
-    inner join snapshots s on s.component_uuid = cp.uuid
+    inner join snapshots s on s.root_component_uuid = cp.uuid
     inner join analysis_properties ap on ap.analysis_uuid = s.uuid
+    inner join project_branches pb on pb.uuid = cp.branch_uuid
     where
-      cp.main_branch_project_uuid is null and s.islast = ${_true} and ap.kee = #{analysisPropertyKey, jdbcType=VARCHAR}
+      pb.is_main = ${_true}
+      and s.islast = ${_true}
+      and ap.kee = #{analysisPropertyKey, jdbcType=VARCHAR}
     order by cp.uuid asc
   </select>
 

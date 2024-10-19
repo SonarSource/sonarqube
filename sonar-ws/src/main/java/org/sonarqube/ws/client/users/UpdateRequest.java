@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -83,16 +83,6 @@ public class UpdateRequest {
 
   public String getScmAccount() {
     return scmAccount;
-  }
-
-  /**
-   * Example value: "myscmaccount1,myscmaccount2"
-   * @deprecated since 6.1
-   */
-  @Deprecated
-  public UpdateRequest setScmAccounts(String scmAccounts) {
-    this.scmAccounts = scmAccounts;
-    return this;
   }
 
   public String getScmAccounts() {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonarqube.ws.client.updatecenter;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -34,23 +33,6 @@ public class UpdatecenterService extends BaseService {
 
   public UpdatecenterService(WsConnector wsConnector) {
     super(wsConnector, "api/updatecenter");
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/updatecenter/installed_plugins">Further information about this action online (including a response example)</a>
-   * @since 2.10
-   * @deprecated since 6.3
-   */
-  @Deprecated
-  public String installedPlugins(InstalledPluginsRequest request) {
-    return call(
-      new GetRequest(path("installed_plugins"))
-        .setParam("format", request.getFormat())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
   }
 
   /**

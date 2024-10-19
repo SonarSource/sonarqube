@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,43 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { render, RenderResult } from '@testing-library/react';
+
+import { EchoesProvider } from '@sonarsource/echoes-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Matcher, RenderResult, render, screen, within } from '@testing-library/react';
+import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
+import { ToastMessageContainer } from 'design-system';
+import { omit } from 'lodash';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { IntlProvider } from 'react-intl';
-import { MemoryRouter, Outlet, parsePath, Route, Routes } from 'react-router-dom';
+import { IntlProvider, ReactIntlErrorCode } from 'react-intl';
+import {
+  MemoryRouter,
+  Outlet,
+  Route,
+  RouterProvider,
+  Routes,
+  createMemoryRouter,
+  createRoutesFromElements,
+  parsePath,
+} from 'react-router-dom';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
 import { ComponentContext } from '../app/components/componentContext/ComponentContext';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
-import GlobalMessagesContainer from '../app/components/GlobalMessagesContainer';
 import IndexationContextProvider from '../app/components/indexation/IndexationContextProvider';
 import { LanguagesContext } from '../app/components/languages/LanguagesContext';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
-import { useLocation } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { ComponentContextShape } from '../types/component';
 import { Feature } from '../types/features';
-import { Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
+import { Component, Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
 import { CurrentUser } from '../types/users';
+import { mockComponent } from './mocks/component';
 import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState, mockCurrentUser } from './testMocks';
 
 export interface RenderContext {
-  metrics?: Dict<Metric>;
   appState?: AppState;
-  languages?: Languages;
   currentUser?: CurrentUser;
-  navigateTo?: string;
   featureList?: Feature[];
+  languages?: Languages;
+  metrics?: Dict<Metric>;
+  navigateTo?: string;
 }
 
 export function renderAppWithAdminContext(
   indexPath: string,
   routes: () => JSX.Element,
   context: RenderContext = {},
-  overrides: { systemStatus?: SysStatus; adminPages?: Extension[] } = {}
+  overrides: { adminPages?: Extension[]; systemStatus?: SysStatus } = {},
 ): RenderResult {
   function MockAdminContainer() {
     return (
@@ -83,20 +98,48 @@ export function renderAppWithAdminContext(
       {routes()}
     </Route>,
     indexPath,
-    context
+    context,
   );
 }
 
-export function renderComponent(component: React.ReactElement, pathname = '/') {
+export function renderComponent(
+  component: React.ReactElement,
+  pathname = '/',
+  {
+    appState = mockAppState(),
+    featureList = [],
+    currentUser = mockCurrentUser(),
+  }: RenderContext = {},
+) {
   function Wrapper({ children }: { children: React.ReactElement }) {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
     return (
-      <IntlProvider defaultLocale="en" locale="en">
-        <MemoryRouter initialEntries={[pathname]}>
-          <Routes>
-            <Route path="*" element={children} />
-          </Routes>
-        </MemoryRouter>
-      </IntlProvider>
+      <IntlWrapper>
+        <QueryClientProvider client={queryClient}>
+          <HelmetProvider>
+            <AvailableFeaturesContext.Provider value={featureList}>
+              <CurrentUserContextProvider currentUser={currentUser}>
+                <AppStateContextProvider appState={appState}>
+                  <EchoesProvider tooltipsDelayDuration={0}>
+                    <MemoryRouter initialEntries={[pathname]}>
+                      <Routes>
+                        <Route path="*" element={children} />
+                      </Routes>
+                    </MemoryRouter>
+                  </EchoesProvider>
+                </AppStateContextProvider>
+              </CurrentUserContextProvider>
+            </AvailableFeaturesContext.Provider>
+          </HelmetProvider>
+        </QueryClientProvider>
+      </IntlWrapper>
     );
   }
 
@@ -107,16 +150,21 @@ export function renderAppWithComponentContext(
   indexPath: string,
   routes: () => JSX.Element,
   context: RenderContext = {},
-  componentContext?: Partial<ComponentContextShape>
+  componentContext: Partial<ComponentContextShape> = {},
 ) {
   function MockComponentContainer() {
+    const [realComponent, setRealComponent] = React.useState(
+      componentContext?.component ?? mockComponent(),
+    );
     return (
       <ComponentContext.Provider
         value={{
-          branchLikes: [],
-          onBranchesChange: jest.fn(),
-          onComponentChange: jest.fn(),
-          ...componentContext,
+          onComponentChange: (changes: Partial<Component>) => {
+            setRealComponent({ ...realComponent, ...changes });
+          },
+          fetchComponent: jest.fn(),
+          component: realComponent,
+          ...omit(componentContext, 'component'),
         }}
       >
         <Outlet />
@@ -127,14 +175,14 @@ export function renderAppWithComponentContext(
   return renderRoutedApp(
     <Route element={<MockComponentContainer />}>{routes()}</Route>,
     indexPath,
-    context
+    context,
   );
 }
 
 export function renderApp(
   indexPath: string,
   component: JSX.Element,
-  context: RenderContext = {}
+  context: RenderContext = {},
 ): RenderResult {
   return renderRoutedApp(<Route path={indexPath} element={component} />, indexPath, context);
 }
@@ -142,7 +190,7 @@ export function renderApp(
 export function renderAppRoutes(
   indexPath: string,
   routes: () => JSX.Element,
-  context?: RenderContext
+  context?: RenderContext,
 ): RenderResult {
   return renderRoutedApp(routes(), indexPath, context);
 }
@@ -163,34 +211,110 @@ function renderRoutedApp(
     appState = mockAppState(),
     featureList = [],
     languages = {},
-  }: RenderContext = {}
+  }: RenderContext = {},
 ): RenderResult {
   const path = parsePath(navigateTo);
-  path.pathname = `/${path.pathname}`;
+  if (!path.pathname?.startsWith('/')) {
+    path.pathname = `/${path.pathname}`;
+  }
+  const queryClient = new QueryClient();
+
+  const router = createMemoryRouter(
+    createRoutesFromElements(
+      <>
+        {children}
+        <Route path="*" element={<CatchAll />} />
+      </>,
+    ),
+    { initialEntries: [path] },
+  );
 
   return render(
     <HelmetProvider context={{}}>
-      <IntlProvider defaultLocale="en" locale="en">
+      <IntlWrapper>
         <MetricsContext.Provider value={metrics}>
           <LanguagesContext.Provider value={languages}>
             <AvailableFeaturesContext.Provider value={featureList}>
               <CurrentUserContextProvider currentUser={currentUser}>
                 <AppStateContextProvider appState={appState}>
                   <IndexationContextProvider>
-                    <GlobalMessagesContainer />
-                    <MemoryRouter initialEntries={[path]}>
-                      <Routes>
-                        {children}
-                        <Route path="*" element={<CatchAll />} />
-                      </Routes>
-                    </MemoryRouter>
+                    <QueryClientProvider client={queryClient}>
+                      <ToastMessageContainer />
+                      <EchoesProvider tooltipsDelayDuration={0}>
+                        <RouterProvider router={router} />
+                      </EchoesProvider>
+                    </QueryClientProvider>
                   </IndexationContextProvider>
                 </AppStateContextProvider>
               </CurrentUserContextProvider>
             </AvailableFeaturesContext.Provider>
           </LanguagesContext.Provider>
         </MetricsContext.Provider>
-      </IntlProvider>
-    </HelmetProvider>
+      </IntlWrapper>
+    </HelmetProvider>,
+  );
+}
+
+export function dateInputEvent(user: UserEvent) {
+  return {
+    async pickDate(element: HTMLElement, date: Date) {
+      await user.click(element);
+
+      const formatter = new Intl.DateTimeFormat('en', { month: 'long' });
+
+      await user.selectOptions(
+        await screen.findByRole('combobox', { name: 'Month:' }),
+        formatter.format(date),
+      );
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: 'Year:' }),
+        String(date.getFullYear()),
+      );
+
+      await user.click(screen.getByRole('gridcell', { name: String(date.getDate()) }));
+    },
+  };
+}
+/* eslint-enable testing-library/no-node-access */
+
+/**
+ * @deprecated Use our custom toHaveATooltipWithContent() matcher instead.
+ */
+export function findTooltipWithContent(
+  text: Matcher,
+  target?: HTMLElement,
+  selector = 'svg > desc',
+) {
+  // eslint-disable-next-line no-console
+  console.warn(`The usage of findTooltipWithContent() is deprecated; use expect.toHaveATooltipWithContent() instead.
+Example:
+  await expect(node).toHaveATooltipWithContent('foo.bar');`);
+  return target
+    ? within(target).getByText(text, { selector })
+    : screen.getByText(text, { selector });
+}
+
+export function IntlWrapper({
+  children,
+  messages = {},
+}: {
+  children: React.ReactNode;
+  messages?: Record<string, string>;
+}) {
+  return (
+    <IntlProvider
+      defaultLocale="en"
+      locale="en"
+      messages={messages}
+      onError={(e) => {
+        // ignore missing translations, there are none!
+        if (e.code !== ReactIntlErrorCode.MISSING_TRANSLATION) {
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
+      }}
+    >
+      {children}
+    </IntlProvider>
   );
 }

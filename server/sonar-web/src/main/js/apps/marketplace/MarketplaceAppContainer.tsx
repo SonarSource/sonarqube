@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,20 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import AdminContext from '../../app/components/AdminContext';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import { Location, withRouter } from '../../components/hoc/withRouter';
 import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
 import { GlobalSettingKeys } from '../../types/settings';
 import App from './App';
 
 export interface MarketplaceAppContainerProps {
-  location: Location;
   appState: AppState;
+  location: Location;
 }
 
-export function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {
+function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {
   const { appState, location } = props;
 
   const propsToPass = {

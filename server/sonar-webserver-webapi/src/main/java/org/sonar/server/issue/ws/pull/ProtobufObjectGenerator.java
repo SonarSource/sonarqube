@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,13 @@ package org.sonar.server.issue.ws.pull;
 import com.google.protobuf.AbstractMessageLite;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDto;
 import org.sonarqube.ws.Issues;
 
 public interface ProtobufObjectGenerator {
   AbstractMessageLite generateTimestampMessage(long timestamp);
 
-  AbstractMessageLite generateIssueMessage(IssueDto issueDto);
+  AbstractMessageLite generateIssueMessage(IssueDto issueDto, RuleDto ruleDto);
 
   AbstractMessageLite generateClosedIssueMessage(String uuid);
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -133,16 +133,14 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
       .entrySet()
       .stream()
-      .collect(MoreCollectors.uniqueIndex(
-        Map.Entry::getKey,
-        rulesProfilesByLanguageAndName -> toQualityProfileBuilders(rulesProfilesByLanguageAndName, rulesByRuleKey)));
+      .collect(Collectors.toMap(Map.Entry::getKey, rulesProfilesByLanguageAndName -> toQualityProfileBuilders(rulesProfilesByLanguageAndName, rulesByRuleKey)));
     return buildersByLanguage
       .entrySet()
       .stream()
       .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
       .map(entry -> toQualityProfiles(entry.getValue()))
       .flatMap(Collection::stream)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   private Map<RuleKey, RuleDto> loadRuleDefinitionsByRuleKey() {
@@ -191,7 +189,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     Set<String> declaredDefaultProfileNames = entry.getValue().stream()
       .filter(BuiltInQProfile.Builder::isDeclaredDefault)
       .map(BuiltInQProfile.Builder::getName)
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     checkState(declaredDefaultProfileNames.size() <= 1, "Several Quality profiles are flagged as default for the language %s: %s", entry.getKey(), declaredDefaultProfileNames);
     return true;
   }
@@ -230,6 +228,6 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     }
     return builders.stream()
       .map(BuiltInQProfile.Builder::build)
-      .collect(MoreCollectors.toList(builders.size()));
+      .toList();
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,14 +27,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.version.SqTables;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class PostgresCharsetHandler extends CharsetHandler {
 
@@ -58,7 +58,7 @@ class PostgresCharsetHandler extends CharsetHandler {
   }
 
   private void expectUtf8AsDefault(Connection connection) throws SQLException {
-    Loggers.get(getClass()).info("Verify that database charset supports UTF8");
+    LoggerFactory.getLogger(getClass()).info("Verify that database charset supports UTF8");
     String collation = metadata.getDefaultCharset(connection);
     if (!containsIgnoreCase(collation, UTF8)) {
       throw MessageException.of(format("Database charset is %s. It must support UTF8.", collation));

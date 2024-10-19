@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
+import { IssueMessageHighlighting, LocationMarker, StyledMarker, themeColor } from 'design-system';
 import * as React from 'react';
+import { translateWithParameters } from '../../helpers/l10n';
 import { MessageFormatting } from '../../types/issues';
-import LocationIndex from '../common/LocationIndex';
 import LocationMessage from '../common/LocationMessage';
-import { ButtonPlain } from '../controls/buttons';
-import { IssueMessageHighlighting } from '../issue/IssueMessageHighlighting';
 import './SingleFileLocationNavigator.css';
 
 interface Props {
+  concealedMarker?: boolean;
   index: number;
   message: string | undefined;
   messageFormattings?: MessageFormatting[];
@@ -62,24 +63,44 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
   };
 
   render() {
-    const { index, message, messageFormattings, selected } = this.props;
+    const { index, concealedMarker, message, messageFormattings, selected } = this.props;
 
     return (
-      <ButtonPlain
-        preventDefault={true}
-        stopPropagation={true}
-        aria-current={selected ? 'location' : false}
-        className={classNames('locations-navigator', { selected })}
-        innerRef={(node) => {
-          this.node = node;
-        }}
+      <StyledButton
         onClick={this.handleClick}
+        aria-current={selected ? 'location' : false}
+        className={classNames('sw-p-1 sw-flex sw-items-center sw-gap-2', {
+          selected,
+        })}
+        ref={(n) => (this.node = n)}
       >
-        <LocationIndex>{index + 1}</LocationIndex>
+        <LocationMarker selected={selected} text={concealedMarker ? undefined : index + 1} />
         <LocationMessage>
-          {<IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />}
+          {message ? (
+            <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+          ) : (
+            translateWithParameters('issue.location_x', index + 1)
+          )}
         </LocationMessage>
-      </ButtonPlain>
+      </StyledButton>
     );
   }
 }
+
+const StyledButton = styled.button`
+  color: ${themeColor('pageContent')};
+  cursor: pointer;
+  outline: none;
+  border: none;
+  background: transparent;
+
+  &.selected,
+  &:hover,
+  &:focus {
+    background-color: ${themeColor('subnavigationSelected')};
+  }
+
+  &:hover ${StyledMarker} {
+    background-color: ${themeColor('codeLineLocationMarkerSelected')};
+  }
+`;

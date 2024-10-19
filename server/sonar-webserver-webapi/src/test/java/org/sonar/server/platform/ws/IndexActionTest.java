@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,9 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
@@ -43,21 +43,19 @@ import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class IndexActionTest {
-
   private static final String KEY_1 = "key1";
   private static final String KEY_2 = "key2";
   private static final String KEY_3 = "key3";
 
+  private final DefaultI18n i18n = mock(DefaultI18n.class);
+  private final Server server = mock(Server.class);
 
-  private DefaultI18n i18n = mock(DefaultI18n.class);
-  private Server server = mock(Server.class);
+  private final IndexAction underTest = new IndexAction(i18n, server);
 
-  private IndexAction underTest = new IndexAction(i18n, server);
-
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void allow_client_to_cache_messages() {
+  public void execute_shouldAllowClientToCacheMessages() {
     Date now = new Date();
     Date aBitLater = new Date(now.getTime() + 1000);
     when(server.getStartedAt()).thenReturn(now);
@@ -70,11 +68,11 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_all_l10n_messages_using_accept_header_with_cache_expired() {
+  public void execute_shouldReturnAllL10nMessages_whenUsingAcceptHeaderWithCacheExpired() {
     Date now = new Date();
     Date aBitEarlier = new Date(now.getTime() - 1000);
     when(server.getStartedAt()).thenReturn(now);
-    when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(KEY_1, KEY_2, KEY_3));
+    when(i18n.getPropertyKeys()).thenReturn(Set.of(KEY_1, KEY_2, KEY_3));
     when(i18n.message(PRC, KEY_1, KEY_1)).thenReturn(KEY_1);
     when(i18n.message(PRC, KEY_2, KEY_2)).thenReturn(KEY_2);
     when(i18n.message(PRC, KEY_3, KEY_3)).thenReturn(KEY_3);
@@ -90,11 +88,11 @@ public class IndexActionTest {
   }
 
   @Test
-  public void default_locale_is_english() {
+  public void execute_shouldReturnEnglishMessages_whenDefaultLocaleProvided() {
     String key1 = "key1";
     String key2 = "key2";
     String key3 = "key3";
-    when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1, key2, key3));
+    when(i18n.getPropertyKeys()).thenReturn(Set.of(key1, key2, key3));
     when(i18n.message(ENGLISH, key1, key1)).thenReturn(key1);
     when(i18n.message(ENGLISH, key2, key2)).thenReturn(key2);
     when(i18n.message(ENGLISH, key3, key3)).thenReturn(key3);
@@ -110,9 +108,9 @@ public class IndexActionTest {
   }
 
   @Test
-  public void support_BCP47_formatted_language_tags() {
+  public void execute_shouldReturnMessages_whenProvidedSupportedBCP47FormattedLanguageTags() {
     String key1 = "key1";
-    when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
+    when(i18n.getPropertyKeys()).thenReturn(Set.of(key1));
     when(i18n.message(UK, key1, key1)).thenReturn(key1);
     when(i18n.getEffectiveLocale(UK)).thenReturn(UK);
 
@@ -124,13 +122,25 @@ public class IndexActionTest {
   }
 
   @Test
-  public void fail_when_java_formatted_language_tags() {
+  public void execute_shouldFail_whenJavaFormattedLanguageTags() {
     String key1 = "key1";
-    when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
+    when(i18n.getPropertyKeys()).thenReturn(Set.of(key1));
     when(i18n.message(UK, key1, key1)).thenReturn(key1);
     when(i18n.getEffectiveLocale(UK)).thenReturn(UK);
 
     assertThatThrownBy(() -> call("en_GB", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Locale cannot be parsed as a BCP47 language tag");
+  }
+
+  @Test
+  public void execute_shouldFail_whenUnknownBCP47Tag() {
+    String key1 = "key1";
+    when(i18n.getPropertyKeys()).thenReturn(Set.of(key1));
+    when(i18n.message(UK, key1, key1)).thenReturn(key1);
+    when(i18n.getEffectiveLocale(UK)).thenReturn(UK);
+
+    assertThatThrownBy(() -> call("ABCD", null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Locale cannot be parsed as a BCP47 language tag");
   }

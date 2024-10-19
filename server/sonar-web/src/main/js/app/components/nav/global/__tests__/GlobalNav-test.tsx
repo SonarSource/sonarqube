@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,29 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
-import { GlobalNav, GlobalNavProps } from '../GlobalNav';
+import { screen } from '@testing-library/react';
+import React from 'react';
+import { mockAppState, mockCurrentUser, mockLocation } from '../../../../../helpers/testMocks';
+import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import GlobalNav from '../GlobalNav';
 
-const location = { pathname: '' };
-
-it('should render correctly', async () => {
-  const wrapper = shallowRender();
-
-  expect(wrapper).toMatchSnapshot('anonymous users');
-  wrapper.setProps({ currentUser: { isLoggedIn: true } });
-  expect(wrapper).toMatchSnapshot('logged in users');
-
-  await waitAndUpdate(wrapper);
+it('render global navigation correctly for anonymous user', () => {
+  renderGlobalNav({ appState: mockAppState() });
+  expect(screen.getByText('projects.page')).toBeInTheDocument();
+  expect(screen.getByText('issues.page')).toBeInTheDocument();
+  expect(screen.getByText('coding_rules.page')).toBeInTheDocument();
+  expect(screen.getByText('quality_profiles.page')).toBeInTheDocument();
+  expect(screen.getByText('quality_gates.page')).toBeInTheDocument();
+  expect(screen.getByText('layout.login')).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<GlobalNavProps> = {}) {
-  return shallow(
-    <GlobalNav
-      currentUser={{ isLoggedIn: false, dismissedNotices: {} }}
-      location={location}
-      {...props}
-    />
-  );
+it('render global navigation correctly for logged in user', () => {
+  renderGlobalNav({ currentUser: mockCurrentUser({ isLoggedIn: true }) });
+  expect(screen.getByText('projects.page')).toBeInTheDocument();
+  expect(screen.queryByText('layout.login')).not.toBeInTheDocument();
+});
+
+it('render the logo correctly', () => {
+  renderGlobalNav({
+    appState: mockAppState({
+      settings: {
+        'sonar.lf.logoUrl': 'http://sonarsource.com/test.svg',
+      },
+    }),
+  });
+  const image = screen.getByAltText('layout.nav.home_logo_alt');
+  expect(image).toHaveAttribute('src', 'http://sonarsource.com/test.svg');
+});
+
+function renderGlobalNav({ appState = mockAppState(), currentUser = mockCurrentUser() }) {
+  renderApp('/', <GlobalNav location={mockLocation()} />, {
+    appState,
+    currentUser,
+  });
 }

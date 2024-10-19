@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,13 @@
 package org.sonar.db.component;
 
 public class UuidWithBranchUuidDto {
-
   private String uuid;
   private String branchUuid;
 
+  /**
+   * branchUuid column in the components table for this component.
+   * It can be the UUID of a project or app branch, or the UUID of a portfolio.
+   */
   public String getBranchUuid() {
     return branchUuid;
   }

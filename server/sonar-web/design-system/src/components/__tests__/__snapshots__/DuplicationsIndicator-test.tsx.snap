@@ -1,0 +1,203 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display DuplicationsIndicator with rating 1`] = `
+<body>
+  <div>
+    <svg
+      height="24"
+      viewBox="0 0 16 16"
+      width="24"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        fill="rgb(18,183,106)"
+        r="2"
+      />
+      <path
+        clip-rule="evenodd"
+        d="M8 14c3.3137 0 6-2.6863 6-6 0-3.31371-2.6863-6-6-6-3.31371 0-6 2.68629-6 6 0 3.3137 2.68629 6 6 6Zm0 2c4.4183 0 8-3.5817 8-8 0-4.41828-3.5817-8-8-8-4.41828 0-8 3.58172-8 8 0 4.4183 3.58172 8 8 8Z"
+        fill="rgb(239,242,249)"
+        fill-rule="evenodd"
+      />
+      <circle
+        cx="8"
+        cy="8"
+        fill="rgb(18,183,106)"
+        r="2"
+      />
+    </svg>
+  </div>
+</body>
+`;
+
+exports[`should display DuplicationsIndicator with rating 2`] = `
+<body>
+  <div>
+    <svg
+      height="24"
+      viewBox="0 0 16 16"
+      width="24"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        fill="rgb(18,183,106)"
+        r="2"
+      />
+      <path
+        clip-rule="evenodd"
+        d="M8 14c3.3137 0 6-2.6863 6-6 0-3.31371-2.6863-6-6-6-3.31371 0-6 2.68629-6 6 0 3.3137 2.68629 6 6 6Zm0 2c4.4183 0 8-3.5817 8-8 0-4.41828-3.5817-8-8-8-4.41828 0-8 3.58172-8 8 0 4.4183 3.58172 8 8 8Z"
+        fill="rgb(239,242,249)"
+        fill-rule="evenodd"
+      />
+      <path
+        d="M8 0c.81879 0 1.63272.125698 2.4134.372702L9.81002 2.27953A5.99976 5.99976 0 0 0 8 2V0Z"
+        fill="rgb(18,183,106)"
+      />
+    </svg>
+  </div>
+</body>
+`;
+
+exports[`should display DuplicationsIndicator with rating 3`] = `
+<body>
+  <div>
+    <svg
+      height="24"
+      viewBox="0 0 16 16"
+      width="24"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        fill="rgb(110,183,18)"
+        r="2"
+      />
+      <path
+        clip-rule="evenodd"
+        d="M8 14c3.3137 0 6-2.6863 6-6 0-3.31371-2.6863-6-6-6-3.31371 0-6 2.68629-6 6 0 3.3137 2.68629 6 6 6Zm0 2c4.4183 0 8-3.5817 8-8 0-4.41828-3.5817-8-8-8-4.41828 0-8 3.58172-8 8 0 4.4183 3.58172 8 8 8Z"
+        fill="rgb(239,242,249)"
+        fill-rule="evenodd"
+      />
+      <path
+        d="M8 0c1.89071 2e-8 3.7203.669649 5.1643 1.89017l-1.2911 1.52746C10.7902 2.50224 9.41803 2 8 2V0Z"
+        fill="rgb(110,183,18)"
+      />
+    </svg>
+  </div>
+</body>
+`;
+
+exports[`should display DuplicationsIndicator with rating 4`] = `
+<body>
+  <div>
+    <svg
+      height="24"
+      viewBox="0 0 16 16"
+      width="24"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        fill="rgb(245,184,64)"
+        r="2"
+      />
+      <path
+        clip-rule="evenodd"
+        d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14ZM8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z"
+        fill="rgb(239,242,249)"
+        fill-rule="evenodd"
+      />
+      <path
+        d="M8 0a7.9999 7.9999 0 0 1 4.5815 1.44181 7.99949 7.99949 0 0 1 2.9301 3.80574l-1.8779.68811A6.00009 6.00009 0 0 0 8 2V0Z"
+        fill="rgb(245,184,64)"
+      />
+    </svg>
+  </div>
+</body>
+`;
+
+exports[`should display DuplicationsIndicator with rating 5`] = `
+<body>
+  <div>
+    <svg
+      height="24"
+      viewBox="0 0 16 16"
+      width="24"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        fill="rgb(247,95,9)"
+        r="2"
+      />
+      <path
+        clip-rule="evenodd"
+        d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14ZM8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z"
+        fill="rgb(239,242,249)"
+        fill-rule="evenodd"
+      />
+      <path
+        d="M8 0a8 8 0 0 1 5.0686 1.81054 8.00033 8.00033 0 0 1 2.7744 4.61211l-1.9608.39434a5.99958 5.99958 0 0 0-2.0808-3.45908A5.99972 5.99972 0 0 0 8 2V0Z"
+        fill="rgb(247,95,9)"
+      />
+    </svg>
+  </div>
+</body>
+`;
+
+exports[`should display DuplicationsIndicator with rating 6`] = `
+<body>
+  <div>
+    <svg
+      height="24"
+      viewBox="0 0 16 16"
+      width="24"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        fill="rgb(240,68,56)"
+        r="2"
+      />
+      <path
+        clip-rule="evenodd"
+        d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14ZM8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z"
+        fill="rgb(239,242,249)"
+        fill-rule="evenodd"
+      />
+      <path
+        d="M8 0a8.0002 8.0002 0 0 1 5.6569 13.6569l-1.4143-1.4143a5.9993 5.9993 0 0 0 1.3007-6.5387A5.9999 5.9999 0 0 0 8 2V0Z"
+        fill="rgb(240,68,56)"
+      />
+    </svg>
+  </div>
+</body>
+`;
+
+exports[`should display DuplicationsIndicator without rating 1`] = `
+<body>
+  <div>
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="24"
+      role="img"
+      style="clip-rule: evenodd; display: inline-block; fill-rule: evenodd; user-select: none; vertical-align: middle; stroke-linejoin: round; stroke-miterlimit: 1.414;"
+      version="1.1"
+      viewBox="0 0 16 16"
+      width="24"
+      xml:space="preserve"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+    >
+      <path
+        clip-rule="evenodd"
+        d="M16 8C16 12.4183 12.4183 16 8 16C5.5106 16 3.28676 14.863 1.81951 13.0799L15.4913 5.1865C15.8201 6.06172 16 7.00986 16 8ZM14.5574 3.41624L0.750565 11.3876C0.269025 10.3589 0 9.21089 0 8C0 3.58172 3.58172 0 8 0C10.7132 0 13.1109 1.35064 14.5574 3.41624Z"
+        fill="#E1E6F3"
+        fill-rule="evenodd"
+      />
+    </svg>
+  </div>
+</body>
+`;

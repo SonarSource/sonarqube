@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,12 +19,12 @@
  */
 package org.sonar.server.authentication;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 
@@ -45,8 +45,8 @@ public class JwtCsrfVerifierTest {
 
   private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
 
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpResponse response = mock(HttpResponse.class);
+  private HttpRequest request = mock(HttpRequest.class);
 
   private JwtCsrfVerifier underTest = new JwtCsrfVerifier();
 
@@ -183,7 +183,7 @@ public class JwtCsrfVerifierTest {
     assertThat(cookie.getPath()).isEqualTo("/");
     assertThat(cookie.isHttpOnly()).isFalse();
     assertThat(cookie.getMaxAge()).isEqualTo(TIMEOUT);
-    assertThat(cookie.getSecure()).isFalse();
+    assertThat(cookie.isSecure()).isFalse();
   }
 
   private void mockPostJavaWsRequest() {

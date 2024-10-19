@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -102,7 +102,7 @@ public class EditCommentAction implements HotspotsWsAction {
   }
 
   private void validate(DbSession dbSession, IssueChangeDto issueChangeDto) {
-    hotspotWsSupport.loadAndCheckProject(dbSession, issueChangeDto.getIssueKey());
+    hotspotWsSupport.loadAndCheckBranch(dbSession, issueChangeDto.getIssueKey());
     checkArgument(Objects.equals(issueChangeDto.getUserUuid(), userSession.getUuid()), "You can only edit your own comments");
   }
 

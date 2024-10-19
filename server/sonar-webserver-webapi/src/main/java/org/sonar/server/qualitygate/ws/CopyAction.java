@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,11 +32,8 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_SOURCE_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -62,23 +59,19 @@ public class CopyAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("copy")
       .setDescription("Copy a Quality Gate.<br>" +
-        "Either 'sourceName' or 'id' must be provided. Requires the 'Administer Quality Gates' permission.")
+        "'sourceName' must be provided. Requires the 'Administer Quality Gates' permission.")
       .setPost(true)
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response is deprecated"),
+        new Change("10.0", "Parameter 'id' is removed. Use 'sourceName' instead."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'sourceName' instead."),
         new Change("8.4", "Parameter 'sourceName' added"))
       .setSince("4.3")
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setDescription("The ID of the source quality gate. This parameter is deprecated. Use 'sourceName' instead.")
-      .setRequired(false)
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_SOURCE_NAME)
       .setDescription("The name of the quality gate to copy")
-      .setRequired(false)
+      .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("My Quality Gate");
@@ -93,9 +86,7 @@ public class CopyAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String uuid = request.param(PARAM_ID);
-    String sourceName = request.param(PARAM_SOURCE_NAME);
-    checkArgument(sourceName != null ^ uuid != null, "Either 'id' or 'sourceName' must be provided, and not both");
+    String sourceName = request.mandatoryParam(PARAM_SOURCE_NAME);
 
     String destinationName = request.mandatoryParam(PARAM_NAME);
 
@@ -103,18 +94,12 @@ public class CopyAction implements QualityGatesWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
 
       userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
-
-      QualityGateDto qualityGate;
-      if (uuid != null) {
-        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
-      } else {
-        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, sourceName);
-      }
+      QualityGateDto qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, sourceName);
       logger.info("Copy Quality Gate:: organization: {}, qGate: {}, user: {}", organization.getKey(),
-              qualityGate.getName(), userSession.getLogin());
+          qualityGate.getName(), userSession.getLogin());
       QualityGateDto copy = qualityGateUpdater.copy(dbSession, organization, qualityGate, destinationName);
       logger.info("Copied Quality Gate:: organization: {}, qGate: {}, copiedQGateTo: {}, user: {}",
-              organization.getKey(), qualityGate.getName(), destinationName, userSession.getLogin());
+          organization.getKey(), qualityGate.getName(), destinationName, userSession.getLogin());
       dbSession.commit();
 
       writeProtobuf(newBuilder()

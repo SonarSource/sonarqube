@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,16 +29,17 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.project.Project;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -51,7 +52,7 @@ import static org.sonar.scanner.protocol.output.ScannerReport.Component.Componen
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 
-public class ComponentTreeBuilderTest {
+class ComponentTreeBuilderTest {
 
   private static final ComponentKeyGenerator KEY_GENERATOR = (projectKey, path) -> "generated_" + ComponentKeys.createEffectiveKey(projectKey, path);
   private static final UnaryOperator<String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
@@ -61,13 +62,13 @@ public class ComponentTreeBuilderTest {
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
     randomAlphabetic(20), new Random().nextBoolean() ? null : randomAlphabetic(12), "1def5123");
 
-  @Rule
-  public ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
+  @RegisterExtension
+  private final ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
 
-  private Project projectInDb = Project.from(newPrivateProjectDto(UUID_SUPPLIER.apply("K1")).setKey("K1").setDescription(null));
+  private final Project projectInDb = Project.from(newPrivateProjectDto(UUID_SUPPLIER.apply("K1")).setKey("K1").setDescription(null));
 
   @Test
-  public void build_throws_IAE_for_all_types_except_PROJECT_and_FILE() {
+  void build_throws_IAE_for_all_types_except_PROJECT_and_FILE() {
     Arrays.stream(ScannerReport.Component.ComponentType.values())
       .filter((type) -> type != UNRECOGNIZED)
       .filter((type) -> !REPORT_TYPES.contains(type))
@@ -96,7 +97,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void build_throws_IAE_if_root_is_not_PROJECT() {
+  void build_throws_IAE_if_root_is_not_PROJECT() {
     Arrays.stream(ScannerReport.Component.ComponentType.values())
       .filter((type) -> type != UNRECOGNIZED)
       .filter((type) -> !REPORT_TYPES.contains(type))
@@ -113,7 +114,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void by_default_project_fields_are_loaded_from_report() {
+  void by_default_project_fields_are_loaded_from_report() {
     String nameInReport = "the name";
     String descriptionInReport = "the desc";
     String buildString = randomAlphabetic(21);
@@ -138,7 +139,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_name_is_loaded_from_db_if_absent_from_report() {
+  void project_name_is_loaded_from_db_if_absent_from_report() {
     Component root = call(newBuilder()
       .setType(PROJECT)
       .build(), NO_SCM_BASE_PATH, SOME_PROJECT_ATTRIBUTES);
@@ -147,7 +148,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_name_is_loaded_from_report_if_present_and_on_main_branch() {
+  void project_name_is_loaded_from_report_if_present_and_on_main_branch() {
     String reportName = randomAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
@@ -160,7 +161,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_name_is_loaded_from_db_if_not_on_main_branch() {
+  void project_name_is_loaded_from_db_if_not_on_main_branch() {
     String reportName = randomAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
@@ -174,7 +175,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_description_is_loaded_from_db_if_absent_from_report() {
+  void project_description_is_loaded_from_db_if_absent_from_report() {
     Component root = call(newBuilder()
       .setType(PROJECT)
       .build(), NO_SCM_BASE_PATH, SOME_PROJECT_ATTRIBUTES);
@@ -183,7 +184,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_description_is_loaded_from_report_if_present_and_on_main_branch() {
+  void project_description_is_loaded_from_report_if_present_and_on_main_branch() {
     String reportDescription = randomAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
@@ -196,7 +197,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_description_is_loaded_from_db_if_not_on_main_branch() {
+  void project_description_is_loaded_from_db_if_not_on_main_branch() {
     String reportDescription = randomAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
@@ -209,7 +210,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_scmPath_is_empty_if_scmBasePath_is_empty() {
+  void project_scmPath_is_empty_if_scmBasePath_is_empty() {
     Component root = call(newBuilder()
       .setType(PROJECT)
       .build(), NO_SCM_BASE_PATH, SOME_PROJECT_ATTRIBUTES);
@@ -218,7 +219,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void projectAttributes_is_constructor_argument() {
+  void projectAttributes_is_constructor_argument() {
     Component root = call(newBuilder()
       .setType(PROJECT)
       .build(), NO_SCM_BASE_PATH, SOME_PROJECT_ATTRIBUTES);
@@ -227,7 +228,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void any_component_with_projectRelativePath_has_this_value_as_scmPath_if_scmBasePath_is_empty() {
+  void any_component_with_projectRelativePath_has_this_value_as_scmPath_if_scmBasePath_is_empty() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -254,7 +255,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void any_component_with_projectRelativePath_has_this_value_appended_to_scmBasePath_and_a_slash_as_scmPath_if_scmBasePath_is_not_empty() {
+  void any_component_with_projectRelativePath_has_this_value_appended_to_scmBasePath_and_a_slash_as_scmPath_if_scmBasePath_is_not_empty() {
     ScannerReport.Component project = createProject();
     String scmBasePath = randomAlphabetic(10);
 
@@ -285,7 +286,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void keys_of_directory_and_file_are_generated() {
+  void keys_of_directory_and_file_are_generated() {
     ScannerReport.Component project = createProject();
 
     Component root = call(project);
@@ -302,7 +303,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void modules_are_not_created() {
+  void modules_are_not_created() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -322,7 +323,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void folder_hierarchy_is_created() {
+  void folder_hierarchy_is_created() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -371,7 +372,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void collapse_directories_from_root() {
+  void collapse_directories_from_root() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -399,7 +400,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void directories_are_collapsed() {
+  void directories_are_collapsed() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -426,7 +427,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void names_of_directory_and_file_are_based_on_the_path() {
+  void names_of_directory_and_file_are_based_on_the_path() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -452,7 +453,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void create_full_hierarchy_of_directories() {
+  void create_full_hierarchy_of_directories() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -506,7 +507,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void keys_of_directory_and_files_includes_always_root_project() {
+  void keys_of_directory_and_files_includes_always_root_project() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey("project 1")
@@ -520,7 +521,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void uuids_are_provided_by_supplier() {
+  void uuids_are_provided_by_supplier() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey("c1")
@@ -544,7 +545,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void files_have_markedAsUnchanged_flag() {
+  void files_have_markedAsUnchanged_flag() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey("c1")
@@ -569,7 +570,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void issues_are_relocated_from_directories_and_modules_to_root() {
+  void issues_are_relocated_from_directories_and_modules_to_root() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey("c1")
@@ -587,7 +588,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void descriptions_of_module_directory_and_file_are_null_if_absent_from_report() {
+  void descriptions_of_module_directory_and_file_are_null_if_absent_from_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -609,7 +610,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void descriptions_of_module_directory_and_file_are_null_if_empty_in_report() {
+  void descriptions_of_module_directory_and_file_are_null_if_empty_in_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -633,7 +634,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void descriptions_of_module_directory_and_file_are_set_from_report_if_present() {
+  void descriptions_of_module_directory_and_file_are_set_from_report_if_present() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -655,7 +656,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void only_nb_of_lines_is_mandatory_on_file_attributes() {
+  void only_nb_of_lines_is_mandatory_on_file_attributes() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -676,7 +677,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void language_file_attributes_is_null_if_empty_in_report() {
+  void language_file_attributes_is_null_if_empty_in_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -697,7 +698,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void file_attributes_are_fully_loaded_from_report() {
+  void file_attributes_are_fully_loaded_from_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -720,7 +721,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void throw_IAE_if_lines_is_absent_from_report() {
+  void throw_IAE_if_lines_is_absent_from_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -737,7 +738,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void throw_IAE_if_lines_is_zero_in_report() {
+  void throw_IAE_if_lines_is_zero_in_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -755,7 +756,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void throw_IAE_if_lines_is_negative_in_report() {
+  void throw_IAE_if_lines_is_negative_in_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setRef(1)
@@ -772,13 +773,8 @@ public class ComponentTreeBuilderTest {
       .hasMessage("File 'src/js/Foo.js' has no line");
   }
 
-  private static class ScannerComponentProvider extends ExternalResource implements Function<Integer, ScannerReport.Component> {
+  private static class ScannerComponentProvider implements Function<Integer, ScannerReport.Component>, BeforeEachCallback {
     private final Map<Integer, ScannerReport.Component> components = new HashMap<>();
-
-    @Override
-    protected void before() {
-      clear();
-    }
 
     public void clear() {
       components.clear();
@@ -794,6 +790,11 @@ public class ComponentTreeBuilderTest {
       ScannerReport.Component existing = components.put(component.getRef(), component);
       checkArgument(existing == null, "Component %s already set for ref %s", existing, component.getRef());
       return component;
+    }
+
+    @Override
+    public void beforeEach(ExtensionContext extensionContext) {
+      clear();
     }
   }
 

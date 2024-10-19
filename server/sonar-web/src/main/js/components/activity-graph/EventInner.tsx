@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note } from 'design-system';
 import * as React from 'react';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
 import { translate } from '../../helpers/l10n';
-import { AnalysisEvent } from '../../types/project-activity';
+import { useCurrentBranchQuery } from '../../queries/branch';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../types/project-activity';
 import Tooltip from '../controls/Tooltip';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
-import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
+import { RichQualityGateEventInner, isRichQualityGateEvent } from './RichQualityGateEventInner';
+import {
+  RichQualityProfileEventInner,
+  isRichQualityProfileEvent,
+} from './RichQualityProfileEventInner';
+import { SqUpgradeActivityEventMessage } from './SqUpgradeActivityEventMessage';
 
 export interface EventInnerProps {
   event: AnalysisEvent;
@@ -31,26 +38,47 @@ export interface EventInnerProps {
 }
 
 export default function EventInner({ event, readonly }: EventInnerProps) {
+  const { component } = React.useContext(ComponentContext);
+  const { data: branchLike } = useCurrentBranchQuery(component);
   if (isRichQualityGateEvent(event)) {
     return <RichQualityGateEventInner event={event} readonly={readonly} />;
   } else if (isDefinitionChangeEvent(event)) {
+    return <DefinitionChangeEventInner branchLike={branchLike} event={event} readonly={readonly} />;
+  } else if (isRichQualityProfileEvent(event)) {
     return (
-      <ComponentContext.Consumer>
-        {({ branchLike }) => (
-          <DefinitionChangeEventInner branchLike={branchLike} event={event} readonly={readonly} />
-        )}
-      </ComponentContext.Consumer>
+      <div>
+        <Note className="sw-mr-1 sw-typo-semibold">
+          {translate('event.category', event.category)}
+        </Note>
+        <Note>
+          <RichQualityProfileEventInner event={event} />
+        </Note>
+      </div>
     );
+  } else if (event.category === ProjectAnalysisEventCategory.SqUpgrade) {
+    return <SqUpgradeActivityEventMessage event={event} />;
   }
 
+  const tooltipContent =
+    event.category && event.category === 'QUALITY_GATE' && event.description
+      ? `${translate('event.failed_conditions')} ${event.description}`
+      : event.description;
+
   return (
-    <Tooltip overlay={event.description || null}>
-      <span className="text-middle">
-        <span className="note little-spacer-right">
-          {translate('event.category', event.category)}:
-        </span>
-        <strong className="spacer-right">{event.name}</strong>
-      </span>
+    <Tooltip content={tooltipContent}>
+      <div className="sw-min-w-0 sw-flex-1 sw-py-1/2">
+        <div className="sw-flex sw-items-start">
+          <span>
+            <Note className="sw-mr-1 sw-typo-semibold">
+              {translate('event.category', event.category)}
+              {event.category === 'VERSION' && ':'}
+            </Note>
+            <Note className="sw-typo-default" title={event.description}>
+              {event.name}
+            </Note>
+          </span>
+        </div>
+      </div>
     </Tooltip>
   );
 }

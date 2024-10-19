@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,15 +34,15 @@ import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.ui.page.CorePageDefinition;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.api.web.page.Page.Scope.*;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.sonar.api.web.page.Page.Scope.COMPONENT;
+import static org.sonar.api.web.page.Page.Scope.GLOBAL;
 
 @ServerSide
 public class PageRepository implements Startable {
@@ -138,7 +138,7 @@ public class PageRepository implements Startable {
       .filter(p -> p.getScope().equals(scope))
       .filter(p -> p.isAdmin() == isAdmin)
       .filter(p -> !COMPONENT.equals(p.getScope()) || p.getComponentQualifiers().contains(qualifier))
-      .collect(toList());
+      .toList();
   }
 
   @VisibleForTesting

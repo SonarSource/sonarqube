@@ -14,7 +14,9 @@
     p.selection_mode as selectionMode,
     p.selection_expression as selectionExpression,
     p.created_at as createdAt,
-    p.updated_at as updatedAt
+    p.updated_at as updatedAt,
+    case when p.parent_uuid is null then 'VW' else 'SVW' end as qualifier,
+    case when p.root_uuid != p.uuid then p.root_uuid else null end as authUuid
   </sql>
 
   <sql id="projectColumns">
@@ -36,7 +38,8 @@
     pf.kee as portfolioKey,
     p.kee as projectKey,
     pp.created_at as createdAt,
-    ppb.branch_uuid as branchUuid
+    ppb.branch_uuid as branchUuid,
+    pb.uuid as mainBranchUuid
   </sql>
 
   <sql id="portfolioReferenceColumns">
@@ -137,6 +140,7 @@
       <include refid="portfolioProjectColumns"/>
      FROM portfolio_projects pp
      INNER JOIN projects p on p.uuid = pp.project_uuid
+     INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
      INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
      LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
      WHERE
@@ -148,6 +152,7 @@
       <include refid="portfolioProjectColumns"/>
      FROM portfolio_projects pp
      INNER JOIN projects p on p.uuid = pp.project_uuid
+     INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
      INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
      LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
      WHERE
@@ -161,6 +166,7 @@
       <include refid="portfolioProjectColumns"/>
     FROM portfolio_projects pp
     INNER JOIN projects p on p.uuid = pp.project_uuid
+    INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
     INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
     LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
   </select>
@@ -170,6 +176,7 @@
       <include refid="portfolioProjectColumns"/>
     FROM portfolio_projects pp
        INNER JOIN projects p on p.uuid = pp.project_uuid
+       INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
        INNER JOIN portfolios pf on pp.portfolio_uuid = pf.uuid
        LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
     where
@@ -200,12 +207,13 @@
     FROM portfolios c
     INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
     INNER JOIN portfolios p on p.uuid = c.root_uuid
+    LEFT JOIN project_branches pb ON pr.branch_uuid = pb.uuid
     where
     pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
     AND
     (pr.branch_uuid is null
     OR
-    pr.branch_uuid=#{referenceUuid,jdbcType=VARCHAR}
+    pb.is_main = ${_true}
     )
   </select>
 
@@ -287,6 +295,14 @@
     WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
     AND target.kee=#{referenceKey,jdbcType=VARCHAR}
   </select>
+
+   <select id="selectUuidsByKey" parameterType="string" resultType="KeyWithUuid">
+    SELECT ptf.kee, ptf.uuid
+    FROM portfolios ptf
+    INNER JOIN
+    portfolios root ON root.uuid = ptf.root_uuid
+    WHERE root.kee = #{rootKey,jdbcType=VARCHAR}
+   </select>
 
    <insert id="insert" parameterType="Portfolio">
     INSERT INTO portfolios (
@@ -534,6 +550,13 @@
     branch_key = #{branchKey,jdbcType=VARCHAR},
     root_uuid = #{rootUuid,jdbcType=VARCHAR},
     updated_at = #{updatedAt,jdbcType=BIGINT}
+    WHERE
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateVisibilityByPortfolioUuid">
+    UPDATE portfolios SET
+    private = #{newIsPrivate,jdbcType=BOOLEAN}
     WHERE
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>

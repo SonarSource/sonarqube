@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.platform.web;
 
 import java.util.Arrays;
 import org.sonar.api.Startable;
+import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.ServletFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,16 +29,24 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 3.5
  */
 public class RegisterServletFilters implements Startable {
-  private final ServletFilter[] filters;
+  private final ServletFilter[] servletFilters;
+  private final HttpFilter[] httpFilters;
 
   @Autowired(required = false)
-  public RegisterServletFilters(ServletFilter[] filters) {
-    this.filters = filters;
+  @Deprecated(since = "10.1", forRemoval = true)
+  public RegisterServletFilters(ServletFilter[] servletFilters, HttpFilter[] httpFilters) {
+    this.servletFilters = servletFilters;
+    this.httpFilters = httpFilters;
+  }
+
+  @Autowired(required = false)
+  public RegisterServletFilters(HttpFilter[] httpFilters) {
+    this(new ServletFilter[0], httpFilters);
   }
 
   @Autowired(required = false)
   public RegisterServletFilters() {
-    this(new ServletFilter[0]);
+    this(new ServletFilter[0], new HttpFilter[0]);
   }
 
   @Override
@@ -45,9 +54,10 @@ public class RegisterServletFilters implements Startable {
     MasterServletFilter masterServletFilter = MasterServletFilter.getInstance();
     if (masterServletFilter != null) {
       // Probably a database upgrade. MasterSlaveFilter was instantiated by the servlet container
-      // while picocontainer was not completely up.
+      // while spring was not completely up.
       // See https://jira.sonarsource.com/browse/SONAR-3612
-      masterServletFilter.initFilters(Arrays.asList(filters));
+      masterServletFilter.initHttpFilters(Arrays.asList(httpFilters));
+      masterServletFilter.initServletFilters(Arrays.asList(servletFilters));
     }
   }
 

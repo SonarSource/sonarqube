@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,258 +17,107 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { differenceBy, uniq } from 'lodash';
+import { BasicSeparator, CenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
+import { uniq } from 'lodash';
 import * as React from 'react';
-import { getMeasuresWithMetrics } from '../../../api/measures';
-import { BranchStatusContextInterface } from '../../../app/components/branch-status/BranchStatusContext';
-import withBranchStatus from '../../../app/components/branch-status/withBranchStatus';
-import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { Alert } from '../../../components/ui/Alert';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { BranchStatusData, PullRequest } from '../../../types/branch-like';
-import { IssueType } from '../../../types/issues';
-import { Component, MeasureEnhanced } from '../../../types/types';
-import IssueLabel from '../components/IssueLabel';
-import IssueRating from '../components/IssueRating';
-import MeasurementLabel from '../components/MeasurementLabel';
-import QualityGateConditions from '../components/QualityGateConditions';
+import { useBranchStatusQuery } from '../../../queries/branch';
+import { useMeasuresComponentQuery } from '../../../queries/measures';
+import { useComponentQualityGateQuery } from '../../../queries/quality-gates';
+import { PullRequest } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
+import QGStatus from '../branches/QualityGateStatus';
+import { AnalysisStatus } from '../components/AnalysisStatus';
+import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
+import LastAnalysisLabel from '../components/LastAnalysisLabel';
 import '../styles.css';
-import { MeasurementType, PR_METRICS } from '../utils';
-import AfterMergeEstimate from './AfterMergeEstimate';
-import LargeQualityGateBadge from './LargeQualityGateBadge';
+import { PR_METRICS } from '../utils';
+import MeasuresCardPanel from './MeasuresCardPanel';
+import PullRequestMetaTopBar from './PullRequestMetaTopBar';
+import SonarLintAd from './SonarLintAd';
 
-interface Props extends BranchStatusData, Pick<BranchStatusContextInterface, 'fetchBranchStatus'> {
-  branchLike: PullRequest;
+interface Props {
   component: Component;
+  pullRequest: PullRequest;
   grc:boolean;
 }
 
-interface State {
-  loading: boolean;
-  measures: MeasureEnhanced[];
-}
+export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
+  const { component, pullRequest } = props;
 
-export class PullRequestOverview extends React.PureComponent<Props, State> {
-  mounted = false;
+  const {
+    data: { conditions, ignoredConditions, status } = {},
+    isLoading: isLoadingBranchStatusesData,
+  } = useBranchStatusQuery(component);
 
-  state: State = {
-    loading: false,
-    measures: [],
-  };
+  const { data: qualityGate, isLoading: isLoadingQualityGate } = useComponentQualityGateQuery(
+    component.key,
+  );
 
-  componentDidMount() {
-    this.mounted = true;
-    if (this.props.conditions === undefined) {
-      this.fetchBranchStatusData();
-    } else {
-      this.fetchBranchData();
-    }
-  }
+  const { data: componentMeasures, isLoading: isLoadingMeasures } = useMeasuresComponentQuery(
+    {
+      componentKey: component.key,
+      metricKeys: uniq([...PR_METRICS, ...(conditions?.map((c) => c.metric) ?? [])]),
+      branchLike: pullRequest,
+    },
+    { enabled: !isLoadingBranchStatusesData },
+  );
 
-  componentDidUpdate(prevProps: Props) {
-    if (this.conditionsHaveChanged(prevProps)) {
-      this.fetchBranchData();
-    }
-  }
+  const measures = componentMeasures
+    ? enhanceMeasuresWithMetrics(
+        componentMeasures.component.measures ?? [],
+        componentMeasures.metrics,
+      )
+    : [];
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const isLoading = isLoadingBranchStatusesData || isLoadingMeasures || isLoadingQualityGate;
 
-  conditionsHaveChanged = (prevProps: Props) => {
-    const prevConditions = prevProps.conditions ?? [];
-    const newConditions = this.props.conditions ?? [];
-    const diff = differenceBy(
-      prevConditions.filter((c) => c.level === 'ERROR'),
-      newConditions.filter((c) => c.level === 'ERROR'),
-      (c) => c.metric
-    );
-
+  if (isLoading) {
     return (
-      (prevProps.conditions === undefined && this.props.conditions !== undefined) || diff.length > 0
-    );
-  };
-
-  fetchBranchStatusData = () => {
-    const {
-      branchLike,
-      component: { key },
-    } = this.props;
-    this.props.fetchBranchStatus(branchLike, key);
-  };
-
-  fetchBranchData = () => {
-    const {
-      branchLike,
-      component: { key },
-      conditions,
-    } = this.props;
-
-    this.setState({ loading: true });
-
-    const metricKeys =
-      conditions !== undefined
-        ? // Also load metrics that apply to failing QG conditions.
-          uniq([...PR_METRICS, ...conditions.filter((c) => c.level !== 'OK').map((c) => c.metric)])
-        : PR_METRICS;
-
-    getMeasuresWithMetrics(key, metricKeys, getBranchLikeQuery(branchLike)).then(
-      ({ component, metrics }) => {
-        if (this.mounted && component.measures) {
-          this.setState({
-            loading: false,
-            measures: enhanceMeasuresWithMetrics(component.measures || [], metrics),
-          });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  render() {
-    const { grc, branchLike, component, conditions, ignoredConditions, status } = this.props;
-    const { loading, measures } = this.state;
-
-    if (loading) {
-      return (
-        <div className="page page-limited">
-          <i className="spinner" />
+      <CenteredLayout>
+        <div className="sw-p-6">
+          <Spinner loading />
         </div>
-      );
-    }
+      </CenteredLayout>
+    );
+  }
 
-    if (conditions === undefined) {
-      return null;
-    }
+  if (conditions === undefined) {
+    return null;
+  }
 
-    const failedConditions = conditions
-      .filter((condition) => condition.level === 'ERROR')
-      .map((c) => enhanceConditionWithMeasure(c, measures))
-      .filter(isDefined);
+  const enhancedConditions = conditions
+    .map((c) => enhanceConditionWithMeasure(c, measures))
+    .filter(isDefined);
 
-    return (
-      <div className="page page-limited">
-        <div
-          className={classNames('pr-overview', {
-            'has-conditions': failedConditions.length > 0,
-          })}
-        >
-          {ignoredConditions && (
-            <Alert className="big-spacer-bottom" display="inline" variant="info">
-              <span className="text-middle">
-                {translate('overview.quality_gate.ignored_conditions')}
-              </span>
-              <HelpTooltip
-                className="spacer-left"
-                overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}
-              />
-            </Alert>
-          )}
-          <div className="display-flex-row">
-            <div className="big-spacer-right">
-              <h2 className="overview-panel-title spacer-bottom small display-inline-flex-center">
-                {translate('overview.quality_gate')}
-                <HelpTooltip
-                  className="little-spacer-left"
-                  overlay={
-                    <div className="big-padded-top big-padded-bottom">
-                      {translate('overview.quality_gate.help')}
-                    </div>
-                  }
-                />
-              </h2>
-              <LargeQualityGateBadge component={component} level={status} />
-            </div>
+  return (
+    <CenteredLayout>
+      <PageContentFontWrapper className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12 sw-typo-default">
+        <div className="sw-col-start-2 sw-col-span-10">
+          <PullRequestMetaTopBar pullRequest={pullRequest} measures={measures} />
+          <BasicSeparator className="sw-my-4" />
 
-            {failedConditions.length > 0 && (
-              <div className="pr-overview-failed-conditions big-spacer-right">
-                <h2 className="overview-panel-title spacer-bottom small">
-                  {translate('overview.failed_conditions')}
-                </h2>
-                <QualityGateConditions
-                  branchLike={branchLike}
-                  collapsible={true}
-                  component={component}
-                  failedConditions={failedConditions}
-                  grc={grc}
-                />
-              </div>
-            )}
+          {ignoredConditions && <IgnoredConditionWarning />}
 
-            <div className="flex-1">
-              <h2 className="overview-panel-title spacer-bottom small">
-                {translate('overview.measures')}
-              </h2>
-
-              <div className="overview-panel-content">
-                {[
-                  IssueType.Bug,
-                  IssueType.Vulnerability,
-                  IssueType.SecurityHotspot,
-                  IssueType.CodeSmell,
-                ].map((type: IssueType) => (
-                  <div className="overview-measures-row display-flex-row" key={type}>
-                    <div className="overview-panel-big-padded flex-1 small display-flex-center">
-                      <IssueLabel
-                        branchLike={branchLike}
-                        component={component}
-                        measures={measures}
-                        type={type}
-                        useDiffMetric={true}
-                        grc={grc}
-                        renderLink={true}
-                      />
-                    </div>
-                    <div className="overview-panel-big-padded overview-measures-aside display-flex-center">
-                      <IssueRating
-                        branchLike={branchLike}
-                        component={component}
-                        measures={measures}
-                        type={type}
-                        useDiffMetric={true}
-                        grc={grc}
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                {[MeasurementType.Coverage, MeasurementType.Duplication].map(
-                  (type: MeasurementType) => (
-                    <div className="overview-measures-row display-flex-row" key={type}>
-                      <div className="overview-panel-big-padded flex-1 small display-flex-center">
-                        <MeasurementLabel
-                          branchLike={branchLike}
-                          component={component}
-                          measures={measures}
-                          type={type}
-                          useDiffMetric={true}
-                        />
-                      </div>
-
-                      <AfterMergeEstimate
-                        className="overview-panel-big-padded overview-measures-aside text-right overview-measures-emphasis"
-                        measures={measures}
-                        type={type}
-                      />
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
+          <div className="sw-flex sw-justify-between sw-items-start sw-my-6">
+            <QGStatus status={status} />
+            <LastAnalysisLabel analysisDate={pullRequest.analysisDate} />
           </div>
-        </div>
-      </div>
-    );
-  }
-}
 
-export default withBranchStatus(withBranchStatusActions(PullRequestOverview));
+          <AnalysisStatus className="sw-mb-4" component={component} />
+
+          <MeasuresCardPanel
+            pullRequest={pullRequest}
+            component={component}
+            conditions={enhancedConditions}
+            qualityGate={qualityGate}
+            measures={measures}
+          />
+
+          <SonarLintAd status={status} />
+        </div>
+      </PageContentFontWrapper>
+    </CenteredLayout>
+  );
+}

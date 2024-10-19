@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,13 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import GlobalPermissionsApp from './global/components/App';
-import ProjectPermissionsApp from './project/components/App';
+import GlobalPermissionsApp from './global/components/PermissionsGlobalApp';
+import PermissionsProjectApp from './project/components/PermissionsProjectApp';
 
 export const globalPermissionsRoutes = () => (
   <Route path="permissions" element={<GlobalPermissionsApp />} />
 );
 
 export const projectPermissionsRoutes = () => (
-  <Route path="project_roles" element={<ProjectPermissionsApp />} />
+  <Route path="project_roles" element={<PermissionsProjectApp />} />
 );

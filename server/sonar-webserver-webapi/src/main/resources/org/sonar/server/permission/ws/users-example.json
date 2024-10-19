@@ -10,21 +10,24 @@
       "name": "Administrator",
       "email": "admin@admin.com",
       "avatar": "64e1b8d34f425d19e1ee2ea7236d3028",
-      "permissions": ["admin", "gateadmin", "profileadmin"]
+      "permissions": ["admin", "gateadmin", "profileadmin"],
+      "managed": false
     },
     {
       "login": "george.orwell",
       "name": "George Orwell",
       "email": "george.orwell@1984.net",
       "avatar": "583af86a274c1027ef078cada831babf",
-      "permissions": ["scan"]
+      "permissions": ["scan"],
+      "managed": true
     },
     {
       "login": "adam.west",
       "name": "Adam West",
       "email": "adamwest@adamwest.com",
       "avatar": "9b55aba24cc5ee533294334bd20abb34",
-      "permissions": []
+      "permissions": [],
+      "managed": false
     }
   ]
 }

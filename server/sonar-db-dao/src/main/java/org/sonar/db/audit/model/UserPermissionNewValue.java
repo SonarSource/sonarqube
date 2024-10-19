@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,10 @@ import org.sonar.db.user.UserId;
 
 public class UserPermissionNewValue extends PermissionNewValue {
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private final String userUuid;
 
@@ -33,8 +37,8 @@ public class UserPermissionNewValue extends PermissionNewValue {
   private final String userLogin;
 
   public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String componentKey, @Nullable String componentName,
-    @Nullable UserId userId, String qualifier, @Nullable PermissionTemplateDto templateDto) {
-    super(permissionDto.getUuid(), permissionDto.getComponentUuid(), componentKey, componentName, permissionDto.getPermission(), qualifier, templateDto);
+    @Nullable UserId userId, @Nullable String qualifier, @Nullable PermissionTemplateDto templateDto) {
+    super(permissionDto.getUuid(), permissionDto.getEntityUuid(), componentKey, componentName, permissionDto.getPermission(), qualifier, templateDto);
     this.userUuid = userId != null ? userId.getUuid() : null;
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
@@ -50,6 +54,10 @@ public class UserPermissionNewValue extends PermissionNewValue {
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   public String getUserUuid() {
     return userUuid;

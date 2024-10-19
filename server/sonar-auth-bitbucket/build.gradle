@@ -12,9 +12,9 @@ dependencies {
     api 'com.google.code.gson:gson'
     api project(':server:sonar-auth-common')
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     compileOnlyApi 'com.squareup.okhttp3:okhttp'
-    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
     compileOnlyApi project(':sonar-core')
 
     testImplementation 'com.squareup.okhttp3:mockwebserver'
@@ -22,4 +22,5 @@ dependencies {
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
+    testImplementation project(path: ':server:sonar-webserver-api')
 }

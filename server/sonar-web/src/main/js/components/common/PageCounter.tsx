@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
-import { formatMeasure } from '../../helpers/measures';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 
 export interface PageCounterProps {
   className?: string;
-  current?: number;
   label: string;
   total: number;
 }
 
-export default function PageCounter({ className, current, label, total }: PageCounterProps) {
+export default function PageCounter({ className, label, total }: Readonly<PageCounterProps>) {
   return (
-    <div className={classNames('display-inline-block', className)}>
-      <strong className="little-spacer-right">
-        {current !== undefined && formatMeasure(current + 1, 'INT') + ' / '}
-        <span className="it__page-counter-total">{formatMeasure(total, 'INT')}</span>
+    <div className={className}>
+      <strong className="sw-mr-1">
+        <span data-testid="page-counter-total">{formatMeasure(total, MetricType.Integer)}</span>
       </strong>
       {label}
     </div>

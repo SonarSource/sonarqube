@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,15 +29,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,7 +46,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 @ComputeEngineSide
 public class NotificationService {
 
-  private static final Logger LOG = Loggers.get(NotificationService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
 
   private final List<NotificationDispatcher> dispatchers;
   private final List<NotificationHandler<? extends Notification>> handlers;
@@ -166,7 +165,7 @@ public class NotificationService {
       .filter(Optional::isPresent)
       .map(Optional::get)
       .map(NotificationDispatcherMetadata::getDispatcherKey)
-      .collect(MoreCollectors.toSet(notificationTypes.size()));
+      .collect(Collectors.toSet());
 
     return dbClient.propertiesDao().hasProjectNotificationSubscribersForDispatchers(projectUuid, dispatcherKeys);
   }

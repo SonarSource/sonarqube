@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,22 @@ import { cloneDeep, groupBy, sortBy } from 'lodash';
 import { PAGE_SIZE } from '../../apps/background-tasks/constants';
 import { parseDate } from '../../helpers/dates';
 import { mockTask } from '../../helpers/mocks/tasks';
-import { ActivityRequestParameters, Task, TaskStatuses, TaskTypes } from '../../types/tasks';
+import { isDefined } from '../../helpers/types';
+import {
+  ActivityRequestParameters,
+  Task,
+  TaskStatuses,
+  TaskTypes,
+  TaskWarning,
+} from '../../types/tasks';
 import {
   cancelAllTasks,
   cancelTask,
   getActivity,
+  getAnalysisStatus,
   getStatus,
+  getTask,
+  getTasksForComponent,
   getTypes,
   getWorkers,
   setWorkerCount,
@@ -45,6 +55,7 @@ const TASK_TYPES = [
   TaskTypes.ProjectImport,
   TaskTypes.ViewRefresh,
   TaskTypes.ReportSubmit,
+  TaskTypes.GithubProvisioning,
 ];
 
 const DEFAULT_TASKS: Task[] = [mockTask()];
@@ -55,18 +66,24 @@ const DEFAULT_WORKERS = {
 
 const CANCELABLE_TASK_STATUSES = [TaskStatuses.Pending];
 
+jest.mock('../ce');
+
 export default class ComputeEngineServiceMock {
   tasks: Task[];
+  taskWarnings: TaskWarning[] = [];
   workers = { ...DEFAULT_WORKERS };
 
   constructor() {
-    (cancelAllTasks as jest.Mock).mockImplementation(this.handleCancelAllTasks);
-    (cancelTask as jest.Mock).mockImplementation(this.handleCancelTask);
-    (getActivity as jest.Mock).mockImplementation(this.handleGetActivity);
-    (getStatus as jest.Mock).mockImplementation(this.handleGetStatus);
-    (getTypes as jest.Mock).mockImplementation(this.handleGetTypes);
-    (getWorkers as jest.Mock).mockImplementation(this.handleGetWorkers);
-    (setWorkerCount as jest.Mock).mockImplementation(this.handleSetWorkerCount);
+    jest.mocked(cancelAllTasks).mockImplementation(this.handleCancelAllTasks);
+    jest.mocked(cancelTask).mockImplementation(this.handleCancelTask);
+    jest.mocked(getActivity).mockImplementation(this.handleGetActivity);
+    jest.mocked(getStatus).mockImplementation(this.handleGetStatus);
+    jest.mocked(getTypes).mockImplementation(this.handleGetTypes);
+    jest.mocked(getTask).mockImplementation(this.handleGetTask);
+    jest.mocked(getWorkers).mockImplementation(this.handleGetWorkers);
+    jest.mocked(setWorkerCount).mockImplementation(this.handleSetWorkerCount);
+    jest.mocked(getTasksForComponent).mockImplementation(this.handleGetTaskForComponent);
+    jest.mocked(getAnalysisStatus).mockImplementation(this.handleAnalysisStatus);
 
     this.tasks = cloneDeep(DEFAULT_TASKS);
   }
@@ -79,6 +96,22 @@ export default class ComputeEngineServiceMock {
     });
 
     return Promise.resolve();
+  };
+
+  setTaskWarnings = (taskWarnings: TaskWarning[] = []) => {
+    this.taskWarnings = taskWarnings;
+  };
+
+  handleAnalysisStatus = (data: { branch?: string; component: string; pullRequest?: string }) => {
+    return Promise.resolve({
+      component: {
+        key: data.component,
+        name: data.component,
+        branch: data.branch,
+        pullRequest: data.pullRequest,
+        warnings: this.taskWarnings,
+      },
+    });
   };
 
   handleCancelTask = (id: string) => {
@@ -94,7 +127,6 @@ export default class ComputeEngineServiceMock {
 
   handleGetActivity = (data: ActivityRequestParameters) => {
     let results = cloneDeep(this.tasks);
-
     results = results.filter((task) => {
       return !(
         (data.component && task.componentKey !== data.component) ||
@@ -112,23 +144,33 @@ export default class ComputeEngineServiceMock {
       );
     });
 
+    results.sort((a, b) => {
+      const getMaxDate = (t: Task) =>
+        Math.max(
+          +new Date(t.submittedAt),
+          +new Date(t.startedAt ?? 0),
+          +new Date(t.executedAt ?? 0),
+        );
+
+      return getMaxDate(b) - getMaxDate(a);
+    });
+
     if (data.onlyCurrents) {
-      /*
-       *  This is more complex in real life, but it's a good enough approximation to suit tests
-       */
-      results = Object.values(groupBy(results, (t) => t.componentKey)).map(
-        (tasks) => sortBy(tasks, (t) => t.executedAt).pop()!
-      );
+      // This is more complex in real life, but it's a good enough approximation to suit tests.
+      results = Object.values(groupBy(results, (t) => t.componentKey))
+        .map((tasks) => sortBy(tasks, (t) => t.executedAt).pop())
+        .filter(isDefined);
     }
 
     const page = data.p ?? 1;
-    const paginationIndex = (page - 1) * PAGE_SIZE;
+    const pageSize = data.ps ?? PAGE_SIZE;
+    const paginationIndex = (page - 1) * pageSize;
 
     return Promise.resolve({
-      tasks: results.slice(paginationIndex, paginationIndex + PAGE_SIZE),
+      tasks: results.slice(paginationIndex, paginationIndex + pageSize),
       paging: {
         pageIndex: page,
-        pageSize: PAGE_SIZE,
+        pageSize,
         total: results.length,
       },
     });
@@ -150,7 +192,7 @@ export default class ComputeEngineServiceMock {
               case TaskStatuses.Pending:
                 stats.pendingTime = Math.max(
                   stats.pendingTime,
-                  differenceInMilliseconds(parseDate(task.submittedAt), Date.now())
+                  differenceInMilliseconds(parseDate(task.submittedAt), Date.now()),
                 );
                 stats.pending += 1;
                 break;
@@ -158,12 +200,22 @@ export default class ComputeEngineServiceMock {
 
             return stats;
           },
-          { failing: 0, inProgress: 0, pending: 0, pendingTime: 0 }
-        )
+          { failing: 0, inProgress: 0, pending: 0, pendingTime: 0 },
+        ),
     );
   };
 
   handleGetTypes = () => Promise.resolve([...TASK_TYPES]);
+
+  handleGetTask = (id: string) => {
+    const task = this.tasks.find((t) => t.id === id);
+
+    if (task) {
+      return Promise.resolve(task);
+    }
+
+    return Promise.reject();
+  };
 
   handleGetWorkers = () => Promise.resolve({ ...this.workers });
 
@@ -172,12 +224,25 @@ export default class ComputeEngineServiceMock {
     return Promise.resolve();
   };
 
+  handleGetTaskForComponent = (componentKey: string) => {
+    const tasks = this.tasks.filter((t) => t.componentKey === componentKey);
+    return Promise.resolve({
+      queue: tasks.filter(
+        (t) => t.status === TaskStatuses.InProgress || t.status === TaskStatuses.Pending,
+      ),
+      current: tasks.find(
+        (t) => t.status === TaskStatuses.Success || t.status === TaskStatuses.Failed,
+      ),
+    });
+  };
+
   /*
    * Helpers
    */
 
   reset() {
     this.tasks = cloneDeep(DEFAULT_TASKS);
+    this.taskWarnings = [];
     this.workers = { ...DEFAULT_WORKERS };
   }
 
@@ -192,7 +257,7 @@ export default class ComputeEngineServiceMock {
       mockTask({
         id,
         ...overrides,
-      })
+      }),
     );
   };
 

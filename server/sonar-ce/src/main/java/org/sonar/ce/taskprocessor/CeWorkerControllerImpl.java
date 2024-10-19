@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.configuration.CeConfiguration;
 
 public class CeWorkerControllerImpl implements CeWorkerController {
@@ -40,7 +40,7 @@ public class CeWorkerControllerImpl implements CeWorkerController {
   private void logEnabledWorkerCount() {
     int workerCount = ceConfiguration.getWorkerCount();
     if (workerCount > 1) {
-      Loggers.get(CeWorkerController.class).info("Compute Engine will use {} concurrent workers to process tasks", workerCount);
+      LoggerFactory.getLogger(CeWorkerController.class).info("Compute Engine will use {} concurrent workers to process tasks", workerCount);
     }
   }
 

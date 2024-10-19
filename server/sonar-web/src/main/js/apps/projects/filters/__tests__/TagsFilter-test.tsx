@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,44 +17,77 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import TagsFilter from '../TagsFilter';
+import { searchProjectTags } from '../../../../api/components';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import TagsFacet from '../TagsFilter';
 
-const tags = ['lang', 'sonar', 'csharp', 'dotnet', 'it', 'net'];
-const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
+jest.mock('../../../../api/components', () => ({
+  searchProjectTags: jest.fn(),
+}));
 
-it('should render the tags without the ones in the facet', () => {
-  const wrapper = shallow(
-    <TagsFilter facet={tagsFacet} onQueryChange={jest.fn()} query={{ tags: null }} />
-  );
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ tags });
-  expect(wrapper).toMatchSnapshot();
+it('renders language names', () => {
+  renderTagsFacet();
+  expect(screen.getByText('style')).toBeInTheDocument();
+  expect(screen.getByText('custom1')).toBeInTheDocument();
+  expect(screen.getByText('cheese')).toBeInTheDocument();
 });
 
-it('should render the tags facet with the selected tags', () => {
-  const wrapper = shallow(
-    <TagsFilter
-      facet={tagsFacet}
+it('filters options', async () => {
+  const user = userEvent.setup();
+
+  jest.mocked(searchProjectTags).mockResolvedValueOnce({ tags: ['style', 'stunt'] });
+  const loadSearchResultCount = jest.fn().mockResolvedValueOnce({ style: 3, stunt: 0 });
+
+  renderTagsFacet({ loadSearchResultCount });
+
+  await user.click(screen.getByLabelText('search_verb'));
+
+  await user.keyboard('st');
+
+  expect(screen.getByTitle('style')).toBeInTheDocument();
+  expect(screen.getByTitle('stunt')).toBeInTheDocument();
+  expect(screen.queryByTitle('cheese')).not.toBeInTheDocument();
+  expect(screen.queryByTitle('custom1')).not.toBeInTheDocument();
+});
+
+it('updates the filter query', async () => {
+  const user = userEvent.setup();
+
+  const onQueryChange = jest.fn();
+
+  renderTagsFacet({ onQueryChange });
+
+  await user.click(screen.getByText('style'));
+
+  expect(onQueryChange).toHaveBeenCalledWith({ tags: 'style' });
+});
+
+it('handles multiselection', async () => {
+  const user = userEvent.setup();
+
+  const onQueryChange = jest.fn();
+
+  renderTagsFacet({ onQueryChange });
+
+  await user.keyboard('{Control>}');
+  await user.click(screen.getByText('style'));
+  await user.keyboard('{/Control}');
+
+  expect(onQueryChange).toHaveBeenCalledWith({ tags: 'custom1,style' });
+});
+
+function renderTagsFacet(props: Partial<TagsFacet['props']> = {}) {
+  renderComponent(
+    <TagsFacet
+      loadSearchResultCount={jest.fn()}
       onQueryChange={jest.fn()}
-      query={{ tags: ['lang', 'sonar'] }}
-      value={['lang', 'sonar']}
-    />
+      query={{}}
+      facet={{ cheese: 5, style: 3, custom1: 1 }}
+      value={['custom1']}
+      {...props}
+    />,
   );
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
-});
-
-it('should render maximum 10 tags in the searchbox results', () => {
-  const wrapper = shallow(
-    <TagsFilter
-      facet={{ ...tagsFacet, ad: 1 }}
-      onQueryChange={jest.fn()}
-      query={{ languages: ['java', 'ad'] }}
-      value={['java', 'ad']}
-    />
-  );
-  wrapper.setState({ tags: [...tags, 'aa', 'ab', 'ac', 'ad', 'ae', 'af', 'ag', 'ah', 'ai'] });
-  expect(wrapper).toMatchSnapshot();
-});
+}

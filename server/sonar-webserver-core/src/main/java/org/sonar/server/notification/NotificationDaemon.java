@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,8 +30,8 @@ import org.sonar.api.Property;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Collections.singleton;
 
@@ -51,7 +51,7 @@ import static java.util.Collections.singleton;
 public class NotificationDaemon implements Startable {
   private static final String THREAD_NAME_PREFIX = "sq-notification-service-";
 
-  private static final Logger LOG = Loggers.get(NotificationDaemon.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NotificationDaemon.class);
 
   public static final String PROPERTY_DELAY = "sonar.notifications.delay";
   public static final String PROPERTY_DELAY_BEFORE_REPORTING_STATUS = "sonar.notifications.runningDelayBeforeReportingStatus";

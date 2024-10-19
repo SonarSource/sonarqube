@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,28 @@
  */
 package org.sonar.core.util;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Only for tests. This implementation of {@link UuidFactory} generates
- * ids as a sequence of integers ("1", "2", ...). It starts with "1".
+ * ids with the structure of a UUID v4, but containing a sequence of integers ("1", "2", ...). It starts with "1".
  */
+@VisibleForTesting
 public class SequenceUuidFactory implements UuidFactory {
+  private static final String UUID_PREFIX = "00000000-0000-0000-0000-";
+
+  public static final String UUID_1 = UUID_PREFIX + "000000000001";
+  public static final String UUID_2 = UUID_PREFIX + "000000000002";
+  public static final String UUID_3 = UUID_PREFIX + "000000000003";
 
   private final AtomicInteger id = new AtomicInteger(1);
 
   @Override
   public String create() {
-    return String.valueOf(id.getAndIncrement());
+    int currentId = id.getAndIncrement();
+    return UUID_PREFIX + StringUtils.leftPad(String.valueOf(currentId), 12, "0");
   }
 }

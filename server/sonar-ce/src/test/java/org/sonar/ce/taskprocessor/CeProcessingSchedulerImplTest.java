@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -70,7 +70,7 @@ public class CeProcessingSchedulerImplTest {
   // due to risks of infinite chaining of tasks/futures, a timeout is required for safety
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
-  @Rule
+
   public CeConfigurationRule ceConfiguration = new CeConfigurationRule();
   private CeWorker ceWorker = mock(CeWorker.class);
   private CeWorkerFactory ceWorkerFactory = new TestCeWorkerFactory(ceWorker);

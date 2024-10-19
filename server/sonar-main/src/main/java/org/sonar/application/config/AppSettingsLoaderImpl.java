@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.core.util.SettingFormatter;
-import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -110,7 +109,6 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     loadPropertiesFromEnvironment(system, p, keysOverridableFromEnv);
     p.putAll(CommandLineParser.parseArguments(cliArguments));
     p.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
-    p = ConfigurationUtils.interpolateVariables(p, system.getenv());
 
     // the difference between Properties and Props is that the latter
     // supports decryption of values, so it must be used when values

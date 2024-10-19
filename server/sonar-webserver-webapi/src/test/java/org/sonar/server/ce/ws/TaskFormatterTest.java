@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,41 +19,42 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Random;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Ce;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
+import static org.sonar.db.dismissmessage.MessageType.INFO;
+import static org.sonar.db.dismissmessage.MessageType.PROJECT_NCD_PAGE_90;
 
 public class TaskFormatterTest {
 
   private static final String NODE_NAME = "nodeName1";
+  private static final int WARNING_COUNT = 5;
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
-  private final int warningCount = new Random().nextInt(10);
 
   private final System2 system2 = mock(System2.class);
   private final TaskFormatter underTest = new TaskFormatter(db.getDbClient(), system2);
@@ -87,7 +88,7 @@ public class TaskFormatterTest {
   @Test
   public void formatQueue_with_component_and_other_fields() {
     String uuid = "COMPONENT_UUID";
-    db.components().insertPrivateProject((t) -> t.setUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
+    db.components().insertPrivateProject((t) -> t.setUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name")).getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     CeQueueDto dto = new CeQueueDto();
@@ -170,21 +171,11 @@ public class TaskFormatterTest {
   }
 
   @Test
-  public void formatActivity_throws_NPE_if_warnings_parameter_is_null() {
-    UserDto user = db.users().insertUser();
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, user);
-
-    DbSession dbSession = db.getSession();
-    assertThatThrownBy(() -> underTest.formatActivity(dbSession, dto, "foo", null))
-      .isInstanceOf(NullPointerException.class);
-  }
-
-  @Test
   public void formatActivity() {
     UserDto user = db.users().insertUser();
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, user);
 
-    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null, emptyList());
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null);
 
     assertThat(wsTask.getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(wsTask.getId()).isEqualTo("UUID");
@@ -195,8 +186,9 @@ public class TaskFormatterTest {
     assertThat(wsTask.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(wsTask.getAnalysisId()).isEqualTo("U1");
     assertThat(wsTask.hasScannerContext()).isFalse();
-    assertThat(wsTask.getWarningCount()).isEqualTo(warningCount);
+    assertThat(wsTask.getWarningCount()).isZero();
     assertThat(wsTask.getWarningsList()).isEmpty();
+    assertThat(wsTask.getInfoMessagesList()).isEmpty();
   }
 
   @Test
@@ -204,21 +196,49 @@ public class TaskFormatterTest {
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
 
     String expected = "scanner context baby!";
-    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, expected, emptyList());
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, expected);
 
     assertThat(wsTask.hasScannerContext()).isTrue();
     assertThat(wsTask.getScannerContext()).isEqualTo(expected);
   }
 
   @Test
-  public void formatActivity_set_warnings_list_if_argument_is_non_empty_not_checking_consistency_with_warning_count() {
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
-    String[] warnings = IntStream.range(0, warningCount + 1 + new Random().nextInt(5)).mapToObj(i -> "warning_" + i).toArray(String[]::new);
+  public void formatActivity_filterWarnings_andSetWarningsAndCount() {
+    TestActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
+    CeTaskMessageDto warning1 = createCeTaskMessageDto(1998, MessageType.GENERIC);
+    CeTaskMessageDto warning2 = createCeTaskMessageDto(1999, MessageType.GENERIC);
 
-    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null, Arrays.stream(warnings).collect(toList()));
+    List<CeTaskMessageDto> ceTaskMessageDtos = new ArrayList<>(dto.getCeTaskMessageDtos());
+    ceTaskMessageDtos.add(warning1);
+    ceTaskMessageDtos.add(warning2);
+    dto.setCeTaskMessageDtos(ceTaskMessageDtos);
 
-    assertThat(wsTask.getWarningCount()).isEqualTo(warningCount);
-    assertThat(wsTask.getWarningsList()).containsExactly(warnings);
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null);
+
+    assertThat(wsTask.getWarningCount()).isEqualTo(2);
+    assertThat(wsTask.getWarningsList()).hasSameElementsAs(getMessagesText(List.of(warning1, warning2)));
+  }
+
+  @Test
+  public void formatActivity_filterInformation_andSetInformationMessages() {
+    TestActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
+    CeTaskMessageDto nonInfo1 = createCeTaskMessageDto(1998, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    CeTaskMessageDto nonInfo2 = createCeTaskMessageDto(1999, MessageType.GENERIC);
+    CeTaskMessageDto nonInfo3 = createCeTaskMessageDto(2000, MessageType.BRANCH_NCD_90);
+    CeTaskMessageDto info2 = createCeTaskMessageDto(2002, INFO);
+    CeTaskMessageDto info1 = createCeTaskMessageDto(2001, INFO);
+
+    List<CeTaskMessageDto> ceTaskMessageDtos = new ArrayList<>(dto.getCeTaskMessageDtos());
+    ceTaskMessageDtos.addAll(Set.of(nonInfo1, nonInfo2, nonInfo3, info1, info2));
+    dto.setCeTaskMessageDtos(ceTaskMessageDtos);
+
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null);
+
+    assertThat(wsTask.getInfoMessagesList()).hasSameElementsAs(getMessagesText(List.of(info1, info2)));
+  }
+
+  private static List<String> getMessagesText(List<CeTaskMessageDto> ceTaskMessageDtos) {
+    return ceTaskMessageDtos.stream().map(CeTaskMessageDto::getMessage).toList();
   }
 
   @Test
@@ -273,7 +293,7 @@ public class TaskFormatterTest {
     assertThat(task.hasErrorStacktrace()).isFalse();
   }
 
-  private CeActivityDto newActivity(String taskUuid, String componentUuid, CeActivityDto.Status status, @Nullable UserDto user) {
+  private TestActivityDto newActivity(String taskUuid, String componentUuid, CeActivityDto.Status status, @Nullable UserDto user) {
     CeQueueDto queueDto = new CeQueueDto()
       .setCreatedAt(1_450_000_000_000L)
       .setTaskType(CeTaskTypes.REPORT)
@@ -281,12 +301,25 @@ public class TaskFormatterTest {
       .setSubmitterUuid(user == null ? null : user.getUuid())
       .setUuid(taskUuid);
     TestActivityDto testActivityDto = new TestActivityDto(queueDto);
-    testActivityDto.setWarningCount(warningCount);
-    return testActivityDto
+
+    List<CeTaskMessageDto> ceTaskMessageDtos = IntStream.range(0, WARNING_COUNT)
+      .mapToObj(i -> createCeTaskMessageDto(i, PROJECT_NCD_PAGE_90))
+      .toList();
+    testActivityDto.setCeTaskMessageDtos(ceTaskMessageDtos);
+    return (TestActivityDto) testActivityDto
       .setStatus(status)
       .setNodeName(NODE_NAME)
       .setExecutionTimeMs(500L)
       .setAnalysisUuid("U1");
+  }
+
+  private CeTaskMessageDto createCeTaskMessageDto(int i, MessageType messageType) {
+    CeTaskMessageDto ceTaskMessageDto = new CeTaskMessageDto();
+    ceTaskMessageDto.setMessage("message_" + i);
+    ceTaskMessageDto.setCreatedAt(system2.now());
+    ceTaskMessageDto.setTaskUuid("uuid_" + i);
+    ceTaskMessageDto.setType(messageType);
+    return ceTaskMessageDto;
   }
 
   private static class TestActivityDto extends CeActivityDto {
@@ -301,8 +334,8 @@ public class TaskFormatterTest {
     }
 
     @Override
-    public CeActivityDto setWarningCount(int warningCount) {
-      return super.setWarningCount(warningCount);
+    public CeActivityDto setCeTaskMessageDtos(List<CeTaskMessageDto> ceTaskMessageDtos) {
+      return super.setCeTaskMessageDtos(ceTaskMessageDtos);
     }
   }
 }

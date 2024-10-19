@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,31 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { orderBy } from 'lodash';
-import {
-  Branch,
-  BranchLike,
-  BranchLikeTree,
-  BranchParameters,
-  BranchStatusData,
-  MainBranch,
-  PullRequest,
-} from '../types/branch-like';
-import { Dict } from '../types/types';
-
-export function isBranch(branchLike?: BranchLike): branchLike is Branch {
-  return branchLike !== undefined && (branchLike as Branch).isMain !== undefined;
-}
-
-export function isMainBranch(branchLike?: BranchLike): branchLike is MainBranch {
-  return isBranch(branchLike) && branchLike.isMain;
-}
+import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { Branch, BranchLike, BranchLikeTree, PullRequest } from '../types/branch-like';
 
 export function sortBranches(branches: Branch[]) {
   return orderBy(branches, [(b) => b.isMain, (b) => b.name], ['desc', 'asc']);
-}
-
-export function isPullRequest(branchLike?: BranchLike): branchLike is PullRequest {
-  return branchLike !== undefined && (branchLike as PullRequest).key !== undefined;
 }
 
 export function sortPullRequests(pullRequests: PullRequest[]) {
@@ -85,13 +65,13 @@ export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree
   const mainBranch = branchLikes.find(isMainBranch);
   const branches = orderBy(
     branchLikes.filter(isBranch).filter((b) => !isMainBranch(b)),
-    (b) => b.name
+    (b) => b.name,
   );
   const pullRequests = orderBy(branchLikes.filter(isPullRequest), (b) => parseInt(b.key, 10), [
     'desc',
   ]);
   const parentlessPullRequests = pullRequests.filter(
-    (pr) => !pr.isOrphan && ![mainBranch, ...branches].find((b) => !!b && b.name === pr.base)
+    (pr) => !pr.isOrphan && ![mainBranch, ...branches].find((b) => !!b && b.name === pr.base),
   );
   const orphanPullRequests = pullRequests.filter((pr) => pr.isOrphan);
 
@@ -115,19 +95,10 @@ export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree
   }
 }
 
-export function getBranchLikeQuery(branchLike?: BranchLike): BranchParameters {
-  if (isBranch(branchLike) && !isMainBranch(branchLike)) {
-    return { branch: branchLike.name };
-  } else if (isPullRequest(branchLike)) {
-    return { pullRequest: branchLike.key };
-  }
-  return {};
-}
-
 // Create branch object from branch name or pull request key
 export function fillBranchLike(
   branch?: string,
-  pullRequest?: string
+  pullRequest?: string,
 ): Branch | PullRequest | undefined {
   if (branch) {
     return {
@@ -138,13 +109,4 @@ export function fillBranchLike(
     return { base: '', branch: '', key: pullRequest, title: '' } as PullRequest;
   }
   return undefined;
-}
-
-export function getBranchStatusByBranchLike(
-  branchStatusByComponent: Dict<Dict<BranchStatusData>>,
-  component: string,
-  branchLike: BranchLike
-): BranchStatusData {
-  const branchLikeKey = getBranchLikeKey(branchLike);
-  return branchStatusByComponent[component] && branchStatusByComponent[component][branchLikeKey];
 }

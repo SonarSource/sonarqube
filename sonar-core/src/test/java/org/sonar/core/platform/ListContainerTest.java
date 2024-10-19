@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -65,6 +65,13 @@ public class ListContainerTest {
     assertThatThrownBy(() -> container.getOptionalComponentByType(A.class)).isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(() -> container.getComponentsByType(A.class)).isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(container::getParent).isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  public void addWebApiV2ConfigurationClass_whenClassIsAdded_isReturnedByGetWebApiV2ConfigurationClasses() {
+    ListContainer container = new ListContainer();
+    container.addWebApiV2ConfigurationClass(org.sonar.core.test.Test.class);
+    assertThat(container.getWebApiV2ConfigurationClasses()).containsOnly(org.sonar.core.test.Test.class);
   }
 
   class A {

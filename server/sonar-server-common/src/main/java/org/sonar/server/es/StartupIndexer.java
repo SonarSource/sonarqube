@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,7 @@ public interface StartupIndexer {
   }
 
   default void triggerAsyncIndexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    throw new IllegalStateException("ASYNCHRONE StartupIndexer must implement initAsyncIndexOnStartup");
+    throw new IllegalStateException("ASYNCHRONOUS StartupIndexer must implement initAsyncIndexOnStartup");
   }
 
   /**
@@ -42,7 +42,7 @@ public interface StartupIndexer {
    * if there is at least one uninitialized type.
    */
   default void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    throw new IllegalStateException("SYNCHRONE StartupIndexer must implement indexOnStartup");
+    throw new IllegalStateException("SYNCHRONOUS StartupIndexer must implement indexOnStartup");
   }
 
   Set<IndexType> getIndexTypes();

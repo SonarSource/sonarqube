@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,9 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
 import './Rating.css';
 
 interface Props extends React.AriaAttributes {
@@ -42,7 +43,9 @@ export default function Rating({ className, muted = false, value, ...ariaAttrs }
       </span>
     );
   }
-  const formatted = formatMeasure(value, 'RATING');
+
+  const formatted = formatMeasure(value, MetricType.Rating);
+
   return (
     <span
       aria-label={translateWithParameters('metric.has_rating_X', formatted)}

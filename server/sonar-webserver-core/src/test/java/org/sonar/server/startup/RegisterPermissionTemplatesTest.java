@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,10 +24,10 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
@@ -69,7 +69,7 @@ public class RegisterPermissionTemplatesTest {
 
     verifyDefaultTemplateForProject(defaultTemplate.getUuid());
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -90,7 +90,7 @@ public class RegisterPermissionTemplatesTest {
 
     verifyDefaultTemplateForProject(defaultTemplate.getUuid());
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Cannot setup default permission for group: sonar-administrators");
+    assertThat(logTester.logs(Level.ERROR)).contains("Cannot setup default permission for group: sonar-administrators");
   }
 
   @Test

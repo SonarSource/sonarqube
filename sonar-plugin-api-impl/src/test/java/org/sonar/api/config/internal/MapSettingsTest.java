@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -61,7 +61,7 @@ public class MapSettingsTest {
     @Property(key = "integer", name = "Integer", defaultValue = "12345"),
     @Property(key = "array", name = "Array", defaultValue = "one,two,three"),
     @Property(key = "multi_values", name = "Array", defaultValue = "1,2,3", multiValues = true),
-    @Property(key = "sonar.jira", name = "Jira Server", type = PropertyType.PROPERTY_SET, propertySetKey = "jira"),
+    @Property(key = "sonar.jira", name = "Jira Server", type = PropertyType.PROPERTY_SET),
     @Property(key = "newKey", name = "New key", deprecatedKey = "oldKey"),
     @Property(key = "newKeyWithDefaultValue", name = "New key with default value", deprecatedKey = "oldKeyWithDefaultValue", defaultValue = "default_value"),
     @Property(key = "new_multi_values", name = "New multi values", defaultValue = "1,2,3", multiValues = true, deprecatedKey = "old_multi_values")

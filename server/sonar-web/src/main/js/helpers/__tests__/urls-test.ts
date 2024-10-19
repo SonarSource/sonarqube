@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { AlmKeys } from '../../types/alm-settings';
-import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
-import { SecurityStandard } from '../../types/security';
+import { MeasurePageView } from '../../types/measures';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';
 import { mockLocation } from '../testMocks';
 import {
@@ -30,20 +32,17 @@ import {
   getComponentAdminUrl,
   getComponentDrilldownUrl,
   getComponentDrilldownUrlWithSelection,
-  getComponentIssuesUrl,
   getComponentOverviewUrl,
-  getComponentSecurityHotspotsUrl,
+  getCreateProjectModeLocation,
   getDeprecatedActiveRulesUrl,
   getGlobalSettingsUrl,
   getIssuesUrl,
   getPathUrlAsString,
   getProjectSettingsUrl,
-  getQualityGatesUrl,
   getQualityGateUrl,
+  getQualityGatesUrl,
   getReturnUrl,
   isRelativeUrl,
-  queryToSearch,
-  searchParamsToQuery,
   stripTrailingSlash,
 } from '../urls';
 
@@ -56,7 +55,7 @@ describe('#convertGithubApiUrlToLink', () => {
   it('should correctly convert a GitHub API URL to a Web URL', () => {
     expect(convertGithubApiUrlToLink('https://api.github.com')).toBe('https://github.com');
     expect(convertGithubApiUrlToLink('https://company.github.com/api/v3')).toBe(
-      'https://company.github.com'
+      'https://company.github.com',
     );
   });
 });
@@ -89,91 +88,29 @@ describe('getComponentAdminUrl', () => {
   });
 });
 
-describe('#getComponentIssuesUrl', () => {
-  it('should work without parameters', () => {
-    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY)).toEqual(
-      expect.objectContaining({
-        pathname: '/project/issues',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
-    );
-  });
-
-  it('should work with parameters', () => {
-    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).toEqual(
-      expect.objectContaining({
-        pathname: '/project/issues',
-        search: queryToSearch({ resolved: 'false', id: SIMPLE_COMPONENT_KEY }),
-      })
-    );
-  });
-});
-
-describe('#getComponentSecurityHotspotsUrl', () => {
-  it('should work with no extra parameters', () => {
-    expect(getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY)).toEqual(
-      expect.objectContaining({
-        pathname: '/security_hotspots',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
-    );
-  });
-
-  it('should forward some query parameters', () => {
-    expect(
-      getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {
-        inNewCodePeriod: 'true',
-        [SecurityStandard.OWASP_TOP10_2021]: 'a1',
-        [SecurityStandard.CWE]: '213',
-        [SecurityStandard.OWASP_TOP10]: 'a1',
-        [SecurityStandard.SANS_TOP25]: 'insecure-interaction',
-        [SecurityStandard.SONARSOURCE]: 'command-injection',
-        [SecurityStandard.PCI_DSS_3_2]: '4.2',
-        [SecurityStandard.PCI_DSS_4_0]: '4.1',
-        ignoredParam: '1234',
-      })
-    ).toEqual(
-      expect.objectContaining({
-        pathname: '/security_hotspots',
-        search: queryToSearch({
-          id: SIMPLE_COMPONENT_KEY,
-          inNewCodePeriod: 'true',
-          [SecurityStandard.OWASP_TOP10_2021]: 'a1',
-          [SecurityStandard.OWASP_TOP10]: 'a1',
-          [SecurityStandard.SONARSOURCE]: 'command-injection',
-          [SecurityStandard.SANS_TOP25]: 'insecure-interaction',
-          [SecurityStandard.CWE]: '213',
-          [SecurityStandard.PCI_DSS_3_2]: '4.2',
-          [SecurityStandard.PCI_DSS_4_0]: '4.1',
-        }),
-      })
-    );
-  });
-});
-
 describe('#getComponentOverviewUrl', () => {
   it('should return a portfolio url for a portfolio', () => {
     expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Portfolio)).toEqual(
       expect.objectContaining({
         pathname: '/portfolio',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY }),
+      }),
     );
   });
   it('should return a portfolio url for a subportfolio', () => {
     expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.SubPortfolio)).toEqual(
       expect.objectContaining({
         pathname: '/portfolio',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY }),
+      }),
     );
   });
   it('should return a dashboard url for a project', () => {
     expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Project)).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY }),
+      }),
     );
   });
   it('should return correct dashboard url for a project when navigating from new code', () => {
@@ -182,13 +119,13 @@ describe('#getComponentOverviewUrl', () => {
         SIMPLE_COMPONENT_KEY,
         ComponentQualifier.Project,
         undefined,
-        CodeScope.New
-      )
+        CodeScope.New,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, code_scope: 'new' }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, codeScope: 'new' }),
+      }),
     );
   });
   it('should return correct dashboard url for a project when navigating from overall code', () => {
@@ -197,21 +134,21 @@ describe('#getComponentOverviewUrl', () => {
         SIMPLE_COMPONENT_KEY,
         ComponentQualifier.Project,
         undefined,
-        CodeScope.Overall
-      )
+        CodeScope.Overall,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, code_scope: 'overall' }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, codeScope: 'overall' }),
+      }),
     );
   });
   it('should return a dashboard url for an app', () => {
     expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Application)).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY }),
+      }),
     );
   });
 });
@@ -219,34 +156,34 @@ describe('#getComponentOverviewUrl', () => {
 describe('#getComponentDrilldownUrl', () => {
   it('should return component drilldown url', () => {
     expect(
-      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC })
+      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, metric: METRIC }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, metric: METRIC }),
+      }),
     );
   });
 
   it('should not encode component key', () => {
     expect(
-      getComponentDrilldownUrl({ componentKey: COMPLEX_COMPONENT_KEY, metric: METRIC })
+      getComponentDrilldownUrl({ componentKey: COMPLEX_COMPONENT_KEY, metric: METRIC }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({ id: COMPLEX_COMPONENT_KEY, metric: METRIC }),
-      })
+        search: queryToSearchString({ id: COMPLEX_COMPONENT_KEY, metric: METRIC }),
+      }),
     );
   });
 
   it('should add asc param only when its list view', () => {
     expect(
-      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC, asc: false })
+      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC, asc: false }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, metric: METRIC }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, metric: METRIC }),
+      }),
     );
 
     expect(
@@ -255,17 +192,17 @@ describe('#getComponentDrilldownUrl', () => {
         metric: METRIC,
         listView: true,
         asc: false,
-      })
+      }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
           view: 'list',
           asc: 'false',
         }),
-      })
+      }),
     );
   });
 });
@@ -273,16 +210,16 @@ describe('#getComponentDrilldownUrl', () => {
 describe('#getComponentDrilldownUrlWithSelection', () => {
   it('should return component drilldown url with selection', () => {
     expect(
-      getComponentDrilldownUrlWithSelection(SIMPLE_COMPONENT_KEY, COMPLEX_COMPONENT_KEY, METRIC)
+      getComponentDrilldownUrlWithSelection(SIMPLE_COMPONENT_KEY, COMPLEX_COMPONENT_KEY, METRIC),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
   });
 
@@ -292,18 +229,18 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         SIMPLE_COMPONENT_KEY,
         COMPLEX_COMPONENT_KEY,
         METRIC,
-        mockBranch({ name: 'foo' })
-      )
+        mockBranch({ name: 'foo' }),
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
           branch: 'foo',
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
   });
 
@@ -314,18 +251,18 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         undefined,
-        'list'
-      )
+        MeasurePageView.list,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
-          view: 'list',
+          view: MeasurePageView.list,
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
 
     expect(
@@ -334,18 +271,18 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         mockMainBranch(),
-        'treemap'
-      )
+        MeasurePageView.treemap,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
-          view: 'treemap',
+          view: MeasurePageView.treemap,
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
 
     expect(
@@ -354,18 +291,18 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         mockPullRequest({ key: '1' }),
-        'tree'
-      )
+        MeasurePageView.tree,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
           pullRequest: '1',
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
   });
 });
@@ -397,7 +334,7 @@ describe('#getIssuesUrl', () => {
     const type = IssueType.Bug;
     expect(getIssuesUrl({ type })).toEqual({
       pathname: '/issues',
-      search: queryToSearch({ type }),
+      search: queryToSearchString({ type }),
     });
   });
 });
@@ -406,11 +343,11 @@ describe('#getGlobalSettingsUrl', () => {
   it('should work as expected', () => {
     expect(getGlobalSettingsUrl('foo')).toEqual({
       pathname: '/admin/settings',
-      search: queryToSearch({ category: 'foo' }),
+      search: queryToSearchString({ category: 'foo' }),
     });
     expect(getGlobalSettingsUrl('foo', { alm: AlmKeys.GitHub })).toEqual({
       pathname: '/admin/settings',
-      search: queryToSearch({ category: 'foo', alm: AlmKeys.GitHub }),
+      search: queryToSearchString({ category: 'foo', alm: AlmKeys.GitHub }),
     });
   });
 });
@@ -419,11 +356,11 @@ describe('#getProjectSettingsUrl', () => {
   it('should work as expected', () => {
     expect(getProjectSettingsUrl('foo')).toEqual({
       pathname: '/project/settings',
-      search: queryToSearch({ id: 'foo' }),
+      search: queryToSearchString({ id: 'foo' }),
     });
     expect(getProjectSettingsUrl('foo', 'bar')).toEqual({
       pathname: '/project/settings',
-      search: queryToSearch({ id: 'foo', category: 'bar' }),
+      search: queryToSearchString({ id: 'foo', category: 'bar' }),
     });
   });
 });
@@ -433,8 +370,8 @@ describe('#getPathUrlAsString', () => {
     expect(
       getPathUrlAsString({
         pathname: '/dashboard',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY }),
+      }),
     ).toBe('/dashboard?id=' + SIMPLE_COMPONENT_KEY);
   });
 
@@ -442,8 +379,8 @@ describe('#getPathUrlAsString', () => {
     expect(
       getPathUrlAsString({
         pathname: '/dashboard',
-        search: queryToSearch({ id: COMPLEX_COMPONENT_KEY }),
-      })
+        search: queryToSearchString({ id: COMPLEX_COMPONENT_KEY }),
+      }),
     ).toBe('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
   });
 
@@ -498,27 +435,6 @@ describe('searchParamsToQuery', () => {
   });
 });
 
-describe('queryToSearch', () => {
-  it('should handle all types', () => {
-    const query = {
-      author: ['GRRM', 'JKR', 'Stross'],
-      b1: true,
-      b2: false,
-      emptyArray: [],
-      normalString: 'hello',
-      undef: undefined,
-    };
-
-    expect(queryToSearch(query)).toBe(
-      '?b1=true&b2=false&normalString=hello&author=GRRM&author=JKR&author=Stross'
-    );
-  });
-
-  it('should handle an missing query', () => {
-    expect(queryToSearch()).toBe('?');
-  });
-});
-
 describe('convertToTo', () => {
   it('should handle locations with a query', () => {
     expect(convertToTo(mockLocation({ pathname: '/account', query: { id: 1 } }))).toEqual({
@@ -529,5 +445,13 @@ describe('convertToTo', () => {
 
   it('should forward strings', () => {
     expect(convertToTo('/whatever')).toBe('/whatever');
+  });
+});
+
+describe('#get import devops config URL', () => {
+  it('should work as expected', () => {
+    expect(getCreateProjectModeLocation(AlmKeys.GitHub)).toEqual({
+      search: '?mode=github',
+    });
   });
 });

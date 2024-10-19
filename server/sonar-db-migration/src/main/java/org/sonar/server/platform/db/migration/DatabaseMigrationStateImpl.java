@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,9 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
-import javax.annotation.CheckForNull;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -29,9 +30,11 @@ import javax.annotation.Nullable;
 public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState {
   private Status status = Status.NONE;
   @Nullable
-  private Date startedAt;
+  private Instant startedAt = null;
   @Nullable
-  private Throwable error;
+  private Throwable error = null;
+  private int completedMigrations = 0;
+  private int totalMigrations = 0;
 
   @Override
   public Status getStatus() {
@@ -44,24 +47,52 @@ public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState
   }
 
   @Override
-  @CheckForNull
-  public Date getStartedAt() {
-    return startedAt;
+  public Optional<Instant> getStartedAt() {
+    return Optional.ofNullable(startedAt);
   }
 
   @Override
-  public void setStartedAt(@Nullable Date startedAt) {
+  public void setStartedAt(Instant startedAt) {
     this.startedAt = startedAt;
   }
 
   @Override
-  @CheckForNull
-  public Throwable getError() {
-    return error;
+  public Optional<Throwable> getError() {
+    return Optional.ofNullable(error);
+  }
+
+  @Override
+  public void incrementCompletedMigrations() {
+    completedMigrations++;
+  }
+
+  @Override
+  public int getCompletedMigrations() {
+    return completedMigrations;
+  }
+
+  @Override
+  public void setTotalMigrations(int totalMigrations) {
+    this.totalMigrations = totalMigrations;
+  }
+
+  @Override
+  public int getTotalMigrations() {
+    return totalMigrations;
   }
 
   @Override
   public void setError(@Nullable Throwable error) {
     this.error = error;
+  }
+
+  @Override
+  public Optional<Instant> getExpectedFinishDate(Instant now) {
+    if (this.getStatus() != Status.RUNNING || startedAt == null || totalMigrations == 0 || completedMigrations == 0) {
+      return Optional.empty();
+    }
+    Duration elapsed = Duration.between(startedAt, now);
+    double progress = (double) completedMigrations / totalMigrations;
+    return Optional.of(startedAt.plusMillis((long) (elapsed.toMillis() / progress)));
   }
 }

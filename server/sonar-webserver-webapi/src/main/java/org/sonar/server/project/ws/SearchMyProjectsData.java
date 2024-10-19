@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,18 +26,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 class SearchMyProjectsData {
-  private final List<ComponentDto> projects;
+
+  private final List<ProjectDto> projects;
+  private final Map<String, String> branchUuidByProjectUuids;
   private final ListMultimap<String, ProjectLinkDto> projectLinksByProjectUuid;
   private final Map<String, SnapshotDto> snapshotsByComponentUuid;
   private final Map<String, String> qualityGateStatuses;
@@ -45,17 +47,20 @@ class SearchMyProjectsData {
 
   private SearchMyProjectsData(Builder builder) {
     this.projects = copyOf(builder.projects);
+    this.branchUuidByProjectUuids = buildBranchUuidByProjectUuidMap(builder.branches);
     this.projectLinksByProjectUuid = buildProjectLinks(builder.projectLinks);
-    this.snapshotsByComponentUuid =builder.snapshots.stream().collect(uniqueIndex(SnapshotDto::getComponentUuid, identity()));
+    this.snapshotsByComponentUuid =builder.snapshots.stream().collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, identity()));
     this.qualityGateStatuses = buildQualityGateStatuses(builder.qualityGates);
     this.totalNbOfProject = builder.totalNbOfProjects;
   }
+
+
 
   static Builder builder() {
     return new Builder();
   }
 
-  List<ComponentDto> projects() {
+  List<ProjectDto> projects() {
     return projects;
   }
 
@@ -80,14 +85,29 @@ class SearchMyProjectsData {
     dtos.forEach(projectLink -> projectLinks.put(projectLink.getProjectUuid(), projectLink));
     return projectLinks.build();
   }
+  private static Map<String, String> buildBranchUuidByProjectUuidMap(List<BranchDto> branches) {
+    return branches.stream().collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
+  }
 
   private static Map<String, String> buildQualityGateStatuses(List<LiveMeasureDto> measures) {
     return ImmutableMap.copyOf(measures.stream()
       .collect(Collectors.toMap(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getDataAsString)));
   }
 
+  public String mainBranchUuidForProjectUuid(String projectUuid) {
+    String branchUuid = branchUuidByProjectUuids.get(projectUuid);
+    if(branchUuid==null){
+      throw  new IllegalStateException("Project must have a corresponding main branch.");
+    }
+    return branchUuid;
+
+
+  }
+
   static class Builder {
-    private List<ComponentDto> projects;
+
+    private List<ProjectDto> projects;
+    private List<BranchDto> branches;
     private List<ProjectLinkDto> projectLinks;
     private List<SnapshotDto> snapshots;
     private List<LiveMeasureDto> qualityGates;
@@ -97,8 +117,13 @@ class SearchMyProjectsData {
       // enforce method constructor
     }
 
-    Builder setProjects(List<ComponentDto> projects) {
+    Builder setProjects(List<ProjectDto> projects) {
       this.projects = projects;
+      return this;
+    }
+
+    Builder setBranches(List<BranchDto> branches) {
+      this.branches = branches;
       return this;
     }
 
@@ -124,6 +149,7 @@ class SearchMyProjectsData {
 
     SearchMyProjectsData build() {
       requireNonNull(projects);
+      requireNonNull(branches);
       requireNonNull(projectLinks);
       requireNonNull(snapshots);
       requireNonNull(qualityGates);

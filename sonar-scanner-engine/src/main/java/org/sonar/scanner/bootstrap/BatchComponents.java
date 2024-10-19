@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,11 +30,14 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.sarif.SarifSerializerImpl;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
+import org.sonar.scanner.externalissue.ExternalIssueReportParser;
+import org.sonar.scanner.externalissue.ExternalIssueReportValidator;
 import org.sonar.scanner.externalissue.ExternalIssuesImportSensor;
 import org.sonar.scanner.externalissue.sarif.DefaultSarif210Importer;
 import org.sonar.scanner.externalissue.sarif.LocationMapper;
 import org.sonar.scanner.externalissue.sarif.RegionMapper;
 import org.sonar.scanner.externalissue.sarif.ResultMapper;
+import org.sonar.scanner.externalissue.sarif.RuleMapper;
 import org.sonar.scanner.externalissue.sarif.RunMapper;
 import org.sonar.scanner.externalissue.sarif.SarifIssuesImportSensor;
 import org.sonar.scanner.genericcoverage.GenericCoverageSensor;
@@ -67,6 +70,8 @@ public class BatchComponents {
     components.add(TestPlanBuilder.class);
 
     // External issues
+    components.add(ExternalIssueReportValidator.class);
+    components.add(ExternalIssueReportParser.class);
     components.add(ExternalIssuesImportSensor.class);
     components.add(ExternalIssuesImportSensor.properties());
     components.add(SarifSerializerImpl.class);
@@ -79,6 +84,7 @@ public class BatchComponents {
     components.add(ResultMapper.class);
     components.add(LocationMapper.class);
     components.add(RegionMapper.class);
+    components.add(RuleMapper.class);
 
     return components;
   }

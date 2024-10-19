@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,17 +29,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.slf4j.event.Level;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -88,11 +88,12 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   private final ArgumentCaptor<PostProjectAnalysisTask.Context> taskContextCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.Context.class);
   private final CeTask.Component component = new CeTask.Component("component uuid", "component key", "component name");
+  private final CeTask.Component entity = new CeTask.Component("entity uuid", "component key", "component name");
   private final CeTask ceTask = new CeTask.Builder()
     .setType("type")
     .setUuid("uuid")
     .setComponent(component)
-    .setMainComponent(component)
+    .setEntity(entity)
     .build();
   private final PostProjectAnalysisTask postProjectAnalysisTask = newPostProjectAnalysisTask("PT1");
   private final PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
@@ -144,7 +145,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     assertThat(allValues.get(0)).isSameAs(allValues.get(1));
 
     assertThat(logTester.logs()).hasSize(2);
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).matches("^PT1 \\| status=SUCCESS \\| time=\\d+ms$");
     assertThat(logs.get(1)).matches("^PT2 \\| status=SUCCESS \\| time=\\d+ms$");
@@ -189,9 +190,9 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
 
     Project project = taskContextCaptor.getValue().getProjectAnalysis().getProject();
-    assertThat(project.getUuid()).isEqualTo(ceTask.getComponent().get().getUuid());
-    assertThat(project.getKey()).isEqualTo(ceTask.getComponent().get().getKey().get());
-    assertThat(project.getName()).isEqualTo(ceTask.getComponent().get().getName().get());
+    assertThat(project.getUuid()).isEqualTo(ceTask.getEntity().get().getUuid());
+    assertThat(project.getKey()).isEqualTo(ceTask.getEntity().get().getKey().get());
+    assertThat(project.getName()).isEqualTo(ceTask.getEntity().get().getName().get());
   }
 
   @Test
@@ -390,7 +391,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(logStatisticsTask).finished(taskContextCaptor.capture());
 
     assertThat(logTester.logs()).hasSize(1);
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(1);
     StringBuilder expectedLog = new StringBuilder("^PT1 ");
     stats.forEach((k, v) -> expectedLog.append("\\| " + k + "=" + v + " "));
@@ -424,7 +425,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     inOrder.verifyNoMoreInteractions();
 
     assertThat(logTester.logs()).hasSize(4);
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(3);
     assertThat(logs.get(0)).matches("^PT1 \\| status=SUCCESS \\| time=\\d+ms$");
     assertThat(logs.get(1)).matches("^PT2 \\| status=FAILED \\| time=\\d+ms$");

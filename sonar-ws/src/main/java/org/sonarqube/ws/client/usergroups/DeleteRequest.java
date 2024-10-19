@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,21 +30,8 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeleteRequest {
 
-  private String id;
   private String name;
   private String organization;
-
-  /**
-   * Example value: "42"
-   */
-  public DeleteRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
-  }
 
   /**
    * Example value: "sonar-administrators"

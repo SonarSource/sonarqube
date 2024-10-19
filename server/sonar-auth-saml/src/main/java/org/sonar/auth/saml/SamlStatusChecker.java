@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,18 @@
 package org.sonar.auth.saml;
 
 import com.onelogin.saml2.Auth;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 
 import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
@@ -35,11 +40,13 @@ import static org.sonar.auth.saml.SamlSettings.USER_NAME_ATTRIBUTE;
 
 public final class SamlStatusChecker {
 
+  private static final Pattern encryptedAssertionPattern = Pattern.compile("<saml:EncryptedAssertion|<EncryptedAssertion");
+
   private SamlStatusChecker() {
     throw new IllegalStateException("This Utility class cannot be instantiated");
   }
 
-  public static SamlAuthenticationStatus getSamlAuthenticationStatus(Auth auth, SamlSettings samlSettings) {
+  public static SamlAuthenticationStatus getSamlAuthenticationStatus(String samlResponse, Auth auth, SamlSettings samlSettings) {
 
     SamlAuthenticationStatus samlAuthenticationStatus = new SamlAuthenticationStatus();
 
@@ -58,6 +65,9 @@ public final class SamlStatusChecker {
     }
     samlAuthenticationStatus.setAvailableAttributes(auth.getAttributes());
     samlAuthenticationStatus.setMappedAttributes(getAttributesMapping(auth, samlSettings));
+
+    samlAuthenticationStatus.setSignatureEnabled(isSignatureEnabled(auth, samlSettings));
+    samlAuthenticationStatus.setEncryptionEnabled(isEncryptionEnabled(auth, samlResponse));
 
     samlAuthenticationStatus.setWarnings(samlAuthenticationStatus.getErrors().isEmpty() ? generateWarnings(auth, samlSettings) : new ArrayList<>());
     samlAuthenticationStatus.setStatus(samlAuthenticationStatus.getErrors().isEmpty() ? "success" : "error");
@@ -113,7 +123,12 @@ public final class SamlStatusChecker {
       USER_NAME_ATTRIBUTE, samlSettings.getUserName(),
       USER_LOGIN_ATTRIBUTE, samlSettings.getUserLogin());
 
-    return generateMissingMappingMessages(mappings, auth);
+    List<String> mappingErrors = generateMissingMappingMessages(mappings, auth);
+    if (mappingErrors.isEmpty()) {
+      mappingErrors = generateEmptyMappingsMessages(mappings, auth);
+    }
+
+    return mappingErrors;
   }
 
   private static List<String> generateMissingMappingMessages(Map<String, String> mappings, Auth auth) {
@@ -122,6 +137,29 @@ public final class SamlStatusChecker {
       .filter(entry -> !entry.getValue().isEmpty() && (auth.getAttribute(entry.getValue()) == null || auth.getAttribute(entry.getValue()).isEmpty()))
       .map(entry -> String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", entry.getKey(), entry.getValue()))
       .toList();
+  }
+
+  private static List<String> generateEmptyMappingsMessages(Map<String, String> mappings, Auth auth) {
+    return mappings.entrySet()
+      .stream()
+      .filter(entry -> (auth.getAttribute(entry.getValue()).size() == 1 && auth.getAttribute(entry.getValue()).contains("")))
+      .map(entry -> String.format("Mapping found for the property %s, but the field %s is empty in the SAML response.", entry.getKey(), entry.getValue()))
+      .toList();
+  }
+
+  private static boolean isSignatureEnabled(Auth auth, SamlSettings samlSettings) {
+    return auth.isAuthenticated() && samlSettings.isSignRequestsEnabled();
+  }
+
+  private static boolean isEncryptionEnabled(Auth auth, @Nullable String samlResponse) {
+    if (samlResponse != null) {
+      byte[] decoded = Base64.getDecoder().decode(samlResponse);
+      String decodedResponse = new String(decoded, StandardCharsets.UTF_8);
+      Matcher matcher = encryptedAssertionPattern.matcher(decodedResponse);
+      //We assume that the presence of an encrypted assertion means that the response is encrypted
+      return matcher.find() && auth.isAuthenticated();
+    }
+    return false;
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,14 +23,15 @@ import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.server.platform.db.migration.DatabaseMigration;
@@ -57,7 +58,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 @RunWith(DataProviderRunner.class)
 public class MigrateDbActionTest {
 
-  private static final Date SOME_DATE = new Date();
+  private static final Instant SOME_DATE = Instant.now();
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
   private static final String DEFAULT_ERROR_MSG = "No failure error";
 
@@ -71,6 +72,7 @@ public class MigrateDbActionTest {
   private static final String MESSAGE_STATUS_NONE = "Database is up-to-date, no migration needed.";
   private static final String MESSAGE_STATUS_RUNNING = "Database migration is running.";
   private static final String MESSAGE_STATUS_SUCCEEDED = "Migration succeeded.";
+  public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
   private Database database = mock(Database.class);
@@ -100,7 +102,7 @@ public class MigrateDbActionTest {
   public void verify_example() {
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
-    when(migrationState.getStartedAt()).thenReturn(DateUtils.parseDateTime("2015-02-23T18:54:23+0100"));
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(DATE_TIME_FORMATTER.parse("2015-02-23T18:54:23+0100", Instant::from)));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -154,7 +156,7 @@ public class MigrateDbActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -167,8 +169,8 @@ public class MigrateDbActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(FAILED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
-    when(migrationState.getError()).thenReturn(new UnsupportedOperationException(SOME_THROWABLE_MSG));
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
+    when(migrationState.getError()).thenReturn(Optional.of(new UnsupportedOperationException(SOME_THROWABLE_MSG)));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -181,8 +183,8 @@ public class MigrateDbActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(FAILED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
-    when(migrationState.getError()).thenReturn(null); // no failure throwable caught
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
+    when(migrationState.getError()).thenReturn(Optional.empty()); // no failure throwable caught
 
     TestResponse response = tester.newRequest().execute();
 
@@ -195,7 +197,7 @@ public class MigrateDbActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(SUCCEEDED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -208,7 +210,7 @@ public class MigrateDbActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(NONE);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -235,11 +237,11 @@ public class MigrateDbActionTest {
       "}";
   }
 
-  private static String expectedResponse(String status, String msg, Date date) {
+  private static String expectedResponse(String status, String msg, Instant date) {
     return "{" +
       "\"state\":\"" + status + "\"," +
       "\"message\":\"" + msg + "\"," +
-      "\"startedAt\":\"" + DateUtils.formatDateTime(date) + "\"" +
+      "\"startedAt\":\"" + DATE_TIME_FORMATTER.format(date.atZone(ZoneOffset.UTC)) + "\"" +
       "}";
   }
 }

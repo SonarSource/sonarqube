@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,54 +17,70 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { InputField, Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
+import { useCreateEventMutation } from '../../../../queries/project-analyses';
 import { ParsedAnalysis } from '../../../../types/project-activity';
 
 interface Props {
-  addEvent: (analysis: string, name: string, category?: string) => Promise<void>;
   addEventButtonText: string;
   analysis: ParsedAnalysis;
+  category?: string;
   onClose: () => void;
 }
 
-interface State {
-  name: string;
-}
+export default function AddEventForm(props: Readonly<Props>) {
+  const { addEventButtonText, onClose, analysis, category } = props;
+  const [name, setName] = React.useState('');
+  const { mutate: createEvent } = useCreateEventMutation(onClose);
 
-export default class AddEventForm extends React.PureComponent<Props, State> {
-  state: State = { name: '' };
-
-  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.target.value });
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
   };
 
-  handleSubmit = () => {
-    return this.props.addEvent(this.props.analysis.key, this.state.name);
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const data: Parameters<typeof createEvent>[0] = { analysis: analysis.key, name };
+
+    if (category !== undefined) {
+      data.category = category;
+    }
+    createEvent(data);
   };
 
-  render() {
-    return (
-      <ConfirmModal
-        confirmButtonText={translate('save')}
-        confirmDisable={!this.state.name}
-        header={translate(this.props.addEventButtonText)}
-        onClose={this.props.onClose}
-        onConfirm={this.handleSubmit}
-        size="small"
-      >
-        <div className="modal-field">
+  return (
+    <Modal
+      headerTitle={translate(addEventButtonText)}
+      onClose={onClose}
+      body={
+        <form id="add-event-form">
           <label htmlFor="name">{translate('name')}</label>
-          <input
+          <InputField
             id="name"
-            autoFocus={true}
-            onChange={this.handleNameChange}
+            className="sw-my-2"
+            autoFocus
+            onChange={handleNameChange}
             type="text"
-            value={this.state.name}
+            value={name}
+            size="full"
           />
-        </div>
-      </ConfirmModal>
-    );
-  }
+        </form>
+      }
+      primaryButton={
+        <Button
+          id="add-event-submit"
+          form="add-event-form"
+          type="submit"
+          isDisabled={name === ''}
+          onClick={handleSubmit}
+          variety={ButtonVariety.Primary}
+        >
+          {translate('save')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }

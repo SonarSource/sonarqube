@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,14 +33,15 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.ce.queue.BranchSupport.ComponentKey;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 @RunWith(DataProviderRunner.class)
 public class BranchSupportTest {
@@ -55,17 +57,31 @@ public class BranchSupportTest {
 
     ComponentKey componentKey = underTestNoBranch.createComponentKey(projectKey, NO_CHARACTERISTICS);
 
-    assertThat(componentKey)
-      .isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
+    assertThat(componentKey).isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
     assertThat(componentKey.getKey()).isEqualTo(projectKey);
     assertThat(componentKey.getBranchName()).isEmpty();
     assertThat(componentKey.getPullRequestKey()).isEmpty();
+    verifyNoInteractions(branchSupportDelegate);
   }
 
   @Test
-  public void createComponentKey_delegates_to_delegate_if_characteristics_is_not_empty() {
+  public void createComponentKey_whenCharacteristicsIsRandom_returnsComponentKey() {
     String projectKey = randomAlphanumeric(12);
     Map<String, String> nonEmptyMap = newRandomNonEmptyMap();
+
+    ComponentKey componentKey = underTestWithBranch.createComponentKey(projectKey, nonEmptyMap);
+
+    assertThat(componentKey).isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
+    assertThat(componentKey.getKey()).isEqualTo(projectKey);
+    assertThat(componentKey.getBranchName()).isEmpty();
+    assertThat(componentKey.getPullRequestKey()).isEmpty();
+    verifyNoInteractions(branchSupportDelegate);
+  }
+
+  @Test
+  public void createComponentKey_whenCharacteristicsIsBranchRelated_delegates() {
+    String projectKey = randomAlphanumeric(12);
+    Map<String, String> nonEmptyMap = Map.of(PULL_REQUEST, "PR-2");
     ComponentKey expected = mock(ComponentKey.class);
     when(branchSupportDelegate.createComponentKey(projectKey, nonEmptyMap)).thenReturn(expected);
 
@@ -110,6 +126,6 @@ public class BranchSupportTest {
   }
 
   private static Map<String, String> newRandomNonEmptyMap() {
-    return IntStream.range(0, 1 + new Random().nextInt(10)).boxed().collect(uniqueIndex(i -> "key_" + i, i -> "val_" + i));
+    return IntStream.range(0, 1 + new Random().nextInt(10)).boxed().collect(Collectors.toMap(i -> "key_" + i, i1 -> "val_" + i1));
   }
 }

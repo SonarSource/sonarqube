@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,100 +17,93 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omit } from 'lodash';
+import { Button, ButtonVariety, IconPeople, SelectAsync } from '@sonarsource/echoes-react';
+import { GenericAvatar, Modal, Note } from 'design-system';
 import * as React from 'react';
-import { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import { SearchSelect } from '../../../components/controls/Select';
-import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
-import { Group, isUser } from '../../../types/quality-gates';
+import { Group as UserGroup, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
-import { OptionWithValue } from './QualityGatePermissionsAddModal';
+import { QGPermissionOption } from '../utils';
 
 export interface QualityGatePermissionsAddModalRendererProps {
+  handleSearch: (q: string) => void;
+  loading: boolean;
   onClose: () => void;
-  handleSearch: (q: string, resolve: (options: OptionWithValue[]) => void) => void;
-  onSelection: (selection: OptionWithValue) => void;
-  selection?: UserBase | Group;
+  onSelection: (selection: string) => void;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
+  options: QGPermissionOption[];
+  selection?: UserBase | UserGroup;
   submitting: boolean;
 }
 
+const FORM_ID = 'quality-gate-permissions-add-modal';
+const USER_SELECT_INPUT_ID = 'quality-gate-permissions-add-modal-select-input';
+
 export default function QualityGatePermissionsAddModalRenderer(
-  props: QualityGatePermissionsAddModalRendererProps
+  props: Readonly<QualityGatePermissionsAddModalRendererProps>,
 ) {
-  const { selection, submitting } = props;
+  const { loading, options, selection, submitting } = props;
 
-  const header = translate('quality_gates.permissions.grant');
-
-  const noResultsText = translate('no_results');
+  const selectValue = selection && isUser(selection) ? selection.login : selection?.name;
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <form onSubmit={props.onSubmit}>
-        <div className="modal-body">
-          <div className="modal-field">
-            <label>{translate('quality_gates.permissions.search')}</label>
-            <SearchSelect
-              autoFocus={true}
-              isClearable={false}
-              placeholder=""
-              defaultOptions={true}
-              noOptionsMessage={() => noResultsText}
-              onChange={props.onSelection}
-              loadOptions={props.handleSearch}
-              getOptionValue={(opt) => (isUser(opt) ? opt.login : opt.name)}
-              large={true}
-              components={{
-                Option: optionRenderer,
-                SingleValue: singleValueRenderer,
-                Control: controlRenderer,
-              }}
-            />
-          </div>
-        </div>
-        <footer className="modal-foot">
-          {submitting && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={!selection || submitting}>{translate('add_verb')}</SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </footer>
-      </form>
-    </Modal>
+    <Modal
+      onClose={props.onClose}
+      headerTitle={translate('quality_gates.permissions.grant')}
+      body={
+        <form onSubmit={props.onSubmit} id={FORM_ID}>
+          <SelectAsync
+            ariaLabel={translate('quality_gates.permissions.search')}
+            className="sw-mb-4"
+            data={options}
+            id={USER_SELECT_INPUT_ID}
+            isLoading={loading}
+            label={translate('quality_gates.permissions.search')}
+            labelNotFound={translate('select.search.noMatches')}
+            onChange={props.onSelection}
+            onSearch={props.handleSearch}
+            optionComponent={OptionRenderer}
+            value={selectValue}
+          />
+        </form>
+      }
+      primaryButton={
+        <Button
+          isDisabled={!selection || submitting}
+          type="submit"
+          form={FORM_ID}
+          variety={ButtonVariety.Primary}
+        >
+          {translate('add_verb')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }
 
-export function customOptions(option: OptionWithValue) {
+function OptionRenderer(option: Readonly<QGPermissionOption>) {
+  if (!option) {
+    return null;
+  }
   return (
-    <span className="display-flex-center" data-testid="qg-add-permission-option">
+    <div className="sw-flex sw-items-center sw-justify-start">
       {isUser(option) ? (
-        <Avatar hash={option.avatar} name={option.name} size={16} />
+        <>
+          <Avatar hash={option.avatar} name={option.name} />
+          <div className="sw-ml-2">
+            <strong className="sw-typo-semibold sw-mr-1">{option.name}</strong>
+            <br />
+            <Note>{option.login}</Note>
+          </div>
+        </>
       ) : (
-        <GroupIcon size={16} />
+        <>
+          <GenericAvatar Icon={IconPeople} name={option.name} />
+          <strong className="sw-typo-semibold sw-ml-2">{option.name}</strong>
+        </>
       )}
-      <strong className="spacer-left">{option.name}</strong>
-      {isUser(option) && <span className="note little-spacer-left">{option.login}</span>}
-    </span>
-  );
-}
-
-function optionRenderer(props: OptionProps<OptionWithValue, false>) {
-  return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
-}
-
-function singleValueRenderer(props: SingleValueProps<OptionWithValue>) {
-  return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
-}
-
-function controlRenderer(props: ControlProps<OptionWithValue, false>) {
-  return (
-    <components.Control {...omit(props, ['children'])} className="abs-height-100">
-      {props.children}
-    </components.Control>
+    </div>
   );
 }

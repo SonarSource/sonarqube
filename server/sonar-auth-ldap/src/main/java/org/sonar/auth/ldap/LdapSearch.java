@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,8 +26,8 @@ import javax.naming.PartialResultException;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Fluent API for building LDAP queries.
@@ -36,7 +36,7 @@ import org.sonar.api.utils.log.Loggers;
  */
 public class LdapSearch {
 
-  private static final Logger LOG = Loggers.get(LdapSearch.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapSearch.class);
 
   private final LdapContextFactory contextFactory;
 

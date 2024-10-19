@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -54,7 +54,7 @@ public class GroupPermissionDao implements Dao {
    * @return group names, sorted in alphabetical order
    */
   public List<String> selectGroupNamesByQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).selectGroupNamesByQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+    return mapper(dbSession).selectGroupNamesByQuery(query, Pagination.forPage(query.getPageIndex()).andSize(query.getPageSize()));
   }
 
   /**
@@ -66,41 +66,33 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * Select global or project permission of given groups. Anyone virtual group is supported
+   * Select global or entity permission of given groups. Anyone virtual group is supported
    * through the value "zero" (0L) in {@code groupUuids}.
    */
-  public List<GroupPermissionDto> selectByGroupUuids(DbSession dbSession, String organizationUuid, List<String> groupUuids, @Nullable String projectUuid) {
-    return executeLargeInputs(groupUuids, groups -> mapper(dbSession).selectByGroupUuids(organizationUuid, groups, projectUuid));
+  public List<GroupPermissionDto> selectByGroupUuids(DbSession dbSession, String organizationUuid, List<String> groupUuids, @Nullable String entityUuid) {
+    return executeLargeInputs(groupUuids, groups -> mapper(dbSession).selectByGroupUuids(organizationUuid, groups, entityUuid));
   }
 
   public List<String> selectProjectKeysWithAnyonePermissions(DbSession dbSession, int max) {
     return mapper(dbSession).selectProjectKeysWithAnyonePermissions(max);
   }
 
-  public int countProjectsWithAnyonePermissions(DbSession dbSession) {
-    return mapper(dbSession).countProjectsWithAnyonePermissions();
+  public int countEntitiesWithAnyonePermissions(DbSession dbSession) {
+    return mapper(dbSession).countEntitiesWithAnyonePermissions();
   }
 
   /**
-   * Select global and project permissions of a given group (Anyone group is NOT supported)
-   * Each row returns a {@link GroupPermissionDto}
+   * Each row returns a {@link CountPerEntityPermission}
    */
-  public void selectAllPermissionsByGroupUuid(DbSession dbSession, String organizationUuid, String groupUuid, ResultHandler<GroupPermissionDto> resultHandler) {
-    mapper(dbSession).selectAllPermissionsByGroupUuid(organizationUuid, groupUuid, resultHandler);
-  }
-
-  /**
-   * Each row returns a {@link CountPerProjectPermission}
-   */
-  public void groupsCountByComponentUuidAndPermission(DbSession dbSession, List<String> componentUuids, ResultHandler<CountPerProjectPermission> resultHandler) {
+  public void groupsCountByComponentUuidAndPermission(DbSession dbSession, List<String> entityUuids, ResultHandler<CountPerEntityPermission> resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);
     parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
 
     executeLargeInputsWithoutOutput(
-      componentUuids,
+      entityUuids,
       partitionedComponentUuids -> {
-        parameters.put("componentUuids", partitionedComponentUuids);
-        mapper(dbSession).groupsCountByProjectUuidAndPermission(parameters, resultHandler);
+        parameters.put("entityUuids", partitionedComponentUuids);
+        mapper(dbSession).groupsCountByEntityUuidAndPermission(parameters, resultHandler);
       });
   }
 
@@ -121,76 +113,87 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * Selects the permissions granted to group and project. An empty list is returned if the
-   * group or project do not exist.
+   * Selects the permissions granted to group and entity. An empty list is returned if the
+   * group or entity do not exist.
    */
-  public List<String> selectProjectPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable String groupUuid, String projectUuid) {
-    return mapper(session).selectProjectPermissionsOfGroup(organizationUuid, groupUuid, projectUuid);
+  public List<String> selectEntityPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable String groupUuid, String entityUuid) {
+    return mapper(session).selectEntityPermissionsOfGroup(organizationUuid, groupUuid, entityUuid);
   }
 
   /**
-   * Lists uuid of groups with at least one permission on the specified root component but which do not have the specified
+   * Lists uuid of groups with at least one permission on the specified entity but which do not have the specified
    * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Sett} can't contain
    * {@code null}).
    */
-  public Set<String> selectGroupUuidsWithPermissionOnProjectBut(DbSession session, String projectUuid, String permission) {
-    return mapper(session).selectGroupUuidsWithPermissionOnProjectBut(projectUuid, permission);
+  public Set<String> selectGroupUuidsWithPermissionOnEntityBut(DbSession session, String entityUuid, String permission) {
+    return mapper(session).selectGroupUuidsWithPermissionOnEntityBut(entityUuid, permission);
   }
 
-  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable ComponentDto componentDto, @Nullable PermissionTemplateDto permissionTemplateDto) {
+  /**
+   * Lists group uuids that have the selected permission on the specified entity.
+   */
+  public Set<String> selectGroupUuidsWithPermissionOnEntity(DbSession session, String entityUuid, String permission) {
+    return mapper(session).selectGroupUuidsWithPermissionOnEntity(entityUuid, permission);
+  }
+
+  public List<GroupPermissionDto> selectGroupPermissionsOnEntity(DbSession session, String entityUuid) {
+    return mapper(session).selectGroupPermissionsOnEntity(entityUuid);
+  }
+
+  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable EntityDto entityDto, @Nullable PermissionTemplateDto permissionTemplateDto) {
     mapper(dbSession).insert(groupPermissionDto);
 
-    String componentKey = (componentDto != null) ? componentDto.getKey() : null;
-    String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
+    String componentKey = (entityDto != null) ? entityDto.getKey() : null;
+    String qualifier = (entityDto != null) ? entityDto.getQualifier() : null;
     auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, componentKey, qualifier, permissionTemplateDto));
   }
 
   /**
-   * Delete all the permissions associated to a root component (project)
+   * Delete all the permissions associated to a entity
    */
-  public void deleteByRootComponentUuid(DbSession dbSession, ComponentDto component) {
-    int deletedRecords = mapper(dbSession).deleteByRootComponentUuid(component.uuid());
+  public void deleteByEntityUuid(DbSession dbSession, EntityDto entityDto) {
+    int deletedRecords = mapper(dbSession).deleteByEntityUuid(entityDto.getUuid());
 
     if (deletedRecords > 0) {
-      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.getKey(), component.name(), null, null, null, component.qualifier()));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(entityDto.getUuid(),
+        entityDto.getKey(), entityDto.getName(), null, null, null, entityDto.getQualifier()));
     }
   }
 
   /**
    * Delete all permissions of the specified group (group "AnyOne" if {@code groupUuid} is {@code null}) for the specified
-   * component.
+   * entity.
    */
-  public int deleteByRootComponentUuidAndGroupUuid(DbSession dbSession, @Nullable String groupUuid, ComponentDto component) {
-    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), groupUuid);
+  public int deleteByEntityAndGroupUuid(DbSession dbSession, @Nullable String groupUuid, EntityDto entityDto) {
+    int deletedRecords = mapper(dbSession).deleteByEntityUuidAndGroupUuid(entityDto.getUuid(), groupUuid);
 
     if (deletedRecords > 0) {
-      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.getKey(), component.name(), null, groupUuid, "", component.qualifier()));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(entityDto.getUuid(),
+        entityDto.getKey(), entityDto.getName(), null, groupUuid, "", entityDto.getQualifier()));
     }
     return deletedRecords;
   }
 
-  public int deleteByRootComponentUuidForAnyOne(DbSession dbSession, ComponentDto component) {
-    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), null);
+  public int deleteByEntityUuidForAnyOne(DbSession dbSession, EntityDto entity) {
+    int deletedRecords = mapper(dbSession).deleteByEntityUuidAndGroupUuid(entity.getUuid(), null);
 
     if (deletedRecords > 0) {
-      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.getKey(), component.name(), null, null, null, component.qualifier()));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(entity.getUuid(),
+        entity.getKey(), entity.getName(), null, null, null, entity.getQualifier()));
     }
 
     return deletedRecords;
   }
 
   /**
-   * Delete the specified permission for the specified component for any group (including group AnyOne).
+   * Delete the specified permission for the specified entity for any group (including group AnyOne).
    */
-  public int deleteByRootComponentUuidAndPermission(DbSession dbSession, String permission, ComponentDto component) {
-    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndPermission(component.uuid(), permission);
+  public int deleteByEntityAndPermission(DbSession dbSession, String permission, EntityDto entity) {
+    int deletedRecords = mapper(dbSession).deleteByEntityUuidAndPermission(entity.getUuid(), permission);
 
     if (deletedRecords > 0) {
-      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.getKey(), component.name(), permission, null, null, component.qualifier()));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(entity.getUuid(),
+        entity.getKey(), entity.getName(), permission, null, null, entity.getQualifier()));
     }
 
     return deletedRecords;
@@ -201,25 +204,26 @@ public class GroupPermissionDao implements Dao {
    * <ul>
    *   <li>a global permission granted to a group</li>
    *   <li>a global permission granted to anyone</li>
-   *   <li>a permission granted to a group for a project</li>
-   *   <li>a permission granted to anyone for a project</li>
+   *   <li>a permission granted to a group for a entity</li>
+   *   <li>a permission granted to anyone for a entity</li>
    * </ul>
    *
    * @param dbSession
    * @param permission        the kind of permission
    * @param groupUuid         if null, then anyone, else uuid of group
-   * @param rootComponentUuid if null, then global permission, otherwise the uuid of root component (project)
+   * @param entityDto         if null, then global permission, otherwise the uuid of entity
    */
   public void delete(DbSession dbSession, String permission, String organizationUuid, @Nullable String groupUuid,
-    @Nullable String groupName, @Nullable String rootComponentUuid, @Nullable ComponentDto componentDto) {
+    @Nullable String groupName, @Nullable EntityDto entityDto) {
 
-    int deletedRecords = mapper(dbSession).delete(permission, organizationUuid, groupUuid, rootComponentUuid);
+    int deletedRecords = mapper(dbSession).delete(permission, organizationUuid, groupUuid, entityDto != null ? entityDto.getUuid() : null);
 
     if (deletedRecords > 0) {
-      String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      String componentKey = (componentDto != null) ? componentDto.getKey() : null;
-      String componentName = (componentDto != null) ? componentDto.name() : null;
-      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(rootComponentUuid,
+      String entityUuid = (entityDto != null) ? entityDto.getUuid() : null;
+      String qualifier = (entityDto != null) ? entityDto.getQualifier() : null;
+      String componentKey = (entityDto != null) ? entityDto.getKey() : null;
+      String componentName = (entityDto != null) ? entityDto.getName() : null;
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(entityUuid,
         componentKey, componentName, permission, groupUuid, groupName, qualifier));
     }
   }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -71,7 +71,7 @@ public class PersistAnalysisWarningsStepTest {
     verify(ceTaskMessages, times(1)).addAll(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue())
       .extracting(CeTaskMessages.Message::getText, CeTaskMessages.Message::getType)
-      .containsExactly(tuple("warning 1", CeTaskMessageType.GENERIC), tuple("warning 2", CeTaskMessageType.GENERIC));
+      .containsExactly(tuple("warning 1", MessageType.GENERIC), tuple("warning 2", MessageType.GENERIC));
   }
 
   @Test

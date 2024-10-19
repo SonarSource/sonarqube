@@ -15,7 +15,13 @@
          "languageKey": "js",
          "languageName": "JavaScript",
          "name" : "\"===\" and \"!==\" should be used instead of \"==\" and \"!=\"",
-         "severity" : "MAJOR"
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "impacts": [
+            {
+               "softwareQuality": "RELIABILITY",
+               "severity": "MEDIUM"
+            }
+         ]
       }
    ],
    "inLeft" : [
@@ -26,7 +32,13 @@
          "languageKey": "js",
          "languageName": "JavaScript",
          "name" : "Avoid trailing whitespaces",
-         "severity" : "MAJOR"
+         "cleanCodeAttributeCategory": "CONSISTENT",
+         "impacts": [
+            {
+               "softwareQuality": "MAINTAINABILITY",
+               "severity": "LOW"
+            }
+         ]
       }
    ],
    "inRight" : [
@@ -37,7 +49,13 @@
          "languageKey": "js",
          "languageName": "JavaScript",
          "name" : "Avoid use of tabulation character",
-         "severity" : "MINOR"
+         "cleanCodeAttributeCategory": "CONSISTENT",
+         "impacts": [
+            {
+               "softwareQuality": "MAINTAINABILITY",
+               "severity": "LOW"
+            }
+         ]
       }
    ],
    "modified" : [
@@ -48,6 +66,13 @@
          "languageKey": "js",
          "languageName": "JavaScript",
          "name" : "Avoid function with too many parameters",
+         "cleanCodeAttributeCategory": "ADAPTABLE",
+         "impacts": [
+            {
+               "softwareQuality": "MAINTAINABILITY",
+               "severity": "HIGH"
+            }
+         ],
          "right" : {
             "severity" : "MAJOR",
             "params" : {

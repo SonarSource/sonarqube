@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +44,10 @@ public class DefaultAdHocRuleTest {
       .name("name")
       .description("desc")
       .severity(Severity.BLOCKER)
-      .type(RuleType.CODE_SMELL);
-      rule.save();
+      .type(RuleType.CODE_SMELL)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
+      .cleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
+    rule.save();
 
     assertThat(rule.engineId()).isEqualTo("engine");
     assertThat(rule.ruleId()).isEqualTo("ruleId");
@@ -51,10 +55,10 @@ public class DefaultAdHocRuleTest {
     assertThat(rule.description()).isEqualTo("desc");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.type()).isEqualTo(RuleType.CODE_SMELL);
-
+    assertThat(rule.defaultImpacts()).containsEntry(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH);
+    assertThat(rule.cleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
     verify(storage).store(any(DefaultAdHocRule.class));
   }
-
 
   @Test
   public void description_is_optional() {
@@ -69,6 +73,20 @@ public class DefaultAdHocRuleTest {
 
     verify(storage).store(any(DefaultAdHocRule.class));
   }
+
+  @Test
+  public void type_and_severity_are_optional() {
+    SensorStorage storage = mock(SensorStorage.class);
+    new DefaultAdHocRule(storage)
+      .engineId("engine")
+      .ruleId("ruleId")
+      .name("name")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
+      .save();
+
+    verify(storage).store(any(DefaultAdHocRule.class));
+  }
+
 
   @Test
   public void fail_to_store_if_no_engine_id() {
@@ -118,7 +136,6 @@ public class DefaultAdHocRuleTest {
       .hasMessageContaining("Name is mandatory");
   }
 
-
   @Test
   public void fail_to_store_if_no_severity() {
     SensorStorage storage = mock(SensorStorage.class);
@@ -131,7 +148,7 @@ public class DefaultAdHocRuleTest {
 
     assertThatThrownBy(() -> rule.save())
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Severity is mandatory");
+      .hasMessageContaining("Impact should be provided, or Severity and Type instead");
   }
 
   @Test
@@ -146,7 +163,6 @@ public class DefaultAdHocRuleTest {
 
     assertThatThrownBy(() -> rule.save())
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Type is mandatory");
+      .hasMessageContaining("Impact should be provided, or Severity and Type instead");
   }
-
 }

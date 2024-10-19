@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,10 +29,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.core.util.UuidFactoryImpl;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.platform.ServerId.DATABASE_ID_LENGTH;
@@ -46,6 +45,8 @@ import static org.sonar.core.platform.ServerId.UUID_DATASET_ID_LENGTH;
 
 @RunWith(DataProviderRunner.class)
 public class ServerIdTest {
+
+  private static final String OLD_UUID_FORMAT = "AY0XR6neBaNHvsTBjkC2";
 
   @Test
   public void parse_throws_NPE_if_argument_is_null() {
@@ -84,7 +85,7 @@ public class ServerIdTest {
     String startWithSplitChar = SPLIT_CHARACTER + randomAlphabetic(DATABASE_ID_LENGTH - 1);
 
     Stream<String> databaseIds = Stream.of(
-      UuidFactoryImpl.INSTANCE.create(),
+            OLD_UUID_FORMAT,
       randomAlphabetic(NOT_UUID_DATASET_ID_LENGTH),
       randomAlphabetic(UUID_DATASET_ID_LENGTH),
       repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH),
@@ -130,7 +131,7 @@ public class ServerIdTest {
   @DataProvider
   public static Object[][] validOldFormatServerIds() {
     return new Object[][] {
-      {UuidFactoryImpl.INSTANCE.create()},
+      {OLD_UUID_FORMAT},
       {randomAlphabetic(NOT_UUID_DATASET_ID_LENGTH)},
       {repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH)},
       {randomAlphabetic(UUID_DATASET_ID_LENGTH)},
@@ -158,7 +159,7 @@ public class ServerIdTest {
       {randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(UUID_DATASET_ID_LENGTH)},
       {randomAlphabetic(DATABASE_ID_LENGTH), repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH)},
       {randomAlphabetic(DATABASE_ID_LENGTH), repeat(SPLIT_CHARACTER + "", UUID_DATASET_ID_LENGTH)},
-      {randomAlphabetic(DATABASE_ID_LENGTH), UuidFactoryImpl.INSTANCE.create()},
+      {randomAlphabetic(DATABASE_ID_LENGTH), OLD_UUID_FORMAT},
     };
   }
 

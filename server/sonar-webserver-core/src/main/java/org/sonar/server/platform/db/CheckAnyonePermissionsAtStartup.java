@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
  */
 public class CheckAnyonePermissionsAtStartup implements Startable {
 
-  private static final Logger LOG = Loggers.get(CheckAnyonePermissionsAtStartup.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CheckAnyonePermissionsAtStartup.class);
   private static final String FORCE_AUTHENTICATION_PROPERTY_NAME = "sonar.forceAuthentication";
   private final DbClient dbClient;
   private final Configuration config;
@@ -62,7 +62,7 @@ public class CheckAnyonePermissionsAtStartup implements Startable {
           "instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.");
       }
 
-      int total = dbClient.groupPermissionDao().countProjectsWithAnyonePermissions(dbSession);
+      int total = dbClient.groupPermissionDao().countEntitiesWithAnyonePermissions(dbSession);
       if (total > 0) {
         List<String> list = dbClient.groupPermissionDao().selectProjectKeysWithAnyonePermissions(dbSession, 3);
         LOG.warn("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose {} " +

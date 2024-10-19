@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import { DropdownMenu, DropdownMenuAlign } from '@sonarsource/echoes-react';
+import { LightLabel, NavBarTabLink, NavBarTabs, TopBar } from 'design-system';
 import * as React from 'react';
-import { Location, NavLink } from 'react-router-dom';
-import Dropdown from '../../../../components/controls/Dropdown';
+import { Location } from 'react-router-dom';
 import withLocation from '../../../../components/hoc/withLocation';
-import DropdownIcon from '../../../../components/icons/DropdownIcon';
-import ContextNavBar from '../../../../components/ui/ContextNavBar';
-import NavBarTabs from '../../../../components/ui/NavBarTabs';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { AdminPageExtension } from '../../../../types/extension';
 import { PendingPluginResult } from '../../../../types/plugins';
 import { Extension, SysStatus } from '../../../../types/types';
-import { rawSizes } from '../../../theme';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
 import SystemRestartNotif from './SystemRestartNotif';
 
@@ -44,8 +41,6 @@ interface Props {
   canAdmin?: boolean;
   canCustomerAdmin?: boolean;
 }
-
-const ALERT_HEIGHT = 30;
 
 export class SettingsNav extends React.PureComponent<Props> {
   static defaultProps = {
@@ -89,139 +84,124 @@ export class SettingsNav extends React.PureComponent<Props> {
 
   renderExtension = ({ key, name }: Extension) => {
     return (
-      <li key={key}>
-        <NavLink to={`/admin/extension/${key}`}>{name}</NavLink>
-      </li>
+      <DropdownMenu.ItemLink isMatchingFullPath key={key} to={`/admin/extension/${key}`}>
+        {name}
+      </DropdownMenu.ItemLink>
     );
   };
 
   renderConfigurationTab() {
     const { canAdmin } = this.props;
     const extensionsWithoutSupport = this.props.extensions.filter(
-      (extension) => extension.key !== 'license/support'
+      (extension) => extension.key !== 'license/support',
     );
+
     return (
-      <Dropdown
-        overlay={
-          <ul className="menu">
-            <li>
-              <NavLink end={true} to={canAdmin ? "/admin/settings" : "/admin/settings?category=codescan"}>
-                {translate('settings.page')}
-              </NavLink>
-            </li>
+      <DropdownMenu.Root
+        align={DropdownMenuAlign.Start}
+        id="settings-navigation-configuration-dropdown"
+        items={
+          <>
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/settings">
+              {translate('settings.page')}
+            </DropdownMenu.ItemLink>
+
             {canAdmin && (
-              <li>
-                <NavLink end={true} to="/admin/settings/encryption">
+              <>
+                <DropdownMenu.ItemLink isMatchingFullPath to="/admin/settings/encryption">
                   {translate('property.category.security.encryption')}
-                </NavLink>
-              </li>
+                </DropdownMenu.ItemLink>
+
+                <DropdownMenu.ItemLink isMatchingFullPath to="/admin/webhooks">
+                  {translate('webhooks.page')}
+                </DropdownMenu.ItemLink>
+              </>
             )}
+
             {extensionsWithoutSupport.map(this.renderExtension)}
-          </ul>
+          </>
         }
-        tagName="li"
       >
-        {({ onToggleClick, open }) => (
-          <a
-            aria-expanded={open}
-            aria-haspopup="menu"
-            role="button"
-            className={classNames('dropdown-toggle', {
-              active:
-                open ||
-                (!this.isSecurityActive() &&
-                  !this.isProjectsActive() &&
-                  !this.isSystemActive() &&
-                  !this.isSomethingActive(['/admin/extension/license/support']) &&
-                  !this.isMarketplace() &&
-                  !this.isAudit()),
-            })}
-            href="#"
-            id="settings-navigation-configuration"
-            onClick={onToggleClick}
-          >
-            {translate('sidebar.project_settings')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
-        )}
-      </Dropdown>
+        <NavBarTabLink
+          aria-haspopup="menu"
+          active={
+            !this.isSecurityActive() &&
+            !this.isProjectsActive() &&
+            !this.isSystemActive() &&
+            !this.isSomethingActive(['/admin/extension/license/support']) &&
+            !this.isMarketplace() &&
+            !this.isAudit()
+          }
+          id="settings-navigation-configuration"
+          text={translate('sidebar.project_settings')}
+          to={{}}
+          withChevron
+        />
+      </DropdownMenu.Root>
     );
   }
 
   renderProjectsTab() {
     return (
-      <Dropdown
-        overlay={
-          <ul className="menu">
-            <li>
-              <NavLink end={true} to="/admin/background_tasks">
-                {translate('background_tasks.page')}
-              </NavLink>
-            </li>
-          </ul>
+      <DropdownMenu.Root
+        id="settings-navigation-projects-dropdown"
+        items={
+          <>
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/background_tasks">
+              {translate('background_tasks.page')}
+            </DropdownMenu.ItemLink>
+          </>
         }
-        tagName="li"
       >
-        {({ onToggleClick, open }) => (
-          <a
-            aria-expanded={open}
-            aria-haspopup="menu"
-            role="button"
-            className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
-            href="#"
-            onClick={onToggleClick}
-          >
-            {translate('sidebar.projects')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
-        )}
-      </Dropdown>
+        <NavBarTabLink
+          aria-haspopup="menu"
+          active={this.isProjectsActive()}
+          to={{}}
+          text={translate('sidebar.projects')}
+          withChevron
+        />
+      </DropdownMenu.Root>
     );
   }
 
   renderSecurityTab() {
     return (
-      <Dropdown
-        overlay={
-          <ul className="menu">
-            <li>
-              <NavLink end={true} to="/admin/users">
-                {translate('users.page')}
-              </NavLink>
-            </li>
-          </ul>
+      <DropdownMenu.Root
+        id="settings-navigation-security-dropdown"
+        items={
+          <>
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/users">
+              {translate('users.page')}
+            </DropdownMenu.ItemLink>
+          </>
         }
-        tagName="li"
       >
-        {({ onToggleClick, open }) => (
-          <a
-            aria-expanded={open}
-            aria-haspopup="menu"
-            role="button"
-            className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
-            href="#"
-            onClick={onToggleClick}
-          >
-            {translate('sidebar.security')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
-        )}
-      </Dropdown>
+        <NavBarTabLink
+          aria-haspopup="menu"
+          active={this.isSecurityActive()}
+          to={{}}
+          text={translate('sidebar.security')}
+          withChevron
+        />
+      </DropdownMenu.Root>
     );
   }
 
   render() {
     const { extensions, pendingPlugins, canAdmin, canCustomerAdmin } = this.props;
     const hasSupportExtension = extensions.find((extension) => extension.key === 'license/support');
+
     const hasGovernanceExtension = extensions.find(
-      (e) => e.key === AdminPageExtension.GovernanceConsole
+      (e) => e.key === AdminPageExtension.GovernanceConsole,
     );
+
     const totalPendingPlugins =
       pendingPlugins.installing.length +
       pendingPlugins.removing.length +
       pendingPlugins.updating.length;
-    const contextNavHeight = rawSizes.contextNavHeightRaw;
+
     let notifComponent;
+
     if (this.props.systemStatus === 'RESTARTING') {
       notifComponent = <SystemRestartNotif />;
     } else if (totalPendingPlugins > 0) {
@@ -236,53 +216,39 @@ export class SettingsNav extends React.PureComponent<Props> {
     }
 
     return (
-      <ContextNavBar
-        height={notifComponent ? contextNavHeight + ALERT_HEIGHT : contextNavHeight}
-        id="context-navigation"
-        notif={notifComponent}
-      >
-        <div className="navbar-context-header">
-          <h1>{translate('layout.settings')}</h1>
-        </div>
+      <>
+        <TopBar id="context-navigation" aria-label={translate('settings')}>
+          <LightLabel as="h1">{translate('layout.settings')}</LightLabel>
 
-        <NavBarTabs>
-          {(canAdmin || canCustomerAdmin) && this.renderConfigurationTab()}
-          {canAdmin && this.renderSecurityTab()}
-          {(canAdmin || canCustomerAdmin) && this.renderProjectsTab()}
+          <NavBarTabs className="it__navbar-tabs sw-mt-4">
+            {(canAdmin || canCustomerAdmin) && this.renderConfigurationTab()}
+            {canAdmin && this.renderSecurityTab()}
+            {(canAdmin || canCustomerAdmin) && this.renderProjectsTab()}
 
-          {canAdmin && (
-              <li>
-                <NavLink end={true} to="/admin/system">
-                  {translate('sidebar.system')}
-                </NavLink>
-              </li>
-          )}
+            {canAdmin && (
+              <>
+                <NavBarTabLink end to="/admin/system" text={translate('sidebar.system')} />
 
-          {canAdmin && (
-              <li>
-                <NavLink end={true} to="/admin/marketplace">
-                  {translate('marketplace.page')}
-                </NavLink>
-              </li>
-          )}
+                <NavBarTabLink end to="/admin/marketplace" text={translate('marketplace.page')} />
+              </>
+            )}
 
-          {hasGovernanceExtension && (
-            <li>
-              <NavLink end={true} to="/admin/audit">
-                {translate('audit_logs.page')}
-              </NavLink>
-            </li>
-          )}
+            {hasGovernanceExtension && (
+              <NavBarTabLink end to="/admin/audit" text={translate('audit_logs.page')} />
+            )}
 
-          {hasSupportExtension && (
-            <li>
-              <NavLink end={true} to="/admin/extension/license/support">
-                {translate('support')}
-              </NavLink>
-            </li>
-          )}
-        </NavBarTabs>
-      </ContextNavBar>
+            {hasSupportExtension && (
+              <NavBarTabLink
+                end
+                to="/admin/extension/license/support"
+                text={translate('support')}
+              />
+            )}
+          </NavBarTabs>
+        </TopBar>
+
+        {notifComponent}
+      </>
     );
   }
 }

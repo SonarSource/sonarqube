@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -51,7 +50,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.FileStructure.Domain;
@@ -102,6 +101,8 @@ public class ScannerReportViewerApp {
   private JEditorPane activeRuleEditor;
   private JScrollPane adHocRuleTab;
   private JEditorPane adHocRuleEditor;
+  private JScrollPane cveTab;
+  private JEditorPane cveEditor;
   private JScrollPane qualityProfileTab;
   private JEditorPane qualityProfileEditor;
   private JScrollPane pluginTab;
@@ -200,6 +201,7 @@ public class ScannerReportViewerApp {
     loadComponents();
     updateActiveRules();
     updateAdHocRules();
+    updateCves();
     updateQualityProfiles();
     updatePlugins();
     updateMetadata();
@@ -403,6 +405,18 @@ public class ScannerReportViewerApp {
     }
   }
 
+  private void updateCves() {
+    cveEditor.setText("");
+
+    StringBuilder builder = new StringBuilder();
+    try (CloseableIterator<ScannerReport.Cve> cveCloseableIterator = reader.readCves()) {
+      while (cveCloseableIterator.hasNext()) {
+        builder.append(cveCloseableIterator.next().toString()).append("\n");
+      }
+      cveEditor.setText(builder.toString());
+    }
+  }
+
   private void updateQualityProfiles() {
     qualityProfileEditor.setText("");
 
@@ -594,6 +608,12 @@ public class ScannerReportViewerApp {
 
     adHocRuleEditor = new JEditorPane();
     adHocRuleTab.setViewportView(adHocRuleEditor);
+
+    cveTab = new JScrollPane();
+    tabbedPane.addTab("CVEs", null, cveTab, null);
+
+    cveEditor = new JEditorPane();
+    cveTab.setViewportView(cveEditor);
 
     qualityProfileTab = new JScrollPane();
     tabbedPane.addTab("Quality Profiles", null, qualityProfileTab, null);

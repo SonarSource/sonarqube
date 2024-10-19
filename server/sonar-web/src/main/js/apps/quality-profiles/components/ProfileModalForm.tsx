@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import useKeyDown from '../../../hooks/useKeydown';
+import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';
 import { Dict } from '../../../types/types';
 import { Profile, ProfileActionModals } from '../types';
 
@@ -42,65 +44,83 @@ const LABELS_FOR_ACTION: Dict<{ button: string; header: string }> = {
 };
 
 export default function ProfileModalForm(props: ProfileModalFormProps) {
-  const { action, loading, profile } = props;
-  const [name, setName] = React.useState<string | undefined>(undefined);
+  const { action, loading, profile, onSubmit } = props;
+  const [name, setName] = React.useState('');
 
   const submitDisabled = loading || !name || name === profile.name;
   const labels = LABELS_FOR_ACTION[action];
-  const header = translateWithParameters(labels.header, profile.name, profile.languageName);
+
+  const { data: { ancestors } = {} } = useProfileInheritanceQuery(props.profile);
+
+  const handleSubmit = React.useCallback(() => {
+    if (name) {
+      onSubmit(name);
+    }
+  }, [name, onSubmit]);
+
+  useKeyDown(handleSubmit, [KeyboardKeys.Enter]);
+
+  const extendsBuiltIn = ancestors?.some((profile) => profile.isBuiltIn);
+  const showBuiltInWarning =
+    (action === ProfileActionModals.Copy && !extendsBuiltIn) ||
+    (action === ProfileActionModals.Extend && !profile.isBuiltIn && !extendsBuiltIn);
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose} size="small">
-      <form
-        onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          if (name) {
-            props.onSubmit(name);
-          }
-        }}
-      >
-        <div className="modal-head">
-          <h2>{header}</h2>
-        </div>
-        <div className="modal-body">
+    <Modal
+      headerTitle={translateWithParameters(labels.header, profile.name, profile.languageName)}
+      onClose={props.onClose}
+      isOverflowVisible
+      loading={loading}
+      body={
+        <>
+          {showBuiltInWarning && (
+            <FlagMessage variant="info" className="sw-mb-4">
+              <div className="sw-flex sw-flex-col">
+                {translate('quality_profiles.no_built_in_updates_warning.new_profile')}
+                <span className="sw-mt-2">
+                  {translate('quality_profiles.no_built_in_updates_warning.new_profile.2')}
+                </span>
+              </div>
+            </FlagMessage>
+          )}
+
           {action === ProfileActionModals.Copy && (
-            <p className="spacer-bottom">
+            <p className="sw-mb-8">
               {translateWithParameters('quality_profiles.copy_help', profile.name)}
             </p>
           )}
           {action === ProfileActionModals.Extend && (
-            <p className="spacer-bottom">
+            <p className="sw-mb-8">
               {translateWithParameters('quality_profiles.extend_help', profile.name)}
             </p>
           )}
 
-          <MandatoryFieldsExplanation className="modal-field" />
-          <div className="modal-field">
-            <label htmlFor="profile-name">
-              {translate('quality_profiles.new_name')}
-              <MandatoryFieldMarker />
-            </label>
-            <input
-              autoFocus={true}
-              id="profile-name"
-              maxLength={100}
+          <MandatoryFieldsExplanation />
+
+          <FormField
+            className="sw-mt-2"
+            htmlFor="quality-profile-new-name"
+            label={translate('quality_profiles.new_name')}
+            required
+          >
+            <InputField
+              id="quality-profile-new-name"
               name="name"
-              onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
-                setName(e.currentTarget.value);
-              }}
-              required={true}
-              size={50}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
+              required
+              size="full"
               type="text"
-              value={name ?? profile.name}
+              value={name}
             />
-          </div>
-        </div>
-        <div className="modal-foot">
-          {loading && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={submitDisabled}>{translate(labels.button)}</SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </div>
-      </form>
-    </Modal>
+          </FormField>
+        </>
+      }
+      primaryButton={
+        <Button onClick={handleSubmit} isDisabled={submitDisabled} variety={ButtonVariety.Primary}>
+          {translate(labels.button)}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,23 +22,23 @@ package org.sonar.server.authentication.event;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.http.HttpRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public interface AuthenticationEvent {
 
-  void loginSuccess(HttpServletRequest request, @Nullable String login, Source source);
+  void loginSuccess(HttpRequest request, @Nullable String login, Source source);
 
-  void loginFailure(HttpServletRequest request, AuthenticationException e);
+  void loginFailure(HttpRequest request, AuthenticationException e);
 
-  void logoutSuccess(HttpServletRequest request, @Nullable String login);
+  void logoutSuccess(HttpRequest request, @Nullable String login);
 
-  void logoutFailure(HttpServletRequest request, String errorMessage);
+  void logoutFailure(HttpRequest request, String errorMessage);
 
   enum Method {
     /**
@@ -46,9 +46,9 @@ public interface AuthenticationEvent {
      */
     BASIC,
     /**
-     * HTTP basic authentication with a security token.
+     * Authentication with SonarQube token passed either as basic credentials or bearer token.
      */
-    BASIC_TOKEN,
+    SONARQUBE_TOKEN,
     /**
      * SQ login form authentication with a login and password.
      */

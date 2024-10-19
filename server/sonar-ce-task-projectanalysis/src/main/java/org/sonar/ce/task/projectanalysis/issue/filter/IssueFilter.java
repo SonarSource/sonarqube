@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.core.issue.DefaultIssue;
@@ -43,7 +43,7 @@ import static org.sonar.core.config.IssueExclusionProperties.RULE_KEY;
 @ComputeEngineSide
 public class IssueFilter {
 
-  private static final Logger LOG = Loggers.get(IssueFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IssueFilter.class);
 
   private final List<IssuePattern> exclusionPatterns;
   private final List<IssuePattern> inclusionPatterns;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,9 +25,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -50,13 +51,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.concat;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
 
 public class RuleIndexer implements ResilientIndexer {
-  private static final Logger LOG = Loggers.get(RuleIndexer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RuleIndexer.class);
 
   private final EsClient esClient;
   private final DbClient dbClient;
@@ -109,7 +109,7 @@ public class RuleIndexer implements ResilientIndexer {
   public void commitAndIndex(DbSession dbSession, Collection<String> ruleUuids) {
     List<EsQueueDto> items = ruleUuids.stream()
       .map(RuleIndexer::createQueueDtoForRule)
-      .collect(MoreCollectors.toArrayList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
@@ -155,7 +155,7 @@ public class RuleIndexer implements ResilientIndexer {
     Set<String> ruleUuids = items
       .stream()
       .map(EsQueueDto::getDocId)
-      .collect(toHashSet(items.size()));
+      .collect(Collectors.toSet());
 
     dbClient.ruleDao().selectIndexingRulesByKeys(dbSession, ruleUuids,
       r -> {

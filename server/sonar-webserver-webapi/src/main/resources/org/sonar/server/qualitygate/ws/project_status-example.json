@@ -8,7 +8,6 @@
         "status": "ERROR",
         "metricKey": "new_coverage",
         "comparator": "LT",
-        "periodIndex": 1,
         "errorThreshold": "85",
         "actualValue": "82.50562381034781"
       },
@@ -16,7 +15,6 @@
         "status": "ERROR",
         "metricKey": "new_blocker_violations",
         "comparator": "GT",
-        "periodIndex": 1,
         "errorThreshold": "0",
         "actualValue": "14"
       },
@@ -24,7 +22,6 @@
         "status": "ERROR",
         "metricKey": "new_critical_violations",
         "comparator": "GT",
-        "periodIndex": 1,
         "errorThreshold": "0",
         "actualValue": "1"
       },
@@ -32,7 +29,6 @@
         "status": "OK",
         "metricKey": "new_sqale_debt_ratio",
         "comparator": "GT",
-        "periodIndex": 1,
         "errorThreshold": "5",
         "actualValue": "0.6562109862671661"
       },
@@ -40,30 +36,19 @@
         "status": "OK",
         "metricKey": "reopened_issues",
         "comparator": "GT",
-        "periodIndex": 1,
         "actualValue": "0"
       },
       {
         "status": "ERROR",
         "metricKey": "open_issues",
         "comparator": "GT",
-        "periodIndex": 1,
         "actualValue": "17"
       },
       {
         "status": "OK",
         "metricKey": "skipped_tests",
         "comparator": "GT",
-        "periodIndex": 1,
         "actualValue": "0"
-      }
-    ],
-    "periods": [
-      {
-        "index": 1,
-        "mode": "last_version",
-        "date": "2000-04-27T00:45:23+0200",
-        "parameter": "2015-12-07"
       }
     ],
     "period": {

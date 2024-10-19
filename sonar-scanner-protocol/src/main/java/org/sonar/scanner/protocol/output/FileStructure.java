@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -80,6 +80,10 @@ public class FileStructure {
 
   public File adHocRules() {
     return new File(dir, "adhocrules.pb");
+  }
+
+  public File cves() {
+    return new File(dir, "cves.pb");
   }
 
   public File fileFor(Domain domain, int componentRef) {

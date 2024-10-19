@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -51,7 +50,7 @@ public class FilterParser {
   public static List<Criterion> parse(String filter) {
     return StreamSupport.stream(CRITERIA_SPLITTER.split(filter).spliterator(), false)
       .map(FilterParser::parseCriterion)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 
   private static Criterion parseCriterion(String rawCriterion) {

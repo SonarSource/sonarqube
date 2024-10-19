@@ -30,11 +30,11 @@ message Component {
   string path = 9;
   string uuid = 10;
   string uuid_path = 12;
-  string module_uuid = 13;
-  string module_uuid_path = 14;
+  reserved 13; // module_uuid
+  reserved 14; // module_uuid_path
   string deprecated_key = 15;
   string project_uuid = 16;
-  string main_branch_project_uuid = 17;
+  reserved 17; // main_branch_project_uuid
 }
 
 message Branch {
@@ -44,20 +44,21 @@ message Branch {
   string kee = 4;
   string branch_type = 5;
   string merge_branch_uuid = 6;
+  bool is_main = 7;
 }
 
 // Stream of analyses stored in file analyses.pb, including project.
 // Only analyses with status 'P' (processed) are exported. They are ordered
-// by build_date, so that parents are always located before children.
+// by analysis_date, so that parents are always located before children.
 message Analysis {
   int64 component_ref = 2;
   int64 date = 3;
-  string projectVersion = 4;
+  string project_version = 4;
   string period1_mode = 5;
   string period1_param = 6;
   int64 period1_date = 7;
   string uuid = 8;
-  string buildString = 9;
+  string build_string = 9;
 }
 
 message Metric {
@@ -122,9 +123,17 @@ message Issue {
   string project_uuid = 22;
   string rule_ref = 23;
 
-  optional string ruleDescriptionContextKey = 24;
+  optional string rule_description_context_key = 24;
 
-  repeated MessageFormatting messageFormattings = 25;
+  repeated MessageFormatting message_formattings = 25;
+  string code_variants = 26;
+
+  repeated Impact impacts = 27;
+}
+
+message Impact {
+  SoftwareQuality software_quality = 1;
+  Severity severity = 2;
 }
 
 // Stream of issues changelog stored in file issues_changelog.pb
@@ -167,13 +176,15 @@ message AdHocRule {
   int32 type = 7;
   string scope = 8;
   RuleMetadata metadata = 9;
+  repeated Impact impacts = 11;
+  optional string clean_code_attribute = 12;
 }
 
 // stream of messages in settings.pb
 message Setting {
   string key = 1;
   string value = 2;
-  int64 component_ref = 3;
+  reserved 3; // component_ref
 }
 
 // links specified on the project, and only on the project (not on modules
@@ -183,7 +194,7 @@ message Link {
   string name = 2;
   string href = 3;
   string uuid = 4;
-  int64 component_ref = 5;
+  reserved 5; //component_ref
 }
 
 message Event {
@@ -208,6 +219,7 @@ message Plugin {
 message LineHashes {
   int64 component_ref = 1;
   string hashes = 2;
+  // this is branch uuid
   string project_uuid = 3;
 }
 
@@ -229,4 +241,18 @@ message MessageFormatting {
 
 enum MessageFormattingType {
   CODE = 0;
+}
+
+enum SoftwareQuality {
+  MAINTAINABILITY = 0;
+  RELIABILITY = 1;
+  SECURITY = 2;
+}
+
+enum Severity {
+  LOW = 0;
+  MEDIUM = 1;
+  HIGH = 2;
+  INFO = 3;
+  BLOCKER = 4;
 }

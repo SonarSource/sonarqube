@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,10 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -65,7 +63,7 @@ public class QProfileRulesImpl implements QProfileRules {
   public List<ActiveRuleChange> activateAndCommit(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations) {
     verifyNotBuiltIn(profile);
 
-    Set<String> ruleUuids = activations.stream().map(RuleActivation::getRuleUuid).collect(MoreCollectors.toHashSet(activations.size()));
+    Set<String> ruleUuids = activations.stream().map(RuleActivation::getRuleUuid).collect(Collectors.toSet());
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     List<ActiveRuleChange> changes = new ArrayList<>();
@@ -78,10 +76,11 @@ public class QProfileRulesImpl implements QProfileRules {
   }
 
   @Override
-  public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity) {
+  public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity,
+    @Nullable Boolean prioritizedRule) {
     verifyNotBuiltIn(profile);
     BulkChangeResult bulkChangeResult = doBulk(dbSession, profile, ruleQuery, (context, ruleDto) -> {
-      RuleActivation activation = RuleActivation.create(ruleDto.getUuid(), severity, null);
+      RuleActivation activation = RuleActivation.create(ruleDto.getUuid(), severity, prioritizedRule, null);
       return ruleActivator.activate(dbSession, activation, context);
     });
     qualityProfileChangeEventService.distributeRuleChangeEvent(List.of(profile), bulkChangeResult.getChanges(), profile.getLanguage());
@@ -108,8 +107,7 @@ public class QProfileRulesImpl implements QProfileRules {
   @Override
   public BulkChangeResult bulkDeactivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery) {
     verifyNotBuiltIn(profile);
-    BulkChangeResult bulkChangeResult = doBulk(dbSession, profile, ruleQuery, (context, ruleDto) ->
-      ruleActivator.deactivate(dbSession, context, ruleDto.getUuid(), false));
+    BulkChangeResult bulkChangeResult = doBulk(dbSession, profile, ruleQuery, (context, ruleDto) -> ruleActivator.deactivate(dbSession, context, ruleDto.getUuid(), false));
 
     qualityProfileChangeEventService.distributeRuleChangeEvent(List.of(profile), bulkChangeResult.getChanges(), profile.getLanguage());
 

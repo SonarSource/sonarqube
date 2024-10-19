@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.telemetry.TelemetryMetricsSentMapper">
+
+  <sql id="columns">
+    m.metric_key as metricKey,
+    m.dimension as dimension,
+    m.last_sent as lastSent
+  </sql>
+
+  <select id="selectAll" resultType="org.sonar.db.telemetry.TelemetryMetricsSentDto">
+    SELECT
+    <include refid="columns"/>
+    FROM telemetry_metrics_sent m
+  </select>
+
+  <insert id="upsert" parameterType="org.sonar.db.telemetry.TelemetryMetricsSentDto" useGeneratedKeys="false" databaseId="postgresql">
+    INSERT INTO telemetry_metrics_sent (
+      metric_key, dimension, last_sent
+    ) VALUES (
+      #{metricKey, jdbcType=VARCHAR}, #{dimension, jdbcType=VARCHAR}, #{lastSent, jdbcType=BIGINT}
+    )
+    ON CONFLICT (metric_key, dimension) DO UPDATE SET
+      last_sent = EXCLUDED.last_sent
+  </insert>
+
+  <insert id="upsert" parameterType="org.sonar.db.telemetry.TelemetryMetricsSentDto" useGeneratedKeys="false" databaseId="h2">
+    MERGE INTO telemetry_metrics_sent AS target
+    USING (VALUES (
+      #{metricKey, jdbcType=VARCHAR}, #{dimension, jdbcType=VARCHAR}, #{lastSent, jdbcType=BIGINT}
+    )) AS source (metric_key, dimension, last_sent)
+    ON target.metric_key = source.metric_key AND target.dimension = source.dimension
+    WHEN MATCHED THEN
+      UPDATE SET last_sent = source.last_sent
+    WHEN NOT MATCHED THEN
+      INSERT (metric_key, dimension, last_sent)
+      VALUES (source.metric_key, source.dimension, source.last_sent)
+  </insert>
+
+  <insert id="upsert" parameterType="org.sonar.db.telemetry.TelemetryMetricsSentDto" useGeneratedKeys="false" databaseId="oracle">
+    MERGE INTO telemetry_metrics_sent target
+    USING (
+      SELECT #{metricKey} AS metric_key,
+             #{dimension} AS dimension,
+             #{lastSent} AS last_sent
+      FROM dual
+    ) source
+    ON (target.metric_key = source.metric_key AND target.dimension = source.dimension)
+    WHEN MATCHED THEN
+      UPDATE SET target.last_sent = source.last_sent
+    WHEN NOT MATCHED THEN
+      INSERT (metric_key, dimension, last_sent)
+      VALUES (source.metric_key, source.dimension, source.last_sent)
+  </insert>
+
+  <insert id="upsert" parameterType="org.sonar.db.telemetry.TelemetryMetricsSentDto" useGeneratedKeys="false" databaseId="mssql">
+    MERGE INTO telemetry_metrics_sent AS target
+    USING (
+      SELECT
+        #{metricKey} AS metric_key,
+        #{dimension} AS dimension,
+        #{lastSent} AS last_sent
+    ) AS source (metric_key, dimension, last_sent)
+    ON (target.metric_key = source.metric_key AND target.dimension = source.dimension)
+    WHEN MATCHED THEN
+      UPDATE SET target.last_sent = source.last_sent
+    WHEN NOT MATCHED THEN
+      INSERT (metric_key, dimension, last_sent)
+      VALUES (source.metric_key, source.dimension, source.last_sent);
+  </insert>
+
+</mapper>

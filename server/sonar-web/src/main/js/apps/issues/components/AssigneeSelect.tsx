@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,128 +17,99 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce } from 'lodash';
+
+import { SelectAsync, SelectOption } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
-import { BasicSelectOption, SearchSelect } from '../../../components/controls/Select';
+import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { Issue } from '../../../types/types';
-import { CurrentUser, isLoggedIn, isUserActive } from '../../../types/users';
+import { RestUser, UserActive, isLoggedIn, isUserActive } from '../../../types/users';
 import { searchAssignees } from '../utils';
 
-const DEBOUNCE_DELAY = 250;
 // exported for test
 export const MIN_QUERY_LENGTH = 2;
 
-export interface AssigneeOption extends BasicSelectOption {
-  avatar?: string;
-  email?: string;
-  label: string;
-  value: string;
+const UNASSIGNED: Option = { value: '', label: translate('unassigned') };
+
+interface Option extends SelectOption {
+  Icon?: React.JSX.Element;
 }
 
 export interface AssigneeSelectProps {
-  currentUser: CurrentUser;
-  issues: Issue[];
-  onAssigneeSelect: (assignee: AssigneeOption) => void;
-  inputId: string;
   organization: string;
+  className?: string;
+  inputId: string;
+  issues: Issue[];
+  label: string;
+  onAssigneeSelect: (assigneeKey: string) => void;
+  selectedAssigneeKey?: string;
 }
 
-export default class AssigneeSelect extends React.Component<AssigneeSelectProps> {
-  constructor(props: AssigneeSelectProps) {
-    super(props);
+function userToOption(user: RestUser | UserActive) {
+  const userInfo = user.name ?? user.login;
+  return {
+    value: user.login,
+    label: isUserActive(user) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
+    Icon: <Avatar hash={user.avatar} name={user.name} size="xs" className="sw-my-1" />,
+  };
+}
 
-    this.handleAssigneeSearch = debounce(this.handleAssigneeSearch, DEBOUNCE_DELAY);
-  }
+export default function AssigneeSelect(props: Readonly<AssigneeSelectProps>) {
+  const { className, issues, inputId, label, selectedAssigneeKey } = props;
 
-  getDefaultAssignee = () => {
-    const { currentUser, issues } = this.props;
-    const options = [];
+  const { currentUser } = React.useContext(CurrentUserContext);
 
-    if (isLoggedIn(currentUser)) {
-      const canBeAssignedToMe =
-        issues.filter((issue) => issue.assignee !== currentUser.login).length > 0;
-      if (canBeAssignedToMe) {
-        options.push({
-          avatar: currentUser.avatar,
-          label: currentUser.name,
-          value: currentUser.login,
-        });
+  const [options, setOptions] = React.useState<Option[]>();
+
+  const defaultOptions = React.useMemo((): Option[] => {
+    const allowCurrentUserSelection =
+      isLoggedIn(currentUser) && issues.some((issue) => currentUser.login !== issue.assignee);
+
+    return allowCurrentUserSelection ? [UNASSIGNED, userToOption(currentUser)] : [UNASSIGNED];
+  }, [currentUser, issues]);
+
+  const handleAssigneeSearch = React.useCallback(
+    async (query: string) => {
+      if (query.length < MIN_QUERY_LENGTH) {
+        setOptions(defaultOptions);
+        return;
       }
-    }
 
-    const canBeUnassigned = issues.filter((issue) => issue.assignee).length > 0;
-    if (canBeUnassigned) {
-      options.push({ label: translate('unassigned'), value: '' });
-    }
+      const assignees = await searchAssignees(query, this.props.organization).then(({ results }) =>
+        results.map(userToOption),
+      );
 
-    return options;
-  };
-
-  handleAssigneeSearch = (query: string, resolve: (options: AssigneeOption[]) => void) => {
-    const { organization } = this.props;
-    if (query.length < MIN_QUERY_LENGTH) {
-      resolve([]);
-      return;
-    }
-
-    searchAssignees(query, organization)
-      .then(({ results }) =>
-        results.map((r) => {
-          const userInfo = r.name || r.login;
-
-          return {
-            avatar: r.avatar,
-            label: isUserActive(r) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
-            value: r.login,
-          };
-        })
-      )
-      .then(resolve)
-      .catch(() => resolve([]));
-  };
-
-  renderAssignee = (option: AssigneeOption) => {
-    return (
-      <div className="display-flex-center">
-        {option.avatar !== undefined && (
-          <Avatar className="spacer-right" hash={option.avatar} name={option.label} size={16} />
-        )}
-        {option.label}
-      </div>
-    );
-  };
-
-  renderAssigneeOption = (props: OptionProps<AssigneeOption, false>) => (
-    <components.Option {...props}>{this.renderAssignee(props.data)}</components.Option>
+      setOptions(assignees);
+    },
+    [defaultOptions],
   );
 
-  renderSingleAssignee = (props: SingleValueProps<AssigneeOption>) => (
-    <components.SingleValue {...props}>{this.renderAssignee(props.data)}</components.SingleValue>
+  return (
+    <SelectAsync
+      ariaLabel={translate('issue_bulk_change.assignee.change')}
+      className={className}
+      id={inputId}
+      data={options ?? defaultOptions}
+      helpText={translateWithParameters('select.search.tooShort', MIN_QUERY_LENGTH)}
+      label={label}
+      labelNotFound={translate('select.search.noMatches')}
+      onChange={props.onAssigneeSelect}
+      onSearch={handleAssigneeSearch}
+      optionComponent={AssigneeOption}
+      value={selectedAssigneeKey}
+    />
   );
+}
 
-  render() {
-    const { inputId } = this.props;
-    return (
-      <SearchSelect
-        className="input-super-large"
-        inputId={inputId}
-        components={{
-          Option: this.renderAssigneeOption,
-          SingleValue: this.renderSingleAssignee,
-        }}
-        isClearable={true}
-        defaultOptions={this.getDefaultAssignee()}
-        loadOptions={this.handleAssigneeSearch}
-        onChange={this.props.onAssigneeSelect}
-        noOptionsMessage={({ inputValue }) =>
-          inputValue.length < MIN_QUERY_LENGTH
-            ? translateWithParameters('select2.tooShort', MIN_QUERY_LENGTH)
-            : translate('select2.noMatches')
-        }
-      />
-    );
-  }
+function AssigneeOption(props: Readonly<Option>) {
+  const { Icon, label } = props;
+
+  return (
+    <div className="sw-flex sw-flex-nowrap sw-items-center sw-overflow-hidden">
+      {isDefined(Icon) && <span className="sw-mr-2">{Icon}</span>}
+      <span className="sw-whitespace-nowrap sw-text-ellipsis">{label}</span>
+    </div>
+  );
 }

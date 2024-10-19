@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.utils.Preconditions.checkState;
@@ -39,6 +40,10 @@ public class RuleDescriptionSectionsGeneratorResolver {
     checkState(generatorsFound.size() < 2, "More than one rule description section generator found for rule with key %s", ruleDef.key());
     checkState(!generatorsFound.isEmpty(), "No rule description section generator found for rule with key %s", ruleDef.key());
     return generatorsFound.iterator().next();
+  }
+
+  public Set<RuleDescriptionSectionDto> generateFor(RulesDefinition.Rule ruleDef) {
+    return getRuleDescriptionSectionsGenerator(ruleDef).generateSections(ruleDef);
   }
 
 }

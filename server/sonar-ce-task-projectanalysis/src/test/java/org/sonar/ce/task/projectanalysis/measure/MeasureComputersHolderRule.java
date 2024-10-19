@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,26 +21,21 @@ package org.sonar.ce.task.projectanalysis.measure;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 
 import static java.util.Objects.requireNonNull;
 
-public class MeasureComputersHolderRule extends ExternalResource implements MeasureComputersHolder {
+public class MeasureComputersHolderRule implements MeasureComputersHolder, AfterEachCallback {
 
   private final MeasureComputer.MeasureComputerDefinitionContext context;
 
-  private List<MeasureComputerWrapper> measureComputers = new ArrayList<>();
+  private final List<MeasureComputerWrapper> measureComputers = new ArrayList<>();
 
   public MeasureComputersHolderRule(MeasureComputer.MeasureComputerDefinitionContext context) {
     this.context = context;
-  }
-
-  @After
-  public void tearDown() {
-    measureComputers.clear();
   }
 
   @Override
@@ -52,5 +47,10 @@ public class MeasureComputersHolderRule extends ExternalResource implements Meas
     requireNonNull(measureComputer, "Measure computer cannot be null");
     MeasureComputer.MeasureComputerDefinition definition = measureComputer.define(context);
     this.measureComputers.add(new MeasureComputerWrapper(measureComputer, definition));
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    measureComputers.clear();
   }
 }

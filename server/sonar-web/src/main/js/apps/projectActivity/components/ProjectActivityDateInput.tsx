@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { DateRangePicker, PopupZLevel } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
-import DateRangeInput from '../../../components/controls/DateRangeInput';
 import { translate } from '../../../helpers/l10n';
 import { Query } from '../utils';
 
 interface Props {
   from?: Date;
-  to?: Date;
   onChange: (changes: Partial<Query>) => void;
+  to?: Date;
 }
 
 export default class ProjectActivityDateInput extends React.PureComponent<Props> {
@@ -40,14 +40,21 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
 
   render() {
     return (
-      <div className="display-flex-end">
-        <DateRangeInput
+      <div className="sw-flex">
+        <DateRangePicker
+          className="sw-w-abs-350"
+          startClearButtonLabel={translate('clear.start')}
+          endClearButtonLabel={translate('clear.end')}
+          fromLabel={translate('start_date')}
           onChange={this.handleChange}
+          separatorText={translate('to_')}
+          toLabel={translate('end_date')}
           value={{ from: this.props.from, to: this.props.to }}
+          zLevel={PopupZLevel.Content}
         />
         <Button
-          className="spacer-left"
-          disabled={this.props.from === undefined && this.props.to === undefined}
+          className="sw-ml-2"
+          isDisabled={this.props.from === undefined && this.props.to === undefined}
           onClick={this.handleResetClick}
         >
           {translate('project_activity.reset_dates')}

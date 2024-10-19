@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,6 @@
 import {
   getCoverageRatingAverageValue,
   getCoverageRatingLabel,
-  getDuplicationsRatingAverageValue,
   getDuplicationsRatingLabel,
   getSizeRatingAverageValue,
   getSizeRatingLabel,
@@ -69,18 +68,6 @@ describe('getDuplicationsRatingLabel', () => {
     [5, '> 20%'],
   ])('should return the correct label for %s', (rating, label) => {
     expect(getDuplicationsRatingLabel(rating)).toBe(label);
-  });
-});
-
-describe('getDuplicationsRatingAverageValue', () => {
-  it.each([
-    [1, 1.5],
-    [2, 4],
-    [3, 7.5],
-    [4, 15],
-    [5, 30],
-  ])('should return the correct value', (rating, value) => {
-    expect(getDuplicationsRatingAverageValue(rating)).toBe(value);
   });
 });
 

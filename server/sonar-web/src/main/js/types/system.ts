@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -34,4 +34,59 @@ export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
 export enum InstanceType {
   SonarQube = 'SonarQube',
   SonarCloud = 'CodeScanCloud',
+}
+
+export enum MigrationStatus {
+  noMigration = 'NO_MIGRATION',
+  notSupported = 'NOT_SUPPORTED',
+  required = 'MIGRATION_REQUIRED',
+  running = 'MIGRATION_RUNNING',
+  succeeded = 'MIGRATION_SUCCEEDED',
+  failed = 'MIGRATION_FAILED',
+}
+
+export interface MigrationsStatusResponse {
+  completedSteps?: number;
+  expectedFinishTimestamp?: string;
+  message?: string;
+  startedAt?: string;
+  status: MigrationStatus;
+  totalSteps?: number;
+}
+
+export enum AuthMethod {
+  Basic = 'BASIC',
+  OAuth = 'OAUTH',
+}
+
+export type EmailConfiguration = EmailConfigurationAuth & EmailConfigurationCommon;
+export type EmailConfigurationAuth = EmailNotificationBasicAuth | EmailNotificationOAuth;
+export type EmailConfigurationBasicAuth = EmailNotificationBasicAuth & EmailConfigurationCommon;
+export type EmailConfigurationOAuth = EmailNotificationOAuth & EmailConfigurationCommon;
+
+interface EmailConfigurationCommon {
+  fromAddress: string;
+  fromName: string;
+  host: string;
+  id?: string;
+  port: string;
+  securityProtocol: string;
+  subjectPrefix: string;
+  username: string;
+}
+
+interface EmailNotificationBasicAuth {
+  authMethod: AuthMethod.Basic;
+  basicPassword: string;
+  readonly isBasicPasswordSet?: boolean;
+}
+
+interface EmailNotificationOAuth {
+  authMethod: AuthMethod.OAuth;
+  readonly isOauthClientIdSet?: boolean;
+  readonly isOauthClientSecretSet?: boolean;
+  oauthAuthenticationHost: string;
+  oauthClientId: string;
+  oauthClientSecret: string;
+  oauthTenant: string;
 }

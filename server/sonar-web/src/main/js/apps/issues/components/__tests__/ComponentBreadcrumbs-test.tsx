@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../types/component';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { Component, Issue } from '../../../../types/types';
 import ComponentBreadcrumbs from '../ComponentBreadcrumbs';
 
 const baseIssue = mockIssue(false, {
@@ -33,27 +35,32 @@ const baseIssue = mockIssue(false, {
   branch: 'test-branch',
 });
 
-it('renders', () => {
-  expect(
-    shallow(<ComponentBreadcrumbs component={undefined} issue={baseIssue} />)
-  ).toMatchSnapshot();
+describe('renders properly', () => {
+  it('without component with issue', () => {
+    renderComponentBreadcrumbs(mockComponent());
+
+    expect(screen.getByLabelText('issues.on_file_x.comp-name')).toBeInTheDocument();
+  });
+
+  it('with component without issue branch', () => {
+    renderComponentBreadcrumbs(mockComponent({ qualifier: ComponentQualifier.Portfolio }), {
+      branch: undefined,
+    });
+
+    expect(screen.getByLabelText('issues.on_file_x.proj-name, comp-name')).toBeInTheDocument();
+    expect(screen.queryByText('test-branch')).not.toBeInTheDocument();
+  });
+
+  it('with component and issue branch', () => {
+    renderComponentBreadcrumbs(mockComponent({ qualifier: ComponentQualifier.Portfolio }));
+
+    expect(screen.getByLabelText('issues.on_file_x.proj-name, comp-name')).toBeInTheDocument();
+    expect(screen.getByText('test-branch')).toBeInTheDocument();
+  });
 });
 
-it('renders issues properly for views', () => {
-  expect(
-    shallow(
-      <ComponentBreadcrumbs
-        component={mockComponent({ qualifier: ComponentQualifier.Portfolio })}
-        issue={{ ...baseIssue, branch: undefined }}
-      />
-    )
-  ).toMatchSnapshot();
-  expect(
-    shallow(
-      <ComponentBreadcrumbs
-        component={mockComponent({ qualifier: ComponentQualifier.Portfolio })}
-        issue={{ ...baseIssue }}
-      />
-    )
-  ).toMatchSnapshot('with branch information');
-});
+function renderComponentBreadcrumbs(component?: Component, issue: Partial<Issue> = {}) {
+  return renderComponent(
+    <ComponentBreadcrumbs component={component} issue={{ ...baseIssue, ...issue }} />,
+  );
+}

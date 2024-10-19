@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, Badge, BaseLink, ContentCell, Link, Note, TableRow } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import { useIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
@@ -29,86 +29,89 @@ import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 
 export interface ProfilesListRowProps {
+  organization: string;
+  isComparable: boolean;
   profile: Profile;
   updateProfiles: () => Promise<void>;
-  isComparable: boolean;
-  organization: string;
 }
 
-export function ProfilesListRow(props: ProfilesListRowProps) {
-  const { profile, isComparable, organization } = props;
+export function ProfilesListRow(props: Readonly<ProfilesListRowProps>) {
+  const { organization, profile, isComparable } = props;
+  const intl = useIntl();
 
-  const offset = 25 * (profile.depth - 1);
+  const offset = 24 * (profile.depth - 1);
   const activeRulesUrl = getRulesUrl({
     qprofile: profile.key,
     activation: 'true',
-  },profile.organization);
+  }, organization);
   const deprecatedRulesUrl = getRulesUrl({
     qprofile: profile.key,
     activation: 'true',
     statuses: 'DEPRECATED',
-  },profile.organization);
+  }, organization);
 
   return (
-    <tr
-      className="quality-profiles-table-row text-middle"
+    <TableRow
+      className="quality-profiles-table-row"
       data-key={profile.key}
       data-name={profile.name}
     >
-      <td className="quality-profiles-table-name text-middle">
-        <div className="display-flex-center" style={{ paddingLeft: offset }}>
-          <div>
-            <ProfileLink language={profile.language} name={profile.name} organization={props.organization}>
-              {profile.name}
-            </ProfileLink>
-          </div>
-          {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
+      <ContentCell>
+        <div className="sw-flex sw-items-center" style={{ paddingLeft: offset }}>
+          <ProfileLink organization={organization} language={profile.language} name={profile.name}>
+            {profile.name}
+          </ProfileLink>
+          {profile.isBuiltIn && <BuiltInQualityProfileBadge className="sw-ml-2" />}
         </div>
-      </td>
+      </ContentCell>
 
-      <td className="quality-profiles-table-projects thin nowrap text-middle text-right">
+      <ContentCell>
         {profile.isDefault ? (
-          <Tooltip overlay={translate('quality_profiles.list.default.help')}>
-            <span className="badge">{translate('default')}</span>
+          <Tooltip content={intl.formatMessage({ id: 'quality_profiles.list.default.help' })}>
+            <Badge>{intl.formatMessage({ id: 'default' })}</Badge>
           </Tooltip>
         ) : (
-          <span>{profile.projectCount}</span>
+          <Note>{profile.projectCount}</Note>
         )}
-      </td>
+      </ContentCell>
 
-      <td className="quality-profiles-table-rules thin nowrap text-middle text-right">
+      <ContentCell>
         <div>
+          <Link to={activeRulesUrl}>{profile.activeRuleCount}</Link>
+
           {profile.activeDeprecatedRuleCount > 0 && (
-            <span className="spacer-right">
-              <Tooltip overlay={translate('quality_profiles.deprecated_rules')}>
-                <Link className="badge badge-error" to={deprecatedRulesUrl}>
-                  {profile.activeDeprecatedRuleCount}
-                </Link>
+            <span className="sw-ml-2">
+              <Tooltip content={intl.formatMessage({ id: 'quality_profiles.deprecated_rules' })}>
+                <BaseLink to={deprecatedRulesUrl} className="sw-border-0">
+                  <Badge variant="deleted">{profile.activeDeprecatedRuleCount}</Badge>
+                </BaseLink>
               </Tooltip>
             </span>
           )}
-
-          <Link to={activeRulesUrl}>{profile.activeRuleCount}</Link>
         </div>
-      </td>
+      </ContentCell>
 
-      <td className="quality-profiles-table-date thin nowrap text-middle text-right">
-        <DateFromNow date={profile.rulesUpdatedAt} />
-      </td>
+      <ContentCell>
+        <Note>
+          <DateFromNow date={profile.rulesUpdatedAt} />
+        </Note>
+      </ContentCell>
 
-      <td className="quality-profiles-table-date thin nowrap text-middle text-right">
-        <DateFromNow date={profile.lastUsed} />
-      </td>
+      <ContentCell>
+        <Note>
+          <DateFromNow date={profile.lastUsed} />
+        </Note>
+      </ContentCell>
 
-      <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
+      <ActionCell>
         <ProfileActions
+          organization={organization}
           isComparable={isComparable}
           profile={profile}
-          organization={props.organization}
           updateProfiles={props.updateProfiles}
         />
-      </td>
-    </tr>
+      </ActionCell>
+    </TableRow>
   );
 }
 

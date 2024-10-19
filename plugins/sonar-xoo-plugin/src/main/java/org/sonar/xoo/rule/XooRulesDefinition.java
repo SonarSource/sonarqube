@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,11 @@ package org.sonar.xoo.rule;
 
 import javax.annotation.Nullable;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleScope;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RuleParamType;
@@ -34,6 +38,8 @@ import org.sonar.xoo.checks.Check;
 import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
+import org.sonar.xoo.rule.variant.HotspotWithCodeVariantsSensor;
+import org.sonar.xoo.rule.variant.IssueWithCodeVariantsSensor;
 
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
@@ -58,12 +64,16 @@ public class XooRulesDefinition implements RulesDefinition {
   @Nullable
   private final Version version;
 
+  @Nullable
+  private final Configuration configuration;
+
   public XooRulesDefinition() {
-    this(null);
+    this(null, null);
   }
 
-  public XooRulesDefinition(@Nullable SonarRuntime sonarRuntime) {
+  public XooRulesDefinition(@Nullable SonarRuntime sonarRuntime, @Nullable Configuration configuration) {
     this.version = sonarRuntime != null ? sonarRuntime.getApiVersion() : null;
+    this.configuration = configuration;
   }
 
   @Override
@@ -71,6 +81,7 @@ public class XooRulesDefinition implements RulesDefinition {
     defineRulesXoo(context);
     defineRulesXoo2(context);
     defineRulesXooExternal(context);
+    defineRulesXooExternalWithCct(context);
   }
 
   private static void defineRulesXoo2(Context context) {
@@ -94,6 +105,7 @@ public class XooRulesDefinition implements RulesDefinition {
     new RulesDefinitionAnnotationLoader().load(repo, Check.ALL);
 
     NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
       .setActivatedByDefault(true)
       .addDescriptionSection(howToFixSectionWithContext("single_context"));
     addDescriptionSectionsWithoutContexts(hasTag, "Search for a given tag in Xoo files");
@@ -114,6 +126,8 @@ public class XooRulesDefinition implements RulesDefinition {
     ruleWithParameters.createParam("float").setType(RuleParamType.FLOAT);
 
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
+      .setCleanCodeAttribute(CleanCodeAttribute.COMPLETE)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.INFO)
       .setTags("line");
     addDescriptionSectionsWithoutContexts(oneIssuePerLine, "Generate an issue on each line of a file. It requires the metric \"lines\".");
     addHowToFixSectionsWithContexts(oneIssuePerLine);
@@ -123,6 +137,8 @@ public class XooRulesDefinition implements RulesDefinition {
       .addEducationPrincipleKeys("defense_in_depth", "never_trust_user_input");
 
     NewRule oneQuickFixPerLine = repo.createRule(OneQuickFixPerLineSensor.RULE_KEY).setName("One Quick Fix Per Line")
+      .setCleanCodeAttribute(CleanCodeAttribute.DISTINCT)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER)
       .setTags("line");
     addAllDescriptionSections(oneQuickFixPerLine,
       "Generate an issue with quick fix available on each line of a file. It requires the metric \"lines\".");
@@ -145,6 +161,8 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneBugIssuePerTestLine = repo.createRule(OneBugIssuePerTestLineSensor.RULE_KEY).setName("One Bug Issue Per Test Line")
       .setScope(RuleScope.TEST)
+      .setCleanCodeAttribute(CleanCodeAttribute.RESPECTFUL)
+      .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM)
       .setType(RuleType.BUG);
     addAllDescriptionSections(oneBugIssuePerTestLine, "Generate a bug issue on each line of a test file. It requires the metric \"lines\".");
 
@@ -153,34 +171,45 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneCodeSmellIssuePerTestLine = repo.createRule(OneCodeSmellIssuePerTestLineSensor.RULE_KEY).setName("One Code Smell Issue Per Test Line")
       .setScope(RuleScope.TEST)
+      .setCleanCodeAttribute(CleanCodeAttribute.TESTED)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
       .setType(RuleType.CODE_SMELL);
     addAllDescriptionSections(oneCodeSmellIssuePerTestLine, "Generate a code smell issue on each line of a test file. It requires the metric \"lines\".");
 
     oneCodeSmellIssuePerTestLine
       .setDebtRemediationFunction(oneCodeSmellIssuePerTestLine.debtRemediationFunctions().linear("3min"));
 
-    NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY).setName("One Issue Per Directory");
+    NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY)
+      .setName("One Issue Per Directory")
+      .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
     oneIssuePerDirectory.setDebtRemediationFunction(oneIssuePerDirectory.debtRemediationFunctions().linear(TEN_MIN));
     addAllDescriptionSections(oneIssuePerDirectory, "Generate an issue on each non-empty directory");
 
-    NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File");
+    NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File")
+      .setCleanCodeAttribute(CleanCodeAttribute.LAWFUL)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     oneDayDebtPerFile.setDebtRemediationFunction(oneDayDebtPerFile.debtRemediationFunctions().linear("1d"));
     addAllDescriptionSections(oneDayDebtPerFile, "Generate an issue on each file with a debt of one day");
 
-    NewRule oneIssuePerModule = repo.createRule(OneIssuePerModuleSensor.RULE_KEY).setName("One Issue Per Module");
-    oneIssuePerModule
-      .setDebtRemediationFunction(oneIssuePerModule.debtRemediationFunctions().linearWithOffset("25min", "1h"))
-      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
-        "then it's about one hour per module.");
-    addAllDescriptionSections(oneIssuePerModule, "Generate an issue on each module");
+    NewRule oneIssuePerProject = repo.createRule(OneIssuePerProjectSensor.RULE_KEY).setName("One Issue Per Project");
+    oneIssuePerProject
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
+      .setDebtRemediationFunction(oneIssuePerProject.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of projects, " +
+        "then it's about one hour per project.");
+    addAllDescriptionSections(oneIssuePerProject, "Generate an issue on each project");
 
-    NewRule oneBlockerIssuePerFile = repo.createRule(OneBlockerIssuePerFileSensor.RULE_KEY).setName("One Blocker Issue Per File");
+    NewRule oneBlockerIssuePerFile = repo.createRule(OneBlockerIssuePerFileSensor.RULE_KEY).setName("One Blocker Issue Per File")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     addAllDescriptionSections(oneBlockerIssuePerFile, "Generate a blocker issue on each file, whatever the severity declared in the Quality profile");
 
-    NewRule issueWithCustomMessage = repo.createRule(CustomMessageSensor.RULE_KEY).setName("Issue With Custom Message");
+    NewRule issueWithCustomMessage = repo.createRule(CustomMessageSensor.RULE_KEY).setName("Issue With Custom Message")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     addAllDescriptionSections(issueWithCustomMessage, "Generate an issue on each file with a custom message");
 
-    NewRule oneIssuePerFileWithRandomAccess = repo.createRule(RandomAccessSensor.RULE_KEY).setName("One Issue Per File with Random Access");
+    NewRule oneIssuePerFileWithRandomAccess = repo.createRule(RandomAccessSensor.RULE_KEY).setName("One Issue Per File with Random Access")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     addAllDescriptionSections(oneIssuePerFileWithRandomAccess, "This issue is generated on each file");
 
     NewRule issueWithRangeAndMultipleLocations = repo.createRule(MultilineIssuesSensor.RULE_KEY).setName("Creates issues with ranges/multiple locations");
@@ -191,30 +220,48 @@ public class XooRulesDefinition implements RulesDefinition {
       .setType(RuleType.SECURITY_HOTSPOT);
     addAllDescriptionSections(hotspotWithRangeAndMultipleLocations, "Hotspot with range and multiple locations");
 
-
     NewRule issueOnEachFileWithExtUnknown = repo.createRule(OneIssuePerUnknownFileSensor.RULE_KEY).setName("Creates issues on each file with extension 'unknown'");
     addAllDescriptionSections(issueOnEachFileWithExtUnknown, "This issue is generated on each file with extenstion 'unknown'");
 
     NewRule oneBugIssuePerLine = repo.createRule(OneBugIssuePerLineSensor.RULE_KEY).setName("One Bug Issue Per Line")
+      .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM)
       .setType(RuleType.BUG);
     oneBugIssuePerLine
       .setDebtRemediationFunction(oneBugIssuePerLine.debtRemediationFunctions().linear("5min"));
     addAllDescriptionSections(oneBugIssuePerLine, "Generate a bug issue on each line of a file. It requires the metric \"lines\".");
 
     NewRule oneCodeSmellIssuePerLine = repo.createRule(OneCodeSmellIssuePerLineSensor.RULE_KEY).setName("One Code Smell Issue Per Line")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
+      .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
       .setType(RuleType.CODE_SMELL);
     oneCodeSmellIssuePerLine
       .setDebtRemediationFunction(oneCodeSmellIssuePerLine.debtRemediationFunctions().linear("9min"));
     addAllDescriptionSections(oneCodeSmellIssuePerLine, "Generate a code smell issue on each line of a file. It requires the metric \"lines\".");
 
-    NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
+    NewRule oneVulnerabilityIssuePerProject = repo.createRule(OneVulnerabilityIssuePerProjectSensor.RULE_KEY).setName("One Vulnerability Issue Per Project")
+      .addDefaultImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      .setCleanCodeAttribute(CleanCodeAttribute.TRUSTWORTHY)
       .setType(RuleType.VULNERABILITY);
-    addAllDescriptionSections(oneVulnerabilityIssuePerModule, "Generate an issue on each module");
+    addAllDescriptionSections(oneVulnerabilityIssuePerProject, "Generate an issue on each project");
 
-    oneVulnerabilityIssuePerModule
-      .setDebtRemediationFunction(oneVulnerabilityIssuePerModule.debtRemediationFunctions().linearWithOffset("25min", "1h"))
-      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
-        "then it's about one hour per module.");
+    if (configuration != null && configuration.get("sonar.xoo.OneVulnerabilityPerLine.securityStandards").isPresent()) {
+      String[] standards = configuration.get("sonar.xoo.OneVulnerabilityPerLine.securityStandards").get().split(",");
+      for (String standard : standards) {
+        NewRule oneVulnerabilityIssuePerSecurityStandard = repo.createRule(OneVulnerabilityPerSecurityStandardSensor.RULE_KEY_PREFIX + standard)
+          .setName("One Vulnerability per line containing '%s'".formatted(standard))
+          .addDefaultImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
+          .setCleanCodeAttribute(CleanCodeAttribute.TRUSTWORTHY)
+          .setType(RuleType.VULNERABILITY);
+        addSecurityStandard(oneVulnerabilityIssuePerSecurityStandard, standard);
+        addAllDescriptionSections(oneVulnerabilityIssuePerSecurityStandard, "Generate an issue on each line containing '" + standard + "'.");
+      }
+    }
+
+    oneVulnerabilityIssuePerProject
+      .setDebtRemediationFunction(oneVulnerabilityIssuePerProject.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of project, " +
+        "then it's about one hour per project.");
 
     NewRule templateofRule = repo
       .createRule("xoo-template")
@@ -231,16 +278,19 @@ public class XooRulesDefinition implements RulesDefinition {
     hotspot
       .setDebtRemediationFunction(hotspot.debtRemediationFunctions().constantPerIssue("2min"));
 
+    NewRule variants = repo.createRule(IssueWithCodeVariantsSensor.RULE_KEY).setName("Find issues with code variants");
+    addAllDescriptionSections(variants, "Search for a given variant in Xoo files");
+
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 3))) {
       hotspot
         .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
         .addOwaspTop10(Y2021, OwaspTop10.A3, OwaspTop10.A2)
         .addCwe(1, 89, 123, 863);
 
-      oneVulnerabilityIssuePerModule
+      oneVulnerabilityIssuePerProject
         .addOwaspTop10(Y2017, OwaspTop10.A9, OwaspTop10.A10)
         .addOwaspTop10(Y2021, OwaspTop10.A6, OwaspTop10.A9)
-        .addCwe(250, 564, 546, 943);
+        .addCwe(89, 250, 311, 546, 564, 943);
     }
 
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 5))) {
@@ -250,7 +300,7 @@ public class XooRulesDefinition implements RulesDefinition {
         .addPciDss(PciDssVersion.V4_0, "6.5a.1", "4.2c")
         .addPciDss(PciDssVersion.V3_2, "6.5a.1b", "4.2b");
 
-      oneVulnerabilityIssuePerModule
+      oneVulnerabilityIssuePerProject
         .addPciDss(PciDssVersion.V4_0, "10.1")
         .addPciDss(PciDssVersion.V3_2, "10.2")
         .addPciDss(PciDssVersion.V4_0, "10.1a.2b")
@@ -260,8 +310,15 @@ public class XooRulesDefinition implements RulesDefinition {
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 6))) {
       hotspot
         .addOwaspAsvs(OwaspAsvsVersion.V4_0, "2.8.7", "3.1.1", "4.2.2");
-      oneVulnerabilityIssuePerModule
+      oneVulnerabilityIssuePerProject
         .addOwaspAsvs(OwaspAsvsVersion.V4_0, "11.1.2", "14.5.1", "14.5.4");
+    }
+
+    if (version != null && version.isGreaterThanOrEqual(Version.create(10, 7))) {
+      hotspot
+        .addStig(StigVersion.ASD_V5R3, "V-222599", "V-222615", "V-222653");
+      oneVulnerabilityIssuePerProject
+        .addStig(StigVersion.ASD_V5R3, "V-222596", "V-222608", "V-222653");
     }
 
     NewRule hotspotWithContexts = repo.createRule(HotspotWithContextsSensor.RULE_KEY)
@@ -277,6 +334,52 @@ public class XooRulesDefinition implements RulesDefinition {
       .setActivatedByDefault(false)
       .addDescriptionSection(howToFixSectionWithContext("single_context"));
     addDescriptionSectionsWithoutContexts(hotspotWithSingleContext, "Search for Security Hotspots with single context in Xoo files");
+
+    NewRule hotspotWithCodeVariants = repo.createRule(HotspotWithCodeVariantsSensor.RULE_KEY)
+      .setName("Find security hotspots with code variants")
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setActivatedByDefault(false);
+    addAllDescriptionSections(hotspotWithCodeVariants, "Search for a given variant in Xoo files");
+
+    repo.done();
+  }
+
+  private void addSecurityStandard(NewRule rule, String standard) {
+    String[] splitStandard = standard.split(":");
+    switch (splitStandard[0]) {
+      case "cwe":
+        rule.addCwe(Integer.parseInt(splitStandard[1]));
+        break;
+      case "owaspTop10":
+        rule.addOwaspTop10(Y2017, OwaspTop10.valueOf(splitStandard[1]));
+        break;
+      case "owaspTop10-2021":
+        rule.addOwaspTop10(Y2021, OwaspTop10.valueOf(splitStandard[1]));
+        break;
+      case "stig-ASD_V5R3":
+        if (version != null && version.isGreaterThanOrEqual(Version.create(10, 7))) {
+          rule.addStig(StigVersion.ASD_V5R3, splitStandard[1]);
+        }
+        break;
+      case "pciDss-3.2":
+        rule.addPciDss(PciDssVersion.V3_2, splitStandard[1]);
+        break;
+      case "pciDss-4.0":
+        rule.addPciDss(PciDssVersion.V4_0, splitStandard[1]);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown standard: " + standard);
+    }
+  }
+
+  private static void defineRulesXooExternalWithCct(Context context) {
+    NewRepository repo = context.createExternalRepository(OneExternalIssueCctPerLineSensor.ENGINE_ID, Xoo.KEY).setName(OneExternalIssueCctPerLineSensor.ENGINE_ID);
+
+    repo.createRule(OnePredefinedRuleExternalIssueCctPerLineSensor.RULE_ID)
+      .setScope(RuleScope.ALL)
+      .setHtmlDescription("Generates one external issue in each line")
+      .addDescriptionSection(descriptionSection(INTRODUCTION_SECTION_KEY, "Generates one external issue in each line"))
+      .setName("One external issue per line");
 
     repo.done();
   }

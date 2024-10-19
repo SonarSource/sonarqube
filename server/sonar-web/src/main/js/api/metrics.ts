@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
 import { Metric } from '../types/types';
 
 export interface MetricsResponse {
@@ -45,7 +45,7 @@ export function getAllMetrics(data?: {
 
   function inner(
     data: { p?: number; ps?: number } = { ps: 50 },
-    prev?: MetricsResponse
+    prev?: MetricsResponse,
   ): Promise<Metric[]> {
     return getMetrics(data).then((r) => {
       const result = prev ? prev.metrics.concat(r.metrics) : r.metrics;

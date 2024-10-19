@@ -6,7 +6,7 @@
 
   <sql id="sqlLiteColumns">
     uuid,
-    component_uuid as componentUuid,
+    project_uuid as projectUuid,
     webhook_uuid as webhookUuid,
     ce_task_uuid as ceTaskUuid,
     name,
@@ -33,32 +33,35 @@
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByWebhookUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+  <select id="selectByWebhookUuid" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
     select <include refid="sqlLiteColumns" />
     from webhook_deliveries
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
     order by created_at desc
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
-  <select id="countByComponentUuid" parameterType="String" resultType="int">
+  <select id="countByProjectUuid" parameterType="String" resultType="int">
     select
     count(1)
     from webhook_deliveries
-    where component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectOrderedByComponentUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+  <select id="selectOrderedByProjectUuid" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
     select <include refid="sqlLiteColumns" />
     from webhook_deliveries
-    where component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    where project_uuid = #{projectUuid,jdbcType=VARCHAR}
     order by created_at desc
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
-  <select id="selectOrderedByCeTaskUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+  <select id="selectOrderedByCeTaskUuid" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
     select <include refid="sqlLiteColumns" />
     from webhook_deliveries
     where ce_task_uuid = #{ceTaskUuid,jdbcType=VARCHAR}
     order by created_at desc
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countByCeTaskUuid" parameterType="String" resultType="int">
@@ -72,7 +75,7 @@
     insert into webhook_deliveries (
     uuid,
     webhook_uuid,
-    component_uuid,
+    project_uuid,
     ce_task_uuid,
     analysis_uuid,
     name,
@@ -86,7 +89,7 @@
     ) values (
     #{uuid,jdbcType=VARCHAR},
     #{webhookUuid,jdbcType=VARCHAR},
-    #{componentUuid,jdbcType=VARCHAR},
+    #{projectUuid,jdbcType=VARCHAR},
     #{ceTaskUuid,jdbcType=VARCHAR},
     #{analysisUuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
@@ -105,10 +108,9 @@
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
   </select>
 
-  <delete id="deleteComponentBeforeDate" parameterType="map">
+  <delete id="deleteAllBeforeDate" parameterType="map">
     delete from webhook_deliveries
     where
-    component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </delete>
 </mapper>

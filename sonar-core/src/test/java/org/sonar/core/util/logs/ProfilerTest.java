@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ package org.sonar.core.util.logs;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,29 +33,29 @@ public class ProfilerTest {
 
   @Test
   public void create() {
-    Profiler profiler = Profiler.create(Loggers.get("foo"));
+    Profiler profiler = Profiler.create(LoggerFactory.getLogger("foo"));
     assertThat(profiler).isInstanceOf(DefaultProfiler.class);
   }
 
   @Test
   public void create_null_profiler_if_trace_level_is_disabled() {
     tester.setLevel(LoggerLevel.TRACE);
-    Profiler profiler = Profiler.createIfTrace(Loggers.get("foo"));
+    Profiler profiler = Profiler.createIfTrace(LoggerFactory.getLogger("foo"));
     assertThat(profiler).isInstanceOf(DefaultProfiler.class);
 
     tester.setLevel(LoggerLevel.DEBUG);
-    profiler = Profiler.createIfTrace(Loggers.get("foo"));
+    profiler = Profiler.createIfTrace(LoggerFactory.getLogger("foo"));
     assertThat(profiler).isInstanceOf(NullProfiler.class);
   }
 
   @Test
   public void create_null_profiler_if_debug_level_is_disabled() {
     tester.setLevel(LoggerLevel.TRACE);
-    Profiler profiler = Profiler.createIfDebug(Loggers.get("foo"));
+    Profiler profiler = Profiler.createIfDebug(LoggerFactory.getLogger("foo"));
     assertThat(profiler).isInstanceOf(DefaultProfiler.class);
 
     tester.setLevel(LoggerLevel.INFO);
-    profiler = Profiler.createIfDebug(Loggers.get("foo"));
+    profiler = Profiler.createIfDebug(LoggerFactory.getLogger("foo"));
     assertThat(profiler).isInstanceOf(NullProfiler.class);
   }
 }

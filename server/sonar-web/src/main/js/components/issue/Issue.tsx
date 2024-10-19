@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,118 +17,118 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { flow } from 'lodash';
 import * as React from 'react';
+import { useCallback } from 'react';
 import { setIssueAssignee } from '../../api/issues';
+import { useComponent } from '../../app/components/componentContext/withComponentContext';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getKeyboardShortcutEnabled } from '../../helpers/preferences';
+import { useRefreshBranchStatus } from '../../queries/branch';
 import { BranchLike } from '../../types/branch-like';
 import { Issue as TypeIssue } from '../../types/types';
 import { updateIssue } from './actions';
-import './Issue.css';
-import IssueView from './IssueView';
+import IssueView from './components/IssueView';
 
 interface Props {
   branchLike?: BranchLike;
   checked?: boolean;
   displayWhyIsThisAnIssue?: boolean;
-  displayLocationsCount?: boolean;
-  displayLocationsLink?: boolean;
   issue: TypeIssue;
   onChange: (issue: TypeIssue) => void;
   onCheck?: (issue: string) => void;
-  onClick?: (issueKey: string) => void;
-  onFilter?: (property: string, issue: TypeIssue) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
+  onSelect: (issueKey: string) => void;
   openPopup?: string;
   selected: boolean;
 }
 
-export default class Issue extends React.PureComponent<Props> {
-  static defaultProps = {
-    selected: false,
-  };
+export default function Issue(props: Props) {
+  const {
+    selected = false,
+    issue,
+    branchLike,
+    checked,
+    openPopup,
+    displayWhyIsThisAnIssue,
+    onCheck,
+    onPopupToggle,
+  } = props;
 
-  componentDidMount() {
-    if (this.props.selected) {
-      document.addEventListener('keydown', this.handleKeyDown, { capture: true });
-    }
-  }
+  const { component } = useComponent();
 
-  componentDidUpdate(prevProps: Props) {
-    if (!prevProps.selected && this.props.selected) {
-      document.addEventListener('keydown', this.handleKeyDown, { capture: true });
-    } else if (prevProps.selected && !this.props.selected) {
-      document.removeEventListener('keydown', this.handleKeyDown, { capture: true });
-    }
-  }
+  const refreshStatus = useRefreshBranchStatus(component?.key);
 
-  componentWillUnmount() {
-    if (this.props.selected) {
-      document.removeEventListener('keydown', this.handleKeyDown, { capture: true });
-    }
-  }
+  const onChange = flow([props.onChange, refreshStatus]);
 
-  handleKeyDown = (event: KeyboardEvent) => {
-    if (!getKeyboardShortcutEnabled() || isInput(event) || isShortcut(event)) {
-      return true;
-    } else if (event.key === KeyboardKeys.KeyF) {
-      event.preventDefault();
-      return this.togglePopup('transition');
-    } else if (event.key === KeyboardKeys.KeyA) {
-      event.preventDefault();
-      return this.togglePopup('assign');
-    } else if (event.key === KeyboardKeys.KeyM && this.props.issue.actions.includes('assign')) {
-      event.preventDefault();
-      return this.handleAssignement('_me');
-    } else if (event.key === KeyboardKeys.KeyI) {
-      event.preventDefault();
-      return this.togglePopup('set-severity');
-    } else if (event.key === KeyboardKeys.KeyC) {
-      event.preventDefault();
-      return this.togglePopup('comment');
-    } else if (event.key === KeyboardKeys.KeyT) {
-      event.preventDefault();
-      return this.togglePopup('edit-tags');
-    } else if (event.key === KeyboardKeys.Space) {
-      event.preventDefault();
-      if (this.props.onCheck) {
-        return this.props.onCheck(this.props.issue.key);
+  const togglePopup = useCallback(
+    (popupName: string, open?: boolean) => {
+      onPopupToggle(issue.key, popupName, open);
+    },
+    [issue.key, onPopupToggle],
+  );
+
+  const handleAssignement = useCallback(
+    (login: string) => {
+      if (issue.assignee !== login) {
+        updateIssue(onChange, setIssueAssignee({ issue: issue.key, assignee: login }));
       }
+      togglePopup('assign', false);
+    },
+    [issue.assignee, issue.key, onChange, togglePopup],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!getKeyboardShortcutEnabled() || isInput(event) || isShortcut(event)) {
+        return true;
+      } else if (event.key === KeyboardKeys.KeyF) {
+        event.preventDefault();
+        return togglePopup('transition');
+      } else if (event.key === KeyboardKeys.KeyA) {
+        event.preventDefault();
+        return togglePopup('assign');
+      } else if (event.key === KeyboardKeys.KeyM && issue.actions.includes('assign')) {
+        event.preventDefault();
+        return handleAssignement('_me');
+      } else if (event.key === KeyboardKeys.KeyI) {
+        event.preventDefault();
+        return togglePopup('set-severity');
+      } else if (event.key === KeyboardKeys.KeyT) {
+        event.preventDefault();
+        return togglePopup('edit-tags');
+      } else if (event.key === KeyboardKeys.Space) {
+        event.preventDefault();
+        if (onCheck) {
+          return onCheck(issue.key);
+        }
+      }
+      return true;
+    },
+    [issue.actions, issue.key, togglePopup, handleAssignement, onCheck],
+  );
+
+  React.useEffect(() => {
+    if (selected) {
+      document.addEventListener('keydown', handleKeyDown, { capture: true });
     }
-    return true;
-  };
+    return () => document.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [handleKeyDown, selected]);
 
-  togglePopup = (popupName: string, open?: boolean) => {
-    this.props.onPopupToggle(this.props.issue.key, popupName, open);
-  };
-
-  handleAssignement = (login: string) => {
-    const { issue } = this.props;
-    if (issue.assignee !== login) {
-      updateIssue(this.props.onChange, setIssueAssignee({ issue: issue.key, assignee: login }));
-    }
-    this.togglePopup('assign', false);
-  };
-
-  render() {
-    return (
-      <IssueView
-        branchLike={this.props.branchLike}
-        checked={this.props.checked}
-        currentPopup={this.props.openPopup}
-        displayWhyIsThisAnIssue={this.props.displayWhyIsThisAnIssue}
-        displayLocationsCount={this.props.displayLocationsCount}
-        displayLocationsLink={this.props.displayLocationsLink}
-        issue={this.props.issue}
-        onAssign={this.handleAssignement}
-        onChange={this.props.onChange}
-        onCheck={this.props.onCheck}
-        onClick={this.props.onClick}
-        onFilter={this.props.onFilter}
-        selected={this.props.selected}
-        togglePopup={this.togglePopup}
-      />
-    );
-  }
+  return (
+    <IssueView
+      branchLike={branchLike}
+      checked={checked}
+      currentPopup={openPopup}
+      displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
+      issue={issue}
+      onAssign={handleAssignement}
+      onChange={onChange}
+      onCheck={props.onCheck}
+      onSelect={props.onSelect}
+      selected={selected}
+      togglePopup={togglePopup}
+    />
+  );
 }

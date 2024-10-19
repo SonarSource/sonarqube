@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,8 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,14 +57,17 @@ public class ProgressReportTest {
   }
 
   @Test
-  public void do_log() {
+  public void do_log() throws InterruptedException {
+    logTester.setLevel(Level.DEBUG);
     underTest.start("start");
     underTest.message("Some message");
     boolean logged = false;
+    Thread.sleep(2000);
     while (!logged) {
       logged = logTester.logs().contains("Some message");
     }
     underTest.stop("stop");
+    Thread.sleep(1000);
     assertThat(logTester.logs().stream().anyMatch(s -> Pattern.matches("stop", s))).isTrue();
   }
 

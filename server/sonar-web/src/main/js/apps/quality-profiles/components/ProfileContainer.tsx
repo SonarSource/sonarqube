@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,18 +20,20 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { useLocation } from '../../../components/hoc/withRouter';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import ProfileHeader from '../details/ProfileHeader';
-import { QualityProfilesContextProps, withQualityProfilesContext } from '../qualityProfilesContext';
+import { useQualityProfilesContext } from '../qualityProfilesContext';
 import ProfileNotFound from './ProfileNotFound';
 
-export function ProfileContainer(props: QualityProfilesContextProps) {
+export default function ProfileContainer() {
   const [_, setSearchParams] = useSearchParams();
   const location = useLocation();
 
   const { key, language, name } = location.query;
 
-  const { profiles, organization } = props;
+  const context = useQualityProfilesContext();
+  const { profiles } = context;
 
   // try to find a quality profile with the given key
   // if managed to find one, redirect to a new version
@@ -55,23 +57,25 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
     return <ProfileNotFound organization={organization} language={language} name={name}/>;
   }
 
-  const context: QualityProfilesContextProps = {
-    profile,
-    ...props,
-  };
-
   return (
     <div id="quality-profile">
-      <Helmet defer={false} title={profile.name} />
+      <Helmet
+        defer={false}
+        title={profile.name}
+        titleTemplate={translateWithParameters(
+          'page_title.template.with_category',
+          translate('quality_profiles.page'),
+        )}
+      />
       <ProfileHeader
         profile={profile}
         isComparable={filteredProfiles.length > 1}
-        updateProfiles={props.updateProfiles}
+        updateProfiles={context.updateProfiles}
         organization={profile.organization}
       />
-      <Outlet context={context} />
+      <main>
+        <Outlet context={{ profile, ...context }} />
+      </main>
     </div>
   );
 }
-
-export default withQualityProfilesContext(ProfileContainer);

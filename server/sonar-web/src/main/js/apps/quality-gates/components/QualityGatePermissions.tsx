@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import {
   searchGroups,
   searchUsers,
 } from '../../../api/quality-gates';
-import { Group, isUser, SearchPermissionsParameters } from '../../../types/quality-gates';
+import { Group, SearchPermissionsParameters, isUser } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
@@ -39,10 +39,10 @@ interface Props {
 
 interface State {
   groups: Group[];
-  submitting: boolean;
   loading: boolean;
-  showAddModal: boolean;
   permissionToDelete?: UserBase | Group;
+  showAddModal: boolean;
+  submitting: boolean;
   users: UserBase[];
 }
 
@@ -63,7 +63,7 @@ export default class QualityGatePermissions extends React.Component<Props, State
   }
 
   componentDidUpdate(newProps: Props) {
-    if (this.props.qualityGate.id !== newProps.qualityGate.id) {
+    if (this.props.qualityGate.name !== newProps.qualityGate.name) {
       this.fetchPermissions();
     }
   }
@@ -161,10 +161,12 @@ export default class QualityGatePermissions extends React.Component<Props, State
       if (isUser(item)) {
         this.setState(({ users }) => ({
           users: users.filter((u) => u.login !== item.login),
+          permissionToDelete: undefined,
         }));
       } else {
         this.setState(({ groups }) => ({
           groups: groups.filter((g) => g.name !== item.name),
+          permissionToDelete: undefined,
         }));
       }
     }

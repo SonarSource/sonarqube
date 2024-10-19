@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,40 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
+import { Link, Note } from 'design-system';
+import React from 'react';
 import { translate } from '../../helpers/l10n';
+import { getBaseUrl } from '../../helpers/system';
 import { getFormattingHelpUrl } from '../../helpers/urls';
 
-interface Props {
+export interface FormattingTipsProps {
   className?: string;
 }
 
-export default class FormattingTips extends React.PureComponent<Props> {
-  handleClick(evt: React.SyntheticEvent<HTMLAnchorElement>) {
+export default function FormattingTips({ className }: FormattingTipsProps) {
+  const handleClick = React.useCallback((evt: React.MouseEvent<HTMLAnchorElement>) => {
     evt.preventDefault();
     window.open(
-      getFormattingHelpUrl(),
+      `${getBaseUrl()}${getFormattingHelpUrl()}`,
       'Formatting',
-      'height=300,width=600,scrollbars=1,resizable=1'
+      'height=300,width=600,scrollbars=1,resizable=1',
     );
-  }
+  }, []);
 
-  render() {
-    return (
-      <div className={classNames('markdown-tips', this.props.className)}>
-        <a className="little-spacer-right" href="#" onClick={this.handleClick}>
-          {translate('formatting.helplink')}
-        </a>
-        {':'}
-        <span className="spacer-left">*{translate('bold')}*</span>
-        <span className="spacer-left">
-          ``
-          {translate('code')}
-          ``
-        </span>
-        <span className="spacer-left">* {translate('bulleted_point')}</span>
-      </div>
-    );
-  }
+  return (
+    <Note className={className}>
+      <Link className="sw-mr-1" onClick={handleClick} to={getFormattingHelpUrl()}>
+        {translate('formatting.helplink')}
+      </Link>
+      {':'}
+      <span className="sw-ml-2">*{translate('bold')}*</span>
+      <span className="sw-ml-2">
+        ``
+        {translate('code')}
+        ``
+      </span>
+      <span className="sw-ml-2">* {translate('bulleted_point')}</span>
+    </Note>
+  );
 }

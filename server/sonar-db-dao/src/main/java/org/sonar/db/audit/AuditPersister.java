@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
+import org.sonar.db.audit.model.DevOpsPermissionsMappingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
@@ -101,6 +102,10 @@ public interface AuditPersister {
   void addGroupToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
   void deleteGroupFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+
+  void addDevOpsPermissionsMapping(DbSession dbSession, DevOpsPermissionsMappingNewValue newValue);
+
+  void deleteDevOpsPermissionsMapping(DbSession dbSession, DevOpsPermissionsMappingNewValue deletedValue);
 
   void addQualityGateEditor(DbSession dbSession, AbstractEditorNewValue newValue);
 

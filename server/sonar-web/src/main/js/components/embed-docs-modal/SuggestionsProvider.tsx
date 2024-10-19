@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,40 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Dict, SuggestionLink } from '../../types/types';
-import suggestionsJson from './EmbedDocsSuggestions.json';
-import { SuggestionsContext } from './SuggestionsContext';
 
-type SuggestionsJson = Dict<SuggestionLink[]>;
+import * as React from 'react';
+import { DocTitle, DocTitleKey } from '../../helpers/doc-links';
+import { SuggestionLink } from '../../types/types';
+import { SuggestionsContext } from './SuggestionsContext';
 
 interface State {
   suggestions: SuggestionLink[];
 }
 
-export default class SuggestionsProvider extends React.Component<{}, State> {
-  keys: string[] = [];
+export default class SuggestionsProvider extends React.Component<React.PropsWithChildren, State> {
+  keys: Array<DocTitleKey> = [];
   state: State = { suggestions: [] };
 
   fetchSuggestions = () => {
-    const jsonList = suggestionsJson as SuggestionsJson;
     let suggestions: SuggestionLink[] = [];
+
     this.keys.forEach((key) => {
-      if (jsonList[key]) {
-        suggestions = [...jsonList[key], ...suggestions];
-      }
+      suggestions = [{ link: key, text: DocTitle[key] }, ...suggestions];
     });
 
     this.setState({ suggestions });
   };
 
-  addSuggestions = (newKey: string) => {
-    this.keys = [...this.keys, newKey];
+  addSuggestions = (newKeys: DocTitleKey[]) => {
+    newKeys.forEach((newKey) => {
+      if (!this.keys.includes(newKey)) {
+        this.keys = [...this.keys, newKey];
+      }
+    });
+
     this.fetchSuggestions();
   };
 
-  removeSuggestions = (oldKey: string) => {
-    this.keys = this.keys.filter((key) => key !== oldKey);
+  removeSuggestions = (oldKeys: DocTitleKey[]) => {
+    oldKeys.forEach((oldKey) => {
+      this.keys = this.keys.filter((key) => key !== oldKey);
+    });
+
     this.fetchSuggestions();
   };
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SizeIndicator } from 'design-system';
 import * as React from 'react';
-import SizeRating from '../../../components/ui/SizeRating';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingAverageValue, getSizeRatingLabel } from '../../../helpers/ratings';
-import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
+import RangeFacetBase from './RangeFacetBase';
 
 export interface Props {
-  className?: string;
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
@@ -36,22 +34,21 @@ export interface Props {
 }
 
 export default function SizeFilter(props: Props) {
-  const { property = 'size' } = props;
+  const { facet, maxFacetValue, property = 'size', value } = props;
 
   return (
-    <Filter
-      className={props.className}
-      facet={props.facet}
+    <RangeFacetBase
+      facet={facet}
       getFacetValueForOption={getFacetValueForOption}
-      header={<FilterHeader name={translate('metric_domain.Size')} />}
+      header={translate('metric_domain.Size')}
       highlightUnder={1}
-      maxFacetValue={props.maxFacetValue}
+      maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
       property={property}
       renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
-      value={props.value}
+      value={value}
     />
   );
 }
@@ -61,11 +58,11 @@ function getFacetValueForOption(facet: Facet, option: number) {
   return facet[map[option - 1]];
 }
 
-function renderOption(option: number, selected: boolean) {
+function renderOption(option: number) {
   return (
-    <div className="display-flex-center">
-      <SizeRating muted={!selected} value={getSizeRatingAverageValue(option)} />
-      <span className="spacer-left">{getSizeRatingLabel(option)}</span>
+    <div className="sw-flex sw-items-center">
+      <SizeIndicator value={getSizeRatingAverageValue(option)} size="xs" />
+      <span className="sw-ml-2">{getSizeRatingLabel(option)}</span>
     </div>
   );
 }

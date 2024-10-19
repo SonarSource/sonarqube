@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -85,6 +85,7 @@ public class WsParameterBuilder {
 
   private static Set<String> getAllQualifiers(ResourceTypes resourceTypes) {
     return resourceTypes.getAll().stream()
+      .filter(r -> !r.getBooleanProperty("ignored"))
       .map(ResourceType::getQualifier)
       .collect(Collectors.toCollection(TreeSet::new));
   }

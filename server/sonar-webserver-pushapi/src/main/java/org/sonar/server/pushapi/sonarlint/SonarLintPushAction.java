@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -44,13 +44,15 @@ public class SonarLintPushAction extends ServerPushAction {
   private final SonarLintClientPermissionsValidator permissionsValidator;
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final SonarLintPushEventExecutorService sonarLintPushEventExecutorService;
 
   public SonarLintPushAction(SonarLintClientsRegistry sonarLintClientRegistry, UserSession userSession, DbClient dbClient,
-    SonarLintClientPermissionsValidator permissionsValidator) {
+    SonarLintClientPermissionsValidator permissionsValidator, SonarLintPushEventExecutorService sonarLintPushEventExecutorService) {
     this.clientsRegistry = sonarLintClientRegistry;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.permissionsValidator = permissionsValidator;
+    this.sonarLintPushEventExecutorService = sonarLintPushEventExecutorService;
   }
 
   @Override
@@ -60,6 +62,7 @@ public class SonarLintPushAction extends ServerPushAction {
       .setInternal(true)
       .setDescription("Endpoint for listening to server side events. Currently it notifies listener about change to activation of a rule")
       .setSince("9.4")
+      .setContentType(Response.ContentType.NO_CONTENT)
       .setHandler(this);
 
     action
@@ -99,7 +102,7 @@ public class SonarLintPushAction extends ServerPushAction {
 
     Set<String> projectUuids = projectDtos.stream().map(ProjectDto::getUuid).collect(Collectors.toSet());
 
-    SonarLintClient sonarLintClient = new SonarLintClient(asyncContext, projectUuids, params.getLanguages(), userSession.getUuid());
+    SonarLintClient sonarLintClient = new SonarLintClient(sonarLintPushEventExecutorService, asyncContext, projectUuids, params.getLanguages(), userSession.getUuid());
 
     clientsRegistry.registerClient(sonarLintClient);
   }

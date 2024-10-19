@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbSession;
@@ -30,7 +32,7 @@ import org.sonar.db.DbSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-public class RuleRepositoryRule extends ExternalResource implements RuleRepository {
+public class RuleRepositoryRule extends ExternalResource implements RuleRepository, AfterEachCallback {
 
   private final Map<RuleKey, Rule> rulesByKey = new HashMap<>();
   private final Map<String, Rule> rulesByUuid = new HashMap<>();
@@ -90,4 +92,8 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
     newExternalRulesById.computeIfAbsent(ruleKey, k -> ruleSupplier.get());
   }
 
+  @Override
+  public void afterEach(ExtensionContext context) {
+    after();
+  }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../helpers/measures';
+import { isDiffMetric } from '../../helpers/measures';
 import {
   DIFF_METRIC_PREFIX_LENGTH,
-  getMaintainabilityGrid,
   GRID_INDEX_OFFSET,
   PERCENT_MULTIPLIER,
+  getMaintainabilityGrid,
 } from '../../helpers/ratings';
 import { AppState } from '../../types/appstate';
-import { MetricKey } from '../../types/metrics';
 import { GlobalSettingKeys } from '../../types/settings';
 import { KNOWN_RATINGS } from './utils';
 
@@ -38,7 +39,7 @@ export interface RatingTooltipContentProps {
   value: number | string;
 }
 
-export function RatingTooltipContent(props: RatingTooltipContentProps) {
+export function RatingTooltipContent(props: Readonly<RatingTooltipContentProps>) {
   const {
     appState: { settings },
     metricKey,
@@ -54,9 +55,13 @@ export function RatingTooltipContent(props: RatingTooltipContentProps) {
   }
 
   const rating = Number(value);
-  const ratingLetter = formatMeasure(value, 'RATING');
+  const ratingLetter = formatMeasure(value, MetricType.Rating);
 
-  if (finalMetricKey !== 'sqale_rating' && finalMetricKey !== 'maintainability_rating') {
+  if (
+    finalMetricKey !== MetricKey.sqale_rating &&
+    finalMetricKey !== 'maintainability_rating' &&
+    finalMetricKey !== MetricKey.software_quality_maintainability_rating
+  ) {
     return <>{translate('metric', finalMetricKey, 'tooltip', ratingLetter)}</>;
   }
 
@@ -64,19 +69,22 @@ export function RatingTooltipContent(props: RatingTooltipContentProps) {
   const maintainabilityRatingThreshold =
     maintainabilityGrid[Math.floor(rating) - GRID_INDEX_OFFSET];
 
+  const metricForTooltipText =
+    finalMetricKey === 'maintainability_rating' ? MetricKey.sqale_rating : finalMetricKey;
+
   return (
     // Required to correctly satisfy the context typing
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {rating === 1
         ? translateWithParameters(
-            'metric.sqale_rating.tooltip.A',
-            formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, 'PERCENT')
+            `metric.${metricForTooltipText}.tooltip.A`,
+            formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, MetricType.Percent),
           )
         : translateWithParameters(
-            'metric.sqale_rating.tooltip',
+            `metric.${metricForTooltipText}.tooltip`,
             ratingLetter,
-            formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, 'PERCENT')
+            formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, MetricType.Percent),
           )}
     </>
   );

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,49 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Note } from 'design-system';
 import * as React from 'react';
-import DocLink from '../../../components/common/DocLink';
+import { Image } from '~sonar-aligned/components/common/Image';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 
 export interface EmptyHotspotsPageProps {
-  filtered: boolean;
+  emptyTranslationKey: string;
   filterByFile: boolean;
+  filtered: boolean;
   isStaticListOfHotspots: boolean;
 }
 
 export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
-  const { filtered, filterByFile, isStaticListOfHotspots } = props;
-
-  let translationRoot;
-  if (filterByFile) {
-    translationRoot = 'no_hotspots_for_file';
-  } else if (isStaticListOfHotspots) {
-    translationRoot = 'no_hotspots_for_keys';
-  } else if (filtered) {
-    translationRoot = 'no_hotspots_for_filters';
-  } else {
-    translationRoot = 'no_hotspots';
-  }
+  const { filtered, filterByFile, emptyTranslationKey, isStaticListOfHotspots } = props;
 
   return (
-    <div className="display-flex-column display-flex-center huge-spacer-top">
-      <img
+    <div className="sw-items-center sw-justify-center sw-flex-col sw-flex sw-pt-16">
+      <Image
         alt={translate('hotspots.page')}
-        className="huge-spacer-top"
+        className="sw-mt-8"
         height={100}
-        src={`${getBaseUrl()}/images/${
-          filtered && !filterByFile ? 'filter-large' : 'hotspot-large'
-        }.svg`}
+        src={`/images/${filtered && !filterByFile ? 'filter-large' : 'hotspot-large'}.svg`}
       />
-      <h1 className="huge-spacer-top">{translate(`hotspots.${translationRoot}.title`)}</h1>
-      <div className="abs-width-400 text-center big-spacer-top">
-        {translate(`hotspots.${translationRoot}.description`)}
-      </div>
+      <span className="sw-mt-10 sw-typo-semibold">
+        {translate(`hotspots.${emptyTranslationKey}.title`)}
+      </span>
+      <Note className="sw-w-abs-400 sw-text-center sw-mt-4">
+        {translate(`hotspots.${emptyTranslationKey}.description`)}
+      </Note>
       {!(filtered || isStaticListOfHotspots) && (
-        <DocLink className="big-spacer-top" to="https://knowledgebase.autorabit.com/codescan/docs">
+        <DocumentationLink className="sw-mt-4" to={DocLink.SecurityHotspots}>
           {translate('hotspots.learn_more')}
-        </DocLink>
+        </DocumentationLink>
       )}
     </div>
   );

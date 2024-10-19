@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,10 @@ package org.sonar.application.command;
 
 public interface CommandFactory {
 
-  AbstractCommand createEsCommand();
+  JavaCommand<EsServerCliJvmOptions> createEsCommand();
 
-  JavaCommand createWebCommand(boolean leader);
+  JavaCommand<WebJvmOptions> createWebCommand(boolean leader);
 
-  JavaCommand createCeCommand();
+  JavaCommand<CeJvmOptions> createCeCommand();
 
 }

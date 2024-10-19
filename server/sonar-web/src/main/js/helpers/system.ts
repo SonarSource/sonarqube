@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isAfter } from 'date-fns';
+import { AppVariablesElement } from '../types/browser';
 import { getEnhancedWindow } from './browser';
+import { parseDate } from './dates';
 
 export function getBaseUrl() {
   return getEnhancedWindow().baseUrl;
@@ -37,4 +40,22 @@ export function isOfficial() {
 
 export function getReactDomContainerSelector() {
   return '#content';
+}
+
+export function initAppVariables() {
+  const appVariablesDiv = document.querySelector<AppVariablesElement>(
+    getReactDomContainerSelector(),
+  );
+  if (appVariablesDiv === null) {
+    throw new Error('Failed to get app variables');
+  }
+
+  getEnhancedWindow().baseUrl = appVariablesDiv.dataset.baseUrl;
+  getEnhancedWindow().serverStatus = appVariablesDiv.dataset.serverStatus;
+  getEnhancedWindow().instance = appVariablesDiv.dataset.instance;
+  getEnhancedWindow().official = Boolean(appVariablesDiv.dataset.official);
+}
+
+export function isCurrentVersionEOLActive(versionEOL: string) {
+  return isAfter(parseDate(versionEOL), new Date());
 }

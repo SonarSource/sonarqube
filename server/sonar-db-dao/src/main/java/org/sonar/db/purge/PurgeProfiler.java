@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,17 +21,15 @@ package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.api.utils.log.Logger;
 
 public class PurgeProfiler {
 
-  private Map<String, Long> durations = new HashMap<>();
+  private final Map<String, Long> durations = new HashMap<>();
   private long startTime;
   private String currentTable;
   private final Clock clock;
@@ -59,16 +57,14 @@ public class PurgeProfiler {
     durations.put(currentTable, cumulatedDuration + (clock.now() - startTime));
   }
 
-  public void dump(long totalTime, Logger logger) {
+  public List<String> getProfilingResult(long totalTime) {
     List<Entry<String, Long>> data = new ArrayList<>(durations.entrySet());
-    Collections.sort(data, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+    data.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
     double percent = totalTime / 100.0;
-    for (Entry<String, Long> entry : truncateList(data)) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("   o ").append(entry.getKey()).append(": ").append(TimeUtils.formatDuration(entry.getValue()))
-        .append(" (").append((int) (entry.getValue() / percent)).append("%)");
-      logger.info(sb.toString());
-    }
+    return truncateList(data).stream().map( entry ->
+      "   o " + entry.getKey() + ": " + TimeUtils.formatDuration(entry.getValue()) +
+        " (" + (int) (entry.getValue() / percent) + "%)"
+    ).toList();
   }
 
   private static List<Entry<String, Long>> truncateList(List<Entry<String, Long>> sortedFullList) {

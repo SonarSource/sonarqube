@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.scm.git;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.jgit.util.FS;
+import org.sonar.scm.git.strategy.DefaultBlameStrategy;
 
 public final class GitScmSupport {
   private GitScmSupport() {
@@ -33,8 +34,9 @@ public final class GitScmSupport {
     return Arrays.asList(
       JGitBlameCommand.class,
       CompositeBlameCommand.class,
+      NativeGitBlameCommand.class,
+      DefaultBlameStrategy.class,
       ProcessWrapperFactory.class,
-      GitBlameCommand.class,
       GitScmProvider.class,
       GitIgnoreCommand.class);
   }

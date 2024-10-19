@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -31,7 +34,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
-import static java.util.stream.Collectors.toUnmodifiableMap;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
@@ -40,6 +43,10 @@ import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
@@ -47,7 +54,30 @@ import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 
 public class QualityGateCaycChecker {
 
-  public static final List<Metric<? extends Serializable>> CAYC_METRICS = List.of(
+  static final Map<String, Double> BEST_VALUE_REQUIREMENTS = Stream.of(
+    NEW_VIOLATIONS,
+    NEW_SECURITY_HOTSPOTS_REVIEWED
+  ).collect(toMap(Metric::getKey, Metric::getBestValue));
+
+  static final Set<String> EXISTENCY_REQUIREMENTS = Set.of(
+    NEW_DUPLICATED_LINES_DENSITY_KEY,
+    NEW_COVERAGE_KEY
+  );
+  public static final Set<Metric<? extends Serializable>> CAYC_METRICS = Set.of(
+    NEW_VIOLATIONS,
+    NEW_SECURITY_HOTSPOTS_REVIEWED,
+    NEW_DUPLICATED_LINES_DENSITY,
+    NEW_COVERAGE
+  );
+
+  // To be removed after transition
+  static final Map<String, Double> LEGACY_BEST_VALUE_REQUIREMENTS = Stream.of(
+    NEW_MAINTAINABILITY_RATING,
+    NEW_RELIABILITY_RATING,
+    NEW_SECURITY_HOTSPOTS_REVIEWED,
+    NEW_SECURITY_RATING
+  ).collect(toMap(Metric::getKey, Metric::getBestValue));
+  static final Set<Metric<? extends Serializable>> LEGACY_CAYC_METRICS = Set.of(
     NEW_MAINTAINABILITY_RATING,
     NEW_RELIABILITY_RATING,
     NEW_SECURITY_HOTSPOTS_REVIEWED,
@@ -55,15 +85,6 @@ public class QualityGateCaycChecker {
     NEW_DUPLICATED_LINES_DENSITY,
     NEW_COVERAGE
   );
-
-  private static final Set<String> EXISTENCY_REQUIREMENTS = Set.of(
-    NEW_DUPLICATED_LINES_DENSITY_KEY,
-    NEW_COVERAGE_KEY
-  );
-
-  private static final Map<String, Double> BEST_VALUE_REQUIREMENTS = CAYC_METRICS.stream()
-    .filter(metric -> !EXISTENCY_REQUIREMENTS.contains(metric.getKey()))
-    .collect(toUnmodifiableMap(Metric::getKey, Metric::getBestValue));
 
   private final DbClient dbClient;
 
@@ -74,7 +95,7 @@ public class QualityGateCaycChecker {
   public QualityGateCaycStatus checkCaycCompliant(DbSession dbSession, String qualityGateUuid) {
     var conditionsByMetricId = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateUuid)
       .stream()
-      .collect(uniqueIndex(QualityGateConditionDto::getMetricUuid));
+      .collect(Collectors.toMap(QualityGateConditionDto::getMetricUuid, Function.identity()));
 
     if (conditionsByMetricId.size() < CAYC_METRICS.size()) {
       return NON_COMPLIANT;
@@ -85,16 +106,24 @@ public class QualityGateCaycChecker {
       .filter(MetricDto::isEnabled)
       .toList();
 
-    long count = metrics.stream()
-      .filter(metric -> checkMetricCaycCompliant(conditionsByMetricId.get(metric.getUuid()), metric))
-      .count();
+    var caycStatus = checkCaycConditions(metrics, conditionsByMetricId, false);
+    if (caycStatus == NON_COMPLIANT) {
+      caycStatus = checkCaycConditions(metrics, conditionsByMetricId, true);
+    }
+    return caycStatus;
+  }
 
-    if (metrics.size() == count && count == CAYC_METRICS.size()) {
+  private static QualityGateCaycStatus checkCaycConditions(List<MetricDto> metrics, Map<String, QualityGateConditionDto> conditionsByMetricId, boolean legacy) {
+    var caycMetrics = legacy ? LEGACY_CAYC_METRICS : CAYC_METRICS;
+
+    long count = metrics.stream()
+      .filter(metric -> checkMetricCaycCompliant(conditionsByMetricId.get(metric.getUuid()), metric, legacy))
+      .count();
+    if (metrics.size() == count && count == caycMetrics.size()) {
       return COMPLIANT;
-    } else if (metrics.size() > count && count == CAYC_METRICS.size()) {
+    } else if (metrics.size() > count && count == caycMetrics.size()) {
       return OVER_COMPLIANT;
     }
-
     return NON_COMPLIANT;
   }
 
@@ -105,12 +134,18 @@ public class QualityGateCaycChecker {
       .orElse(NON_COMPLIANT);
   }
 
-  private static boolean checkMetricCaycCompliant(QualityGateConditionDto condition, MetricDto metric) {
+  public boolean isCaycCondition(MetricDto metric) {
+    return Stream.concat(CAYC_METRICS.stream(), LEGACY_CAYC_METRICS.stream())
+      .map(Metric::getKey).anyMatch(metric.getKey()::equals);
+  }
+
+  private static boolean checkMetricCaycCompliant(QualityGateConditionDto condition, MetricDto metric, boolean legacy) {
+    var bestValueRequirements = legacy ? LEGACY_BEST_VALUE_REQUIREMENTS : BEST_VALUE_REQUIREMENTS;
     if (EXISTENCY_REQUIREMENTS.contains(metric.getKey())) {
       return true;
-    } else if (BEST_VALUE_REQUIREMENTS.containsKey(metric.getKey())) {
+    } else if (bestValueRequirements.containsKey(metric.getKey())) {
       Double errorThreshold = Double.valueOf(condition.getErrorThreshold());
-      Double caycRequiredThreshold = BEST_VALUE_REQUIREMENTS.get(metric.getKey());
+      Double caycRequiredThreshold = bestValueRequirements.get(metric.getKey());
       return caycRequiredThreshold.compareTo(errorThreshold) == 0;
     } else {
       return false;

@@ -4,6 +4,7 @@ configurations {
 
 dependencies {
     compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     implementation 'commons-io:commons-io'
 
     testImplementation 'junit:junit'
@@ -19,7 +20,7 @@ jar {
                 'Plugin-Version': project.version,
                 'Plugin-Class': 'org.sonar.education.EducationPlugin',
                 'Plugin-ChildFirstClassLoader': 'false',
-                'Sonar-Version': project.version,
+                'Sonar-Version': project.pluginApiVersion,
                 'SonarLint-Supported': 'true',
                 'Plugin-Name': 'Education'
         )

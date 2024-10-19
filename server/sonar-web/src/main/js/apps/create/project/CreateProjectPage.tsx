@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,45 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
+import { LargeCenteredLayout } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getAlmSettings } from '../../../api/alm-settings';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
+import { getDopSettings } from '../../../api/dop-translation';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
-import { AppState } from '../../../types/appstate';
+import { AlmKeys } from '../../../types/alm-settings';
+import { DopSetting } from '../../../types/dop-translation';
 import { Feature } from '../../../types/features';
-import AzureProjectCreate from './AzureProjectCreate';
-import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';
-import BitbucketProjectCreate from './BitbucketProjectCreate';
+import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
+import AzureProjectCreate from './Azure/AzureProjectCreate';
+import BitbucketCloudProjectCreate from './BitbucketCloud/BitbucketCloudProjectCreate';
+import BitbucketProjectCreate from './BitbucketServer/BitbucketProjectCreate';
 import CreateProjectModeSelection from './CreateProjectModeSelection';
-import GitHubProjectCreate from './GitHubProjectCreate';
-import GitlabProjectCreate from './GitlabProjectCreate';
-import ManualProjectCreate from './ManualProjectCreate';
-import './style.css';
+import GitHubProjectCreate from './Github/GitHubProjectCreate';
+import GitlabProjectCreate from './Gitlab/GitlabProjectCreate';
+import NewCodeDefinitionSelection from './components/NewCodeDefinitionSelection';
+import ManualProjectCreate from './manual/ManualProjectCreate';
 import { CreateProjectModes } from './types';
 import CreateProjectPageSonarCloud from "./CreateProjectPageSonarCloud";
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
-  appState: AppState;
   location: Location;
   router: Router;
 }
 
 interface State {
-  azureSettings: AlmSettingsInstance[];
-  bitbucketSettings: AlmSettingsInstance[];
-  bitbucketCloudSettings: AlmSettingsInstance[];
-  githubSettings: AlmSettingsInstance[];
-  gitlabSettings: AlmSettingsInstance[];
-  loading: boolean;
+  azureSettings: DopSetting[];
+  bitbucketCloudSettings: DopSetting[];
+  bitbucketSettings: DopSetting[];
   creatingAlmDefinition?: AlmKeys;
+  githubSettings: DopSetting[];
+  gitlabSettings: DopSetting[];
+  importProjects?: ImportProjectParam;
+  loading: boolean;
+  redirectTo: string;
 }
 
 const PROJECT_MODE_FOR_ALM_KEY = {
@@ -66,8 +69,73 @@ const PROJECT_MODE_FOR_ALM_KEY = {
   [AlmKeys.GitLab]: CreateProjectModes.GitLab,
 };
 
+export type ImportProjectParam =
+  | {
+      almSetting: string;
+      creationMode: CreateProjectModes.AzureDevOps;
+      monorepo: false;
+      projects: {
+        projectName: string;
+        repositoryName: string;
+      }[];
+    }
+  | {
+      almSetting: string;
+      creationMode: CreateProjectModes.BitbucketCloud;
+      monorepo: false;
+      projects: {
+        repositorySlug: string;
+      }[];
+    }
+  | {
+      almSetting: string;
+      creationMode: CreateProjectModes.BitbucketServer;
+      monorepo: false;
+      projects: {
+        projectKey: string;
+        repositorySlug: string;
+      }[];
+    }
+  | {
+      almSetting: string;
+      creationMode: CreateProjectModes.GitHub;
+      monorepo: false;
+      projects: {
+        repositoryKey: string;
+      }[];
+    }
+  | {
+      almSetting: string;
+      creationMode: CreateProjectModes.GitLab;
+      monorepo: false;
+      projects: {
+        gitlabProjectId: string;
+      }[];
+    }
+  | {
+      creationMode: CreateProjectModes.Manual;
+      monorepo: false;
+      projects: {
+        mainBranch: string;
+        name: string;
+        project: string;
+      }[];
+    }
+  | {
+      creationMode: CreateProjectModes;
+      devOpsPlatformSettingId: string;
+      monorepo: true;
+      projectIdentifier?: string;
+      projects: {
+        projectKey: string;
+        projectName: string;
+      }[];
+      repositoryIdentifier: string;
+    };
+
 export class CreateProjectPage extends React.PureComponent<CreateProjectPageProps, State> {
   mounted = false;
+
   state: State = {
     azureSettings: [],
     bitbucketSettings: [],
@@ -75,35 +143,65 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     githubSettings: [],
     gitlabSettings: [],
     loading: true,
+    redirectTo: this.props.location.state?.from || '/projects',
   };
 
   componentDidMount() {
     this.mounted = true;
+
+    this.cleanQueryParameters();
+    this.fetchAlmBindings();
+  }
+
+  componentDidUpdate(prevProps: CreateProjectPageProps) {
+    const { location } = this.props;
+
+    if (location.query.mono !== prevProps.location.query.mono) {
+      this.fetchAlmBindings();
+    }
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
+  cleanQueryParameters() {
+    const { location, router } = this.props;
+
+    const isMonorepoSupported = this.props.hasFeature(Feature.MonoRepositoryPullRequestDecoration);
+
+    if (location.query?.mono === 'true' && !isMonorepoSupported) {
+      // Timeout is required to force the refresh of the URL
+      setTimeout(() => {
+        location.query.mono = undefined;
+        router.replace(location);
+      }, 0);
+    }
+    if (location.query?.setncd === 'true') {
+      // Timeout is required to force the refresh of the URL
+      setTimeout(() => {
+        location.query.setncd = undefined;
+        router.replace(location);
+      }, 0);
+    }
+  }
+
   fetchAlmBindings = () => {
     this.setState({ loading: true });
-    return getAlmSettings()
-      .then((almSettings) => {
-        if (this.mounted) {
-          this.setState({
-            azureSettings: almSettings.filter((s) => s.alm === AlmKeys.Azure),
-            bitbucketSettings: almSettings.filter((s) => s.alm === AlmKeys.BitbucketServer),
-            bitbucketCloudSettings: almSettings.filter((s) => s.alm === AlmKeys.BitbucketCloud),
-            githubSettings: almSettings.filter((s) => s.alm === AlmKeys.GitHub),
-            gitlabSettings: almSettings.filter((s) => s.alm === AlmKeys.GitLab),
-            loading: false,
-          });
-        }
+
+    return getDopSettings()
+      .then(({ dopSettings }) => {
+        this.setState({
+          azureSettings: dopSettings.filter(({ type }) => type === AlmKeys.Azure),
+          bitbucketSettings: dopSettings.filter(({ type }) => type === AlmKeys.BitbucketServer),
+          bitbucketCloudSettings: dopSettings.filter(({ type }) => type === AlmKeys.BitbucketCloud),
+          githubSettings: dopSettings.filter(({ type }) => type === AlmKeys.GitHub),
+          gitlabSettings: dopSettings.filter(({ type }) => type === AlmKeys.GitLab),
+          loading: false,
+        });
       })
       .catch(() => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+        this.setState({ loading: false });
       });
   };
 
@@ -119,8 +217,13 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     this.setState({ creatingAlmDefinition: alm });
   };
 
-  handleProjectCreate = (projectKey: string) => {
-    this.props.router.push(getProjectUrl(projectKey));
+  handleProjectSetupDone = (importProjects: ImportProjectParam) => {
+    const { location, router } = this.props;
+
+    this.setState({ importProjects });
+
+    location.query.setncd = 'true';
+    router.push(location);
   };
 
   handleOnCancelCreation = () => {
@@ -145,17 +248,13 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
   renderProjectCreation(mode?: CreateProjectModes) {
     const {
-      appState: { canAdmin },
-      location,
-      router,
-    } = this.props;
-    const {
       azureSettings,
       bitbucketSettings,
       bitbucketCloudSettings,
       githubSettings,
       gitlabSettings,
       loading,
+      redirectTo,
     } = this.state;
     const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
 
@@ -163,60 +262,45 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
       case CreateProjectModes.AzureDevOps: {
         return (
           <AzureProjectCreate
-            canAdmin={!!canAdmin}
-            loadingBindings={loading}
-            location={location}
-            onProjectCreate={this.handleProjectCreate}
-            router={router}
-            almInstances={azureSettings}
+            dopSettings={azureSettings}
+            isLoadingBindings={loading}
+            onProjectSetupDone={this.handleProjectSetupDone}
           />
         );
       }
       case CreateProjectModes.BitbucketServer: {
         return (
           <BitbucketProjectCreate
-            canAdmin={!!canAdmin}
-            almInstances={bitbucketSettings}
-            loadingBindings={loading}
-            location={location}
-            onProjectCreate={this.handleProjectCreate}
-            router={router}
+            dopSettings={bitbucketSettings}
+            isLoadingBindings={loading}
+            onProjectSetupDone={this.handleProjectSetupDone}
           />
         );
       }
       case CreateProjectModes.BitbucketCloud: {
         return (
           <BitbucketCloudProjectCreate
-            canAdmin={!!canAdmin}
-            loadingBindings={loading}
-            location={location}
-            onProjectCreate={this.handleProjectCreate}
-            router={router}
-            almInstances={bitbucketCloudSettings}
+            dopSettings={bitbucketCloudSettings}
+            isLoadingBindings={loading}
+            onProjectSetupDone={this.handleProjectSetupDone}
           />
         );
       }
       case CreateProjectModes.GitHub: {
         return (
           <GitHubProjectCreate
-            canAdmin={!!canAdmin}
-            loadingBindings={loading}
-            location={location}
-            onProjectCreate={this.handleProjectCreate}
-            router={router}
-            almInstances={githubSettings}
+            isLoadingBindings={loading}
+            onProjectSetupDone={this.handleProjectSetupDone}
+            dopSettings={githubSettings}
           />
         );
       }
       case CreateProjectModes.GitLab: {
         return (
           <GitlabProjectCreate
-            canAdmin={!!canAdmin}
-            loadingBindings={loading}
-            location={location}
-            onProjectCreate={this.handleProjectCreate}
-            router={router}
-            almInstances={gitlabSettings}
+            dopSettings={gitlabSettings}
+            isLoadingBindings={loading}
+            onProjectSetupDone={this.handleProjectSetupDone}
           />
         );
       }
@@ -224,7 +308,8 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
         return (
           <ManualProjectCreate
             branchesEnabled={branchSupportEnabled}
-            onProjectCreate={this.handleProjectCreate}
+            onProjectSetupDone={this.handleProjectSetupDone}
+            onClose={() => this.props.router.push({ pathname: redirectTo })}
           />
         );
       }
@@ -240,7 +325,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           <CreateProjectModeSelection
             almCounts={almCounts}
             loadingBindings={loading}
-            onSelectMode={this.handleModeSelect}
             onConfigMode={this.handleModeConfig}
           />
         );
@@ -249,16 +333,47 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
   }
 
   render() {
+    const { location } = this.props;
+    const { creatingAlmDefinition, importProjects, redirectTo } = this.state;
+    const mode: CreateProjectModes | undefined = location.query?.mode;
+    const isProjectSetupDone = location.query?.setncd === 'true';
+    const gridLayoutStyle = mode ? 'sw-col-start-2 sw-col-span-10' : 'sw-col-span-12';
+    const pageTitle = mode
+      ? translate(`onboarding.create_project.${mode}.title`)
+      : translate('onboarding.create_project.select_method');
+
     return (
-      <>
-        <Helmet title={translate('onboarding.create_project.select_method')} titleTemplate="%s" />
-        <A11ySkipTarget anchor="create_project_main" />
-        <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
-          <CreateProjectPageSonarCloud />
+      <LargeCenteredLayout
+        id="create-project"
+        className="sw-pt-8 sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12"
+      >
+        <div className={gridLayoutStyle}>
+          <Helmet title={pageTitle} titleTemplate="%s" />
+          <A11ySkipTarget anchor="create_project_main" />
+
+          <div className={classNames({ 'sw-hidden': isProjectSetupDone })}>
+            {this.renderProjectCreation(mode)}
+          </div>
+          {importProjects !== undefined && isProjectSetupDone && (
+            <NewCodeDefinitionSelection
+              importProjects={importProjects}
+              onClose={() => this.props.router.push({ pathname: redirectTo })}
+              redirectTo={redirectTo}
+            />
+          )}
+
+          {creatingAlmDefinition && (
+            <AlmBindingDefinitionForm
+              alm={creatingAlmDefinition}
+              onCancel={this.handleOnCancelCreation}
+              afterSubmit={this.handleAfterSubmit}
+              enforceValidation
+            />
+          )}
         </div>
-      </>
+      </LargeCenteredLayout>
     );
   }
 }
 
-export default withRouter(withAvailableFeatures(withAppStateContext(CreateProjectPage)));
+export default withRouter(withAvailableFeatures(CreateProjectPage));

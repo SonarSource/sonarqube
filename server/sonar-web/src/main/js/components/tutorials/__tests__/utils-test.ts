@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,7 @@ describe('getUniqueTokenName', () => {
 
   it('should generate a token with the given name', () => {
     expect(
-      getUniqueTokenName([mockUserToken({ name: initialTokenName })], 'Analyze "project"')
+      getUniqueTokenName([mockUserToken({ name: initialTokenName })], 'Analyze "project"'),
     ).toBe('Analyze "project"');
   });
 
@@ -58,14 +58,14 @@ describe('buildGithubLink', () => {
     expect(
       buildGithubLink(
         mockAlmSettingsInstance({ url: 'https://github.company.com/api/v3' }),
-        projectBinding
-      )
+        projectBinding,
+      ),
     ).toBe('https://github.company.com/owner/reponame');
   });
 
   it('should work for github.com', () => {
     expect(
-      buildGithubLink(mockAlmSettingsInstance({ url: 'http://api.github.com/' }), projectBinding)
+      buildGithubLink(mockAlmSettingsInstance({ url: 'http://api.github.com/' }), projectBinding),
     ).toBe('https://github.com/owner/reponame');
   });
 
@@ -81,20 +81,20 @@ describe('buildBitbucketCloudLink', () => {
     expect(
       buildBitbucketCloudLink(
         mockAlmSettingsInstance({ url: 'http://bitbucket.org/workspace/' }),
-        projectBinding
-      )
+        projectBinding,
+      ),
     ).toBe('http://bitbucket.org/workspace/reponame');
   });
 
   it('should return null if there is no url defined', () => {
     expect(
-      buildBitbucketCloudLink(mockAlmSettingsInstance({ url: undefined }), projectBinding)
+      buildBitbucketCloudLink(mockAlmSettingsInstance({ url: undefined }), projectBinding),
     ).toBeNull();
     expect(
       buildBitbucketCloudLink(
         mockAlmSettingsInstance(),
-        mockProjectBitbucketCloudBindingResponse({ repository: undefined })
-      )
+        mockProjectBitbucketCloudBindingResponse({ repository: undefined }),
+      ),
     ).toBeNull();
   });
 });

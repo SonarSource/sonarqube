@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,9 +36,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.GroupUuid;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.Boolean.TRUE;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
 
@@ -45,14 +50,17 @@ public class UsersAction implements UserGroupsWsAction {
   private static final String FIELD_SELECTED = "selected";
   private static final String FIELD_NAME = "name";
   private static final String FIELD_LOGIN = "login";
+  private static final String FIELD_MANAGED = "managed";
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ManagedInstanceService managedInstanceService;
   private final GroupWsSupport support;
 
-  public UsersAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  public UsersAction(DbClient dbClient, UserSession userSession, ManagedInstanceService managedInstanceService, GroupWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.managedInstanceService = managedInstanceService;
     this.support = support;
   }
 
@@ -63,11 +71,15 @@ public class UsersAction implements UserGroupsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setResponseExample(getClass().getResource("users-example.json"))
       .addSelectionModeParam()
       .addSearchQuery("freddy", "names", "logins")
       .addPagingParams(25)
       .setChangelog(
+        new Change("10.4", "Deprecated. Use GET /api/v2/authorizations/group-memberships instead"),
+        new Change("10.0", "Field 'managed' added to the payload."),
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
         new Change("9.8", "The field 'paging' has been added to the response."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
@@ -95,12 +107,12 @@ public class UsersAction implements UserGroupsWsAction {
         .pageSize(pageSize)
         .build();
       int total = dbClient.groupMembershipDao().countMembers(dbSession, query);
-      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
-      List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query, paging.offset(), paging.pageSize());
-
+      List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query);
+      Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        writeMembers(json, users);
+        writeMembers(json, users, userUuidToIsManaged);
+        Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
         writePaging(json, paging);
         json.name("paging").beginObject()
           .prop("pageIndex", page)
@@ -112,13 +124,18 @@ public class UsersAction implements UserGroupsWsAction {
     }
   }
 
-  private static void writeMembers(JsonWriter json, List<UserMembershipDto> users) {
+  private static Set<String> getUserUuids(List<UserMembershipDto> users) {
+    return users.stream().map(UserMembershipDto::getUuid).collect(toSet());
+  }
+
+  private static void writeMembers(JsonWriter json, List<UserMembershipDto> users, Map<String, Boolean> userUuidToIsManaged) {
     json.name("users").beginArray();
     for (UserMembershipDto user : users) {
       json.beginObject()
         .prop(FIELD_LOGIN, user.getLogin())
         .prop(FIELD_NAME, user.getName())
         .prop(FIELD_SELECTED, user.getGroupUuid() != null)
+        .prop(FIELD_MANAGED, TRUE.equals(userUuidToIsManaged.get(user.getUuid())))
         .endObject();
     }
     json.endArray();

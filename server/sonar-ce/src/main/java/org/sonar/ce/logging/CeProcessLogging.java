@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.ce.logging;
 
 import ch.qos.logback.classic.Level;
 import org.sonar.process.ProcessId;
+import org.sonar.process.Props;
 import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.server.log.ServerProcessLogging;
@@ -45,7 +46,7 @@ public class CeProcessLogging extends ServerProcessLogging {
   }
 
   @Override
-  protected void extendConfigure() {
+  protected void extendConfigure(Props props) {
     // nothing to do
   }
 }

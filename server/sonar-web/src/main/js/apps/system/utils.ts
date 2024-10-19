@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { each, memoize, omit, omitBy, pickBy, sortBy } from 'lodash';
-import { formatMeasure } from '../../helpers/measures';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { cleanQuery, parseAsArray, parseAsString, serializeStringArray } from '../../helpers/query';
 import {
-  RawQuery,
   SysInfoAppNode,
   SysInfoBase,
   SysInfoCluster,
@@ -36,8 +36,14 @@ export interface Query {
   expandedCards: string[];
 }
 
-export const LOGS_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
-const DEFAULT_LOG_LEVEL = LOGS_LEVELS[0];
+export enum LogsLevels {
+  INFO = 'INFO',
+  DEBUG = 'DEBUG',
+  TRACE = 'TRACE',
+}
+
+export const LOGS_LEVELS = Object.values(LogsLevels);
+const DEFAULT_LOG_LEVEL = LogsLevels.INFO;
 
 export const APP_NODES_FIELD = 'Application Nodes';
 export const ALMS_FIELD = 'ALMs';
@@ -84,17 +90,17 @@ export function getHealthCauses(sysInfoObject: SysInfoBase) {
   return sysInfoObject[HEALTH_CAUSES_FIELD];
 }
 
-export function getLogsLevel(sysInfoObject?: SysInfoValueObject): string {
+export function getLogsLevel(sysInfoObject?: SysInfoValueObject): LogsLevels {
   if (sysInfoObject !== undefined) {
     if (isLogInfoBlock(sysInfoObject)) {
-      return sysInfoObject[LOGS_LEVEL_FIELD];
+      return sysInfoObject[LOGS_LEVEL_FIELD] as LogsLevels;
     } else if (hasLoggingInfo(sysInfoObject)) {
       return sortBy(
         [
           getLogsLevel(sysInfoObject[WEB_LOGGING_FIELD]),
           getLogsLevel(sysInfoObject[CE_LOGGING_FIELD]),
         ],
-        (logLevel) => LOGS_LEVELS.indexOf(logLevel)
+        (logLevel: LogsLevels) => LOGS_LEVELS.indexOf(logLevel),
       )[1];
     }
   }
@@ -110,7 +116,7 @@ export function getSearchNodes(sysInfoData: SysInfoCluster): SysInfoSearchNode[]
 }
 
 export function isCluster(
-  sysInfoData: SysInfoCluster | SysInfoStandalone
+  sysInfoData: SysInfoCluster | SysInfoStandalone,
 ): sysInfoData is SysInfoCluster {
   return sysInfoData[SYSTEM_FIELD] && sysInfoData[SYSTEM_FIELD][HA_FIELD] === true;
 }
@@ -120,7 +126,7 @@ export function isLogInfoBlock(sysInfoObject: SysInfoValueObject): sysInfoObject
 }
 
 export function hasLoggingInfo(
-  sysInfoObject: SysInfoValueObject
+  sysInfoObject: SysInfoValueObject,
 ): sysInfoObject is SysInfoStandalone | SysInfoAppNode {
   return Boolean(sysInfoObject[WEB_LOGGING_FIELD] || sysInfoObject[CE_LOGGING_FIELD]);
 }
@@ -140,13 +146,13 @@ export function getClusterVersion(sysInfoData: SysInfoCluster): string | undefin
 
 export function getSystemLogsLevel(sysInfoData: SysInfoCluster | SysInfoStandalone): string {
   if (isCluster(sysInfoData)) {
-    const logLevels = sortBy(getAppNodes(sysInfoData).map(getLogsLevel), (logLevel) =>
-      LOGS_LEVELS.indexOf(logLevel)
+    const logLevels = sortBy(getAppNodes(sysInfoData).map(getLogsLevel), (logLevel: LogsLevels) =>
+      LOGS_LEVELS.indexOf(logLevel),
     );
     return logLevels.length > 0 ? logLevels[logLevels.length - 1] : DEFAULT_LOG_LEVEL;
-  } else {
-    return getLogsLevel(sysInfoData);
   }
+
+  return getLogsLevel(sysInfoData);
 }
 
 export function getNodeName(nodeInfo: SysInfoAppNode | SysInfoSearchNode): string {
@@ -186,7 +192,7 @@ export function getStandaloneMainSections(sysInfoData: SysInfoBase): SysInfoValu
         [PLUGINS_FIELD, SETTINGS_FIELD, STATS_FIELD, SYSTEM_FIELD].includes(key) ||
         key.startsWith(CE_FIELD_PREFIX) ||
         key.startsWith(SEARCH_PREFIX) ||
-        key.startsWith(WEB_PREFIX)
+        key.startsWith(WEB_PREFIX),
     ) as SysInfoValueObject),
   };
 }
@@ -195,10 +201,10 @@ export function getStandaloneSecondarySections(sysInfoData: SysInfoBase): SysInf
   return {
     Web: pickBy(sysInfoData, (_, key) => key.startsWith(WEB_PREFIX)) as SysInfoValueObject,
     'Compute Engine': pickBy(sysInfoData, (_, key) =>
-      key.startsWith(CE_FIELD_PREFIX)
+      key.startsWith(CE_FIELD_PREFIX),
     ) as SysInfoValueObject,
     'Search Engine': pickBy(sysInfoData, (_, key) =>
-      key.startsWith(SEARCH_PREFIX)
+      key.startsWith(SEARCH_PREFIX),
     ) as SysInfoValueObject,
   };
 }
@@ -228,12 +234,12 @@ export function groupSections(sysInfoData: SysInfoValueObject) {
 export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
     expandedCards: parseAsArray(urlQuery.expand, parseAsString),
-  })
+  }),
 );
 
 export const serializeQuery = memoize(
   (query: Query): RawQuery =>
     cleanQuery({
       expand: serializeStringArray(query.expandedCards),
-    })
+    }),
 );

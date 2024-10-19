@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,11 +31,6 @@ import org.sonar.server.issue.SearchRequest;
 public enum SearchAdditionalField {
 
   ACTIONS("actions"),
-  /**
-   * @deprecated since 5.5, action plan feature has been removed
-   */
-  @Deprecated
-  DEPRECATED_ACTION_PLANS("actionPlans"),
   COMMENTS("comments"),
   LANGUAGES("languages"),
   RULES("rules"),

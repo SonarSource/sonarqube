@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 public class DefaultIssueLocationTest {
 
-  private InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+  private final InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
     .build();
 
@@ -109,21 +109,13 @@ public class DefaultIssueLocationTest {
   }
 
   @Test
-  public void prevent_null_character_in_message_text() {
-    assertThatThrownBy(() -> new DefaultIssueLocation()
-      .message("pipo " + '\u0000' + " bimbo"))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Character \\u0000 is not supported in issue message");
+  public void message_whenSettingMessage_shouldReplaceNullChar() {
+    assertThat(new DefaultIssueLocation().message("test " + '\u0000' + "123").message()).isEqualTo("test [NULL]123");
   }
 
   @Test
-  public void prevent_null_character_in_message_text_when_builder_has_been_initialized() {
-    assertThatThrownBy(() -> new DefaultIssueLocation()
-      .on(inputFile)
-      .message("pipo " + '\u0000' + " bimbo"))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageStartingWith("Character \\u0000 is not supported in issue message")
-      .hasMessageEndingWith(", on component: src/Foo.php");
+  public void message_whenSettingMessageWithFormattings_shouldReplaceNullChar() {
+    assertThat(new DefaultIssueLocation().message("test " + '\u0000' + "123", Collections.emptyList()).message()).isEqualTo("test [NULL]123");
   }
 
   @Test

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable jsx-a11y/no-static-element-interactions, jsx-a11y/no-noninteractive-tabindex */
-import classNames from 'classnames';
+import styled from '@emotion/styled';
+import { Card, TutorialStep, TutorialStepList, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
-import './Step.css';
 
 interface Props {
   finished?: boolean;
@@ -32,13 +32,10 @@ interface Props {
   stepTitle: React.ReactNode;
 }
 
+const CLOSED_STEP_OPACITY = 0.4;
+
 export default function Step(props: Props) {
   const { finished, open, stepNumber, stepTitle } = props;
-  const className = classNames('boxed-group', 'onboarding-step', {
-    'is-open': open,
-    'is-finished': finished,
-    'no-step-number': stepNumber === undefined,
-  });
 
   const clickable = !open && finished && props.onOpen !== undefined;
 
@@ -50,18 +47,40 @@ export default function Step(props: Props) {
   };
 
   return (
-    <div
-      className={className}
+    <StyledCard
+      clickable={Boolean(clickable)}
+      className="sw-mb-2 sw-p-0"
       onClick={clickable ? handleClick : undefined}
       role={clickable ? 'button' : undefined}
       tabIndex={clickable ? 0 : undefined}
     >
-      {stepNumber !== undefined && <div className="onboarding-step-number">{stepNumber}</div>}
-      {!open && props.renderResult && props.renderResult()}
-      <div className="boxed-group-header">
-        <h2>{stepTitle}</h2>
+      <div
+        style={{ opacity: !open && !finished ? CLOSED_STEP_OPACITY : undefined }}
+        className="sw-flex sw-items-center sw-justify-between sw-px-6"
+      >
+        <TutorialStepList className="sw-flex-1">
+          <TutorialStep title={stepTitle} stepNumber={stepNumber}>
+            {open ? <div>{props.renderForm()}</div> : <div className="sw-px-5 sw-pb-4" />}
+          </TutorialStep>
+        </TutorialStepList>
+        {!open && props.renderResult && props.renderResult()}
       </div>
-      {open ? <div>{props.renderForm()}</div> : <div className="boxed-group-inner" />}
-    </div>
+    </StyledCard>
   );
 }
+
+const StyledCard = styled(Card)<{ clickable: boolean }>`
+  --focus: ${themeColor('buttonSecondaryBorder')};
+
+  ${({ clickable, theme }) =>
+    clickable &&
+    `
+    cursor: pointer; 
+
+
+    &:focus,
+    &:active {
+      outline: ${themeBorder('focus', 'var(--focus)')({ theme })}
+    }
+`};
+`;

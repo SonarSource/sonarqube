@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,14 +35,16 @@ it('should correctly render a link that opens in a new window, but is not consid
 
 it('should correctly render an external link', () => {
   renderLink({ target: '_blank', to: 'http://example.com' });
-  expect(screen.getByRole('link')).toHaveAttribute('rel', 'noopener noreferrer');
-  expect(screen.getByLabelText('opens_in_new_window')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'opens_in_new_window click me' })).toHaveAttribute(
+    'rel',
+    'noopener noreferrer',
+  );
 });
 
 function renderLink(props: Partial<LinkProps> = {}) {
   return renderComponent(
     <Link to={{ pathname: 'to' }} {...props}>
       click me
-    </Link>
+    </Link>,
   );
 }

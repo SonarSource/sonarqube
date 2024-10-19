@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,21 +30,23 @@ public class SvnScmSupportTest {
   private SvnConfiguration config = mock(SvnConfiguration.class);
 
   @Test
-  public void getExtensions() {
+  public void getObjects_shouldNotBeEmpty() {
     assertThat(SvnScmSupport.getObjects()).isNotEmpty();
   }
 
   @Test
-  public void newSvnClientManager_with_auth() {
+  public void newSvnClientManager_whenPasswordConfigured_shouldNotReturnNull() {
     when(config.password()).thenReturn("password");
     when(config.passPhrase()).thenReturn("passPhrase");
+
     assertThat(newSvnClientManager(config)).isNotNull();
   }
 
   @Test
-  public void newSvnClientManager_without_auth() {
+  public void newSvnClientManager_whenPasswordNotConfigured_shouldNotReturnNull() {
     assertThat(config.password()).isNull();
     assertThat(config.passPhrase()).isNull();
+
     assertThat(newSvnClientManager(config)).isNotNull();
   }
 

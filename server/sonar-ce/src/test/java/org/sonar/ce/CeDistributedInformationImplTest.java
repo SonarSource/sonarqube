@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.ce;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,18 +29,25 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.hz.HazelcastObjects.WORKER_UUIDS;
 
 public class CeDistributedInformationImplTest {
+  @Rule
+  public final LogTester logTester = new LogTester();
+
   private final UUID clientUUID1 = UUID.randomUUID();
   private final UUID clientUUID2 = UUID.randomUUID();
   private final UUID clientUUID3 = UUID.randomUUID();
@@ -101,7 +109,7 @@ public class CeDistributedInformationImplTest {
     try {
       ceDistributedInformation.broadcastWorkerUUIDs();
       assertThat(modifiableWorkerMap).containsExactly(
-        entry(clientUUID1, ImmutableSet.of("a10", "a11")));
+        entry(clientUUID1, Set.of("a10", "a11")));
     } finally {
       ceDistributedInformation.stop();
     }
@@ -122,6 +130,19 @@ public class CeDistributedInformationImplTest {
     CeDistributedInformationImpl ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));
     ceDistributedInformation.stop();
     assertThat(modifiableWorkerMap).containsExactlyInAnyOrderEntriesOf(
-      ImmutableMap.of(clientUUID2, ImmutableSet.of(w3), clientUUID3, ImmutableSet.of(w4, w5, w6)));
+      Map.of(clientUUID2, Set.of(w3), clientUUID3, ImmutableSet.of(w4, w5, w6)));
   }
+
+  @Test
+  public void stop_whenThrowHazelcastInactiveException_shouldSilenceError() {
+    logTester.setLevel(Level.DEBUG);
+    when(hzClientWrapper.getReplicatedMap(any())).thenThrow(new HazelcastInstanceNotActiveException("Hazelcast is not active"));
+
+    CeDistributedInformationImpl ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));
+    ceDistributedInformation.stop();
+
+    assertThat(logTester.logs(Level.DEBUG)).contains("Hazelcast is not active anymore");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
 }

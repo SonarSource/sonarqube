@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ public class WriteCacheImplTest {
   }
 
   @Test
-  public void write_bytes_adds_entries() throws IOException {
+  public void write_bytes_adds_entries()  {
     byte[] b1 = new byte[] {1, 2, 3};
     byte[] b2 = new byte[] {3, 4};
     writeCache.write("key", b1);
@@ -66,7 +66,7 @@ public class WriteCacheImplTest {
   }
 
   @Test
-  public void dont_write_if_its_pull_request() throws IOException {
+  public void dont_write_if_its_pull_request()  {
     byte[] b1 = new byte[] {1, 2, 3};
     when(branchConfiguration.isPullRequest()).thenReturn(true);
     writeCache.write("key1", b1);
@@ -75,7 +75,7 @@ public class WriteCacheImplTest {
   }
 
   @Test
-  public void write_inputStream_adds_entries() throws IOException {
+  public void write_inputStream_adds_entries()  {
     byte[] b1 = new byte[] {1, 2, 3};
     byte[] b2 = new byte[] {3, 4};
     writeCache.write("key", new ByteArrayInputStream(b1));

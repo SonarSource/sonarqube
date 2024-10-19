@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,16 +20,16 @@
 package org.sonar.server.developers.ws;
 
 class UuidFromPair {
-  private final String componentUuid;
+  private final String projectUuid;
   private final long from;
 
-  public UuidFromPair(String componentUuid, long from) {
-    this.componentUuid = componentUuid;
+  public UuidFromPair(String projectUuid, long from) {
+    this.projectUuid = projectUuid;
     this.from = from;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
   public long getFrom() {

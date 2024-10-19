@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.entity.EntityMapper">
+  <sql id="entityProjectColumns">
+    p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate, p.description as description, p.qualifier as qualifier,
+    null as authUuid
+  </sql>
+
+  <sql id="entityPortfolioColumns">
+    p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate, p.description as description,
+    case when p.parent_uuid is null then 'VW' else 'SVW' end as qualifier,
+    case when p.root_uuid != p.uuid then p.root_uuid else null end as authUuid
+  </sql>
+
+  <select id="selectByUuid" parameterType="string" resultType="Entity">
+    (select <include refid="entityProjectColumns"/>
+    from projects p
+    where p.uuid = #{uuid,jdbcType=VARCHAR})
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p
+    where p.uuid = #{uuid,jdbcType=VARCHAR})
+  </select>
+
+  <select id="selectByComponentUuid" parameterType="string" resultType="Entity">
+    (select <include refid="entityProjectColumns"/>
+    from projects p
+    inner join project_branches pb on pb.project_uuid = p.uuid
+    inner join components c on c.branch_uuid = pb.uuid
+    where c.uuid = #{uuid,jdbcType=VARCHAR})
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p
+    inner join components c on c.branch_uuid = p.uuid
+    where c.uuid = #{uuid,jdbcType=VARCHAR})
+  </select>
+
+    <sql id="selectAll">
+    (select <include refid="org.sonar.db.entity.EntityMapper.entityProjectColumns"/>
+    from projects p)
+    UNION
+    (select <include refid="org.sonar.db.entity.EntityMapper.entityPortfolioColumns"/>
+    from portfolios p where p.parent_uuid is null)
+  </sql>
+
+  <select id="selectByUuids"  resultType="Entity">
+    (select <include refid="entityProjectColumns"/>
+    from projects p
+    where p.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid,jdbcType=VARCHAR}
+      </foreach>)
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p
+    where p.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid,jdbcType=VARCHAR}
+      </foreach>)
+  </select>
+
+  <select id="selectByKey" parameterType="string" resultType="Entity">
+    (select <include refid="entityProjectColumns"/>
+    from projects p
+    where p.kee = #{key,jdbcType=VARCHAR})
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p
+    where p.kee = #{key,jdbcType=VARCHAR})
+  </select>
+
+  <select id="selectByKeys" parameterType="string" resultType="Entity">
+    (select <include refid="entityProjectColumns"/>
+    from projects p
+    where p.kee in
+      <foreach collection="keys" open="(" close=")" item="kee" separator=",">
+        #{kee,jdbcType=VARCHAR}
+      </foreach>)
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p
+    where p.kee in
+      <foreach collection="keys" open="(" close=")" item="kee" separator=",">
+        #{kee,jdbcType=VARCHAR}
+      </foreach>)
+  </select>
+
+  <select id="scrollForIndexing" resultType="Entity" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    (select <include refid="entityProjectColumns"/>
+    from projects p)
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p)
+  </select>
+</mapper>

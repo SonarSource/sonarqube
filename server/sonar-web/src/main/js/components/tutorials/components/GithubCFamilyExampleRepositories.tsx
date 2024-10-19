@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { Card, LightLabel } from 'design-system';
 import React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import Link from '../../common/Link';
 import { OSs, TutorialModes } from '../types';
-import './GithubCFamilyExampleRepositories.css';
 
 export interface GithubCFamilyExampleRepositoriesProps {
+  ci?: TutorialModes;
   className?: string;
   os?: OSs;
-  ci?: TutorialModes;
 }
 
 const OS_SEARCH_MAP = {
@@ -48,7 +49,7 @@ const CI_SEARCH_MAP = {
 };
 
 export default function GithubCFamilyExampleRepositories(
-  props: GithubCFamilyExampleRepositoriesProps
+  props: Readonly<GithubCFamilyExampleRepositoriesProps>,
 ) {
   const { className, os, ci } = props;
   const queryParams = ['sq', os ? OS_SEARCH_MAP[os] : undefined, ci ? CI_SEARCH_MAP[ci] : undefined]
@@ -57,26 +58,21 @@ export default function GithubCFamilyExampleRepositories(
   const link = `https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=${queryParams}`;
 
   return (
-    <div
-      className={classNames(
-        'github-cfamily-example-repositories-box big-padded boxed-group',
-        className
-      )}
-    >
-      <div className="display-flex-center">
-        <img
+    <Card className={classNames('sw-p-4 sw-bg-inherit', className)}>
+      <div>
+        <Image
           alt="" // Should be ignored by screen readers
-          className="spacer-right"
+          className="sw-mr-2"
           height={20}
-          src={`${getBaseUrl()}/images/alm/github.svg`}
+          src="/images/alm/github.svg"
         />
-        <Link className="spacer-left big" target="_blank" to={link}>
+        <LinkStandalone target="_blank" to={link}>
           sonarsource-cfamily-examples
-        </Link>
+        </LinkStandalone>
       </div>
-      <p className="spacer-top">
+      <LightLabel as="p" className="sw-mt-4">
         {translate('onboarding.tutorial.cfamily.examples_repositories_description')}
-      </p>
-    </div>
+      </LightLabel>
+    </Card>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,10 +32,10 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class SetAsDefaultAction implements QualityGatesWsAction {
@@ -56,23 +56,18 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("set_as_default")
       .setDescription("Set a quality gate as the default quality gate.<br>" +
-        "Either 'id' or 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
+        "Parameter 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'name' added"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."))
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setDescription("ID of the quality gate to set as default. This parameter is deprecated. Use 'name' instead.")
-      .setDeprecatedSince("8.4")
-      .setRequired(false)
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_NAME)
       .setDescription("Name of the quality gate to set as default")
-      .setRequired(false)
+      .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("SonarSource Way");
@@ -82,22 +77,18 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String uuid = request.param(PARAM_ID);
-    String name = request.param(PARAM_NAME);
-    checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
+    String name = request.mandatoryParam(PARAM_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organization);
       QualityGateDto qualityGate;
 
-      if (uuid != null) {
-        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
-      } else {
-        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, name);
-      }
+      qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, name);
+
       organization.setDefaultQualityGateUuid(qualityGate.getUuid());
       dbClient.organizationDao().update(dbSession, organization);
+
       dbSession.commit();
       logger.info("Quality Gate set to default for:: organization: {}, qGate: {}, user: {}", organization.getKey(),
               qualityGate.getName(), userSession.getLogin());

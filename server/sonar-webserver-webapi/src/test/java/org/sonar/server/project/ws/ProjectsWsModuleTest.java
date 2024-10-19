@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,6 @@ public class ProjectsWsModuleTest {
   public void verify_count_of_added_components_on_SonarQube() {
     ListContainer container = new ListContainer();
     new ProjectsWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(13);
+    assertThat(container.getAddedObjects()).hasSize(15);
   }
 }

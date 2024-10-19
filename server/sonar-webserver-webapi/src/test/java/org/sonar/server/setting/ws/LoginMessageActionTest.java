@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,8 +42,8 @@ public class LoginMessageActionTest {
   private final LoginMessageFeature loginMessageFeature = mock(LoginMessageFeature.class);
   private final LoginMessageAction underTest = new LoginMessageAction(dbClient, loginMessageFeature);
   private final WsActionTester ws = new WsActionTester(underTest);
-  private static final String LOGIN_MESSAGE_TEXT = "test link [SonarQube™ Home Page](https://www.sonarqube.org)\n* list 1\n* list 2";
-  private static final String FORMATTED_LOGIN_MESSAGE_TEXT = "test link \\u003ca href\\u003d\\\"https://www.sonarqube.org\\\" target\\u003d\\\"_blank\\\" rel\\u003d\\\"noopener noreferrer\\\"\\u003eSonarQube\\u0026trade; Home Page\\u003c/a\\u003e\\u003cbr/\\u003e\\u003cul\\u003e\\u003cli\\u003elist 1\\u003c/li\\u003e\\n\\u003cli\\u003elist 2\\u003c/li\\u003e\\u003c/ul\\u003e";
+  private static final String LOGIN_MESSAGE_TEXT = "test link [SonarQube™ Home Page](https://www.sonarsource.com/products/sonarqube)\n* list 1\n* list 2";
+  private static final String FORMATTED_LOGIN_MESSAGE_TEXT = "test link \\u003ca href\\u003d\\\"https://www.sonarsource.com/products/sonarqube\\\" target\\u003d\\\"_blank\\\" rel\\u003d\\\"noopener noreferrer\\\"\\u003eSonarQube\\u0026trade; Home Page\\u003c/a\\u003e\\u003cbr/\\u003e\\u003cul\\u003e\\u003cli\\u003elist 1\\u003c/li\\u003e\\n\\u003cli\\u003elist 2\\u003c/li\\u003e\\u003c/ul\\u003e";
   private static final String JSON_RESPONSE = "{\"message\":\"" + FORMATTED_LOGIN_MESSAGE_TEXT + "\"}";
   private static final String EMPTY_JSON_RESPONSE = "{\"message\":\"\"}";
   private PropertiesDao propertiesDao;
@@ -51,7 +51,7 @@ public class LoginMessageActionTest {
   @Before
   public void setup() {
     propertiesDao = mock(PropertiesDao.class);
-    doReturn(true).when(loginMessageFeature).isEnabled();
+    doReturn(true).when(loginMessageFeature).isAvailable();
     doReturn(propertiesDao).when(dbClient).propertiesDao();
   }
 
@@ -86,7 +86,7 @@ public class LoginMessageActionTest {
   public void return_empty_message_when_feature_not_enabled() {
     mockProperty(SONAR_LOGIN_DISPLAY_MESSAGE, "true");
     mockProperty(SONAR_LOGIN_MESSAGE, LOGIN_MESSAGE_TEXT);
-    when(loginMessageFeature.isEnabled()).thenReturn(false);
+    when(loginMessageFeature.isAvailable()).thenReturn(false);
     TestResponse response = ws.newRequest().execute();
 
     assertThat(response.getInput()).isEqualTo(EMPTY_JSON_RESPONSE);

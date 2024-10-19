@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { BasicSeparator, ClipboardIconButton, NumberedList, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button } from '../../../components/controls/buttons';
-import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
-import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { useProjectBindingQuery } from '../../../queries/devops-integration';
+import { AlmSettingsInstance } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
+import { InlineSnippet } from '../components/InlineSnippet';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import TokenStepGenerator from '../components/TokenStepGenerator';
 import { buildBitbucketCloudLink } from '../utils';
@@ -34,94 +36,94 @@ export interface RepositoryVariablesProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
-  onDone: () => void;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export default function RepositoryVariables(props: RepositoryVariablesProps) {
-  const { almBinding, baseUrl, component, currentUser, projectBinding } = props;
+  const { almBinding, baseUrl, component, currentUser } = props;
+  const { data: projectBinding } = useProjectBindingQuery(component.key);
   return (
-    <div className="boxed-group-inner">
-      <p className="big-spacer-bottom">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro')}
-          id="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
-          values={{
-            repository_variables:
-              almBinding?.url && projectBinding?.repository ? (
-                <a
-                  href={`${buildBitbucketCloudLink(
-                    almBinding,
-                    projectBinding
-                  )}/admin/addon/admin/pipelines/repository-variables`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
-                </a>
-              ) : (
-                <strong>
-                  {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
-                </strong>
-              ),
-          }}
-        />
-      </p>
-      <ol className="list-styled">
-        <li>
+    <>
+      <FormattedMessage
+        defaultMessage={translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro')}
+        id="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
+        values={{
+          repository_variables:
+            almBinding?.url && projectBinding?.repository ? (
+              <LinkStandalone
+                to={`${buildBitbucketCloudLink(
+                  almBinding,
+                  projectBinding,
+                )}/admin/addon/admin/pipelines/repository-variables`}
+                target="_blank"
+              >
+                {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
+              </LinkStandalone>
+            ) : (
+              <span className="sw-typo-semibold">
+                {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
+              </span>
+            ),
+        }}
+      />
+      <NumberedList>
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.name"
             highlightKeys={['name']}
           />
-          <code className="rule little-spacer-left">SONAR_TOKEN</code>
-          <ClipboardIconButton copyValue="SONAR_TOKEN" />
-        </li>
-        <TokenStepGenerator component={component} currentUser={currentUser} />
-        <li>
+          <InlineSnippet snippet="SONAR_TOKEN" className="sw-ml-1" />
+          <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-2 sw-align-sub" />
+        </NumberedListItem>
+        <NumberedListItem>
+          <TokenStepGenerator component={component} currentUser={currentUser} />
+        </NumberedListItem>
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.secured"
             highlightKeys={['secured']}
           />
-        </li>
-        <li>
+        </NumberedListItem>
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.add"
             highlightKeys={['add']}
           />
-        </li>
-      </ol>
+        </NumberedListItem>
+      </NumberedList>
 
-      <hr className="no-horizontal-margins" />
+      <BasicSeparator className="sw-my-6" />
 
-      <ol className="list-styled big-spacer-top big-spacer-bottom">
-        <li>
+      <NumberedList>
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.name"
             highlightKeys={['name']}
           />
-
-          <code className="rule little-spacer-left">SONAR_HOST_URL</code>
-          <ClipboardIconButton copyValue="SONAR_HOST_URL" />
-        </li>
-        <li className="big-spacer-bottom">
+          <InlineSnippet snippet="SONAR_HOST_URL" className="sw-ml-1" />
+          <ClipboardIconButton copyValue="SONAR_HOST_URL" className="sw-ml-2 sw-align-sub" />
+        </NumberedListItem>
+        <NumberedListItem>
           <FormattedMessage
             defaultMessage={translate('onboarding.tutorial.env_variables')}
             id="onboarding.tutorial.env_variables"
             values={{
-              extra: <ClipboardIconButton copyValue={baseUrl} />,
-              field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
-              value: <code className="rule">{baseUrl}</code>,
+              extra: <ClipboardIconButton copyValue={baseUrl} className="sw-ml-1 sw-align-sub" />,
+              field: (
+                <span className="sw-typo-semibold">
+                  {translate('onboarding.tutorial.env_variables.field')}
+                </span>
+              ),
+              value: <InlineSnippet snippet={baseUrl} className="sw-ml-1" />,
             }}
           />
-        </li>
-        <li>
+        </NumberedListItem>
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.add"
             highlightKeys={['add']}
           />
-        </li>
-      </ol>
-      <Button onClick={props.onDone}>{translate('continue')}</Button>
-    </div>
+        </NumberedListItem>
+      </NumberedList>
+    </>
   );
 }

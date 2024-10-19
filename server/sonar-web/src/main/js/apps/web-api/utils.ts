@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,18 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
+import { RawQuery } from '~sonar-aligned/types/router';
 import {
   cleanQuery,
   parseAsOptionalBoolean,
   parseAsString,
   serializeString,
 } from '../../helpers/query';
-import { RawQuery, WebApi } from '../../types/types';
+import { WebApi } from '../../types/types';
 
 export interface Query {
-  search: string;
   deprecated: boolean;
   internal: boolean;
+  search: string;
 }
 
 export function actionsFilter(query: Query, domain: WebApi.Domain, action: WebApi.Action) {
@@ -68,7 +69,7 @@ export const parseQuery = memoize(
     search: parseAsString(urlQuery['query']),
     deprecated: parseAsOptionalBoolean(urlQuery['deprecated']) || false,
     internal: parseAsOptionalBoolean(urlQuery['internal']) || false,
-  })
+  }),
 );
 
 export const serializeQuery = memoize(
@@ -77,7 +78,7 @@ export const serializeQuery = memoize(
       query: query.search ? serializeString(query.search) : undefined,
       deprecated: query.deprecated || undefined,
       internal: query.internal || undefined,
-    })
+    }),
 );
 
 export function parseVersion(version: string) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
@@ -42,6 +42,7 @@ public class ActiveRuleChange {
   private final ActiveRuleKey key;
   private final String ruleUuid;
   private String severity = null;
+  private Boolean prioritizedRule = null;
   private ActiveRuleInheritance inheritance = null;
   private final Map<String, String> parameters = new HashMap<>();
 
@@ -80,6 +81,16 @@ public class ActiveRuleChange {
     return this;
   }
 
+  public ActiveRuleChange setPrioritizedRule(@Nullable Boolean prioritizedRule){
+    this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean isPrioritizedRule(){
+    return prioritizedRule;
+  }
+
   public ActiveRuleChange setInheritance(@Nullable ActiveRuleInheritance i) {
     this.inheritance = i;
     return this;
@@ -115,6 +126,10 @@ public class ActiveRuleChange {
     return this;
   }
 
+  public QProfileChangeDto toSystemChangedDto() {
+    return toDto(null);
+  }
+
   public QProfileChangeDto toDto(@Nullable String userUuid) {
     QProfileChangeDto dto = new QProfileChangeDto();
     dto.setChangeType(type.name());
@@ -130,9 +145,6 @@ public class ActiveRuleChange {
     if (StringUtils.isNotEmpty(severity)) {
       data.put("severity", severity);
     }
-    if (inheritance != null) {
-      data.put("inheritance", inheritance.name());
-    }
     dto.setData(data);
     return dto;
   }
@@ -146,6 +158,7 @@ public class ActiveRuleChange {
       .add("severity", severity)
       .add("inheritance", inheritance)
       .add("parameters", parameters)
+      .add("prioritizedRule", prioritizedRule)
       .toString();
   }
 }

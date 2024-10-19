@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,23 +28,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.sarif.Sarif210;
+import org.sonar.api.scanner.sensor.ProjectSensor;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.sarif.SarifSerializer;
+import org.sonar.sarif.pojo.SarifSchema210;
+
+import static java.lang.String.format;
 
 @ScannerSide
-public class SarifIssuesImportSensor implements Sensor {
+public class SarifIssuesImportSensor implements ProjectSensor {
 
-  private static final Logger LOG = Loggers.get(SarifIssuesImportSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SarifIssuesImportSensor.class);
   static final String SARIF_REPORT_PATHS_PROPERTY_KEY = "sonar.sarifReportPaths";
 
   private final SarifSerializer sarifSerializer;
@@ -81,6 +85,8 @@ public class SarifIssuesImportSensor implements Sensor {
       try {
         SarifImportResults sarifImportResults = processReport(context, reportPath);
         filePathToImportResults.put(reportPath, sarifImportResults);
+      } catch (NoSuchFileException e) {
+        throw MessageException.of(format("SARIF report file not found: %s", e.getFile()));
       } catch (Exception exception) {
         LOG.warn("Failed to process SARIF report from file '{}', error: '{}'", reportPath, exception.getMessage());
       }
@@ -92,15 +98,24 @@ public class SarifIssuesImportSensor implements Sensor {
     return Arrays.stream(config.getStringArray(SARIF_REPORT_PATHS_PROPERTY_KEY)).collect(Collectors.toSet());
   }
 
-  private SarifImportResults processReport(SensorContext context, String reportPath) {
+  private SarifImportResults processReport(SensorContext context, String reportPath) throws NoSuchFileException {
     LOG.debug("Importing SARIF issues from '{}'", reportPath);
     Path reportFilePath = context.fileSystem().resolvePath(reportPath).toPath();
-    Sarif210 sarifReport = sarifSerializer.deserialize(reportFilePath);
+    SarifSchema210 sarifReport = sarifSerializer.deserialize(reportFilePath);
     return sarifImporter.importSarif(sarifReport);
   }
 
   private static void displayResults(String filePath, SarifImportResults sarifImportResults) {
-    LOG.info("File {}: successfully imported {} vulnerabilities spread in {} runs. {} failed run(s).",
-      filePath, sarifImportResults.getSuccessFullyImportedIssues(), sarifImportResults.getSuccessFullyImportedRuns(), sarifImportResults.getFailedRuns());
+    if (sarifImportResults.getFailedRuns() > 0 && sarifImportResults.getSuccessFullyImportedRuns() > 0) {
+      LOG.warn("File {}: {} run(s) could not be imported (see warning above) and {} run(s) successfully imported ({} vulnerabilities in total).",
+        filePath, sarifImportResults.getFailedRuns(), sarifImportResults.getSuccessFullyImportedRuns(), sarifImportResults.getSuccessFullyImportedIssues());
+
+    } else if (sarifImportResults.getFailedRuns() > 0) {
+      LOG.warn("File {}: {} run(s) could not be imported (see warning above).",
+        filePath, sarifImportResults.getFailedRuns());
+    } else {
+      LOG.info("File {}: {} run(s) successfully imported ({} vulnerabilities in total).",
+        filePath, sarifImportResults.getSuccessFullyImportedRuns(), sarifImportResults.getSuccessFullyImportedIssues());
+    }
   }
 }

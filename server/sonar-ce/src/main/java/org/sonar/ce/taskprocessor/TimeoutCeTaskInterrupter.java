@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,9 @@ package org.sonar.ce.taskprocessor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskInterruptedException;
 import org.sonar.ce.task.CeTaskTimeoutException;
@@ -41,6 +42,7 @@ import static java.lang.String.format;
  * </ul>
  */
 public class TimeoutCeTaskInterrupter extends SimpleCeTaskInterrupter {
+  private static final Logger LOG = LoggerFactory.getLogger(TimeoutCeTaskInterrupter.class);
   private final long taskTimeoutThreshold;
   private final CeWorkerController ceWorkerController;
   private final System2 system2;
@@ -48,7 +50,7 @@ public class TimeoutCeTaskInterrupter extends SimpleCeTaskInterrupter {
 
   public TimeoutCeTaskInterrupter(long taskTimeoutThreshold, CeWorkerController ceWorkerController, System2 system2) {
     checkArgument(taskTimeoutThreshold >= 1, "threshold must be >= 1");
-    Loggers.get(TimeoutCeTaskInterrupter.class).info("Compute Engine Task timeout enabled: {} ms", taskTimeoutThreshold);
+    LOG.info("Compute Engine Task timeout enabled: {} ms", taskTimeoutThreshold);
 
     this.taskTimeoutThreshold = taskTimeoutThreshold;
     this.ceWorkerController = ceWorkerController;
@@ -85,9 +87,11 @@ public class TimeoutCeTaskInterrupter extends SimpleCeTaskInterrupter {
     long now = system2.now();
     Long existingTimestamp = startTimestampByCeTaskUuid.put(ceTask.getUuid(), now);
     if (existingTimestamp != null) {
-      Loggers.get(TimeoutCeTaskInterrupter.class)
-        .warn("Notified of start of execution of task %s but start had already been recorded at %s. Recording new start at %s",
-          ceTask.getUuid(), existingTimestamp, now);
+      LOG.warn(
+        "Notified of start of execution of task {} but start had already been recorded at {}. Recording new start at {}",
+        ceTask.getUuid(),
+        existingTimestamp,
+        now);
     }
   }
 
@@ -95,8 +99,7 @@ public class TimeoutCeTaskInterrupter extends SimpleCeTaskInterrupter {
   public void onEnd(CeTask ceTask) {
     Long startTimestamp = startTimestampByCeTaskUuid.remove(ceTask.getUuid());
     if (startTimestamp == null) {
-      Loggers.get(TimeoutCeTaskInterrupter.class)
-        .warn("Notified of end of execution of task %s but start wasn't recorded", ceTask.getUuid());
+      LOG.warn("Notified of end of execution of task {} but start wasn't recorded", ceTask.getUuid());
     }
   }
 

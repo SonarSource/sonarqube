@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.server.setting.ws;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
@@ -31,37 +32,32 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class ResetAction implements SettingsWsAction {
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final SettingsUpdater settingsUpdater;
   private final UserSession userSession;
   private final PropertyDefinitions definitions;
   private final SettingValidations validations;
 
-  public ResetAction(DbClient dbClient, ComponentFinder componentFinder, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions,
-                     SettingValidations validations) {
+  public ResetAction(DbClient dbClient, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions, SettingValidations validations) {
     this.dbClient = dbClient;
     this.settingsUpdater = settingsUpdater;
     this.userSession = userSession;
-    this.componentFinder = componentFinder;
     this.definitions = definitions;
     this.validations = validations;
   }
@@ -78,8 +74,10 @@ public class ResetAction implements SettingsWsAction {
         "</ul>")
       .setSince("6.1")
       .setChangelog(
+        new Change("10.1", "Param 'component' now only accept keys for projects, applications, portfolios or subportfolios"),
+        new Change("10.1", format("Internal parameters '%s' and '%s' were removed", PARAM_BRANCH, PARAM_PULL_REQUEST)),
         new Change("8.8", "Deprecated parameter 'componentKey' has been removed"),
-        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
+        new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.1", "The settings defined in conf/sonar.properties are read-only and can't be changed"))
       .setPost(true)
       .setHandler(this);
@@ -89,36 +87,26 @@ public class ResetAction implements SettingsWsAction {
       .setExampleValue("sonar.links.scm,sonar.debt.hoursInDay")
       .setRequired(true);
     action.createParam(PARAM_COMPONENT)
-      .setDescription("Component key")
+      .setDescription("Component key. Only keys for projects, applications, portfolios or subportfolios are accepted.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true)
-      .setSince("6.6");
-    action.createParam(PARAM_PULL_REQUEST)
-      .setDescription("Pull request id")
-      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
-      .setInternal(true)
-      .setSince("7.1");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ResetRequest resetRequest = toWsRequest(request);
-      Optional<ComponentDto> component = getComponent(dbSession, resetRequest);
-      checkPermissions(component);
+      Optional<EntityDto> entity = getEntity(dbSession, resetRequest);
+      checkPermissions(entity);
       resetRequest.getKeys().forEach(key -> {
         SettingsWsSupport.validateKey(key);
-        SettingData data = new SettingData(key, emptyList(), component.orElse(null));
-        List.of(validations.scope(), validations.qualifier())
-          .forEach(validation -> validation.accept(data));
+        SettingData data = new SettingData(key, emptyList(), entity.orElse(null));
+        validations.validateScope(data);
+        validations.validateQualifier(data);
       });
 
       List<String> keys = getKeys(resetRequest);
-      if (component.isPresent()) {
-        settingsUpdater.deleteComponentSettings(dbSession, component.get(), keys);
+      if (entity.isPresent()) {
+        settingsUpdater.deleteComponentSettings(dbSession, entity.get(), keys);
       } else {
         settingsUpdater.deleteGlobalSettings(dbSession, keys);
       }
@@ -133,68 +121,45 @@ public class ResetAction implements SettingsWsAction {
         PropertyDefinition definition = definitions.get(key);
         return definition != null ? definition.key() : key;
       })
-      .collect(MoreCollectors.toSet()));
+      .collect(Collectors.toSet()));
   }
 
   private static ResetRequest toWsRequest(Request request) {
     return new ResetRequest()
       .setKeys(request.mandatoryParamAsStrings(PARAM_KEYS))
-      .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .setPullRequest(request.param(PARAM_PULL_REQUEST));
+      .setEntity(request.param(PARAM_COMPONENT));
   }
 
-  private Optional<ComponentDto> getComponent(DbSession dbSession, ResetRequest request) {
-    String componentKey = request.getComponent();
+  private Optional<EntityDto> getEntity(DbSession dbSession, ResetRequest request) {
+    String componentKey = request.getEntity();
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, request.getBranch(), request.getPullRequest()));
+
+    return Optional.of(dbClient.entityDao().selectByKey(dbSession, componentKey)
+      .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey))));
   }
 
-  private void checkPermissions(Optional<ComponentDto> component) {
+  private void checkPermissions(Optional<EntityDto> component) {
     if (component.isPresent()) {
-      userSession.checkComponentPermission(UserRole.ADMIN, component.get());
+      userSession.checkEntityPermission(UserRole.ADMIN, component.get());
     } else {
       userSession.checkIsSystemAdministrator();
     }
   }
 
   private static class ResetRequest {
+    private String entity = null;
+    private List<String> keys = null;
 
-    private String branch;
-    private String pullRequest;
-    private String component;
-    private List<String> keys;
-
-    public ResetRequest setBranch(@Nullable String branch) {
-      this.branch = branch;
+    public ResetRequest setEntity(@Nullable String entity) {
+      this.entity = entity;
       return this;
     }
 
     @CheckForNull
-    public String getBranch() {
-      return branch;
-    }
-
-    public ResetRequest setPullRequest(@Nullable String pullRequest) {
-      this.pullRequest = pullRequest;
-      return this;
-    }
-
-    @CheckForNull
-    public String getPullRequest() {
-      return pullRequest;
-    }
-
-    public ResetRequest setComponent(@Nullable String component) {
-      this.component = component;
-      return this;
-    }
-
-    @CheckForNull
-    public String getComponent() {
-      return component;
+    public String getEntity() {
+      return entity;
     }
 
     public ResetRequest setKeys(List<String> keys) {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.app.ProcessCommandWrapper;
@@ -30,20 +30,22 @@ import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.plugins.DetectPluginChange;
 import org.sonar.server.plugins.PluginConsentVerifier;
-import org.sonar.server.qualitygate.ProjectsInWarningDaemon;
 import org.sonar.server.qualitygate.RegisterQualityGates;
+import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsertImpl;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileLoader;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdateImpl;
 import org.sonar.server.qualityprofile.builtin.BuiltInQualityProfilesUpdateListener;
-import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.AdvancedRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.LegacyHotspotRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.LegacyIssueRuleDescriptionSectionsGenerator;
-import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
 import org.sonar.server.rule.WebServerRuleFinder;
-import org.sonar.server.startup.GeneratePluginIndex;
+import org.sonar.server.rule.registration.NewRuleCreator;
+import org.sonar.server.rule.registration.QualityProfileChangesUpdater;
+import org.sonar.server.rule.registration.RulesKeyVerifier;
+import org.sonar.server.rule.registration.RulesRegistrant;
+import org.sonar.server.rule.registration.StartupRuleUpdater;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RegisterPlugins;
@@ -61,19 +63,23 @@ public class PlatformLevelStartup extends PlatformLevel {
 
   @Override
   protected void configureLevel() {
-    add(GeneratePluginIndex.class,
-      ServerLifecycleNotifier.class);
+    add(ServerLifecycleNotifier.class);
 
     addIfStartupLeader(
       IndexerStartupTask.class);
-    addIfStartupLeaderAndPluginsChanged(
-      RegisterMetrics.class,
-      RegisterQualityGates.class,
+    addIfStartupLeader(
       RuleDescriptionSectionsGeneratorResolver.class,
       AdvancedRuleDescriptionSectionsGenerator.class,
       LegacyHotspotRuleDescriptionSectionsGenerator.class,
       LegacyIssueRuleDescriptionSectionsGenerator.class,
-      RegisterRules.class,
+      RulesRegistrant.class,
+      NewRuleCreator.class,
+      RulesKeyVerifier.class,
+      StartupRuleUpdater.class,
+      QualityProfileChangesUpdater.class);
+    addIfStartupLeaderAndPluginsChanged(
+      RegisterMetrics.class,
+      RegisterQualityGates.class,
       BuiltInQProfileLoader.class);
     addIfStartupLeader(
       BuiltInQualityProfilesUpdateListener.class,
@@ -91,7 +97,7 @@ public class PlatformLevelStartup extends PlatformLevel {
       // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefore it
       // must be started after all the other startup tasks
       RegisterServletFilters.class
-      );
+    );
   }
 
   /**
@@ -126,12 +132,10 @@ public class PlatformLevelStartup extends PlatformLevel {
       protected void doPrivileged() {
         PlatformLevelStartup.super.start();
         getOptional(IndexerStartupTask.class).ifPresent(IndexerStartupTask::execute);
-        // Need to be executed after indexing as it executes an ES query
-        get(ProjectsInWarningDaemon.class).notifyStart();
         get(ServerLifecycleNotifier.class).notifyStart();
         get(ProcessCommandWrapper.class).notifyOperational();
         get(WebServerRuleFinder.class).stopCaching();
-        Loggers.get(PlatformLevelStartup.class)
+        LoggerFactory.getLogger(PlatformLevelStartup.class)
           .info("Running {} Edition", get(PlatformEditionProvider.class).get().map(EditionProvider.Edition::getLabel).orElse(""));
         get(DefaultAdminCredentialsVerifierImpl.class).runAtStart();
       }

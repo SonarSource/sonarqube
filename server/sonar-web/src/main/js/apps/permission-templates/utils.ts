@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,14 +37,14 @@ export function sortPermissions(permissions: Permission[]) {
 
 export function mergePermissionsToTemplates(
   permissionTemplates: PermissionTemplate[],
-  basePermissions: Permission[]
+  basePermissions: Permission[],
 ): PermissionTemplate[] {
   return permissionTemplates.map((permissionTemplate) => {
     // it's important to keep the order of the permission template's permissions
     // the same as the order of base permissions
     const permissions = basePermissions.map((basePermission) => {
       const projectPermission = permissionTemplate.permissions.find(
-        (p) => p.key === basePermission.key
+        (p) => p.key === basePermission.key,
       );
       return { usersCount: 0, groupsCount: 0, ...basePermission, ...projectPermission };
     });
@@ -55,7 +55,7 @@ export function mergePermissionsToTemplates(
 
 export function mergeDefaultsToTemplates(
   permissionTemplates: PermissionTemplate[],
-  defaultTemplates: Array<{ templateId: string; qualifier: string }> = []
+  defaultTemplates: Array<{ qualifier: string; templateId: string }> = [],
 ): PermissionTemplate[] {
   return permissionTemplates.map((permissionTemplate) => {
     const defaultFor: string[] = [];

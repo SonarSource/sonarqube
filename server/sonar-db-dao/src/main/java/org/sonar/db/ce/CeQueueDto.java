@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,8 @@ package org.sonar.db.ce;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentDto;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 
 public class CeQueueDto {
 
@@ -37,20 +34,18 @@ public class CeQueueDto {
   private String uuid;
   private String taskType;
   /**
-   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
-   * at the same time as {@link #mainComponentUuid}.
+   * Can be {@code null} when task is not associated to any data in the components table, but must always be non {@code null}
+   * at the same time as {@link #entityUuid}.
    * <p>
-   * The component uuid of a any component (project or not) is its own UUID.
+   * The component uuid of any component is its own UUID.
    */
   private String componentUuid;
   /**
-   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
+   * Can be {@code null} when task is not associated to any entity, but must always be non {@code null}
    * at the same time as {@link #componentUuid}.
    * <p>
-   * The main component uuid of the main branch of project is its own UUID. For other branches of a project, it is the
-   * project UUID of the main branch of that project ({@link ComponentDto#getMainBranchProjectUuid()}).
    */
-  private String mainComponentUuid;
+  private String entityUuid;
   private Status status;
   private String submitterUuid;
   /**
@@ -79,21 +74,6 @@ public class CeQueueDto {
     return this;
   }
 
-  /**
-   * Helper methods which sets both {@link #componentUuid} and {@link #mainComponentUuid} from the specified
-   * {@link ComponentDto}.
-   */
-  public CeQueueDto setComponent(@Nullable ComponentDto component) {
-    if (component == null) {
-      this.componentUuid = null;
-      this.mainComponentUuid = null;
-    } else {
-      this.componentUuid = requireNonNull(component.uuid());
-      this.mainComponentUuid = firstNonNull(component.getMainBranchProjectUuid(), component.uuid());
-    }
-    return this;
-  }
-
   @CheckForNull
   public String getComponentUuid() {
     return componentUuid;
@@ -106,13 +86,13 @@ public class CeQueueDto {
   }
 
   @CheckForNull
-  public String getMainComponentUuid() {
-    return mainComponentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
-  public CeQueueDto setMainComponentUuid(@Nullable String s) {
-    checkUuid(s, "MAIN_COMPONENT_UUID");
-    this.mainComponentUuid = s;
+  public CeQueueDto setEntityUuid(@Nullable String s) {
+    checkUuid(s, "ENTITY_UUID");
+    this.entityUuid = s;
     return this;
   }
 
@@ -134,7 +114,7 @@ public class CeQueueDto {
   }
 
   public CeQueueDto setTaskType(String s) {
-    checkArgument(s.length() <= 15, "Value of task type is too long: %s", s);
+    checkArgument(s.length() <= 40, "Value of task type is too long: %s", s);
     this.taskType = s;
     return this;
   }
@@ -193,7 +173,7 @@ public class CeQueueDto {
       "uuid='" + uuid + '\'' +
       ", taskType='" + taskType + '\'' +
       ", componentUuid='" + componentUuid + '\'' +
-      ", mainComponentUuid='" + mainComponentUuid + '\'' +
+      ", entityUuid='" + entityUuid + '\'' +
       ", status=" + status +
       ", submitterLogin='" + submitterUuid + '\'' +
       ", workerUuid='" + workerUuid + '\'' +

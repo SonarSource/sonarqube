@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,62 +17,64 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
 import { OSs } from '../../types';
 import { quote } from '../../utils';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface ExecScannerProps {
-  component: Component;
   baseUrl: string;
+  cfamily?: boolean;
+  component: Component;
   isLocal: boolean;
   os: OSs;
   token: string;
-  cfamily?: boolean;
 }
 
 export default function ExecScanner(props: ExecScannerProps) {
   const { baseUrl, os, isLocal, component, token, cfamily } = props;
+
+  const docUrl = useDocUrl(DocLink.SonarScanner);
 
   const q = quote(os);
   const command = [
     os === OSs.Windows ? 'sonar-scanner.bat' : 'sonar-scanner',
     '-D' + q(`sonar.projectKey=${component.key}`),
     '-D' + q('sonar.sources=.'),
-    cfamily ? '-D' + q('sonar.cfamily.build-wrapper-output=bw-output') : undefined,
+    cfamily
+      ? '-D' + q('sonar.cfamily.compile-commands=bw-output/compile_commands.json')
+      : undefined,
     '-D' + q(`sonar.host.url=${baseUrl}`),
-    isLocal ? '-D' + q(`sonar.login=${token}`) : undefined,
+    isLocal ? '-D' + q(`sonar.token=${token}`) : undefined,
   ];
 
   return (
     <div>
-      <h4 className="big-spacer-top spacer-bottom">
+      <SubHeading className="sw-mt-4 sw-mb-2">
         {translate('onboarding.analysis.sq_scanner.execute')}
-      </h4>
+      </SubHeading>
       <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
-        {(transformedMessage) => <p className="spacer-bottom markdown">{transformedMessage}</p>}
+        {(transformedMessage) => <p className="sw-mb-2">{transformedMessage}</p>}
       </InstanceMessage>
-      <CodeSnippet isOneLine={os === OSs.Windows} snippet={command} />
-      <p className="big-spacer-top markdown">
+      <CodeSnippet className="sw-p-4" isOneLine={os === OSs.Windows} snippet={command} />
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.sq_scanner.docs')}
           id="onboarding.analysis.sq_scanner.docs"
           values={{
-            link: (
-              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-                {translate('onboarding.analysis.sq_scanner.docs_link')}
-              </DocLink>
-            ),
+            link: <Link to={docUrl}>{translate('onboarding.analysis.sq_scanner.docs_link')}</Link>,
           }}
         />
       </p>
-      <DoneNextSteps component={component} />
+      <DoneNextSteps />
     </div>
   );
 }

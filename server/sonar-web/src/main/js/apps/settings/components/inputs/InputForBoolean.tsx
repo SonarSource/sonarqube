@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note, Switch } from 'design-system';
 import * as React from 'react';
-import Toggle from '../../../../components/controls/Toggle';
 import { translate } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps } from '../../utils';
 
@@ -26,12 +26,22 @@ interface Props extends DefaultSpecializedInputProps {
   value: string | boolean | undefined;
 }
 
-export default function InputForBoolean({ onChange, name, value }: Props) {
-  const displayedValue = value != null ? value : false;
+function InputForBoolean(
+  { onChange, name, value, ...other }: Readonly<Props>,
+  ref: React.ForwardedRef<HTMLButtonElement>,
+) {
+  const toggleValue = getToggleValue(value != null ? value : false);
+
   return (
-    <div className="display-inline-block text-top">
-      <Toggle name={name} onChange={onChange} value={displayedValue} />
-      {value == null && <span className="spacer-left note">{translate('settings.not_set')}</span>}
+    <div className="sw-flex sw-items-center">
+      <Switch name={name} onChange={onChange} ref={ref} value={toggleValue} {...other} />
+      {value == null && <Note className="sw-ml-2">{translate('settings.not_set')}</Note>}
     </div>
   );
 }
+
+function getToggleValue(value: string | boolean) {
+  return typeof value === 'string' ? value === 'true' : value;
+}
+
+export default React.forwardRef(InputForBoolean);

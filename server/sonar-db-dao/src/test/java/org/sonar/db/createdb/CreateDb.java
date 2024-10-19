@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,10 +24,10 @@ import com.sonar.orchestrator.db.DatabaseClient;
 import com.sonar.orchestrator.db.DatabaseFactory;
 import com.sonar.orchestrator.db.DefaultDatabase;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.SQDatabase;
 
 public class CreateDb {
@@ -37,13 +37,14 @@ public class CreateDb {
       Settings settings = new MapSettings();
       configuration.asMap().forEach(settings::setProperty);
       logJdbcSettings(settings);
-      SQDatabase.newDatabase(settings, true).start();
+      new SQDatabase.Builder().createSchema(true).withSettings(settings).build().start();
     });
   }
 
   private static void createDb(Consumer<Configuration> execute) {
     Configuration configuration = Configuration.builder()
       .addSystemProperties()
+      .addEnvVariables()
       .setProperty("orchestrator.keepDatabase", "false")
       .build();
 
@@ -60,7 +61,7 @@ public class CreateDb {
   }
 
   private static void logJdbcSettings(Settings settings) {
-    Logger logger = Loggers.get(CreateDb.class);
+    Logger logger = LoggerFactory.getLogger(CreateDb.class);
     for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
       logger.info(key + ": " + settings.getString(key));
     }

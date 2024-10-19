@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { cloneDeep, debounce, groupBy } from 'lodash';
+import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
+import { cloneDeep, debounce, groupBy, isEqual } from 'lodash';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
 import { dismissNotice } from '../../api/users';
@@ -28,33 +29,27 @@ import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
-import ScreenPositionHelper from '../common/ScreenPositionHelper';
-import BoxedTabs, { getTabId, getTabPanelId } from '../controls/BoxedTabs';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
-import './style.css';
 
 interface RuleTabViewerProps extends CurrentUserContextInterface {
-  ruleDetails: RuleDetails;
-  extendedDescription?: string;
-  ruleDescriptionContextKey?: string;
-  codeTabContent?: React.ReactNode;
-  scrollInTab?: boolean;
   location: Location;
+  ruleDetails: RuleDetails;
 }
 
 interface State {
-  tabs: Tab[];
-  selectedTab?: Tab;
   displayEducationalPrinciplesNotification?: boolean;
   educationalPrinciplesNotificationHasBeenDismissed?: boolean;
+  selectedTab?: Tab;
+  tabs: Tab[];
 }
 
 export interface Tab {
-  key: TabKeys;
-  label: React.ReactNode;
   content: React.ReactNode;
+  counter?: number;
+  label: string;
+  value: TabKeys;
 }
 
 export enum TabKeys {
@@ -62,6 +57,7 @@ export enum TabKeys {
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how_to_fix',
   AssessTheIssue = 'assess_the_problem',
+  Activity = 'activity',
   MoreInfo = 'more_info',
 }
 
@@ -76,10 +72,12 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
   constructor(props: RuleTabViewerProps) {
     super(props);
+
     this.educationPrinciplesRef = React.createRef();
+
     this.checkIfEducationPrinciplesAreVisible = debounce(
       this.checkIfEducationPrinciplesAreVisible,
-      DEBOUNCE_FOR_SCROLL
+      DEBOUNCE_FOR_SCROLL,
     );
   }
 
@@ -90,37 +88,34 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
     const tabs = this.computeTabs(Boolean(this.state.displayEducationalPrinciplesNotification));
 
     const query = new URLSearchParams(this.props.location.search);
+
     if (query.has('why')) {
       this.setState({
-        selectedTab: tabs.find((tab) => tab.key === TabKeys.WhyIsThisAnIssue) || tabs[0],
+        selectedTab: tabs.find((tab) => tab.value === TabKeys.WhyIsThisAnIssue) ?? tabs[0],
       });
     }
   }
 
   componentDidUpdate(prevProps: RuleTabViewerProps, prevState: State) {
-    const { ruleDetails, codeTabContent, ruleDescriptionContextKey, currentUser } = this.props;
+    const { ruleDetails, currentUser } = this.props;
+
     const { selectedTab } = this.state;
 
     if (
-      prevProps.ruleDetails.key !== ruleDetails.key ||
-      prevProps.ruleDescriptionContextKey !== ruleDescriptionContextKey ||
-      prevProps.codeTabContent !== codeTabContent ||
-      prevProps.currentUser !== currentUser
+      !isEqual(prevProps.ruleDetails, ruleDetails) ||
+      !isEqual(prevProps.currentUser, currentUser)
     ) {
       this.setState((pState) =>
-        this.computeState(
-          pState,
-          prevProps.ruleDetails !== ruleDetails || prevProps.codeTabContent !== codeTabContent
-        )
+        this.computeState(pState, prevProps.ruleDetails.key !== ruleDetails.key),
       );
     }
 
-    if (selectedTab?.key === TabKeys.MoreInfo) {
+    if (selectedTab?.value === TabKeys.MoreInfo) {
       this.checkIfEducationPrinciplesAreVisible();
     }
 
     if (
-      prevState.selectedTab?.key === TabKeys.MoreInfo &&
+      prevState.selectedTab?.value === TabKeys.MoreInfo &&
       prevState.displayEducationalPrinciplesNotification &&
       prevState.educationalPrinciplesNotificationHasBeenDismissed
     ) {
@@ -143,6 +138,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
       ruleDetails.educationPrinciples.length > 0 &&
       isLoggedIn &&
       !dismissedNotices[NoticeType.EDUCATION_PRINCIPLES];
+
     const tabs = this.computeTabs(displayEducationalPrinciplesNotification);
 
     return {
@@ -154,101 +150,68 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
   computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
     const {
-      codeTabContent,
-      ruleDetails: { descriptionSections, educationPrinciples, type: ruleType },
-      ruleDescriptionContextKey,
-      extendedDescription,
+      ruleDetails: { descriptionSections, educationPrinciples, lang: ruleLanguage, type: ruleType },
     } = this.props;
 
     // As we might tamper with the description later on, we clone to avoid any side effect
     const descriptionSectionsByKey = cloneDeep(
-      groupBy(descriptionSections, (section) => section.key)
+      groupBy(descriptionSections, (section) => section.key),
     );
-
-    if (extendedDescription) {
-      if (descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]?.length > 0) {
-        // We add the extended description (htmlNote) in the first context, in case there are contexts
-        // Extended description will get reworked in future
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES][0].content +=
-          '<br/>' + extendedDescription;
-      } else {
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] = [
-          {
-            key: RuleDescriptionSections.RESOURCES,
-            content: extendedDescription,
-          },
-        ];
-      }
-    }
 
     const tabs: Tab[] = [
       {
-        key: TabKeys.WhyIsThisAnIssue,
+        content: (descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+          descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]) && (
+          <RuleDescription
+            language={ruleLanguage}
+            sections={(
+              descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ??
+              descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
+            ).concat(descriptionSectionsByKey[RuleDescriptionSections.INTRODUCTION] ?? [])}
+          />
+        ),
+        value: TabKeys.WhyIsThisAnIssue,
         label:
           ruleType === 'SECURITY_HOTSPOT'
             ? translate('coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT')
             : translate('coding_rules.description_section.title.root_cause'),
-        content: (descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
-          descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]) && (
-          <RuleDescription
-            className="padded"
-            sections={
-              descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
-              descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
-            }
-            isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
-            defaultContextKey={ruleDescriptionContextKey}
-          />
-        ),
       },
       {
-        key: TabKeys.AssessTheIssue,
-        label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
         content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
-            className="padded"
+            language={ruleLanguage}
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
           />
         ),
+        value: TabKeys.AssessTheIssue,
+        label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
       },
       {
-        key: TabKeys.HowToFixIt,
-        label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
         content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
           <RuleDescription
-            className="padded"
+            language={ruleLanguage}
             sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
-            defaultContextKey={ruleDescriptionContextKey}
           />
         ),
+        value: TabKeys.HowToFixIt,
+        label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
       },
       {
-        key: TabKeys.MoreInfo,
-        label: (
-          <>
-            {translate('coding_rules.description_section.title', TabKeys.MoreInfo)}
-            {displayEducationalPrinciplesNotification && <div className="notice-dot" />}
-          </>
-        ),
         content: ((educationPrinciples && educationPrinciples.length > 0) ||
           descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
           <MoreInfoRuleDescription
-            educationPrinciples={educationPrinciples}
-            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
             displayEducationalPrinciplesNotification={displayEducationalPrinciplesNotification}
+            educationPrinciples={educationPrinciples}
             educationPrinciplesRef={this.educationPrinciplesRef}
+            language={ruleLanguage}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
           />
         ),
+        value: TabKeys.MoreInfo,
+        label: translate('coding_rules.description_section.title', TabKeys.MoreInfo),
+        counter: displayEducationalPrinciplesNotification ? 1 : undefined,
       },
     ];
-
-    if (codeTabContent !== undefined) {
-      tabs.unshift({
-        key: TabKeys.Code,
-        label: translate('issue.tabs', TabKeys.Code),
-        content: codeTabContent,
-      });
-    }
 
     return tabs.filter((tab) => tab.content);
   };
@@ -294,12 +257,11 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
   handleSelectTabs = (currentTabKey: TabKeys) => {
     this.setState(({ tabs }) => ({
-      selectedTab: tabs.find((tab) => tab.key === currentTabKey) || tabs[0],
+      selectedTab: tabs.find((tab) => tab.value === currentTabKey) ?? tabs[0],
     }));
   };
 
   render() {
-    const { scrollInTab } = this.props;
     const { tabs, selectedTab } = this.state;
 
     if (!tabs || tabs.length === 0 || !selectedTab) {
@@ -308,42 +270,35 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
     return (
       <>
-        <div>
-          <BoxedTabs
-            className="big-spacer-top"
-            onSelect={this.handleSelectTabs}
-            selected={selectedTab.key}
-            tabs={tabs}
+        <div className="sw-mt-4">
+          <ToggleButton
+            role="tablist"
+            onChange={this.handleSelectTabs}
+            options={tabs}
+            value={selectedTab.value}
           />
         </div>
-        <ScreenPositionHelper>
-          {({ top }) => (
-            <div
-              style={{
-                // We substract the footer height with padding (80) and the main layout padding (20)
-                maxHeight: scrollInTab ? `calc(100vh - ${top + 100}px)` : 'initial',
-              }}
-              className="bordered display-flex-column"
-              role="tabpanel"
-              aria-labelledby={getTabId(selectedTab.key)}
-              id={getTabPanelId(selectedTab.key)}
-            >
-              {
-                // Preserve tabs state by always rendering all of them. Only hide them when not selected
-                tabs.map((tab) => (
-                  <div
-                    className={classNames('overflow-y-auto spacer', {
-                      hidden: tab.key !== selectedTab.key,
-                    })}
-                    key={tab.key}
-                  >
-                    {tab.content}
-                  </div>
-                ))
-              }
-            </div>
-          )}
-        </ScreenPositionHelper>
+
+        <div
+          aria-labelledby={getTabId(selectedTab.value)}
+          className="sw-flex sw-flex-col"
+          id={getTabPanelId(selectedTab.value)}
+          role="tabpanel"
+        >
+          {
+            // Preserve tabs state by always rendering all of them. Only hide them when not selected
+            tabs.map((tab) => (
+              <div
+                className={classNames({
+                  'sw-hidden': tab.value !== selectedTab.value,
+                })}
+                key={tab.value}
+              >
+                {tab.content}
+              </div>
+            ))
+          }
+        </div>
       </>
     );
   }

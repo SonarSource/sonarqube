@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,10 +27,12 @@ public class DatabaseVersion {
 
   /**
    * The minimum supported version which can be upgraded. Lower
-   * versions must be previously upgraded to LTS version.
-   * Note that the value can't be less than current LTS version.
+   * versions must be previously upgraded to LTA version.
+   * Note that the value can't be less than current LTA version.
    */
-  public static final long MIN_UPGRADE_VERSION = 4_405;
+  public static final long MIN_UPGRADE_VERSION = 6_802;
+  public static final String MIN_UPGRADE_VERSION_HUMAN_READABLE = "9.9";
+
 
   private final MigrationSteps migrationSteps;
   private final MigrationHistory migrationHistory;

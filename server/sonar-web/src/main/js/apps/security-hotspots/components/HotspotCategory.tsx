@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,32 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
-import { ButtonPlain } from '../../../components/controls/buttons';
-import ChevronDownIcon from '../../../components/icons/ChevronDownIcon';
-import ChevronUpIcon from '../../../components/icons/ChevronUpIcon';
+import styled from '@emotion/styled';
+import { Badge, HotspotRating, HotspotRatingEnum, SubnavigationAccordion } from 'design-system';
+import React, { memo } from 'react';
 import { RawHotspot } from '../../../types/security-hotspots';
 import HotspotListItem from './HotspotListItem';
 
-export interface HotspotCategoryProps {
-  categoryKey: string;
+interface HotspotCategoryProps {
   expanded: boolean;
   hotspots: RawHotspot[];
+  isLastAndIncomplete: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
-  onToggleExpand?: (categoryKey: string, value: boolean) => void;
   onLocationClick: (index: number) => void;
+  onSetExpanded: (expanded: boolean) => void;
+  rating: HotspotRatingEnum;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;
   title: string;
-  isLastAndIncomplete: boolean;
 }
 
 export default function HotspotCategory(props: HotspotCategoryProps) {
   const {
-    categoryKey,
     expanded,
+    onSetExpanded,
     hotspots,
+    onLocationClick,
+    onHotspotClick,
+    rating,
     selectedHotspot,
     title,
     isLastAndIncomplete,
@@ -56,49 +57,58 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
   const risk = hotspots[0].vulnerabilityProbability;
 
   return (
-    <div className={classNames('hotspot-category', risk)}>
-      {props.onToggleExpand ? (
-        <ButtonPlain
-          className={classNames(
-            'hotspot-category-header display-flex-space-between display-flex-center',
-            { 'contains-selected-hotspot': selectedHotspot.securityCategory === categoryKey }
-          )}
-          onClick={() => props.onToggleExpand && props.onToggleExpand(categoryKey, !expanded)}
-          aria-expanded={expanded}
-        >
-          <strong className="flex-1 spacer-right break-word">{title}</strong>
-          <span>
-            <span className="counter-badge">
-              {hotspots.length}
-              {isLastAndIncomplete && '+'}
-            </span>
-            {expanded ? (
-              <ChevronUpIcon className="big-spacer-left" />
-            ) : (
-              <ChevronDownIcon className="big-spacer-left" />
-            )}
-          </span>
-        </ButtonPlain>
-      ) : (
-        <div className="hotspot-category-header">
-          <strong className="flex-1 spacer-right break-word">{title}</strong>
-        </div>
-      )}
-      {expanded && (
-        <ul>
-          {hotspots.map((h) => (
-            <li data-hotspot-key={h.key} key={h.key}>
-              <HotspotListItem
-                hotspot={h}
-                onClick={props.onHotspotClick}
-                onLocationClick={props.onLocationClick}
-                selectedHotspotLocation={selectedHotspotLocation}
-                selected={h.key === selectedHotspot.key}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <SubnavigationAccordion
+      header={
+        <MemoizedHeader
+          hotspots={hotspots}
+          isLastAndIncomplete={isLastAndIncomplete}
+          rating={rating}
+          title={title}
+        />
+      }
+      id={`hotspot-category-${risk}`}
+      expanded={expanded}
+      onSetExpanded={onSetExpanded}
+    >
+      <ul>
+        {hotspots.map((hotspot) => (
+          <li key={hotspot.key}>
+            <HotspotListItem
+              hotspot={hotspot}
+              onClick={onHotspotClick}
+              selected={hotspot.key === selectedHotspot.key}
+              onLocationClick={onLocationClick}
+              selectedHotspotLocation={selectedHotspotLocation}
+            />
+          </li>
+        ))}
+      </ul>
+    </SubnavigationAccordion>
   );
 }
+
+type NavigationHeaderProps = Pick<
+  HotspotCategoryProps,
+  'hotspots' | 'isLastAndIncomplete' | 'rating' | 'title'
+>;
+
+function NavigationHeader(props: NavigationHeaderProps) {
+  const { hotspots, isLastAndIncomplete, rating, title } = props;
+  const counter = hotspots.length + (isLastAndIncomplete ? '+' : '');
+
+  return (
+    <SubNavigationContainer className="sw-flex sw-justify-between">
+      <div className="sw-flex sw-items-center">
+        <HotspotRating className="sw-mr-2" rating={rating} />
+        {title}
+      </div>
+      <Badge variant="counter">{counter}</Badge>
+    </SubNavigationContainer>
+  );
+}
+
+const MemoizedHeader = memo(NavigationHeader);
+
+const SubNavigationContainer = styled.div`
+  width: calc(100% - 1.5rem);
+`;

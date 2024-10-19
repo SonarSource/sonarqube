@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,13 @@ package org.sonar.server.project;
 import java.util.List;
 
 import static java.util.Arrays.stream;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public enum Visibility {
 
   PRIVATE(true, "private"),
   PUBLIC(false, "public");
 
-  private static final List<String> LABELS = stream(values()).map(Visibility::getLabel).collect(toList(values().length));
+  private static final List<String> LABELS = stream(values()).map(Visibility::getLabel).toList();
 
   private final boolean isPrivate;
   private final String label;

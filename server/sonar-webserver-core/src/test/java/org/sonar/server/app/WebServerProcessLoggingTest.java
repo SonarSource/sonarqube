@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,17 +32,23 @@ import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.joran.spi.JoranException;
 import com.google.common.collect.ImmutableList;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
+import org.assertj.core.groups.Tuple;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.LogbackJsonLayout;
@@ -53,14 +59,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
+@RunWith(DataProviderRunner.class)
 public class WebServerProcessLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   private File logDir;
-  private Props props = new Props(new Properties());
-  private WebServerProcessLogging underTest = new WebServerProcessLogging();
+  private final Props props = new Props(new Properties());
+  private final WebServerProcessLogging underTest = new WebServerProcessLogging();
 
   @Before
   public void setUp() throws IOException {
@@ -98,7 +105,10 @@ public class WebServerProcessLoggingTest {
     java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.ms.sqlserver.jdbc.DTV");
     logger.finest("Test");
     memoryAppender.stop();
-    assertThat(memoryAppender.getLogs()).hasSize(1);
+    assertThat(memoryAppender.getLogs())
+      .filteredOn(ILoggingEvent::getLoggerName, "com.ms.sqlserver.jdbc.DTV")
+      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
+      .containsOnly(new Tuple(Level.TRACE, "Test"));
   }
 
   @Test
@@ -523,6 +533,59 @@ public class WebServerProcessLoggingTest {
     Encoder<ILoggingEvent> encoder = appender.getEncoder();
     assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
     assertThat(((LayoutWrappingEncoder) encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
+  }
+
+  @DataProvider
+  public static Object[][] configuration() {
+    return new Object[][] {
+      {Map.of("sonar.deprecationLogs.loginEnabled", "true"), "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{LOGIN} %X{ENTRYPOINT} %msg%n"},
+      {Map.of("sonar.deprecationLogs.loginEnabled", "false"), "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{ENTRYPOINT} %msg%n"},
+      {Map.of(), "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{ENTRYPOINT} %msg%n"},
+    };
+  }
+
+  @Test
+  @UseDataProvider("configuration")
+  public void configure_whenJsonPropFalse_shouldConfigureDeprecatedLoggerWithPatternLayout(Map<String, String> additionalProps, String expectedPattern) {
+    props.set("sonar.log.jsonOutput", "false");
+    additionalProps.forEach(props::set);
+
+    LoggerContext context = underTest.configure(props);
+
+    Logger logger = context.getLogger("SONAR_DEPRECATION");
+    assertThat(logger.isAdditive()).isFalse();
+    Appender<ILoggingEvent> appender = logger.getAppender("file_deprecation");
+    assertThat(appender).isNotNull()
+      .isInstanceOf(FileAppender.class);
+    FileAppender<ILoggingEvent> fileAppender = (FileAppender<ILoggingEvent>) appender;
+    Encoder<ILoggingEvent> encoder = fileAppender.getEncoder();
+    assertThat(encoder).isInstanceOf(PatternLayoutEncoder.class);
+    PatternLayoutEncoder patternLayoutEncoder = (PatternLayoutEncoder) encoder;
+    assertThat(patternLayoutEncoder.getPattern()).isEqualTo(expectedPattern);
+  }
+
+  @Test
+  public void configure_whenJsonPropTrue_shouldConfigureDeprecatedLoggerWithJsonLayout() {
+    props.set("sonar.log.jsonOutput", "true");
+
+    LoggerContext context = underTest.configure(props);
+
+    Logger logger = context.getLogger("SONAR_DEPRECATION");
+    assertThat(logger.isAdditive()).isFalse();
+    Appender<ILoggingEvent> appender = logger.getAppender("file_deprecation");
+    assertThat(appender).isNotNull()
+      .isInstanceOf(FileAppender.class);
+    FileAppender<ILoggingEvent> fileAppender = (FileAppender<ILoggingEvent>) appender;
+    assertThat(fileAppender.getEncoder()).isInstanceOf(LayoutWrappingEncoder.class);
+  }
+
+  @Test
+  public void configure_shouldConfigureDeprecatedLoggerWithConsoleAppender() {
+    LoggerContext ctx = underTest.configure(props);
+
+    Logger root = ctx.getLogger("SONAR_DEPRECATION");
+    Appender<ILoggingEvent> appender = root.getAppender("CONSOLE");
+    assertThat(appender).isNotNull();
   }
 
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {

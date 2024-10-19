@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -100,6 +100,13 @@ public class InternalPropertiesImplTest {
     underTest.write(SOME_KEY, SOME_VALUE);
 
     verify(internalPropertiesDao).save(dbSession, SOME_KEY, SOME_VALUE);
+    verify(dbSession).commit();
+  }
+
+  @Test
+  public void delete_shouldCallDaoAndDeleteProperty() {
+    underTest.delete(SOME_KEY);
+    verify(internalPropertiesDao).delete(dbSession, SOME_KEY);
     verify(dbSession).commit();
   }
 

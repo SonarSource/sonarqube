@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SubTitle } from 'design-system';
+import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { WebApi } from '../../../types/types';
-import { actionsFilter, getActionKey, Query } from '../utils';
+import { Query, actionsFilter, getActionKey } from '../utils';
 import Action from './Action';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
@@ -33,32 +35,24 @@ export default function Domain({ domain, query }: Props) {
   const filteredActions = domain.actions.filter((action) => actionsFilter(query, domain, action));
 
   return (
-    <div className="web-api-domain">
-      <header className="web-api-domain-header">
-        <h2 className="web-api-domain-title">{domain.path}</h2>
+    <div>
+      <header className="sw-flex sw-items-baseline sw-gap-3">
+        <SubTitle className="sw-m-0">{domain.path}</SubTitle>
 
-        {domain.deprecatedSince && (
-          <span className="spacer-left">
-            <DeprecatedBadge since={domain.deprecatedSince} />
-          </span>
-        )}
+        {!isEmpty(domain.deprecatedSince) && <DeprecatedBadge since={domain.deprecatedSince} />}
 
-        {domain.internal && (
-          <span className="spacer-left">
-            <InternalBadge />
-          </span>
-        )}
+        {domain.internal && <InternalBadge />}
       </header>
 
-      {domain.description && (
+      {!isEmpty(domain.description) && (
         <div
-          className="web-api-domain-description markdown"
+          className="sw-mt-3 markdown"
           // Safe: comes from the backend
           dangerouslySetInnerHTML={{ __html: domain.description }}
         />
       )}
 
-      <div className="web-api-domain-actions">
+      <div className="sw-mt-4 sw-flex sw-flex-col sw-gap-4">
         {filteredActions.map((action) => (
           <Action
             action={action}

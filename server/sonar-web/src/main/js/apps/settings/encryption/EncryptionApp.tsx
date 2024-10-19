@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { checkSecretKey, generateSecretKey } from '../../../api/settings';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import EncryptionForm from './EncryptionForm';
 import GenerateSecretKeyForm from './GenerateSecretKeyForm';
@@ -55,7 +55,7 @@ export default class EncryptionApp extends React.PureComponent<{}, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -69,20 +69,26 @@ export default class EncryptionApp extends React.PureComponent<{}, State> {
 
   render() {
     const { loading, secretKey, secretKeyAvailable } = this.state;
+
     return (
-      <div className="page page-limited" id="encryption-page">
-        <Helmet defer={false} title={translate('property.category.security.encryption')} />
-        <header className="page-header">
-          <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
-          <DeferredSpinner loading={loading} />
-        </header>
+      <LargeCenteredLayout id="encryption-page">
+        <PageContentFontWrapper className="sw-my-8 sw-typo-default">
+          <Helmet defer={false} title={translate('property.category.security.encryption')} />
+          <header>
+            <Title>{translate('property.category.security.encryption')}</Title>
+            <Spinner loading={loading} />
+          </header>
 
-        {!loading && !secretKeyAvailable && (
-          <GenerateSecretKeyForm generateSecretKey={this.generateSecretKey} secretKey={secretKey} />
-        )}
+          {!loading && !secretKeyAvailable && (
+            <GenerateSecretKeyForm
+              generateSecretKey={this.generateSecretKey}
+              secretKey={secretKey}
+            />
+          )}
 
-        {secretKeyAvailable && <EncryptionForm generateSecretKey={this.generateSecretKey} />}
-      </div>
+          {secretKeyAvailable && <EncryptionForm generateSecretKey={this.generateSecretKey} />}
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

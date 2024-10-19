@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.repository.language;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.Startable;
@@ -34,17 +34,16 @@ import org.sonar.api.resources.Languages;
 @Immutable
 public class DefaultLanguagesRepository implements LanguagesRepository, Startable {
 
-  private Languages languages;
+  private final Map<String, Language> languages = new HashMap<>();
+  private final LanguagesLoader languagesLoader;
 
-  public DefaultLanguagesRepository(Languages languages) {
-    this.languages = languages;
+  public DefaultLanguagesRepository(LanguagesLoader languagesLoader) {
+    this.languagesLoader = languagesLoader;
   }
 
   @Override
   public void start() {
-    if (languages.all().length == 0) {
-      throw new IllegalStateException("No language plugins are installed.");
-    }
+    languages.putAll(languagesLoader.load());
   }
 
   /**
@@ -53,8 +52,7 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
   @Override
   @CheckForNull
   public Language get(String languageKey) {
-    org.sonar.api.resources.Language language = languages.get(languageKey);
-    return language != null ? new Language(language.getKey(), language.getName(), language.publishAllFiles(), language.getFileSuffixes()) : null;
+    return languages.get(languageKey);
   }
 
   /**
@@ -62,17 +60,13 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
    */
   @Override
   public Collection<Language> all() {
-    org.sonar.api.resources.Language[] all = languages.all();
-    Collection<Language> result = new ArrayList<>(all.length);
-    for (org.sonar.api.resources.Language language : all) {
-      result.add(new Language(language.getKey(), language.getName(), language.publishAllFiles(), language.getFileSuffixes()));
-    }
-    return result;
+    return languages.values();
   }
 
   @Override
   public void stop() {
     // nothing to do
   }
+
 
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -40,8 +40,6 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ProjectServerSettings;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
-
-import static java.util.stream.Collectors.toList;
 
 public class AnalysisContextReportPublisher {
 
@@ -124,7 +122,7 @@ public class AnalysisContextReportPublisher {
   }
 
   private void writeScannerProps(BufferedWriter fileWriter, Map<String, String> props) throws IOException {
-    for (Map.Entry<String, String> prop : props.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).collect(toList())) {
+    for (Map.Entry<String, String> prop : props.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).toList()) {
       if (isSystemProp(prop.getKey()) || isEnvVariable(prop.getKey()) || !isSqProp(prop.getKey())) {
         continue;
       }

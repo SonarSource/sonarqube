@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectexport.rule;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.StreamWriter;
@@ -52,7 +52,7 @@ public class ExportRuleStep implements ComputationStep {
         writer.write(ruleMessage);
         count++;
       }
-      Loggers.get(getClass()).debug("{} rules exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} rules exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Rule Export failed after processing %d rules successfully", count), e);
     }

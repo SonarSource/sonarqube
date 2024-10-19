@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,29 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { differenceInDays } from 'date-fns';
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { IntlShape } from 'react-intl';
-import { ComponentMeasure, Period } from '../../../../types/types';
-import { LeakPeriodLegend } from '../LeakPeriodLegend';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { mockComponentMeasure } from '../../../../helpers/mocks/component';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { Period } from '../../../../types/types';
+import LeakPeriodLegend, { LeakPeriodLegendProps } from '../LeakPeriodLegend';
 
 jest.mock('date-fns', () => {
   const actual = jest.requireActual('date-fns');
   return { ...actual, differenceInDays: jest.fn().mockReturnValue(10) };
 });
-
-const PROJECT = {
-  key: 'foo',
-  name: 'Foo',
-  qualifier: 'TRK',
-};
-
-const APP = {
-  key: 'bar',
-  name: 'Bar',
-  qualifier: 'APP',
-};
 
 const PERIOD: Period = {
   date: '2017-05-16T13:50:02+0200',
@@ -55,26 +44,27 @@ const PERIOD_DAYS: Period = {
   parameter: '18',
 };
 
-it('should render correctly', () => {
-  expect(getWrapper(PROJECT, PERIOD)).toMatchSnapshot();
-  expect(getWrapper(PROJECT, PERIOD_DAYS)).toMatchSnapshot();
+it('renders correctly for project', () => {
+  renderLeakPeriodLegend();
+  expect(screen.getByText('overview.period.previous_version.6,4')).toBeInTheDocument();
+  expect(screen.getByText('component_measures.leak_legend.new_code')).toBeInTheDocument();
 });
 
-it('should render correctly for APP', () => {
-  expect(getWrapper(APP, PERIOD)).toMatchSnapshot();
+it('renders correctly for application', () => {
+  renderLeakPeriodLegend({
+    component: mockComponentMeasure(undefined, { qualifier: ComponentQualifier.Application }),
+  });
+  expect(screen.getByText('issues.new_code_period')).toBeInTheDocument();
 });
 
-it('should render a more precise date', () => {
-  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
-  expect(getWrapper(PROJECT, PERIOD)).toMatchSnapshot();
+it('renders correctly with big period', () => {
+  renderLeakPeriodLegend({ period: PERIOD_DAYS });
+  expect(screen.getByText('component_measures.leak_legend.new_code')).toBeInTheDocument();
+  expect(screen.queryByText('overview.period.previous_version.6,4')).not.toBeInTheDocument();
 });
 
-function getWrapper(component: ComponentMeasure, period: Period) {
-  return shallow(
-    <LeakPeriodLegend
-      component={component}
-      intl={{ formatDate: (x: any) => x } as IntlShape}
-      period={period}
-    />
+function renderLeakPeriodLegend(overrides: Partial<LeakPeriodLegendProps> = {}) {
+  return renderComponent(
+    <LeakPeriodLegend component={mockComponentMeasure()} period={PERIOD} {...overrides} />,
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import { MeasurePageView } from '../../../types/measures';
 import { ComponentMeasure } from '../../../types/types';
 import * as utils from '../utils';
 
@@ -27,7 +28,7 @@ const MEASURES = [
     metric: {
       id: '1',
       key: MetricKey.lines_to_cover,
-      type: 'INT',
+      type: MetricType.Integer,
       name: 'Lines to Cover',
       domain: 'Coverage',
     },
@@ -39,7 +40,7 @@ const MEASURES = [
     metric: {
       id: '2',
       key: MetricKey.coverage,
-      type: 'PERCENT',
+      type: MetricType.Percent,
       name: 'Coverage',
       domain: 'Coverage',
     },
@@ -51,7 +52,7 @@ const MEASURES = [
     metric: {
       id: '3',
       key: MetricKey.duplicated_lines_density,
-      type: 'PERCENT',
+      type: MetricType.Percent,
       name: 'Duplicated Lines (%)',
       domain: 'Duplications',
     },
@@ -65,16 +66,15 @@ describe('filterMeasures', () => {
   it('should exclude banned measures', () => {
     expect(
       utils.filterMeasures([
-        { metric: { id: '1', key: MetricKey.bugs, name: 'Bugs', type: 'INT' } },
+        { metric: { key: MetricKey.open_issues, name: 'Bugs', type: MetricType.Integer } },
         {
           metric: {
-            id: '2',
             key: MetricKey.critical_violations,
             name: 'Critical Violations',
-            type: 'INT',
+            type: MetricType.Integer,
           },
         },
-      ])
+      ]),
     ).toHaveLength(1);
   });
 });
@@ -85,24 +85,22 @@ describe('sortMeasures', () => {
       utils.sortMeasures('Reliability', [
         {
           metric: {
-            id: '1',
             key: MetricKey.reliability_remediation_effort,
-            name: 'new_bugs',
-            type: 'INT',
+            name: 'New bugs',
+            type: MetricType.Integer,
           },
         },
         {
           metric: {
-            id: '2',
             key: MetricKey.new_reliability_remediation_effort,
-            name: 'bugs',
-            type: 'INT',
+            name: 'Bugs',
+            type: MetricType.Integer,
           },
         },
-        { metric: { id: '3', key: MetricKey.new_bugs, name: 'new_bugs', type: 'INT' } },
-        { metric: { id: '4', key: MetricKey.bugs, name: 'bugs', type: 'INT' } },
+        { metric: { key: MetricKey.new_bugs, name: 'New bugs', type: MetricType.Integer } },
+        { metric: { key: MetricKey.bugs, name: 'Bugs', type: MetricType.Integer } },
         'overall_category',
-      ])
+      ]),
     ).toMatchSnapshot();
   });
 });
@@ -125,7 +123,7 @@ describe('parseQuery', () => {
       view: utils.DEFAULT_VIEW,
     });
     expect(
-      utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree', asc: 'false' })
+      utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree', asc: 'false' }),
     ).toEqual({
       metric: 'foo',
       selected: 'bar',
@@ -142,17 +140,19 @@ describe('parseQuery', () => {
 
 describe('serializeQuery', () => {
   it('should correctly serialize the query', () => {
-    expect(utils.serializeQuery({ metric: '', selected: '', view: 'list' })).toEqual({
+    expect(utils.serializeQuery({ metric: '', selected: '', view: MeasurePageView.list })).toEqual({
       view: 'list',
     });
-    expect(utils.serializeQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
+    expect(
+      utils.serializeQuery({ metric: 'foo', selected: 'bar', view: MeasurePageView.tree }),
+    ).toEqual({
       metric: 'foo',
       selected: 'bar',
     });
   });
 
   it('should be memoized', () => {
-    const query: utils.Query = { metric: 'foo', selected: 'bar', view: 'tree' };
+    const query: utils.Query = { metric: 'foo', selected: 'bar', view: MeasurePageView.tree };
     expect(utils.serializeQuery(query)).toBe(utils.serializeQuery(query));
   });
 });
@@ -165,17 +165,17 @@ describe('extract measure', () => {
       name: 'TEST',
       measures: [
         {
-          metric: 'alert_status',
+          metric: MetricKey.alert_status,
           value: '3.2',
           period: { index: 1, value: '0.0' },
         },
         {
-          metric: 'releasability_rating',
+          metric: MetricKey.releasability_rating,
           value: '3.2',
           period: { index: 1, value: '0.0' },
         },
         {
-          metric: 'releasability_effort',
+          metric: MetricKey.releasability_effort,
           value: '3.2',
           period: { index: 1, value: '0.0' },
         },
@@ -196,7 +196,7 @@ describe('extract measure', () => {
     const measure = utils.banQualityGateMeasure(componentBuilder(ComponentQualifier.File));
     expect(measure).toHaveLength(2);
     measure.forEach(({ metric }) => {
-      expect(['releasability_rating', 'releasability_effort']).toContain(metric);
+      expect([MetricKey.releasability_rating, MetricKey.releasability_effort]).toContain(metric);
     });
   });
 });

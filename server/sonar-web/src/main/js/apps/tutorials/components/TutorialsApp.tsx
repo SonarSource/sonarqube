@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface TutorialsAppProps {
   component: Component;
   currentUser: CurrentUser;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function TutorialsApp(props: TutorialsAppProps) {
-  const { component, currentUser, projectBinding } = props;
+  const { component, currentUser } = props;
 
   if (!isLoggedIn(currentUser)) {
     handleRequiredAuthentication();
@@ -41,13 +40,11 @@ export function TutorialsApp(props: TutorialsAppProps) {
   }
 
   return (
-    <div className="page page-limited">
-      <TutorialSelection
-        component={component}
-        currentUser={currentUser}
-        projectBinding={projectBinding}
-      />
-    </div>
+    <LargeCenteredLayout className="sw-pt-8">
+      <PageContentFontWrapper>
+        <TutorialSelection component={component} currentUser={currentUser} />
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 

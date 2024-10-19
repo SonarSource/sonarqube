@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +51,7 @@ public abstract class BaseDoc {
     this.indexType = indexType;
     this.fields = fields;
     if (indexType instanceof IndexMainType mainType && mainType.getIndex().acceptsRelations()) {
-      setField(mainType.getIndex().getJoinField(), ImmutableMap.of("name", mainType.getType()));
+      setField(mainType.getIndex().getJoinField(), Map.of("name", mainType.getType()));
       setField(FIELD_INDEX_TYPE, mainType.getType());
     }
   }
@@ -62,7 +61,7 @@ public abstract class BaseDoc {
     checkArgument(parentId != null && !parentId.isEmpty(), "parentId can't be null nor empty");
     this.parentId = parentId;
     IndexRelationType indexRelationType = (IndexRelationType) this.indexType;
-    setField(indexRelationType.getMainType().getIndex().getJoinField(), ImmutableMap.of("name", indexRelationType.getName(), "parent", parentId));
+    setField(indexRelationType.getMainType().getIndex().getJoinField(), Map.of("name", indexRelationType.getName(), "parent", parentId));
     setField(FIELD_INDEX_TYPE, indexRelationType.getName());
   }
 
@@ -159,21 +158,14 @@ public abstract class BaseDoc {
 
   public IndexRequest toIndexRequest() {
     IndexMainType mainType = this.indexType.getMainType();
-    return new IndexRequest(mainType.getIndex().getName(), mainType.getType())
+    return new IndexRequest(mainType.getIndex().getName())
       .id(getId())
       .routing(getRouting().orElse(null))
       .source(getFields());
-  }
-
-  public static long epochMillisToEpochSeconds(long epochMillis) {
-    return epochMillis / 1000L;
   }
 
   private static Date epochSecondsToDate(Number value) {
     return new Date(value.longValue() * 1000L);
   }
 
-  public static long dateToEpochSeconds(Date date) {
-    return epochMillisToEpochSeconds(date.getTime());
-  }
 }

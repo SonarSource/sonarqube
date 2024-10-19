@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,12 @@ import java.sql.SQLException;
 import java.util.Optional;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
+import org.sonar.server.platform.db.migration.def.Validations;
 
 public abstract class DropIndexChange extends DdlChange {
   private final String indexName;
@@ -31,22 +37,31 @@ public abstract class DropIndexChange extends DdlChange {
 
   public DropIndexChange(Database db, String indexName, String tableName) {
     super(db);
+    Validations.validateIndexName(indexName);
+    Validations.validateTableName(tableName);
     this.indexName = indexName;
     this.tableName = tableName;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    Optional<String> indexName = findExistingIndexName();
-    indexName.ifPresent(index -> context.execute(new DropIndexBuilder(getDialect())
-      .setTable(tableName)
-      .setName(index)
-      .build()));
+    findExistingIndexName()
+      .map(index -> createDropIndexSqlStatement(getDialect(), index))
+      .ifPresent(context::execute);
   }
 
   private Optional<String> findExistingIndexName() throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
       return DatabaseUtils.findExistingIndex(connection, tableName, indexName);
     }
+  }
+
+  private String createDropIndexSqlStatement(Dialect dialect, String actualIndexName) {
+    return switch (dialect.getId()) {
+      case MsSql.ID -> "DROP INDEX " + actualIndexName + " ON " + tableName;
+      case Oracle.ID -> "DROP INDEX " + actualIndexName;
+      case H2.ID, PostgreSql.ID -> "DROP INDEX IF EXISTS " + actualIndexName;
+      default -> throw new IllegalStateException("Unsupported dialect for drop of index: " + dialect);
+    };
   }
 }

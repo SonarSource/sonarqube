@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,10 @@ import java.util.Collections;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.db.rule.RuleChangeDto;
 
 public class QProfileChangeDto {
 
@@ -35,6 +36,8 @@ public class QProfileChangeDto {
   private String userUuid;
   private String data;
   private long createdAt;
+  private RuleChangeDto ruleChange;
+  private String sqVersion;
 
   public String getUuid() {
     return uuid;
@@ -42,6 +45,16 @@ public class QProfileChangeDto {
 
   public QProfileChangeDto setUuid(String s) {
     this.uuid = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String getSqVersion() {
+    return sqVersion;
+  }
+
+  public QProfileChangeDto setSqVersion(String sqVersion) {
+    this.sqVersion = sqVersion;
     return this;
   }
 
@@ -105,6 +118,15 @@ public class QProfileChangeDto {
     } else {
       this.data = KeyValueFormat.format(m);
     }
+    return this;
+  }
+
+  public RuleChangeDto getRuleChange() {
+    return ruleChange;
+  }
+
+  public QProfileChangeDto setRuleChange(@Nullable RuleChangeDto ruleChange) {
+    this.ruleChange = ruleChange;
     return this;
   }
 

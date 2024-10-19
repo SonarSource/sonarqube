@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,8 @@ package org.sonar.server.qualitygate.ws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,7 +34,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.SearchPermissionQuery;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualitygates.SearchUsersResponse;
 
@@ -45,8 +47,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
 import static org.sonar.db.user.SearchPermissionQuery.ANY;
@@ -82,7 +82,6 @@ public class SearchUsersAction implements QualityGatesWsAction {
         "  <li>Edit right on the specified quality gate</li>" +
         "</ul>")
       .setHandler(this)
-      .setInternal(true)
       .addSearchQuery("freddy", "names", "logins")
       .addSelectionModeParam()
       .addPagingParams(25)
@@ -114,13 +113,13 @@ public class SearchUsersAction implements QualityGatesWsAction {
       int total = dbClient.qualityGateUserPermissionDao().countByQuery(dbSession, query);
       List<SearchUserMembershipDto> usersMembership = dbClient.qualityGateUserPermissionDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
-      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).collect(toList()))
-        .stream().collect(uniqueIndex(UserDto::getUuid));
+      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).toList())
+        .stream().collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
       writeProtobuf(
         SearchUsersResponse.newBuilder()
           .addAllUsers(usersMembership.stream()
             .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserUuid()), userMembershipDto.isSelected()))
-            .collect(toList()))
+            .toList())
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

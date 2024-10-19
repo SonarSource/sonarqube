@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import withLanguagesContext from '../../../../app/components/languages/withLanguagesContext';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
 import { Languages } from '../../../../types/languages';
 
@@ -29,6 +30,8 @@ interface Props {
   languages: Languages;
 }
 
+const MAX_DISPLAYED_LANGUAGES = 2;
+
 export function ProjectCardLanguages({ className, distribution, languages }: Props) {
   if (distribution === undefined) {
     return null;
@@ -36,15 +39,29 @@ export function ProjectCardLanguages({ className, distribution, languages }: Pro
 
   const parsedLanguages = distribution.split(';').map((item) => item.split('='));
   const finalLanguages = sortBy(parsedLanguages, (l) => -1 * Number(l[1])).map((l) =>
-    getLanguageName(languages, l[0])
+    getLanguageName(languages, l[0]),
   );
 
-  const languagesText = finalLanguages.join(', ');
+  const languagesText =
+    finalLanguages.slice(0, MAX_DISPLAYED_LANGUAGES).join(', ') +
+    (finalLanguages.length > MAX_DISPLAYED_LANGUAGES ? ', ...' : '');
+
+  const tooltip =
+    finalLanguages.length > MAX_DISPLAYED_LANGUAGES ? (
+      <span>
+        {finalLanguages.map((language) => (
+          <span key={language}>
+            {language}
+            <br />
+          </span>
+        ))}
+      </span>
+    ) : null;
 
   return (
-    <span className={className} title={languagesText}>
-      {languagesText}
-    </span>
+    <Tooltip content={tooltip}>
+      <span className={className}>{languagesText}</span>
+    </Tooltip>
   );
 }
 

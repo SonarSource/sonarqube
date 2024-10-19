@@ -1,1 +1,4 @@
-.github/CODEOWNERS @sonarsource/sonarqube-team
+.github/CODEOWNERS @sonarsource/platform-sonarqube-squad
+/private/core-extension-securityreport/ @sonarsource/corpex-softwarequalities-squad
+/private/core-extension-enterprise-server/ @sonarsource/corpex-team
+/private/it-governance/ @sonarsource/corpex-team

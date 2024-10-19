@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,20 +19,20 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.OAuth2ContextFactory.OAuthContextImpl;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -56,25 +56,27 @@ public class OAuth2ContextFactoryTest {
     .setEmail("john@email.com")
     .build();
 
+  private final ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
+  private final TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
+  private final Server server = mock(Server.class);
+  private final OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
+  private final OAuth2AuthenticationParameters oAuthParameters = mock(OAuth2AuthenticationParameters.class);
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
 
-  private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
-  private TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
-  private Server server = mock(Server.class);
-  private OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
-  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
-  private OAuth2AuthenticationParameters oAuthParameters = mock(OAuth2AuthenticationParameters.class);
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private HttpSession session = mock(HttpSession.class);
-  private OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
+  private final HttpRequest httpRequest = new JavaxHttpRequest(request);
+  private final HttpResponse httpResponse = new JavaxHttpResponse(response);
 
-  private OAuth2ContextFactory underTest = new OAuth2ContextFactory(threadLocalUserSession, userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler, userSessionFactory,
+  private final OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
+
+  private final OAuth2ContextFactory underTest = new OAuth2ContextFactory(threadLocalUserSession, userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler,
+    userSessionFactory,
     oAuthParameters);
 
   @Before
   public void setUp() {
-    when(request.getSession()).thenReturn(session);
     when(identityProvider.getKey()).thenReturn(PROVIDER_KEY);
     when(identityProvider.getName()).thenReturn(PROVIDER_NAME);
   }
@@ -85,8 +87,12 @@ public class OAuth2ContextFactoryTest {
 
     OAuth2IdentityProvider.InitContext context = newInitContext();
 
+    assertThat(context.getHttpRequest()).isEqualTo(httpRequest);
+    assertThat(context.getHttpResponse()).isEqualTo(httpResponse);
+
     assertThat(context.getRequest()).isEqualTo(request);
     assertThat(context.getResponse()).isEqualTo(response);
+
     assertThat(context.getCallbackUrl()).isEqualTo("https://mydomain.com/oauth2/callback/github");
   }
 
@@ -96,7 +102,7 @@ public class OAuth2ContextFactoryTest {
 
     context.generateCsrfState();
 
-    verify(csrfVerifier).generateState(request, response);
+    verify(csrfVerifier).generateState(httpRequest, httpResponse);
   }
 
   @Test
@@ -114,8 +120,8 @@ public class OAuth2ContextFactoryTest {
 
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
-    assertThat(callback.getRequest()).isEqualTo(request);
-    assertThat(callback.getResponse()).isEqualTo(response);
+    assertThat(callback.getHttpRequest()).isEqualTo(httpRequest);
+    assertThat(callback.getHttpResponse()).isEqualTo(httpResponse);
     assertThat(callback.getCallbackUrl()).isEqualTo("https://mydomain.com/oauth2/callback/github");
   }
 
@@ -128,26 +134,16 @@ public class OAuth2ContextFactoryTest {
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     verify(threadLocalUserSession).set(any(UserSession.class));
     ArgumentCaptor<UserDto> userArgumentCaptor = ArgumentCaptor.forClass(UserDto.class);
-    verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(request), eq(response));
+    verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(httpRequest), eq(httpResponse));
     assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
     assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo(PROVIDER_KEY);
   }
 
   @Test
-  public void authenticate_with_organization_alm_ids() {
-    OAuthContextImpl callback = (OAuthContextImpl) newCallbackContext();
-    Set<String> organizationAlmIds = ImmutableSet.of("ABCD", "EFGH");
-
-    callback.authenticate(USER_IDENTITY, organizationAlmIds);
-
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getOrganizationAlmIds()).containsAll(organizationAlmIds);
-  }
-
-  @Test
   public void redirect_to_home() throws Exception {
     when(server.getContextPath()).thenReturn("");
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.empty());
+    when(oAuthParameters.getReturnTo(httpRequest)).thenReturn(Optional.empty());
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
@@ -158,7 +154,7 @@ public class OAuth2ContextFactoryTest {
   @Test
   public void redirect_to_home_with_context() throws Exception {
     when(server.getContextPath()).thenReturn("/sonarqube");
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.empty());
+    when(oAuthParameters.getReturnTo(httpRequest)).thenReturn(Optional.empty());
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
@@ -168,24 +164,24 @@ public class OAuth2ContextFactoryTest {
 
   @Test
   public void redirect_to_requested_page() throws Exception {
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/settings"));
+    when(oAuthParameters.getReturnTo(httpRequest)).thenReturn(Optional.of("/admin/settings"));
     when(server.getContextPath()).thenReturn("");
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
 
-    verify(response).sendRedirect("/settings");
+    verify(response).sendRedirect("/admin/settings");
   }
 
   @Test
   public void redirect_to_requested_page_does_not_need_context() throws Exception {
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/sonarqube/settings"));
+    when(oAuthParameters.getReturnTo(httpRequest)).thenReturn(Optional.of("/admin/settings"));
     when(server.getContextPath()).thenReturn("/other");
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
 
-    verify(response).sendRedirect("/sonarqube/settings");
+    verify(response).sendRedirect("/admin/settings");
   }
 
   @Test
@@ -194,26 +190,26 @@ public class OAuth2ContextFactoryTest {
 
     callback.verifyCsrfState();
 
-    verify(csrfVerifier).verifyState(request, response, identityProvider);
+    verify(csrfVerifier).verifyState(httpRequest, httpResponse, identityProvider);
   }
 
   @Test
   public void delete_oauth2_parameters_during_redirection() {
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/settings"));
+    when(oAuthParameters.getReturnTo(httpRequest)).thenReturn(Optional.of("/admin/settings"));
     when(server.getContextPath()).thenReturn("");
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
 
-    verify(oAuthParameters).delete(request, response);
+    verify(oAuthParameters).delete(httpRequest, httpResponse);
   }
 
   private OAuth2IdentityProvider.InitContext newInitContext() {
-    return underTest.newContext(request, response, identityProvider);
+    return underTest.newContext(httpRequest, httpResponse, identityProvider);
   }
 
   private OAuth2IdentityProvider.CallbackContext newCallbackContext() {
-    return underTest.newCallback(request, response, identityProvider);
+    return underTest.newCallback(httpRequest, httpResponse, identityProvider);
   }
 
 }

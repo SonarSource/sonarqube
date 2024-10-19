@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,10 +29,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,6 +49,7 @@ public class AzureDevOpsHttpClientTest {
 
   @Before
   public void prepare() throws IOException {
+    logTester.setLevel(Level.DEBUG);
     server.start();
 
     TimeoutConfiguration timeoutConfiguration = new ConstantTimeoutConfiguration(10_000);
@@ -81,9 +82,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("check pat : [" + server.url("").toString() + "_apis/projects?api-version=3.0]");
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("--> GET " + server.url("").toString() + "_apis/projects?api-version=3.0");
   }
 
   @Test
@@ -135,9 +135,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("get projects : [" + server.url("") + "_apis/projects?api-version=3.0]");
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("--> GET " + server.url("") + "_apis/projects?api-version=3.0");
     assertThat(projects.getValues()).hasSize(2);
     assertThat(projects.getValues())
       .extracting(GsonAzureProject::getName, GsonAzureProject::getDescription)
@@ -152,8 +151,8 @@ public class AzureDevOpsHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(UNABLE_TO_CONTACT_AZURE);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+    assertThat(logTester.logs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.logs(Level.ERROR).iterator().next())
       .contains("Response from Azure for request [" + server.url("") + "_apis/projects?api-version=3.0] could not be parsed:");
   }
 
@@ -165,8 +164,8 @@ public class AzureDevOpsHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid personal access token");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+    assertThat(logTester.logs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.logs(Level.ERROR).iterator().next())
       .contains("Unable to contact Azure DevOps server for request [" + server.url("") + "_apis/projects?api-version=3.0]: Invalid personal access token");
   }
 
@@ -178,8 +177,8 @@ public class AzureDevOpsHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid Azure URL");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+    assertThat(logTester.logs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.logs(Level.ERROR).iterator().next())
       .contains("Unable to contact Azure DevOps server for request [" + server.url("") + "_apis/projects?api-version=3.0]: URL Not Found");
   }
 
@@ -191,8 +190,8 @@ public class AzureDevOpsHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Unable to contact Azure DevOps server");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+    assertThat(logTester.logs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.logs(Level.ERROR).iterator().next())
       .contains("Azure API call to [" + server.url("") + "_apis/projects?api-version=3.0] failed with 500 http code. Azure response content :");
   }
 
@@ -226,9 +225,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "projectName/_apis/git/repositories?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("get repos : [" + server.url("").toString() + "projectName/_apis/git/repositories?api-version=3.0]");
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("--> GET " + server.url("").toString() + "projectName/_apis/git/repositories?api-version=3.0");
     assertThat(repos.getValues()).hasSize(1);
     assertThat(repos.getValues())
       .extracting(GsonAzureRepo::getName, GsonAzureRepo::getUrl, r -> r.getProject().getName())
@@ -279,9 +277,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("get repo : [" + server.url("").toString() + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0]");
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("--> GET " + server.url("").toString() + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0");
     assertThat(repo.getId()).isEqualTo("Repo-Id-1");
     assertThat(repo.getName()).isEqualTo("Repo-Name-1");
     assertThat(repo.getUrl()).isEqualTo("https://ado.sonarqube.com/DefaultCollection/Repo-Id-1");

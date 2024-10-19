@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -60,6 +60,11 @@ public class RuleQuery {
   private Collection<String> sansTop25;
   private Collection<String> cwe;
   private Collection<String> sonarsourceSecurity;
+  private Collection<String> impactSeverities;
+  private Collection<String> impactSoftwareQualities;
+  private Collection<String> cleanCodeAttributesCategories;
+  private Boolean prioritizedRule;
+
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -346,6 +351,43 @@ public class RuleQuery {
 
   public RuleQuery setSonarsourceSecurity(@Nullable Collection<String> sonarsourceSecurity) {
     this.sonarsourceSecurity = sonarsourceSecurity;
+    return this;
+  }
+
+  public Collection<String> getImpactSeverities() {
+    return impactSeverities;
+  }
+
+  public RuleQuery setImpactSeverities(@Nullable Collection<String> impactSeverities) {
+    this.impactSeverities = impactSeverities;
+    return this;
+  }
+
+  public Collection<String> getImpactSoftwareQualities() {
+    return impactSoftwareQualities;
+  }
+
+  public RuleQuery setImpactSoftwareQualities(@Nullable Collection<String> impactSoftwareQualities) {
+    this.impactSoftwareQualities = impactSoftwareQualities;
+    return this;
+  }
+
+  public Collection<String> getCleanCodeAttributesCategories() {
+    return cleanCodeAttributesCategories;
+  }
+
+  public RuleQuery setCleanCodeAttributesCategories(@Nullable Collection<String> cleanCodeAttributesCategories) {
+    this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
+    return this;
+  }
+
+  @Nullable
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public RuleQuery setPrioritizedRule(@Nullable Boolean prioritizedRule) {
+    this.prioritizedRule = prioritizedRule;
     return this;
   }
 }

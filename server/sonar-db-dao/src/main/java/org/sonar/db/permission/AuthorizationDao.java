@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,25 +56,29 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
-   * Loads all the permissions granted to logged-in user for the specified project <strong>stored in *_ROLES
+   * Loads all the permissions granted to logged-in user for the specified entity <strong>stored in *_ROLES
    * tables</strong>.
-   * An empty Set is returned if user has no permissions on the project.
+   * An empty Set is returned if user has no permissions on the entity.
    *
    * <strong>This method does not support public components</strong>
    */
-  public Set<String> selectProjectPermissions(DbSession dbSession, String projectUuid, String userUuid) {
-    return mapper(dbSession).selectProjectPermissions(projectUuid, userUuid);
+  public Set<String> selectEntityPermissions(DbSession dbSession, String entityUuid, String userUuid) {
+    return mapper(dbSession).selectEntityPermissions(entityUuid, userUuid);
+  }
+
+  public Set<UserAndPermissionDto> selectEntityPermissionsObtainedViaManagedGroup(DbSession dbSession, String entityUuid, String managedInstanceProvider) {
+    return mapper(dbSession).selectEntityPermissionsObtainedViaManagedGroup(entityUuid, managedInstanceProvider);
   }
 
   /**
-   * Loads all the permissions granted to anonymous for the specified project <strong>stored in *_ROLES
+   * Loads all the permissions granted to anonymous for the specified entity <strong>stored in *_ROLES
    * tables</strong>.
-   * An empty Set is returned if anonymous user has no permissions on the project.
+   * An empty Set is returned if anonymous user has no permissions on the entity.
    *
    * <strong>This method does not support public components</strong>
    */
-  public Set<String> selectProjectPermissionsOfAnonymous(DbSession dbSession, String projectUuid) {
-    return mapper(dbSession).selectProjectPermissionsOfAnonymous(projectUuid);
+  public Set<String> selectEntityPermissionsOfAnonymous(DbSession dbSession, String entityUuid) {
+    return mapper(dbSession).selectEntityPermissionsOfAnonymous(entityUuid);
   }
 
   /**
@@ -121,26 +125,26 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(organizationUuid, permission, userUuid);
   }
 
-  public Set<String> keepAuthorizedProjectUuids(DbSession dbSession, Collection<String> projectUuids, @Nullable String userUuid, String permission) {
+  public Set<String> keepAuthorizedEntityUuids(DbSession dbSession, Collection<String> entityUuids, @Nullable String userUuid, String permission) {
     return executeLargeInputsIntoSet(
-      projectUuids,
+      entityUuids,
       partition -> {
         if (userUuid == null) {
-          return mapper(dbSession).keepAuthorizedProjectUuidsForAnonymous(permission, partition);
+          return mapper(dbSession).keepAuthorizedEntityUuidsForAnonymous(permission, partition);
         }
-        return mapper(dbSession).keepAuthorizedProjectUuidsForUser(userUuid, permission, partition);
+        return mapper(dbSession).keepAuthorizedEntityUuidsForUser(userUuid, permission, partition);
       },
       partitionSize -> partitionSize / 2);
   }
 
   /**
-   * Keep only authorized user that have the given permission on a given project.
+   * Keep only authorized user that have the given permission on a given entity.
    * Please Note that if the permission is 'Anyone' is NOT taking into account by this method.
    */
-  public Collection<String> keepAuthorizedUsersForRoleAndProject(DbSession dbSession, Collection<String> userUuids, String role, String projectUuid) {
+  public Collection<String> keepAuthorizedUsersForRoleAndEntity(DbSession dbSession, Collection<String> userUuids, String role, String entityUuid) {
     return executeLargeInputs(
       userUuids,
-      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectUuid, partitionOfIds),
+      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndEntity(role, entityUuid, partitionOfIds),
       partitionSize -> partitionSize / 3);
   }
 
@@ -152,10 +156,10 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER.getKey());
   }
 
-  public Set<String> keepAuthorizedLoginsOnProject(DbSession dbSession, Set<String> logins, String projectKey, String permission) {
+  public Set<String> keepAuthorizedLoginsOnEntity(DbSession dbSession, Set<String> logins, String entityKey, String permission) {
     return executeLargeInputsIntoSet(
       logins,
-      partitionOfLogins -> mapper(dbSession).keepAuthorizedLoginsOnProject(partitionOfLogins, projectKey, permission),
+      partitionOfLogins -> mapper(dbSession).keepAuthorizedLoginsOnEntity(partitionOfLogins, entityKey, permission),
       partitionSize -> partitionSize / 3);
   }
 

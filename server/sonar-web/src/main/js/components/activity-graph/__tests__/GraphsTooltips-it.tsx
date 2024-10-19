@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { parseDate } from '../../../helpers/dates';
 import {
   mockAnalysisEvent,
@@ -27,21 +28,13 @@ import {
 } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
-import GraphsTooltips from '../GraphsTooltips';
+import { GraphsTooltips, Props } from '../GraphsTooltips';
 import { generateSeries, getDisplayedHistoryMetrics } from '../utils';
 
 it.each([
-  [
-    GraphType.issues,
-    [
-      [MetricKey.bugs, 1, 'C'],
-      [MetricKey.code_smells, 0, 'A'],
-      [MetricKey.vulnerabilities, 2, 'E'],
-    ],
-  ],
+  [GraphType.issues, [[MetricKey.violations, 1]]],
   [
     GraphType.coverage,
     [
@@ -64,42 +57,41 @@ it.each([
       expect(
         screen.getByRole('row', {
           // eslint-disable-next-line jest/no-conditional-in-test
-          name: rating ? `${n} metric.has_rating_X.${rating} ${key}` : `${n} ${key}`,
-        })
+          name: rating ? `${n} ${key} ${rating}` : `${n} ${key}`,
+        }),
       ).toBeInTheDocument();
     });
-  }
+  },
 );
 
-function renderGraphsTooltips(props: Partial<GraphsTooltips['props']> = {}) {
+function renderGraphsTooltips(props: Partial<Props> = {}) {
   const graph = (props.graph as GraphType) || GraphType.coverage;
   const measuresHistory: MeasureHistory[] = [];
   const date = props.selectedDate || parseDate('2016-01-01T00:00:00+0200');
   const metrics: Metric[] = [];
 
-  [
-    [MetricKey.bugs, '1'],
-    [MetricKey.reliability_rating, '3'],
-    [MetricKey.code_smells, '0'],
-    [MetricKey.sqale_rating, '1'],
-    [MetricKey.vulnerabilities, '2'],
-    [MetricKey.security_rating, '5'],
-    [MetricKey.lines_to_cover, '10'],
-    [MetricKey.uncovered_lines, '8'],
-    [MetricKey.coverage, '75'],
-    [MetricKey.duplicated_lines_density, '3'],
-  ].forEach(([metric, value]) => {
+  (
+    [
+      [MetricKey.violations, '1'],
+      [MetricKey.bugs, '1'],
+      [MetricKey.lines_to_cover, '10'],
+      [MetricKey.uncovered_lines, '8'],
+      [MetricKey.coverage, '75'],
+      [MetricKey.duplicated_lines_density, '3'],
+    ] as Array<[MetricKey, string]>
+  ).forEach(([metric, value]) => {
     measuresHistory.push(
       mockMeasureHistory({
         metric,
         history: [mockHistoryItem({ date, value })],
-      })
+      }),
     );
+
     metrics.push(
       mockMetric({
         key: metric,
         type: metric.includes('_density') || metric === MetricKey.coverage ? 'PERCENT' : 'INT',
-      })
+      }),
     );
   });
 
@@ -107,7 +99,7 @@ function renderGraphsTooltips(props: Partial<GraphsTooltips['props']> = {}) {
     measuresHistory,
     graph,
     metrics,
-    getDisplayedHistoryMetrics(graph, graph === GraphType.custom ? [MetricKey.bugs] : [])
+    getDisplayedHistoryMetrics(graph, graph === GraphType.custom ? [MetricKey.bugs] : []),
   );
 
   return renderComponent(
@@ -122,6 +114,6 @@ function renderGraphsTooltips(props: Partial<GraphsTooltips['props']> = {}) {
       tooltipPos={0}
       formatValue={(n: number | string) => String(n)}
       {...props}
-    />
+    />,
   );
 }

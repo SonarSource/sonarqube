@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -75,9 +75,7 @@ public class ChangesOnMyIssuesEmailTemplate extends IssueChangesEmailTemplate {
   }
 
   private static String buildAnalysisSubject(Project project) {
-    StringBuilder res = new StringBuilder("Analysis has changed some of your issues in ");
-    toString(res, project);
-    return res.toString();
+    return "Analysis has changed some of your issues in " + toSubject(project);
   }
 
   private String buildAnalysisMessage(Project project, ChangesOnMyIssuesNotification notification) {

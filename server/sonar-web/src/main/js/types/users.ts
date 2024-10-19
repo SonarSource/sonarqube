@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export interface CurrentUser {
+  dismissedNotices: { [key: string]: boolean };
   isLoggedIn: boolean;
   permissions?: { global: string[] };
   usingSonarLintConnectedMode?: boolean;
-  dismissedNotices: { [key: string]: boolean };
   groups?:string[];
   onboarded: boolean;
 }
@@ -34,6 +34,11 @@ export interface Notice {
 export enum NoticeType {
   EDUCATION_PRINCIPLES = 'educationPrinciples',
   SONARLINT_AD = 'sonarlintAd',
+  ISSUE_GUIDE = 'issueCleanCodeGuide',
+  ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE = 'issueNewIssueStatusAndTransitionGuide',
+  QG_CAYC_CONDITIONS_SIMPLIFICATION = 'qualityGateCaYCConditionsSimplification',
+  OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = 'overviewZeroNewIssuesSimplification',
+  ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE = 'onboardingDismissCaycBranchSummaryGuide',
 }
 
 export interface UserOrgGroup {
@@ -56,17 +61,16 @@ export interface LoggedInUser extends CurrentUser, UserActive {
 }
 
 export type HomePage =
-  | { type: 'APPLICATION'; branch: string | undefined; component: string }
+  | { branch: string | undefined; component: string; type: 'APPLICATION' }
   | { type: 'ISSUES' }
   | { type: 'MY_ISSUES' }
   | { type: 'MY_PROJECTS' }
-  | { type: 'PORTFOLIO'; component: string }
+  | { component: string; type: 'PORTFOLIO' }
   | { type: 'ORGANIZATION'; organization: string }
+  | { type: 'POLICY_RESULTS'; organization: string }
   | { type: 'PORTFOLIOS' }
-  | { type: 'PROJECT'; branch: string | undefined; component: string }
-  | { type: 'PROJECTS' }
-  | { type: 'POLICY_RESULTS'; organization: string };
-  
+  | { branch: string | undefined; component: string; type: 'PROJECT' }
+  | { type: 'PROJECTS' };
 
 export interface CurrentUserSetting {
   key: CurrentUserSettingNames;
@@ -89,16 +93,45 @@ export interface User extends UserBase {
   groups?: string[];
   lastConnectionDate?: string;
   local: boolean;
+  managed: boolean;
   scmAccounts?: string[];
+  sonarLintLastConnectionDate?: string;
   tokensCount?: number;
 }
 
 export interface UserBase {
   active?: boolean;
   avatar?: string;
-  email?: string;
+  email?: string | null;
   login: string;
   name?: string;
+}
+
+export interface RestUserBase {
+  id: string;
+  login: string;
+  name: string;
+}
+
+export interface RestUser extends RestUserBase {
+  active: boolean;
+  avatar: string;
+  email: string | null;
+  externalProvider: string;
+  local: boolean;
+}
+
+export interface RestUserDetailed extends RestUser {
+  externalLogin: string;
+  managed: boolean;
+  scmAccounts: string[];
+  sonarLintLastConnectionDate: string | null;
+  sonarQubeLastConnectionDate: string | null;
+}
+
+export const enum ChangePasswordResults {
+  OldPasswordIncorrect = 'old_password_incorrect',
+  NewPasswordSameAsOld = 'new_password_same_as_old',
 }
 
 export function isUserActive(user: UserBase): user is UserActive {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 package org.sonar.ce.cleaning;
 
 import java.util.concurrent.locks.Lock;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.CeDistributedInformation;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.queue.InternalCeQueue;
@@ -29,7 +29,7 @@ import org.sonar.ce.queue.InternalCeQueue;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
-  private static final Logger LOG = Loggers.get(CeCleaningSchedulerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CeCleaningSchedulerImpl.class);
 
   private final CeCleaningExecutorService executorService;
   private final CeConfiguration ceConfiguration;

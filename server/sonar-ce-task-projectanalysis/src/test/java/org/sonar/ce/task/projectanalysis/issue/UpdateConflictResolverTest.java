@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,23 +19,23 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 
 public class UpdateConflictResolverTest {
+  private final UpdateConflictResolver underTest = new UpdateConflictResolver();
 
   @Test
   public void should_reload_issue_and_resolve_conflict() {
@@ -45,11 +45,11 @@ public class UpdateConflictResolverTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycles"))
       .setProjectUuid("U1")
       .setComponentUuid("U2")
+      .addImpact(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH)
       .setNew(false)
       .setStatus(STATUS_OPEN);
 
     // Issue as seen and changed by end-user
-    IssueMapper mapper = mock(IssueMapper.class);
     IssueDto issueDto = new IssueDto()
       .setKee("ABCDE")
       .setType(CODE_SMELL)
@@ -57,19 +57,19 @@ public class UpdateConflictResolverTest {
       .setRuleKey("java", "AvoidCycles")
       .setProjectUuid("U1")
       .setComponentUuid("U2")
+      .addImpact(new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
       .setLine(10)
       .setStatus(STATUS_OPEN)
 
       // field changed by user
       .setAssigneeUuid("arthur-uuid");
 
-    new UpdateConflictResolver().resolve(issue, issueDto, mapper);
-
-    ArgumentCaptor<IssueDto> argument = ArgumentCaptor.forClass(IssueDto.class);
-    verify(mapper).update(argument.capture());
-    IssueDto updatedIssue = argument.getValue();
+    IssueDto updatedIssue = underTest.resolve(issue, issueDto);
     assertThat(updatedIssue.getKee()).isEqualTo("ABCDE");
     assertThat(updatedIssue.getAssigneeUuid()).isEqualTo("arthur-uuid");
+    assertThat(updatedIssue.getImpacts())
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH));
   }
 
   @Test
@@ -108,7 +108,7 @@ public class UpdateConflictResolverTest {
       .setSeverity(Severity.MAJOR)
       .setManualSeverity(false);
 
-    new UpdateConflictResolver().mergeFields(dbIssue, issue);
+    underTest.mergeFields(dbIssue, issue);
 
     assertThat(issue.key()).isEqualTo("ABCDE");
     assertThat(issue.componentKey()).isEqualTo("struts:org.apache.struts.Action");
@@ -144,7 +144,7 @@ public class UpdateConflictResolverTest {
       .setSeverity(Severity.INFO)
       .setManualSeverity(true);
 
-    new UpdateConflictResolver().mergeFields(dbIssue, issue);
+    underTest.mergeFields(dbIssue, issue);
 
     assertThat(issue.severity()).isEqualTo(Severity.INFO);
     assertThat(issue.manualSeverity()).isTrue();

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,11 +26,13 @@ import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.filemove.PullRequestFileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.language.HandleUnanalyzedLanguagesStep;
 import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationChecksStep;
+import org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationChecksStep;
 import org.sonar.ce.task.projectanalysis.purge.PurgeDatastoresStep;
 import org.sonar.ce.task.projectanalysis.qualityprofile.RegisterQualityProfileStatusStep;
 import org.sonar.ce.task.projectanalysis.source.PersistFileSourcesStep;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.ExecuteStatelessInitExtensionsStep;
+import org.sonar.ce.task.step.ExecuteStatelessOnFinishStep;
 
 /**
  * Ordered list of steps classes and instances to be executed for batch processing
@@ -53,10 +55,15 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     ValidateProjectStep.class,
     LoadQualityProfilesStep.class,
 
+    // Pre analysis operations
+    PreMeasuresComputationChecksStep.class,
+    SqUpgradeDetectionEventsStep.class,
+
     // load project related stuffs
     LoadFileHashesAndStatusStep.class,
     LoadQualityGateStep.class,
     LoadPeriodsStep.class,
+    LoadPrioritizedRulesStep.class,
     FileMoveDetectionStep.class,
     PullRequestFileMoveDetectionStep.class,
 
@@ -81,6 +88,9 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     PostMeasuresComputationChecksStep.class,
 
+    // Must be executed after visitors execution
+    PullRequestFixedIssuesMeasureStep.class,
+
     QualityGateMeasuresStep.class,
     // Must be executed after computation of language distribution
     ComputeQProfileMeasureStep.class,
@@ -89,6 +99,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Must be executed after computation of quality gate measure
     QualityGateEventsStep.class,
+    IssueDetectionEventsStep.class,
 
     HandleUnanalyzedLanguagesStep.class,
 
@@ -97,10 +108,11 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PersistComponentsStep.class,
     PersistAnalysisStep.class,
     PersistAnalysisPropertiesStep.class,
-    PersistMeasuresStep.class,
+    PersistProjectMeasuresStep.class,
     PersistLiveMeasuresStep.class,
     PersistDuplicationDataStep.class,
     PersistAdHocRulesStep.class,
+    PersistCveStep.class,
     PersistIssuesStep.class,
     CleanIssueChangesStep.class,
     PersistProjectLinksStep.class,
@@ -108,16 +120,20 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PersistFileSourcesStep.class,
     PersistCrossProjectDuplicationIndexStep.class,
     EnableAnalysisStep.class,
+    PersistPullRequestFixedIssueStep.class,
 
     UpdateQualityProfilesLastUsedDateStep.class,
     PurgeDatastoresStep.class,
+    LoadChangedIssuesStep.class,
     IndexAnalysisStep.class,
     UpdateNeedIssueSyncStep.class,
+    ProjectNclocComputationStep.class,
     PersistPushEventsStep.class,
 
     // notifications are sent at the end, so that webapp displays up-to-date information
     SendIssueNotificationsStep.class,
 
+    ExecuteStatelessOnFinishStep.class,
     PublishTaskResultStep.class,
     TriggerViewRefreshStep.class);
 

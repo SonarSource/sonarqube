@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,28 +20,29 @@
 import * as React from 'react';
 import { Component } from '../../../../types/types';
 import { CompilationInfo } from '../../components/CompilationInfo';
-import { OSs } from '../../types';
+import { Arch, OSs } from '../../types';
 import DownloadBuildWrapper from './DownloadBuildWrapper';
 import DownloadScanner from './DownloadScanner';
 import ExecBuildWrapper from './ExecBuildWrapper';
 import ExecScanner from './ExecScanner';
 
 export interface ClangGCCCustomProps {
-  component: Component;
+  arch: Arch;
   baseUrl: string;
+  component: Component;
   isLocal: boolean;
   os: OSs;
   token: string;
 }
 
-export default function ClangGCCCustom(props: ClangGCCCustomProps) {
-  const { os, baseUrl, component, isLocal, token } = props;
+export default function ClangGCCCustom(props: Readonly<ClangGCCCustomProps>) {
+  const { os, arch, baseUrl, component, isLocal, token } = props;
 
   return (
     <div>
-      <DownloadBuildWrapper isLocal={isLocal} baseUrl={baseUrl} os={os} />
-      <DownloadScanner isLocal={isLocal} os={os} token={token} />
-      <ExecBuildWrapper os={os} />
+      <DownloadBuildWrapper isLocal={isLocal} baseUrl={baseUrl} os={os} arch={arch} />
+      <DownloadScanner arch={arch} isLocal={isLocal} os={os} token={token} />
+      <ExecBuildWrapper os={os} arch={arch} />
       <CompilationInfo />
       <ExecScanner
         baseUrl={baseUrl}
@@ -49,7 +50,7 @@ export default function ClangGCCCustom(props: ClangGCCCustomProps) {
         component={component}
         os={os}
         token={token}
-        cfamily={true}
+        cfamily
       />
     </div>
   );

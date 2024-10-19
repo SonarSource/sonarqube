@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,14 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static java.util.Collections.emptyMap;
@@ -49,6 +49,14 @@ public class ProjectReactorBuilderTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Test
+  public void projectBaseDirDefaultToCurrentDirectory() {
+    ScannerProperties bootstrapProps = new ScannerProperties(Map.of("sonar.projectKey", "foo"));
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps, mock(AnalysisWarnings.class)).execute();
+    var def = projectReactor.getRoot();
+    assertThat(def.getBaseDir()).isEqualTo(new File("").getAbsoluteFile());
+  }
 
   @Test
   public void shouldDefineSimpleProject() {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.db;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -27,9 +27,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class BatchSessionTest {
+class BatchSessionTest {
   @Test
-  public void shouldCommitWhenReachingBatchSize() {
+  void shouldCommitWhenReachingBatchSize() {
     DbSession mybatisSession = mock(DbSession.class);
     BatchSession session = new BatchSession(mybatisSession, 10);
 
@@ -45,7 +45,7 @@ public class BatchSessionTest {
   }
 
   @Test
-  public void shouldCommitWhenReachingBatchSizeWithoutCommits() {
+  void shouldCommitWhenReachingBatchSizeWithoutCommits() {
     DbSession mybatisSession = mock(DbSession.class);
     BatchSession session = new BatchSession(mybatisSession, 10);
 
@@ -60,7 +60,7 @@ public class BatchSessionTest {
   }
 
   @Test
-  public void shouldResetCounterAfterCommit() {
+  void shouldResetCounterAfterCommit() {
     DbSession mybatisSession = mock(DbSession.class);
     BatchSession session = new BatchSession(mybatisSession, 10);
 

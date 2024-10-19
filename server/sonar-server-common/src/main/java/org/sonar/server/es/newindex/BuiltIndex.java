@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,11 +26,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexRelationType;
 
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.NORMS;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.STORE;
@@ -44,12 +44,14 @@ public final class BuiltIndex<T extends NewIndex<T>> {
   private final Set<IndexRelationType> relationTypes;
   private final Settings settings;
   private final Map<String, Object> attributes;
+  private final Map<String, String> customHashMetadata;
 
   BuiltIndex(T newIndex) {
     this.mainType = newIndex.getMainType();
     this.settings = newIndex.getSettings().build();
-    this.relationTypes = newIndex.getRelationsStream().collect(toSet());
+    this.relationTypes = newIndex.getRelationsStream().collect(Collectors.toSet());
     this.attributes = buildAttributes(newIndex);
+    this.customHashMetadata = newIndex.getCustomHashMetadata();
   }
 
   private static Map<String, Object> buildAttributes(NewIndex<?> newIndex) {
@@ -120,5 +122,9 @@ public final class BuiltIndex<T extends NewIndex<T>> {
 
   public Map<String, Object> getAttributes() {
     return attributes;
+  }
+
+  public Map<String, String> getCustomHashMetadata() {
+    return customHashMetadata;
   }
 }

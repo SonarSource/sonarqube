@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@ import org.sonar.server.user.UserSessionFactory;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +57,7 @@ public class SonarLintClientPermissionsValidatorTest {
   public void before() {
     when(dbClient.userDao()).thenReturn(userDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
-    when(userSessionFactory.create(any())).thenReturn(userSession);
+    when(userSessionFactory.create(any(), eq(false))).thenReturn(userSession);
     when(projectDao.selectProjectsByKeys(any(), any())).thenReturn(projectDtos);
     when(projectDao.selectByUuids(any(), any())).thenReturn(projectDtos);
   }
@@ -86,7 +87,7 @@ public class SonarLintClientPermissionsValidatorTest {
     UserDto userDto = new UserDto();
     when(userDao.selectByUuid(any(), any())).thenReturn(userDto);
     when(userSession.isActive()).thenReturn(true);
-    when(userSession.checkProjectPermission(any(), any())).thenThrow(ForbiddenException.class);
+    when(userSession.checkEntityPermission(any(), any())).thenThrow(ForbiddenException.class);
 
     assertThrows(ForbiddenException.class,
       () -> underTest.validateUserCanReceivePushEventForProjectUuids(USER_UUID, exampleProjectuuids));

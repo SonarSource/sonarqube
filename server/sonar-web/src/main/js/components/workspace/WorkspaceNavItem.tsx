@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { CloseIcon, InteractiveIcon, themeColor } from 'design-system';
 import * as React from 'react';
-import { ClearButton } from '../../components/controls/buttons';
+import { translate } from '../../helpers/l10n';
 
 export interface Props {
   children: React.ReactNode;
@@ -27,7 +29,7 @@ export interface Props {
 }
 
 export default class WorkspaceNavItem extends React.PureComponent<Props> {
-  handleNameClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  handleNameClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onOpen();
@@ -35,17 +37,44 @@ export default class WorkspaceNavItem extends React.PureComponent<Props> {
 
   render() {
     return (
-      <li className="workspace-nav-item">
-        <a className="workspace-nav-item-link" href="#" onClick={this.handleNameClick}>
+      <StyledWorkspaceNavItem className="sw-mr-2">
+        <StyledWorkSpaceNavItemButton
+          className="sw-typo-default sw-pr-8 sw-pl-2"
+          onClick={this.handleNameClick}
+        >
           {this.props.children}
-        </a>
-        <ClearButton
-          className="js-close workspace-nav-item-close workspace-header-icon button-small little-spacer-left"
-          color="#fff"
-          iconProps={{ size: 12 }}
+        </StyledWorkSpaceNavItemButton>
+        <InteractiveIcon
+          aria-label={translate('workspace.close')}
+          className="js-close sw-absolute sw-top-0 sw-right-0 sw-m-1/2"
+          currentColor
+          Icon={CloseIcon}
           onClick={this.props.onClose}
+          size="small"
         />
-      </li>
+      </StyledWorkspaceNavItem>
     );
   }
 }
+
+const StyledWorkspaceNavItem = styled.li`
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  color: ${themeColor('workSpaceNavItem')};
+`;
+
+const StyledWorkSpaceNavItemButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  height: 1.75rem;
+  background-color: ${themeColor('workSpaceNavItemBackground')};
+  color: ${themeColor('workSpaceNavItem')};
+
+  &:hover,
+  &:focus {
+    color: ${themeColor('workSpaceNavItem')};
+    opacity: 0.9;
+  }
+`;

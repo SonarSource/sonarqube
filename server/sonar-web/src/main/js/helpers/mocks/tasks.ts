@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '../../types/component';
+import { uniqueId } from 'lodash';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 
 export function mockTask(overrides: Partial<Task> = {}): Task {
@@ -36,7 +37,7 @@ export function mockTask(overrides: Partial<Task> = {}): Task {
 
 export function mockTaskWarning(overrides: Partial<TaskWarning> = {}): TaskWarning {
   return {
-    key: 'foo',
+    key: uniqueId('foo'),
     message: 'Lorem ipsum',
     dismissable: false,
     ...overrides,

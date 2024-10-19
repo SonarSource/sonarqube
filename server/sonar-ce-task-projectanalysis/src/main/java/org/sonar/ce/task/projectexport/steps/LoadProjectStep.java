@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.lang.String.format;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 /**
  * Loads project from database and verifies that it's valid: it must exist and be a project !
@@ -54,7 +53,7 @@ public class LoadProjectStep implements ComputationStep {
         .orElseThrow(() -> MessageException.of(format("Project with key [%s] does not exist", descriptor.getKey())));
       definitionHolder.setProjectDto(project);
 
-      List<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream().collect(toList());
+      List<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream().toList();
       definitionHolder.setBranches(branches);
     }
   }

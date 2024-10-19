@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import org.sonar.process.systeminfo.JvmPropertiesSection;
 import org.sonar.process.systeminfo.JvmStateSection;
 import org.sonar.server.platform.monitoring.AlmConfigurationSection;
 import org.sonar.server.platform.monitoring.BundledSection;
+import org.sonar.server.platform.monitoring.CommonSystemInformation;
 import org.sonar.server.platform.monitoring.DbConnectionSection;
 import org.sonar.server.platform.monitoring.DbSection;
 import org.sonar.server.platform.monitoring.EsIndexesSection;
@@ -65,7 +66,8 @@ public class SystemInfoWriterModule extends Module {
       AlmConfigurationSection.class,
       ServerPushSection.class,
       BundledSection.class,
-      StatisticsSupport.class
+      StatisticsSupport.class,
+      CommonSystemInformation.class
       );
     if (standalone) {
       add(

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,31 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { Component } from '../../../types/types';
+import { Component, QualityGate } from '../../../types/types';
 
 interface Props {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate' | 'organization'>;
+  qualityGate?: QualityGate;
 }
 
 export default function CleanAsYouCodeWarning({ component }: Props) {
   return (
     <>
-      <Alert variant="warning">{translate('overview.quality_gate.conditions.cayc.warning')}</Alert>
+      <p className="sw-mb-4 sw-font-bold">
+        <FormattedMessage
+          id={`overview.quality_gate.conditions.cayc.warning.title.${component.qualifier}`}
+        />
+      </p>
       {component.qualityGate ? (
-        <p className="big-spacer-top big-spacer-bottom">
+        <p>
           <FormattedMessage
             id="overview.quality_gate.conditions.cayc.details_with_link"
             defaultMessage={translate('overview.quality_gate.conditions.cayc.details_with_link')}
             values={{
               link: (
-                <Link to={getQualityGateUrl(component.organization, component.qualityGate.key)}>
+                <Link to={getQualityGateUrl(component.organization, component.qualityGate.name)}>
                   {translate('overview.quality_gate.conditions.non_cayc.warning.link')}
                 </Link>
               ),
@@ -49,14 +53,12 @@ export default function CleanAsYouCodeWarning({ component }: Props) {
           />
         </p>
       ) : (
-        <p className="big-spacer-top big-spacer-bottom">
-          {translate('overview.quality_gate.conditions.cayc.details')}
+        <p>
+          <FormattedMessage
+            id={`overview.quality_gate.conditions.cayc.details.${component.qualifier}`}
+          />
         </p>
       )}
-
-      <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-        {translate('overview.quality_gate.conditions.cayc.link')}
-      </DocLink>
     </>
   );
 }

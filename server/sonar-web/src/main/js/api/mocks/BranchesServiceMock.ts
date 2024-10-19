@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,28 +18,99 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { mockBranch } from '../../helpers/mocks/branch-like';
-import { BranchLike } from '../../types/branch-like';
-import { getBranches } from '../branches';
+import { Branch, PullRequest } from '../../types/branch-like';
+import {
+  deleteBranch,
+  deletePullRequest,
+  excludeBranchFromPurge,
+  getBranches,
+  getPullRequests,
+  renameBranch,
+  setMainBranch,
+} from '../branches';
+import { mockBranchList, mockPullRequestList } from './data/branches';
+
+jest.mock('../branches');
 
 export default class BranchesServiceMock {
-  branchLikes: BranchLike[];
-  defaultBranchLikes: BranchLike[] = [
-    mockBranch({ isMain: true, name: 'master' }),
-    mockBranch({ excludedFromPurge: false, name: 'delete-branch' }),
-    mockBranch({ name: 'normal-branch' }),
-  ];
+  branches: Branch[];
+  pullRequests: PullRequest[];
 
   constructor() {
-    this.branchLikes = cloneDeep(this.defaultBranchLikes);
-    (getBranches as jest.Mock).mockImplementation(this.getBranchesHandler);
+    this.branches = mockBranchList();
+    this.pullRequests = mockPullRequestList();
+
+    jest.mocked(getBranches).mockImplementation(this.getBranchesHandler);
+    jest.mocked(getPullRequests).mockImplementation(this.getPullRequestsHandler);
+    jest.mocked(deleteBranch).mockImplementation(this.deleteBranchHandler);
+    jest.mocked(deletePullRequest).mockImplementation(this.deletePullRequestHandler);
+    jest.mocked(renameBranch).mockImplementation(this.renameBranchHandler);
+    jest.mocked(excludeBranchFromPurge).mockImplementation(this.excludeBranchFromPurgeHandler);
+    jest.mocked(setMainBranch).mockImplementation(this.setMainBranchHandler);
   }
 
   getBranchesHandler = () => {
-    return Promise.resolve(this.branchLikes);
+    return this.reply(this.branches);
   };
 
-  resetBranches = () => {
-    this.branchLikes = cloneDeep(this.defaultBranchLikes);
+  getPullRequestsHandler = () => {
+    return this.reply(this.pullRequests);
   };
+
+  deleteBranchHandler: typeof deleteBranch = ({ branch }) => {
+    this.branches = this.branches.filter((b) => b.name !== branch);
+    return this.reply(null);
+  };
+
+  deletePullRequestHandler: typeof deletePullRequest = ({ pullRequest }) => {
+    this.pullRequests = this.pullRequests.filter((b) => b.key !== pullRequest);
+    return this.reply(null);
+  };
+
+  renameBranchHandler: typeof renameBranch = (_, name) => {
+    this.branches = this.branches.map((b) => (b.isMain ? { ...b, name } : b));
+    return this.reply(null);
+  };
+
+  excludeBranchFromPurgeHandler: typeof excludeBranchFromPurge = (_, name, value) => {
+    this.branches = this.branches.map((b) =>
+      b.name === name ? { ...b, excludedFromPurge: value } : b,
+    );
+    return this.reply(null);
+  };
+
+  setMainBranchHandler: typeof setMainBranch = (_, branch) => {
+    this.branches = this.branches.map((b) => ({
+      ...b,
+      excludedFromPurge: b.excludedFromPurge || b.isMain || b.name === branch,
+      isMain: b.name === branch,
+    }));
+    return this.reply(null);
+  };
+
+  emptyBranches = () => {
+    this.branches = [];
+  };
+
+  emptyBranchesAndPullRequest = () => {
+    this.branches = [];
+    this.pullRequests = [];
+  };
+
+  addBranch = (branch: Branch) => {
+    this.branches.push(branch);
+  };
+
+  addPullRequest = (branch: PullRequest) => {
+    this.pullRequests.push(branch);
+  };
+
+  reset = () => {
+    this.branches = mockBranchList();
+    this.pullRequests = mockPullRequestList();
+  };
+
+  reply<T>(response: T): Promise<T> {
+    return Promise.resolve(cloneDeep(response));
+  }
 }

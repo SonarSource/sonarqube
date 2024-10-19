@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { AdditionalCategory } from '../AdditionalCategories';
-import { CategoriesList, CategoriesListProps } from '../AllCategoriesList';
+import CategoriesList, { CategoriesListProps } from '../AllCategoriesList';
 
 jest.mock('../AdditionalCategories', () => ({
   ADDITIONAL_CATEGORIES: [
@@ -69,7 +69,7 @@ it('should render correctly', () => {
   expect(screen.getByText('CAT_2_NAME')).toBeInTheDocument();
   expect(screen.queryByText('CAT_3_NAME')).not.toBeInTheDocument();
   expect(screen.queryByText('CAT_4_NAME')).not.toBeInTheDocument();
-  expect(screen.getByText('CAT_2_NAME')).toHaveClass('active', { exact: true });
+  expect(screen.getByText('CAT_2_NAME')).toHaveClass('active');
 });
 
 it('should correctly for project', () => {
@@ -97,6 +97,6 @@ function renderCategoriesList(props?: Partial<CategoriesListProps>) {
       defaultCategory="general"
       selectedCategory=""
       {...props}
-    />
+    />,
   );
 }

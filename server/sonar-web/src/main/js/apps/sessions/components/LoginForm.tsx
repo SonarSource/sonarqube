@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import { FormField, InputField } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import './LoginForm.css';
 
 interface Props {
   collapsed?: boolean;
@@ -35,6 +33,9 @@ interface State {
   login: string;
   password: string;
 }
+
+const LOGIN_INPUT_ID = 'login-input';
+const PASSWORD_INPUT_ID = 'password-input';
 
 export default class LoginForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
@@ -72,62 +73,50 @@ export default class LoginForm extends React.PureComponent<Props, State> {
   render() {
     if (this.state.collapsed) {
       return (
-        <div className="text-center">
-          <ButtonLink
-            aria-expanded={false}
-            className="small js-more-options"
-            onClick={this.handleMoreOptionsClick}
-          >
-            {translate('login.more_options')}
-          </ButtonLink>
-        </div>
+        <Button
+          className="sw-w-full sw-justify-center"
+          aria-expanded={false}
+          onClick={this.handleMoreOptionsClick}
+        >
+          {translate('login.more_options')}
+        </Button>
       );
     }
     return (
-      <form className="login-form" onSubmit={this.handleSubmit}>
-        <div className="big-spacer-bottom">
-          <label className="login-label" htmlFor="login">
-            {translate('login')}
-          </label>
-          <input
-            autoFocus={true}
-            className="login-input"
-            id="login"
+      <form className="sw-w-full" onSubmit={this.handleSubmit}>
+        <FormField label={translate('login')} htmlFor={LOGIN_INPUT_ID} required>
+          <InputField
+            autoFocus
+            id={LOGIN_INPUT_ID}
             maxLength={255}
             name="login"
             onChange={this.handleLoginChange}
-            placeholder={translate('login')}
-            required={true}
+            required
             type="text"
             value={this.state.login}
+            size="full"
           />
-        </div>
+        </FormField>
 
-        <div className="big-spacer-bottom">
-          <label className="login-label" htmlFor="password">
-            {translate('password')}
-          </label>
-          <input
-            className="login-input"
-            id="password"
+        <FormField label={translate('password')} htmlFor={PASSWORD_INPUT_ID} required>
+          <InputField
+            id={PASSWORD_INPUT_ID}
             name="password"
             onChange={this.handlePwdChange}
-            placeholder={translate('password')}
-            required={true}
+            required
             type="password"
             value={this.state.password}
+            size="full"
           />
-        </div>
+        </FormField>
 
         <div>
-          <div className="text-right overflow-hidden">
-            <DeferredSpinner className="spacer-right" loading={this.state.loading} />
-            <SubmitButton disabled={this.state.loading}>
+          <div className="sw-flex sw-items-center sw-justify-end sw-gap-3">
+            <Spinner isLoading={this.state.loading} />
+            <LinkStandalone to="/">{translate('go_back')}</LinkStandalone>
+            <Button isDisabled={this.state.loading} type="submit" variety={ButtonVariety.Primary}>
               {translate('sessions.log_in')}
-            </SubmitButton>
-            <Link className="spacer-left" to="/">
-              {translate('cancel')}
-            </Link>
+            </Button>
           </div>
         </div>
       </form>

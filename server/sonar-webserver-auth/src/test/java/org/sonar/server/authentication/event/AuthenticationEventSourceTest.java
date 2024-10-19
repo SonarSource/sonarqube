@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,9 +43,9 @@ public class AuthenticationEventSourceTest {
 
   @Test
   public void local_creates_source_instance_with_specified_method_and_hardcoded_provider_and_provider_name() {
-    Source underTest = Source.local(Method.BASIC_TOKEN);
+    Source underTest = Source.local(Method.SONARQUBE_TOKEN);
 
-    assertThat(underTest.getMethod()).isEqualTo(Method.BASIC_TOKEN);
+    assertThat(underTest.getMethod()).isEqualTo(Method.SONARQUBE_TOKEN);
     assertThat(underTest.getProvider()).isEqualTo(Provider.LOCAL);
     assertThat(underTest.getProviderName()).isEqualTo("local");
   }
@@ -181,7 +181,7 @@ public class AuthenticationEventSourceTest {
     assertThat(Source.sso()).isNotEqualTo(Source.jwt());
     assertThat(Source.jwt()).isEqualTo(Source.jwt());
     assertThat(Source.local(Method.BASIC)).isEqualTo(Source.local(Method.BASIC));
-    assertThat(Source.local(Method.BASIC)).isNotEqualTo(Source.local(Method.BASIC_TOKEN));
+    assertThat(Source.local(Method.BASIC)).isNotEqualTo(Source.local(Method.SONARQUBE_TOKEN));
     assertThat(Source.local(Method.BASIC)).isNotEqualTo(Source.sso());
     assertThat(Source.local(Method.BASIC)).isNotEqualTo(Source.jwt());
     assertThat(Source.local(Method.BASIC)).isNotEqualTo(Source.oauth2(newOauth2IdentityProvider("voo")));

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.db;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.DaoUtils.buildLikeValue;
@@ -27,10 +27,10 @@ import static org.sonar.db.WildcardPosition.AFTER;
 import static org.sonar.db.WildcardPosition.BEFORE;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
-public class DaoUtilsTest {
+class DaoUtilsTest {
 
   @Test
-  public void buildLikeValue_with_special_characters() {
+  void buildLikeValue_with_special_characters() {
     String escapedValue = "like-\\/_/%//-value";
     String wildcard = "%";
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,16 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
-import { Issue as TypeIssue, LinearIssueLocation, SourceLine } from '../../../types/types';
+import { LinearIssueLocation, SourceLine, Issue as TypeIssue } from '../../../types/types';
 import Issue from '../../issue/Issue';
 
 export interface LineIssuesListProps {
   branchLike: BranchLike | undefined;
   displayAllIssues?: boolean;
   displayWhyIsThisAnIssue: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
-  issuesForLine: TypeIssue[];
-  issuePopup: { issue: string; name: string } | undefined;
   issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
+  issuePopup: { issue: string; name: string } | undefined;
+  issuesForLine: TypeIssue[];
   line: SourceLine;
   onIssueChange: (issue: TypeIssue) => void;
   onIssueClick: (issueKey: string) => void;
@@ -64,22 +62,20 @@ export default function LineIssuesList(props: LineIssuesListProps) {
     return null;
   }
   return (
-    <div className="issue-list">
+    <ul className="sw-my-4 sw-max-w-[980px]">
       {displayedIssue.map((issue) => (
         <Issue
           branchLike={props.branchLike}
           displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
-          displayLocationsCount={props.displayIssueLocationsCount}
-          displayLocationsLink={props.displayIssueLocationsLink}
           issue={issue}
           key={issue.key}
           onChange={props.onIssueChange}
-          onClick={props.onIssueClick}
+          onSelect={props.onIssueClick}
           onPopupToggle={props.onIssuePopupToggle}
           openPopup={issuePopup && issuePopup.issue === issue.key ? issuePopup.name : undefined}
           selected={props.selectedIssue === issue.key}
         />
       ))}
-    </div>
+    </ul>
   );
 }

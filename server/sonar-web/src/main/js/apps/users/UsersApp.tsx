@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,130 +17,153 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+
+import { subDays, subSeconds } from 'date-fns';
+import {
+  HelperHintIcon,
+  InputSearch,
+  InputSelect,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  Spinner,
+  StyledPageTitle,
+} from 'design-system';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getIdentityProviders, searchUsers } from '../../api/users';
-import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { getIdentityProviders } from '../../api/users';
+import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
+import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
 import ListFooter from '../../components/controls/ListFooter';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import { Location, Router, withRouter } from '../../components/hoc/withRouter';
+import { ManagedFilter } from '../../components/controls/ManagedFilter';
+import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider, Paging } from '../../types/types';
-import { CurrentUser, User } from '../../types/users';
+import { LabelValueSelectOption } from '../../helpers/search';
+import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
+import { useUsersQueries } from '../../queries/users';
+import { IdentityProvider, Provider } from '../../types/types';
+import { RestUserDetailed } from '../../types/users';
 import Header from './Header';
-import Search from './Search';
 import UsersList from './UsersList';
-import { parseQuery, Query, serializeQuery } from './utils';
+import { USERS_ACTIVITY_OPTIONS, USER_INACTIVITY_DAYS_THRESHOLD } from './constants';
+import { UserActivity } from './types';
 
-interface Props {
-  currentUser: CurrentUser;
-  location: Location;
-  router: Router;
-}
+export default function UsersApp() {
+  const [identityProviders, setIdentityProviders] = useState<IdentityProvider[]>([]);
+  const [search, setSearch] = useState('');
+  const [usersActivity, setUsersActivity] = useState<UserActivity>(UserActivity.AnyActivity);
+  const [managed, setManaged] = useState<boolean | undefined>(undefined);
 
-interface State {
-  identityProviders: IdentityProvider[];
-  loading: boolean;
-  paging?: Paging;
-  users: User[];
-}
+  const { data: manageProvider } = useIdentityProviderQuery();
 
-export class UsersApp extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { identityProviders: [], loading: true, users: [] };
+  const usersActivityParams = useMemo(() => {
+    const nowDate = now();
+    const nowDateMinus30Days = subDays(nowDate, USER_INACTIVITY_DAYS_THRESHOLD);
+    const nowDateMinus30DaysAnd1Second = subSeconds(nowDateMinus30Days, 1);
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchIdentityProviders();
-    this.fetchUsers();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.location.query.search !== this.props.location.query.search) {
-      this.fetchUsers();
+    switch (usersActivity) {
+      case UserActivity.ActiveSonarLintUser:
+        return {
+          sonarLintLastConnectionDateFrom: toISO8601WithOffsetString(nowDateMinus30Days),
+        };
+      case UserActivity.ActiveSonarQubeUser:
+        return {
+          sonarQubeLastConnectionDateFrom: toISO8601WithOffsetString(nowDateMinus30Days),
+          sonarLintLastConnectionDateTo: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
+        };
+      case UserActivity.InactiveUser:
+        return {
+          sonarQubeLastConnectionDateTo: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
+        };
+      default:
+        return {};
     }
-  }
+  }, [usersActivity]);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const { data, isLoading, fetchNextPage } = useUsersQueries<RestUserDetailed>({
+    q: search,
+    managed,
+    ...usersActivityParams,
+  });
 
-  finishLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
+  const users = data?.pages.flatMap((page) => page.users) ?? [];
 
-  fetchIdentityProviders = () =>
-    getIdentityProviders().then(({ identityProviders }) => {
-      if (this.mounted) {
-        this.setState({ identityProviders });
-      }
-    });
+  useEffect(() => {
+    (async () => {
+      const { identityProviders } = await getIdentityProviders();
+      setIdentityProviders(identityProviders);
+    })();
+  }, []);
 
-  fetchUsers = () => {
-    const { location } = this.props;
-    this.setState({ loading: true });
-    searchUsers({ q: parseQuery(location.query).search }).then(({ paging, users }) => {
-      if (this.mounted) {
-        this.setState({ loading: false, paging, users });
-      }
-    }, this.finishLoading);
-  };
-
-  fetchMoreUsers = () => {
-    const { paging } = this.state;
-    if (paging) {
-      this.setState({ loading: true });
-      searchUsers({
-        p: paging.pageIndex + 1,
-        q: parseQuery(this.props.location.query).search,
-      }).then(({ paging, users }) => {
-        if (this.mounted) {
-          this.setState((state) => ({ loading: false, users: [...state.users, ...users], paging }));
-        }
-      }, this.finishLoading);
-    }
-  };
-
-  updateQuery = (newQuery: Partial<Query>) => {
-    const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
-    this.props.router.push({ ...this.props.location, query });
-  };
-
-  updateTokensCount = (login: string, tokensCount: number) => {
-    this.setState((state) => ({
-      users: state.users.map((user) => (user.login === login ? { ...user, tokensCount } : user)),
-    }));
-  };
-
-  render() {
-    const query = parseQuery(this.props.location.query);
-    const { loading, paging, users } = this.state;
-    return (
-      <div className="page page-limited" id="users-page">
-        <Suggestions suggestions="users" />
+  return (
+    <LargeCenteredLayout as="main" id="users-page">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <Helmet defer={false} title={translate('users.page')} />
-        <Header loading={loading} onUpdateUsers={this.fetchUsers} />
-        <Search query={query} updateQuery={this.updateQuery} />
-        <UsersList
-          currentUser={this.props.currentUser}
-          identityProviders={this.state.identityProviders}
-          onUpdateUsers={this.fetchUsers}
-          updateTokensCount={this.updateTokensCount}
-          users={users}
-        />
-        {paging !== undefined && (
-          <ListFooter
-            count={users.length}
-            loadMore={this.fetchMoreUsers}
-            ready={!loading}
-            total={paging.total}
+        <Header manageProvider={manageProvider?.provider} />
+        {manageProvider?.provider === Provider.Github && <GitHubSynchronisationWarning short />}
+        {manageProvider?.provider === Provider.Gitlab && <GitLabSynchronisationWarning short />}
+        <div className="sw-flex sw-my-4">
+          <ManagedFilter
+            manageProvider={manageProvider?.provider}
+            loading={isLoading}
+            managed={managed}
+            setManaged={(m) => setManaged(m)}
           />
-        )}
-      </div>
-    );
-  }
-}
+          <InputSearch
+            id="users-search"
+            minLength={2}
+            onChange={(search: string) => setSearch(search)}
+            placeholder={translate('search.search_by_login_or_name')}
+            value={search}
+          />
+          <div className="sw-flex sw-items-center sw-ml-4">
+            <StyledPageTitle as="label" className="sw-typo-semibold sw-mr-2">
+              {translate('users.filter.by')}
+            </StyledPageTitle>
+            <InputSelect
+              className="sw-typo-default"
+              size="medium"
+              id="users-activity-filter"
+              isDisabled={isLoading}
+              onChange={(userActivity: LabelValueSelectOption<UserActivity>) =>
+                setUsersActivity(userActivity.value)
+              }
+              options={USERS_ACTIVITY_OPTIONS}
+              isSearchable={false}
+              placeholder={translate('users.activity_filter.placeholder')}
+              aria-label={translate('users.activity_filter.label')}
+              value={
+                USERS_ACTIVITY_OPTIONS.find((option) => option.value === usersActivity) ?? null
+              }
+            />
+            <HelpTooltip
+              className="sw-ml-1"
+              overlay={
+                <>
+                  <p>{translate('users.activity_filter.helptext.sonarqube')}</p>
+                  <p>{translate('users.activity_filter.helptext.sonarlint')}</p>
+                </>
+              }
+            >
+              <HelperHintIcon />
+            </HelpTooltip>
+          </div>
+        </div>
+        <Spinner loading={isLoading}>
+          <UsersList
+            identityProviders={identityProviders}
+            users={users}
+            manageProvider={manageProvider?.provider}
+          />
+        </Spinner>
 
-export default withRouter(withCurrentUserContext(UsersApp));
+        <ListFooter
+          count={users.length}
+          loadMore={fetchNextPage}
+          ready={!isLoading}
+          total={data?.pages[0].page.total}
+        />
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
+  );
+}

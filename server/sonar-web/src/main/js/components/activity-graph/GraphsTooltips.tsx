@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Table, TableSeparator, ThemeProp, themeColor, withTheme } from 'design-system';
 import * as React from 'react';
 import { Popup, PopupPlacement } from '../../components/ui/popups';
 import { isDefined } from '../../helpers/types';
@@ -26,10 +27,8 @@ import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
-import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
-import { DEFAULT_GRAPH } from './utils';
 
-interface Props {
+interface PropsWithoutTheme {
   events: AnalysisEvent[];
   formatValue: (tick: number | string) => string;
   graph: string;
@@ -41,32 +40,23 @@ interface Props {
   tooltipPos: number;
 }
 
-const TOOLTIP_WIDTH = 250;
+export type Props = PropsWithoutTheme & ThemeProp;
+
+const TOOLTIP_WIDTH = 280;
 const TOOLTIP_LEFT_MARGIN = 60;
 const TOOLTIP_LEFT_FLIP_THRESHOLD = 50;
 
-export default class GraphsTooltips extends React.PureComponent<Props> {
+const COLUMNS = 3;
+
+export class GraphsTooltipsClass extends React.PureComponent<Props> {
   renderContent() {
-    const { tooltipIdx, series, graph, measuresHistory } = this.props;
+    const { tooltipIdx, series } = this.props;
 
     return series.map((serie, idx) => {
       const point = serie.data[tooltipIdx];
+
       if (!point || (!point.y && point.y !== 0)) {
         return null;
-      }
-
-      if (graph === DEFAULT_GRAPH) {
-        return (
-          <GraphsTooltipsContentIssues
-            index={idx}
-            key={serie.name}
-            measuresHistory={measuresHistory}
-            name={serie.name}
-            tooltipIdx={tooltipIdx}
-            translatedName={serie.translatedName}
-            value={this.props.formatValue(point.y)}
-          />
-        );
       }
 
       return (
@@ -82,12 +72,21 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
   }
 
   render() {
-    const { events, measuresHistory, tooltipIdx, tooltipPos, graph, graphWidth, selectedDate } =
-      this.props;
+    const {
+      events,
+      measuresHistory,
+      tooltipIdx,
+      tooltipPos,
+      graph,
+      graphWidth,
+      selectedDate,
+      theme,
+    } = this.props;
 
     const top = 30;
     let left = tooltipPos + TOOLTIP_LEFT_MARGIN;
     let placement = PopupPlacement.RightTop;
+
     if (left > graphWidth - TOOLTIP_WIDTH - TOOLTIP_LEFT_FLIP_THRESHOLD) {
       left -= TOOLTIP_WIDTH;
       placement = PopupPlacement.LeftTop;
@@ -98,19 +97,28 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
 
     return (
       <Popup
-        className="disabled-pointer-events"
+        className="sw-pointer-events-none"
+        noArrow
         placement={placement}
         style={{ top, left, width: TOOLTIP_WIDTH }}
       >
-        <div className="activity-graph-tooltip">
-          <div className="activity-graph-tooltip-title spacer-bottom">
+        <div className="sw-p-2">
+          <div
+            className="sw-typo-lg-semibold sw-whitespace-nowrap"
+            style={{ color: themeColor('selectionCardHeader')({ theme }) }}
+          >
             <DateTimeFormatter date={selectedDate} />
           </div>
-          <table className="width-100">
+          <Table
+            columnCount={COLUMNS}
+            noHeaderTopBorder
+            style={{ color: themeColor('dropdownMenuSubTitle')({ theme }) }}
+          >
+            {addSeparator && <TableSeparator />}
             {events?.length > 0 && (
               <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
             )}
-            <tbody>{tooltipContent}</tbody>
+            {tooltipContent}
             {graph === GraphType.coverage && (
               <GraphsTooltipsContentCoverage
                 addSeparator={addSeparator}
@@ -125,9 +133,11 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
                 tooltipIdx={tooltipIdx}
               />
             )}
-          </table>
+          </Table>
         </div>
       </Popup>
     );
   }
 }
+
+export const GraphsTooltips = withTheme<PropsWithoutTheme>(GraphsTooltipsClass);

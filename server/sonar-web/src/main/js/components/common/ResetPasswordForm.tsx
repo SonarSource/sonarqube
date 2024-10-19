@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,138 +17,108 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, FormField, InputField } from 'design-system';
 import * as React from 'react';
 import { changePassword } from '../../api/users';
-import { SubmitButton } from '../../components/controls/buttons';
-import { Alert } from '../../components/ui/Alert';
-import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
-import { LoggedInUser } from '../../types/users';
+import { ChangePasswordResults, LoggedInUser } from '../../types/users';
+import UserPasswordInput, { PasswordChangeHandlerParams } from './UserPasswordInput';
 
 interface Props {
   className?: string;
-  user: LoggedInUser;
   onPasswordChange?: () => void;
+  user: LoggedInUser;
 }
 
-interface State {
-  errors?: string[];
-  success: boolean;
-}
+export default function ResetPasswordForm({
+  className,
+  onPasswordChange,
+  user: { login },
+}: Readonly<Props>) {
+  const [error, setError] = React.useState<string | undefined>(undefined);
+  const [oldPassword, setOldPassword] = React.useState('');
+  const [password, setPassword] = React.useState<PasswordChangeHandlerParams>({
+    value: '',
+    isValid: false,
+  });
+  const [success, setSuccess] = React.useState(false);
 
-export default class ResetPasswordForm extends React.Component<Props, State> {
-  oldPassword: HTMLInputElement | null = null;
-  password: HTMLInputElement | null = null;
-  passwordConfirmation: HTMLInputElement | null = null;
-  state: State = {
-    success: false,
+  const handleSuccessfulChange = () => {
+    setOldPassword('');
+    setPassword({
+      value: '',
+      isValid: false,
+    });
+    setSuccess(true);
+
+    onPasswordChange?.();
   };
 
-  handleSuccessfulChange = () => {
-    if (!this.oldPassword || !this.password || !this.passwordConfirmation) {
-      return;
-    }
-    this.oldPassword.value = '';
-    this.password.value = '';
-    this.passwordConfirmation.value = '';
-    this.setState({ success: true, errors: undefined });
-    if (this.props.onPasswordChange) {
-      this.props.onPasswordChange();
-    }
-  };
-
-  setErrors = (errors: string[]) => {
-    this.setState({ success: false, errors });
-  };
-
-  handleChangePassword = (event: React.FormEvent) => {
+  const handleChangePassword = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!this.oldPassword || !this.password || !this.passwordConfirmation) {
-      return;
-    }
-    const { user } = this.props;
-    const previousPassword = this.oldPassword.value;
-    const password = this.password.value;
-    const passwordConfirmation = this.passwordConfirmation.value;
 
-    if (password !== passwordConfirmation) {
-      this.password.focus();
-      this.setErrors([translate('user.password_doesnt_match_confirmation')]);
-    } else {
-      changePassword({ login: user.login, password, previousPassword }).then(
-        this.handleSuccessfulChange,
-        () => {
-          // error already reported.
+    setError(undefined);
+    setSuccess(false);
+
+    changePassword({ login, password: password.value, previousPassword: oldPassword })
+      .then(handleSuccessfulChange)
+      .catch((result: ChangePasswordResults) => {
+        if (result === ChangePasswordResults.OldPasswordIncorrect) {
+          setError(translate('user.old_password_incorrect'));
+        } else if (result === ChangePasswordResults.NewPasswordSameAsOld) {
+          setError(translate('user.new_password_same_as_old'));
         }
-      );
-    }
+      });
   };
 
-  render() {
-    const { className } = this.props;
-    const { success, errors } = this.state;
+  return (
+    <form className={className} onSubmit={handleChangePassword}>
+      {success && (
+        <div className="sw-pb-4">
+          <FlagMessage variant="success">{translate('my_profile.password.changed')}</FlagMessage>
+        </div>
+      )}
 
-    return (
-      <form className={className} onSubmit={this.handleChangePassword}>
-        {success && <Alert variant="success">{translate('my_profile.password.changed')}</Alert>}
+      {error !== undefined && (
+        <div className="sw-pb-4">
+          <FlagMessage variant="error">{error}</FlagMessage>
+        </div>
+      )}
 
-        {errors &&
-          errors.map((e, i) => (
-            /* eslint-disable-next-line react/no-array-index-key */
-            <Alert key={i} variant="error">
-              {e}
-            </Alert>
-          ))}
+      <MandatoryFieldsExplanation className="sw-block sw-clear-both sw-pb-4" />
 
-        <MandatoryFieldsExplanation className="form-field" />
-
-        <div className="form-field">
-          <label htmlFor="old_password">
-            {translate('my_profile.password.old')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
+      <div className="sw-pb-4">
+        <FormField htmlFor="old_password" label={translate('my_profile.password.old')} required>
+          <InputField
+            size="large"
             autoComplete="off"
             id="old_password"
             name="old_password"
-            ref={(elem) => (this.oldPassword = elem)}
-            required={true}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOldPassword(e.target.value)}
+            required
             type="password"
+            value={oldPassword}
           />
-        </div>
-        <div className="form-field">
-          <label htmlFor="password">
-            {translate('my_profile.password.new')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
-            autoComplete="off"
-            id="password"
-            name="password"
-            ref={(elem) => (this.password = elem)}
-            required={true}
-            type="password"
-          />
-        </div>
-        <div className="form-field">
-          <label htmlFor="password_confirmation">
-            {translate('my_profile.password.confirm')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
-            autoComplete="off"
-            id="password_confirmation"
-            name="password_confirmation"
-            ref={(elem) => (this.passwordConfirmation = elem)}
-            required={true}
-            type="password"
-          />
-        </div>
-        <div className="form-field">
-          <SubmitButton id="change-password">{translate('update_verb')}</SubmitButton>
-        </div>
-      </form>
-    );
-  }
+        </FormField>
+      </div>
+
+      <div className="sw-pb-4">
+        <UserPasswordInput onChange={setPassword} size="large" value={password.value} />
+      </div>
+
+      <div className="sw-py-3">
+        <Button
+          isDisabled={oldPassword === '' || !password.isValid}
+          id="change-password"
+          type="submit"
+          variety={ButtonVariety.Primary}
+        >
+          {translate('update_verb')}
+        </Button>
+      </div>
+    </form>
+  );
 }

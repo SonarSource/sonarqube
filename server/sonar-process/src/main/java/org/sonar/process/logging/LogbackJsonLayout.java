@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,10 +30,11 @@ import java.io.StringWriter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -45,17 +46,23 @@ import static java.util.Objects.requireNonNull;
  */
 public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
 
-  static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+  static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     .withLocale(Locale.US)
     .withZone(ZoneId.systemDefault());
   private static final Pattern NEWLINE_REGEXP = Pattern.compile("\n");
 
   private final String processKey;
   private final String nodeName;
+  private final List<String> exclusions;
 
   public LogbackJsonLayout(String processKey, String nodeName) {
+    this(processKey, nodeName, List.of());
+  }
+
+  public LogbackJsonLayout(String processKey, String nodeName, List<String> exclusions) {
     this.processKey = requireNonNull(processKey);
     this.nodeName = nodeName;
+    this.exclusions = exclusions;
   }
 
   String getProcessKey() {
@@ -72,7 +79,7 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
       }
       json.name("process").value(processKey);
       for (Map.Entry<String, String> entry : event.getMDCPropertyMap().entrySet()) {
-        if (entry.getValue() != null) {
+        if (entry.getValue() != null && !exclusions.contains(entry.getKey())) {
           json.name(entry.getKey()).value(entry.getValue());
         }
       }

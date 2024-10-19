@@ -10,11 +10,11 @@
     t.token_hash as "tokenHash",
     t.last_connection_date as "lastConnectionDate",
     t.created_at as "createdAt",
-    t.project_key as "projectKey",
+    t.project_uuid as "projectUuid",
     t.type as "type",
     t.expiration_date as "expirationDate",
     p.name as "projectName",
-    p.uuid as "projectUuid"
+    p.kee as "projectKey"
   </sql>
 
   <insert id="insert" parameterType="UserToken" useGeneratedKeys="false">
@@ -24,7 +24,7 @@
     name,
     token_hash,
     created_at,
-    project_key,
+    project_uuid,
     type,
     expiration_date
     ) values (
@@ -33,7 +33,7 @@
     #{name, jdbcType=VARCHAR},
     #{tokenHash, jdbcType=VARCHAR},
     #{createdAt, jdbcType=BIGINT},
-    #{projectKey, jdbcType=VARCHAR},
+    #{projectUuid, jdbcType=VARCHAR},
     #{type, jdbcType=VARCHAR},
     #{expirationDate, jdbcType=BIGINT}
     )
@@ -51,7 +51,7 @@
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    LEFT JOIN projects p on t.project_key = p.kee
+    LEFT JOIN projects p on t.project_uuid = p.uuid
     WHERE t.token_hash=#{tokenHash, jdbcType=VARCHAR}
   </select>
 
@@ -59,7 +59,7 @@
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    LEFT JOIN projects p on t.project_key = p.kee
+    LEFT JOIN projects p on t.project_uuid = p.uuid
     WHERE t.expiration_date = #{timestamp, jdbcType=BIGINT}
   </select>
 
@@ -67,7 +67,7 @@
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    LEFT JOIN projects p on t.project_key = p.kee
+    LEFT JOIN projects p on t.project_uuid = p.uuid
     WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR} and t.name=#{name, jdbcType=VARCHAR}
   </select>
 
@@ -75,7 +75,7 @@
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    LEFT JOIN projects p on t.project_key = p.kee
+    LEFT JOIN projects p on t.project_uuid = p.uuid
     WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR} order by t.created_at desc
   </select>
   
@@ -97,8 +97,8 @@
     DELETE FROM user_tokens WHERE user_uuid=#{userUuid, jdbcType=VARCHAR} and name=#{name, jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByProjectKey">
-    DELETE FROM user_tokens WHERE project_key=#{projectKey, jdbcType=VARCHAR}
+  <delete id="deleteByProjectUuid">
+    DELETE FROM user_tokens WHERE project_uuid=#{projectUuid, jdbcType=VARCHAR}
   </delete>
 
 </mapper>

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -79,6 +79,23 @@
 
 .cayc-warning-description {
   line-height: 18px;
+}
+
+.red-text {
+  color: var(--red);
+}
+
+.green-text {
+  color: var(--success500);
+}
+
+.strike-through {
+  text-decoration: line-through;
+}
+
+#cayc-highlight.active,
+[data-guiding-id='caycConditionsSimplification'].active {
+  box-shadow: 0px 0px 4px 0px #5d6cd0;
 }
 
 .red-text {

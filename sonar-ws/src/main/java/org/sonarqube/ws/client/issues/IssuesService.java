@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -222,8 +222,7 @@ public class IssuesService extends BaseService {
         .setParam("assignees", request.getAssignees() == null ? null : request.getAssignees().stream().collect(Collectors.joining(",")))
         .setParam("author", request.getAuthor())
         .setParam("branch", request.getBranch())
-        .setParam("componentKeys", request.getComponentKeys() == null ? null : request.getComponentKeys().stream().collect(Collectors.joining(",")))
-        .setParam("componentUuids", request.getComponentUuids() == null ? null : request.getComponentUuids().stream().collect(Collectors.joining(",")))
+        .setParam("components", request.getComponentKeys() == null ? null : request.getComponentKeys().stream().collect(Collectors.joining(",")))
         .setParam("createdAfter", request.getCreatedAfter())
         .setParam("createdAt", request.getCreatedAt())
         .setParam("createdBefore", request.getCreatedBefore())
@@ -248,7 +247,7 @@ public class IssuesService extends BaseService {
         .setParam("sansTop25", request.getSansTop25() == null ? null : request.getSansTop25().stream().collect(Collectors.joining(",")))
         .setParam("sonarsourceSecurity", request.getSonarsourceSecurity() == null ? null : request.getSonarsourceSecurity().stream().collect(Collectors.joining(",")))
         .setParam("severities", request.getSeverities() == null ? null : request.getSeverities().stream().collect(Collectors.joining(",")))
-        .setParam("sinceLeakPeriod", request.getSinceLeakPeriod())
+        .setParam("inNewCodePeriod", request.isInNewCodePeriod())
         .setParam("statuses", request.getStatuses() == null ? null : request.getStatuses().stream().collect(Collectors.joining(",")))
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
         .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(","))),
@@ -352,4 +351,18 @@ public class IssuesService extends BaseService {
         .setParam("changedSince", request.getChangedSince())
     ).contentStream();
   }
+
+  /**
+   * This is part of the internal API.
+   * This is a POST request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/api/issues/anticipated_transitions">Further information about this action online (including a response example)</a>
+   * @since 10.2
+   */
+  public int anticipatedTransitions(String projectKey, String body) {
+    return call(
+      new PostRequest(path("anticipated_transitions?projectKey=" + projectKey))
+        .setBody(body)).code();
+  }
+
 }

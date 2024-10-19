@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,53 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, difference, size, sortBy } from 'lodash';
+import { size } from 'lodash';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { searchProjectTags } from '../../../api/components';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Dict, RawQuery } from '../../../types/types';
+import { translate } from '../../../helpers/l10n';
+import { highlightTerm } from '../../../helpers/search';
+import { Dict } from '../../../types/types';
+import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
-import SearchableFilterFooter from './SearchableFilterFooter';
-import SearchableFilterOption from './SearchableFilterOption';
 
 interface Props {
   facet?: Facet;
-  maxFacetValue?: number;
+  loadSearchResultCount: (property: string, values: string[]) => Promise<Dict<number>>;
   onQueryChange: (change: RawQuery) => void;
-  property?: string;
   query: Dict<any>;
   value?: string[];
 }
 
 interface State {
   isLoading: boolean;
-  search: string;
-  tags: string[];
 }
 
 const LIST_SIZE = 10;
+const SEARCH_SIZE = 100;
 
-function renderAccessibleLabel(option: string) {
-  return translateWithParameters(
-    'projects.facets.label_text_x',
-    translate('projects.facets.tags'),
-    option
-  );
-}
-
-export default class TagsFilter extends React.PureComponent<Props, State> {
+export default class TagsFacet extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
     this.state = {
       isLoading: false,
-      search: '',
-      tags: [],
     };
-    this.handleSearch = debounce(this.handleSearch, 250);
   }
 
   componentDidMount() {
@@ -74,62 +60,48 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  getSearchOptions = () => {
-    let tagsCopy = [...this.state.tags];
-    if (this.props.facet) {
-      tagsCopy = difference(tagsCopy, Object.keys(this.props.facet));
-    }
-    return tagsCopy.slice(0, LIST_SIZE).map((tag) => ({ label: tag, value: tag }));
+  handleSearch = (search = ''): Promise<{ maxResults: boolean; results: string[] }> => {
+    this.setState({ isLoading: true });
+
+    return searchProjectTags({
+      q: search,
+      ps: size(this.props.facet ?? {}) + LIST_SIZE,
+    }).then((result) => {
+      if (this.mounted) {
+        this.setState({ isLoading: false });
+      }
+      return { maxResults: result.tags.length === SEARCH_SIZE, results: result.tags };
+    });
   };
 
-  handleSearch = (search?: string) => {
-    if (search !== this.state.search) {
-      search = search || '';
-      this.setState({ search, isLoading: true });
-      searchProjectTags({
-        q: search,
-        ps: size(this.props.facet || {}) + LIST_SIZE,
-      }).then(
-        (result) => {
-          if (this.mounted) {
-            this.setState({ isLoading: false, tags: result.tags });
-          }
-        },
-        () => {}
-      );
-    }
+  handleChange = (newValue: Dict<string[]>) => {
+    const { tags } = newValue;
+    this.props.onQueryChange({ tags: tags.join(',') });
   };
 
-  getSortedOptions = (facet: Facet = {}) =>
-    sortBy(Object.keys(facet), [(option: string) => -facet[option], (option: string) => option]);
-
-  renderOption = (option: string) => <SearchableFilterOption optionKey={option} />;
+  loadSearchResultCount = (tags: string[]) => {
+    return this.props.loadSearchResultCount('tags', tags);
+  };
 
   render() {
-    const { property = 'tags' } = this.props;
+    const { facet, query, value = [] } = this.props;
+    const { isLoading } = this.state;
 
     return (
-      <Filter
-        facet={this.props.facet}
-        footer={
-          <SearchableFilterFooter
-            isLoading={this.state.isLoading}
-            onInputChange={this.handleSearch}
-            onOpen={this.handleSearch}
-            onQueryChange={this.props.onQueryChange}
-            options={this.getSearchOptions()}
-            property={property}
-            query={this.props.query}
-          />
-        }
-        header={<FilterHeader name={translate('projects.facets.tags')} />}
-        maxFacetValue={this.props.maxFacetValue}
-        onQueryChange={this.props.onQueryChange}
-        options={this.getSortedOptions(this.props.facet)}
-        property={property}
-        renderAccessibleLabel={renderAccessibleLabel}
-        renderOption={this.renderOption}
-        value={this.props.value}
+      <ListStyleFacet<string>
+        facetHeader={translate('projects.facets.tags')}
+        fetching={isLoading}
+        loadSearchResultCount={this.loadSearchResultCount}
+        onChange={this.handleChange}
+        onSearch={this.handleSearch}
+        query={query}
+        open
+        property="tags"
+        renderSearchResult={highlightTerm}
+        searchPlaceholder={translate('search.search_for_tags')}
+        showStatBar
+        stats={facet}
+        values={value}
       />
     );
   }

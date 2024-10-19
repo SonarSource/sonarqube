@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -51,13 +51,17 @@ public class HealthStateRefresher implements Startable {
       NodeHealth nodeHealth = nodeHealthProvider.get();
       sharedHealthState.writeMine(nodeHealth);
     } catch (HazelcastInstanceNotActiveException | RetryableHazelcastException e) {
-      LOG.debug("Hazelcast is no more active", e);
+      LOG.debug("Hazelcast is not active anymore", e);
     } catch (Throwable t) {
       LOG.error("An error occurred while attempting to refresh HealthState of the current node in the shared state:", t);
     }
   }
 
   public void stop() {
-    sharedHealthState.clearMine();
+    try {
+      sharedHealthState.clearMine();
+    } catch (HazelcastInstanceNotActiveException | RetryableHazelcastException e) {
+      LOG.debug("Hazelcast is not active anymore", e);
+    }
   }
 }

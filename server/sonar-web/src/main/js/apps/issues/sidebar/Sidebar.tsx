@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { isBranch, isPullRequest } from '../../../helpers/branch-like';
-import { AppState } from '../../../types/appstate';
+import { FormattedMessage } from 'react-intl';
+import { isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { useAppState } from '../../../app/components/app-state/withAppStateContext';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
+import SeverityFacet from '../../../components/facets/SeverityFacet';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import {
-  ComponentQualifier,
-  isApplication,
-  isPortfolioLike,
-  isView,
-} from '../../../types/component';
+import { isApplication, isProject, isView } from '../../../types/component';
+import { Feature } from '../../../types/features';
 import {
   Facet,
   ReferencedComponent,
@@ -38,28 +40,29 @@ import { GlobalSettingKeys } from '../../../types/settings';
 import { Component, Dict, Organization } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import { Query } from '../utils';
-import AssigneeFacet from './AssigneeFacet';
-import AuthorFacet from './AuthorFacet';
-import CreationDateFacet from './CreationDateFacet';
-import DirectoryFacet from './DirectoryFacet';
-import FileFacet from './FileFacet';
-import LanguageFacet from './LanguageFacet';
-import PeriodFilter from './PeriodFilter';
-import ProjectFacet from './ProjectFacet';
-import ResolutionFacet from './ResolutionFacet';
-import RuleFacet from './RuleFacet';
-import ScopeFacet from './ScopeFacet';
-import SeverityFacet from './SeverityFacet';
-import StandardFacet from './StandardFacet';
-import StatusFacet from './StatusFacet';
-import TagFacet from './TagFacet';
-import TypeFacet from './TypeFacet';
+import { AssigneeFacet } from './AssigneeFacet';
+import { AttributeCategoryFacet } from './AttributeCategoryFacet';
+import { AuthorFacet } from './AuthorFacet';
+import { CreationDateFacet } from './CreationDateFacet';
+import { DirectoryFacet } from './DirectoryFacet';
+import { FileFacet } from './FileFacet';
+import { IssueStatusFacet } from './IssueStatusFacet';
+import { LanguageFacet } from './LanguageFacet';
+import { PeriodFilter } from './PeriodFilter';
+import { PrioritizedRuleFacet } from './PrioritizedRuleFacet';
+import { ProjectFacet } from './ProjectFacet';
+import { RuleFacet } from './RuleFacet';
+import { ScopeFacet } from './ScopeFacet';
+import { SoftwareQualityFacet } from './SoftwareQualityFacet';
+import { StandardFacet } from './StandardFacet';
+import { TagFacet } from './TagFacet';
+import { TypeFacet } from './TypeFacet';
+import { VariantFacet } from './VariantFacet';
 
 export interface Props {
-  appState: AppState;
+  organization?: Organization;
   branchLike?: BranchLike;
   component: Component | undefined;
-  organization?: Organization;
   createdAfterIncludesTime: boolean;
   facets: Dict<Facet | undefined>;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
@@ -74,35 +77,72 @@ export interface Props {
   referencedLanguages: Dict<ReferencedLanguage>;
   referencedRules: Dict<ReferencedRule>;
   referencedUsers: Dict<UserBase>;
+  showVariantsFilter: boolean;
 }
 
-export class Sidebar extends React.PureComponent<Props> {
-  renderComponentFacets() {
-    const { component, facets, loadingFacets, openFacets, query, branchLike } = this.props;
+export function Sidebar(props: Readonly<Props>) {
+  const {
+    component,
+    facets,
+    loadingFacets,
+    openFacets,
+    query,
+    branchLike,
+    showVariantsFilter,
+    createdAfterIncludesTime,
+  } = props;
+  const { settings } = useAppState();
+  const { hasFeature } = useAvailableFeatures();
+
+  const renderComponentFacets = () => {
     const hasFileOrDirectory =
       !isApplication(component?.qualifier) && !isPortfolioLike(component?.qualifier);
+
     if (!component || !hasFileOrDirectory) {
       return null;
     }
+
     const commonProps = {
       componentKey: component.key,
-      loadSearchResultCount: this.props.loadSearchResultCount,
-      onChange: this.props.onFilterChange,
-      onToggle: this.props.onFacetToggle,
+      loadSearchResultCount: props.loadSearchResultCount,
+      onChange: props.onFilterChange,
+      onToggle: props.onFacetToggle,
       query,
     };
+
     return (
       <>
-        {component.qualifier !== ComponentQualifier.Directory && (
-          <DirectoryFacet
-            branchLike={branchLike}
-            directories={query.directories}
-            fetching={loadingFacets.directories === true}
-            open={!!openFacets.directories}
-            stats={facets.directories}
-            {...commonProps}
-          />
+        {showVariantsFilter && isProject(component?.qualifier) && (
+          <>
+            <BasicSeparator className="sw-my-4" />
+
+            <VariantFacet
+              fetching={loadingFacets.codeVariants === true}
+              open={!!openFacets.codeVariants}
+              stats={facets.codeVariants}
+              values={query.codeVariants}
+              {...commonProps}
+            />
+          </>
         )}
+
+        {component.qualifier !== ComponentQualifier.Directory && (
+          <>
+            <BasicSeparator className="sw-my-4" />
+
+            <DirectoryFacet
+              branchLike={branchLike}
+              directories={query.directories}
+              fetching={loadingFacets.directories === true}
+              open={!!openFacets.directories}
+              stats={facets.directories}
+              {...commonProps}
+            />
+          </>
+        )}
+
+        <BasicSeparator className="sw-my-4" />
+
         <FileFacet
           branchLike={branchLike}
           fetching={loadingFacets.files === true}
@@ -113,210 +153,293 @@ export class Sidebar extends React.PureComponent<Props> {
         />
       </>
     );
-  }
+  };
 
-  render() {
-    const {
-      appState: { settings },
-      component,
-      createdAfterIncludesTime,
-      facets,
-      openFacets,
-      query,
-      branchLike,
-    } = this.props;
+  const disableDeveloperAggregatedInfo =
+    settings[GlobalSettingKeys.DeveloperAggregatedInfoDisabled] === 'true';
 
-    const disableDeveloperAggregatedInfo =
-      settings[GlobalSettingKeys.DeveloperAggregatedInfoDisabled] === 'true';
+  const branch =
+    (isBranch(branchLike) && branchLike.name) ||
+    (isPullRequest(branchLike) && branchLike.branch) ||
+    undefined;
 
-    const branch =
-      (isBranch(branchLike) && branchLike.name) ||
-      (isPullRequest(branchLike) && branchLike.branch) ||
-      undefined;
+  const displayPeriodFilter = component !== undefined && !isPortfolioLike(component.qualifier);
+  const displayProjectsFacet = !component || isView(component.qualifier);
 
-    const displayPeriodFilter = component !== undefined && !isPortfolioLike(component.qualifier);
-    const displayProjectsFacet = !component || isView(component.qualifier);
-    const displayAuthorFacet = !component || component.qualifier !== 'DEV';
+  const needIssueSync = component?.needIssueSync;
 
-    const organizationKey =
-        (component && component.organization) ||
-        (this.props.organization && this.props.organization.kee);
+  const organizationKey =
+    (component && component.organization) ||
+    (this.props.organization && this.props.organization.kee);
 
-    return (
-      <>
-        {displayPeriodFilter && (
-          <PeriodFilter
-            fetching={this.props.loadingFacets.period === true}
-            onChange={this.props.onFilterChange}
-            stats={facets.period}
-            newCodeSelected={query.inNewCodePeriod}
+  return (
+    <>
+      {displayPeriodFilter && (
+        <PeriodFilter onChange={props.onFilterChange} newCodeSelected={query.inNewCodePeriod} />
+      )}
+
+      {!needIssueSync && (
+        <>
+          <AttributeCategoryFacet
+            fetching={props.loadingFacets.cleanCodeAttributeCategories === true}
+            needIssueSync={needIssueSync}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.cleanCodeAttributeCategories}
+            stats={facets.cleanCodeAttributeCategories}
+            categories={query.cleanCodeAttributeCategories}
           />
-        )}
-        <TypeFacet
-          fetching={this.props.loadingFacets.types === true}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.types}
-          stats={facets.types}
-          types={query.types}
-        />
-        <SeverityFacet
-          fetching={this.props.loadingFacets.severities === true}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.severities}
-          severities={query.severities}
-          stats={facets.severities}
-        />
-        <ScopeFacet
-          fetching={this.props.loadingFacets.scopes === true}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.scopes}
-          stats={facets.scopes}
-          scopes={query.scopes}
-        />
-        <ResolutionFacet
-          fetching={this.props.loadingFacets.resolutions === true}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.resolutions}
-          resolutions={query.resolutions}
-          resolved={query.resolved}
-          stats={facets.resolutions}
-        />
-        <StatusFacet
-          fetching={this.props.loadingFacets.statuses === true}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.statuses}
-          stats={facets.statuses}
-          statuses={query.statuses}
-        />
-        <StandardFacet
-          cwe={query.cwe}
-          cweOpen={!!openFacets.cwe}
-          cweStats={facets.cwe}
-          fetchingCwe={this.props.loadingFacets.cwe === true}
-          fetchingOwaspTop10={this.props.loadingFacets.owaspTop10 === true}
-          fetchingOwaspTop10-2021={this.props.loadingFacets['owaspTop10-2021'] === true}
-          fetchingSansTop25={this.props.loadingFacets.sansTop25 === true}
-          fetchingSonarSourceSecurity={this.props.loadingFacets.sonarsourceSecurity === true}
-          loadSearchResultCount={this.props.loadSearchResultCount}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.standards}
-          owaspTop10={query.owaspTop10}
-          owaspTop10Open={!!openFacets.owaspTop10}
-          owaspTop10Stats={facets.owaspTop10}
-          owaspTop10-2021={query['owaspTop10-2021']}
-          owaspTop10-2021Open={!!openFacets['owaspTop10-2021']}
-          owaspTop10-2021Stats={facets['owaspTop10-2021']}
-          query={query}
-          sansTop25={query.sansTop25}
-          sansTop25Open={!!openFacets.sansTop25}
-          sansTop25Stats={facets.sansTop25}
-          sonarsourceSecurity={query.sonarsourceSecurity}
-          sonarsourceSecurityOpen={!!openFacets.sonarsourceSecurity}
-          sonarsourceSecurityStats={facets.sonarsourceSecurity}
-        />
-        <CreationDateFacet
-          component={component}
-          createdAfter={query.createdAfter}
-          createdAfterIncludesTime={createdAfterIncludesTime}
-          createdAt={query.createdAt}
-          createdBefore={query.createdBefore}
-          createdInLast={query.createdInLast}
-          fetching={this.props.loadingFacets.createdAt === true}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.createdAt}
-          inNewCodePeriod={query.inNewCodePeriod}
-          stats={facets.createdAt}
-        />
-        <LanguageFacet
-          fetching={this.props.loadingFacets.languages === true}
-          loadSearchResultCount={this.props.loadSearchResultCount}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.languages}
-          query={query}
-          referencedLanguages={this.props.referencedLanguages}
-          selectedLanguages={query.languages}
-          stats={facets.languages}
-        />
-        <RuleFacet
-          fetching={this.props.loadingFacets.rules === true}
-          languages={query.languages}
-          loadSearchResultCount={this.props.loadSearchResultCount}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.rules}
-          organization={organizationKey}
-          query={query}
-          referencedRules={this.props.referencedRules}
-          rules={query.rules}
-          stats={facets.rules}
-        />
-        <TagFacet
-          component={component}
-          branch={branch}
-          fetching={this.props.loadingFacets.tags === true}
-          loadSearchResultCount={this.props.loadSearchResultCount}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.tags}
-          organization={organizationKey}
-          query={query}
-          stats={facets.tags}
-          tags={query.tags}
-        />
-        {displayProjectsFacet && (
-          <ProjectFacet
+
+          <BasicSeparator className="sw-my-4" />
+
+          <SoftwareQualityFacet
+            fetching={props.loadingFacets.impactSoftwareQualities === true}
+            needIssueSync={needIssueSync}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.impactSoftwareQualities}
+            stats={facets.impactSoftwareQualities}
+            qualities={query.impactSoftwareQualities}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <SeverityFacet
+            fetching={props.loadingFacets.impactSeverities === true}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.impactSeverities}
+            stats={facets.impactSeverities}
+            values={query.impactSeverities}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+        </>
+      )}
+
+      <TypeFacet
+        fetching={props.loadingFacets.types === true}
+        needIssueSync={needIssueSync}
+        onChange={props.onFilterChange}
+        onToggle={props.onFacetToggle}
+        open={!!openFacets.types}
+        stats={facets.types}
+        types={query.types}
+      />
+      {!needIssueSync && (
+        <>
+          <BasicSeparator className="sw-my-4" />
+
+          <ScopeFacet
+            fetching={props.loadingFacets.scopes === true}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.scopes}
+            stats={facets.scopes}
+            scopes={query.scopes}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <IssueStatusFacet
+            fetching={props.loadingFacets.issueStatuses === true}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.issueStatuses}
+            issueStatuses={query.issueStatuses}
+            stats={facets.issueStatuses}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <StandardFacet
+            cwe={query.cwe}
+            cweOpen={!!openFacets.cwe}
+            cweStats={facets.cwe}
+            fetchingCwe={props.loadingFacets.cwe === true}
+            fetchingOwaspTop10={props.loadingFacets.owaspTop10 === true}
+            fetchingOwaspTop10-2021={props.loadingFacets['owaspTop10-2021'] === true}
+            fetchingSonarSourceSecurity={props.loadingFacets.sonarsourceSecurity === true}
+            loadSearchResultCount={props.loadSearchResultCount}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.standards}
+            owaspTop10={query.owaspTop10}
+            owaspTop10Open={!!openFacets.owaspTop10}
+            owaspTop10Stats={facets.owaspTop10}
+            owaspTop10-2021={query['owaspTop10-2021']}
+            owaspTop10-2021Open={!!openFacets['owaspTop10-2021']}
+            owaspTop10-2021Stats={facets['owaspTop10-2021']}
+            query={query}
+            sonarsourceSecurity={query.sonarsourceSecurity}
+            sonarsourceSecurityOpen={!!openFacets.sonarsourceSecurity}
+            sonarsourceSecurityStats={facets.sonarsourceSecurity}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <CreationDateFacet
             component={component}
-            fetching={this.props.loadingFacets.projects === true}
-            loadSearchResultCount={this.props.loadSearchResultCount}
-            onChange={this.props.onFilterChange}
-            onToggle={this.props.onFacetToggle}
-            open={!!openFacets.projects}
-            organization={this.props.organization}
-            projects={query.projects}
-            query={query}
-            referencedComponents={this.props.referencedComponentsByKey}
-            stats={facets.projects}
+            createdAfter={query.createdAfter}
+            createdAfterIncludesTime={createdAfterIncludesTime}
+            createdAt={query.createdAt}
+            createdBefore={query.createdBefore}
+            createdInLast={query.createdInLast}
+            fetching={props.loadingFacets.createdAt === true}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.createdAt}
+            inNewCodePeriod={query.inNewCodePeriod}
+            stats={facets.createdAt}
           />
-        )}
-        {this.renderComponentFacets()}
-        {!this.props.myIssues && !disableDeveloperAggregatedInfo && (
-          <AssigneeFacet
-            assigned={query.assigned}
-            assignees={query.assignees}
-            fetching={this.props.loadingFacets.assignees === true}
-            loadSearchResultCount={this.props.loadSearchResultCount}
-            onChange={this.props.onFilterChange}
-            onToggle={this.props.onFacetToggle}
-            open={!!openFacets.assignees}
+
+          <BasicSeparator className="sw-my-4" />
+
+          <LanguageFacet
+            fetching={props.loadingFacets.languages === true}
+            loadSearchResultCount={props.loadSearchResultCount}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.languages}
             query={query}
-            referencedUsers={this.props.referencedUsers}
-            stats={facets.assignees}
+            referencedLanguages={props.referencedLanguages}
+            selectedLanguages={query.languages}
+            stats={facets.languages}
           />
-        )}
-        {displayAuthorFacet && !disableDeveloperAggregatedInfo && (
-          <AuthorFacet
-            author={query.author}
-            component={component}
-            fetching={this.props.loadingFacets.author === true}
-            loadSearchResultCount={this.props.loadSearchResultCount}
-            onChange={this.props.onFilterChange}
-            onToggle={this.props.onFacetToggle}
-            open={!!openFacets.author}
+
+          <BasicSeparator className="sw-my-4" />
+
+          <RuleFacet
+            organization={organizationKey}
+            fetching={props.loadingFacets.rules === true}
+            loadSearchResultCount={props.loadSearchResultCount}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.rules}
             query={query}
-            stats={facets.author}
+            referencedRules={props.referencedRules}
+            stats={facets.rules}
           />
-        )}
-      </>
-    );
-  }
+
+          {!disableDeveloperAggregatedInfo && (
+            <>
+              <BasicSeparator className="sw-my-4" />
+
+              <TagFacet
+                organization={organizationKey}
+                component={component}
+                branch={branch}
+                fetching={props.loadingFacets.tags === true}
+                loadSearchResultCount={props.loadSearchResultCount}
+                onChange={props.onFilterChange}
+                onToggle={props.onFacetToggle}
+                open={!!openFacets.tags}
+                query={query}
+                stats={facets.tags}
+                tags={query.tags}
+              />
+
+              {displayProjectsFacet && (
+                <>
+                  <BasicSeparator className="sw-my-4" />
+
+                  <ProjectFacet
+                    organization={organizationKey}
+                    component={component}
+                    fetching={props.loadingFacets.projects === true}
+                    loadSearchResultCount={props.loadSearchResultCount}
+                    onChange={props.onFilterChange}
+                    onToggle={props.onFacetToggle}
+                    open={!!openFacets.projects}
+                    projects={query.projects}
+                    query={query}
+                    referencedComponents={props.referencedComponentsByKey}
+                    stats={facets.projects}
+                  />
+                </>
+              )}
+
+              {renderComponentFacets()}
+
+              {!props.myIssues && (
+                <>
+                  <BasicSeparator className="sw-my-4" />
+
+                  <AssigneeFacet
+                    assigned={query.assigned}
+                    assignees={query.assignees}
+                    fetching={props.loadingFacets.assignees === true}
+                    loadSearchResultCount={props.loadSearchResultCount}
+                    onChange={props.onFilterChange}
+                    onToggle={props.onFacetToggle}
+                    open={!!openFacets.assignees}
+                    query={query}
+                    referencedUsers={props.referencedUsers}
+                    stats={facets.assignees}
+                  />
+                </>
+              )}
+
+              <BasicSeparator className="sw-my-4" />
+
+              <div className="sw-mb-4">
+                <AuthorFacet
+                  author={query.author}
+                  component={component}
+                  fetching={props.loadingFacets.author === true}
+                  loadSearchResultCount={props.loadSearchResultCount}
+                  onChange={props.onFilterChange}
+                  onToggle={props.onFacetToggle}
+                  open={!!openFacets.author}
+                  query={query}
+                  stats={facets.author}
+                />
+              </div>
+            </>
+          )}
+          {hasFeature(Feature.PrioritizedRules) && (
+            <>
+              <BasicSeparator className="sw-my-4" />
+
+              <div className="sw-mb-4">
+                <PrioritizedRuleFacet
+                  value={query.prioritizedRule ? true : undefined}
+                  fetching={props.loadingFacets.prioritizedRule === true}
+                  onChange={props.onFilterChange}
+                  onToggle={props.onFacetToggle}
+                  open={!!openFacets.prioritizedRule}
+                  stats={facets.prioritizedRule}
+                />
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {needIssueSync && (
+        <>
+          <BasicSeparator className="sw-my-4" />
+
+          <FlagMessage className="sw-my-6" variant="info">
+            <div>
+              {translate('indexation.page_unavailable.description')}
+              <span className="sw-ml-1">
+                <FormattedMessage
+                  defaultMessage={translate('indexation.filters_unavailable')}
+                  id="indexation.filters_unavailable"
+                  values={{
+                    link: (
+                      <Link to="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/">
+                        {translate('learn_more')}
+                      </Link>
+                    ),
+                  }}
+                />
+              </span>
+            </div>
+          </FlagMessage>
+        </>
+      )}
+    </>
+  );
 }
-
-export default withAppStateContext(Sidebar);

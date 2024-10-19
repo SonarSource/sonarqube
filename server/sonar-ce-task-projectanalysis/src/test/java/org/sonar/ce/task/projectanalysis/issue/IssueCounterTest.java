@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,23 +19,29 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import com.google.gson.Gson;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.assertj.core.data.MapEntry;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +57,12 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.INFO;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS;
@@ -63,10 +75,15 @@ import static org.sonar.api.measures.CoreMetrics.CRITICAL_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_ACCEPTED_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.NEW_ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS;
@@ -76,48 +93,56 @@ import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_INFO_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
-import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES;
-import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES_KEY;
-import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_METRIC_KEY;
+import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_NEW_METRIC_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.test.JsonAssert.assertJson;
 
-public class IssueCounterTest {
+class IssueCounterTest {
 
   private static final Component FILE1 = builder(Component.Type.FILE, 1).build();
   private static final Component FILE2 = builder(Component.Type.FILE, 2).build();
   private static final Component FILE3 = builder(Component.Type.FILE, 3).build();
   private static final Component PROJECT = builder(Component.Type.PROJECT, 4).addChildren(FILE1, FILE2, FILE3).build();
 
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @RegisterExtension
+  private final BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+  @RegisterExtension
+  private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(VIOLATIONS)
     .add(OPEN_ISSUES)
     .add(REOPENED_ISSUES)
@@ -134,7 +159,7 @@ public class IssueCounterTest {
     .add(NEW_MINOR_VIOLATIONS)
     .add(NEW_INFO_VIOLATIONS)
     .add(FALSE_POSITIVE_ISSUES)
-    .add(WONT_FIX_ISSUES)
+    .add(ACCEPTED_ISSUES)
     .add(CODE_SMELLS)
     .add(BUGS)
     .add(VULNERABILITIES)
@@ -142,24 +167,33 @@ public class IssueCounterTest {
     .add(NEW_CODE_SMELLS)
     .add(NEW_BUGS)
     .add(NEW_VULNERABILITIES)
-    .add(NEW_SECURITY_HOTSPOTS);
+    .add(NEW_SECURITY_HOTSPOTS)
+    .add(NEW_ACCEPTED_ISSUES)
+    .add(HIGH_IMPACT_ACCEPTED_ISSUES)
+    .add(RELIABILITY_ISSUES)
+    .add(MAINTAINABILITY_ISSUES)
+    .add(SECURITY_ISSUES)
+    .add(NEW_RELIABILITY_ISSUES)
+    .add(NEW_MAINTAINABILITY_ISSUES)
+    .add(NEW_SECURITY_ISSUES);
 
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  private NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
-  private IssueCounter underTest = new IssueCounter(metricRepository, measureRepository, newIssueClassifier);
+  @RegisterExtension
+  private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+  private final NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
+  private final IssueCounter underTest = new IssueCounter(metricRepository, measureRepository, newIssueClassifier);
+  private static int issueCounter;
 
   @Test
-  public void count_issues_by_status() {
+  void count_issues_by_status() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
     underTest.afterComponent(FILE2);
 
@@ -178,19 +212,19 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_issues_by_resolution() {
+  void count_issues_by_resolution() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_CLOSED, MAJOR));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
-    underTest.onIssue(FILE2, createIssue(RESOLUTION_WONT_FIX, STATUS_CLOSED, MAJOR));
+    underTest.onIssue(FILE2, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE2);
 
     underTest.beforeComponent(FILE3);
@@ -201,23 +235,23 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertMeasures(FILE1, entry(VIOLATIONS_KEY, 1), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(WONT_FIX_ISSUES_KEY, 1));
-    assertMeasures(FILE2, entry(VIOLATIONS_KEY, 2), entry(FALSE_POSITIVE_ISSUES_KEY, 0), entry(WONT_FIX_ISSUES_KEY, 1));
+    assertMeasures(FILE1, entry(VIOLATIONS_KEY, 1), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(ACCEPTED_ISSUES_KEY, 1));
+    assertMeasures(FILE2, entry(VIOLATIONS_KEY, 2), entry(FALSE_POSITIVE_ISSUES_KEY, 0), entry(ACCEPTED_ISSUES_KEY, 1));
     assertMeasures(FILE3, entry(VIOLATIONS_KEY, 0));
-    assertMeasures(PROJECT, entry(VIOLATIONS_KEY, 3), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(WONT_FIX_ISSUES_KEY, 2));
+    assertMeasures(PROJECT, entry(VIOLATIONS_KEY, 3), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(ACCEPTED_ISSUES_KEY, 2));
   }
 
   @Test
-  public void count_unresolved_issues_by_severity() {
+  void count_unresolved_issues_by_severity() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER));
     // this resolved issue is ignored
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
     underTest.afterComponent(FILE2);
 
@@ -232,17 +266,17 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_unresolved_issues_by_type() {
+  void count_unresolved_issues_by_type() {
     // bottom-up traversal -> from files to project
     // file1 : one open code smell, one closed code smell (which will be excluded from metric)
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER).setType(CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(CODE_SMELL));
     underTest.afterComponent(FILE1);
 
     // file2 : one bug
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER).setType(RuleType.BUG));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER).setType(BUG));
     underTest.afterComponent(FILE2);
 
     // file3 : one unresolved security hotspot
@@ -261,18 +295,18 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_new_issues() {
+  void count_new_issues() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER).setType(CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER).setType(BUG));
 
     // created after -> 4 new issues but 1 is closed
-    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL).setType(CODE_SMELL));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL).setType(BUG));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(BUG));
     underTest.onIssue(FILE1, createNewSecurityHotspot());
     underTest.onIssue(FILE1, createNewSecurityHotspot().setResolution(RESOLUTION_WONT_FIX).setStatus(STATUS_CLOSED));
     underTest.afterComponent(FILE1);
@@ -283,14 +317,166 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertValues(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
-    assertValues(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
   }
 
   @Test
-  public void exclude_hotspots_from_issue_counts() {
+  void count_new_accepted_issues() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    // created before -> existing issues (so ignored)
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, CRITICAL));
+
+    // created after -> 2 accepted, 1 open, 1 hotspot
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, CRITICAL));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, CRITICAL));
+    underTest.onIssue(FILE1, createNewSecurityHotspot());
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 2), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 2), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
+  }
+
+  @Test
+  void onIssue_shouldCountOverallSoftwareQualitiesMeasures() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createNewSecurityHotspot());
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
+
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(2, 1, 1, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(0, 0, 0, 0, 0, 0), entries);
+  }
+
+  @Test
+  void onIssue_shouldCountNewSoftwareQualitiesMeasures() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, LOW));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, LOW));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.SECURITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
+
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
+
+    assertNewSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(2, 1, 1, 0, 0, 0), entries);
+    assertNewSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(2, 0, 1, 1, 0, 0), entries);
+    assertNewSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(4, 2, 1, 1, 0, 0), entries);
+  }
+
+  private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low) {
+    Map<String, Long> map = new LinkedHashMap<>();
+    map.put(LOW.name(), low);
+    map.put(MEDIUM.name(), medium);
+    map.put(HIGH.name(), high);
+    map.put(ImpactMeasureBuilder.TOTAL_KEY, total);
+    return map;
+  }
+
+  private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low, long info, long blocker) {
+    Map<String, Long> map = getImpactMeasure(total, high, medium, low);
+    map.put(INFO.name(), info);
+    map.put(Severity.BLOCKER.name(), blocker);
+    return map;
+  }
+
+  private void assertOverallSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
+    Set<Map.Entry<String, Measure>> actualRaw) {
+    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_METRIC_KEY);
+  }
+
+  private void assertNewSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
+    Set<Map.Entry<String, Measure>> actualRaw) {
+    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_NEW_METRIC_KEY);
+  }
+
+  private void assertSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
+    Set<Map.Entry<String, Measure>> actualRaw, Map<String, String> impactToMetricMap) {
+
+    Map.Entry<String, Measure> softwareQualityMap = actualRaw.stream()
+      .filter(e -> e.getKey().equals(impactToMetricMap.get(softwareQuality.name())))
+      .findFirst()
+      .get();
+
+    assertJson(softwareQualityMap.getValue().getData()).isSimilarTo(new Gson().toJson(expectedMap));
+  }
+
+  @Test
+  void count_high_impact_accepted_issues() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    // created before -> existing issues with 2 high impact accepted (High and Blocker)
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, Severity.BLOCKER));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MEDIUM));
+
+    // created after -> 2 high impact accepted
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MEDIUM));
+    underTest.onIssue(FILE1, createNewSecurityHotspot());
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
+      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 4));
+    assertIntValue(PROJECT, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
+      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 4));
+  }
+
+  @Test
+  void exclude_hotspots_from_issue_counts() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createSecurityHotspot());
@@ -314,7 +500,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void exclude_new_hotspots_from_issue_counts() {
+  void exclude_new_hotspots_from_issue_counts() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
@@ -325,7 +511,7 @@ public class IssueCounterTest {
     // created after, but closed
     underTest.onIssue(FILE1, createNewSecurityHotspot().setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
 
-    for (String severity : Arrays.asList(CRITICAL, BLOCKER, MAJOR)) {
+    for (String severity : Arrays.asList(CRITICAL, org.sonar.api.rule.Severity.BLOCKER, MAJOR)) {
       DefaultIssue issue = createNewSecurityHotspot();
       issue.setSeverity(severity);
       underTest.onIssue(FILE1, issue);
@@ -338,32 +524,46 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertValues(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
-    assertValues(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
   }
 
   @SafeVarargs
-  private final void assertValues(Component componentRef, MapEntry<String, Integer>... entries) {
+  private void assertIntValue(Component componentRef, MapEntry<String, Integer>... entries) {
     assertThat(measureRepository.getRawMeasures(componentRef).entrySet()
       .stream()
+      .filter(e -> e.getValue().getValueType() == Measure.ValueType.INT)
       .map(e -> entry(e.getKey(), e.getValue().getIntValue())))
       .contains(entries);
   }
 
   @SafeVarargs
-  private final void assertMeasures(Component componentRef, Map.Entry<String, Integer>... entries) {
+  private void assertMeasures(Component componentRef, Map.Entry<String, Integer>... entries) {
     List<MeasureRepoEntry> expected = stream(entries)
       .map(e -> entryOf(e.getKey(), newMeasureBuilder().create(e.getValue())))
-      .collect(Collectors.toList());
+      .toList();
 
     assertThat(measureRepository.getRawMeasures(componentRef).entrySet().stream().map(e -> entryOf(e.getKey(), e.getValue())))
       .containsAll(expected);
   }
 
   private DefaultIssue createNewIssue(@Nullable String resolution, String status, String severity) {
-    return createNewIssue(resolution, status, severity, RuleType.CODE_SMELL);
+    return createNewIssue(resolution, status, severity, CODE_SMELL);
+  }
+
+  private DefaultIssue createNewIssue(@Nullable String resolution, String status, Severity impactSeverity) {
+    return createNewIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
+  }
+
+  private DefaultIssue createNewIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality,
+    Severity impactSeverity) {
+    DefaultIssue issue = createNewIssue(resolution, status, MAJOR, CODE_SMELL);
+    issue.addImpact(softwareQuality, impactSeverity);
+    return issue;
   }
 
   private DefaultIssue createNewIssue(@Nullable String resolution, String status, String severity, RuleType ruleType) {
@@ -373,21 +573,33 @@ public class IssueCounterTest {
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity) {
-    return createIssue(resolution, status, severity, RuleType.CODE_SMELL);
+    return createIssue(resolution, status, severity, CODE_SMELL);
+  }
+
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, Severity impactSeverity) {
+    return createIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
+  }
+
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality,
+    Severity impactSeverity) {
+    DefaultIssue issue = createIssue(resolution, status, MAJOR, CODE_SMELL);
+    issue.addImpact(softwareQuality, impactSeverity);
+    return issue;
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity, RuleType ruleType) {
     return new DefaultIssue()
+      .setKey(String.valueOf(++issueCounter))
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
       .setType(ruleType);
   }
 
   private static DefaultIssue createSecurityHotspot() {
-    return createIssue(null, STATUS_OPEN, "MAJOR", RuleType.SECURITY_HOTSPOT);
+    return createIssue(null, STATUS_OPEN, "MAJOR", SECURITY_HOTSPOT);
   }
 
   private DefaultIssue createNewSecurityHotspot() {
-    return createNewIssue(null, STATUS_OPEN, "MAJOR", RuleType.SECURITY_HOTSPOT);
+    return createNewIssue(null, STATUS_OPEN, "MAJOR", SECURITY_HOTSPOT);
   }
 }

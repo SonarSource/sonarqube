@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DatabaseUtils;
@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.db.DatabaseUtils.getString;
 
 public class ExportEventsStep implements ComputationStep {
@@ -41,7 +41,7 @@ public class ExportEventsStep implements ComputationStep {
     " p.uuid, e.name, e.analysis_uuid, e.category, e.description, e.event_data, e.event_date, e.uuid" +
     " from events e" +
     " join snapshots s on s.uuid=e.analysis_uuid" +
-    " join components p on p.uuid=s.component_uuid" +
+    " join components p on p.uuid=s.root_component_uuid" +
     " join project_branches pb on pb.uuid=p.uuid" +
     " where pb.project_uuid=? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge=? and s.status=? and p.enabled=?";
 
@@ -72,7 +72,7 @@ public class ExportEventsStep implements ComputationStep {
         output.write(event);
         count++;
       }
-      Loggers.get(getClass()).debug("{} events exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} events exported", count);
 
     } catch (Exception e) {
       throw new IllegalStateException(format("Event Export failed after processing %d events successfully", count), e);

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,19 @@ package org.sonar.scm.git;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -44,8 +49,13 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.scm.git.blame.BlameResult;
+import org.sonar.scm.git.blame.RepositoryBlameCommand;
+import org.sonar.scm.git.strategy.BlameStrategy;
+import org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum;
 
 import static java.util.Optional.ofNullable;
+import static org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum.GIT_FILES_BLAME;
 
 public class CompositeBlameCommand extends BlameCommand {
   private static final Logger LOG = Loggers.get(CompositeBlameCommand.class);
@@ -53,12 +63,16 @@ public class CompositeBlameCommand extends BlameCommand {
   private final AnalysisWarnings analysisWarnings;
   private final PathResolver pathResolver;
   private final JGitBlameCommand jgitCmd;
-  private final GitBlameCommand nativeCmd;
+  private final NativeGitBlameCommand nativeCmd;
   private boolean nativeGitEnabled = false;
 
-  public CompositeBlameCommand(AnalysisWarnings analysisWarnings, PathResolver pathResolver, JGitBlameCommand jgitCmd, GitBlameCommand nativeCmd) {
+  private final BlameStrategy blameStrategy;
+
+  public CompositeBlameCommand(AnalysisWarnings analysisWarnings, PathResolver pathResolver, JGitBlameCommand jgitCmd,
+    NativeGitBlameCommand nativeCmd, BlameStrategy blameStrategy) {
     this.analysisWarnings = analysisWarnings;
     this.pathResolver = pathResolver;
+    this.blameStrategy = blameStrategy;
     this.jgitCmd = jgitCmd;
     this.nativeCmd = nativeCmd;
   }
@@ -66,23 +80,48 @@ public class CompositeBlameCommand extends BlameCommand {
   @Override
   public void blame(BlameInput input, BlameOutput output) {
     File basedir = input.fileSystem().baseDir();
-    try (Repository repo = JGitUtils.buildRepository(basedir.toPath()); Git git = Git.wrap(repo)) {
+    try (Repository repo = JGitUtils.buildRepository(basedir.toPath())) {
+
       File gitBaseDir = repo.getWorkTree();
       if (cloneIsInvalid(gitBaseDir)) {
         return;
       }
       Profiler profiler = Profiler.create(LOG);
       profiler.startDebug("Collecting committed files");
-      Set<String> committedFiles = collectAllCommittedFiles(repo);
+      Map<String, InputFile> inputFileByGitRelativePath = getCommittedFilesToBlame(repo, gitBaseDir, input);
       profiler.stopDebug();
+
+      BlameAlgorithmEnum blameAlgorithmEnum = this.blameStrategy.getBlameAlgorithm(Runtime.getRuntime().availableProcessors(), inputFileByGitRelativePath.size());
+      LOG.debug("Using {} strategy to blame files", blameAlgorithmEnum);
+      if (blameAlgorithmEnum == GIT_FILES_BLAME) {
+        blameWithFilesGitCommand(output, repo, inputFileByGitRelativePath);
+      } else {
+        blameWithNativeGitCommand(output, repo, inputFileByGitRelativePath, gitBaseDir);
+      }
+    }
+  }
+
+  private Map<String, InputFile> getCommittedFilesToBlame(Repository repo, File gitBaseDir, BlameInput input) {
+    Set<String> committedFiles = collectAllCommittedFiles(repo);
+    Map<String, InputFile> inputFileByGitRelativePath = new HashMap<>();
+    for (InputFile inputFile : input.filesToBlame()) {
+      String relative = pathResolver.relativePath(gitBaseDir, inputFile.file());
+      if (relative == null || !committedFiles.contains(relative)) {
+        continue;
+      }
+      inputFileByGitRelativePath.put(relative, inputFile);
+    }
+    return inputFileByGitRelativePath;
+  }
+
+  private void blameWithNativeGitCommand(BlameOutput output, Repository repo, Map<String, InputFile> inputFileByGitRelativePath, File gitBaseDir) {
+    try (Git git = Git.wrap(repo)) {
       nativeGitEnabled = nativeCmd.checkIfEnabled();
       ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new GitThreadFactory());
 
-      for (InputFile inputFile : input.filesToBlame()) {
-        String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
-        if (filename == null || !committedFiles.contains(filename)) {
-          continue;
-        }
+      for (Map.Entry<String, InputFile> e : inputFileByGitRelativePath.entrySet()) {
+        InputFile inputFile = e.getValue();
+        String filename = e.getKey();
         // exceptions thrown by the blame method will be ignored
         executorService.submit(() -> blame(output, git, gitBaseDir, inputFile, filename));
       }
@@ -151,6 +190,29 @@ public class CompositeBlameCommand extends BlameCommand {
     }
   }
 
+  private static void blameWithFilesGitCommand(BlameOutput output, Repository repo, Map<String, InputFile> inputFileByGitRelativePath) {
+    RepositoryBlameCommand blameCommand = new RepositoryBlameCommand(repo)
+      .setTextComparator(RawTextComparator.WS_IGNORE_ALL)
+      .setMultithreading(true)
+      .setFilePaths(inputFileByGitRelativePath.keySet());
+    try {
+      BlameResult blameResult = blameCommand.call();
+
+      for (Map.Entry<String, InputFile> e : inputFileByGitRelativePath.entrySet()) {
+        BlameResult.FileBlame fileBlameResult = blameResult.getFileBlameByPath().get(e.getKey());
+
+        if (fileBlameResult == null) {
+          LOG.debug("Unable to blame file {}.", e.getValue().filename());
+          continue;
+        }
+
+        saveBlameInformationForFileInTheOutput(fileBlameResult, e.getValue(), output);
+      }
+    } catch (GitAPIException e) {
+      LOG.warn("There was an issue when interacting with git repository: " + e.getMessage(), e);
+    }
+  }
+
   private boolean cloneIsInvalid(File gitBaseDir) {
     if (Files.isRegularFile(gitBaseDir.toPath().resolve(".git/objects/info/alternates"))) {
       LOG.info("This git repository references another local repository which is not well supported. SCM information might be missing for some files. "
@@ -166,4 +228,27 @@ public class CompositeBlameCommand extends BlameCommand {
 
     return false;
   }
+
+  private static void saveBlameInformationForFileInTheOutput(BlameResult.FileBlame fileBlame, InputFile file, BlameOutput output) {
+    List<BlameLine> linesList = new ArrayList<>();
+    for (int i = 0; i < fileBlame.lines(); i++) {
+      if (fileBlame.getAuthorEmails()[i] == null || fileBlame.getCommitHashes()[i] == null || fileBlame.getCommitDates()[i] == null) {
+        LOG.debug("Unable to blame file {}. No blame info at line {}. Is file committed? [Author: {} Source commit: {}]", file.filename());
+        linesList.clear();
+        break;
+      }
+      linesList.add(new BlameLine()
+        .date(fileBlame.getCommitDates()[i])
+        .revision(fileBlame.getCommitHashes()[i])
+        .author(fileBlame.getAuthorEmails()[i]));
+    }
+    if (!linesList.isEmpty()) {
+      if (linesList.size() == file.lines() - 1) {
+        // SONARPLUGINS-3097 Git does not report blame on last empty line
+        linesList.add(linesList.get(linesList.size() - 1));
+      }
+      output.blameResult(file, linesList);
+    }
+  }
+
 }

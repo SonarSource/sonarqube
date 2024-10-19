@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
@@ -34,26 +33,26 @@ public class ProjectConfigurationFactoryTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private MapSettings settings = new MapSettings();
-  private ProjectConfigurationFactory underTest = new ProjectConfigurationFactory(settings, db.getDbClient());
+  private final MapSettings settings = new MapSettings();
+  private final ProjectConfigurationFactory underTest = new ProjectConfigurationFactory(settings, db.getDbClient());
 
   @Test
   public void return_global_settings() {
     settings.setProperty("key", "value");
-    Configuration config = underTest.newProjectConfiguration("unknown", "unknown");
+    Configuration config = underTest.newProjectConfiguration("unknown");
 
     assertThat(config.get("key")).hasValue("value");
   }
 
   @Test
   public void return_project_settings() {
-    ComponentDto project = db.components().insertPrivateProject();
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("1").setValue("val1"),
       newComponentPropertyDto(project).setKey("2").setValue("val2"),
       newComponentPropertyDto(project).setKey("3").setValue("val3"));
 
-    Configuration config = underTest.newProjectConfiguration(project.uuid(), project.uuid());
+    Configuration config = underTest.newProjectConfiguration(project.getUuid());
 
     assertThat(config.get("1")).hasValue("val1");
     assertThat(config.get("2")).hasValue("val2");
@@ -63,11 +62,11 @@ public class ProjectConfigurationFactoryTest {
   @Test
   public void project_settings_override_global_settings() {
     settings.setProperty("key", "value");
-    ComponentDto project = db.components().insertPrivateProject();
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("key").setValue("value2"));
 
-    Configuration projectConfig = underTest.newProjectConfiguration(project.uuid(), project.uuid());
+    Configuration projectConfig = underTest.newProjectConfiguration(project.getUuid());
 
     assertThat(projectConfig.get("key")).hasValue("value2");
   }

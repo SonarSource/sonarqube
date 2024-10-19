@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { act } from '@testing-library/react';
 import * as React from 'react';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
-import { IndexationNotificationType } from '../../../../types/indexation';
+import { byText } from '~sonar-aligned/helpers/testSelector';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { Permissions } from '../../../../types/permissions';
 import { IndexationNotification } from '../IndexationNotification';
 import IndexationNotificationHelper from '../IndexationNotificationHelper';
 
@@ -29,94 +31,132 @@ beforeEach(() => jest.clearAllMocks());
 jest.mock('../IndexationNotificationHelper');
 
 describe('Completed banner', () => {
-  it('should be displayed', () => {
-    (
-      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
-    ).mockReturnValueOnce(true);
+  it('should be displayed and call helper when updated', () => {
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
 
-    const wrapper = shallowRender();
+    const { rerender } = renderIndexationNotification();
 
-    wrapper.setProps({
-      indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
-      },
-    });
+    rerender(
+      <IndexationNotification
+        currentUser={mockCurrentUser()}
+        indexationContext={{
+          status: { completedCount: 23, hasFailures: false, isCompleted: true, total: 42 },
+        }}
+      />,
+    );
 
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
-    expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
   });
 
   it('should be displayed at startup', () => {
-    (
-      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
-    ).mockReturnValueOnce(true);
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
 
-    const wrapper = shallowRender({
+    renderIndexationNotification({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+        status: { hasFailures: false, isCompleted: true },
       },
     });
 
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
-    expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
   });
 
-  it('should be hidden once displayed', () => {
+  it('should be hidden once completed without failure', () => {
     jest.useFakeTimers();
-    (
-      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
-    ).mockReturnValueOnce(true);
 
-    const wrapper = shallowRender({
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
+
+    renderIndexationNotification({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+        status: { hasFailures: false, isCompleted: true },
       },
     });
 
-    expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
     expect(IndexationNotificationHelper.markCompletedNotificationAsDisplayed).toHaveBeenCalled();
 
-    jest.runAllTimers();
-    expect(wrapper.state().notificationType).toBeUndefined();
+    act(() => jest.runOnlyPendingTimers());
+
+    expect(IndexationNotificationHelper.markCompletedNotificationAsDisplayed).toHaveBeenCalled();
 
     jest.useRealTimers();
   });
-});
 
-it('should display the completed-with-failure banner', () => {
-  const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } },
+  it('should start progress > progress with failure > complete with failure', () => {
+    const { rerender } = renderIndexationNotification({
+      indexationContext: {
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
+      },
+    });
+
+    expect(byText('indexation.progression.23.42').get()).toBeInTheDocument();
+
+    rerender(
+      <IndexationNotification
+        currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
+        indexationContext={{
+          status: { completedCount: 23, hasFailures: true, isCompleted: false, total: 42 },
+        }}
+      />,
+    );
+
+    expect(byText(/^indexation\.progression_with_error\.link/).get()).toBeInTheDocument();
+
+    rerender(
+      <IndexationNotification
+        currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
+        indexationContext={{
+          status: { completedCount: 23, hasFailures: true, isCompleted: true, total: 42 },
+        }}
+      />,
+    );
+    expect(byText('indexation.completed_with_error').get()).toBeInTheDocument();
   });
 
-  expect(wrapper.state().notificationType).toBe(IndexationNotificationType.CompletedWithFailure);
-});
+  it('should start progress > success > disappear', () => {
+    const { rerender } = renderIndexationNotification({
+      indexationContext: {
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
+      },
+    });
 
-it('should display the progress banner', () => {
-  const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: false } },
+    expect(byText('indexation.progression.23.42').get()).toBeInTheDocument();
+
+    rerender(
+      <IndexationNotification
+        currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
+        indexationContext={{
+          status: { completedCount: 23, hasFailures: false, isCompleted: true, total: 42 },
+        }}
+      />,
+    );
+    expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
   });
 
-  expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
-  expect(wrapper.state().notificationType).toBe(IndexationNotificationType.InProgress);
-});
+  it('should not see notification if not admin', () => {
+    renderIndexationNotification({
+      indexationContext: {
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
+      },
+      currentUser: mockLoggedInUser(),
+    });
 
-it('should display the progress-with-failure banner', () => {
-  const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: true } },
+    expect(byText('indexation.progression.23.42').query()).not.toBeInTheDocument();
   });
-
-  expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
-  expect(wrapper.state().notificationType).toBe(IndexationNotificationType.InProgressWithFailure);
 });
 
-function shallowRender(props?: Partial<IndexationNotification['props']>) {
-  return shallow<IndexationNotification>(
+function renderIndexationNotification(props?: Partial<IndexationNotification['props']>) {
+  return renderComponent(
     <IndexationNotification
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
       indexationContext={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
       }}
       {...props}
-    />
+    />,
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import {
   QualityGateApplicationStatus,
   QualityGateProjectStatus,
+  QualityGateProjectStatusCondition,
   QualityGateStatus,
   QualityGateStatusCondition,
   QualityGateStatusConditionEnhanced,
@@ -29,19 +31,20 @@ import { mockMeasureEnhanced, mockMetric } from '../testMocks';
 
 export function mockQualityGate(overrides: Partial<QualityGate> = {}): QualityGate {
   return {
-    id: '1',
     name: 'qualitygate',
     ...overrides,
   };
 }
 
 export function mockQualityGateStatus(
-  overrides: Partial<QualityGateStatus> = {}
+  overrides: Partial<QualityGateStatus> = {},
 ): QualityGateStatus {
+  const condition = mockQualityGateStatusConditionEnhanced();
   return {
     ignoredConditions: false,
     caycStatus: CaycStatus.Compliant,
-    failedConditions: [mockQualityGateStatusConditionEnhanced()],
+    conditions: [condition],
+    failedConditions: [condition],
     key: 'foo',
     name: 'Foo',
     status: 'ERROR',
@@ -49,27 +52,41 @@ export function mockQualityGateStatus(
   };
 }
 
+export function mockQualityGateProjectCondition(
+  overrides: Partial<QualityGateProjectStatusCondition> = {},
+): QualityGateProjectStatusCondition {
+  return {
+    actualValue: '10',
+    errorThreshold: '0',
+    status: 'ERROR',
+    metricKey: 'foo',
+    comparator: 'GT',
+    periodIndex: 1,
+    ...overrides,
+  };
+}
+
 export function mockQualityGateStatusCondition(
-  overrides: Partial<QualityGateStatusCondition> = {}
+  overrides: Partial<QualityGateStatusCondition> = {},
 ): QualityGateStatusCondition {
   return {
     actual: '10',
     error: '0',
     level: 'ERROR',
-    metric: 'foo',
+    metric: MetricKey.bugs,
     op: 'GT',
     ...overrides,
   };
 }
 
 export function mockQualityGateStatusConditionEnhanced(
-  overrides: Partial<QualityGateStatusConditionEnhanced> = {}
+  overrides: Partial<QualityGateStatusConditionEnhanced> = {},
 ): QualityGateStatusConditionEnhanced {
   return {
     actual: '10',
     error: '0',
     level: 'ERROR',
-    metric: 'foo',
+    metric: MetricKey.bugs,
     op: 'GT',
     measure: mockMeasureEnhanced({ ...(overrides.measure || {}) }),
     ...overrides,
@@ -77,7 +94,7 @@ export function mockQualityGateStatusConditionEnhanced(
 }
 
 export function mockQualityGateProjectStatus(
-  overrides: Partial<QualityGateProjectStatus> = {}
+  overrides: Partial<QualityGateProjectStatus> = {},
 ): QualityGateProjectStatus {
   return {
     conditions: [
@@ -98,7 +115,7 @@ export function mockQualityGateProjectStatus(
 }
 
 export function mockQualityGateApplicationStatus(
-  overrides: Partial<QualityGateApplicationStatus> = {}
+  overrides: Partial<QualityGateApplicationStatus> = {},
 ): QualityGateApplicationStatus {
   return {
     metrics: [mockMetric(), mockMetric({ name: 'new_bugs', key: 'new_bugs', type: 'INT' })],

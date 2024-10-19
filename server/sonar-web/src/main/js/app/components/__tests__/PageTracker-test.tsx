@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { installScript } from '../../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../../helpers/extensionsHandler';
-import { mockAppState, mockLocation } from '../../../helpers/testMocks';
-import { PageTracker } from '../PageTracker';
+import { mockAppState } from '../../../helpers/testMocks';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import PageTracker from '../PageTracker';
 
 jest.mock('../../../helpers/extensions', () => ({
   installScript: jest.fn().mockResolvedValue({}),
@@ -32,43 +35,52 @@ jest.mock('../../../helpers/extensionsHandler', () => ({
   getWebAnalyticsPageHandlerFromCache: jest.fn().mockReturnValue(undefined),
 }));
 
-beforeAll(() => {
+beforeEach(() => {
+  jest.clearAllMocks();
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });
 
-beforeEach(() => {
-  jest.clearAllTimers();
-  jest.clearAllMocks();
-});
-
 it('should not trigger if no analytics system is given', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  renderPageTracker();
+
   expect(installScript).not.toHaveBeenCalled();
 });
 
-it('should work for WebAnalytics plugin', () => {
+it('should work for WebAnalytics plugin', async () => {
+  const user = userEvent.setup({ delay: null });
   const pageChange = jest.fn();
   const webAnalyticsJsPath = '/static/pluginKey/web_analytics.js';
-  const wrapper = shallowRender({ appState: mockAppState({ webAnalyticsJsPath }) });
+  renderPageTracker(mockAppState({ webAnalyticsJsPath }));
 
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Helmet').prop('onChangeClientState')).toBe(wrapper.instance().trackPage);
   expect(installScript).toHaveBeenCalledWith(webAnalyticsJsPath, 'head');
-  (getWebAnalyticsPageHandlerFromCache as jest.Mock).mockReturnValueOnce(pageChange);
 
-  wrapper.instance().trackPage();
+  jest.mocked(getWebAnalyticsPageHandlerFromCache).mockClear().mockReturnValueOnce(pageChange);
+
+  // trigger trackPage
+  await user.click(byRole('link').get());
+
   jest.runAllTimers();
-  expect(pageChange).toHaveBeenCalledWith('/path');
+  expect(pageChange).toHaveBeenCalledWith('/newpath');
 });
 
-function shallowRender(props: Partial<PageTracker['props']> = {}) {
-  return shallow<PageTracker>(
-    <PageTracker appState={mockAppState()} location={mockLocation()} {...props} />
+function renderPageTracker(appState = mockAppState()) {
+  return renderComponent(<WrappingComponent />, '', { appState });
+}
+
+function WrappingComponent() {
+  const [metatag, setmetatag] = React.useState<React.ReactNode>(null);
+
+  return (
+    <>
+      <PageTracker>{metatag}</PageTracker>
+      <Link to="newpath" onClick={() => setmetatag(<meta name="toto" />)}>
+        trigger change
+      </Link>
+    </>
   );
 }

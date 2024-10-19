@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -47,10 +47,13 @@ public class ProjectsWsParameters {
   public static final String PARAM_PROJECTS = "projects";
   public static final String PARAM_ALM_ID = "almId";
   public static final String PARAM_ALM_REPOSITORY_ID = "almRepoId";
+  public static final String PARAM_NEW_CODE_DEFINITION_VALUE = "newCodeDefinitionValue";
+  public static final String PARAM_NEW_CODE_DEFINITION_TYPE = "newCodeDefinitionType";
 
   public static final String FILTER_LANGUAGES = "languages";
   public static final String FILTER_TAGS = "tags";
   public static final String FILTER_QUALIFIER = "qualifier";
+
 
   private ProjectsWsParameters() {
     // static utils only

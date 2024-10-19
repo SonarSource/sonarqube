@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,16 +20,26 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.base.Preconditions;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 @Immutable
 public class NewAdHocRule {
@@ -41,21 +51,30 @@ public class NewAdHocRule {
   private final String severity;
   private final RuleType ruleType;
   private final boolean hasDetails;
+  private CleanCodeAttribute cleanCodeAttribute = null;
+
+  private final Map<SoftwareQuality, Severity> defaultImpacts = new EnumMap<>(SoftwareQuality.class);
 
   public NewAdHocRule(ScannerReport.AdHocRule ruleFromScannerReport) {
     Preconditions.checkArgument(isNotBlank(ruleFromScannerReport.getEngineId()), "'engine id' not expected to be null for an ad hoc rule");
     Preconditions.checkArgument(isNotBlank(ruleFromScannerReport.getRuleId()), "'rule id' not expected to be null for an ad hoc rule");
     Preconditions.checkArgument(isNotBlank(ruleFromScannerReport.getName()), "'name' not expected to be null for an ad hoc rule");
-    Preconditions.checkArgument(ruleFromScannerReport.getSeverity() != Constants.Severity.UNSET_SEVERITY , "'severity' not expected to be null for an ad hoc rule");
-    Preconditions.checkArgument(ruleFromScannerReport.getType() != ScannerReport.IssueType.UNSET, "'issue type' not expected to be null for an ad hoc rule");
+    Preconditions.checkArgument(!ruleFromScannerReport.getDefaultImpactsList().isEmpty() || ruleFromScannerReport.getSeverity() != Constants.Severity.UNSET_SEVERITY,
+      "'severity' not expected to be null for an ad hoc rule, or impacts should be provided instead");
+    Preconditions.checkArgument(!ruleFromScannerReport.getDefaultImpactsList().isEmpty() || ruleFromScannerReport.getType() != ScannerReport.IssueType.UNSET,
+      "'issue type' not expected to be null for an ad hoc rule, or impacts should be provided instead");
     this.key = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + ruleFromScannerReport.getEngineId(), ruleFromScannerReport.getRuleId());
     this.engineId = ruleFromScannerReport.getEngineId();
     this.ruleId = ruleFromScannerReport.getRuleId();
     this.name = ruleFromScannerReport.getName();
     this.description = trimToNull(ruleFromScannerReport.getDescription());
-    this.severity = ruleFromScannerReport.getSeverity().name();
-    this.ruleType = RuleType.valueOf(ruleFromScannerReport.getType().name());
     this.hasDetails = true;
+    this.ruleType = determineType(ruleFromScannerReport);
+    this.severity = determineSeverity(ruleFromScannerReport);
+    if (!ScannerReport.IssueType.SECURITY_HOTSPOT.equals(ruleFromScannerReport.getType())) {
+      this.cleanCodeAttribute = mapCleanCodeAttribute(trimToNull(ruleFromScannerReport.getCleanCodeAttribute()));
+      this.defaultImpacts.putAll(determineImpacts(ruleFromScannerReport));
+    }
   }
 
   public NewAdHocRule(ScannerReport.ExternalIssue fromIssue) {
@@ -69,6 +88,64 @@ public class NewAdHocRule {
     this.severity = null;
     this.ruleType = null;
     this.hasDetails = false;
+    if (!ScannerReport.IssueType.SECURITY_HOTSPOT.equals(fromIssue.getType())) {
+      this.cleanCodeAttribute = CleanCodeAttribute.defaultCleanCodeAttribute();
+      this.defaultImpacts.put(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
+    }
+  }
+
+  private Map<SoftwareQuality, Severity> determineImpacts(ScannerReport.AdHocRule ruleFromScannerReport) {
+    if (ruleFromScannerReport.getType().equals(ScannerReport.IssueType.SECURITY_HOTSPOT)) {
+      return Collections.emptyMap();
+    }
+    Map<SoftwareQuality, Severity> impacts = mapImpacts(ruleFromScannerReport.getDefaultImpactsList());
+    if (impacts.isEmpty()) {
+      return Map.of(ImpactMapper.convertToSoftwareQuality(this.ruleType),
+        ImpactMapper.convertToImpactSeverity(this.severity));
+    } else {
+      return impacts;
+    }
+  }
+
+  private static RuleType determineType(ScannerReport.AdHocRule ruleFromScannerReport) {
+    if (ruleFromScannerReport.getType() != ScannerReport.IssueType.UNSET) {
+      return RuleType.valueOf(ruleFromScannerReport.getType().name());
+    }
+    Map<SoftwareQuality, Severity> impacts = mapImpacts(ruleFromScannerReport.getDefaultImpactsList());
+    Map.Entry<SoftwareQuality, Severity> bestImpactForBackMapping = ImpactMapper.getBestImpactForBackmapping(impacts);
+    return ImpactMapper.convertToRuleType(bestImpactForBackMapping.getKey());
+  }
+
+  private static String determineSeverity(ScannerReport.AdHocRule ruleFromScannerReport) {
+    if (ruleFromScannerReport.getSeverity() != Constants.Severity.UNSET_SEVERITY) {
+      return ruleFromScannerReport.getSeverity().name();
+    }
+    Map<SoftwareQuality, Severity> impacts = mapImpacts(ruleFromScannerReport.getDefaultImpactsList());
+    Map.Entry<SoftwareQuality, Severity> bestImpactForBackMapping = ImpactMapper.getBestImpactForBackmapping(impacts);
+    return ImpactMapper.convertToDeprecatedSeverity(bestImpactForBackMapping.getValue());
+  }
+
+  private static CleanCodeAttribute mapCleanCodeAttribute(@Nullable String cleanCodeAttribute) {
+    if (cleanCodeAttribute == null) {
+      return CleanCodeAttribute.defaultCleanCodeAttribute();
+    }
+    return CleanCodeAttribute.valueOf(cleanCodeAttribute);
+  }
+
+  private static Map<SoftwareQuality, Severity> mapImpacts(List<ScannerReport.Impact> impacts) {
+    if (!impacts.isEmpty()) {
+      return impacts.stream()
+        .collect(Collectors.toMap(i -> mapSoftwareQuality(i.getSoftwareQuality()), i -> mapImpactSeverity(i.getSeverity())));
+    }
+    return Collections.emptyMap();
+  }
+
+  private static Severity mapImpactSeverity(String severity) {
+    return Severity.valueOf(severity);
+  }
+
+  private static SoftwareQuality mapSoftwareQuality(String softwareQuality) {
+    return SoftwareQuality.valueOf(softwareQuality);
   }
 
   public RuleKey getKey() {
@@ -105,6 +182,15 @@ public class NewAdHocRule {
 
   public boolean hasDetails() {
     return hasDetails;
+  }
+
+  @CheckForNull
+  public CleanCodeAttribute getCleanCodeAttribute() {
+    return cleanCodeAttribute;
+  }
+
+  public Map<SoftwareQuality, Severity> getDefaultImpacts() {
+    return defaultImpacts;
   }
 
   @Override

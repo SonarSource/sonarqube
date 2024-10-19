@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { OSs, TutorialModes } from '../../types';
 import GithubCFamilyExampleRepositories, {
   GithubCFamilyExampleRepositoriesProps,
 } from '../GithubCFamilyExampleRepositories';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ os: OSs.MacOS, ci: TutorialModes.AzurePipelines })).toMatchSnapshot();
-});
+const ui = {
+  cfamilyExamplesLink: byRole('link', { name: /sonarsource-cfamily-examples/ }),
+};
 
-function shallowRender(props: Partial<GithubCFamilyExampleRepositoriesProps> = {}) {
-  return shallow<GithubCFamilyExampleRepositoriesProps>(
-    <GithubCFamilyExampleRepositories className="test-class" {...props} />
+it.each([
+  [OSs.Linux, TutorialModes.Jenkins, 'linux', 'jenkins'],
+  [OSs.MacOS, TutorialModes.AzurePipelines, 'macos', 'azure'],
+])(
+  'should set correct value for CFamily examples link for %s and %ss',
+  async (os: OSs, ci: TutorialModes, formattedOS: string, formattedCI: string) => {
+    renderGithubCFamilyExampleRepositories({ os, ci });
+    expect(await ui.cfamilyExamplesLink.find()).toHaveAttribute(
+      'href',
+      `https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=sq+${formattedOS}+${formattedCI}`,
+    );
+  },
+);
+
+function renderGithubCFamilyExampleRepositories(
+  overrides: Partial<GithubCFamilyExampleRepositoriesProps> = {},
+) {
+  return renderComponent(
+    <GithubCFamilyExampleRepositories className="test-class" {...overrides} />,
   );
 }

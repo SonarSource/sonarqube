@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,74 +17,80 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import { renameQualityGate } from '../../../api/quality-gates';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
+import { getQualityGateUrl } from '../../../helpers/urls';
+import { useRenameQualityGateMutation } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
 
 interface Props {
   onClose: () => void;
-  onRename: () => Promise<void>;
   qualityGate: QualityGate;
   organization: string;
 }
 
-interface State {
-  name: string;
-}
+const FORM_ID = 'rename-quality-gate';
 
-export default class RenameQualityGateForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { name: props.qualityGate.name };
-  }
+export default function RenameQualityGateForm({ qualityGate, onClose }: Readonly<Props>) {
+  const [name, setName] = React.useState(qualityGate.name);
+  const { mutateAsync: renameQualityGate } = useRenameQualityGateMutation(qualityGate.name);
+  const router = useRouter();
 
-  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.currentTarget.value });
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
   };
 
-  handleRename = () => {
-    const { organization, qualityGate } = this.props;
-    const { name } = this.state;
+  const handleRename = async (event: React.FormEvent) => {
+    event.preventDefault();
 
-    return renameQualityGate({ id: qualityGate.id, name, organization }).then(() => this.props.onRename());
+    await renameQualityGate(name, this.props.organization);
+    router.push(getQualityGateUrl(name, this.props.organization));
   };
 
-  render() {
-    const { qualityGate } = this.props;
-    const { name } = this.state;
-    const confirmDisable = !name || (qualityGate && qualityGate.name === name);
+  const confirmDisable = !name || (qualityGate && qualityGate.name === name);
 
-    return (
-      <ConfirmModal
-        confirmButtonText={translate('rename')}
-        confirmDisable={confirmDisable}
-        header={translate('quality_gates.rename')}
-        onClose={this.props.onClose}
-        onConfirm={this.handleRename}
-        size="small"
-      >
-        <MandatoryFieldsExplanation className="modal-field" />
-        <div className="modal-field">
-          <label htmlFor="quality-gate-form-name">
-            {translate('name')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
-            autoFocus={true}
-            id="quality-gate-form-name"
-            maxLength={100}
-            onChange={this.handleNameChange}
-            required={true}
-            size={50}
-            type="text"
-            value={name}
-          />
-        </div>
-      </ConfirmModal>
-    );
-  }
+  return (
+    <Modal
+      headerTitle={translate('quality_gates.rename')}
+      onClose={onClose}
+      body={
+        <form id={FORM_ID} onSubmit={handleRename}>
+          <MandatoryFieldsExplanation />
+          <FormField
+            label={translate('name')}
+            htmlFor="quality-gate-form-name"
+            required
+            className="sw-my-2"
+          >
+            <InputField
+              autoFocus
+              id="quality-gate-form-name"
+              maxLength={100}
+              onChange={handleNameChange}
+              size="auto"
+              type="text"
+              value={name}
+            />
+          </FormField>
+        </form>
+      }
+      primaryButton={
+        <Button
+          hasAutoFocus
+          type="submit"
+          isDisabled={confirmDisable}
+          form={FORM_ID}
+          variety={ButtonVariety.Primary}
+        >
+          {translate('rename')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }

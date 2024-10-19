@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,8 +35,6 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
 
@@ -43,7 +43,7 @@ import org.sonar.xoo.Xoo2;
  */
 public class MeasureSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(MeasureSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MeasureSensor.class);
 
   private static final String MEASURES_EXTENSION = ".measures";
 

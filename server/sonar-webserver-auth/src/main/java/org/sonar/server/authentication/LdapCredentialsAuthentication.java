@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,13 +23,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.LdapAuthenticationResult;
 import org.sonar.auth.ldap.LdapAuthenticator;
 import org.sonar.auth.ldap.LdapGroupsProvider;
@@ -41,12 +41,12 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class LdapCredentialsAuthentication {
 
-  private static final Logger LOG = Loggers.get(LdapCredentialsAuthentication.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapCredentialsAuthentication.class);
 
   private final Configuration configuration;
   private final UserRegistrar userRegistrar;
@@ -69,14 +69,14 @@ public class LdapCredentialsAuthentication {
     this.ldapGroupsProvider = ldapRealm.getGroupsProvider();
   }
 
-  public Optional<UserDto> authenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
+  public Optional<UserDto> authenticate(Credentials credentials, HttpRequest request, AuthenticationEvent.Method method) {
     if (isLdapAuthActivated) {
       return Optional.of(doAuthenticate(fixCase(credentials), request, method));
     }
     return Optional.empty();
   }
 
-  private UserDto doAuthenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
+  private UserDto doAuthenticate(Credentials credentials, HttpRequest request, AuthenticationEvent.Method method) {
     try {
       LdapAuthenticator.Context ldapAuthenticatorContext = new LdapAuthenticator.Context(credentials.getLogin(), credentials.getPassword().orElse(null), request);
       LdapAuthenticationResult authenticationResult = ldapAuthenticator.doAuthenticate(ldapAuthenticatorContext);
@@ -117,7 +117,7 @@ public class LdapCredentialsAuthentication {
     return Source.realm(method, "ldap");
   }
 
-  private UserDto synchronize(String userLogin, String serverKey, LdapUserDetails userDetails, HttpServletRequest request, AuthenticationEvent.Method method) {
+  private UserDto synchronize(String userLogin, String serverKey, LdapUserDetails userDetails, HttpRequest request, AuthenticationEvent.Method method) {
     String name = userDetails.getName();
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
       .setName(isEmpty(name) ? userLogin : name)

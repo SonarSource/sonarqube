@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,9 @@ package org.sonar.server.ws.ws;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.TestRequest;
 
@@ -38,11 +41,10 @@ public class ListActionTest {
       .setDescription("Get information on the web api supported on this instance.")
       .setSince("4.2");
 
-    for (WebServicesWsAction wsWsAction : Arrays.asList(underTest, new ResponseExampleAction())) {
+    for (WebServicesWsAction wsWsAction : Arrays.asList(underTest, new ResponseExampleAction(), new ChangeLogAction())) {
       wsWsAction.define(newController);
       wsWsAction.setContext(context);
     }
-
     newController.done();
     action = context.controller("api/webservices").action("list");
   }
@@ -73,4 +75,24 @@ public class ListActionTest {
     return request;
   }
 
+  class ChangeLogAction implements WebServicesWsAction {
+
+    @Override
+    public void define(WebService.NewController controller) {
+      WebService.NewAction action = controller
+        .createAction("action")
+        .setHandler(this);
+      action.setChangelog(new Change("1.0", "Initial"), new Change("2.0", "Second"), new Change("10.0", "Ten"));
+    }
+
+    @Override
+    public void handle(Request request, Response response) throws Exception {
+
+    }
+
+    @Override
+    public void setContext(WebService.Context context) {
+
+    }
+  }
 }

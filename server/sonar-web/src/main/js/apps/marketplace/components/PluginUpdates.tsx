@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,33 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Update } from '../../../types/plugins';
 import PluginUpdateItem from './PluginUpdateItem';
 
 export interface PluginUpdatesProps {
+  pluginName: string;
   updates?: Update[];
 }
 
-export default function PluginUpdates({ updates }: PluginUpdatesProps) {
+export default function PluginUpdates({ pluginName, updates }: Readonly<PluginUpdatesProps>) {
   if (!updates || updates.length <= 0) {
     return null;
   }
   return (
-    <li className="spacer-top">
-      <strong>{translate('marketplace.updates')}:</strong>
-      <ul className="little-spacer-top">
+    <ListItem>
+      <strong className="sw-typo-semibold">{translate('marketplace.updates')}:</strong>
+      <UnorderedList className="sw-mt-2">
         {updates.map((update) =>
           update.release ? (
             <PluginUpdateItem
               key={update.release.version}
+              pluginName={pluginName}
               release={update.release}
               update={update}
             />
-          ) : null
+          ) : null,
         )}
-      </ul>
-    </li>
+      </UnorderedList>
+    </ListItem>
   );
 }

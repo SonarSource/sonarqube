@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
-import { BranchParameters } from '../types/branch-like';
-import { ComponentQualifier, TreeComponent, TreeComponentWithPath } from '../types/component';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
+import { RequestData, post } from '../helpers/request';
+import { TreeComponent, TreeComponentWithPath } from '../types/component';
 import {
   ComponentMeasure,
   Dict,
@@ -31,13 +33,12 @@ import {
   Paging,
   SourceLine,
   SourceViewerFile,
-  Visibility,
 } from '../types/types';
 
 export interface BaseSearchProjectsParameters {
+  organization: string;
   analyzedBefore?: string;
   onProvisionedOnly?: boolean;
-  organization: string;
   projects?: string;
   q?: string;
   qualifiers?: string;
@@ -45,53 +46,25 @@ export interface BaseSearchProjectsParameters {
 }
 
 export interface ProjectBase {
+  organization: string;
   key: string;
   name: string;
   qualifier: string;
   visibility: Visibility;
+}
+
+export interface ComponentRaw {
   organization: string;
-}
-
-export interface Project extends ProjectBase {
-  id: string;
-  lastAnalysisDate?: string;
-  organization: string;
-}
-
-export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
-  p?: number;
-  ps?: number;
-}
-
-export function getComponents(parameters: SearchProjectsParameters): Promise<{
-  components: Project[];
-  paging: Paging;
-}> {
-  return getJSON('/api/projects/search', parameters);
-}
-
-export function bulkDeleteProjects(
-  parameters: BaseSearchProjectsParameters
-): Promise<void | Response> {
-  return post('/api/projects/bulk_delete', parameters).catch(throwGlobalError);
-}
-
-export function deleteProject(project: string): Promise<void | Response> {
-  return post('/api/projects/delete', { project }).catch(throwGlobalError);
-}
-
-export function deletePortfolio(portfolio: string): Promise<void | Response> {
-  return post('/api/views/delete', { key: portfolio }).catch(throwGlobalError);
-}
-
-export function createProject(data: {
+  analysisDate?: string;
+  isAiCodeAssured?: boolean;
+  isFavorite?: boolean;
+  key: string;
+  leakPeriodDate?: string;
   name: string;
-  organization: string;
-  project: string;
-  mainBranch: string;
-  visibility?: Visibility;
-}): Promise<{ project: ProjectBase }> {
-  return postJSON('/api/projects/create', data).catch(throwGlobalError);
+  needIssueSync?: boolean;
+  qualifier: ComponentQualifier;
+  tags: string[];
+  visibility: Visibility;
 }
 
 export function searchProjectTags(data?: { ps?: number; q?: string }): Promise<any> {
@@ -110,7 +83,7 @@ export function getComponentTree(
   strategy: string,
   component: string,
   metrics: string[] = [],
-  additional: RequestData = {}
+  additional: RequestData = {},
 ): Promise<{
   baseComponent: ComponentMeasure;
   components: ComponentMeasure[];
@@ -122,24 +95,8 @@ export function getComponentTree(
   return getJSON(url, data).catch(throwGlobalError);
 }
 
-export function getChildren(
-  component: string,
-  metrics: string[] = [],
-  additional: RequestData = {}
-) {
-  return getComponentTree('children', component, metrics, additional);
-}
-
-export function getComponentLeaves(
-  component: string,
-  metrics: string[] = [],
-  additional: RequestData = {}
-) {
-  return getComponentTree('leaves', component, metrics, additional);
-}
-
 export function getComponent(
-  data: { component: string; metricKeys: string } & BranchParameters
+  data: { component: string; metricKeys: string } & BranchParameters,
 ): Promise<{ component: ComponentMeasure }> {
   return getJSON('/api/measures/component', data);
 }
@@ -155,7 +112,7 @@ export type GetTreeParams = {
 } & BranchParameters;
 
 export function getTree<T = TreeComponent>(
-  data: GetTreeParams & { qualifiers?: string }
+  data: GetTreeParams & { qualifiers?: string },
 ): Promise<{ baseComponent: TreeComponent; components: T[]; paging: Paging }> {
   return getJSON('/api/components/tree', data).catch(throwGlobalError);
 }
@@ -168,16 +125,19 @@ export function getDirectories(data: GetTreeParams) {
   return getTree<TreeComponentWithPath>({ ...data, qualifiers: 'DIR' });
 }
 
-export function getComponentData(data: { component: string } & BranchParameters): Promise<any> {
+export function getComponentData(data: { component: string } & BranchParameters): Promise<{
+  ancestors: Array<Omit<ComponentRaw, 'tags'>>;
+  component: Omit<ComponentRaw, 'tags'>;
+}> {
   return getJSON('/api/components/show', data);
 }
 
 export function doesComponentExists(
-  data: { component: string } & BranchParameters
+  data: { component: string } & BranchParameters,
 ): Promise<boolean> {
   return getComponentData(data).then(
     ({ component }) => component !== undefined,
-    () => false
+    () => false,
   );
 }
 
@@ -185,11 +145,9 @@ export function getComponentShow(data: { component: string } & BranchParameters)
   return getComponentData(data).catch(throwGlobalError);
 }
 
-export function getParents(component: string): Promise<any> {
-  return getComponentShow({ component }).then((r) => r.ancestors);
-}
-
-export function getBreadcrumbs(data: { component: string } & BranchParameters): Promise<any> {
+export function getBreadcrumbs(
+  data: { component: string } & BranchParameters,
+): Promise<Array<Omit<ComponentRaw, 'tags'>>> {
   return getComponentShow(data).then((r) => {
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
@@ -203,27 +161,13 @@ export function getMyProjects(data: {
   return getJSON('/api/projects/search_my_projects', data);
 }
 
-export interface Component {
-  id: string;
-  organization: string;
-  key: string;
-  name: string;
-  isFavorite?: boolean;
-  analysisDate?: string;
-  qualifier: ComponentQualifier;
-  tags: string[];
-  visibility: Visibility;
-  leakPeriodDate?: string;
-  needIssueSync?: boolean;
-}
-
 export interface Facet {
   property: string;
-  values: Array<{ val: string; count: number }>;
+  values: Array<{ count: number; val: string }>;
 }
 
 export function searchProjects(data: RequestData): Promise<{
-  components: Component[];
+  components: ComponentRaw[];
   facets: Facet[];
   organizations: Array<{ key: string; name: string }>;
   paging: Paging;
@@ -233,9 +177,9 @@ export function searchProjects(data: RequestData): Promise<{
 }
 
 export function searchComponents(data?: {
+  ps?: number;
   q?: string;
   qualifiers?: string;
-  ps?: number;
 }): Promise<any> {
   return getJSON('/api/components/search', data);
 }
@@ -266,7 +210,7 @@ export interface SuggestionsResponse {
 export function getSuggestions(
   query?: string,
   recentlyBrowsed?: string[],
-  more?: string
+  more?: string,
 ): Promise<SuggestionsResponse> {
   const data: RequestData = {};
   if (query) {
@@ -282,25 +226,25 @@ export function getSuggestions(
 }
 
 export function getComponentForSourceViewer(
-  data: { component: string } & BranchParameters
+  data: { component: string } & BranchParameters,
 ): Promise<SourceViewerFile> {
   return getJSON('/api/components/app', data);
 }
 
 export function getSources(
-  data: { key: string; from?: number; to?: number } & BranchParameters
+  data: { from?: number; key: string; to?: number } & BranchParameters,
 ): Promise<SourceLine[]> {
   return getJSON('/api/sources/lines', data).then((r) => r.sources);
 }
 
 export function getDuplications(
-  data: { key: string } & BranchParameters
+  data: { key: string } & BranchParameters,
 ): Promise<{ duplications: Duplication[]; files: Dict<DuplicatedFile> }> {
   return getJSON('/api/duplications/show', data).catch(throwGlobalError);
 }
 
 export function getTests(
-  data: { sourceFileKey: string; sourceFileLineNumber: number | string } & BranchParameters
+  data: { sourceFileKey: string; sourceFileLineNumber: number | string } & BranchParameters,
 ): Promise<any> {
   return getJSON('/api/tests/list', data).then((r) => r.tests);
 }

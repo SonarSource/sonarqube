@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ public class PortfolioProjectDto {
   private String projectUuid;
   private String projectKey;
   private Set<String> branchUuids;
+  private String mainBranchUuid;
   private long createdAt;
 
   public String getUuid() {
@@ -37,6 +38,14 @@ public class PortfolioProjectDto {
   public PortfolioProjectDto setUuid(String uuid) {
     this.uuid = uuid;
     return this;
+  }
+
+  public String getMainBranchUuid() {
+    return mainBranchUuid;
+  }
+
+  public void setMainBranchUuid(String mainBranchUuid) {
+    this.mainBranchUuid = mainBranchUuid;
   }
 
   public String getPortfolioUuid() {

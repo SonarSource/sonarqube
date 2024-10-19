@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ public class CeTask {
   private final String type;
   private final String uuid;
   private final Component component;
-  private final Component mainComponent;
+  private final Component entity;
   private final User submitter;
   private final Map<String, String> characteristics;
 
@@ -49,10 +49,10 @@ public class CeTask {
     this.organizationUuid = builder.organizationUuid;
     this.uuid = requireNonNull(emptyToNull(builder.uuid), "uuid can't be null nor empty");
     this.type = requireNonNull(emptyToNull(builder.type), "type can't be null nor empty");
-    checkArgument((builder.component == null) == (builder.mainComponent == null),
-      "None or both component and main component must be non null");
+    checkArgument((builder.component == null) == (builder.entity == null),
+      "None or both component and entity must be non null");
     this.component = builder.component;
-    this.mainComponent = builder.mainComponent;
+    this.entity = builder.entity;
     this.submitter = builder.submitter;
     if (builder.characteristics == null) {
       this.characteristics = emptyMap();
@@ -109,8 +109,8 @@ public class CeTask {
     return Optional.ofNullable(component);
   }
 
-  public Optional<Component> getMainComponent() {
-    return Optional.ofNullable(mainComponent);
+  public Optional<Component> getEntity() {
+    return Optional.ofNullable(entity);
   }
 
   @CheckForNull
@@ -129,7 +129,7 @@ public class CeTask {
       .add("type", type)
       .add("uuid", uuid)
       .add("component", component)
-      .add("mainComponent", mainComponent)
+      .add("entity", entity)
       .add("submitter", submitter)
       .toString();
   }
@@ -156,7 +156,7 @@ public class CeTask {
     private String uuid;
     private String type;
     private Component component;
-    private Component mainComponent;
+    private Component entity;
     private User submitter;
     private Map<String, String> characteristics;
 
@@ -180,8 +180,8 @@ public class CeTask {
       return this;
     }
 
-    public Builder setMainComponent(@Nullable Component mainComponent) {
-      this.mainComponent = mainComponent;
+    public Builder setEntity(@Nullable Component entity) {
+      this.entity = entity;
       return this;
     }
 

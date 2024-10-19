@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +21,7 @@ package org.sonar.server.es.textsearch;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 
 import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
@@ -41,6 +40,6 @@ public class JavaTokenizer {
       queryText.split(DefaultIndexSettings.SEARCH_TERM_TOKENIZER_PATTERN))
       .filter(StringUtils::isNotEmpty)
       .filter(s -> s.length() >= MINIMUM_NGRAM_LENGTH)
-      .collect(MoreCollectors.toList());
+      .toList();
   }
 }

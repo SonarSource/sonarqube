@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +21,7 @@ package org.sonar.db;
 
 import java.util.List;
 import java.util.Map;
-
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import java.util.stream.Collectors;
 
 public class KeyLongValue {
 
@@ -52,6 +51,6 @@ public class KeyLongValue {
   public static Map<String, Long> toMap(List<KeyLongValue> values) {
     return values
       .stream()
-      .collect(uniqueIndex(KeyLongValue::getKey, KeyLongValue::getValue, values.size()));
+      .collect(Collectors.toMap(KeyLongValue::getKey, KeyLongValue::getValue));
   }
 }

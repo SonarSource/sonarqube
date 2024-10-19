@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -76,7 +76,7 @@ public class QGChangeEmailTemplateTest {
   @Test
   public void shouldFormatAlertWithSeveralMessagesOnBranch() {
     Notification notification = createNotification("Failed", "violations > 4, coverage < 75%", "ERROR", "false")
-        .setFieldValue("branch", "feature");
+      .setFieldValue("branch", "feature");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -133,7 +133,7 @@ public class QGChangeEmailTemplateTest {
   @Test
   public void shouldFormatNewAlertWithoutVersion() {
     Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true")
-        .setFieldValue("projectVersion", null);
+      .setFieldValue("projectVersion", null);
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -185,7 +185,7 @@ public class QGChangeEmailTemplateTest {
   @Test
   public void shouldFormatBackToGreenMessageOnBranch() {
     Notification notification = createNotification("Passed", "", "OK", "false")
-        .setFieldValue("branch", "feature");
+      .setFieldValue("branch", "feature");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -246,18 +246,18 @@ public class QGChangeEmailTemplateTest {
 
   private Notification createNotification(String alertName, String alertText, String alertLevel, String isNewAlert) {
     return new Notification("alerts")
-        .setFieldValue("projectName", "Foo")
-        .setFieldValue("projectKey", "org.sonar.foo:foo")
-        .setFieldValue("projectId", "45")
-        .setFieldValue("projectVersion", "V1-SNAP")
-        .setFieldValue("alertName", alertName)
-        .setFieldValue("alertText", alertText)
-        .setFieldValue("alertLevel", alertLevel)
-        .setFieldValue("isNewAlert", isNewAlert)
-        .setFieldValue("ratingMetrics", "Maintainability Rating,Reliability Rating on New Code," +
-          "Maintainability Rating on New Code,Reliability Rating," +
-          "Security Rating on New Code,Security Review Rating," +
-          "Security Review Rating on New Code,Security Rating");
+      .setFieldValue("projectName", "Foo")
+      .setFieldValue("projectKey", "org.sonar.foo:foo")
+      .setFieldValue("projectId", "45")
+      .setFieldValue("projectVersion", "V1-SNAP")
+      .setFieldValue("alertName", alertName)
+      .setFieldValue("alertText", alertText)
+      .setFieldValue("alertLevel", alertLevel)
+      .setFieldValue("isNewAlert", isNewAlert)
+      .setFieldValue("ratingMetrics", "Maintainability Rating,Reliability Rating on New Code," +
+        "Maintainability Rating on New Code,Reliability Rating," +
+        "Security Rating on New Code,Security Review Rating," +
+        "Security Review Rating on New Code,Security Rating");
   }
 
 }

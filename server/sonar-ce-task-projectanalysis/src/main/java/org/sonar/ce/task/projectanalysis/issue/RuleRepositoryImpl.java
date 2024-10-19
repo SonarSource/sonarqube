@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -186,7 +189,7 @@ public class RuleRepositoryImpl implements RuleRepository {
     @Override
     @CheckForNull
     public RuleType getType() {
-      return null;
+      return addHocRule.getRuleType();
     }
 
     @Override
@@ -224,6 +227,22 @@ public class RuleRepositoryImpl implements RuleRepository {
     @Override
     public String getSeverity() {
       return addHocRule.getSeverity();
+    }
+
+    @Override
+    public Set<String> getSecurityStandards() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public Map<SoftwareQuality, Severity> getDefaultImpacts() {
+      return addHocRule.getDefaultImpacts();
+    }
+
+    @CheckForNull
+    @Override
+    public CleanCodeAttribute cleanCodeAttribute() {
+      return addHocRule.getCleanCodeAttribute();
     }
   }
 }

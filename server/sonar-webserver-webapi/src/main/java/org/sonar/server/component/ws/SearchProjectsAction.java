@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,27 +47,28 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
+import org.sonar.db.user.TokenType;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchResultsBuilder;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
-import org.sonar.server.qualitygate.ProjectsInWarning;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Components.Component;
@@ -75,6 +77,7 @@ import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -90,6 +93,7 @@ import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProje
 import static org.sonar.server.component.ws.ProjectMeasuresQueryValidator.NON_METRIC_SORT_KEYS;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_CREATION_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -114,20 +118,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
   private final UserSession userSession;
-  private final ProjectsInWarning projectsInWarning;
   private final PlatformEditionProvider editionProvider;
-  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
 
   public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession,
-    ProjectsInWarning projectsInWarning,
-    PlatformEditionProvider editionProvider,
-    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
+    PlatformEditionProvider editionProvider, AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
-    this.projectsInWarning = projectsInWarning;
     this.editionProvider = editionProvider;
-    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
+    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   @Override
@@ -138,8 +138,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
+        new Change("10.7", "Add 'isAiCodeAssured' response field"),
+        new Change("10.3", "Add 'creationDate' sort parameter."),
+        new Change("10.2", "Field 'needIssueSync' removed from response"),
         new Change("8.3", "Add 'qualifier' filter and facet"),
-        new Change("8.0", "Field 'id' from response has been removed"))
+        new Change("8.0", "Field 'id' removed from response"))
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setHandler(this);
 
@@ -151,7 +154,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(Arrays.stream(ProjectMeasuresIndex.Facet.values())
         .map(ProjectMeasuresIndex.Facet::getName)
         .sorted()
-        .collect(toList(ProjectMeasuresIndex.Facet.values().length)));
+        .toList());
     action
       .createParam(PARAM_FILTER)
       .setMinimumLength(2)
@@ -190,10 +193,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>'WARN' for Warning</li>" +
         " <li>'ERROR' for Failed</li>" +
         HTML_UL_END_TAG +
-        "To filter on language keys use the language key: " +
+        "To filter on languages use the 'languages' keyword: " +
         HTML_UL_START_TAG +
-        " <li>to filter on a single language you can use 'language = java'</li>" +
-        " <li>to filter on several languages you must use 'language IN (java, js)'</li>" +
+        " <li>to filter on a single language you can use 'languages = java'</li>" +
+        " <li>to filter on several languages you must use 'languages IN (java, js)'</li>" +
         HTML_UL_END_TAG +
         "Use the WS api/languages/list to find the key of a language.<br> " +
         "To filter on tags use the 'tags' keyword:" +
@@ -208,11 +211,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>APP - for applications</li>" +
         HTML_UL_END_TAG);
     action.createParam(Param.SORT)
-      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), or by project name.",
-        ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
+      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), project name or creationDate (using '%s').",
+        ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER, SORT_BY_CREATION_DATE)
       .setDefaultValue(SORT_BY_NAME)
       .setPossibleValues(
-        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(toList(METRIC_KEYS.size() + NON_METRIC_SORT_KEYS.size())))
+        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().toList())
       .setSince("6.4");
     action.createParam(Param.ASCENDING)
       .setDescription("Ascending sort")
@@ -252,21 +255,32 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
             .stream()
             .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
-    boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
-    return buildResponse(request, searchResults, organizationsByUuid, needIssueSync);
+    return buildResponse(request, searchResults, organizationsByUuid);
   }
 
   private SearchProjectsWsResponse handleForOrganization(DbSession dbSession, SearchProjectsRequest request, OrganizationDto organization) {
     SearchResults searchResults = searchData(dbSession, request, organization);
-    boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
-    return buildResponse(request, searchResults, Map.of(organization.getUuid(), organization), needIssueSync);
+    return buildResponse(request, searchResults, Map.of(organization.getUuid(), organization));
+  }
+
+  private SearchProjectsWsResponse handleForAnyOrganization(DbSession dbSession, SearchProjectsRequest request) {
+    SearchResults searchResults = searchData(dbSession, request, null);
+    Set<String> organizationUuids = searchResults.projects.stream().map(ProjectDto::getOrganizationUuid).collect(toSet());
+    Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
+        .stream()
+        .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
+    return buildResponse(request, searchResults, organizationsByUuid);
+  }
+
+  private SearchProjectsWsResponse handleForOrganization(DbSession dbSession, SearchProjectsRequest request, OrganizationDto organization) {
+    SearchResults searchResults = searchData(dbSession, request, organization);
+    return buildResponse(request, searchResults, Map.of(organization.getUuid(), organization));
   }
 
   private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
     Set<String> favoriteProjectUuids = loadFavoriteProjectUuids(dbSession);
     List<Criterion> criteria = FilterParser.parse(firstNonNull(request.getFilter(), ""));
     ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, hasFavoriteFilter(criteria) ? favoriteProjectUuids : null)
-      .setIgnoreWarning(projectsInWarning.count() == 0L)
       .setSort(request.getSort())
       .setAsc(request.getAsc());
 
@@ -281,17 +295,26 @@ public class SearchProjectsAction implements ComponentsWsAction {
     ProjectMeasuresQueryValidator.validate(query);
 
     SearchIdResult<String> esResults = index.search(query, new SearchOptions()
-      .addFacets(request.getFacets())
+      // skip facets for project token authorization, avoid exposing unauthorized projects count
+      .addFacets(isProjectAnalysisToken() ? emptyList() : request.getFacets())
       .setPage(request.getPage(), request.getPageSize()));
 
     List<String> projectUuids = esResults.getUuids();
     Ordering<ProjectDto> ordering = Ordering.explicit(projectUuids).onResultOf(ProjectDto::getUuid);
     List<ProjectDto> projects = ordering.immutableSortedCopy(dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(projectUuids)));
-    Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);
+    projects = userSession.keepAuthorizedEntities(UserRole.USER, projects);
 
-    Map<String, Long> applicationsLeakPeriod = getApplicationsLeakPeriod(dbSession, request, qualifiersBasedOnEdition, projectUuids);
+    Map<String, BranchDto> mainBranchByUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, projectUuids)
+      .stream()
+      .collect(Collectors.toMap(BranchDto::getUuid, b -> b));
 
-    List<String> projectsInsync = getProjectUuidsWithBranchesNeedIssueSync(dbSession, Sets.newHashSet(projectUuids));
+    List<SnapshotDto> snapshots = getSnapshots(dbSession, request, mainBranchByUuid.keySet());
+    Map<String, SnapshotDto> analysisByProjectUuid = snapshots.stream()
+      .collect(Collectors.toMap(s -> mainBranchByUuid.get(s.getRootComponentUuid()).getProjectUuid(), s -> s));
+    Map<String, Long> applicationsBranchLeakPeriod = getApplicationsLeakPeriod(dbSession, request, qualifiersBasedOnEdition, mainBranchByUuid.keySet());
+    Map<String, Long> applicationsLeakPeriod = applicationsBranchLeakPeriod.entrySet()
+      .stream()
+      .collect(Collectors.toMap(e -> mainBranchByUuid.get(e.getKey()).getProjectUuid(), Entry::getValue));
 
     return SearchResultsBuilder.builder()
       .projects(projects)
@@ -299,13 +322,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .searchResults(esResults)
       .analysisByProjectUuid(analysisByProjectUuid)
       .applicationsLeakPeriods(applicationsLeakPeriod)
-      .projectsWithIssuesInSync(projectsInsync)
       .query(query)
       .build();
-  }
-
-  private List<String> getProjectUuidsWithBranchesNeedIssueSync(DbSession dbSession, Set<String> projectUuids) {
-    return issueIndexSyncProgressChecker.findProjectUuidsWithIssuesSyncNeed(dbSession, projectUuids);
   }
 
   private Set<String> getQualifiersBasedOnEdition(ProjectMeasuresQuery query) {
@@ -325,7 +343,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private Set<String> getQualifiersFromEdition() {
     Optional<Edition> edition = editionProvider.get();
 
-    if (!edition.isPresent()) {
+    if (edition.isEmpty()) {
       return Sets.newHashSet(Qualifiers.PROJECT);
     }
 
@@ -353,30 +371,26 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .build(),
       dbSession);
 
-    List<String> favoriteDbUuids = props.stream()
-      .map(PropertyDto::getComponentUuid)
+    Set<String> favoriteDbUuids = props.stream()
+      .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList(props.size()));
+      .collect(Collectors.toSet());
 
-    return dbClient.componentDao().selectByUuids(dbSession, favoriteDbUuids).stream()
-      .filter(ComponentDto::isEnabled)
-      .filter(f -> f.qualifier().equals(Qualifiers.PROJECT) || f.qualifier().equals(Qualifiers.APP))
-      .map(ComponentDto::uuid)
-      .collect(MoreCollectors.toSet());
+    return dbClient.projectDao().selectByUuids(dbSession, favoriteDbUuids).stream()
+      .map(ProjectDto::getUuid)
+      .collect(Collectors.toSet());
   }
 
-  private Map<String, SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, List<String> projectUuids) {
+  private List<SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, Collection<String> mainBranchUuids) {
     if (request.getAdditionalFields().contains(ANALYSIS_DATE) || request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-      return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
-        .stream()
-        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid));
+      return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, mainBranchUuids);
     }
-    return emptyMap();
+    return emptyList();
   }
 
-  private Map<String, Long> getApplicationsLeakPeriod(DbSession dbSession, SearchProjectsRequest request, Set<String> qualifiers, List<String> projectUuids) {
+  private Map<String, Long> getApplicationsLeakPeriod(DbSession dbSession, SearchProjectsRequest request, Set<String> qualifiers, Collection<String> mainBranchUuids) {
     if (qualifiers.contains(Qualifiers.APP) && request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricKeys(dbSession, projectUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
+      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
         .stream()
         .filter(lm -> !Objects.isNull(lm.getDataAsString()))
         .map(lm -> Maps.immutableEntry(lm.getComponentUuid(), ApplicationLeakProjects.parse(lm.getDataAsString()).getOldestLeak()))
@@ -409,9 +423,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid,
-          boolean needIssueSync) {
-    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults, userSession.isLoggedIn(), needIssueSync);
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults, userSession.isLoggedIn());
 
     Map<String, OrganizationDto> organizationsByUuidForAdditionalInfo = new HashMap<>();
     if (request.additionalFields.contains(ORGANIZATIONS)) {
@@ -422,7 +435,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .map(response -> response.setPaging(Common.Paging.newBuilder()
         .setPageIndex(request.getPage())
         .setPageSize(request.getPageSize())
-        .setTotal(searchResults.total)))
+        // skip total for project token authorization, avoid exposing unauthorized projects count
+        .setTotal(isProjectAnalysisToken() ? searchResults.projects.size() : searchResults.total)))
       .map(response -> {
         searchResults.projects.stream()
           .map(dbToWsComponent)
@@ -517,28 +531,23 @@ public class SearchProjectsAction implements ComponentsWsAction {
     }
   }
 
-  private static class DbToWsComponent implements Function<ProjectDto, Component> {
+  private class DbToWsComponent implements Function<ProjectDto, Component> {
     private final SearchProjectsRequest request;
     private final Component.Builder wsComponent;
     private final Map<String, OrganizationDto> organizationsByUuid;
     private final Set<String> favoriteProjectUuids;
-    private final List<String> projectsWithIssuesInSync;
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final Map<String, Long> applicationsLeakPeriod;
-    private final boolean needIssueSync;
 
-    private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, SearchResults searchResults, boolean isUserLoggedIn,
-      boolean needIssueSync) {
+    private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, SearchResults searchResults, boolean isUserLoggedIn) {
       this.request = request;
       this.analysisByProjectUuid = searchResults.analysisByProjectUuid;
       this.applicationsLeakPeriod = searchResults.applicationsLeakPeriods;
       this.wsComponent = Component.newBuilder();
       this.organizationsByUuid = organizationsByUuid;
       this.favoriteProjectUuids = searchResults.favoriteProjectUuids;
-      this.projectsWithIssuesInSync = searchResults.projectsWithIssuesInSync;
       this.isUserLoggedIn = isUserLoggedIn;
-      this.needIssueSync = needIssueSync;
     }
 
     @Override
@@ -552,7 +561,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setKey(dbProject.getKey())
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
-        .setVisibility(Visibility.getLabel(dbProject.isPrivate()));
+        .setVisibility(Visibility.getLabel(dbProject.isPrivate()))
+        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(dbProject));
       wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbProject.getUuid());
@@ -573,30 +583,26 @@ public class SearchProjectsAction implements ComponentsWsAction {
         wsComponent.setIsFavorite(favoriteProjectUuids.contains(dbProject.getUuid()));
       }
 
-      if (Qualifiers.APP.equals(dbProject.getQualifier())) {
-        wsComponent.setNeedIssueSync(needIssueSync);
-      } else {
-        wsComponent.setNeedIssueSync(projectsWithIssuesInSync.contains(dbProject.getUuid()));
-      }
       return wsComponent.build();
     }
+
+
   }
 
   public static class SearchResults {
     private final List<ProjectDto> projects;
     private final Set<String> favoriteProjectUuids;
-    private final List<String> projectsWithIssuesInSync;
     private final Facets facets;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final Map<String, Long> applicationsLeakPeriods;
     private final ProjectMeasuresQuery query;
     private final int total;
 
-    private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
-      Map<String, Long> applicationsLeakPeriods, List<String> projectsWithIssuesInSync, ProjectMeasuresQuery query) {
+    private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String,
+      SnapshotDto> analysisByProjectUuid,
+      Map<String, Long> applicationsLeakPeriods, ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;
-      this.projectsWithIssuesInSync = projectsWithIssuesInSync;
       this.total = (int) searchResults.getTotal();
       this.facets = searchResults.getFacets();
       this.analysisByProjectUuid = analysisByProjectUuid;
@@ -608,7 +614,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
       private List<ProjectDto> projects;
       private Set<String> favoriteProjectUuids;
-      private List<String> projectsWithIssuesInSync;
       private Map<String, SnapshotDto> analysisByProjectUuid;
       private Map<String, Long> applicationsLeakPeriods;
       private ProjectMeasuresQuery query;
@@ -628,11 +633,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
       public SearchResultsBuilder favoriteProjectUuids(Set<String> favoriteProjectUuids) {
         this.favoriteProjectUuids = favoriteProjectUuids;
-        return this;
-      }
-
-      public SearchResultsBuilder projectsWithIssuesInSync(List<String> projectsWithIssuesInSync) {
-        this.projectsWithIssuesInSync = projectsWithIssuesInSync;
         return this;
       }
 
@@ -657,8 +657,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       }
 
       public SearchResults build() {
-        return new SearchResults(projects, favoriteProjectUuids, searchResults, analysisByProjectUuid, applicationsLeakPeriods,
-          projectsWithIssuesInSync, query);
+        return new SearchResults(projects, favoriteProjectUuids, searchResults, analysisByProjectUuid, applicationsLeakPeriods, query);
       }
     }
   }
@@ -791,5 +790,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
       checkArgument(pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
       return new SearchProjectsRequest(this);
     }
+  }
+
+  private boolean isProjectAnalysisToken() {
+    if (userSession instanceof TokenUserSession tokenUserSession) {
+      return TokenType.PROJECT_ANALYSIS_TOKEN.equals(tokenUserSession.getTokenType());
+    }
+    return false;
   }
 }

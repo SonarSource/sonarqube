@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Arrays.stream;
 import static java.util.Optional.ofNullable;
@@ -36,7 +35,7 @@ public class ComponentHit {
 
   public ComponentHit(String uuid) {
     this.uuid = uuid;
-    highlightedText = Optional.empty();
+    this.highlightedText = Optional.empty();
   }
 
   public ComponentHit(SearchHit hit) {
@@ -59,7 +58,7 @@ public class ComponentHit {
   public static List<ComponentHit> fromSearchHits(SearchHit... hits) {
     return stream(hits)
       .map(ComponentHit::new)
-      .collect(MoreCollectors.toList(hits.length));
+      .toList();
   }
 
   public Optional<String> getHighlightedText() {

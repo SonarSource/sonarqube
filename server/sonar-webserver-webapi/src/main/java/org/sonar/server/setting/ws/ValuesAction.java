@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,10 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.TreeMultimap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,19 +43,18 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.FORMATTED_TEXT;
@@ -71,22 +69,17 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ValuesAction implements SettingsWsAction {
-
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
-  private static final Splitter DOT_SPLITTER = Splitter.on(".").omitEmptyStrings();
   private static final Set<String> SERVER_SETTING_KEYS = Set.of(SERVER_STARTTIME, SERVER_ID);
 
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsWsSupport settingsWsSupport;
 
-  public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-    SettingsWsSupport settingsWsSupport) {
+  public ValuesAction(DbClient dbClient, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsWsSupport settingsWsSupport) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsWsSupport = settingsWsSupport;
@@ -103,6 +96,7 @@ public class ValuesAction implements SettingsWsAction {
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("9.1", "The secured settings values are no longer returned. Secured settings keys that have a value " +
           "are now returned in setSecuredSettings array."),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
@@ -124,12 +118,10 @@ public class ValuesAction implements SettingsWsAction {
   private ValuesWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = ValuesRequest.from(request);
-      Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
-      BranchDto branchDto = component.map(c -> componentFinder.getBranchByUuid(dbSession, c.branchUuid())).orElse(null);
-
+      Optional<EntityDto> component = loadComponent(dbSession, valuesRequest);
       Set<String> keys = loadKeys(valuesRequest);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
-      List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet(), branchDto);
+      List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
     }
   }
@@ -146,43 +138,36 @@ public class ValuesAction implements SettingsWsAction {
     return result;
   }
 
-  private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {
+  private Optional<EntityDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {
     String componentKey = valuesRequest.getComponent();
     if (componentKey == null) {
       return Optional.empty();
     }
-    ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
 
-    if (!userSession.hasComponentPermission(USER, component) &&
-      !userSession.hasComponentPermission(UserRole.SCAN, component) &&
-      !userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
+    EntityDto entity = dbClient.entityDao().selectByKey(dbSession, componentKey)
+        .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey)));
+
+    if (!userSession.hasEntityPermission(USER, entity) &&
+      !userSession.hasEntityPermission(UserRole.SCAN, entity) &&
+      !userSession.hasPermission(OrganizationPermission.SCAN, entity.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }
-    return Optional.of(component);
+    return Optional.of(entity);
   }
 
-  private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys, @Nullable BranchDto branchDto) {
-    // List of settings must be kept in the following orders : default -> global -> component -> branch
+  private List<Setting> loadSettings(DbSession dbSession, Optional<EntityDto> component, Set<String> keys) {
+    // List of settings must be kept in the following orders : default -> global -> component
     List<Setting> settings = new ArrayList<>();
     settings.addAll(loadDefaultValues(keys));
     settings.addAll(loadGlobalSettings(dbSession, keys));
-    String branch = getBranchKeySafely(branchDto);
-    if (component.isPresent() && branch != null && component.get().getMainBranchProjectUuid() != null) {
-      ComponentDto project = componentFinder.getByUuidFromMainBranch(dbSession, component.get().getMainBranchProjectUuid());
-      settings.addAll(loadComponentSettings(dbSession, keys, project).values());
-    }
-    component.ifPresent(componentDto -> settings.addAll(loadComponentSettings(dbSession, keys, componentDto).values()));
+    component.ifPresent(c -> settings.addAll(loadComponentSettings(dbSession, c, keys)));
     return settings.stream()
       .filter(s -> settingsWsSupport.isVisible(s.getKey(), component))
       .toList();
   }
 
-  @CheckForNull
-  private static String getBranchKeySafely(@Nullable BranchDto branchDto) {
-    if (branchDto != null) {
-      return branchDto.isMain() ? null : branchDto.getBranchKey();
-    }
-    return null;
+  private Collection<Setting> loadComponentSettings(DbSession dbSession, EntityDto entity, Set<String> keys) {
+    return loadComponentSettings(dbSession, keys, entity.getUuid());
   }
 
   private List<Setting> loadDefaultValues(Set<String> keys) {
@@ -205,26 +190,24 @@ public class ValuesAction implements SettingsWsAction {
     List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, keys);
     List<PropertyDto> propertySets = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, getPropertySetKeys(properties));
     return properties.stream()
-      .map(property -> Setting.createFromDto(property, getPropertySets(property.getKey(), propertySets, null), propertyDefinitions.get(property.getKey())))
+      .map(property -> Setting.createFromDto(property, filterPropertySets(property.getKey(), propertySets, null), propertyDefinitions.get(property.getKey())))
       .toList();
   }
 
   /**
-   * Return list of settings by component uuid, sorted from project to lowest module
+   * Return list of settings by component uuids
    */
-  private Multimap<String, Setting> loadComponentSettings(DbSession dbSession, Set<String> keys, ComponentDto component) {
-    List<String> componentUuids = DOT_SPLITTER.splitToList(component.moduleUuidPath());
-    List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, keys, componentUuids);
-    List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, getPropertySetKeys(properties), componentUuids);
+  private Collection<Setting> loadComponentSettings(DbSession dbSession, Set<String> keys, String entityUuid) {
+    List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndEntityUuids(dbSession, keys, Set.of(entityUuid));
+    List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndEntityUuids(dbSession, getPropertySetKeys(properties), Set.of(entityUuid));
 
-    Multimap<String, Setting> settingsByUuid = TreeMultimap.create(Ordering.explicit(componentUuids), Ordering.arbitrary());
+    List<Setting> settings = new LinkedList<>();
     for (PropertyDto propertyDto : properties) {
-      String componentUuid = propertyDto.getComponentUuid();
+      String componentUuid = propertyDto.getEntityUuid();
       String propertyKey = propertyDto.getKey();
-      settingsByUuid.put(componentUuid,
-        Setting.createFromDto(propertyDto, getPropertySets(propertyKey, propertySets, componentUuid), propertyDefinitions.get(propertyKey)));
+      settings.add(Setting.createFromDto(propertyDto, filterPropertySets(propertyKey, propertySets, componentUuid), propertyDefinitions.get(propertyKey)));
     }
-    return settingsByUuid;
+    return settings;
   }
 
   private Set<String> getPropertySetKeys(List<PropertyDto> properties) {
@@ -235,23 +218,23 @@ public class ValuesAction implements SettingsWsAction {
       .collect(Collectors.toSet());
   }
 
-  private static List<PropertyDto> getPropertySets(String propertyKey, List<PropertyDto> propertySets, @Nullable String componentUuid) {
+  private static List<PropertyDto> filterPropertySets(String propertyKey, List<PropertyDto> propertySets, @Nullable String componentUuid) {
     return propertySets.stream()
-      .filter(propertyDto -> Objects.equals(propertyDto.getComponentUuid(), componentUuid))
+      .filter(propertyDto -> Objects.equals(propertyDto.getEntityUuid(), componentUuid))
       .filter(propertyDto -> propertyDto.getKey().startsWith(propertyKey + "."))
       .toList();
   }
 
   private class ValuesResponseBuilder {
     private final List<Setting> settings;
-    private final Optional<ComponentDto> requestedComponent;
+    private final Optional<EntityDto> requestedComponent;
 
     private final ValuesWsResponse.Builder valuesWsBuilder = ValuesWsResponse.newBuilder();
     private final Map<String, Settings.Setting.Builder> settingsBuilderByKey = new HashMap<>();
     private final Map<String, Setting> settingsByParentKey = new HashMap<>();
     private final Map<String, String> keysToDisplayMap;
 
-    ValuesResponseBuilder(List<Setting> settings, Optional<ComponentDto> requestedComponent, Map<String, String> keysToDisplayMap) {
+    ValuesResponseBuilder(List<Setting> settings, Optional<EntityDto> requestedComponent, Map<String, String> keysToDisplayMap) {
       this.settings = settings;
       this.requestedComponent = requestedComponent;
       this.keysToDisplayMap = keysToDisplayMap;
@@ -285,7 +268,7 @@ public class ValuesAction implements SettingsWsAction {
     private void setInherited(Setting setting, Settings.Setting.Builder valueBuilder) {
       boolean isDefault = setting.isDefault();
       boolean isGlobal = !requestedComponent.isPresent();
-      boolean isOnComponent = requestedComponent.isPresent() && Objects.equals(setting.getComponentUuid(), requestedComponent.get().uuid());
+      boolean isOnComponent = requestedComponent.isPresent() && Objects.equals(setting.getComponentUuid(), requestedComponent.get().getUuid());
       boolean isSet = isGlobal || isOnComponent;
       valueBuilder.setInherited(isDefault || !isSet);
     }

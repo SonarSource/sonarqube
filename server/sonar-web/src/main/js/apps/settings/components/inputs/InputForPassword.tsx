@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { DefaultSpecializedInputProps } from '../../utils';
 import SimpleInput from './SimpleInput';
 
-export default function InputForPassword(props: DefaultSpecializedInputProps) {
-  return (
-    <SimpleInput {...props} className="settings-large-input" type="password" autoComplete="off" />
-  );
+function InputForPassword(
+  props: DefaultSpecializedInputProps,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  return <SimpleInput {...props} ref={ref} size="large" type="password" autoComplete="off" />;
 }
+
+export default React.forwardRef(InputForPassword);

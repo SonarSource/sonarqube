@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.platform;
 
 import java.util.Optional;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
@@ -38,7 +38,7 @@ public class DefaultNodeInformation implements NodeInformation {
     if (this.clusterEnabled) {
       this.startupLeader = config.getBoolean(CLUSTER_WEB_STARTUP_LEADER.getKey()).orElse(false);
       this.nodeName = config.get(CLUSTER_NODE_NAME.getKey()).orElse(CLUSTER_NODE_NAME.getDefaultValue());
-      Loggers.get(DefaultNodeInformation.class).info("Cluster enabled (startup {})", startupLeader ? "leader" : "follower");
+      LoggerFactory.getLogger(DefaultNodeInformation.class).info("Cluster enabled (startup {})", startupLeader ? "leader" : "follower");
     } else {
       this.startupLeader = true;
       this.nodeName = null;

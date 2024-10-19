@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.project.ProjectDto;
@@ -41,10 +42,6 @@ public interface ApplicationProjectsMapper {
 
   Set<ProjectDto> selectProjects(@Param("applicationUuid") String applicationUuid);
 
-  void removeApplicationProjectsByApplication(String applicationUuid);
-
-  void removeApplicationBranchProjectBranchesByApplication(String applicationUuid);
-
   void addProjectBranchToAppBranch(
     @Param("uuid") String uuid,
     @Param("applicationUuid") String applicationUuid,
@@ -65,5 +62,5 @@ public interface ApplicationProjectsMapper {
 
   Set<ProjectDto> selectApplicationsFromProjects(@Param("projectUuids") Collection<String> projectUuids);
 
-  void removeAllProjectBranchesOfAppBranch(@Param("applicationBranchUuid") String applicationBranchUuid);
+  List<BranchDto> selectProjectsMainBranchesOfApplication(String applicationUuid);
 }

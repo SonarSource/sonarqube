@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.function.Function.identity;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.issue.notification.RuleGroup.ISSUES;
 import static org.sonar.server.issue.notification.RuleGroup.SECURITY_HOTSPOTS;
@@ -82,6 +82,13 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
   }
 
   /**
+   * Used to build the subject for the email
+   */
+  protected static String toSubject(Project project) {
+    return project.getProjectName() + project.getBranchName().map(branchName -> " (" + branchName + ")").orElse("");
+  }
+
+  /**
    * Adds "projectName" or "projectName, branchName" if branchName is non null
    */
   protected static void toString(StringBuilder sb, Project project) {
@@ -90,7 +97,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
     if (branchName.isPresent()) {
       value += ", " + branchName.get();
     }
-    sb.append(escapeHtml(value));
+    sb.append(escapeHtml4(value));
   }
 
   static String toUrlParams(Project project) {
@@ -156,7 +163,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
       Rule rule = rules.next();
       Collection<ChangedIssue> issues = issuesByRule.get(rule);
 
-      String ruleName = escapeHtml(rule.getName());
+      String ruleName = escapeHtml4(rule.getName());
       sb.append("<li>").append("Rule ").append(" <em>").append(ruleName).append("</em> - ");
       appendIssueLinks(sb, issuePageHref, issues, rule.getRuleType());
       sb.append("</li>");

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,50 +17,81 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Tooltip } from '@sonarsource/echoes-react';
+import { Badge, BareButton, SubnavigationGroup, SubnavigationItem } from 'design-system';
 import * as React from 'react';
-import { NavLink } from 'react-router-dom';
-import Tooltip from '../../../components/controls/Tooltip';
-import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
+import { useNavigate } from 'react-router-dom';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { Feature } from '../../../types/features';
 import { CaycStatus, QualityGate } from '../../../types/types';
+import AIGeneratedIcon from './AIGeneratedIcon';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
+import QGRecommendedIcon from './QGRecommendedIcon';
 
 interface Props {
   organization: string;
+  currentQualityGate?: string;
   qualityGates: QualityGate[];
 }
 
-export default function List({ organization, qualityGates }: Props) {
-  return (
-    <div className="list-group" role="menu">
-      {qualityGates.map((qualityGate) => (
-        <NavLink
-          className="list-group-item display-flex-center"
-          role="menuitem"
-          data-id={qualityGate.id}
-          key={qualityGate.id}
-          to={getQualityGateUrl(organization, String(qualityGate.id))}
-        >
-          <span className="flex-1 text-ellipsis" title={qualityGate.name}>
-            {qualityGate.name}
-          </span>
-          {qualityGate.isDefault && (
-            <span className="badge little-spacer-left">{translate('default')}</span>
-          )}
-          {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
+export default function List({ organization, qualityGates, currentQualityGate }: Props) {
+  const navigateTo = useNavigate();
+  const { hasFeature } = useAvailableFeatures();
 
-          {qualityGate.caycStatus === CaycStatus.NonCompliant && (
-            <>
-              {/* Adding a11y-hidden span for accessibility */}
-              <span className="a11y-hidden">{translate('quality_gates.cayc.tooltip.message')}</span>
-              <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')} accessible={false}>
-                <AlertWarnIcon className="spacer-left" />
-              </Tooltip>
-            </>
-          )}
-        </NavLink>
-      ))}
-    </div>
+  return (
+    <SubnavigationGroup>
+      {qualityGates.map(({ isDefault, isBuiltIn, name, caycStatus }) => {
+        const isDefaultTitle = isDefault ? ` ${translate('default')}` : '';
+        const isBuiltInTitle = isBuiltIn ? ` ${translate('quality_gates.built_in')}` : '';
+        const isAICodeAssuranceQualityGate =
+          hasFeature(Feature.AiCodeAssurance) && isBuiltIn && name === 'Sonar way';
+
+        return (
+          <SubnavigationItem
+            className="it__list-group-item"
+            active={currentQualityGate === name}
+            key={name}
+            onClick={() => {
+              navigateTo(getQualityGateUrl(name, organization));
+            }}
+          >
+            <div className="sw-flex sw-flex-col sw-min-w-0">
+              <BareButton
+                aria-current={currentQualityGate === name && 'page'}
+                title={`${name}${isDefaultTitle}${isBuiltInTitle}`}
+                className="sw-flex-1 sw-text-ellipsis sw-overflow-hidden sw-max-w-abs-250 sw-whitespace-nowrap"
+              >
+                {name}
+              </BareButton>
+
+              {(isDefault || isBuiltIn) && (
+                <div className="sw-mt-2">
+                  {isDefault && <Badge className="sw-mr-2">{translate('default')}</Badge>}
+                  {isBuiltIn && <BuiltInQualityGateBadge />}
+                </div>
+              )}
+            </div>
+            <div>
+              {isAICodeAssuranceQualityGate && (
+                <Tooltip content={translate('quality_gates.ai_generated.tootltip.message')}>
+                  <span className="sw-mr-1">
+                    <AIGeneratedIcon />
+                  </span>
+                </Tooltip>
+              )}
+              {caycStatus !== CaycStatus.NonCompliant && (
+                <Tooltip content={translate('quality_gates.cayc.tooltip.message')}>
+                  <span>
+                    <QGRecommendedIcon />
+                  </span>
+                </Tooltip>
+              )}
+            </div>
+          </SubnavigationItem>
+        );
+      })}
+    </SubnavigationGroup>
   );
 }

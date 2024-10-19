@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,13 +27,13 @@ interface Props {
 
 export default function ParameterChange({ name, value }: Props) {
   return (
-    <div className="quality-profile-changelog-parameter">
+    <p className="sw-break-words">
       {value == null
         ? translateWithParameters(
             'quality_profiles.changelog.parameter_reset_to_default_value',
-            name
+            name,
           )
         : translateWithParameters('quality_profiles.parameter_set_to', name, value)}
-    </div>
+    </p>
   );
 }

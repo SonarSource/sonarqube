@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,26 +25,26 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.user.UserGroupValidation;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
+import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
 import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_CURRENT_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.toProtobuf;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -53,12 +53,15 @@ public class UpdateAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final GroupWsSupport support;
+  private final GroupService groupService;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  private final ManagedInstanceChecker managedInstanceChecker;
+
+  public UpdateAction(DbClient dbClient, UserSession userSession, GroupService groupService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
+    this.groupService = groupService;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -70,18 +73,17 @@ public class UpdateAction implements UserGroupsWsAction {
       .setPost(true)
       .setResponseExample(getClass().getResource("update.example.json"))
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use PATCH /api/v2/authorizations/groups instead"),
+        new Change("10.0", "Parameter 'id' is removed in favor of 'currentName'"),
         new Change("8.5", "Parameter 'id' deprecated in favor of 'currentName'"),
         new Change("8.4", "Parameter 'id' format changes from integer to string"),
         new Change("6.4", "The default group is no longer editable"));
 
-    action.createParam(PARAM_GROUP_ID)
-      .setDescription("Identifier of the group. Use '" + PARAM_CURRENT_NAME + "' instead.")
-      .setExampleValue(UUID_EXAMPLE_01)
-      .setDeprecatedSince("8.5");
-
-    action.createParam(PARAM_CURRENT_NAME)
-      .setDescription("Name of the group to be updated. Mandatory unless '" + PARAM_GROUP_ID + "' is used.")
+    action.createParam(PARAM_GROUP_CURRENT_NAME)
+      .setDescription("Name of the group to be updated.")
+      .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_01)
       .setSince("8.5");
 
@@ -101,49 +103,28 @@ public class UpdateAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String groupUuid = request.param(PARAM_GROUP_ID);
-      String currentName = request.param(PARAM_CURRENT_NAME);
+      userSession.checkPermission(ADMINISTER);
+      managedInstanceChecker.throwIfInstanceIsManaged();
+      String currentName = request.mandatoryParam(PARAM_GROUP_CURRENT_NAME);
 
-      if ((groupUuid == null && currentName == null) || (groupUuid != null && currentName != null)) {
-        throw new IllegalArgumentException(format("Need to specify one and only one of '%s' or '%s'", PARAM_GROUP_ID, PARAM_CURRENT_NAME));
-      }
-
-      GroupDto group;
-      if (groupUuid != null) {
-        group = ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid))
-          .orElseThrow(() -> new NotFoundException(format("Could not find a user group with id '%s'.", groupUuid)));
-      } else {
-        group = dbClient.groupDao().selectByName(dbSession, null /* TODO */, currentName)
+      GroupDto group = dbClient.groupDao().selectByName(dbSession, currentName)
           .orElseThrow(() -> new NotFoundException(format("Could not find a user group with name '%s'.", currentName)));
-      }
 
-      Optional<OrganizationDto> orgOpt = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
-      checkFoundWithOptional(orgOpt, "Could not find organization with id '%s'.", group.getOrganizationUuid());
+      OrganizationDto org = checkFoundWithOptional(dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid()), "Could not find organization with id '%s'.", group.getOrganizationUuid());
 
       userSession.checkPermission(OrganizationPermission.ADMINISTER, orgOpt.get());
       support.checkGroupIsNotDefault(dbSession, group);
 
-      boolean changed = false;
+      userSession.checkPermission(ADMINISTER);
+      support.checkGroupIsNotDefault(dbSession, group);
+
       String newName = request.param(PARAM_GROUP_NAME);
-      if (newName != null) {
-        changed = true;
-        UserGroupValidation.validateGroupName(newName);
-        support.checkNameDoesNotExist(dbSession, group.getOrganizationUuid(), newName);
-        group.setName(newName);
-      }
-
       String description = request.param(PARAM_GROUP_DESCRIPTION);
-      if (description != null) {
-        changed = true;
-        group.setDescription(description);
-      }
 
-      if (changed) {
-        dbClient.groupDao().update(dbSession, group);
-        dbSession.commit();
-      }
+      GroupDto updatedGroup = groupService.updateGroup(dbSession, group, newName, description).groupDto();
+      dbSession.commit();
 
-      writeResponse(dbSession, request, response, orgOpt.get(), group);
+      writeResponse(dbSession, request, response, org, updatedGroup);
     }
   }
 

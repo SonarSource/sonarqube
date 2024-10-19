@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import styled from '@emotion/styled';
+import { themeBorder } from 'design-system';
 import * as React from 'react';
 import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
@@ -28,14 +31,15 @@ interface Props {
   settings: SettingDefinitionAndValue[];
 }
 
-export default function DefinitionsList(props: Props) {
+export default function DefinitionsList(props: Readonly<Props>) {
   const { component, settings } = props;
   return (
-    <ul className="settings-definitions-list">
+    <ul>
       {settings.map((setting) => (
-        <li
+        <StyledListItem
+          className="sw-p-6"
           key={setting.definition.key}
-          data-key={setting.definition.key}
+          data-scroll-key={setting.definition.key}
           ref={props.scrollToDefinition}
         >
           <Definition
@@ -43,8 +47,14 @@ export default function DefinitionsList(props: Props) {
             definition={setting.definition}
             initialSettingValue={setting.settingValue}
           />
-        </li>
+        </StyledListItem>
       ))}
     </ul>
   );
 }
+
+const StyledListItem = styled.li`
+  & + & {
+    border-top: ${themeBorder('default')};
+  }
+`;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,19 +27,19 @@ import org.sonar.db.DbTester;
 
 public class PluginDbTester {
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public PluginDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
   @SafeVarargs
   public final PluginDto insertPlugin(Consumer<PluginDto>... consumers) {
     PluginDto pluginDto = PluginTesting.newPluginDto();
     Arrays.stream(consumers).forEach(c -> c.accept(pluginDto));
-    dbClient.pluginDao().insert(dbSession, pluginDto);
-    dbSession.commit();
+    dbClient.pluginDao().insert(db.getSession(), pluginDto);
+    db.commit();
     return pluginDto;
   }
 

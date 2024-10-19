@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
@@ -51,15 +52,13 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.qualityprofile.index.ActiveRuleDoc.docIdOf;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexer implements ResilientIndexer {
 
-  private static final Logger LOGGER = Loggers.get(ActiveRuleIndexer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ActiveRuleIndexer.class);
   private static final String ID_TYPE_ACTIVE_RULE_UUID = "activeRuleUuid";
   private static final String ID_TYPE_RULE_PROFILE_UUID = "ruleProfileUuid";
 
@@ -98,7 +97,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     List<EsQueueDto> items = changes.stream()
       .map(ActiveRuleChange::getActiveRule)
       .map(ar -> newQueueDto(docIdOf(ar.getUuid()), ID_TYPE_ACTIVE_RULE_UUID, ar.getRuleUuid()))
-      .collect(toArrayList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
@@ -110,7 +109,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       .map(QProfileDto::getRulesProfileUuid)
       .distinct()
       .map(ruleProfileUuid -> newQueueDto(ruleProfileUuid, ID_TYPE_RULE_PROFILE_UUID, null))
-      .collect(toArrayList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
@@ -179,7 +178,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     Set<String> docIds = activeRuleItems.keySet();
     return docIds.stream()
       .map(ActiveRuleDoc::activeRuleUuidOf)
-      .collect(toSet(docIds.size()));
+      .collect(Collectors.toSet());
   }
 
   private IndexingResult doIndexRuleProfiles(DbSession dbSession, Map<String, EsQueueDto> ruleProfileItems) {
@@ -226,7 +225,8 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     ActiveRuleDoc doc = new ActiveRuleDoc(dto.getUuid())
       .setRuleUuid(dto.getRuleUuid())
       .setRuleProfileUuid(dto.getRuleProfileUuid())
-      .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()));
+      .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()))
+      .setPrioritizedRule(dto.getPrioritizedRule());
     // all the fields must be present, even if value is null
     String inheritance = dto.getInheritance();
     doc.setInheritance(inheritance == null ? ActiveRuleInheritance.NONE.name() : inheritance);

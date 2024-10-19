@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -87,6 +87,33 @@ public class AbstractSettingsLoaderTest {
           entry("sonar.issue.exclusions.multicriteria.1.rulepattern", "*:S12345"),
           entry("sonar.issue.exclusions.multicriteria.2.filepattern", "**/*.java"),
           entry("sonar.issue.exclusions.multicriteria.2.rulepattern", "*:S456"));
+  }
+
+  @Test
+  public void should_always_load_language_detection_properties() {
+    assertThat(AbstractSettingsLoader.toMap(List.of(
+      Setting.newBuilder()
+        .setInherited(false)
+        .setKey("sonar.xoo.file.suffixes")
+        .setValues(Values.newBuilder().addValues(".xoo")).build(),
+      Setting.newBuilder()
+        .setInherited(false)
+        .setKey("sonar.xoo.file.patterns")
+        .setValues(Values.newBuilder().addValues("Xoofile")).build()
+    ))).containsExactly(
+      entry("sonar.xoo.file.suffixes", ".xoo"),
+      entry("sonar.xoo.file.patterns", "Xoofile")
+    );
+  }
+
+  @Test
+  public void should_not_load_inherited_properties() {
+    assertThat(AbstractSettingsLoader.toMap(List.of(
+      Setting.newBuilder()
+        .setInherited(true)
+        .setKey("sonar.inherited.property")
+        .setValues(Values.newBuilder().addValues("foo")).build()
+    ))).isEmpty();
   }
 
 }

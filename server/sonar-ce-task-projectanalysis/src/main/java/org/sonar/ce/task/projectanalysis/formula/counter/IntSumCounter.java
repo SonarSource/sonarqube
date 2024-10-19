@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -65,7 +65,8 @@ public class IntSumCounter implements SumCounter<Integer, IntSumCounter> {
     }
   }
 
-  private void addValue(int newValue) {
+  @Override
+  public void addValue(Integer newValue) {
     initialized = true;
     value += newValue;
   }

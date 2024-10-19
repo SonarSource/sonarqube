@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
@@ -42,7 +44,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class TrackerExecutionTest {
   private final TrackerBaseInputFactory baseInputFactory = mock(TrackerBaseInputFactory.class);
@@ -128,7 +129,7 @@ public class TrackerExecutionTest {
     ArrayList<DefaultIssue> mappedBaseIssues = new ArrayList<>(mappedClosedIssues);
     Issue.STATUSES.stream().filter(t -> !Issue.STATUS_CLOSED.equals(t)).forEach(s -> mappedBaseIssues.add(new DefaultIssue().setKey(s).setStatus(s)));
     Collections.shuffle(mappedBaseIssues);
-    when(closedTracking.getMatchedRaws()).thenReturn(mappedBaseIssues.stream().collect(uniqueIndex(i -> new DefaultIssue().setKey("raw_for_" + i.key()), i -> i)));
+    when(closedTracking.getMatchedRaws()).thenReturn(mappedBaseIssues.stream().collect(Collectors.toMap(i -> new DefaultIssue().setKey("raw_for_" + i.key()), Function.identity())));
 
     Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component, rawInput);
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,37 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { BasicSeparator, FlagMessage, Link, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import { Alert } from '../../../../components/ui/Alert';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
-import DocLink from '../../../common/DocLink';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export interface PublishStepsProps extends WithAvailableFeaturesProps {}
+
 export function PublishSteps(props: PublishStepsProps) {
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
+  const docUrl = useDocUrl(DocLink.AlmAzureIntegration);
+
   return (
     <>
-      <li>
+      <NumberedListItem>
         <SentenceWithHighlights
           translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg"
           highlightKeys={['task']}
         />
-        <Alert variant="info" className="spacer-top">
+        <FlagMessage variant="info" className="sw-mt-2">
           {translate(
-            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1'
+            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1',
           )}
-        </Alert>
-      </li>
-      <li>
+        </FlagMessage>
+      </NumberedListItem>
+      <NumberedListItem>
         <SentenceWithHighlights
           translationKey={
             branchSupportEnabled
@@ -56,25 +59,27 @@ export function PublishSteps(props: PublishStepsProps) {
           }
           highlightKeys={['tab', 'continuous_integration']}
         />
-      </li>
+      </NumberedListItem>
       {branchSupportEnabled && (
         <>
-          <hr />
-          <FormattedMessage
-            id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
-            defaultMessage={translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection'
-            )}
-            values={{
-              link: (
-                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
-                  {translate(
-                    'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link'
-                  )}
-                </DocLink>
-              ),
-            }}
-          />
+          <BasicSeparator className="sw-my-4" />
+          <div>
+            <FormattedMessage
+              id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+              defaultMessage={translate(
+                'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection',
+              )}
+              values={{
+                link: (
+                  <Link to={docUrl}>
+                    {translate(
+                      'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link',
+                    )}
+                  </Link>
+                ),
+              }}
+            />
+          </div>
         </>
       )}
     </>

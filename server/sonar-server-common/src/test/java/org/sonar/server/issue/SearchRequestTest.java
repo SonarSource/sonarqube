@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,13 @@
  */
 package org.sonar.server.issue;
 
+import java.util.List;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SearchRequestTest {
 
@@ -35,7 +37,7 @@ public class SearchRequestTest {
       .setStatuses(singletonList("CLOSED"))
       .setResolutions(singletonList("FALSE-POSITIVE"))
       .setResolved(true)
-      .setProjects(singletonList("project-a"))
+      .setProjectKeys(singletonList("project-a"))
       .setDirectories(singletonList("aDirPath"))
       .setFiles(asList("file-a", "file-b"))
       .setAssigneesUuid(asList("user-a", "user-b"))
@@ -52,15 +54,21 @@ public class SearchRequestTest {
       .setOwaspTop10For2021(asList("a2", "a3"))
       .setOwaspAsvs40(asList("1.1.1", "4.2.2"))
       .setOwaspAsvsLevel(2)
+      .setStigAsdV5R3(List.of("V-222400", "V-222401"))
+      .setCasa(List.of("1.4.1", "6.4.2"))
       .setPciDss32(asList("1", "4"))
-      .setPciDss40(asList("3", "5"));
+      .setPciDss40(asList("3", "5"))
+      .setCodeVariants(asList("variant1", "variant2"))
+      .setCleanCodeAttributesCategories(singletonList("ADAPTABLE"))
+      .setImpactSeverities(List.of("HIGH", "LOW"))
+      .setImpactSoftwareQualities(List.of("RELIABILITY", "SECURITY"));
 
     assertThat(underTest.getIssues()).containsOnlyOnce("anIssueKey");
     assertThat(underTest.getSeverities()).containsExactly("MAJOR", "MINOR");
     assertThat(underTest.getStatuses()).containsExactly("CLOSED");
     assertThat(underTest.getResolutions()).containsExactly("FALSE-POSITIVE");
     assertThat(underTest.getResolved()).isTrue();
-    assertThat(underTest.getProjects()).containsExactly("project-a");
+    assertThat(underTest.getProjectKeys()).containsExactly("project-a");
     assertThat(underTest.getDirectories()).containsExactly("aDirPath");
     assertThat(underTest.getFiles()).containsExactly("file-a", "file-b");
     assertThat(underTest.getAssigneeUuids()).containsExactly("user-a", "user-b");
@@ -74,11 +82,25 @@ public class SearchRequestTest {
     assertThat(underTest.getSort()).isEqualTo("CREATION_DATE");
     assertThat(underTest.getAsc()).isTrue();
     assertThat(underTest.getInNewCodePeriod()).isTrue();
+    assertSecurityStandards(underTest);
+    assertThat(underTest.getCodeVariants()).containsExactly("variant1", "variant2");
+    assertCleanCodeInformation(underTest);
+  }
+
+  private static void assertSecurityStandards(SearchRequest underTest) {
     assertThat(underTest.getOwaspTop10For2021()).containsExactly("a2", "a3");
     assertThat(underTest.getOwaspAsvs40()).containsExactly("1.1.1", "4.2.2");
     assertThat(underTest.getOwaspAsvsLevel()).isEqualTo(2);
+    assertThat(underTest.getStigAsdV5R3()).containsExactly("V-222400", "V-222401");
+    assertThat(underTest.getCasa()).containsExactly("1.4.1", "6.4.2");
     assertThat(underTest.getPciDss32()).containsExactly("1", "4");
     assertThat(underTest.getPciDss40()).containsExactly("3", "5");
+  }
+
+  private static void assertCleanCodeInformation(SearchRequest underTest) {
+    assertThat(underTest.getCleanCodeAttributesCategories()).containsExactly("ADAPTABLE");
+    assertThat(underTest.getImpactSeverities()).containsExactly("HIGH", "LOW");
+    assertThat(underTest.getImpactSoftwareQualities()).containsExactly("RELIABILITY", "SECURITY");
   }
 
   @Test
@@ -86,5 +108,14 @@ public class SearchRequestTest {
     SearchRequest underTest = new SearchRequest().setScopes(null);
 
     assertThat(underTest.getScopes()).isNull();
+  }
+
+  @Test
+  public void setIssues_whenSizeOfTheListIsGreaterThan500_throwException() {
+    List<String> issues = asList(new String[501]);
+    SearchRequest underTest = new SearchRequest();
+    assertThatThrownBy(() -> underTest.setIssues(issues))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Number of issue keys must be less than 500 (got 501)");
   }
 }

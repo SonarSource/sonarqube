@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Avatar,
+  DangerButtonPrimary,
+  DestructiveIcon,
+  Modal,
+  Note,
+  TrashIcon,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { removeUser } from '../../../api/quality-profiles';
-import { DeleteButton, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import Avatar from '../../../components/ui/Avatar';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { UserSelected } from '../../../types/types';
 
 interface Props {
@@ -33,101 +38,66 @@ interface Props {
   organization: string;
 }
 
-interface State {
-  deleteModal: boolean;
-}
+export default function ProfilePermissionsGroup(props: Readonly<Props>) {
+  const { user, profile } = props;
+  const [deleteDialogOpened, setDeleteDialogOpened] = React.useState(false);
 
-export default class ProfilePermissionsUser extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { deleteModal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleDeleteClick = () => {
-    this.setState({ deleteModal: true });
-  };
-
-  handleDeleteModalClose = () => {
-    if (this.mounted) {
-      this.setState({ deleteModal: false });
-    }
-  };
-
-  handleDelete = () => {
-    const { profile, user } = this.props;
-
+  const handleDelete = () => {
     return removeUser({
       language: profile.language,
       login: user.login,
       qualityProfile: profile.name,
       organization: this.props.organization,
     }).then(() => {
-      this.handleDeleteModalClose();
-      this.props.onDelete(user);
+      setDeleteDialogOpened(false);
+      props.onDelete(user);
     });
   };
 
-  renderDeleteModal = (props: ChildrenProps) => (
-    <div>
-      <header className="modal-head">
-        <h2>{translate('quality_profiles.permissions.remove.user')}</h2>
-      </header>
-
-      <div className="modal-body">
-        <FormattedMessage
-          defaultMessage={translate('quality_profiles.permissions.remove.user.confirmation')}
-          id="quality_profiles.permissions.remove.user.confirmation"
-          values={{
-            user: <strong>{this.props.user.name}</strong>,
-          }}
+  return (
+    <div className="sw-flex sw-items-center sw-justify-between">
+      <div className="sw-flex sw-truncate">
+        <Avatar
+          className="sw-mt-1/2 sw-mr-3 sw-grow-0 sw-shrink-0"
+          hash={user.avatar}
+          name={user.name}
+          size="xs"
         />
+        <div className="sw-truncate fs-mask">
+          <strong className="sw-typo-semibold">{user.name}</strong>
+          <Note className="sw-block">{user.login}</Note>
+        </div>
       </div>
+      <DestructiveIcon
+        Icon={TrashIcon}
+        aria-label={translateWithParameters(
+          'quality_profiles.permissions.remove.user_x',
+          user.name,
+        )}
+        onClick={() => setDeleteDialogOpened(true)}
+      />
 
-      <footer className="modal-foot">
-        {props.submitting && <i className="spinner spacer-right" />}
-        <SubmitButton
-          className="button-red"
-          disabled={props.submitting}
-          onClick={props.onSubmitClick}
-        >
-          {translate('remove')}
-        </SubmitButton>
-        <ResetButtonLink onClick={props.onCloseClick}>{translate('cancel')}</ResetButtonLink>
-      </footer>
+      {deleteDialogOpened && (
+        <Modal
+          headerTitle={translate('quality_profiles.permissions.remove.user')}
+          onClose={() => setDeleteDialogOpened(false)}
+          body={
+            <FormattedMessage
+              defaultMessage={translate('quality_profiles.permissions.remove.user.confirmation')}
+              id="quality_profiles.permissions.remove.user.confirmation"
+              values={{
+                user: <strong>{user.name}</strong>,
+              }}
+            />
+          }
+          primaryButton={
+            <DangerButtonPrimary autoFocus onClick={handleDelete}>
+              {translate('remove')}
+            </DangerButtonPrimary>
+          }
+          secondaryButtonLabel={translate('cancel')}
+        />
+      )}
     </div>
   );
-
-  render() {
-    const { user } = this.props;
-
-    return (
-      <div className="clearfix big-spacer-bottom">
-        <DeleteButton
-          className="pull-right spacer-top spacer-left spacer-right button-small"
-          onClick={this.handleDeleteClick}
-        />
-        <Avatar className="pull-left spacer-right" hash={user.avatar} name={user.name} size={32} />
-        <div className="overflow-hidden">
-          <strong>{user.name}</strong>
-          <div className="note">{user.login}</div>
-        </div>
-
-        {this.state.deleteModal && (
-          <SimpleModal
-            header={translate('quality_profiles.permissions.remove.user')}
-            onClose={this.handleDeleteModalClose}
-            onSubmit={this.handleDelete}
-          >
-            {this.renderDeleteModal}
-          </SimpleModal>
-        )}
-      </div>
-    );
-  }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,94 +17,178 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, uniqueId } from 'lodash';
+import { chunk, cloneDeep, uniqueId } from 'lodash';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { parseDate } from '../../helpers/dates';
 import { mockAnalysis, mockAnalysisEvent } from '../../helpers/mocks/project-activity';
-import { Analysis } from '../../types/project-activity';
+import { Analysis, ProjectAnalysisEventCategory } from '../../types/project-activity';
 import {
   changeEvent,
   createEvent,
   deleteAnalysis,
   deleteEvent,
+  getAllTimeProjectActivity,
   getProjectActivity,
 } from '../projectActivity';
 
+jest.mock('../projectActivity');
+
+const PAGE_SIZE = 10;
+const DEFAULT_PAGE = 1;
+const UNKNOWN_PROJECT = 'unknown';
+
+const defaultAnalysesList = [
+  mockAnalysis({
+    key: 'AXJMbIUGPAOIsUIE3eNT',
+    date: parseDate('2017-03-03T22:00:00.000Z').toDateString(),
+    projectVersion: '1.1',
+    buildString: '1.1.0.2',
+    events: [
+      mockAnalysisEvent({
+        category: ProjectAnalysisEventCategory.Version,
+        key: 'IsUIEAXJMbIUGPAO3eND',
+        name: '1.1',
+      }),
+    ],
+  }),
+  mockAnalysis({
+    key: 'AXJMbIUGPAOIsUIE3eND',
+    date: parseDate('2017-03-02T22:00:00.000Z').toDateString(),
+    projectVersion: '1.1',
+    buildString: '1.1.0.1',
+  }),
+  mockAnalysis({
+    key: 'AXJMbIUGPAOIsUIE3eNE',
+    date: parseDate('2017-03-01T22:00:00.000Z').toDateString(),
+    projectVersion: '1.0',
+    events: [
+      mockAnalysisEvent({
+        category: ProjectAnalysisEventCategory.Version,
+        key: 'IUGPAOAXJMbIsUIE3eNE',
+        name: '1.0',
+      }),
+    ],
+  }),
+  mockAnalysis({
+    key: 'AXJMbIUGPAOIsUIE3eNC',
+    date: parseDate('2017-02-28T22:00:00.000Z').toDateString(),
+    projectVersion: '1.0',
+    buildString: '1.0.0.1',
+  }),
+];
+
 export class ProjectActivityServiceMock {
-  readOnlyAnalysisList: Analysis[];
-  analysisList: Analysis[];
+  #analysisList: Analysis[];
 
-  constructor(analyses?: Analysis[]) {
-    this.readOnlyAnalysisList = analyses || [
-      mockAnalysis({
-        key: 'AXJMbIUGPAOIsUIE3eNT',
-        date: '2017-03-03T09:36:01+0100',
-        projectVersion: '1.1',
-        buildString: '1.1.0.2',
-        events: [
-          mockAnalysisEvent({ category: 'VERSION', key: 'IsUIEAXJMbIUGPAO3eND', name: '1.1' }),
-        ],
-      }),
-      mockAnalysis({
-        key: 'AXJMbIUGPAOIsUIE3eND',
-        date: '2017-03-02T09:36:01+0100',
-        projectVersion: '1.1',
-        buildString: '1.1.0.1',
-      }),
-      mockAnalysis({
-        key: 'AXJMbIUGPAOIsUIE3eNE',
-        date: '2017-03-01T10:36:01+0100',
-        projectVersion: '1.0',
-        buildString: '1.0.0.2',
-        events: [
-          mockAnalysisEvent({ category: 'VERSION', key: 'IUGPAOAXJMbIsUIE3eNE', name: '1.0' }),
-        ],
-      }),
-      mockAnalysis({
-        key: 'AXJMbIUGPAOIsUIE3eNC',
-        date: '2017-03-01T09:36:01+0100',
-        projectVersion: '1.0',
-        buildString: '1.0.0.1',
-      }),
-    ];
+  constructor() {
+    this.#analysisList = cloneDeep(defaultAnalysesList);
 
-    this.analysisList = cloneDeep(this.readOnlyAnalysisList);
-
-    (getProjectActivity as jest.Mock).mockImplementation(this.getActivityHandler);
-    (deleteAnalysis as jest.Mock).mockImplementation(this.deleteAnalysisHandler);
-    (createEvent as jest.Mock).mockImplementation(this.createEventHandler);
-    (changeEvent as jest.Mock).mockImplementation(this.changeEventHandler);
-    (deleteEvent as jest.Mock).mockImplementation(this.deleteEventHandler);
+    jest.mocked(getProjectActivity).mockImplementation(this.getActivityHandler);
+    jest
+      .mocked(getAllTimeProjectActivity)
+      .mockImplementation(this.getAllTimeProjectActivityHandler);
+    jest.mocked(deleteAnalysis).mockImplementation(this.deleteAnalysisHandler);
+    jest.mocked(createEvent).mockImplementation(this.createEventHandler);
+    jest.mocked(changeEvent).mockImplementation(this.changeEventHandler);
+    jest.mocked(deleteEvent).mockImplementation(this.deleteEventHandler);
   }
 
   reset = () => {
-    this.analysisList = cloneDeep(this.readOnlyAnalysisList);
+    this.#analysisList = cloneDeep(defaultAnalysesList);
   };
 
-  getActivityHandler = () => {
+  getAnalysesList = () => {
+    return this.#analysisList;
+  };
+
+  setAnalysesList = (analyses: Analysis[]) => {
+    this.#analysisList = analyses;
+  };
+
+  getActivityHandler = (
+    data: {
+      category?: string;
+      from?: string;
+      p?: number;
+      project: string;
+      ps?: number;
+      statuses?: string;
+    } & BranchParameters,
+  ) => {
+    const { project, ps = PAGE_SIZE, p = DEFAULT_PAGE, category, from } = data;
+
+    if (project === UNKNOWN_PROJECT) {
+      throw new Error(`Could not find project "${UNKNOWN_PROJECT}"`);
+    }
+
+    let analyses = category
+      ? this.#analysisList.filter((a) => a.events.some((e) => e.category === category))
+      : this.#analysisList;
+
+    if (from !== undefined) {
+      const fromTime = parseDate(from).getTime();
+      analyses = analyses.filter((a) => parseDate(a.date).getTime() >= fromTime);
+    }
+
+    const analysesChunked = chunk(analyses, ps);
+
     return this.reply({
-      analyses: this.analysisList,
-      paging: {
-        pageIndex: 1,
-        pageSize: 100,
-        total: this.analysisList.length,
-      },
+      paging: { pageSize: ps, total: analyses.length, pageIndex: p },
+      analyses: analysesChunked[p - 1] ?? [],
+    });
+  };
+
+  getAllTimeProjectActivityHandler = (
+    data: {
+      category?: string;
+      from?: string;
+      p?: number;
+      project: string;
+      ps?: number;
+      statuses?: string;
+    } & BranchParameters,
+  ) => {
+    const { project, p = DEFAULT_PAGE, category, from } = data;
+
+    if (project === UNKNOWN_PROJECT) {
+      throw new Error(`Could not find project "${UNKNOWN_PROJECT}"`);
+    }
+
+    let analyses = category
+      ? this.#analysisList.filter((a) => a.events.some((e) => e.category === category))
+      : this.#analysisList;
+
+    if (from !== undefined) {
+      const fromTime = parseDate(from).getTime();
+      analyses = analyses.filter((a) => parseDate(a.date).getTime() >= fromTime);
+    }
+    return this.reply({
+      paging: { pageSize: PAGE_SIZE, total: this.#analysisList.length, pageIndex: p },
+      analyses: this.#analysisList,
     });
   };
 
   deleteAnalysisHandler = (analysisKey: string) => {
-    const i = this.analysisList.findIndex(({ key }) => key === analysisKey);
-    if (i !== undefined) {
-      this.analysisList.splice(i, 1);
-      return this.reply();
+    const i = this.#analysisList.findIndex(({ key }) => key === analysisKey);
+    if (i === undefined) {
+      throw new Error(`Could not find analysis with key: ${analysisKey}`);
     }
-    throw new Error(`Could not find analysis with key: ${analysisKey}`);
+    this.#analysisList.splice(i, 1);
+    return this.reply(undefined);
   };
 
-  createEventHandler = (
-    analysisKey: string,
-    name: string,
-    category = 'OTHER',
-    description?: string
-  ) => {
+  createEventHandler = (data: {
+    analysis: string;
+    category?: ProjectAnalysisEventCategory;
+    description?: string;
+    name: string;
+  }) => {
+    const {
+      analysis: analysisKey,
+      name,
+      category = ProjectAnalysisEventCategory.Other,
+      description,
+    } = data;
     const analysis = this.findAnalysis(analysisKey);
 
     const key = uniqueId(analysisKey);
@@ -119,7 +203,8 @@ export class ProjectActivityServiceMock {
     });
   };
 
-  changeEventHandler = (eventKey: string, name: string, description?: string) => {
+  changeEventHandler = (data: { description?: string; event: string; name: string }) => {
+    const { event: eventKey, name, description } = data;
     const [eventIndex, analysisKey] = this.findEvent(eventKey);
     const analysis = this.findAnalysis(analysisKey);
     const event = analysis.events[eventIndex];
@@ -136,12 +221,12 @@ export class ProjectActivityServiceMock {
 
     analysis.events.splice(eventIndex, 1);
 
-    return this.reply();
+    return this.reply(undefined);
   };
 
   findEvent = (eventKey: string): [number, string] => {
     let analysisKey;
-    const eventIndex = this.analysisList.reduce((acc, { key, events }) => {
+    const eventIndex = this.#analysisList.reduce((acc, { key, events }) => {
       if (acc === undefined) {
         const i = events.findIndex(({ key }) => key === eventKey);
         if (i > -1) {
@@ -161,7 +246,7 @@ export class ProjectActivityServiceMock {
   };
 
   findAnalysis = (analysisKey: string) => {
-    const analysis = this.analysisList.find(({ key }) => key === analysisKey);
+    const analysis = this.#analysisList.find(({ key }) => key === analysisKey);
 
     if (analysis !== undefined) {
       return analysis;
@@ -170,7 +255,7 @@ export class ProjectActivityServiceMock {
     throw new Error(`Could not find analysis with key: ${analysisKey}`);
   };
 
-  reply<T>(response?: T): Promise<T | void> {
-    return Promise.resolve(response ? cloneDeep(response) : undefined);
+  reply<T>(response: T): Promise<T> {
+    return Promise.resolve(cloneDeep(response));
   }
 }

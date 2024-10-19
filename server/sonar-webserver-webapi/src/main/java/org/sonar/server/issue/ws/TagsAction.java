@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,6 +33,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
@@ -67,9 +67,7 @@ public class TagsAction implements IssuesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
 
-  public TagsAction(IssueIndex issueIndex,
-                    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
-                    ComponentFinder componentFinder) {
+  public TagsAction(IssueIndex issueIndex, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient, ComponentFinder componentFinder) {
     this.issueIndex = issueIndex;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.dbClient = dbClient;
@@ -120,10 +118,12 @@ public class TagsAction implements IssuesWsAction {
       boolean all = request.mandatoryParamAsBoolean(PARAM_ALL);
       checkIfAnyComponentsNeedIssueSync(dbSession, projectKey);
 
-      Optional<OrganizationDto> organization = getOrganization(dbSession, organizatioKey);
-      Optional<ComponentDto> project = getProject(dbSession, organization, projectKey);
-      Optional<BranchDto> branch = project.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.uuid(), branchKey));
-      List<String> tags = searchTags(organization, project.orElse(null), branch.orElse(null), request, all);
+      OrganizationDto organization = getOrganization(dbSession, organizatioKey);
+      Optional<EntityDto> entity = getEntity(dbSession, projectKey);
+      entity.ifPresent(e -> checkArgument(e.equals(organization.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, organization.getKey()));
+
+      Optional<BranchDto> branch = branchKey == null ? Optional.empty() : entity.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.getUuid(), branchKey));
+      List<String> tags = searchTags(organization, entity.orElse(null), branch.orElse(null), request, all, dbSession);
 
       Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
       tags.forEach(tagsResponseBuilder::addTags);
@@ -131,19 +131,16 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private Optional<OrganizationDto> getOrganization(DbSession dbSession, @Nullable String organizationKey) {
-    return organizationKey == null ? Optional.empty()
-      : Optional.of(checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'", organizationKey));
+  private OrganizationDto getOrganization(DbSession dbSession, @Nullable String organizationKey) {
+    return checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'", organizationKey);
   }
 
-  private Optional<ComponentDto> getProject(DbSession dbSession, Optional<OrganizationDto> organization, @Nullable String projectKey) {
-    if (projectKey == null) {
+  private Optional<EntityDto> getEntity(DbSession dbSession, @Nullable String entityKey) {
+    if (entityKey == null) {
       return Optional.empty();
     }
-    ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-    checkArgument(project.scope().equals(Scopes.PROJECT), "Component '%s' must be a project", projectKey);
-    organization.ifPresent(o -> checkArgument(project.getOrganizationUuid().equals(o.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, o.getKey()));
-    return Optional.of(project);
+    return Optional.of(componentFinder.getEntityByKey(dbSession, entityKey))
+      .filter(e -> !e.getQualifier().equals(Qualifiers.SUBVIEW));
   }
 
   private void checkIfAnyComponentsNeedIssueSync(DbSession session, @Nullable String projectKey) {
@@ -154,25 +151,23 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private List<String> searchTags(Optional<OrganizationDto> organization, @Nullable ComponentDto project, @Nullable BranchDto branch, Request request, boolean all) {
+  private List<String> searchTags(OrganizationDto organization, @Nullable EntityDto entity, @Nullable BranchDto branch, Request request, boolean all, DbSession dbSession) {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder()
+      .organizationUuid(organization.getUuid())
       .types(ISSUE_TYPE_NAMES);
-    organization.ifPresent(o -> issueQueryBuilder.organizationUuid(o.getUuid()));
-    if (project != null) {
-      switch (project.qualifier()) {
-        case Qualifiers.PROJECT:
-          issueQueryBuilder.projectUuids(Set.of(project.uuid()));
-          break;
-        case Qualifiers.APP, Qualifiers.VIEW:
-          issueQueryBuilder.viewUuids(Set.of(project.uuid()));
-          break;
-        default:
-          throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", project.qualifier()));
+    if (entity != null) {
+      switch (entity.getQualifier()) {
+        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(entity.getUuid()));
+        case Qualifiers.VIEW, Qualifiers.APP -> issueQueryBuilder.viewUuids(Set.of(entity.getUuid()));
+        default -> throw new IllegalArgumentException(String.format("Entity of type '%s' is not supported", entity.getQualifier()));
       }
 
-      if (branch != null && !project.uuid().equals(branch.getUuid())) {
+      if (branch != null && !branch.isMain()) {
         issueQueryBuilder.branchUuid(branch.getUuid());
         issueQueryBuilder.mainBranch(false);
+      } else if (Qualifiers.APP.equals(entity.getQualifier())) {
+        dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entity.getUuid())
+          .ifPresent(b -> issueQueryBuilder.branchUuid(b.getUuid()));
       }
     }
     if (all) {

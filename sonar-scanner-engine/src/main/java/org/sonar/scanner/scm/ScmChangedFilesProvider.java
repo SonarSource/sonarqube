@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@ public class ScmChangedFilesProvider {
   @Bean("ScmChangedFiles")
   public ScmChangedFiles provide(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, DefaultInputProject project) {
     Path rootBaseDir = project.getBaseDir();
-    Collection<ChangedFile> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
+    Set<ChangedFile> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
 
     if (changedFiles != null) {
       validatePaths(getAbsoluteFilePaths(changedFiles));
@@ -67,13 +67,13 @@ public class ScmChangedFilesProvider {
   }
 
   @CheckForNull
-  private static Collection<ChangedFile> loadChangedFilesIfNeeded(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, Path rootBaseDir) {
+  private static Set<ChangedFile> loadChangedFilesIfNeeded(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, Path rootBaseDir) {
     final String targetBranchName = branchConfiguration.targetBranchName();
     if (branchConfiguration.isPullRequest() && targetBranchName != null) {
       ScmProvider scmProvider = scmConfiguration.provider();
       if (scmProvider != null) {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        Collection<ChangedFile> changedFiles = getChangedFilesByScm(scmProvider, targetBranchName, rootBaseDir);
+        Set<ChangedFile> changedFiles = getChangedFilesByScm(scmProvider, targetBranchName, rootBaseDir);
         profiler.stopInfo();
         if (changedFiles != null) {
           LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), ScannerUtils.pluralize("file", changedFiles.size()));
@@ -86,16 +86,16 @@ public class ScmChangedFilesProvider {
     return null;
   }
 
-  private static Collection<ChangedFile> getChangedFilesByScm(ScmProvider scmProvider, String targetBranchName, Path rootBaseDir) {
-    if (scmProvider instanceof GitScmProvider) {
-      return ((GitScmProvider) scmProvider).branchChangedFilesWithFileMovementDetection(targetBranchName, rootBaseDir);
+  private static Set<ChangedFile> getChangedFilesByScm(ScmProvider scmProvider, String targetBranchName, Path rootBaseDir) {
+    if (scmProvider instanceof GitScmProvider gitScmProvider) {
+      return gitScmProvider.branchChangedFilesWithFileMovementDetection(targetBranchName, rootBaseDir);
     }
 
     return toChangedFiles(scmProvider.branchChangedFiles(targetBranchName, rootBaseDir));
   }
 
   @CheckForNull
-  private static Collection<ChangedFile> toChangedFiles(@Nullable Set<Path> changedPaths) {
+  private static Set<ChangedFile> toChangedFiles(@Nullable Set<Path> changedPaths) {
     if (changedPaths == null) {
       return null;
     }

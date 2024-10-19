@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.httpd.HttpAction;
 import org.sonar.server.log.ServerLogging;
 
@@ -90,7 +90,7 @@ public class ChangeLogLevelHttpAction implements HttpAction {
       logging.changeLevel(level);
       response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
     } catch (IllegalArgumentException e) {
-      Loggers.get(ChangeLogLevelHttpAction.class).debug("Value '{}' for parameter '" + PARAM_LEVEL + "' is invalid: {}", levelStr, e);
+      LoggerFactory.getLogger(ChangeLogLevelHttpAction.class).debug("Value '{}' for parameter '" + PARAM_LEVEL + "' is invalid: {}", levelStr, e);
       response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_BAD_REQUEST);
       response.setEntity(
         new StringEntity(format("Value '%s' for parameter '%s' is invalid", levelStr, PARAM_LEVEL), StandardCharsets.UTF_8));

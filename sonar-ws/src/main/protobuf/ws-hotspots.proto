@@ -50,7 +50,14 @@ message SearchWsResponse {
     repeated sonarqube.ws.commons.Flow flows = 15;
     optional string ruleKey = 16;
     repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 17;
+    optional string cveId = 18;
   }
+}
+
+// Response of GET api/hotspots/list
+message ListWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated SearchWsResponse.Hotspot hotspots = 2;
 }
 
 // Response of GET api/hotspots/show
@@ -75,6 +82,7 @@ message ShowWsResponse {
   optional bool canChangeStatus = 17;
   repeated sonarqube.ws.commons.Flow flows = 19;
   repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 20;
+  repeated string codeVariants = 21;
 }
 
 message Component {
@@ -88,12 +96,40 @@ message Component {
   optional string pullRequest = 8;
 }
 
+
 message Rule {
   optional string key = 1;
   optional string name = 2;
   optional string securityCategory = 3;
   optional string vulnerabilityProbability = 4;
-  optional string riskDescription = 5 [deprecated=true];
-  optional string vulnerabilityDescription = 6 [deprecated=true];
-  optional string fixRecommendations = 7 [deprecated=true];
+  optional string riskDescription = 5 [deprecated = true];
+  optional string vulnerabilityDescription = 6 [deprecated = true];
+  optional string fixRecommendations = 7 [deprecated = true];
+}
+
+// Response of GET api/hotspots/pull
+message HotspotPullQueryTimestamp {
+  required int64 queryTimestamp = 1;
+}
+
+message HotspotLite {
+  optional string key = 1;
+  optional string filePath = 2;
+  optional string vulnerabilityProbability = 3;
+  optional string status = 4;
+  optional string resolution = 5;
+  optional string message = 6;
+  optional int64 creationDate = 7;
+  optional TextRange textRange = 8;
+  optional string ruleKey = 9;
+  optional bool closed = 10;
+  optional string assignee = 11;
+}
+
+message TextRange {
+  optional int32 startLine = 1;
+  optional int32 startLineOffset = 2;
+  optional int32 endLine = 3;
+  optional int32 endLineOffset = 4;
+  optional string hash = 5;
 }

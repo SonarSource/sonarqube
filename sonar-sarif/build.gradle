@@ -1,0 +1,27 @@
+import nl.javadude.gradle.plugins.license.License
+
+plugins {
+  id "org.jsonschema2pojo" version "1.2.1"
+}
+
+dependencies {
+  api 'com.fasterxml.jackson.core:jackson-databind'
+  api 'com.google.code.findbugs:jsr305'
+}
+
+jsonSchema2Pojo {
+  source = files("${sourceSets.main.output.resourcesDir}/sarif/sarif-schema-2.1.0.json")
+  generateBuilders = true
+  inclusionLevel = "NON_DEFAULT"
+  initializeCollections = false
+  targetPackage = 'org.sonar.sarif.pojo'
+  includeJsr305Annotations = true
+}
+
+license {
+  exclude("org/sonar/sarif/pojo/**/*")
+}
+
+tasks.withType(License).configureEach { licenseTask ->
+  licenseTask.mustRunAfter(tasks.named("generateJsonSchema2Pojo"))
+}

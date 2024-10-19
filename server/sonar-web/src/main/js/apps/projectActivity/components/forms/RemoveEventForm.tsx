@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,31 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
+import { useDeleteEventMutation } from '../../../../queries/project-analyses';
 import { AnalysisEvent } from '../../../../types/project-activity';
 
 export interface RemoveEventFormProps {
   analysisKey: string;
   event: AnalysisEvent;
   header: string;
-  removeEventQuestion: string;
   onClose: () => void;
-  onConfirm: (analysis: string, event: string) => Promise<void>;
+  removeEventQuestion: string;
 }
 
 export default function RemoveEventForm(props: RemoveEventFormProps) {
   const { analysisKey, event, header, removeEventQuestion } = props;
+
+  const { mutate: deleteEvent } = useDeleteEventMutation();
   return (
-    <ConfirmModal
-      confirmButtonText={translate('delete')}
-      header={header}
-      isDestructive={true}
+    <Modal
+      headerTitle={header}
       onClose={props.onClose}
-      onConfirm={() => props.onConfirm(analysisKey, event.key)}
-    >
-      {removeEventQuestion}
-    </ConfirmModal>
+      body={<p>{removeEventQuestion}</p>}
+      primaryButton={
+        <Button
+          onClick={() => deleteEvent({ analysis: analysisKey, event: event.key })}
+          variety={ButtonVariety.Danger}
+        >
+          {translate('delete')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,12 @@ public interface ProjectLifeCycleListener {
   /**
    * This method is called after the specified projects have been deleted.
    */
-  void onProjectsDeleted(Set<Project> projects);
+  void onProjectsDeleted(Set<DeletedProject> projects);
 
   /**
-   * This method is called after the specified projects have been deleted.
+   * This method is called after the specified projects have branches deleted or main branch changed.
    */
-  void onProjectBranchesDeleted(Set<Project> projects);
+  void onProjectBranchesChanged(Set<Project> projects, Set<String> impactedBranches);
 
   /**
    * This method is called after the specified projects' keys have been modified.

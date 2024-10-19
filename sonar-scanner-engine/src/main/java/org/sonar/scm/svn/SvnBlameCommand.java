@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,8 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
@@ -42,7 +42,7 @@ import static org.sonar.scm.svn.SvnScmSupport.newSvnClientManager;
 
 public class SvnBlameCommand extends BlameCommand {
 
-  private static final Logger LOG = Loggers.get(SvnBlameCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SvnBlameCommand.class);
   private final SvnConfiguration configuration;
 
   public SvnBlameCommand(SvnConfiguration configuration) {

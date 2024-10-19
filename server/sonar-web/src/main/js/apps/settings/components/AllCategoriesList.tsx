@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { SubnavigationGroup, SubnavigationItem } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
+import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
@@ -42,69 +43,67 @@ export interface CategoriesListProps extends WithAvailableFeaturesProps {
   appState: AppState;
 }
 
-export function CategoriesList(props: CategoriesListProps) {
+function CategoriesList(props: Readonly<CategoriesListProps>) {
   const { categories, component, defaultCategory, selectedCategory } = props;
-  const { canAdmin } = props.appState;
-  let categoriesWithName;
-  if (canAdmin) {
-    categoriesWithName = categories
-      .filter((key) => !CATEGORY_OVERRIDES[key.toLowerCase()])
-      .map((key) => ({
-        key,
-        name: getCategoryName(key),
-      }))
-      .concat(
-        ADDITIONAL_CATEGORIES.filter((c) => c.displayTab)
-          .filter((c) =>
-            component
-              ? // Project settings
-                c.availableForProject
-              : // Global settings
-                c.availableGlobally
-          )
-          .filter((c) => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
-      );
-  } else {
-    categoriesWithName = props.categories
-        .filter(key => ALL_CUSTOMER_CATEGORIES[key.toLowerCase()])
-        .map(key => ({
-          key,
-          name: getCategoryName(key)
-        }))
-        .concat(
-          ADDITIONAL_CATEGORIES.filter(c => c.displayTab)
-              .filter(c => ALL_CUSTOMER_CATEGORIES[c.key.toLowerCase()])
-        );
-  }
 
+  const navigate = useNavigate();
+
+  const openCategory = React.useCallback(
+    (category: string | undefined) => {
+      const url = component
+        ? getProjectSettingsUrl(component.key, category)
+        : getGlobalSettingsUrl(category);
+
+      navigate(url);
+    },
+    [component, navigate],
+  );
+
+  const categoriesWithName = categories
+    .filter((key) => CATEGORY_OVERRIDES[key.toLowerCase()] === undefined)
+    .map((key) => ({
+      key,
+      name: getCategoryName(key),
+    }))
+    .concat(
+      ADDITIONAL_CATEGORIES.filter((c) => {
+        const availableForCurrentMenu = component
+          ? // Project settings
+            c.availableForProject
+          : // Global settings
+            c.availableGlobally;
+
+        return (
+          c.displayTab &&
+          availableForCurrentMenu &&
+          (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport) &&
+          (props.hasFeature(Feature.FixSuggestions) || c.key !== 'codefix')
+        );
+      }),
+    );
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 
   return (
-    <ul className="side-tabs-menu">
+    <SubnavigationGroup
+      as="nav"
+      aria-label={translate('settings.page')}
+      className="sw-box-border it__subnavigation_menu"
+    >
       {sortedCategories.map((c) => {
         const category = c.key !== defaultCategory ? c.key.toLowerCase() : undefined;
+        const isActive = c.key.toLowerCase() === selectedCategory.toLowerCase();
         return (
-          <li key={c.key}>
-            <NavLink
-              end={true}
-              className={(_) =>
-                classNames({
-                  active: c.key.toLowerCase() === selectedCategory.toLowerCase(),
-                })
-              }
-              title={c.name}
-              to={
-                component
-                  ? getProjectSettingsUrl(component.key, category)
-                  : getGlobalSettingsUrl(category)
-              }
-            >
-              {c.name}
-            </NavLink>
-          </li>
+          <SubnavigationItem
+            active={isActive}
+            ariaCurrent={isActive}
+            onClick={() => openCategory(category)}
+            key={c.key}
+          >
+            {c.name}
+          </SubnavigationItem>
         );
       })}
-    </ul>
+    </SubnavigationGroup>
   );
 }
 

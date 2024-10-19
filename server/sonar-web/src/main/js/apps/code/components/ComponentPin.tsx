@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonIcon, ButtonVariety, IconPin } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import theme from '../../../app/theme';
-import { ButtonPlain } from '../../../components/controls/buttons';
-import PinIcon from '../../../components/icons/PinIcon';
 import { WorkspaceContextShape } from '../../../components/workspace/context';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -32,27 +30,24 @@ interface Props {
   openComponent: WorkspaceContextShape['openComponent'];
 }
 
-export default class ComponentPin extends React.PureComponent<Props> {
-  handleClick = () => {
-    this.props.openComponent({
-      branchLike: this.props.branchLike,
-      key: this.props.component.key,
-      name: this.props.component.path,
-      qualifier: this.props.component.qualifier,
-    });
-  };
+export default function ComponentPin(props: Props) {
+  const { branchLike, component, openComponent } = props;
 
-  render() {
-    const { name } = this.props.component;
-    return (
-      <ButtonPlain
-        className="link-no-underline"
-        preventDefault={true}
-        onClick={this.handleClick}
-        title={translateWithParameters('component_viewer.open_in_workspace_X', name)}
-      >
-        <PinIcon fill={theme.colors.primary} />
-      </ButtonPlain>
-    );
-  }
+  const handleClick = React.useCallback(() => {
+    openComponent({
+      branchLike,
+      key: component.key,
+      name: component.path,
+      qualifier: component.qualifier,
+    });
+  }, [branchLike, component, openComponent]);
+
+  return (
+    <ButtonIcon
+      ariaLabel={translateWithParameters('component_viewer.open_in_workspace_X', component.name)}
+      Icon={IconPin}
+      onClick={handleClick}
+      variety={ButtonVariety.PrimaryGhost}
+    />
+  );
 }

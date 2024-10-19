@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,51 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import { QueryClient } from '@tanstack/react-query';
+import { addGlobalErrorMessage, Theme } from 'design-system';
+import { isEqual } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { getExtensionStart } from '../../../helpers/extensions';
-import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentL10nBundle } from '../../../helpers/l10nBundle';
 import { getBaseUrl } from '../../../helpers/system';
+import { withQueryClient } from '../../../queries/withQueryClientHoc';
 import { AppState } from '../../../types/appstate';
 import { ExtensionStartMethod } from '../../../types/extension';
 import { Dict, Extension as TypeExtension } from '../../../types/types';
 import { CurrentUser, HomePage } from '../../../types/users';
-import * as theme from '../../theme';
 import withAppStateContext from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 
-interface Props extends WrappedComponentProps {
+export interface ExtensionProps extends WrappedComponentProps {
   appState: AppState;
   currentUser: CurrentUser;
   extension: TypeExtension;
   location: Location;
-  options?: Dict<any>;
+  options?: Dict<unknown>;
+  queryClient: QueryClient;
   router: Router;
+  theme: Theme;
   updateCurrentUserHomepage: (homepage: HomePage) => void;
 }
 
 interface State {
-  extensionElement?: React.ReactElement<any>;
+  extensionElement?: React.ReactElement<unknown>;
 }
 
-export class Extension extends React.PureComponent<Props, State> {
+class Extension extends React.PureComponent<ExtensionProps, State> {
   container?: HTMLElement | null;
-  stop?: Function;
   state: State = {};
+  stop?: Function;
 
   componentDidMount() {
     this.startExtension();
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.extension !== this.props.extension) {
+  componentDidUpdate(prevProps: ExtensionProps) {
+    if (prevProps.extension.key !== this.props.extension.key) {
       this.stopExtension();
       this.startExtension();
-    } else if (prevProps.location !== this.props.location) {
+    } else if (!isEqual(prevProps.location, this.props.location)) {
       this.startExtension();
     }
   }
@@ -71,16 +77,19 @@ export class Extension extends React.PureComponent<Props, State> {
   }
 
   handleStart = (start: ExtensionStartMethod) => {
+    const { theme, queryClient } = this.props;
+
     const result = start({
       appState: this.props.appState,
-      el: this.container,
+      baseUrl: getBaseUrl(),
       currentUser: this.props.currentUser,
+      el: this.container,
       intl: this.props.intl,
+      l10nBundle: getCurrentL10nBundle(),
       location: this.props.location,
+      queryClient,
       router: this.props.router,
       theme,
-      baseUrl: getBaseUrl(),
-      l10nBundle: getCurrentL10nBundle(),
       // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
       // for more information on why we're passing this as a prop to an extension.
       updateCurrentUserHomepage: this.props.updateCurrentUserHomepage,
@@ -117,6 +126,7 @@ export class Extension extends React.PureComponent<Props, State> {
     return (
       <div>
         <Helmet title={this.props.extension.name} />
+
         {this.state.extensionElement ? (
           this.state.extensionElement
         ) : (
@@ -127,4 +137,6 @@ export class Extension extends React.PureComponent<Props, State> {
   }
 }
 
-export default injectIntl(withRouter(withAppStateContext(withCurrentUserContext(Extension))));
+export default injectIntl(
+  withRouter(withTheme(withAppStateContext(withCurrentUserContext(withQueryClient(Extension))))),
+);

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 import { screen } from '@testing-library/react';
 import { times } from 'lodash';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { parseDate } from '../../../helpers/dates';
 import {
   mockAnalysisEvent,
@@ -29,8 +30,11 @@ import {
 } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { MetricKey } from '../../../types/metrics';
-import { GraphType, MeasureHistory } from '../../../types/project-activity';
+import {
+  GraphType,
+  MeasureHistory,
+  ProjectAnalysisEventCategory,
+} from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
 import DataTableModal, { DataTableModalProps, MAX_DATA_TABLE_ROWS } from '../DataTableModal';
 import { generateSeries, getDisplayedHistoryMetrics } from '../utils';
@@ -38,7 +42,7 @@ import { generateSeries, getDisplayedHistoryMetrics } from '../utils';
 it('should render correctly if there are no series', () => {
   renderDataTableModal({ series: [] });
   expect(
-    screen.getByText('project_activity.graphs.data_table.no_data_warning')
+    screen.getByText('project_activity.graphs.data_table.no_data_warning'),
   ).toBeInTheDocument();
 });
 
@@ -47,7 +51,9 @@ it('should render correctly if there are events', () => {
     analyses: [
       mockParsedAnalysis({
         date: parseDate('2016-01-01T00:00:00+0200'),
-        events: [mockAnalysisEvent({ key: '1', category: 'QUALITY_GATE' })],
+        events: [
+          mockAnalysisEvent({ key: '1', category: ProjectAnalysisEventCategory.QualityGate }),
+        ],
       }),
     ],
   });
@@ -57,7 +63,7 @@ it('should render correctly if there are events', () => {
 it('should render correctly if there is too much data', () => {
   renderDataTableModal({ series: mockSeries(MAX_DATA_TABLE_ROWS + 1) });
   expect(
-    screen.getByText(`project_activity.graphs.data_table.max_lines_warning.${MAX_DATA_TABLE_ROWS}`)
+    screen.getByText(`project_activity.graphs.data_table.max_lines_warning.${MAX_DATA_TABLE_ROWS}`),
   ).toBeInTheDocument();
 });
 
@@ -66,7 +72,7 @@ it('should render correctly if there is no data and we have a start date', () =>
   expect(
     screen.getByText('project_activity.graphs.data_table.no_data_warning_check_dates_x', {
       exact: false,
-    })
+    }),
   ).toBeInTheDocument();
 });
 
@@ -75,7 +81,7 @@ it('should render correctly if there is no data and we have an end date', () => 
   expect(
     screen.getByText('project_activity.graphs.data_table.no_data_warning_check_dates_y', {
       exact: false,
-    })
+    }),
   ).toBeInTheDocument();
 });
 
@@ -87,20 +93,20 @@ it('should render correctly if there is no data and we have a date range', () =>
   expect(
     screen.getByText('project_activity.graphs.data_table.no_data_warning_check_dates_x_y', {
       exact: false,
-    })
+    }),
   ).toBeInTheDocument();
 });
 
 function renderDataTableModal(props: Partial<DataTableModalProps> = {}) {
   return renderComponent(
-    <DataTableModal analyses={[]} series={mockSeries()} onClose={jest.fn()} {...props} />
+    <DataTableModal analyses={[]} series={mockSeries()} onClose={jest.fn()} {...props} />,
   );
 }
 
 function mockSeries(n = 10) {
   const measuresHistory: MeasureHistory[] = [];
   const metrics: Metric[] = [];
-  [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities].forEach((metric) => {
+  [MetricKey.violations].forEach((metric) => {
     const history = times(n, (i) => {
       const date = parseDate('2016-01-01T00:00:00+0200');
       date.setDate(date.getDate() + 365 * i);
@@ -112,7 +118,7 @@ function mockSeries(n = 10) {
         key: metric,
         name: metric,
         type: 'INT',
-      })
+      }),
     );
   });
 
@@ -124,6 +130,6 @@ function mockSeries(n = 10) {
       MetricKey.bugs,
       MetricKey.code_smells,
       MetricKey.vulnerabilities,
-    ])
+    ]),
   );
 }

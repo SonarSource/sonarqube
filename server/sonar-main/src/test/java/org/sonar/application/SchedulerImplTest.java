@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,13 +37,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
-import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
@@ -53,7 +53,7 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Collections.synchronizedList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -67,15 +67,18 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 
 public class SchedulerImplTest {
+  private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SchedulerImplTest.class);
 
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule
+  public TestName testName = new TestName();
 
   private Level initialLevel;
 
-  private EsScriptCommand esScriptCommand;
+  private JavaCommand esCommand;
   private JavaCommand webLeaderCommand;
   private JavaCommand webFollowerCommand;
   private JavaCommand ceCommand;
@@ -91,13 +94,14 @@ public class SchedulerImplTest {
   @Before
   public void setUp() throws Exception {
     File tempDir = temporaryFolder.newFolder();
-    esScriptCommand = new EsScriptCommand(ELASTICSEARCH, tempDir);
+    esCommand = new JavaCommand(ELASTICSEARCH, tempDir);
     webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
     webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
     ceCommand = new JavaCommand(COMPUTE_ENGINE, tempDir);
     Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     initialLevel = logger.getLevel();
     logger.setLevel(Level.TRACE);
+    LOG.debug("Starting {}", testName.getMethodName());
   }
 
   @After
@@ -348,7 +352,7 @@ public class SchedulerImplTest {
     TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
     assertThat(es.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(1);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand);
+    assertThat(processLauncher.commands).containsExactly(esCommand);
 
     // elasticsearch becomes operational -> web leader is starting
     es.signalAsOperational();
@@ -356,7 +360,7 @@ public class SchedulerImplTest {
     TestManagedProcess web = processLauncher.waitForProcess(WEB_SERVER);
     assertThat(web.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(2);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
+    assertThat(processLauncher.commands).containsExactly(esCommand, webLeaderCommand);
 
     // web becomes operational -> CE is starting
     web.signalAsOperational();
@@ -364,7 +368,7 @@ public class SchedulerImplTest {
     TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE).signalAsOperational();
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
+    assertThat(processLauncher.commands).containsExactly(esCommand, webLeaderCommand, ceCommand);
 
     // all processes are up
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
@@ -378,9 +382,9 @@ public class SchedulerImplTest {
   private Scheduler startAll(AppSettings settings) throws InterruptedException {
     SchedulerImpl scheduler = newScheduler(settings, false);
     scheduler.schedule();
-    processLauncher.waitForProcess(ELASTICSEARCH).signalAsOperational();
-    processLauncher.waitForProcess(WEB_SERVER).signalAsOperational();
-    processLauncher.waitForProcess(COMPUTE_ENGINE).signalAsOperational();
+    processLauncher.waitForProcessAlive(ELASTICSEARCH).signalAsOperational();
+    processLauncher.waitForProcessAlive(WEB_SERVER).signalAsOperational();
+    processLauncher.waitForProcessAlive(COMPUTE_ENGINE).signalAsOperational();
     return scheduler;
   }
 
@@ -402,8 +406,8 @@ public class SchedulerImplTest {
 
   private class TestCommandFactory implements CommandFactory {
     @Override
-    public EsScriptCommand createEsCommand() {
-      return esScriptCommand;
+    public JavaCommand createEsCommand() {
+      return esCommand;
     }
 
     @Override
@@ -539,7 +543,9 @@ public class SchedulerImplTest {
 
     @Override
     public void destroyForcibly() {
-      if (isAlive()) {
+      boolean isAlive = isAlive();
+      LOG.debug("Calling destroyForcibly for process {} with isAlive={}. ", processId, isAlive);
+      if (isAlive) {
         orderedStops.add(processId);
       }
       alive.countDown();

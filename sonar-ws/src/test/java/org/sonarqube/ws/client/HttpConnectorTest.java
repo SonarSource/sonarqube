@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,16 +28,18 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.SSLSocketFactory;
 import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okio.Buffer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,6 +51,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static okhttp3.Credentials.basic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.HttpConnector.newBuilder;
@@ -100,6 +103,42 @@ public class HttpConnectorTest {
   }
 
   @Test
+  public void call_whenGzipNotAcceptedInResponse_shouldNotUseGzip() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).addHeader("Content-Encoding", "gzip")
+      .setBody(gzip("potentially a body with 100 GB of data normally encoded in gzip")));
+
+    // by default we dont accept gzip
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    GetRequest request = new GetRequest("rest/api/1.0/repos");
+
+    WsResponse call = underTest.call(request);
+    assertThrows(Throwable.class, () -> call.content());
+  }
+
+  @Test
+  public void call_whenGzipIsAcceptedInResponse_shouldResponseContainContent() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).addHeader("Content-Encoding", "gzip")
+      .setBody(gzip("example")));
+
+    underTest = HttpConnector.newBuilder().acceptGzip(true).url(serverUrl).build();
+    GetRequest request = new GetRequest("rest/api/1.0/repos").setHeader("Accept-Encoding", "gzip");
+
+    WsResponse call = underTest.call(request);
+    RecordedRequest recordedRequest = server.takeRequest();
+
+    assertThat(recordedRequest.getHeader("Accept-Encoding")).isEqualTo("gzip");
+    assertThat(call.content()).isNotEmpty();
+  }
+
+  private Buffer gzip(String content) throws IOException {
+    Buffer buffer = new Buffer();
+    GZIPOutputStream gzip = new GZIPOutputStream(buffer.outputStream());
+    gzip.write(content.getBytes(UTF_8));
+    gzip.close();
+    return buffer;
+  }
+
+  @Test
   public void test_default_settings() throws Exception {
     answerHelloWorld();
     underTest = HttpConnector.newBuilder().url(serverUrl).build();
@@ -122,8 +161,7 @@ public class HttpConnectorTest {
     assertThat(recordedRequest.getHeader("Accept")).isEqualTo(MediaTypes.PROTOBUF);
     assertThat(recordedRequest.getHeader("Accept-Charset")).isEqualTo("UTF-8");
     assertThat(recordedRequest.getHeader("User-Agent")).startsWith("okhttp/");
-    // compression is handled by OkHttp
-    assertThat(recordedRequest.getHeader("Accept-Encoding")).isEqualTo("gzip");
+    assertThat(recordedRequest.getHeader("Accept-Encoding")).isNull();
   }
 
   @Test
@@ -281,10 +319,12 @@ public class HttpConnectorTest {
       .url(serverUrl)
       .readTimeoutMilliseconds(42)
       .connectTimeoutMilliseconds(74)
+      .responseTimeoutMilliseconds(53)
       .build();
 
     assertThat(underTest.okHttpClient().readTimeoutMillis()).isEqualTo(42);
     assertThat(underTest.okHttpClient().connectTimeoutMillis()).isEqualTo(74);
+    assertThat(underTest.okHttpClient().callTimeoutMillis()).isEqualTo(53);
   }
 
   @Test
@@ -341,6 +381,8 @@ public class HttpConnectorTest {
     // verify response
     assertThat(response.hasContent()).isTrue();
     assertThat(response.content()).isEqualTo("hello, world!");
+    assertThat(response.headers()).hasEntrySatisfying("header", headerValues -> headerValues.contains("value"));
+    assertThat(response.header("header")).hasValue("value");
 
     // verify the request received by server
     RecordedRequest recordedRequest = server.takeRequest();
@@ -516,6 +558,6 @@ public class HttpConnectorTest {
   }
 
   private void answerHelloWorld() {
-    server.enqueue(new MockResponse().setBody("hello, world!"));
+    server.enqueue(new MockResponse().setBody("hello, world!").setHeader("header", "value"));
   }
 }

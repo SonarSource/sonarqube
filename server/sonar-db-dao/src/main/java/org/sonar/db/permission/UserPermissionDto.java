@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,18 +27,18 @@ public class UserPermissionDto {
   private String organizationUuid;
   private String permission;
   private String userUuid;
-  private String componentUuid;
+  private String entityUuid;
 
   public UserPermissionDto() {
     // used by MyBatis
   }
 
-  public UserPermissionDto(String uuid, String organizationUuid, String permission, String userUuid, @Nullable String componentUuid) {
+  public UserPermissionDto(String uuid, String organizationUuid, String permission, String userUuid, @Nullable String entityUuid) {
     this.uuid = uuid;
     this.organizationUuid = organizationUuid;
     this.permission = permission;
     this.userUuid = userUuid;
-    this.componentUuid = componentUuid;
+    this.entityUuid = entityUuid;
   }
 
   public String getUuid() {
@@ -58,11 +58,11 @@ public class UserPermissionDto {
   }
 
   /**
-   * @return {@code null} if it's a global permission, otherwise return the project uiid.
+   * @return {@code null} if it's a global permission, otherwise return the entity uiid.
    */
   @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   @Override
@@ -71,7 +71,7 @@ public class UserPermissionDto {
     sb.append("permission='").append(permission).append('\'');
     sb.append(", userUuid=").append(userUuid);
     sb.append(", organizationUuid=").append(organizationUuid);
-    sb.append(", componentUuid=").append(componentUuid);
+    sb.append(", entityUuid=").append(entityUuid);
     sb.append('}');
     return sb.toString();
   }

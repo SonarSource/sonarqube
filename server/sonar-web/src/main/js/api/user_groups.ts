@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,48 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
-import { Group, Paging, UserSelected } from '../types/types';
+import axios from 'axios';
+import { Group, Paging } from '../types/types';
 
-export function searchUsersGroups(data: {
-  f?: string;
-  p?: number;
-  ps?: number;
+const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
+
+export function getUsersGroups(params: {
+  managed?: boolean;
+  pageIndex?: number;
+  pageSize?: number;
   q?: string;
-  organization?: string;
-}): Promise<{ groups: Group[]; paging: Paging }> {
-  return getJSON('/api/user_groups/search', data).catch(throwGlobalError);
+}): Promise<{ groups: Group[]; page: Paging }> {
+  return axios.get(GROUPS_ENDPOINT, { params });
 }
 
-export function getUsersInGroup(data: {
-  id?: number;
-  name?: string;
-  p?: number;
-  ps?: number;
-  q?: string;
-  selected?: string;
-  organization?: string;
-}): Promise<Paging & { users: UserSelected[] }> {
-  return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
+export function createGroup(data: { description?: string; name: string }): Promise<Group> {
+  return axios.post(GROUPS_ENDPOINT, data).then((r) => r.group);
 }
 
-export function addUserToGroup(data: { id?: string; name?: string; login?: string; organization?: string; }) {
-  return post('/api/user_groups/add_user', data).catch(throwGlobalError);
+export function updateGroup(
+  id: string,
+  data: {
+    description?: string;
+    name?: string;
+  },
+) {
+  return axios.patch(`${GROUPS_ENDPOINT}/${id}`, data);
 }
 
-export function removeUserFromGroup(data: { id?: string; name?: string; login?: string; organization?: string; }) {
-  return post('/api/user_groups/remove_user', data).catch(throwGlobalError);
-}
-
-export function createGroup(data: { description?: string; name: string; organization?: string; }): Promise<Group> {
-  return postJSON('/api/user_groups/create', data).then((r) => r.group, throwGlobalError);
-}
-
-export function updateGroup(data: { description?: string; id: number; name?: string }) {
-  return post('/api/user_groups/update', data).catch(throwGlobalError);
-}
-
-export function deleteGroup(data: { name: string; organization?: string; }) {
-  return post('/api/user_groups/delete', data).catch(throwGlobalError);
+export function deleteGroup(id: string) {
+  return axios.delete(`${GROUPS_ENDPOINT}/${id}`);
 }

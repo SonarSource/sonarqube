@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.ChangeLogLevel;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -71,6 +72,7 @@ public class ExecuteVisitorsStepTest {
 
   @Before
   public void setUp() throws Exception {
+    logTester.setLevel(Level.DEBUG);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF).setKey("project")
         .addChildren(
@@ -126,7 +128,7 @@ public class ExecuteVisitorsStepTest {
 
       underTest.execute(new TestComputationStepContext());
 
-      List<String> logs = logTester.logs(LoggerLevel.DEBUG);
+      List<String> logs = logTester.logs(Level.DEBUG);
       assertThat(logs).hasSize(4);
       assertThat(logs.get(0)).isEqualTo("  Execution time for each component visitor:");
       assertThat(logs.get(1)).startsWith("  - VisitorA | time=");

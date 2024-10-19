@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,10 @@
 package org.sonar.server.notification;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import java.io.InvalidClassException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,9 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
@@ -45,13 +40,12 @@ import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.Subscriber;
 import org.sonar.server.notification.NotificationManager.EmailRecipient;
 import org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,7 +63,6 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
 public class DefaultNotificationManagerTest {
-
 
   private DefaultNotificationManager underTest;
 
@@ -143,125 +136,6 @@ public class DefaultNotificationManagerTest {
   }
 
   @Test
-  public void shouldFindNoRecipient() {
-    assertThat(underTest.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_45", new SubscriberPermissionsOnProject(UserRole.USER)).asMap().entrySet())
-      .isEmpty();
-  }
-
-  @Test
-  public void shouldFindSubscribedRecipientForGivenResource() {
-    String projectKey = randomAlphabetic(6);
-    String otherProjectKey = randomAlphabetic(7);
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user1", false), new Subscriber("user3", false), new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", otherProjectKey))
-      .thenReturn(newHashSet(new Subscriber("user2", false)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user4", false)));
-
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, "user"))
-      .thenReturn(newHashSet("user1", "user3"));
-
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
-      ALL_MUST_HAVE_ROLE_USER);
-    assertThat(multiMap.entries()).hasSize(3);
-
-    Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
-    assertThat(map.get("user1")).containsOnly(emailChannel);
-    assertThat(map.get("user2")).isNull();
-    assertThat(map.get("user3")).containsOnly(emailChannel, twitterChannel);
-    assertThat(map.get("user4")).isNull();
-
-    // code is optimized to perform only 1 SQL requests for all channels
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), anyString());
-  }
-
-  @Test
-  public void should_apply_distinct_permission_filtering_global_or_project_subscribers() {
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
-    String otherProjectKey = randomAlphabetic(7);
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user1", false), new Subscriber("user3", false), new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", otherProjectKey))
-      .thenReturn(newHashSet(new Subscriber("user2", false)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user4", false)));
-
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
-      .thenReturn(newHashSet("user3"));
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
-      .thenReturn(newHashSet("user1", "user3"));
-
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
-      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
-    assertThat(multiMap.entries()).hasSize(3);
-
-    Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
-    assertThat(map.get("user1")).containsOnly(emailChannel);
-    assertThat(map.get("user2")).isNull();
-    assertThat(map.get("user3")).containsOnly(emailChannel, twitterChannel);
-    assertThat(map.get("user4")).isNull();
-
-    // code is optimized to perform only 2 SQL requests for all channels
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
-  }
-
-  @Test
-  public void do_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user3", true)));
-
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3"), projectKey, globalPermission))
-      .thenReturn(newHashSet("user3"));
-
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
-      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
-    assertThat(multiMap.entries()).hasSize(2);
-
-    Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
-    assertThat(map.get("user3")).containsOnly(emailChannel, twitterChannel);
-
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
-  }
-
-  @Test
-  public void do_not_call_db_for_project_permission_filtering_if_there_is_no_global_subscriber() {
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user3", false)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
-      .thenReturn(newHashSet(new Subscriber("user3", false)));
-
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3"), projectKey, projectPermission))
-      .thenReturn(newHashSet("user3"));
-
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
-      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
-    assertThat(multiMap.entries()).hasSize(2);
-
-    Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
-    assertThat(map.get("user3")).containsOnly(emailChannel, twitterChannel);
-
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
-  }
-
-  @Test
   public void findSubscribedEmailRecipients_fails_with_NPE_if_projectKey_is_null() {
     String dispatcherKey = randomAlphabetic(12);
 
@@ -312,7 +186,7 @@ public class DefaultNotificationManagerTest {
       new SubscriberPermissionsOnProject(globalPermission, projectPermission));
     assertThat(emailRecipients).isEmpty();
 
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(any(DbSession.class), anySet(), anyString(), anyString());
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnEntity(any(DbSession.class), anySet(), anyString(), anyString());
   }
 
   @Test
@@ -331,7 +205,7 @@ public class DefaultNotificationManagerTest {
       new SubscriberPermissionsOnProject(globalPermission, projectPermission));
     assertThat(emailRecipients).isEmpty();
 
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(any(DbSession.class), anySet(), anyString(), anyString());
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnEntity(any(DbSession.class), anySet(), anyString(), anyString());
   }
 
   @Test
@@ -344,9 +218,9 @@ public class DefaultNotificationManagerTest {
       .thenReturn(
         newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"),
           EmailSubscriberDto.create("user3", true, "user3@foo")));
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
       .thenReturn(newHashSet("user1", "user3"));
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
@@ -355,8 +229,8 @@ public class DefaultNotificationManagerTest {
       .isEqualTo(ImmutableSet.of(new EmailRecipient("user1", "user1@foo"), new EmailRecipient("user3", "user3@foo")));
 
     // code is optimized to perform only 2 SQL requests for all channels
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(projectPermission));
   }
 
   @Test
@@ -370,9 +244,9 @@ public class DefaultNotificationManagerTest {
       .thenReturn(
         newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"),
           EmailSubscriberDto.create("user3", true, "user3@foo")));
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
       .thenReturn(newHashSet("user1", "user3"));
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, logins,
@@ -381,8 +255,8 @@ public class DefaultNotificationManagerTest {
       .isEqualTo(ImmutableSet.of(new EmailRecipient("user1", "user1@foo"), new EmailRecipient("user3", "user3@foo")));
 
     // code is optimized to perform only 2 SQL requests for all channels
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(projectPermission));
   }
 
   @Test
@@ -397,7 +271,7 @@ public class DefaultNotificationManagerTest {
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(subscribers);
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, globalPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, logins, projectKey, globalPermission))
       .thenReturn(logins);
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
@@ -406,8 +280,8 @@ public class DefaultNotificationManagerTest {
     assertThat(emailRecipients)
       .isEqualTo(expected);
 
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(projectPermission));
   }
 
   @Test
@@ -422,7 +296,7 @@ public class DefaultNotificationManagerTest {
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
       .thenReturn(subscribers);
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, globalPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, logins, projectKey, globalPermission))
       .thenReturn(logins);
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, logins,
@@ -431,8 +305,8 @@ public class DefaultNotificationManagerTest {
     assertThat(emailRecipients)
       .isEqualTo(expected);
 
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(projectPermission));
   }
 
   @Test
@@ -447,7 +321,7 @@ public class DefaultNotificationManagerTest {
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(subscribers);
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, projectPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, logins, projectKey, projectPermission))
       .thenReturn(logins);
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
@@ -456,8 +330,8 @@ public class DefaultNotificationManagerTest {
     assertThat(emailRecipients)
       .isEqualTo(expected);
 
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(projectPermission));
   }
 
   @Test
@@ -472,7 +346,7 @@ public class DefaultNotificationManagerTest {
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
       .thenReturn(subscribers);
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, projectPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnEntity(dbSession, logins, projectKey, projectPermission))
       .thenReturn(logins);
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, logins,
@@ -481,7 +355,7 @@ public class DefaultNotificationManagerTest {
     assertThat(emailRecipients)
       .isEqualTo(expected);
 
-    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
-    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnEntity(eq(dbSession), anySet(), anyString(), eq(projectPermission));
   }
 }

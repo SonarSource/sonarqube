@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export const PROJECT_NAME_MAX_LEN = 255;
 
 export const DEFAULT_BBS_PAGE_SIZE = 25;
+
+export const REPOSITORY_PAGE_SIZE = 50;
+
+export const REPOSITORY_SEARCH_DEBOUNCE_TIME = 250;

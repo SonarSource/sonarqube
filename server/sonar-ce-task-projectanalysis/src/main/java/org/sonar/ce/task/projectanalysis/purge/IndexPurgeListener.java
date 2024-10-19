@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,26 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
-import java.util.Collection;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.purge.PurgeListener;
-import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 @ServerSide
 public class IndexPurgeListener implements PurgeListener {
   private final IssueIndexer issueIndexer;
-  private final ComponentIndexer componentIndexer;
 
-  public IndexPurgeListener(IssueIndexer issueIndexer, ComponentIndexer componentIndexer) {
+  public IndexPurgeListener(IssueIndexer issueIndexer) {
     this.issueIndexer = issueIndexer;
-    this.componentIndexer = componentIndexer;
-  }
-
-  @Override
-  public void onComponentsDisabling(String projectUuid, Collection<String> disabledComponentUuids) {
-    componentIndexer.delete(projectUuid, disabledComponentUuids);
   }
 
   @Override

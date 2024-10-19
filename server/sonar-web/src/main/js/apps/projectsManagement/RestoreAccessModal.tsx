@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Project } from '../../api/components';
 import { grantPermissionToUser } from '../../api/permissions';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
-import Modal from '../../components/controls/Modal';
+import { Project } from '../../api/project-management';
 import { translate } from '../../helpers/l10n';
 import { LoggedInUser } from '../../types/users';
 
@@ -36,6 +36,8 @@ interface Props {
 interface State {
   loading: boolean;
 }
+
+const FORM_ID = 'restore-access-form';
 
 export default class RestoreAccessModal extends React.PureComponent<Props, State> {
   mounted = false;
@@ -58,7 +60,7 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -70,16 +72,16 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
     });
 
   render() {
+    const { loading } = this.state;
     const header = translate('global_permissions.restore_access');
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form onSubmit={this.handleFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-
-          <div className="modal-body">
+      <Modal
+        headerTitle={header}
+        onClose={this.props.onClose}
+        loading={loading}
+        body={
+          <form id={FORM_ID} onSubmit={this.handleFormSubmit}>
             <FormattedMessage
               defaultMessage={translate('global_permissions.restore_access.message')}
               id="global_permissions.restore_access.message"
@@ -88,15 +90,21 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
                 administer: <strong>{translate('projects_role.admin')}</strong>,
               }}
             />
-          </div>
-
-          <footer className="modal-foot">
-            {this.state.loading && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={this.state.loading}>{translate('restore')}</SubmitButton>
-            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
+          </form>
+        }
+        primaryButton={
+          <Button
+            hasAutoFocus
+            isDisabled={loading}
+            form={FORM_ID}
+            type="submit"
+            variety={ButtonVariety.Primary}
+          >
+            {translate('restore')}
+          </Button>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

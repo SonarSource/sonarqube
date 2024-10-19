@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 .coding-rules-extended-view .coding-rules-list {
   display: none;
 }
@@ -82,6 +81,10 @@
   margin-top: 0;
 }
 
+.coding-rules-detail-header {
+  font-size: var(--veryBigFontSize);
+}
+
 .coding-rules-detail-properties {
   display: flex;
   flex-wrap: wrap;
@@ -96,9 +99,13 @@
 .coding-rules-detail-property {
   display: flex;
   align-items: center;
-  margin-right: calc(2 * var(--gridSize));
+  margin-right: var(--gridSize);
   margin-bottom: var(--gridSize);
   font-size: var(--smallFontSize);
+}
+
+.coding-rules-detail-property.muted {
+  color: var(--neutral200);
 }
 
 .coding-rules-detail-tag + .coding-rules-detail-tag {
@@ -283,14 +290,6 @@
 
 .coding-rule-activation-actions {
   padding-left: 20px;
-}
-
-.rules-context-description ul {
-  padding: 0px;
-}
-
-.rules-context-description h2.rule-contexts-title {
-  border: 0px;
 }
 
 .notice-dot {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, FlagMessage, ListItem, NumberedListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { stripTrailingSlash } from '../../../helpers/urls';
 import {
@@ -27,7 +27,6 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
-import CodeSnippet from '../../common/CodeSnippet';
 import Link from '../../common/Link';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
@@ -37,13 +36,13 @@ export interface WebhookStepBitbucketProps {
   alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
 }
 
 function buildUrlSnippet(
   branchesEnabled: boolean,
   isBitbucketcloud: boolean,
-  ownUrl = '***BITBUCKET_URL***'
+  ownUrl = '***BITBUCKET_URL***',
 ) {
   if (!branchesEnabled) {
     return '***JENKINS_SERVER_URL***/job/***JENKINS_JOB_NAME***/build?token=***JENKINS_BUILD_TRIGGER_TOKEN***';
@@ -63,7 +62,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
     if (isBitbucketCloud && projectBinding?.repository) {
       linkUrl = `${buildBitbucketCloudLink(
         almBinding,
-        projectBinding
+        projectBinding,
       )}/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin`;
     } else if (projectBinding.slug) {
       linkUrl = `${stripTrailingSlash(almBinding.url)}/plugins/servlet/webhooks/projects/${
@@ -74,7 +73,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
 
   return (
     <>
-      <li>
+      <NumberedListItem>
         <FormattedMessage
           defaultMessage={translate('onboarding.tutorial.with.jenkins.webhook.step1.sentence')}
           id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
@@ -90,66 +89,63 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
             ),
           }}
         />
-        <ul className="list-styled list-alpha">
-          <li>
+        <UnorderedList ticks className="sw-ml-12">
+          <ListItem>
             <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.step1.name" />
-          </li>
-          <li className="abs-width-600">
+          </ListItem>
+          <ListItem>
             <p>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url" />
             </p>
             <CodeSnippet
-              isOneLine={true}
-              snippet={buildUrlSnippet(
-                branchesEnabled,
-                isBitbucketCloud,
-                almBinding && almBinding.url
-              )}
+              className="sw-p-4"
+              isOneLine
+              snippet={buildUrlSnippet(branchesEnabled, isBitbucketCloud, almBinding?.url)}
             />
             {branchesEnabled && !isBitbucketCloud && (
-              <Alert variant="info">
+              <FlagMessage variant="info">
                 {translate('onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url.warning')}
-              </Alert>
+              </FlagMessage>
             )}
-          </li>
-        </ul>
-      </li>
+          </ListItem>
+        </UnorderedList>
+      </NumberedListItem>
       {isBitbucketCloud ? (
-        <li>
+        <NumberedListItem>
           <SentenceWithHighlights
             highlightKeys={['triggers', 'option']}
             translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2"
           />
-          <ul className="list-styled list-alpha">
-            <li>
+          <UnorderedList ticks className="sw-ml-12">
+            <ListItem>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2.repo" />
-            </li>
+            </ListItem>
             {branchesEnabled && (
-              <li>
+              <ListItem>
                 <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2.pr" />
-              </li>
+              </ListItem>
             )}
-          </ul>
-        </li>
+          </UnorderedList>
+        </NumberedListItem>
       ) : (
-        <li>
+        <NumberedListItem>
           <SentenceWithHighlights
             highlightKeys={['events']}
             translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
           />
-          <ul className="list-styled list-alpha">
-            <li>
+          <UnorderedList ticks className="sw-ml-12">
+            <ListItem>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.repo" />
-            </li>
+            </ListItem>
             {branchesEnabled && (
-              <li>
+              <ListItem>
                 <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.pr" />
-              </li>
+              </ListItem>
             )}
-          </ul>
-        </li>
+          </UnorderedList>
+        </NumberedListItem>
       )}
-      <li>
+      <NumberedListItem>
         {isBitbucketCloud ? (
           <SentenceWithHighlights
             highlightKeys={['save']}
@@ -161,7 +157,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
             translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step3"
           />
         )}
-      </li>
+      </NumberedListItem>
     </>
   );
 }

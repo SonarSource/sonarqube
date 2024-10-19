@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,7 @@ public class OkHttpClientBuilderTest {
     OkHttpClient okHttpClient = underTest.build();
 
     assertThat(okHttpClient.proxy()).isNull();
-    assertThat(okHttpClient.networkInterceptors()).hasSize(1);
+    assertThat(okHttpClient.networkInterceptors()).hasSize(2);
     assertThat(okHttpClient.sslSocketFactory()).isNotNull();
     assertThat(okHttpClient.followRedirects()).isTrue();
     assertThat(okHttpClient.followSslRedirects()).isTrue();
@@ -82,5 +82,12 @@ public class OkHttpClientBuilderTest {
     assertThatThrownBy(() -> underTest.setReadTimeoutMs(-10))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Read timeout must be positive. Got -10");
+  }
+
+  @Test
+  public void build_throws_IAE_if_response_timeout_is_negative() {
+    assertThatThrownBy(() -> underTest.setResponseTimeoutMs(-10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Response timeout must be positive. Got -10");
   }
 }

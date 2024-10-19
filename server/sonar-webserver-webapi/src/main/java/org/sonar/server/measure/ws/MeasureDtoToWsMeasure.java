@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.sonar.server.measure.ws;
 
 import javax.annotation.Nullable;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
@@ -36,10 +36,10 @@ class MeasureDtoToWsMeasure {
     // static methods
   }
 
-  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, MeasureDto measureDto) {
-    double value = measureDto.getValue() == null ? Double.NaN : measureDto.getValue();
+  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, ProjectMeasureDto projectMeasureDto) {
+    double value = projectMeasureDto.getValue() == null ? Double.NaN : projectMeasureDto.getValue();
     boolean onNewCode = metricDto.getKey().startsWith("new_");
-    updateMeasureBuilder(measureBuilder, metricDto, value, measureDto.getData(), onNewCode);
+    updateMeasureBuilder(measureBuilder, metricDto, value, projectMeasureDto.getData(), onNewCode);
   }
 
   static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, LiveMeasureDto measureDto) {
@@ -66,8 +66,6 @@ class MeasureDtoToWsMeasure {
         .setIndex(1)
         .setValue(formatMeasureValue(doubleValue, stringValue, metric));
       ofNullable(bestValue).ifPresent(v -> builderForValue.setBestValue(compare(doubleValue, v) == 0));
-      //deprecated since 8.1
-      measureBuilder.getPeriodsBuilder().addPeriodsValue(builderForValue);
       measureBuilder.setPeriod(builderForValue);
     }
   }

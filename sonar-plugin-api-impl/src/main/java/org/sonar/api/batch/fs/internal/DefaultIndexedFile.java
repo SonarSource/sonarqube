@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -68,7 +68,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     SensorStrategy sensorStrategy, @Nullable String oldRelativeFilePath) {
     super(batchId);
     this.projectKey = projectKey;
-    this.projectRelativePath = PathUtils.sanitize(projectRelativePath);
+    this.projectRelativePath = checkSanitize(projectRelativePath);
     this.moduleRelativePath = PathUtils.sanitize(moduleRelativePath);
     this.type = type;
     this.language = language;
@@ -76,6 +76,14 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     this.absolutePath = absolutePath;
     this.oldRelativeFilePath = oldRelativeFilePath;
     validateKeyLength();
+  }
+
+  static String checkSanitize(String relativePath) {
+    String sanitized = PathUtils.sanitize(relativePath);
+    if(sanitized == null) {
+      throw new IllegalArgumentException(String.format("The path '%s' must sanitize to a non-null value", relativePath));
+    }
+    return sanitized;
   }
 
   private void validateKeyLength() {

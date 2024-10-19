@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -50,7 +50,7 @@ public class OneToOneResilientIndexingListener implements IndexingListener {
     this.itemsById = items.stream()
       .collect(MoreCollectors.index(i -> {
         IndexType.SimpleIndexMainType mainType = IndexType.parseMainType(i.getDocType());
-        return new DocId(mainType.getIndex(), mainType.getType(), i.getDocId());
+        return new DocId(mainType.getIndex(), "_doc", i.getDocId());
       }, Function.identity()));
   }
 
@@ -61,7 +61,7 @@ public class OneToOneResilientIndexingListener implements IndexingListener {
         .map(itemsById::get)
         .flatMap(Collection::stream)
         .filter(Objects::nonNull)
-        .collect(MoreCollectors.toArrayList());
+        .toList();
       dbClient.esQueueDao().delete(dbSession, itemsToDelete);
       dbSession.commit();
     }

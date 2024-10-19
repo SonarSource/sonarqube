@@ -1,0 +1,11 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "design-system#build": {
+      "outputs": ["lib/**"]
+    },
+    "design-system#build:no-checks": {
+      "outputs": ["lib/**"]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,7 @@ import { mockUserToken } from '../../helpers/mocks/token';
 import { NewUserToken, TokenType, UserToken } from '../../types/token';
 import { generateToken, getTokens, revokeToken } from '../user-tokens';
 
-const RANDOM_RADIX = 36;
-const RANDOM_PREFIX = 2;
+jest.mock('../../api/user-tokens');
 
 const defaultTokens = [
   mockUserToken({
@@ -44,9 +43,9 @@ export default class UserTokensMock {
   constructor() {
     this.tokens = cloneDeep(defaultTokens);
 
-    (getTokens as jest.Mock).mockImplementation(this.handleGetTokens);
-    (generateToken as jest.Mock).mockImplementation(this.handleGenerateToken);
-    (revokeToken as jest.Mock).mockImplementation(this.handleRevokeToken);
+    jest.mocked(getTokens).mockImplementation(this.handleGetTokens);
+    jest.mocked(generateToken).mockImplementation(this.handleGenerateToken);
+    jest.mocked(revokeToken).mockImplementation(this.handleRevokeToken);
   }
 
   handleGetTokens = () => {
@@ -60,15 +59,19 @@ export default class UserTokensMock {
     projectKey,
     expirationDate,
   }: {
-    name: string;
-    login?: string;
-    type: TokenType;
-    projectKey: string;
     expirationDate?: string;
+    login: string;
+    name: string;
+    projectKey: string;
+    type: TokenType;
   }) => {
     if (this.failGeneration) {
       this.failGeneration = false;
       return Promise.reject('x_x');
+    }
+
+    if (this.tokens.some((t) => t.name === name)) {
+      return Promise.reject('This name is already used');
     }
 
     const token = {
@@ -77,7 +80,7 @@ export default class UserTokensMock {
       type,
       projectKey,
       isExpired: false,
-      token: Math.random().toString(RANDOM_RADIX).slice(RANDOM_PREFIX),
+      token: `generatedtoken${this.tokens.length}`,
       createdAt: '2022-04-04T04:04:04+0000',
       expirationDate,
     };
@@ -87,14 +90,8 @@ export default class UserTokensMock {
     return Promise.resolve(token);
   };
 
-  handleRevokeToken = ({ name }: { name: string; login?: string }) => {
-    const index = this.tokens.findIndex((t) => t.name === name);
-
-    if (index < 0) {
-      return Promise.resolve();
-    }
-
-    this.tokens.splice(index, 1);
+  handleRevokeToken = ({ name }: { login?: string; name: string }) => {
+    this.tokens = this.tokens.filter((t) => t.name !== name);
 
     return Promise.resolve();
   };

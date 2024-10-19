@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import classNames from 'classnames';
 import * as React from 'react';
+import Measure from '~sonar-aligned/components/measure/Measure';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
-import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
-import HistoryIcon from '../../../components/icons/HistoryIcon';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
-import Measure from '../../../components/measure/Measure';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentMeasure, Measure as TypeMeasure, Metric, Period } from '../../../types/types';
-import { hasFullMeasures } from '../utils';
+import { ComponentMeasure, Metric, Period, Measure as TypeMeasure } from '../../../types/types';
+import { getMetricSubnavigationName, hasFullMeasures } from '../utils';
 import LeakPeriodLegend from './LeakPeriodLegend';
 
 interface Props {
@@ -41,49 +42,58 @@ interface Props {
   secondaryMeasure?: TypeMeasure;
 }
 
-export default function MeasureHeader(props: Props) {
+export default function MeasureHeader(props: Readonly<Props>) {
   const { branchLike, component, leakPeriod, measureValue, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
   const hasHistory =
-    ['VW', 'SVW', 'APP', 'TRK'].includes(component.qualifier) && hasFullMeasures(branchLike);
+    [
+      ComponentQualifier.Portfolio,
+      ComponentQualifier.SubPortfolio,
+      ComponentQualifier.Application,
+      ComponentQualifier.Project,
+    ].includes(component.qualifier as ComponentQualifier) && hasFullMeasures(branchLike);
   const displayLeak = hasFullMeasures(branchLike);
+  const title = getMetricSubnavigationName(metric, getLocalizedMetricName, isDiff);
+
   return (
-    <div className="measure-details-header big-spacer-bottom">
-      <div className="measure-details-primary">
-        <div className="measure-details-metric">
-          <IssueTypeIcon className="little-spacer-right text-text-bottom" query={metric.key} />
-          {getLocalizedMetricName(metric)}
-          <span className="measure-details-value spacer-left">
-            <strong>
-              <Measure
-                className={isDiff && displayLeak ? 'leak-box' : undefined}
-                metricKey={metric.key}
-                metricType={metric.type}
-                value={measureValue}
-              />
-            </strong>
-          </span>
+    <div className="sw-mb-4">
+      <div className="sw-flex sw-items-center sw-justify-between sw-gap-4">
+        <div className="it__measure-details-metric sw-flex sw-items-center sw-gap-1">
+          <strong className="sw-typo-lg-semibold">{title}</strong>
+
+          <div className="sw-flex sw-items-center sw-ml-2">
+            <Measure
+              branchLike={branchLike}
+              componentKey={component.key}
+              className={classNames('it__measure-details-value sw-typo-lg')}
+              metricKey={metric.key}
+              metricType={metric.type}
+              value={measureValue}
+              badgeSize="sm"
+            />
+          </div>
+
           {!isDiff && hasHistory && (
-            <Tooltip overlay={translate('component_measures.show_metric_history')}>
-              <Link
-                className="js-show-history spacer-left button button-small"
-                to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}
-              >
-                <HistoryIcon />
-              </Link>
+            <Tooltip content={translate('component_measures.show_metric_history')}>
+              <span className="sw-ml-4">
+                <LinkStandalone
+                  className="it__show-history-link sw-font-semibold"
+                  to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}
+                >
+                  {translate('component_measures.see_metric_history')}
+                </LinkStandalone>
+              </span>
             </Tooltip>
           )}
         </div>
-        <div className="measure-details-primary-actions">
-          {displayLeak && leakPeriod && (
-            <LeakPeriodLegend className="spacer-left" component={component} period={leakPeriod} />
-          )}
-        </div>
+        {displayLeak && leakPeriod && (
+          <LeakPeriodLegend component={component} period={leakPeriod} />
+        )}
       </div>
       {secondaryMeasure &&
-        secondaryMeasure.metric === 'ncloc_language_distribution' &&
+        secondaryMeasure.metric === MetricKey.ncloc_language_distribution &&
         secondaryMeasure.value !== undefined && (
-          <div className="measure-details-secondary">
+          <div className="sw-inline-block sw-mt-2">
             <LanguageDistribution distribution={secondaryMeasure.value} />
           </div>
         )}

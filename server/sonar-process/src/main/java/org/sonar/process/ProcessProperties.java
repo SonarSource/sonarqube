@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.core.config.ProxyProperties;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 
@@ -112,8 +113,8 @@ public class ProcessProperties {
     HTTPS_PROXY_HOST("https.proxyHost"),
     HTTP_PROXY_PORT("http.proxyPort"),
     HTTPS_PROXY_PORT("https.proxyPort"),
-    HTTP_PROXY_USER("http.proxyUser"),
-    HTTP_PROXY_PASSWORD("http.proxyPassword"),
+    HTTP_PROXY_USER(ProxyProperties.HTTP_PROXY_USER),
+    HTTP_PROXY_PASSWORD(ProxyProperties.HTTP_PROXY_PASSWORD),
     HTTP_NON_PROXY_HOSTS("http.nonProxyHosts", "localhost|127.*|[::1]"),
     HTTP_AUTH_NTLM_DOMAIN("http.auth.ntlm.domain"),
     SOCKS_PROXY_HOST("socksProxyHost"),
@@ -135,6 +136,8 @@ public class ProcessProperties {
     CLUSTER_ES_TRUSTSTORE("sonar.cluster.es.ssl.truststore"),
     CLUSTER_ES_KEYSTORE_PASSWORD("sonar.cluster.es.ssl.keystorePassword"),
     CLUSTER_ES_TRUSTSTORE_PASSWORD("sonar.cluster.es.ssl.truststorePassword"),
+    CLUSTER_ES_HTTP_KEYSTORE("sonar.cluster.es.http.ssl.keystore"),
+    CLUSTER_ES_HTTP_KEYSTORE_PASSWORD("sonar.cluster.es.http.ssl.keystorePassword"),
     // search node only settings
     CLUSTER_ES_HOSTS("sonar.cluster.es.hosts"),
     CLUSTER_ES_DISCOVERY_SEED_HOSTS("sonar.cluster.es.discovery.seed.hosts"),
@@ -172,18 +175,16 @@ public class ProcessProperties {
 
     SONAR_TELEMETRY_ENABLE("sonar.telemetry.enable", "true"),
     SONAR_TELEMETRY_URL("sonar.telemetry.url", "https://telemetry.sonarsource.com/sonarqube"),
+    SONAR_TELEMETRY_METRICS_URL("sonar.telemetry.metrics.url", "https://telemetry.sonarsource.com/sonarqube/metrics"),
     SONAR_TELEMETRY_FREQUENCY_IN_SECONDS("sonar.telemetry.frequencyInSeconds", "10800"),
     SONAR_TELEMETRY_COMPRESSION("sonar.telemetry.compression", "true"),
 
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
     /**
-     * Used by Orchestrator to ask for shutdown of monitor process
+     * Used by OrchestratorRule to ask for shutdown of monitor process
      */
     ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
-
-    // whether the blue/green deployment of server is enabled
-    BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", DEFAULT_FALSE),
 
     AUTO_DATABASE_UPGRADE("sonar.autoDatabaseUpgrade", DEFAULT_FALSE);
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,12 @@ import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER } from './utils';
 function PersistNavigate() {
   save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
 
-  return <Navigate to="/projects" replace={true} />;
+  return <Navigate to="/projects" replace />;
 }
 
 const routes = () => (
   <Route path="projects">
-    <Route index={true} element={<DefaultPageSelector />} />
+    <Route index element={<DefaultPageSelector />} />
     <Route path="all" element={<PersistNavigate />} />
     <Route path="favorite" element={<FavoriteProjectsContainer />} />
     <Route path="create" element={<CreateProjectPage />} />

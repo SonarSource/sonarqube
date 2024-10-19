@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,10 +31,6 @@
   cursor: initial;
 }
 
-.issue.hotspot {
-  background-color: var(--hotspotBgColor);
-}
-
 .issue.selected,
 .issue-message-box.selected {
   box-shadow: none;
@@ -56,6 +52,13 @@
 .issue-row-meta {
   padding-right: 5px;
   white-space: nowrap;
+}
+
+.issue-message .button-plain {
+  line-height: 18px;
+  font-size: var(--baseFontSize);
+  font-weight: 600;
+  text-align: left;
 }
 
 .issue-message {
@@ -88,10 +91,6 @@
 
 .issue-meta + .issue-meta {
   margin-left: var(--gridSize);
-}
-
-.issue-header-actions .issue-meta + .issue-meta {
-  margin-left: calc(var(--gridSize) * 2);
 }
 
 .issue-meta-label {
@@ -141,31 +140,6 @@
   line-height: 18px;
   white-space: nowrap;
   color: var(--secondFontColor);
-}
-
-.issue-comment-text {
-  flex: 1;
-  min-width: 0;
-  margin-left: 5px;
-  margin-right: 5px;
-  line-height: 18px;
-  line-height: 1.5;
-  overflow: hidden;
-  outline: none;
-}
-
-.issue-comment-text.markdown pre {
-  float: none;
-  height: auto;
-  margin: 0;
-  padding: var(--gridSize);
-  background-color: var(--codeBackground);
-  border: none;
-  border-radius: 3px;
-}
-
-.issue-comment-text.markdown br ~ pre {
-  margin-top: var(--gridSize);
 }
 
 .issue-comment-actions {
@@ -242,10 +216,6 @@
   overflow: auto;
 }
 
-.issue .badge-error {
-  background-color: var(--badgeRedBackgroundOnIssue);
-}
-
 .issue-message-box {
   background-color: var(--issueBgColor);
   border: 2px solid transparent;
@@ -266,7 +236,6 @@
 }
 
 .issue-message-box.secondary-issue:hover,
-.issue:focus-within,
 .issue:hover {
   border: 2px dashed var(--blue);
   outline: 0;

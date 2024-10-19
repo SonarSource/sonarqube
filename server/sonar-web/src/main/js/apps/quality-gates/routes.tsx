@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import App from './components/App';
 
 const routes = () => (
   <Route path="quality_gates">
-    <Route index={true} element={<App />} />
-    <Route path="show/:id" element={<App />} />
+    <Route index element={<App />} />
+    <Route path="show/:name" element={<App />} />
   </Route>
 );
 

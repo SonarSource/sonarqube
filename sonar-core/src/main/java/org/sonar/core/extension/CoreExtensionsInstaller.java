@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,14 +28,14 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ExtensionContainer;
 
 import static java.util.Objects.requireNonNull;
 
 public abstract class CoreExtensionsInstaller {
-  private static final Logger LOG = Loggers.get(CoreExtensionsInstaller.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CoreExtensionsInstaller.class);
 
   private final SonarRuntime sonarRuntime;
   private final CoreExtensionRepository coreExtensionRepository;
@@ -126,6 +126,11 @@ public abstract class CoreExtensionsInstaller {
       addExtension(component);
       Arrays.stream(otherComponents).forEach(this::addExtension);
       return this;
+    }
+
+    @Override
+    public void addWebApiV2ConfigurationClass(Class<?> clazz) {
+      container.addWebApiV2ConfigurationClass(clazz);
     }
 
     @Override

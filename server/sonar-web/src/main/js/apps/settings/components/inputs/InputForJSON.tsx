@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, InputTextArea } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 const JSON_SPACE_SIZE = 4;
+
+interface Props extends DefaultSpecializedInputProps {
+  innerRef: React.ForwardedRef<HTMLTextAreaElement>;
+}
 
 interface State {
   formatError: boolean;
 }
 
-export default class InputForJSON extends React.PureComponent<DefaultSpecializedInputProps, State> {
+class InputForJSON extends React.PureComponent<Props, State> {
   state: State = { formatError: false };
 
   handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -49,23 +54,40 @@ export default class InputForJSON extends React.PureComponent<DefaultSpecialized
   };
 
   render() {
+    const { value, name, innerRef, setting, isInvalid } = this.props;
     const { formatError } = this.state;
+
     return (
-      <div className="display-flex-end">
-        <textarea
-          className="settings-large-input text-top monospaced spacer-right"
-          name={this.props.name}
-          onChange={this.handleInputChange}
-          rows={5}
-          value={this.props.value || ''}
-        />
-        <div>
-          {formatError && <Alert variant="info">{translate('settings.json.format_error')} </Alert>}
-          <Button className="spacer-top" onClick={this.format}>
-            {translate('settings.json.format')}
-          </Button>
+      <>
+        <div className="sw-flex sw-items-end">
+          <InputTextArea
+            size="large"
+            name={name}
+            onChange={this.handleInputChange}
+            ref={innerRef}
+            rows={5}
+            value={value || ''}
+            aria-label={getPropertyName(setting.definition)}
+            isInvalid={isInvalid}
+          />
+          <div className="sw-ml-2">
+            <Button className="sw-mt-2" onClick={this.format} variety={ButtonVariety.Primary}>
+              {translate('settings.json.format')}
+            </Button>
+          </div>
         </div>
-      </div>
+        {formatError && (
+          <FlagMessage className="sw-mt-2" variant="warning">
+            {translate('settings.json.format_error')}{' '}
+          </FlagMessage>
+        )}
+      </>
     );
   }
 }
+
+export default React.forwardRef(
+  (props: DefaultSpecializedInputProps, ref: React.ForwardedRef<HTMLTextAreaElement>) => (
+    <InputForJSON innerRef={ref} {...props} />
+  ),
+);

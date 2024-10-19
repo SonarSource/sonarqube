@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,10 +19,10 @@
  */
 import { differenceInYears } from 'date-fns';
 import { sortBy } from 'lodash';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { isValidDate, parseDate } from '../../helpers/dates';
-import { queryToSearch } from '../../helpers/urls';
-import { PROFILE_COMPARE_PATH } from './constants';
+import { PROFILE_COMPARE_PATH, PROFILE_PATH } from './constants';
 import { Profile } from './types';
 
 export function sortProfiles(profiles: BaseProfile[]): Profile[] {
@@ -32,7 +32,7 @@ export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   function retrieveChildren(parent: BaseProfile | null) {
     return sorted.filter(
       (p) =>
-        (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
+        (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key),
     );
   }
 
@@ -49,7 +49,7 @@ export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   sorted
     .filter(
       (profile) =>
-        profile.parentKey == null || sorted.find((p) => p.key === profile.parentKey) == null
+        profile.parentKey == null || sorted.find((p) => p.key === profile.parentKey) == null,
     )
     .forEach((profile) => putProfile(profile));
 
@@ -67,17 +67,17 @@ export function isStagnant(profile: Profile): boolean {
 }
 
 export const getProfilesForLanguagePath = (language: string, organization: string) => ({
-  pathname: `/organizations/${organization}/quality_profiles`,
-  search: queryToSearch({ language }),
+  pathname: `/organizations/${organization}/${PROFILE_PATH}`,
+  search: queryToSearchString({ language }),
 });
 
 export const getProfilePath = (name: string, language: string, organization: string) => ({
-  pathname: `/organizations/${organization}/quality_profiles/show`,
-  search: queryToSearch({ name, language }),
+  pathname: `/organizations/${organization}/${PROFILE_PATH}/show`,
+  search: queryToSearchString({ name, language }),
 });
 
 export const getOrgProfilePath = (organization: string) => ({
-  pathname: `/organizations/${organization}/quality_profiles/`
+  pathname: `/organizations/${organization}/${PROFILE_PATH}`
 });
 
 export const getProfileComparePath = (name: string, language: string, organization: string, withKey?: string) => {
@@ -86,8 +86,8 @@ export const getProfileComparePath = (name: string, language: string, organizati
     Object.assign(query, { withKey });
   }
   return {
-    pathname: `/organizations/${organization}/quality_profiles/compare`,
-    search: queryToSearch(query),
+    pathname: `/organizations/${organization}/${PROFILE_COMPARE_PATH}`,
+    search: queryToSearchString(query),
   };
 };
 
@@ -95,7 +95,7 @@ export const getProfileChangelogPath = (
   name: string,
   language: string,
   organization: string,
-  filter?: { since?: string; to?: string }
+  filter?: { since?: string; to?: string },
 ) => {
   const query = { language, name };
   if (filter) {
@@ -107,8 +107,8 @@ export const getProfileChangelogPath = (
     }
   }
   return {
-    pathname: `/organizations/${organization}/quality_profiles/changelog`,
-    search: queryToSearch(query),
+    pathname: `/organizations/${organization}/${PROFILE_PATH}/changelog`,
+    search: queryToSearchString(query),
   };
 };
 

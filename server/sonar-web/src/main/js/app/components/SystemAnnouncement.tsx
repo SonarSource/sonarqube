@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEmpty, keyBy, throttle } from 'lodash';
+
+import styled from '@emotion/styled';
+import { FlagWarningIcon, themeBorder, themeColor } from 'design-system';
+import { keyBy, throttle } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../api/settings';
-import { Alert } from '../../components/ui/Alert';
 import { Feature } from '../../types/features';
-import { GlobalSettingKeys, SettingValue } from '../../types/settings';
+import { GlobalSettingKeys } from '../../types/settings';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
-import './SystemAnnouncement.css';
 
 const THROTTLE_TIME_MS = 10000;
 
@@ -52,17 +53,15 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
   }
 
   getSettings = async () => {
-    const values: SettingValue[] = await getValues({
+    const values = await getValues({
       keys: [GlobalSettingKeys.DisplayAnnouncementMessage, GlobalSettingKeys.AnnouncementMessage],
     });
+
     const settings = keyBy(values, 'key');
 
     this.setState({
-      displayMessage: settings[GlobalSettingKeys.DisplayAnnouncementMessage].value === 'true',
-      message:
-        (settings[GlobalSettingKeys.AnnouncementMessage] &&
-          settings[GlobalSettingKeys.AnnouncementMessage].value) ||
-        '',
+      displayMessage: settings?.[GlobalSettingKeys.DisplayAnnouncementMessage]?.value === 'true',
+      message: settings?.[GlobalSettingKeys.AnnouncementMessage]?.value ?? '',
     });
   };
 
@@ -75,23 +74,30 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
 
   render() {
     const { displayMessage, message } = this.state;
-    if (!displayMessage || isEmpty(message)) {
-      return null;
-    }
 
     return (
-      <div className="system-announcement-wrapper">
-        <Alert
-          className="system-announcement-banner"
-          title={message}
-          display="banner"
-          variant="warning"
-        >
-          {message}
-        </Alert>
-      </div>
+      <StyledBanner
+        className="sw-py-3 sw-px-4 sw-gap-3"
+        style={!(displayMessage && message.length > 0) ? { display: 'none' } : {}}
+        title={message}
+        aria-live="assertive"
+        role="alert"
+      >
+        <FlagWarningIcon />
+        <span>{displayMessage && message}</span>
+      </StyledBanner>
     );
   }
 }
 
 export default withAvailableFeatures(SystemAnnouncement);
+
+const StyledBanner = styled.div`
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+
+  background-color: ${themeColor('warningBackground')};
+  border-bottom: ${themeBorder('default', 'warningBorder')};
+`;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,10 +56,10 @@ public class WebhookDeliveryStorage {
     }
   }
 
-  public void purge(String componentUuid) {
+  public void purge() {
     long beforeDate = system.now() - ALIVE_DELAY_MS;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.webhookDeliveryDao().deleteComponentBeforeDate(dbSession, componentUuid, beforeDate);
+      dbClient.webhookDeliveryDao().deleteAllBeforeDate(dbSession, beforeDate);
       dbSession.commit();
     }
   }
@@ -68,7 +68,7 @@ public class WebhookDeliveryStorage {
     WebhookDeliveryDto dto = new WebhookDeliveryDto();
     dto.setUuid(uuidFactory.create());
     dto.setWebhookUuid(delivery.getWebhook().getUuid());
-    dto.setComponentUuid(delivery.getWebhook().getComponentUuid());
+    dto.setProjectUuid(delivery.getWebhook().getProjectUuid());
     delivery.getWebhook().getCeTaskUuid().ifPresent(dto::setCeTaskUuid);
     delivery.getWebhook().getAnalysisUuid().ifPresent(dto::setAnalysisUuid);
     dto.setName(delivery.getWebhook().getName());

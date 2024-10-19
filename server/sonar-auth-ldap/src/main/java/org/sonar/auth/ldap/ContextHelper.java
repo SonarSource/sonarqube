@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,15 +22,15 @@ package org.sonar.auth.ldap;
 import javax.annotation.Nullable;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Evgeny Mandrikov
  */
 public final class ContextHelper {
 
-  private static final Logger LOG = Loggers.get(ContextHelper.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ContextHelper.class);
 
   private ContextHelper() {
   }

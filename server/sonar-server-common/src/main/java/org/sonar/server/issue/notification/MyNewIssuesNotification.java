@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package org.sonar.server.issue.notification;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.Durations;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_ASSIGNEE;
@@ -30,8 +29,8 @@ public class MyNewIssuesNotification extends NewIssuesNotification {
 
   public static final String MY_NEW_ISSUES_NOTIF_TYPE = "my-new-issues";
 
-  public MyNewIssuesNotification(Durations durations, DetailsSupplier detailsSupplier) {
-    super(MY_NEW_ISSUES_NOTIF_TYPE, durations, detailsSupplier);
+  public MyNewIssuesNotification(DetailsSupplier detailsSupplier) {
+    super(MY_NEW_ISSUES_NOTIF_TYPE, detailsSupplier);
   }
 
   public MyNewIssuesNotification setAssignee(@Nullable UserDto assignee) {

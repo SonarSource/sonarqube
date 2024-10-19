@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,18 @@
  */
 package org.sonar.server.qualitygate.changeevent;
 
+import java.util.Map;
 import java.util.Objects;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 
 class ChangedIssueImpl implements QGChangeEventListener.ChangedIssue {
   private final String key;
   private final QGChangeEventListener.Status status;
+  private final Map<SoftwareQuality, Severity> impacts;
   private final RuleType type;
   private final String severity;
   private final boolean fromAlm;
@@ -40,6 +44,7 @@ class ChangedIssueImpl implements QGChangeEventListener.ChangedIssue {
     this.status = statusOf(issue);
     this.type = issue.type();
     this.severity = issue.severity();
+    this.impacts = issue.impacts();
     this.fromAlm = fromAlm;
   }
 
@@ -90,6 +95,11 @@ class ChangedIssueImpl implements QGChangeEventListener.ChangedIssue {
   @Override
   public RuleType getType() {
     return type;
+  }
+
+  @Override
+  public Map<SoftwareQuality, Severity> getImpacts() {
+    return impacts;
   }
 
   @Override

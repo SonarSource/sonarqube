@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,9 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.es.StartupIndexer.Type.SYNCHRONOUS;
 
 public class StartupIndexerTest {
-
-
-  private StartupIndexer underTest = () -> null;
+  private final StartupIndexer underTest = () -> null;
 
   @Test
   public void getType() {
@@ -40,14 +38,14 @@ public class StartupIndexerTest {
   public void triggerAsyncIndexOnStartup() {
     assertThatThrownBy(() -> underTest.triggerAsyncIndexOnStartup(Collections.emptySet()))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("ASYNCHRONE StartupIndexer must implement initAsyncIndexOnStartup");
+      .hasMessage("ASYNCHRONOUS StartupIndexer must implement initAsyncIndexOnStartup");
   }
 
   @Test
   public void indexOnStartup() {
     assertThatThrownBy(() -> underTest.indexOnStartup(Collections.emptySet()))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("SYNCHRONE StartupIndexer must implement indexOnStartup");
+      .hasMessage("SYNCHRONOUS StartupIndexer must implement indexOnStartup");
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -36,10 +37,15 @@ public class SonarGlobalPropertiesFilter {
 
 
   private static Map<String, String> getNonSonarGlobalProperties(Map<String, String> settingProperties) {
-    return settingProperties.entrySet()
-      .stream()
-      .filter(entry -> !isSonarGlobalProperty(entry.getKey()))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    // Using a LinkedHashMap because the order of the entries in the settings map is important for properly converting
+    // deprecated properties to their correct value.
+    Map<String, String> nonSonarGlobalProperties = new LinkedHashMap<>();
+    settingProperties.forEach((key, value) -> {
+      if (!isSonarGlobalProperty(key)) {
+        nonSonarGlobalProperties.put(key, value);
+      }
+    });
+    return nonSonarGlobalProperties;
   }
 
   private static Map<String, String> getSonarGlobalProperties(Map<String, String> properties) {

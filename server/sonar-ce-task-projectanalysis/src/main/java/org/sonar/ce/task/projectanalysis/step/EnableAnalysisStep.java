@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ public class EnableAnalysisStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Component project = treeRootHolder.getRoot();
       dbClient.snapshotDao().switchIsLastFlagAndSetProcessedStatus(dbSession, project.getUuid(), analysisMetadataHolder.getUuid());
-      dbClient.componentDao().applyBChangesForRootComponentUuid(dbSession, project.getUuid());
+      dbClient.componentDao().applyBChangesForBranchUuid(dbSession, project.getUuid());
       dbSession.commit();
     }
   }

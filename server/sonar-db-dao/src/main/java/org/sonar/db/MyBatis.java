@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -45,6 +45,7 @@ import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskCharacteristicMapper;
 import org.sonar.db.ce.CeTaskInputMapper;
 import org.sonar.db.ce.CeTaskMessageMapper;
+import org.sonar.db.common.Common;
 import org.sonar.db.component.AnalysisPropertiesMapper;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.ApplicationProjectsMapper;
@@ -52,7 +53,6 @@ import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentKeyUpdaterMapper;
 import org.sonar.db.component.ComponentMapper;
-import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
@@ -63,26 +63,36 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithBranchUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
+import org.sonar.db.dependency.CveCweDto;
+import org.sonar.db.dependency.CveCweMapper;
+import org.sonar.db.dependency.CveDto;
+import org.sonar.db.dependency.CveMapper;
+import org.sonar.db.dependency.IssuesDependencyDto;
+import org.sonar.db.dependency.IssuesDependencyMapper;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.entity.EntityMapper;
 import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
 import org.sonar.db.ideusage.IdeUsageMapper;
+import org.sonar.db.issue.AnticipatedTransitionDto;
+import org.sonar.db.issue.AnticipatedTransitionMapper;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueFixedMapper;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
-import org.sonar.db.mapping.ProjectMappingDto;
-import org.sonar.db.mapping.ProjectMappingsMapper;
 import org.sonar.db.measure.LargestBranchNclocDto;
 import org.sonar.db.measure.LiveMeasureMapper;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureMapper;
+import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMeasureDto;
+import org.sonar.db.measure.ProjectMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
 import org.sonar.db.notification.NotificationQueueDto;
@@ -120,6 +130,10 @@ import org.sonar.db.property.InternalPropertiesMapper;
 import org.sonar.db.property.InternalPropertyDto;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.ScrapPropertyDto;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingMapper;
+import org.sonar.db.provisioning.GithubOrganizationGroupDto;
+import org.sonar.db.provisioning.GithubOrganizationGroupMapper;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 import org.sonar.db.pushevent.PushEventDto;
@@ -142,14 +156,21 @@ import org.sonar.db.qualityprofile.QProfileEditUsersMapper;
 import org.sonar.db.qualityprofile.QualityProfileExportMapper;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
 import org.sonar.db.report.RegulatoryReportMapper;
+import org.sonar.db.report.ReportScheduleMapper;
+import org.sonar.db.report.ReportSubscriptionMapper;
+import org.sonar.db.rule.RuleChangeMapper;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
 import org.sonar.db.scannercache.ScannerAnalysisCacheMapper;
 import org.sonar.db.schemamigration.SchemaMigrationDto;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
+import org.sonar.db.scim.ScimGroupMapper;
 import org.sonar.db.scim.ScimUserMapper;
 import org.sonar.db.source.FileSourceMapper;
+import org.sonar.db.telemetry.TelemetryMetricsSentMapper;
+import org.sonar.db.user.ExternalGroupDto;
+import org.sonar.db.user.ExternalGroupMapper;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
 import org.sonar.db.user.GroupMembershipDto;
@@ -187,7 +208,7 @@ public class MyBatis {
   }
 
   public void start() {
-    LogFactory.useSlf4jLogging();
+    LogFactory.useNoLogging();
 
     MyBatisConfBuilder confBuilder = new MyBatisConfBuilder(database);
 
@@ -195,11 +216,17 @@ public class MyBatis {
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
     confBuilder.loadAlias("ApplicationProject", ApplicationProjectDto.class);
+    confBuilder.loadAlias("AnticipatedTransition", AnticipatedTransitionDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
-    confBuilder.loadAlias("ComponentWithModuleUuid", ComponentWithModuleUuidDto.class);
+    confBuilder.loadAlias("Cve", CveDto.class);
+    confBuilder.loadAlias("CveCwe", CveCweDto.class);
+    confBuilder.loadAlias("DevOpsPermissionsMapping", DevOpsPermissionsMappingDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
+    confBuilder.loadAlias("Entity", EntityDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
+    confBuilder.loadAlias("ExternalGroup", ExternalGroupDto.class);
+    confBuilder.loadAlias("GithubOrganizationGroup", GithubOrganizationGroupDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
     confBuilder.loadAlias("KeyWithUuid", KeyWithUuidDto.class);
     confBuilder.loadAlias("Group", GroupDto.class);
@@ -209,9 +236,11 @@ public class MyBatis {
     confBuilder.loadAlias("InternalComponentProperty", InternalComponentPropertyDto.class);
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
     confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
+    confBuilder.loadAlias("Impact", ImpactDto.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
+    confBuilder.loadAlias("IssueDependency", IssuesDependencyDto.class);
     confBuilder.loadAlias("NewCodeReferenceIssue", NewCodeReferenceIssueDto.class);
-    confBuilder.loadAlias("Measure", MeasureDto.class);
+    confBuilder.loadAlias("ProjectMeasure", ProjectMeasureDto.class);
     confBuilder.loadAlias("LargestBranchNclocDto", LargestBranchNclocDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Organization", OrganizationDto.class);
@@ -231,8 +260,7 @@ public class MyBatis {
     confBuilder.loadAlias("AnalysisPropertyValuePerProject", AnalysisPropertyValuePerProject.class);
     confBuilder.loadAlias("ProjectAlmKeyAndProject", ProjectAlmKeyAndProject.class);
     confBuilder.loadAlias("PrAndBranchCountByProjectDto", PrBranchAnalyzedLanguageCountByProjectDto.class);
-    confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
-    confBuilder.loadAlias("ProjectMeasure", ProjectMeasureDto.class);
+    confBuilder.loadAlias("ProjectLocDistribution", ProjectLocDistributionDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("PushEvent", PushEventDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
@@ -259,6 +287,7 @@ public class MyBatis {
       AlmPatMapper.class,
       AlmSettingMapper.class,
       AnalysisPropertiesMapper.class,
+      AnticipatedTransitionMapper.class,
       ApplicationProjectsMapper.class,
       AuditMapper.class,
       AuthorizationMapper.class,
@@ -271,12 +300,18 @@ public class MyBatis {
       CeTaskMessageMapper.class,
       ComponentKeyUpdaterMapper.class,
       ComponentMapper.class,
+      CveMapper.class,
+      CveCweMapper.class,
       LiveMeasureMapper.class,
       DefaultQProfileMapper.class,
       DuplicationMapper.class,
+      EntityMapper.class,
       EsQueueMapper.class,
       EventMapper.class,
       EventComponentChangeMapper.class,
+      GithubOrganizationGroupMapper.class,
+      DevOpsPermissionsMappingMapper.class,
+      ExternalGroupMapper.class,
       FileSourceMapper.class,
       GroupMapper.class,
       GroupMembershipMapper.class,
@@ -286,7 +321,9 @@ public class MyBatis {
       IsAliveMapper.class,
       IssueChangeMapper.class,
       IssueMapper.class,
-      MeasureMapper.class,
+      IssueFixedMapper.class,
+      IssuesDependencyMapper.class,
+      ProjectMeasureMapper.class,
       MetricMapper.class,
       NewCodePeriodMapper.class,
       NotificationQueueMapper.class,
@@ -301,7 +338,6 @@ public class MyBatis {
       ProjectMapper.class,
       ProjectBadgeTokenMapper.class,
       ProjectExportMapper.class,
-      ProjectMappingsMapper.class,
       ProjectQgateAssociationMapper.class,
       PropertiesMapper.class,
       IdeUsageMapper.class,
@@ -317,22 +353,28 @@ public class MyBatis {
       QualityProfileMapper.class,
       QualityProfileExportMapper.class,
       RegulatoryReportMapper.class,
+      ReportScheduleMapper.class,
+      ReportSubscriptionMapper.class,
       RoleMapper.class,
       RuleMapper.class,
+      RuleChangeMapper.class,
       RuleRepositoryMapper.class,
       SamlMessageIdMapper.class,
       ScannerAnalysisCacheMapper.class,
       SchemaMigrationMapper.class,
+      ScimGroupMapper.class,
       ScimUserMapper.class,
       SessionTokenMapper.class,
       SnapshotMapper.class,
+      TelemetryMetricsSentMapper.class,
       UserDismissedMessagesMapper.class,
       UserGroupMapper.class,
       UserMapper.class,
       UserPermissionMapper.class,
       UserTokenMapper.class,
       WebhookMapper.class,
-      WebhookDeliveryMapper.class
+      WebhookDeliveryMapper.class,
+      Common.class
     };
     confBuilder.loadMappers(mappers);
     confExtensions.stream()

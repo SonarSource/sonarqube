@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,19 @@
 package org.sonar.ce.task.projectanalysis.period;
 
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-public class PeriodHolderRule implements TestRule, PeriodHolder {
+public class PeriodHolderRule implements TestRule, PeriodHolder, AfterEachCallback {
   private PeriodHolderImpl delegate = new PeriodHolderImpl();
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) {
+    clear();
+  }
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -65,4 +72,5 @@ public class PeriodHolderRule implements TestRule, PeriodHolder {
   public Period getPeriod() {
     return delegate.getPeriod();
   }
+
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,12 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
@@ -42,6 +47,10 @@ public class DumbRule implements Rule {
   private String pluginKey;
   private boolean isExternal;
   private boolean isAdHoc;
+  private final Set<String> securityStandards = new HashSet<>();
+  private final Map<SoftwareQuality, Severity> defaultImpacts = new EnumMap<>(SoftwareQuality.class);
+  private CleanCodeAttribute cleanCodeAttribute;
+  private String severity;
 
   public DumbRule(RuleKey key) {
     this.key = key;
@@ -102,7 +111,23 @@ public class DumbRule implements Rule {
 
   @Override
   public String getSeverity() {
-    return null;
+    return severity;
+  }
+
+  @Override
+  public Set<String> getSecurityStandards() {
+    return securityStandards;
+  }
+
+  @Override
+  public Map<SoftwareQuality, Severity> getDefaultImpacts() {
+    return defaultImpacts;
+  }
+
+  @CheckForNull
+  @Override
+  public CleanCodeAttribute cleanCodeAttribute() {
+    return cleanCodeAttribute;
   }
 
   @Override
@@ -150,6 +175,11 @@ public class DumbRule implements Rule {
     return this;
   }
 
+  public DumbRule setSeverity(String severity) {
+    this.severity = severity;
+    return this;
+  }
+
   public DumbRule setPluginKey(String pluginKey) {
     this.pluginKey = pluginKey;
     return this;
@@ -162,6 +192,16 @@ public class DumbRule implements Rule {
 
   public DumbRule setIsAdHoc(boolean isAdHoc) {
     this.isAdHoc = isAdHoc;
+    return this;
+  }
+
+  public DumbRule addDefaultImpact(SoftwareQuality softwareQuality, Severity severity) {
+    defaultImpacts.put(softwareQuality, severity);
+    return this;
+  }
+
+  public DumbRule setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
     return this;
   }
 

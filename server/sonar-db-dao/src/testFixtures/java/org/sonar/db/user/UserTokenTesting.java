@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,10 +19,13 @@
  */
 package org.sonar.db.user;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import org.sonar.api.utils.System2;
+
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class UserTokenTesting {
+
+  private static final long NOW = System2.INSTANCE.now();
 
   private UserTokenTesting() {
     throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -33,7 +36,7 @@ public class UserTokenTesting {
       .setUserUuid("userUuid_" + randomAlphanumeric(40))
       .setName("name_" + randomAlphanumeric(20))
       .setTokenHash("hash_" + randomAlphanumeric(30))
-      .setCreatedAt(nextLong())
+      .setCreatedAt(NOW)
       .setType("USER_TOKEN");
   }
 
@@ -42,9 +45,10 @@ public class UserTokenTesting {
       .setUserUuid("userUuid_" + randomAlphanumeric(40))
       .setName("name_" + randomAlphanumeric(20))
       .setTokenHash("hash_" + randomAlphanumeric(30))
-      .setProjectKey("projectUuid_" + randomAlphanumeric(40))
+      .setProjectUuid("projectUuid_" + randomAlphanumeric(20))
+      .setProjectKey("projectKey_" + randomAlphanumeric(40))
       .setProjectName("Project " + randomAlphanumeric(40))
-      .setCreatedAt(nextLong())
+      .setCreatedAt(NOW)
       .setType("PROJECT_ANALYSIS_TOKEN");
   }
 

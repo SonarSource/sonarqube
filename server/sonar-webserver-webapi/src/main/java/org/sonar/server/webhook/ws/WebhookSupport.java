@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import okhttp3.HttpUrl;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -48,7 +49,7 @@ public class WebhookSupport {
   }
 
   void checkPermission(ProjectDto projectDto) {
-    userSession.checkProjectPermission(ADMIN, projectDto);
+    userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
   }
 
   void checkPermission(OrganizationDto organizationDto) {

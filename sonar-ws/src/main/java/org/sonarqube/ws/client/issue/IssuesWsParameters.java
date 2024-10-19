@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ public class IssuesWsParameters {
   public static final String CONTROLLER_ISSUES = "api/issues";
 
   public static final String ACTION_SEARCH = "search";
+  public static final String ACTION_LIST = "list";
   public static final String ACTION_CHANGELOG = "changelog";
   public static final String ACTION_ADD_COMMENT = "add_comment";
   public static final String ACTION_EDIT_COMMENT = "edit_comment";
@@ -40,6 +41,7 @@ public class IssuesWsParameters {
   public static final String ACTION_BULK_CHANGE = "bulk_change";
   public static final String ACTION_PULL = "pull";
   public static final String ACTION_PULL_TAINT = "pull_taint";
+  public static final String ACTION_ANTICIPATED_TRANSITIONS = "anticipated_transitions";
 
   public static final String PARAM_ISSUE = "issue";
   public static final String PARAM_COMMENT = "comment";
@@ -52,9 +54,15 @@ public class IssuesWsParameters {
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_ISSUES = "issues";
   public static final String PARAM_SEVERITIES = "severities";
+  public static final String PARAM_IMPACT_SOFTWARE_QUALITIES = "impactSoftwareQualities";
+  public static final String PARAM_IMPACT_SEVERITIES = "impactSeverities";
+  public static final String PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES = "cleanCodeAttributeCategories";
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_RESOLUTIONS = "resolutions";
+  public static final String PARAM_ISSUE_STATUSES = "issueStatuses";
   public static final String PARAM_RESOLVED = "resolved";
+  public static final String PARAM_PRIORITIZED_RULE = "prioritizedRule";
+  public static final String PARAM_COMPONENTS = "components";
   public static final String PARAM_COMPONENT_KEYS = "componentKeys";
   public static final String PARAM_COMPONENT_UUIDS = "componentUuids";
   public static final String PARAM_PROJECTS = "projects";
@@ -73,7 +81,6 @@ public class IssuesWsParameters {
   public static final String PARAM_SEND_NOTIFICATIONS = "sendNotifications";
   public static final String PARAM_ASSIGNEES = "assignees";
 
-
   public static final String PARAM_AUTHOR = "author";
   public static final String PARAM_SCOPES = "scopes";
   public static final String PARAM_LANGUAGES = "languages";
@@ -87,6 +94,9 @@ public class IssuesWsParameters {
   public static final String PARAM_OWASP_ASVS_40 = "owaspAsvs-4.0";
   public static final String PARAM_OWASP_TOP_10 = "owaspTop10";
   public static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  public static final String PARAM_STIG_ASD_V5R3 = "stig-ASD_V5R3";
+  public static final String PARAM_STIG = "stig";
+  public static final String PARAM_CASA = "casa";
   @Deprecated
   public static final String PARAM_SANS_TOP_25 = "sansTop25";
   public static final String PARAM_CWE_TOP_25 = "cweTop25";
@@ -98,17 +108,17 @@ public class IssuesWsParameters {
   public static final String PARAM_CREATED_AT = "createdAt";
   public static final String PARAM_CREATED_BEFORE = "createdBefore";
   public static final String PARAM_CREATED_IN_LAST = "createdInLast";
-  @Deprecated
-  public static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
-  public static final String PARAM_SEARCH_AFTER = "searchAfter";
   public static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
   public static final String PARAM_ASC = "asc";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
   public static final String PARAM_TIMEZONE = "timeZone";
+  public static final String PARAM_CODE_VARIANTS = "codeVariants";
+  public static final String PARAM_FIXED_IN_PULL_REQUEST = "fixedInPullRequest";
 
   public static final String FACET_MODE_EFFORT = "effort";
 
   public static final String PARAM_ORGANIZATION = "organization";
+  public static final String PARAM_SEARCH_AFTER = "searchAfter";
 
   private IssuesWsParameters() {
     // Utility class

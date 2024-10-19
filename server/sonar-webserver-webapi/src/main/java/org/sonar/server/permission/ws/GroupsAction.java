@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,8 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import com.google.common.io.Resources;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
@@ -33,20 +34,22 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Group;
 import org.sonarqube.ws.Permissions.WsGroupsResponse;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
@@ -60,12 +63,15 @@ public class GroupsAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
+  private final ManagedInstanceService managedInstanceService;
 
-  public GroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, WsParameters wsParameters) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, WsParameters wsParameters,
+    ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -83,6 +89,7 @@ public class GroupsAction implements PermissionsWsAction {
         "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .setChangelog(
+        new Change("10.0", "Response includes 'managed' field."),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("7.4", "The response list is returning all groups even those without permissions, the groups with permission are at the top of the list."))
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
@@ -100,21 +107,28 @@ public class GroupsAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = wsSupport.findOrganization(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
-      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, org.getUuid(), project.orElse(null));
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
 
-      PermissionQuery query = buildPermissionQuery(request, org, project.orElse(null));
+      EntityDto project = wsSupport.findEntity(dbSession, request);
+      wsSupport.checkPermissionManagementAccess(userSession, project);
+
+      PermissionQuery query = buildPermissionQuery(request, org, project);
       List<GroupDto> groups = findGroups(dbSession, org, query);
       int total = dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
-      List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, org, groups, project.orElse(null));
+      List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, org, groups, project);
+      Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, getUserUuids(groups));
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
-      WsGroupsResponse groupsResponse = buildResponse(groups, groupsWithPermission, paging);
+      WsGroupsResponse groupsResponse = buildResponse(groups, groupsWithPermission, groupUuidToIsManaged, paging);
       writeProtobuf(groupsResponse, request, response);
     }
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, OrganizationDto org, @Nullable ComponentDto project) {
+  private static Set<String> getUserUuids(List<GroupDto> groups) {
+    return groups.stream().map(GroupDto::getUuid).collect(toSet());
+  }
+
+  private static PermissionQuery buildPermissionQuery(Request request, OrganizationDto org, @Nullable EntityDto entity) {
     String textQuery = request.param(Param.TEXT_QUERY);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
       .setOrganizationUuid(org.getUuid())
@@ -122,13 +136,14 @@ public class GroupsAction implements PermissionsWsAction {
       .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setSearchQuery(textQuery);
-    if (project != null) {
-      permissionQuery.setComponent(project.uuid());
+    if (entity != null) {
+      permissionQuery.setEntityUuid(entity.getUuid());
     }
     return permissionQuery.build();
   }
 
-  private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupPermissionDto> groupPermissions, Paging paging) {
+  private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupPermissionDto> groupPermissions,
+    Map<String, Boolean> groupUuidToIsManaged, Paging paging) {
     Multimap<String, String> permissionsByGroupUuid = TreeMultimap.create();
     groupPermissions.forEach(groupPermission -> permissionsByGroupUuid.put(groupPermission.getGroupUuid(), groupPermission.getRole()));
     WsGroupsResponse.Builder response = WsGroupsResponse.newBuilder();
@@ -141,6 +156,7 @@ public class GroupsAction implements PermissionsWsAction {
       }
       ofNullable(group.getDescription()).ifPresent(wsGroup::setDescription);
       wsGroup.addAllPermissions(permissionsByGroupUuid.get(group.getUuid()));
+      wsGroup.setManaged(groupUuidToIsManaged.getOrDefault(group.getUuid(), false));
     });
 
     response.getPagingBuilder()
@@ -160,11 +176,11 @@ public class GroupsAction implements PermissionsWsAction {
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 
-  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, OrganizationDto org, List<GroupDto> groups, @Nullable ComponentDto project) {
+  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, OrganizationDto org, List<GroupDto> groups, @Nullable EntityDto entity) {
     if (groups.isEmpty()) {
       return emptyList();
     }
-    List<String> uuids = groups.stream().map(GroupDto::getUuid).collect(MoreCollectors.toList(groups.size()));
-    return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, org.getUuid(), uuids, project != null ? project.uuid() : null);
+    List<String> uuids = groups.stream().map(GroupDto::getUuid).toList();
+    return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, org.getUuid(), uuids, entity != null ? entity.getUuid() : null);
   }
 }

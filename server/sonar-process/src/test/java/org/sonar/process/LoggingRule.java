@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,13 +23,15 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.joran.spi.JoranException;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.sonar.process.logging.LogbackHelper;
 
-public class LoggingRule extends ExternalResource {
+public class LoggingRule extends ExternalResource implements BeforeEachCallback, AfterEachCallback {
 
   private final Class loggerClass;
 
@@ -38,10 +40,20 @@ public class LoggingRule extends ExternalResource {
   }
 
   @Override
-  protected void before() throws Throwable {
+  public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    before();
+  }
+
+  @Override
+  protected void before() throws Exception {
     new LogbackHelper().resetFromXml("/org/sonar/process/logback-test.xml");
     TestLogbackAppender.events.clear();
     setLevel(Level.INFO);
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
   }
 
   @Override
@@ -66,7 +78,7 @@ public class LoggingRule extends ExternalResource {
     return TestLogbackAppender.events.stream()
       .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .map(LoggingEvent::getFormattedMessage)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public List<String> getLogs(Level level) {
@@ -74,7 +86,7 @@ public class LoggingRule extends ExternalResource {
       .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .filter(e -> e.getLevel().levelStr.equals(level.name()))
       .map(LoggingEvent::getFormattedMessage)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public boolean hasLog(Level level, String message) {
@@ -89,4 +101,5 @@ public class LoggingRule extends ExternalResource {
       .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .anyMatch(e -> e.getFormattedMessage().equals(message));
   }
+
 }

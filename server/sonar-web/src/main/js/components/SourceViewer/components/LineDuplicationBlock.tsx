@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { DuplicationBlock, LineMeta, OutsideClickHandler, PopupPlacement } from 'design-system';
 import * as React from 'react';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
-import Toggler from '../../../components/controls/Toggler';
 import Tooltip from '../../../components/controls/Tooltip';
-import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
-import { ButtonPlain } from '../../controls/buttons';
 
 export interface LineDuplicationBlockProps {
   blocksLoaded: boolean;
@@ -37,46 +33,49 @@ export interface LineDuplicationBlockProps {
 }
 
 export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
-  const { blocksLoaded, duplicated, index, line } = props;
-  const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const { blocksLoaded, duplicated, index, line, onClick } = props;
+  const [popupOpen, setPopupOpen] = React.useState(false);
 
-  const className = classNames('source-meta', 'source-line-duplications', {
-    'source-line-duplicated': duplicated,
-  });
+  const tooltip = popupOpen ? undefined : translate('source_viewer.tooltip.duplicated_block');
 
-  const tooltip = dropdownOpen ? undefined : translate('source_viewer.tooltip.duplicated_block');
+  const handleClick = React.useCallback(() => {
+    setPopupOpen(!popupOpen);
+    if (!blocksLoaded && line.duplicated && onClick) {
+      onClick(line);
+    }
+  }, [blocksLoaded, line, onClick, popupOpen]);
+
+  const handleClose = React.useCallback(() => setPopupOpen(false), []);
 
   return duplicated ? (
-    <td className={className} data-index={index} data-line-number={line.line}>
-      <Tooltip overlay={tooltip} placement="right" accessible={false}>
-        <div>
-          <Toggler
-            onRequestClose={() => setDropdownOpen(false)}
-            open={dropdownOpen}
-            overlay={
-              <DropdownOverlay placement={PopupPlacement.RightTop}>
-                {props.renderDuplicationPopup(index, line.line)}
-              </DropdownOverlay>
-            }
+    <Tooltip content={tooltip} side={PopupPlacement.Right}>
+      <LineMeta
+        className="it__source-line-duplicated"
+        data-index={index}
+        data-line-number={line.line}
+      >
+        <OutsideClickHandler onClickOutside={handleClose}>
+          <Tooltip
+            side={PopupPlacement.Right}
+            isOpen={popupOpen}
+            isInteractive
+            content={popupOpen ? props.renderDuplicationPopup(index, line.line) : undefined}
+            classNameInner="sw-max-w-abs-400"
           >
-            <ButtonPlain
+            <DuplicationBlock
               aria-label={translate('source_viewer.tooltip.duplicated_block')}
-              className="source-line-bar"
-              onClick={() => {
-                setDropdownOpen(true);
-                if (!blocksLoaded && line.duplicated && props.onClick) {
-                  props.onClick(line);
-                }
-              }}
+              aria-expanded={popupOpen}
+              aria-haspopup="dialog"
+              onClick={handleClick}
+              role="button"
+              tabIndex={0}
             />
-          </Toggler>
-        </div>
-      </Tooltip>
-    </td>
+          </Tooltip>
+        </OutsideClickHandler>
+      </LineMeta>
+    </Tooltip>
   ) : (
-    <td className={className} data-index={index} data-line-number={line.line}>
-      <div className="source-line-bar" />
-    </td>
+    <LineMeta data-index={index} data-line-number={line.line} />
   );
 }
 

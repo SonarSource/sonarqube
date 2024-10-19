@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,68 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Title } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
+import { FormattedMessage } from 'react-intl';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
-import Form from './Form';
+import { Provider } from '../../../types/types';
+import GroupForm from './GroupForm';
 
-interface Props {
-  onCreate: (data: { description: string; name: string }) => Promise<void>;
+interface HeaderProps {
+  manageProvider: Provider | undefined;
 }
 
-interface State {
-  createModal: boolean;
-}
+export default function Header({ manageProvider }: Readonly<HeaderProps>) {
+  const [createModal, setCreateModal] = React.useState(false);
 
-export default class Header extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { createModal: false };
+  return (
+    <>
+      <div id="groups-header">
+        <div className="sw-flex sw-justify-between">
+          <Title className="sw-mb-4">{translate('user_groups.page')}</Title>
+          <Button
+            id="groups-create"
+            isDisabled={manageProvider !== undefined}
+            onClick={() => setCreateModal(true)}
+            variety={ButtonVariety.Primary}
+          >
+            {translate('groups.create_group')}
+          </Button>
+        </div>
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleCreateClick = () => {
-    this.setState({ createModal: true });
-  };
-
-  handleClose = () => {
-    if (this.mounted) {
-      this.setState({ createModal: false });
-    }
-  };
-
-  handleSubmit = (data: { name: string; description: string }) => {
-    return this.props.onCreate(data);
-  };
-
-  render() {
-    return (
-      <>
-        <header className="page-header" id="groups-header">
-          <h1 className="page-title">{translate('user_groups.page')}</h1>
-
-          <div className="page-actions">
-            <Button id="groups-create" onClick={this.handleCreateClick}>
-              {translate('groups.create_group')}
-            </Button>
+        {manageProvider === undefined ? (
+          <p className="sw-mb-4">{translate('user_groups.page.description')}</p>
+        ) : (
+          <div className="sw-max-w-3/4 sw-mb-4">
+            <FormattedMessage
+              defaultMessage={translate('user_groups.page.managed_description')}
+              id="user_groups.page.managed_description"
+              values={{
+                provider: translate(`managed.${manageProvider}`),
+              }}
+            />
+            <div className="sw-mt-2">
+              <FormattedMessage
+                defaultMessage={translate('user_groups.page.managed_description.recommendation')}
+                id="user_groups.page.managed_description.recommendation"
+                values={{
+                  link: (
+                    <DocumentationLink to={DocLink.AuthOverview}>
+                      {translate('user_groups.page.managing_groups')}
+                    </DocumentationLink>
+                  ),
+                }}
+              />
+            </div>
           </div>
-
-          <p className="page-description">{translate('user_groups.page.description')}</p>
-        </header>
-        {this.state.createModal && (
-          <Form
-            confirmButtonText={translate('create')}
-            header={translate('groups.create_group')}
-            onClose={this.handleClose}
-            onSubmit={this.handleSubmit}
-          />
         )}
-      </>
-    );
-  }
+      </div>
+      {createModal && <GroupForm onClose={() => setCreateModal(false)} create />}
+    </>
+  );
 }

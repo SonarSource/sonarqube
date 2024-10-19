@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 
 public class AlmSettingsTesting {
 
@@ -78,19 +78,27 @@ public class AlmSettingsTesting {
   }
 
   public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project) {
+    return newGithubProjectAlmSettingDto(githubAlmSetting, project, false);
+  }
+
+  public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project, boolean monorepo) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
       .setAlmRepo(randomAlphanumeric(256))
       .setSummaryCommentEnabled(true)
-      .setMonorepo(false);
+      .setMonorepo(monorepo);
   }
 
   public static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
+    return newGitlabProjectAlmSettingDto(gitlabAlmSetting, project, false);
+  }
+
+  public static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project, boolean monorepo) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(gitlabAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
-      .setMonorepo(false);
+      .setMonorepo(monorepo);
   }
 
   static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ProjectDto project) {

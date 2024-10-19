@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,10 @@
  */
 package org.sonar.server.measure.index;
 
+import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
@@ -33,8 +35,6 @@ import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GR
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
-
-import javax.inject.Inject;
 
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
@@ -51,6 +51,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_NAME = "name";
   public static final String FIELD_QUALIFIER = "qualifier";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
+  public static final String FIELD_CREATED_AT = "createdAt";
   public static final String FIELD_QUALITY_GATE_STATUS = "qualityGateStatus";
   public static final String FIELD_TAGS = "tags";
   public static final String FIELD_MEASURES = "measures";
@@ -65,6 +66,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_NCLOC_DISTRIBUTION_LANGUAGE = FIELD_NCLOC_DISTRIBUTION + "." + SUB_FIELD_DISTRIB_LANGUAGE;
   public static final String FIELD_NCLOC_DISTRIBUTION_NCLOC = FIELD_NCLOC_DISTRIBUTION + "." + SUB_FIELD_DISTRIB_NCLOC;
 
+  private static final String METRICS_CUSTOM_METADATA_KEY = "metrics";
   private final Configuration config;
   private final boolean enableSource;
 
@@ -94,7 +96,8 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
         .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
         .setDefaultNbOfShards(5)
         .build())
-      .setEnableSource(enableSource);
+      .setEnableSource(enableSource)
+      .addCustomHashMetadata(METRICS_CUSTOM_METADATA_KEY, String.join(",", ProjectMeasuresIndexerIterator.METRIC_KEYS));
 
     TypeMapping mapping = index.createTypeMapping(TYPE_PROJECT_MEASURES);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
@@ -114,5 +117,6 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
       .addIntegerField(SUB_FIELD_DISTRIB_NCLOC)
       .build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
+    mapping.createDateTimeField(FIELD_CREATED_AT);
   }
 }

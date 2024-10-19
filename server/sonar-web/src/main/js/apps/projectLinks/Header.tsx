@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Title } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 import CreationModal from './CreationModal';
 
@@ -55,14 +56,18 @@ export default class Header extends React.PureComponent<Props, State> {
   render() {
     return (
       <>
-        <header className="page-header">
-          <h1 className="page-title">{translate('project_links.page')}</h1>
-          <div className="page-actions">
-            <Button id="create-project-link" onClick={this.handleCreateClick}>
+        <header className="sw-mt-8 sw-mb-4">
+          <div className="sw-flex sw-justify-between">
+            <Title className="sw-mb-4">{translate('project_links.page')}</Title>
+            <Button
+              id="create-project-link"
+              onClick={this.handleCreateClick}
+              variety={ButtonVariety.Primary}
+            >
               {translate('create')}
             </Button>
           </div>
-          <div className="page-description">{translate('project_links.page.description')}</div>
+          <p>{translate('project_links.page.description')}</p>
         </header>
         {this.state.creationModal && (
           <CreationModal onClose={this.handleCreationModalClose} onSubmit={this.props.onCreate} />

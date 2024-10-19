@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -40,6 +41,7 @@ import org.sonarqube.ws.NewCodePeriods;
 
 import static java.lang.String.format;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
@@ -51,19 +53,22 @@ public class ShowAction implements NewCodePeriodsWsAction {
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final NewCodePeriodDao newCodePeriodDao;
+  private final String newCodeDefinitionDocumentationUrl;
 
-  public ShowAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
+  public ShowAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao,
+    DocumentationLinkGenerator documentationLinkGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.newCodePeriodDao = newCodePeriodDao;
+    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/");
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("show")
-      .setDescription("Shows a setting for the New Code Period.<br> "
-        + "If the component requested doesn't exist or if no new code period is set for it, a value is inherited from the project or from the global setting." +
+      .setDescription("Shows the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") + ".<br> " +
+        "If the component requested doesn't exist or if no new code definition is set for it, a value is inherited from the project or from the global setting." +
         "Requires one of the following permissions if a component is specified: " +
         "<ul>" +
         "<li>'Administer' rights on the specified component</li>" +
@@ -122,8 +127,8 @@ public class ShowAction implements NewCodePeriodsWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    if (userSession.hasProjectPermission(UserRole.SCAN, project) ||
-      userSession.hasProjectPermission(UserRole.ADMIN, project) ||
+    if (userSession.hasEntityPermission(UserRole.SCAN, project) ||
+      userSession.hasEntityPermission(UserRole.ADMIN, project) ||
       userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       return;
     }
@@ -150,10 +155,14 @@ public class ShowAction implements NewCodePeriodsWsAction {
   private static ShowWSResponse.Builder build(NewCodePeriodDto dto, boolean inherited) {
     ShowWSResponse.Builder builder = ShowWSResponse.newBuilder()
       .setType(convertType(dto.getType()))
+      .setUpdatedAt(dto.getUpdatedAt())
       .setInherited(inherited);
 
     if (dto.getValue() != null) {
       builder.setValue(dto.getValue());
+    }
+    if (dto.getPreviousNonCompliantValue() != null) {
+      builder.setPreviousNonCompliantValue(dto.getPreviousNonCompliantValue());
     }
     return builder;
   }

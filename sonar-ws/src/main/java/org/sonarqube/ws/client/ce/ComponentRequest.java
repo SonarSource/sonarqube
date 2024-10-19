@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,16 +43,6 @@ public class ComponentRequest {
 
   public String getComponent() {
     return component;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ComponentRequest setComponentId(String componentId) {
-    this.componentId = componentId;
-    return this;
   }
 
   public String getComponentId() {

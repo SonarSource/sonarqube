@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,16 @@
  */
 package org.sonar.db.alm.setting;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.project.ProjectDto;
@@ -44,7 +47,7 @@ public class ProjectAlmSettingDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key, String projectName, String projectKey) {
+  public ProjectAlmSettingDto insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key, String projectName, String projectKey) {
     String uuid = uuidFactory.create();
     long now = system2.now();
     ProjectAlmSettingMapper mapper = getMapper(dbSession);
@@ -64,6 +67,8 @@ public class ProjectAlmSettingDao implements Dao {
     } else {
       auditPersister.addDevOpsPlatformSetting(dbSession, value);
     }
+
+    return projectAlmSettingDto;
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto project) {
@@ -80,6 +85,18 @@ public class ProjectAlmSettingDao implements Dao {
 
   public int countByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
     return getMapper(dbSession).countByAlmSettingUuid(almSetting.getUuid());
+  }
+
+  public int countProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query) {
+    return getMapper(dbSession).countByQuery(query);
+  }
+
+  public List<ProjectAlmSettingDto> selectProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query, int page, int pageSize) {
+    return getMapper(dbSession).selectByQuery(query, Pagination.forPage(page).andSize(pageSize));
+  }
+
+  public Optional<ProjectAlmSettingDto> selectByUuid(DbSession dbSession, String uuid) {
+    return Optional.ofNullable(getMapper(dbSession).selectByUuid(uuid));
   }
 
   public Optional<ProjectAlmSettingDto> selectByProject(DbSession dbSession, ProjectDto project) {
@@ -100,6 +117,17 @@ public class ProjectAlmSettingDao implements Dao {
 
   public List<ProjectAlmSettingDto> selectByAlmSettingAndRepos(DbSession dbSession, AlmSettingDto almSettingDto, Set<String> almRepos) {
     return executeLargeInputs(almRepos, repos -> getMapper(dbSession).selectByAlmSettingAndRepos(almSettingDto.getUuid(), repos));
+  }
+
+  public List<ProjectAlmSettingDto> selectByAlm(DbSession dbSession, ALM alm) {
+    return getMapper(dbSession).selectByAlm(alm.getId().toLowerCase(Locale.ROOT));
+  }
+
+  public List<ProjectAlmSettingDto> selectByProjectUuidsAndAlm(DbSession dbSession, Set<String> projectUuids, ALM alm) {
+    if (projectUuids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return getMapper(dbSession).selectByProjectUuidsAndAlm(projectUuids, alm.getId().toLowerCase(Locale.ROOT));
   }
 
   public List<ProjectAlmKeyAndProject> selectAlmTypeAndUrlByProject(DbSession dbSession) {

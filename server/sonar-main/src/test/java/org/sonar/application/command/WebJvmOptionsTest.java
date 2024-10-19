@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,8 +54,7 @@ public class WebJvmOptionsTest {
       "--add-opens=java.base/java.nio=ALL-UNNAMED",
       "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
       "--add-opens=java.management/sun.management=ALL-UNNAMED",
-      "--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED",
-      "-Dcom.redhat.fips=false");
+      "--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED");
   }
 
 }

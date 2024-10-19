@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
@@ -54,7 +54,7 @@ public class MigrationHistoryTableImpl implements MigrationHistoryTable {
       .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder().setColumnName(VERSION_COLUMN_NAME).setIsNullable(false).setLimit(255).build())
       .build();
 
-    Loggers.get(MigrationHistoryTableImpl.class).info("Creating table " + NAME);
+    LoggerFactory.getLogger(MigrationHistoryTableImpl.class).info("Creating table " + NAME);
     for (String sql : sqls) {
       execute(connection, sql);
     }

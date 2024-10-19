@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,13 +22,12 @@ package org.sonar.server.authentication;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -41,8 +40,8 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class ResetPasswordFilterTest {
 
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
-  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final HttpRequest request = mock(HttpRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
   private final FilterChain chain = mock(FilterChain.class);
   private final ThreadLocalUserSession session = mock(ThreadLocalUserSession.class);
 
@@ -62,7 +61,7 @@ public class ResetPasswordFilterTest {
 
   @Test
   public void verify_other_methods() {
-    underTest.init(mock(FilterConfig.class));
+    underTest.init();
     underTest.destroy();
 
     verifyNoInteractions(request, response, chain, session);

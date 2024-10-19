@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,9 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.issue.ImpactDto;
 
 public class RuleForIndexingDto {
 
@@ -48,12 +50,16 @@ public class RuleForIndexingDto {
   private String organizationUuid;
   private String language;
   private boolean isExternal;
-
+  private boolean isAdHoc;
+  private Integer adHocType;
   private int type;
 
   private long createdAt;
   private long updatedAt;
   private Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos = new HashSet<>();
+
+  private String cleanCodeAttributeCategory;
+  private Set<ImpactDto> impacts = new HashSet<>();
 
   @VisibleForTesting
   public RuleForIndexingDto() {
@@ -77,6 +83,8 @@ public class RuleForIndexingDto {
     ruleForIndexingDto.internalKey = r.getConfigKey();
     ruleForIndexingDto.language = r.getLanguage();
     ruleForIndexingDto.isExternal = r.isExternal();
+    ruleForIndexingDto.isAdHoc = r.isAdHoc();
+    ruleForIndexingDto.adHocType = r.getAdHocType();
     ruleForIndexingDto.type = r.getType();
     ruleForIndexingDto.createdAt = r.getCreatedAt();
     ruleForIndexingDto.updatedAt = r.getUpdatedAt();
@@ -84,6 +92,13 @@ public class RuleForIndexingDto {
     if (r.getRuleDescriptionSectionDtos() != null) {
       ruleForIndexingDto.setRuleDescriptionSectionsDtos(Sets.newHashSet(r.getRuleDescriptionSectionDtos()));
     }
+
+    CleanCodeAttribute cleanCodeAttribute = r.getCleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      ruleForIndexingDto.cleanCodeAttributeCategory = cleanCodeAttribute.getAttributeCategory().name();
+    }
+    ruleForIndexingDto.setImpacts(r.getDefaultImpacts());
+
     return ruleForIndexingDto;
   }
 
@@ -169,6 +184,14 @@ public class RuleForIndexingDto {
     return isExternal;
   }
 
+  public boolean isAdHoc() {
+    return isAdHoc;
+  }
+
+  public Integer getAdHocType() {
+    return adHocType;
+  }
+
   public long getCreatedAt() {
     return createdAt;
   }
@@ -208,5 +231,22 @@ public class RuleForIndexingDto {
 
   public void setType(int type) {
     this.type = type;
+  }
+
+  @CheckForNull
+  public String getCleanCodeAttributeCategory() {
+    return cleanCodeAttributeCategory;
+  }
+
+  public void setCleanCodeAttributeCategory(String cleanCodeAttributeCategory) {
+    this.cleanCodeAttributeCategory = cleanCodeAttributeCategory;
+  }
+
+  public Set<ImpactDto> getImpacts() {
+    return impacts;
+  }
+
+  public void setImpacts(Set<ImpactDto> impacts) {
+    this.impacts = impacts;
   }
 }

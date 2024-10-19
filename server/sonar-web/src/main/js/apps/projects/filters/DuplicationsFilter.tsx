@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DuplicationsIndicator } from 'design-system';
 import * as React from 'react';
-import DuplicationsRating from '../../../components/ui/DuplicationsRating';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import {
-  getDuplicationsRatingAverageValue,
-  getDuplicationsRatingLabel,
-} from '../../../helpers/ratings';
-import { RawQuery } from '../../../types/types';
+import { duplicationValueToRating, getDuplicationsRatingLabel } from '../../../helpers/ratings';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
+import RangeFacetBase from './RangeFacetBase';
 
 export interface Props {
-  className?: string;
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
@@ -41,22 +36,21 @@ export interface Props {
 const NO_DATA_OPTION = 6;
 
 export default function DuplicationsFilter(props: Props) {
-  const { property = 'duplications' } = props;
+  const { facet, maxFacetValue, property = 'duplications', value } = props;
   return (
-    <Filter
-      className={props.className}
-      facet={props.facet}
+    <RangeFacetBase
+      facet={facet}
       getFacetValueForOption={getFacetValueForOption}
-      header={<FilterHeader name={translate('metric_domain.Duplications')} />}
+      header={translate('metric_domain.Duplications')}
       highlightUnder={1}
       highlightUnderMax={5}
-      maxFacetValue={props.maxFacetValue}
+      maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5, 6]}
       property={property}
       renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
-      value={props.value}
+      value={value}
     />
   );
 }
@@ -71,25 +65,22 @@ function renderAccessibleLabel(option: number) {
     ? translate('projects.facets.duplication.label', option.toString())
     : translateWithParameters(
         'projects.facets.label_no_data_x',
-        translate('metric_domain.Duplications')
+        translate('metric_domain.Duplications'),
       );
 }
 
-function renderOption(option: number, selected: boolean) {
+function renderOption(option: number) {
   return (
-    <div className="display-flex-center">
+    <div className="sw-flex sw-items-center">
       {option < NO_DATA_OPTION && (
-        <DuplicationsRating
-          muted={!selected}
-          size="small"
-          value={getDuplicationsRatingAverageValue(option)}
-        />
+        /* Adjust option to skip the 0 */
+        <DuplicationsIndicator size="xs" rating={duplicationValueToRating(option + 1)} />
       )}
-      <span className="spacer-left">
+      <span className="sw-ml-2">
         {option < NO_DATA_OPTION ? (
           getDuplicationsRatingLabel(option)
         ) : (
-          <span className="big-spacer-left">{translate('no_data')}</span>
+          <span className="sw-ml-4">{translate('no_data')}</span>
         )}
       </span>
     </div>

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { IconProject, Spinner } from '@sonarsource/echoes-react';
 import { omit } from 'lodash';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getTree, searchProjects } from '../../../api/components';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { ComponentQualifier } from '../../../types/component';
+import { useProjectQuery } from '../../../queries/projects';
 import { Facet, ReferencedComponent } from '../../../types/issues';
 import { Component, Dict, Organization, Paging } from '../../../types/types';
 import { Query } from '../utils';
+import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
-  component: Component | undefined;
   organization?: Organization;
-  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
+  component: Component | undefined;
   fetching: boolean;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -48,12 +51,24 @@ interface SearchedProject {
   name: string;
 }
 
-export default class ProjectFacet extends React.PureComponent<Props> {
-  handleSearch = (
+export function ProjectFacet(props: Readonly<Props>) {
+  const {
+    organization,
+    component,
+    fetching,
+    onChange,
+    onToggle,
+    open,
+    projects,
+    query,
+    referencedComponents,
+    stats,
+  } = props;
+
+  const handleSearch = (
     query: string,
-    page = 1
-  ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
-    const { component, organization } = this.props;
+    page = 1,
+  ): Promise<{ paging: Paging; results: SearchedProject[] }> => {
     if (
       component &&
       [
@@ -78,10 +93,10 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     }
 
     return searchProjects({
+      organization: organization?.kee,
       p: page,
       ps: 30,
       filter: query ? `query = "${query}"` : '',
-      organization: organization && organization.kee,
     }).then(({ components, paging }) => ({
       paging,
       results: components.map((component) => ({
@@ -91,54 +106,80 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     }));
   };
 
-  getProjectName = (project: string) => {
-    const { referencedComponents } = this.props;
+  const getProjectName = (project: string) => {
     return referencedComponents[project] ? referencedComponents[project].name : project;
   };
 
-  loadSearchResultCount = (projects: SearchedProject[]) => {
-    return this.props.loadSearchResultCount('projects', {
+  const loadSearchResultCount = (projects: SearchedProject[]) => {
+    return props.loadSearchResultCount(MetricKey.projects, {
       projects: projects.map((project) => project.key),
     });
   };
 
-  renderFacetItem = (projectKey: string) => {
+  const renderFacetItem = (projectKey: string) => {
+    const projectName = getProjectName(projectKey);
     return (
-      <span>
-        <QualifierIcon className="little-spacer-right" qualifier={ComponentQualifier.Project} />
-        {this.getProjectName(projectKey)}
-      </span>
+      <ProjectItem
+        projectKey={projectKey}
+        projectName={projectName === projectKey ? undefined : projectName}
+      />
     );
   };
 
-  renderSearchResult = (project: Pick<SearchedProject, 'name'>, term: string) => (
+  const renderSearchResult = (project: Pick<SearchedProject, 'name'>, term: string) => (
     <>
-      <QualifierIcon className="little-spacer-right" qualifier={ComponentQualifier.Project} />
+      <IconProject className="sw-mr-1" />
+
       {highlightTerm(project.name, term)}
     </>
   );
 
-  render() {
-    return (
-      <ListStyleFacet<SearchedProject>
-        facetHeader={translate('issues.facet.projects')}
-        fetching={this.props.fetching}
-        getFacetItemText={this.getProjectName}
-        getSearchResultKey={(project) => project.key}
-        getSearchResultText={(project) => project.name}
-        loadSearchResultCount={this.loadSearchResultCount}
-        onChange={this.props.onChange}
-        onSearch={this.handleSearch}
-        onToggle={this.props.onToggle}
-        open={this.props.open}
-        property="projects"
-        query={omit(this.props.query, 'projects')}
-        renderFacetItem={this.renderFacetItem}
-        renderSearchResult={this.renderSearchResult}
-        searchPlaceholder={translate('search.search_for_projects')}
-        stats={this.props.stats}
-        values={this.props.projects}
-      />
-    );
-  }
+  return (
+    <ListStyleFacet<SearchedProject>
+      facetHeader={translate('issues.facet.projects')}
+      fetching={fetching}
+      getFacetItemText={getProjectName}
+      getSearchResultKey={(project) => project.key}
+      getSearchResultText={(project) => project.name}
+      loadSearchResultCount={loadSearchResultCount}
+      onChange={onChange}
+      onSearch={handleSearch}
+      onToggle={onToggle}
+      open={open}
+      property={MetricKey.projects}
+      query={omit(query, MetricKey.projects)}
+      renderFacetItem={renderFacetItem}
+      renderSearchResult={renderSearchResult}
+      searchPlaceholder={translate('search.search_for_projects')}
+      stats={stats}
+      values={projects}
+    />
+  );
+}
+
+function ProjectItem({
+  projectKey,
+  projectName,
+}: Readonly<{
+  projectKey: string;
+  projectName?: string;
+}>) {
+  const { data, isLoading } = useProjectQuery(projectKey, {
+    enabled: projectName === undefined,
+    select: (data) => data.components.find((el) => el.key === projectKey),
+  });
+
+  const label = projectName ?? (isLoading ? '' : (data?.name ?? projectKey));
+
+  return (
+    <div className="sw-flex sw-items-center">
+      <IconProject className="sw-mr-1" />
+
+      <Spinner isLoading={projectName === undefined && isLoading} />
+
+      <span className="sw-min-w-0 sw-truncate" title={label}>
+        {label}
+      </span>
+    </div>
+  );
 }

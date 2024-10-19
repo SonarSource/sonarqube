@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import {
-  countBindedProjects,
+  countBoundProjects,
   deleteConfiguration,
   getAlmDefinitions,
   validateAlmSettings,
@@ -27,7 +30,6 @@ import {
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import { Location, Router, withRouter } from '../../../../components/hoc/withRouter';
 import {
   AlmBindingDefinitionBase,
   AlmKeys,
@@ -50,8 +52,8 @@ export type AlmTabs = AlmKeys.Azure | AlmKeys.GitHub | AlmKeys.GitLab | AlmKeys.
 interface State {
   currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
-  definitions: AlmSettingsBindingDefinitions;
   definitionStatus: Dict<AlmSettingsBindingStatus>;
+  definitions: AlmSettingsBindingDefinitions;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   projectCount?: number;
@@ -96,8 +98,8 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
           AlmKeys.GitHub,
           AlmKeys.GitLab,
         ].forEach((alm) => {
-          this.state.definitions[alm].forEach((def: AlmBindingDefinitionBase) =>
-            this.handleCheck(def.key, false)
+          definitions[alm].forEach((def: AlmBindingDefinitionBase) =>
+            this.handleCheck(def.key, false),
           );
         });
       }
@@ -115,33 +117,34 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleConfirmDelete = (definitionKey: string) => {
-    return deleteConfiguration(definitionKey)
-      .then(() => {
-        if (this.mounted) {
-          this.setState({ definitionKeyForDeletion: undefined, projectCount: undefined });
-        }
-      })
-      .then(this.fetchPullRequestDecorationSetting);
+  handleConfirmDelete = async (definitionKey: string) => {
+    try {
+      await deleteConfiguration(definitionKey);
+      await this.fetchPullRequestDecorationSetting();
+    } finally {
+      if (this.mounted) {
+        this.setState({ definitionKeyForDeletion: undefined, projectCount: undefined });
+      }
+    }
   };
 
-  fetchPullRequestDecorationSetting = () => {
+  fetchPullRequestDecorationSetting = async () => {
     this.setState({ loadingAlmDefinitions: true });
-    return getAlmDefinitions()
-      .then((definitions) => {
-        if (this.mounted) {
-          this.setState({
-            definitions,
-            loadingAlmDefinitions: false,
-          });
-          return definitions;
-        }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ loadingAlmDefinitions: false });
-        }
-      });
+    try {
+      const definitions = await getAlmDefinitions();
+
+      if (this.mounted) {
+        this.setState({
+          definitions,
+          loadingAlmDefinitions: false,
+        });
+      }
+      return definitions;
+    } catch {
+      if (this.mounted) {
+        this.setState({ loadingAlmDefinitions: false });
+      }
+    }
   };
 
   handleSelectAlm = (currentAlmTab: AlmTabs) => {
@@ -158,7 +161,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
   handleDelete = (definitionKey: string) => {
     this.setState({ loadingProjectCount: true });
-    return countBindedProjects(definitionKey)
+    return countBoundProjects(definitionKey)
       .then((projectCount) => {
         if (this.mounted) {
           this.setState({
@@ -175,7 +178,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       });
   };
 
-  handleCheck = async (definitionKey: string, alertSuccess = true) => {
+  handleCheck = (definitionKey: string, alertSuccess = true) => {
     this.setState(({ definitionStatus }) => {
       definitionStatus[definitionKey] = {
         ...definitionStatus[definitionKey],
@@ -185,33 +188,34 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       return { definitionStatus: { ...definitionStatus } };
     });
 
-    let type: AlmSettingsBindingStatusType;
-    let failureMessage = '';
+    validateAlmSettings(definitionKey)
+      .then(
+        (failureMessage) => {
+          const type = failureMessage
+            ? AlmSettingsBindingStatusType.Failure
+            : AlmSettingsBindingStatusType.Success;
 
-    try {
-      failureMessage = await validateAlmSettings(definitionKey);
-      type = failureMessage
-        ? AlmSettingsBindingStatusType.Failure
-        : AlmSettingsBindingStatusType.Success;
-    } catch (_) {
-      type = AlmSettingsBindingStatusType.Warning;
-    }
+          return { type, failureMessage };
+        },
+        () => ({ type: AlmSettingsBindingStatusType.Warning, failureMessage: '' }),
+      )
+      .then(({ type, failureMessage }) => {
+        if (this.mounted) {
+          this.setState(({ definitionStatus }) => {
+            definitionStatus[definitionKey] = {
+              alertSuccess,
+              failureMessage,
+              type,
+            };
 
-    if (this.mounted) {
-      this.setState(({ definitionStatus }) => {
-        definitionStatus[definitionKey] = {
-          alertSuccess,
-          failureMessage,
-          type,
-        };
-
-        return { definitionStatus: { ...definitionStatus } };
-      });
-    }
+            return { definitionStatus: { ...definitionStatus } };
+          });
+        }
+      })
+      .catch(noop);
   };
 
   render() {
-    const { hasFeature } = this.props;
     const {
       currentAlmTab,
       definitionKeyForDeletion,
@@ -225,7 +229,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     return (
       <AlmIntegrationRenderer
         branchesEnabled={this.props.hasFeature(Feature.BranchSupport)}
-        multipleAlmEnabled={hasFeature(Feature.MultipleAlm)}
+        multipleAlmEnabled={this.props.hasFeature(Feature.MultipleAlm)}
         onCancelDelete={this.handleCancelDelete}
         onConfirmDelete={this.handleConfirmDelete}
         onCheckConfiguration={this.handleCheck}

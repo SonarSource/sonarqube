@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,52 +17,65 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { InputField, Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
+import { useChangeEventMutation } from '../../../../queries/project-analyses';
 import { AnalysisEvent } from '../../../../types/project-activity';
 
 interface Props {
-  changeEvent: (event: string, name: string) => Promise<void>;
   event: AnalysisEvent;
   header: string;
   onClose: () => void;
 }
 
-interface State {
-  name: string;
-}
+export default function ChangeEventForm(props: Readonly<Props>) {
+  const { event, header, onClose } = props;
+  const [name, setName] = React.useState(event.name);
 
-export default class ChangeEventForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { name: props.event.name };
-  }
+  const { mutate: changeEvent } = useChangeEventMutation(onClose);
 
-  changeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.target.value });
+  const changeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
   };
 
-  handleSubmit = () => {
-    return this.props.changeEvent(this.props.event.key, this.state.name);
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    changeEvent({ event: event.key, name });
   };
 
-  render() {
-    const { name } = this.state;
-    return (
-      <ConfirmModal
-        confirmButtonText={translate('change_verb')}
-        confirmDisable={!name || name === this.props.event.name}
-        header={this.props.header}
-        onClose={this.props.onClose}
-        onConfirm={this.handleSubmit}
-        size="small"
-      >
-        <div className="modal-field">
+  return (
+    <Modal
+      headerTitle={header}
+      onClose={onClose}
+      body={
+        <form id="change-event-form">
           <label htmlFor="name">{translate('name')}</label>
-          <input id="name" autoFocus={true} onChange={this.changeInput} type="text" value={name} />
-        </div>
-      </ConfirmModal>
-    );
-  }
+          <InputField
+            id="name"
+            className="sw-my-2"
+            autoFocus
+            onChange={changeInput}
+            type="text"
+            value={name}
+            size="full"
+          />
+        </form>
+      }
+      primaryButton={
+        <Button
+          id="change-event-submit"
+          form="change-event-form"
+          type="submit"
+          isDisabled={name === '' || name === event.name}
+          onClick={handleSubmit}
+          variety={ButtonVariety.Primary}
+        >
+          {translate('change_verb')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }

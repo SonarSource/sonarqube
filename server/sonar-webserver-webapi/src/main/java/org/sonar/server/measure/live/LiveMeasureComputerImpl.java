@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,10 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -40,8 +42,7 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
@@ -51,7 +52,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.groupingBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
@@ -60,11 +60,11 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   private final ComponentIndexFactory componentIndexFactory;
   private final LiveQualityGateComputer qGateComputer;
   private final ProjectConfigurationLoader projectConfigurationLoader;
-  private final ProjectIndexers projectIndexer;
+  private final Indexers projectIndexer;
   private final LiveMeasureTreeUpdater treeUpdater;
 
   public LiveMeasureComputerImpl(DbClient dbClient, MeasureUpdateFormulaFactory formulaFactory, ComponentIndexFactory componentIndexFactory,
-    LiveQualityGateComputer qGateComputer, ProjectConfigurationLoader projectConfigurationLoader, ProjectIndexers projectIndexer, LiveMeasureTreeUpdater treeUpdater) {
+    LiveQualityGateComputer qGateComputer, ProjectConfigurationLoader projectConfigurationLoader, Indexers projectIndexer, LiveMeasureTreeUpdater treeUpdater) {
     this.dbClient = dbClient;
     this.formulaFactory = formulaFactory;
     this.componentIndexFactory = componentIndexFactory;
@@ -99,8 +99,8 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     }
 
     BranchDto branch = loadBranch(dbSession, branchComponent);
-    Configuration config = projectConfigurationLoader.loadProjectConfiguration(dbSession, branchComponent);
     ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
+    Configuration config = projectConfigurationLoader.loadBranchConfiguration(dbSession, branch);
     QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, organization, project, branch);
     MeasureMatrix matrix = loadMeasureMatrix(dbSession, components.getAllUuids(), qualityGate);
 
@@ -108,7 +108,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
     Metric.Level previousStatus = loadPreviousStatus(dbSession, branchComponent);
     EvaluatedQualityGate evaluatedQualityGate = qGateComputer.refreshGateStatus(branchComponent, qualityGate, matrix, config);
-    persistAndIndex(dbSession, matrix, branchComponent);
+    persistAndIndex(dbSession, matrix, branch);
 
     return Optional.of(new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
   }
@@ -121,15 +121,15 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
   private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, QualityGate qualityGate) {
     Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
-    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(uniqueIndex(MetricDto::getUuid));
+    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
     List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, componentUuids, metricsPerUuid.keySet());
     return new MeasureMatrix(componentUuids, metricsPerUuid.values(), measures);
   }
 
-  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, ComponentDto branchComponent) {
+  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, BranchDto branch) {
     // persist the measures that have been created or updated
     matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE).forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
-    projectIndexer.commitAndIndexComponents(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
+    projectIndexer.commitAndIndexBranches(dbSession, singleton(branch), Indexers.BranchEvent.MEASURE_CHANGE);
   }
 
   @CheckForNull
@@ -142,7 +142,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     try {
       return Metric.Level.valueOf(measure.get().getTextValue());
     } catch (IllegalArgumentException e) {
-      Loggers.get(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
+      LoggerFactory.getLogger(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
       return null;
     }
   }

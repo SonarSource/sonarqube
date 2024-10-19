@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,9 @@
  */
 package org.sonar.db.permission;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public enum GlobalPermission {
 
   ADMINISTER("admin"),
@@ -33,6 +36,8 @@ public enum GlobalPermission {
    */
   APPLICATION_CREATOR("applicationcreator"),
   PORTFOLIO_CREATOR("portfoliocreator");
+
+  public static final String ALL_ON_ONE_LINE = Arrays.stream(values()).map(GlobalPermission::getKey).collect(Collectors.joining(", "));
 
   private final String key;
 
@@ -56,5 +61,9 @@ public enum GlobalPermission {
       }
     }
     throw new IllegalArgumentException("Unsupported permission: " + key);
+  }
+
+  public static boolean contains(String key) {
+    return Arrays.stream(values()).anyMatch(v -> v.getKey().equals(key));
   }
 }

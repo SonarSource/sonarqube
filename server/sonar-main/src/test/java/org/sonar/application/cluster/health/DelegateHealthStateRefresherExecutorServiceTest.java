@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 
@@ -40,7 +39,7 @@ public class DelegateHealthStateRefresherExecutorServiceTest {
   private Callable callable = mock(Callable.class);
   private Collection<Callable<Object>> callables = IntStream.range(0, random.nextInt(5))
     .mapToObj(i -> (Callable<Object>) mock(Callable.class))
-    .collect(Collectors.toList());
+    .toList();
   private int initialDelay = random.nextInt(333);
   private int delay = random.nextInt(333);
   private int period = random.nextInt(333);

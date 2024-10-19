@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -45,8 +45,8 @@ class OrPredicate extends AbstractFilePredicate implements OperatorPredicate {
         return TruePredicate.TRUE;
       } else if (filePredicate == FalsePredicate.FALSE) {
         continue;
-      } else if (filePredicate instanceof OrPredicate) {
-        result.predicates.addAll(((OrPredicate) filePredicate).predicates);
+      } else if (filePredicate instanceof OrPredicate orPredicate) {
+        result.predicates.addAll(orPredicate.predicates);
       } else {
         result.predicates.add(filePredicate);
       }

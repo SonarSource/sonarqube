@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
 package org.sonar.ce.task.projectanalysis.purge;
 
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
@@ -39,7 +39,7 @@ import static org.sonar.db.purge.PurgeConfiguration.newDefaultPurgeConfiguration
 @ServerSide
 @ComputeEngineSide
 public class ProjectCleaner {
-  private static final Logger LOG = Loggers.get(ProjectCleaner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectCleaner.class);
 
   private final PurgeProfiler profiler;
   private final PurgeListener purgeListener;
@@ -71,9 +71,11 @@ public class ProjectCleaner {
     if (config.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY).orElse(false)) {
       long duration = System.currentTimeMillis() - start;
       LOG.info("");
-      LOG.info(" -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------");
+      LOG.atInfo().setMessage(" -------- Profiling for purge: {} --------").addArgument(() -> TimeUtils.formatDuration(duration)).log();
       LOG.info("");
-      profiler.dump(duration, LOG);
+      for (String line : profiler.getProfilingResult(duration)) {
+        LOG.info(line);
+      }
       LOG.info("");
       LOG.info(" -------- End of profiling for purge --------");
       LOG.info("");

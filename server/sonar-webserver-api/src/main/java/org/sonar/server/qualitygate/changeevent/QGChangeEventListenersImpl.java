@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,14 +24,14 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.lang.String.format;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Broadcast a given collection of {@link QGChangeEvent} for a specific trigger to all the registered
@@ -41,7 +41,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
  * prevent from calling the others.
  */
 public class QGChangeEventListenersImpl implements QGChangeEventListeners {
-  private static final Logger LOG = Loggers.get(QGChangeEventListenersImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(QGChangeEventListenersImpl.class);
 
   private final Set<QGChangeEventListener> listeners;
 
@@ -81,7 +81,7 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
   private static ImmutableSet<ChangedIssue> toChangedIssues(Collection<DefaultIssue> defaultIssues, boolean fromAlm) {
     return defaultIssues.stream()
       .map(defaultIssue -> new ChangedIssueImpl(defaultIssue, fromAlm))
-      .collect(toSet());
+      .collect(toImmutableSet());
   }
 
   private void broadcastChangeEventToListeners(Set<ChangedIssue> changedIssues, QGChangeEvent changeEvent) {

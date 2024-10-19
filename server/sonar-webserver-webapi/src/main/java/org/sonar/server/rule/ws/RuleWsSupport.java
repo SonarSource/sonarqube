@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
@@ -40,11 +44,13 @@ import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
@@ -53,14 +59,18 @@ import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOption
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
@@ -96,8 +106,8 @@ public class RuleWsSupport {
   }
 
   Map<String, UserDto> getUsersByUuid(DbSession dbSession, List<RuleDto> rules) {
-    Set<String> userUuids = rules.stream().map(RuleDto::getNoteUserUuid).filter(Objects::nonNull).collect(toSet());
-    return dbClient.userDao().selectByUuids(dbSession, userUuids).stream().collect(uniqueIndex(UserDto::getUuid));
+    Set<String> userUuids = rules.stream().map(RuleDto::getNoteUserUuid).filter(Objects::nonNull).collect(Collectors.toSet());
+    return dbClient.userDao().selectByUuids(dbSession, userUuids).stream().collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
   }
 
   public static void defineGenericRuleSearchParameters(WebService.NewAction action) {
@@ -121,6 +131,7 @@ public class RuleWsSupport {
       .createParam(PARAM_SEVERITIES)
       .setDescription("Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.")
       .setPossibleValues(Severity.ALL)
+      .setDeprecatedSince("10.2")
       .setExampleValue("CRITICAL,BLOCKER");
 
     action
@@ -139,6 +150,7 @@ public class RuleWsSupport {
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
 
     action.createParam(PARAM_SANS_TOP_25)
+      .setDeprecatedSince("10.0")
       .setDescription("Comma-separated list of SANS Top 25 categories.")
       .setSince("7.3")
       .setPossibleValues(SecurityStandards.CWES_BY_SANS_TOP_25.keySet());
@@ -146,7 +158,7 @@ public class RuleWsSupport {
     action
       .createParam(PARAM_SONARSOURCE_SECURITY)
       .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQCategory.OTHERS.getKey() + "' to select rules not associated" +
-        " with any category")
+                      " with any category")
       .setSince("7.8")
       .setPossibleValues(Arrays.stream(SQCategory.values()).map(SQCategory::getKey).toList())
       .setExampleValue("sql-injection,command-injection,others");
@@ -177,18 +189,37 @@ public class RuleWsSupport {
       .setSince("5.5")
       .setDescription("Comma-separated list of types. Returned rules match any of the tags (OR operator)")
       .setPossibleValues(RuleType.values())
+      .setDeprecatedSince("10.2")
       .setExampleValue(RuleType.BUG);
+
+    action.createParam(PARAM_IMPACT_SOFTWARE_QUALITIES)
+      .setSince("10.2")
+      .setDescription("Comma-separated list of Software Qualities")
+      .setExampleValue(SoftwareQuality.MAINTAINABILITY + "," + SoftwareQuality.RELIABILITY)
+      .setPossibleValues(SoftwareQuality.values());
+
+    action.createParam(PARAM_IMPACT_SEVERITIES)
+      .setSince("10.2")
+      .setDescription("Comma-separated list of Software Quality Severities")
+      .setExampleValue(org.sonar.api.issue.impact.Severity.HIGH + "," + org.sonar.api.issue.impact.Severity.MEDIUM)
+      .setPossibleValues(org.sonar.api.issue.impact.Severity.values());
+
+    action.createParam(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES)
+      .setSince("10.2")
+      .setDescription("Comma-separated list of Clean Code Attribute Categories")
+      .setExampleValue(CleanCodeAttributeCategory.ADAPTABLE + "," + CleanCodeAttributeCategory.INTENTIONAL)
+      .setPossibleValues(CleanCodeAttributeCategory.values());
 
     action
       .createParam(PARAM_ACTIVATION)
       .setDescription("Filter rules that are activated or deactivated on the selected Quality profile. Ignored if " +
-        "the parameter '" + PARAM_QPROFILE + "' is not set.")
+                      "the parameter '" + PARAM_QPROFILE + "' is not set.")
       .setBooleanPossibleValues();
 
     action
       .createParam(PARAM_QPROFILE)
       .setDescription("Quality profile key to filter on. Used only if the parameter '" +
-        PARAM_ACTIVATION + "' is set.")
+                      PARAM_ACTIVATION + "' is set.")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_COMPARE_TO_PROFILE)
@@ -200,17 +231,18 @@ public class RuleWsSupport {
     action
       .createParam(PARAM_INHERITANCE)
       .setDescription("Comma-separated list of values of inheritance for a rule within a quality profile. Used only if the parameter '" +
-        PARAM_ACTIVATION + "' is set.")
+                      PARAM_ACTIVATION + "' is set.")
       .setPossibleValues(ActiveRuleInheritance.NONE.name(),
         ActiveRuleInheritance.INHERITED.name(),
         ActiveRuleInheritance.OVERRIDES.name())
       .setExampleValue(ActiveRuleInheritance.INHERITED.name() + "," +
-        ActiveRuleInheritance.OVERRIDES.name());
+                       ActiveRuleInheritance.OVERRIDES.name());
 
     action
       .createParam(PARAM_ACTIVE_SEVERITIES)
       .setDescription("Comma-separated list of activation severities, i.e the severity of rules in Quality profiles.")
       .setPossibleValues(Severity.ALL)
+      .setDeprecatedSince("10.2")
       .setExampleValue("CRITICAL,BLOCKER");
 
     action
@@ -243,6 +275,14 @@ public class RuleWsSupport {
       .setDefaultValue(false)
       .setBooleanPossibleValues()
       .setSince("7.2");
+  }
+
+  static void definePrioritizedRuleParam(WebService.NewAction action) {
+    action
+      .createParam(PARAM_PRIORITIZED_RULE)
+      .setDescription(format("Filter on prioritized rules. Ignored if the parameter '%s' is not set.", PARAM_QPROFILE))
+      .setBooleanPossibleValues()
+      .setSince("10.6");
   }
 
   boolean areActiveRulesVisible(OrganizationDto organization) {

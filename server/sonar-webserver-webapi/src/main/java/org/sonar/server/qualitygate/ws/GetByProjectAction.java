@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -72,6 +72,7 @@ public class GetByProjectAction implements QualityGatesWsAction {
       .setResponseExample(getClass().getResource("get_by_project-example.json"))
       .setHandler(this)
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("6.6", "The parameter 'projectId' has been removed"),
         new Change("6.6", "The parameter 'projectKey' has been renamed to 'project'"),
@@ -93,8 +94,8 @@ public class GetByProjectAction implements QualityGatesWsAction {
       // As ComponentFinder doesn't handle organization yet, we only check here that the project belongs to the organization
       wsSupport.checkProjectBelongsToOrganization(organization, project);
 
-      if (!userSession.hasProjectPermission(USER, project) &&
-        !userSession.hasProjectPermission(ADMIN, project)) {
+      if (!userSession.hasEntityPermission(USER, project) &&
+          !userSession.hasEntityPermission(ADMIN, project)) {
         throw insufficientPrivilegesException();
       }
 
@@ -108,7 +109,6 @@ public class GetByProjectAction implements QualityGatesWsAction {
     GetByProjectResponse.Builder response = GetByProjectResponse.newBuilder();
 
     response.getQualityGateBuilder()
-      .setId(qg.getUuid())
       .setName(qg.getName())
       .setDefault(qg.isDefault());
 

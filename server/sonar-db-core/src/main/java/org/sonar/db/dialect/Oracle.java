@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,14 +22,14 @@ package org.sonar.db.dialect;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.Version;
 
 public class Oracle extends AbstractDialect {
   public static final String ID = "oracle";
   private static final List<String> INIT_STATEMENTS = List.of("ALTER SESSION SET NLS_SORT='BINARY'");
-  private static final Version MIN_SUPPORTED_VERSION = Version.create(11, 0, 0);
+  private static final Version MIN_SUPPORTED_VERSION = Version.create(19, 0, 0);
 
   public Oracle() {
     super(ID, "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");

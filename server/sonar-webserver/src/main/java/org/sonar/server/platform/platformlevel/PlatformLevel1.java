@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.platform.DefaultNodeInformation;
-import org.sonar.server.platform.DockerSupportImpl;
+import org.sonar.server.platform.ContainerSupportImpl;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -115,7 +115,7 @@ public class PlatformLevel1 extends PlatformLevel {
       new TempFolderProvider(),
       System2.INSTANCE,
       Paths2Impl.getInstance(),
-      DockerSupportImpl.class,
+      ContainerSupportImpl.class,
       Clock.systemDefaultZone(),
 
       // user session

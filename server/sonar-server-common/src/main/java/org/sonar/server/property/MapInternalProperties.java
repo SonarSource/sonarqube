@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,6 +42,12 @@ public class MapInternalProperties implements InternalProperties {
   public void write(String propertyKey, @Nullable String value) {
     checkPropertyKey(propertyKey);
     values.put(propertyKey, value);
+  }
+
+  @Override
+  public void delete(String propertyKey) {
+    checkPropertyKey(propertyKey);
+    values.remove(propertyKey);
   }
 
   private static void checkPropertyKey(@Nullable String propertyKey) {

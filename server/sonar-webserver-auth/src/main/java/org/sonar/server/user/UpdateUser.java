@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,19 +25,22 @@ import javax.annotation.Nullable;
 
 public class UpdateUser {
 
-  private String login;
-  private String name;
-  private String email;
-  private List<String> scmAccounts;
-  private String password;
-  private ExternalIdentity externalIdentity;
-
-  private boolean loginChanged;
-  private boolean nameChanged;
-  private boolean emailChanged;
-  private boolean scmAccountsChanged;
-  private boolean passwordChanged;
-  private boolean externalIdentityChanged;
+  private String login = null;
+  private String name = null;
+  private String email = null;
+  private List<String> scmAccounts = null;
+  private String password = null;
+  private String externalIdentityProvider = null;
+  private String externalIdentityProviderId = null;
+  private String externalIdentityProviderLogin = null;
+  private boolean loginChanged = false;
+  private boolean nameChanged = false;
+  private boolean emailChanged = false;
+  private boolean scmAccountsChanged = false;
+  private boolean passwordChanged = false;
+  private boolean externalIdentityProviderChanged = false;
+  private boolean externalIdentityProviderIdChanged = false;
+  private boolean externalIdentityProviderLoginChanged = false;
 
   @CheckForNull
   public String login() {
@@ -94,17 +97,37 @@ public class UpdateUser {
     return this;
   }
 
+
   @CheckForNull
-  public ExternalIdentity externalIdentity() {
-    return externalIdentity;
+  public String externalIdentityProvider() {
+    return externalIdentityProvider;
   }
 
-  /**
-   * This method should only be used when updating a none local user
-   */
-  public UpdateUser setExternalIdentity(@Nullable ExternalIdentity externalIdentity) {
-    this.externalIdentity = externalIdentity;
-    externalIdentityChanged = true;
+  public UpdateUser setExternalIdentityProvider(@Nullable String externalIdentityProvider) {
+    this.externalIdentityProvider = externalIdentityProvider;
+    externalIdentityProviderChanged = true;
+    return this;
+  }
+
+  @CheckForNull
+  public String externalIdentityProviderId() {
+    return externalIdentityProviderId;
+  }
+
+  public UpdateUser setExternalIdentityProviderId(@Nullable String externalIdentityProviderId) {
+    this.externalIdentityProviderId = externalIdentityProviderId;
+    externalIdentityProviderIdChanged = true;
+    return this;
+  }
+
+  @CheckForNull
+  public String externalIdentityProviderLogin() {
+    return externalIdentityProviderLogin;
+  }
+
+  public UpdateUser setExternalIdentityProviderLogin(@Nullable String getExternalIdentityProviderLogin) {
+    this.externalIdentityProviderLogin = getExternalIdentityProviderLogin;
+    externalIdentityProviderLoginChanged = true;
     return this;
   }
 
@@ -128,8 +151,15 @@ public class UpdateUser {
     return passwordChanged;
   }
 
-  public boolean isExternalIdentityChanged() {
-    return externalIdentityChanged;
+  public boolean isExternalIdentityProviderChanged() {
+    return externalIdentityProviderChanged;
   }
 
+  public boolean isExternalIdentityProviderIdChanged() {
+    return externalIdentityProviderIdChanged;
+  }
+
+  public boolean isExternalIdentityProviderLoginChanged() {
+    return externalIdentityProviderLoginChanged;
+  }
 }

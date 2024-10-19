@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,32 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../helpers/testMocks';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { App } from '../App';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(
-    shallowRender({
-      appState: mockAppState({
-        settings: {
-          'sonar.lf.enableGravatar': 'true',
-          'sonar.lf.gravatarServerUrl': 'http://example.com',
-        },
-      }),
-    })
-  ).toMatchSnapshot('with gravatar');
+it('should render correctly with gravatar', () => {
+  renderApp({
+    appState: mockAppState({
+      settings: {
+        'sonar.lf.enableGravatar': 'true',
+        'sonar.lf.gravatarServerUrl': 'http://example.com',
+      },
+    }),
+  });
+
+  // eslint-disable-next-line testing-library/no-node-access
+  expect(document.head.querySelector('link')).toHaveAttribute('href', 'http://example.com');
 });
 
 it('should correctly set the scrollbar width as a custom property', () => {
-  shallowRender();
+  renderApp();
   expect(document.body.style.getPropertyValue('--sbw')).toBe('0px');
 });
 
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
+function renderApp(props: Partial<App['props']> = {}) {
+  return renderComponent(
     <App
       appState={mockAppState({
         settings: {
@@ -51,6 +51,6 @@ function shallowRender(props: Partial<App['props']> = {}) {
         },
       })}
       {...props}
-    />
+    />,
   );
 }

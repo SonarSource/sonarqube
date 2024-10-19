@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,13 +38,15 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.IssueStatus;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;
@@ -56,8 +59,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private RuleType type = null;
   private String componentUuid = null;
   private String componentKey = null;
-
-  private String moduleUuidPath = null;
 
   private String projectUuid = null;
   private String projectKey = null;
@@ -74,10 +75,13 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String status = null;
   private String resolution = null;
   private String assigneeUuid = null;
+  private String assigneeLogin = null;
   private String checksum = null;
   private String authorLogin = null;
   private List<DefaultIssueComment> comments = null;
   private Set<String> tags = null;
+  private Set<String> codeVariants = null;
+  private boolean prioritizedRule = false;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
 
@@ -93,7 +97,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   // all changes
   // -- contains only current change (if any) on CE side unless reopening a closed issue or copying issue from base branch
-  //    when analyzing a branch from the first time
+  // when analyzing a branch from the first time
   private List<FieldDiffs> changes = null;
 
   // true if the issue did not exist in the previous scan.
@@ -131,6 +135,13 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   private String ruleDescriptionContextKey = null;
 
+  private String anticipatedTransitionUuid = null;
+
+  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+  private CleanCodeAttribute cleanCodeAttribute = null;
+
+  private String cveId = null;
+
   @Override
   public String key() {
     return key;
@@ -144,6 +155,22 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   public RuleType type() {
     return type;
+  }
+
+  @Override
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
+    return impacts;
+  }
+
+  public DefaultIssue replaceImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    this.impacts.clear();
+    this.impacts.putAll(impacts);
+    return this;
+  }
+
+  public DefaultIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    impacts.put(softwareQuality, severity);
+    return this;
   }
 
   public DefaultIssue setType(RuleType type) {
@@ -172,16 +199,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setComponentKey(String s) {
     this.componentKey = s;
-    return this;
-  }
-
-  @CheckForNull
-  public String moduleUuidPath() {
-    return moduleUuidPath;
-  }
-
-  public DefaultIssue setModuleUuidPath(@Nullable String moduleUuidPath) {
-    this.moduleUuidPath = moduleUuidPath;
     return this;
   }
 
@@ -330,6 +347,12 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  @Nullable
+  @Override
+  public IssueStatus issueStatus() {
+    return IssueStatus.of(status, resolution);
+  }
+
   @Override
   @CheckForNull
   public String resolution() {
@@ -349,6 +372,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setAssigneeUuid(@Nullable String s) {
     this.assigneeUuid = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String assigneeLogin() {
+    return assigneeLogin;
+  }
+
+  public DefaultIssue setAssigneeLogin(@Nullable String s) {
+    this.assigneeLogin = s;
     return this;
   }
 
@@ -421,7 +454,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     this.locationsChanged = locationsChanged;
     return this;
   }
-
 
   public DefaultIssue setNew(boolean b) {
     isNew = b;
@@ -507,7 +539,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
+  public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue,
+    @Nullable Serializable newValue) {
     if (!Objects.equals(oldValue, newValue)) {
       if (currentChange == null) {
         currentChange = new FieldDiffs();
@@ -515,10 +548,10 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
         currentChange.setCreationDate(context.date());
         currentChange.setWebhookSource(context.getWebhookSource());
         currentChange.setExternalUser(context.getExternalUser());
+        addChange(currentChange);
       }
       currentChange.setDiff(field, oldValue, newValue);
     }
-    addChange(currentChange);
     return this;
   }
 
@@ -597,15 +630,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  /**
-   * @deprecated since 7.2, comments are not more available
-   */
-  @Override
-  @Deprecated
-  public List<IssueComment> comments() {
-    return Collections.emptyList();
-  }
-
   public List<DefaultIssueComment> defaultIssueComments() {
     if (comments == null) {
       return Collections.emptyList();
@@ -658,7 +682,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   public Set<String> tags() {
     if (tags == null) {
-      return ImmutableSet.of();
+      return Set.of();
     } else {
       return ImmutableSet.copyOf(tags);
     }
@@ -669,6 +693,20 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  @Override
+  public Set<String> codeVariants() {
+    if (codeVariants == null) {
+      return Set.of();
+    } else {
+      return ImmutableSet.copyOf(codeVariants);
+    }
+  }
+
+  public DefaultIssue setCodeVariants(Collection<String> codeVariants) {
+    this.codeVariants = new LinkedHashSet<>(codeVariants);
+    return this;
+  }
+
   public Optional<String> getRuleDescriptionContextKey() {
     return Optional.ofNullable(ruleDescriptionContextKey);
   }
@@ -676,6 +714,34 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public DefaultIssue setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
     this.ruleDescriptionContextKey = ruleDescriptionContextKey;
     return this;
+  }
+
+  public Optional<String> getAnticipatedTransitionUuid() {
+    return Optional.ofNullable(anticipatedTransitionUuid);
+  }
+
+  public DefaultIssue setAnticipatedTransitionUuid(@Nullable String anticipatedTransitionUuid) {
+    this.anticipatedTransitionUuid = anticipatedTransitionUuid;
+    return this;
+  }
+
+  public DefaultIssue setCleanCodeAttribute(@Nullable CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
+    return this;
+  }
+
+  public boolean isPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public DefaultIssue setPrioritizedRule(boolean isBlockerRule) {
+    this.prioritizedRule = isBlockerRule;
+    return this;
+  }
+
+  @Nullable
+  public CleanCodeAttribute getCleanCodeAttribute() {
+    return cleanCodeAttribute;
   }
 
   @Override
@@ -706,5 +772,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   public Date getUpdateDate() {
     return updateDate;
+  }
+
+  @Override
+  @CheckForNull
+  public String getCveId() {
+    return cveId;
+  }
+
+  public DefaultIssue setCveId(@Nullable String cveId) {
+    this.cveId = cveId;
+    return this;
   }
 }

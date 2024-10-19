@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../../api/settings';
-import {
-  ExtendedSettingDefinition,
-  SettingDefinitionAndValue,
-  SettingValue,
-} from '../../../types/settings';
+import { ExtendedSettingDefinition, SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 
@@ -32,8 +29,9 @@ interface Props {
   category: string;
   component?: Component;
   definitions: ExtendedSettingDefinition[];
-  subCategory?: string;
   displaySubCategoryTitle?: boolean;
+  noPadding?: boolean;
+  subCategory?: string;
 }
 
 interface State {
@@ -41,12 +39,9 @@ interface State {
 }
 
 export default class CategoryDefinitionsList extends React.PureComponent<Props, State> {
-  mounted = false;
   state: State = { settings: [] };
 
   componentDidMount() {
-    this.mounted = true;
-
     this.loadSettingValues();
   }
 
@@ -56,27 +51,25 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
     }
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
   async loadSettingValues() {
     const { category, component, definitions } = this.props;
 
     const categoryDefinitions = definitions.filter(
-      (definition) => definition.category.toLowerCase() === category.toLowerCase()
+      (definition) => definition.category.toLowerCase() === category.toLowerCase(),
     );
 
     const keys = categoryDefinitions.map((definition) => definition.key);
 
-    const values: SettingValue[] = await getValues({
+    const values = await getValues({
       keys,
       component: component?.key,
     }).catch(() => []);
+
     const valuesByDefinitionKey = keyBy(values, 'key');
 
     const settings: SettingDefinitionAndValue[] = categoryDefinitions.map((definition) => {
       const settingValue = valuesByDefinitionKey[definition.key];
+
       return {
         definition,
         settingValue,
@@ -87,7 +80,7 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
   }
 
   render() {
-    const { category, component, subCategory, displaySubCategoryTitle } = this.props;
+    const { category, component, subCategory, displaySubCategoryTitle, noPadding } = this.props;
     const { settings } = this.state;
 
     return (
@@ -97,6 +90,7 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
         settings={settings}
         subCategory={subCategory}
         displaySubCategoryTitle={displaySubCategoryTitle}
+        noPadding={noPadding}
       />
     );
   }

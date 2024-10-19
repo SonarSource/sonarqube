@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ public class MassUpdate {
     this.writeConnection = writeConnection;
   }
 
-  public SqlStatement select(String sql) throws SQLException {
+  public SqlStatement<Select> select(String sql) throws SQLException {
     this.select = SelectImpl.create(db, readConnection, sql);
     return this.select;
   }

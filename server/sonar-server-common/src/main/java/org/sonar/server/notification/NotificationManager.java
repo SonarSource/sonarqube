@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,9 @@
  */
 package org.sonar.server.notification;
 
-import com.google.common.collect.Multimap;
 import java.util.Objects;
 import java.util.Set;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.web.UserRole;
 
 import static java.util.Objects.requireNonNull;
@@ -43,23 +41,6 @@ public interface NotificationManager {
    * @param notification the notification.
    */
   <T extends Notification> void scheduleForSending(T notification);
-
-  /**
-   * <p>
-   * Returns the list of users who subscribed to the given dispatcher, along with the notification channels (email, twitter, ...) that they choose
-   * for this dispatcher.
-   * </p>
-   * <p>
-   * The resource ID can be null in case of notifications that have nothing to do with a specific project (like system notifications).
-   * </p>
-   *
-   * @param dispatcher the dispatcher for which this list of users is requested
-   * @param projectKey key of the project
-   * @param subscriberPermissionsOnProject the required permission for global and project subscribers
-   * @return the list of user login along with the subscribed channels
-   */
-  Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectKey,
-    SubscriberPermissionsOnProject subscriberPermissionsOnProject);
 
   record EmailRecipient(String login, String email) {
     public EmailRecipient(String login, String email) {

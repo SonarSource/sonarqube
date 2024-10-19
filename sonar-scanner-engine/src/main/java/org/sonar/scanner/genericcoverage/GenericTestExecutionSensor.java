@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
@@ -37,7 +37,7 @@ import static org.sonar.api.CoreProperties.CATEGORY_CODE_COVERAGE;
 
 public class GenericTestExecutionSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(GenericTestExecutionSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GenericTestExecutionSensor.class);
 
   static final String REPORT_PATHS_PROPERTY_KEY = "sonar.testExecutionReportPaths";
   /**

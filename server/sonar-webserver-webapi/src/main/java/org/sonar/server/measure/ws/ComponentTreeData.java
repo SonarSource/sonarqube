@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -35,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 
 class ComponentTreeData {
   private final ComponentDto baseComponent;
+  private final BranchDto branch;
   private final List<ComponentDto> components;
   private final int componentCount;
   private final Map<String, ComponentDto> referenceComponentsByUuid;
@@ -47,6 +49,7 @@ class ComponentTreeData {
     this.baseComponent = builder.baseComponent;
     this.components = builder.componentsFromDb;
     this.componentCount = builder.componentCount;
+    this.branch = builder.branch;
     this.referenceComponentsByUuid = builder.referenceComponentsByUuid;
     this.branchByReferenceUuid = builder.branchByReferenceUuid;
     this.metrics = builder.metrics;
@@ -63,11 +66,15 @@ class ComponentTreeData {
   }
 
   @CheckForNull
+  public BranchDto getBranch() {
+    return branch;
+  }
+
+  @CheckForNull
   List<ComponentDto> getComponents() {
     return components;
   }
 
-  @CheckForNull
   int getComponentCount() {
     return componentCount;
   }
@@ -102,6 +109,8 @@ class ComponentTreeData {
     private int componentCount;
     private List<MetricDto> metrics;
     private Measures.Period period;
+    private BranchDto branch;
+
     private Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric;
 
     private Builder() {
@@ -125,6 +134,11 @@ class ComponentTreeData {
 
     public Builder setComponentCount(int componentCount) {
       this.componentCount = componentCount;
+      return this;
+    }
+
+    public Builder setBranch(@Nullable BranchDto branch) {
+      this.branch = branch;
       return this;
     }
 

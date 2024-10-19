@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,13 +30,13 @@ describe('#decodeJwt', () => {
     };
     expect(
       decodeJwt(
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmk6Y2xvdWQ6Yml0YnVja2V0OjphcHAvezMyNzcxM2VkLWYxYjItNDY1OS05YzkxLWM4ZWNmOGJlN2YzZX0vc29uYXJjbG91ZC1ncmVnIiwiaWF0IjoxNTQxMDU4NjA1LCJxc2giOiJhNmM5M2FkZGQ5NzFjMDVkMDhkYTFlMTY2OWMyNjQwZmJhNTI5ZTk4ZmJiNWIyYjllZmZhZGYwMGJmNDg0Mjc3IiwiYXVkIjoiYXJpOmNsb3VkOmJpdGJ1Y2tldDo6YXBwL3szMjc3MTNlZC1mMWIyLTQ2NTktOWM5MS1jOGVjZjhiZTdmM2V9L3NvbmFyY2xvdWQtZ3JlZyIsImV4cCI6MTU0MTA2MjIwNX0.5_0dFh_TPT_UorDewu2JEErgQE2ZnzBjvCDrOThseRo'
-      )
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmk6Y2xvdWQ6Yml0YnVja2V0OjphcHAvezMyNzcxM2VkLWYxYjItNDY1OS05YzkxLWM4ZWNmOGJlN2YzZX0vc29uYXJjbG91ZC1ncmVnIiwiaWF0IjoxNTQxMDU4NjA1LCJxc2giOiJhNmM5M2FkZGQ5NzFjMDVkMDhkYTFlMTY2OWMyNjQwZmJhNTI5ZTk4ZmJiNWIyYjllZmZhZGYwMGJmNDg0Mjc3IiwiYXVkIjoiYXJpOmNsb3VkOmJpdGJ1Y2tldDo6YXBwL3szMjc3MTNlZC1mMWIyLTQ2NTktOWM5MS1jOGVjZjhiZTdmM2V9L3NvbmFyY2xvdWQtZ3JlZyIsImV4cCI6MTU0MTA2MjIwNX0.5_0dFh_TPT_UorDewu2JEErgQE2ZnzBjvCDrOThseRo',
+      ),
     ).toEqual(claims);
     expect(
       decodeJwt(
-        'eyJpc3MiOiJhcmk6Y2xvdWQ6Yml0YnVja2V0OjphcHAvezMyNzcxM2VkLWYxYjItNDY1OS05YzkxLWM4ZWNmOGJlN2YzZX0vc29uYXJjbG91ZC1ncmVnIiwiaWF0IjoxNTQxMDU4NjA1LCJxc2giOiJhNmM5M2FkZGQ5NzFjMDVkMDhkYTFlMTY2OWMyNjQwZmJhNTI5ZTk4ZmJiNWIyYjllZmZhZGYwMGJmNDg0Mjc3IiwiYXVkIjoiYXJpOmNsb3VkOmJpdGJ1Y2tldDo6YXBwL3szMjc3MTNlZC1mMWIyLTQ2NTktOWM5MS1jOGVjZjhiZTdmM2V9L3NvbmFyY2xvdWQtZ3JlZyIsImV4cCI6MTU0MTA2MjIwNX0'
-      )
+        'eyJpc3MiOiJhcmk6Y2xvdWQ6Yml0YnVja2V0OjphcHAvezMyNzcxM2VkLWYxYjItNDY1OS05YzkxLWM4ZWNmOGJlN2YzZX0vc29uYXJjbG91ZC1ncmVnIiwiaWF0IjoxNTQxMDU4NjA1LCJxc2giOiJhNmM5M2FkZGQ5NzFjMDVkMDhkYTFlMTY2OWMyNjQwZmJhNTI5ZTk4ZmJiNWIyYjllZmZhZGYwMGJmNDg0Mjc3IiwiYXVkIjoiYXJpOmNsb3VkOmJpdGJ1Y2tldDo6YXBwL3szMjc3MTNlZC1mMWIyLTQ2NTktOWM5MS1jOGVjZjhiZTdmM2V9L3NvbmFyY2xvdWQtZ3JlZyIsImV4cCI6MTU0MTA2MjIwNX0',
+      ),
     ).toEqual(claims);
   });
 });
@@ -44,7 +44,7 @@ describe('#decodeJwt', () => {
 describe('#latinize', () => {
   it('should remove diacritics and replace them with normal letters', () => {
     expect(latinize('âêîôûŵŷäëïöüẅÿàèìòùẁỳáéíóúẃýøāēīūčģķļņšž')).toBe(
-      'aeiouwyaeiouwyaeiouwyaeiouwyoaeiucgklnsz'
+      'aeiouwyaeiouwyaeiouwyaeiouwyoaeiucgklnsz',
     );
     expect(latinize('ASDFGhjklQWERTz')).toBe('ASDFGhjklQWERTz');
   });

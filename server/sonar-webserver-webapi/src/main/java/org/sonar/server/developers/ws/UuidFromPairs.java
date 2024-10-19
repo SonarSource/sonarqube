@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,18 +20,17 @@
 package org.sonar.server.developers.ws;
 
 import java.util.List;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class UuidFromPairs {
   private UuidFromPairs() {
     // prevent instantiation
   }
 
-  public static List<String> componentUuids(List<UuidFromPair> pairs) {
-    return pairs.stream().map(UuidFromPair::getComponentUuid).collect(MoreCollectors.toList(pairs.size()));
+  public static List<String> projectUuids(List<UuidFromPair> pairs) {
+    return pairs.stream().map(UuidFromPair::getProjectUuid).toList();
   }
 
   public static List<Long> fromDates(List<UuidFromPair> pairs) {
-    return pairs.stream().map(UuidFromPair::getFrom).collect(MoreCollectors.toList(pairs.size()));
+    return pairs.stream().map(UuidFromPair::getFrom).toList();
   }
 }

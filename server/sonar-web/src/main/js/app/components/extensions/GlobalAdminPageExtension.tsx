@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,6 @@ export default function GlobalAdminPageExtension() {
   const { pluginKey, extensionKey } = useParams();
   const { adminPages } = useOutletContext<AdminPagesContext>();
 
-  const extension = (adminPages || []).find((p) => p.key === `${pluginKey}/${extensionKey}`);
-  return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
+  const extension = adminPages?.find((p) => p.key === `${pluginKey}/${extensionKey}`);
+  return extension ? <Extension extension={extension} /> : <NotFound />;
 }

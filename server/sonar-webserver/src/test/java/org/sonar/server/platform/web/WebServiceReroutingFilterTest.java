@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,12 +19,14 @@
  */
 package org.sonar.server.platform.web;
 
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.web.FilterChain;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
 import org.sonar.server.ws.WebServiceEngine;
@@ -37,14 +39,14 @@ import static org.mockito.Mockito.when;
 
 public class WebServiceReroutingFilterTest {
 
-  private WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
+  private final WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private FilterChain chain = mock(FilterChain.class);
-  private ArgumentCaptor<ServletRequest> servletRequestCaptor = ArgumentCaptor.forClass(ServletRequest.class);
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final FilterChain chain = mock(FilterChain.class);
+  private final ArgumentCaptor<ServletRequest> servletRequestCaptor = ArgumentCaptor.forClass(ServletRequest.class);
 
-  private WebServiceReroutingFilter underTest = new WebServiceReroutingFilter(webServiceEngine);
+  private final WebServiceReroutingFilter underTest = new WebServiceReroutingFilter(webServiceEngine);
 
   @Before
   public void setUp() {
@@ -63,7 +65,7 @@ public class WebServiceReroutingFilterTest {
     when(request.getServletPath()).thenReturn("/api/components/update_key");
     when(request.getMethod()).thenReturn("POST");
 
-    underTest.doFilter(request, response, chain);
+    underTest.doFilter(new JavaxHttpRequest(request), new JavaxHttpResponse(response), chain);
 
     assertRedirection("/api/projects/update_key", "POST");
   }

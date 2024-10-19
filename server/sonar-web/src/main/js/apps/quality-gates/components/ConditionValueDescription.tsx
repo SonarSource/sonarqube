@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,77 +18,48 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
-import {
-  getMaintainabilityGrid,
-  GRID_INDEX_OFFSET,
-  PERCENT_MULTIPLIER,
-} from '../../../helpers/ratings';
-import { AppState } from '../../../types/appstate';
-import { GlobalSettingKeys } from '../../../types/settings';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey } from '~sonar-aligned/types/metrics';
+import { translate } from '../../../helpers/l10n';
 import { Condition, Metric } from '../../../types/types';
-import { isCaycCondition } from '../utils';
+import { GreenColorText } from './ConditionValue';
 
 const NO_DESCRIPTION_CONDITION = [
-  'new_security_hotspots_reviewed',
-  'new_coverage',
-  'new_duplicated_lines_density',
+  MetricKey.new_violations,
+  MetricKey.new_security_hotspots_reviewed,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density,
+  MetricKey.new_reliability_rating,
+  MetricKey.new_security_rating,
+  MetricKey.new_maintainability_rating,
 ];
 
 interface Props {
-  appState: AppState;
   condition: Condition;
+  isToBeModified?: boolean;
   metric: Metric;
-  className?: string;
 }
 
-function ConditionValueDescription({
+export default function ConditionValueDescription({
   condition,
-  appState: { settings },
   metric,
-  className = '',
-}: Props) {
-  if (condition.metric === 'new_maintainability_rating') {
-    const maintainabilityGrid = getMaintainabilityGrid(
-      settings[GlobalSettingKeys.RatingGrid] ?? ''
-    );
-    const maintainabilityRatingThreshold =
-      maintainabilityGrid[Math.floor(Number(condition.error)) - GRID_INDEX_OFFSET];
-    const ratingLetter = formatMeasure(condition.error, 'RATING');
-
-    return (
-      <span className={className}>
-        (
-        {condition.error === '1'
-          ? translateWithParameters(
-              'quality_gates.cayc.new_maintainability_rating.A',
-              formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, 'PERCENT')
-            )
-          : translateWithParameters(
-              'quality_gates.cayc.new_maintainability_rating',
-              ratingLetter,
-              formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, 'PERCENT')
-            )}
-        )
-      </span>
-    );
-  }
-
+  isToBeModified = false,
+}: Readonly<Props>) {
   return (
-    <span className={className}>
-      {isCaycCondition(condition) && !NO_DESCRIPTION_CONDITION.includes(condition.metric) && (
-        <>
-          (
-          {translate(
-            `quality_gates.cayc.${condition.metric}.${formatMeasure(condition.error, metric.type)}`
-          )}
-          )
-        </>
-      )}
-    </span>
+    <GreenColorText isToBeModified={isToBeModified}>
+      {condition.isCaycCondition &&
+        !NO_DESCRIPTION_CONDITION.includes(condition.metric as MetricKey) && (
+          <>
+            (
+            {translate(
+              `quality_gates.cayc.${condition.metric}.${formatMeasure(
+                condition.error,
+                metric.type,
+              )}`,
+            )}
+            )
+          </>
+        )}
+    </GreenColorText>
   );
 }
-
-export default withAppStateContext(ConditionValueDescription);

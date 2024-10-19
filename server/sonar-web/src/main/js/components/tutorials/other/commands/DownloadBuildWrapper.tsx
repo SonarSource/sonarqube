@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,61 +17,63 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, DownloadButton, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import CodeSnippet from '../../../common/CodeSnippet';
-import { OSs } from '../../types';
+import { InlineSnippet } from '../../components/InlineSnippet';
+import { Arch, OSs } from '../../types';
+import { getBuildWrapperFolder } from '../../utils';
 
 export interface DownloadBuildWrapperProps {
+  arch: Arch;
+  baseUrl: string;
   isLocal: boolean;
   os: OSs;
-  baseUrl: string;
 }
 
-const FILENAMES: { [x in OSs]: string } = {
-  win: 'build-wrapper-win-x86',
-  linux: 'build-wrapper-linux-x86',
-  mac: 'build-wrapper-macosx-x86',
-};
-
-export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
-  const { os, isLocal, baseUrl } = props;
+export default function DownloadBuildWrapper(props: Readonly<DownloadBuildWrapperProps>) {
+  const { os, arch, isLocal, baseUrl } = props;
   return (
-    <div className="spacer-bottom">
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.build_wrapper.header', os)}</h4>
+    <div className="sw-mb-4">
+      <SubHeading className="sw-mb-2">
+        {translate('onboarding.analysis.build_wrapper.header', os)}
+      </SubHeading>
       {isLocal ? (
         <>
-          <p className="spacer-bottom markdown">
+          <p className="sw-mb-2">
             <FormattedMessage
               defaultMessage={translate('onboarding.analysis.build_wrapper.text')}
               id="onboarding.analysis.build_wrapper.text"
               values={{
-                env_var: <code>{os === 'win' ? '%PATH%' : 'PATH'}</code>,
+                env_var: <InlineSnippet snippet={os === 'win' ? '%PATH%' : 'PATH'} />,
               }}
             />
           </p>
-          <p>
-            <a
-              className="button"
-              download={`${FILENAMES[os]}.zip`}
-              href={`${getBaseUrl()}/static/cpp/${FILENAMES[os]}.zip`}
+          <p className="sw-mb-2">
+            <DownloadButton
+              download={`${getBuildWrapperFolder(os, arch)}.zip`}
+              href={`${getBaseUrl()}/static/cpp/${getBuildWrapperFolder(os, arch)}.zip`}
               rel="noopener noreferrer"
               target="_blank"
             >
               {translate('download_verb')}
-            </a>
+            </DownloadButton>
           </p>
         </>
       ) : (
-        <CodeSnippet snippet={getRemoteDownloadSnippet(os, baseUrl)} />
+        <CodeSnippet
+          className="sw-p-4"
+          language={os === OSs.Windows ? 'powershell' : 'bash'}
+          snippet={getRemoteDownloadSnippet(os, arch, baseUrl)}
+        />
       )}
     </div>
   );
 }
 
-function getRemoteDownloadSnippet(os: OSs, baseUrl: string) {
+function getRemoteDownloadSnippet(os: OSs, arch: Arch, baseUrl: string) {
   if (os === OSs.Windows) {
     return `$env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
 rm "$env:SONAR_DIRECTORY/build-wrapper-win-x86" -Force -Recurse -ErrorAction SilentlyContinue
@@ -82,8 +84,9 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $env:Path += ";$env:SONAR_DIRECTORY/build-wrapper-win-x86"
 `;
   }
-  return `curl --create-dirs -sSLo $HOME/.sonar/${FILENAMES[os]}.zip ${baseUrl}/static/cpp/${FILENAMES[os]}.zip
-unzip -o $HOME/.sonar/${FILENAMES[os]}.zip -d $HOME/.sonar/
-export PATH=$HOME/.sonar/${FILENAMES[os]}:$PATH
+  const folder = getBuildWrapperFolder(os, arch);
+  return `curl --create-dirs -sSLo $HOME/.sonar/${folder}.zip ${baseUrl}/static/cpp/${folder}.zip
+unzip -o $HOME/.sonar/${folder}.zip -d $HOME/.sonar/
+export PATH=$HOME/.sonar/${folder}:$PATH
 `;
 }

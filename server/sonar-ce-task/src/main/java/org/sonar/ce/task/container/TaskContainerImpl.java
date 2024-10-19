@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.container;
 
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.core.platform.SpringComponentContainer;
 
@@ -51,7 +51,7 @@ public class TaskContainerImpl extends SpringComponentContainer implements TaskC
     try {
       stopComponents();
     } catch (Throwable t) {
-      Loggers.get(TaskContainerImpl.class).error("Cleanup of container failed", t);
+      LoggerFactory.getLogger(TaskContainerImpl.class).error("Cleanup of container failed", t);
     }
   }
 }

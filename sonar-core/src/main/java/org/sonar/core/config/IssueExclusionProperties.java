@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.core.config;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
@@ -54,14 +53,12 @@ public final class IssueExclusionProperties {
   public static final String PATTERNS_ALLFILE_KEY = EXCLUSION_KEY_PREFIX + ALLFILE_SUFFIX;
   public static final String FILE_REGEXP = "fileRegexp";
 
-  public static final int LARGE_SIZE = 40;
-
   private IssueExclusionProperties() {
     // only static
   }
 
   public static List<PropertyDefinition> all() {
-    return ImmutableList.of(
+    return List.of(
       PropertyDefinition.builder(PATTERNS_MULTICRITERIA_EXCLUSION_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
@@ -86,7 +83,7 @@ public final class IssueExclusionProperties {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Ignore Issues in Blocks")
-        .description("Patterns to ignore all issues (except the ones from the common repository) on specific blocks of code, " +
+        .description("Patterns to ignore all issues on specific blocks of code, " +
           "while continuing to scan and mark issues on the remainder of the file.")
         .onQualifiers(Qualifiers.PROJECT)
         .index(2)
@@ -107,7 +104,7 @@ public final class IssueExclusionProperties {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Ignore Issues on Files")
-        .description("Patterns to ignore all issues (except the ones from the common repository) on files that contain a block of code matching a given regular expression.")
+        .description("Patterns to ignore all issues on files that contain a block of code matching a given regular expression.")
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
         .fields(

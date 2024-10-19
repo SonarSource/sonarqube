@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,32 +26,33 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.UriReader;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 
 /**
- * HTTP client to load data from the remote update center hosted at https://update.sonarsource.org.
+ * HTTP client to load data from the remote update center hosted at https://downloads.sonarsource.com/?prefix=sonarqube/update
  *
  * @since 2.4
  */
 @Properties({
   @Property(
     key = UpdateCenterClient.URL_PROPERTY,
-    defaultValue = "https://update.sonarsource.org/update-center.properties",
+    defaultValue = UpdateCenterClient.URL_DEFAULT_VALUE,
     name = "Update Center URL",
     category = "Update Center",
     // hidden from UI
     global = false),
   @Property(
     key = UpdateCenterClient.CACHE_TTL_PROPERTY,
-    defaultValue = "3600000",
+    defaultValue = UpdateCenterClient.CACHE_TTL_DEFAULT_VALUE,
     name = "Update Center cache time-to-live in milliseconds",
     category = "Update Center",
     // hidden from UI
@@ -59,8 +60,11 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 })
 public class UpdateCenterClient {
 
-  public static final String URL_PROPERTY = "sonar.updatecenter.url";
-  public static final String CACHE_TTL_PROPERTY = "sonar.updatecenter.cache.ttl";
+  private static final Logger LOG = LoggerFactory.getLogger(UpdateCenterClient.class);
+  static final String URL_PROPERTY = "sonar.updatecenter.url";
+  static final String URL_DEFAULT_VALUE = "https://downloads.sonarsource.com/sonarqube/update/update-center.properties";
+  static final String CACHE_TTL_PROPERTY = "sonar.updatecenter.cache.ttl";
+  static final String CACHE_TTL_DEFAULT_VALUE = "3600000";
 
   private final long periodInMilliseconds;
 
@@ -75,7 +79,8 @@ public class UpdateCenterClient {
     this.uri = new URI(config.get(URL_PROPERTY).get());
     this.isActivated = config.getBoolean(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey()).get();
     this.periodInMilliseconds = Long.parseLong(config.get(CACHE_TTL_PROPERTY).get());
-    Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
+
+    LOG.info("Update center: {}", uriReader.description(uri));
   }
 
   public Optional<UpdateCenter> getUpdateCenter() {
@@ -112,7 +117,7 @@ public class UpdateCenterClient {
       return new UpdateCenterDeserializer(Mode.PROD, true).fromProperties(properties);
 
     } catch (Exception e) {
-      Loggers.get(getClass()).error("Fail to connect to update center", e);
+      LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);
       return null;
 
     } finally {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -38,6 +38,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
+import org.elasticsearch.search.aggregations.bucket.nested.ReverseNested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 
@@ -176,7 +177,16 @@ public class Facets {
 
   private void processMultiBucketAggregation(MultiBucketsAggregation aggregation) {
     LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName());
-    aggregation.getBuckets().forEach(bucket -> facet.put(bucket.getKeyAsString(), bucket.getDocCount()));
+    aggregation.getBuckets().forEach(bucket -> {
+      if (!bucket.getAggregations().asList().isEmpty()) {
+        Aggregation next = bucket.getAggregations().iterator().next();
+        if  (next instanceof ReverseNested reverseNestedBucket) {
+          facet.put(bucket.getKeyAsString(), reverseNestedBucket.getDocCount());
+        }
+      } else {
+        facet.put(bucket.getKeyAsString(), bucket.getDocCount());
+      }
+    });
   }
 
   public boolean contains(String facetName) {

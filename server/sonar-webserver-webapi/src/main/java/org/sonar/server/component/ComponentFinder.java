@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,16 +22,17 @@ package org.sonar.server.component;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,6 +48,7 @@ public class ComponentFinder {
   private static final String LABEL_PROJECT = "Project";
   private static final String LABEL_COMPONENT = "Component";
   private static final String LABEL_PROJECT_NOT_FOUND = "Project '%s' not found";
+  private static final String LABEL_ENTITY_NOT_FOUND = "Component '%s' not found";
 
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
@@ -64,6 +66,25 @@ public class ComponentFinder {
     }
 
     return getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()));
+  }
+
+  public EntityDto getEntityByUuidOrKey(DbSession dbSession, @Nullable String entityUuid, @Nullable String entityKey, ParamNames parameterNames) {
+    checkByUuidOrKey(entityUuid, entityKey, parameterNames);
+
+    if (entityUuid != null) {
+      return getEntityByUuid(dbSession, checkParamNotEmpty(entityUuid, parameterNames.getUuidParam()));
+    }
+    return getEntityByKey(dbSession, checkParamNotEmpty(entityKey, parameterNames.getKeyParam()));
+  }
+
+  public EntityDto getEntityByKey(DbSession dbSession, String entityKey) {
+    return dbClient.entityDao().selectByKey(dbSession, entityKey)
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_ENTITY_NOT_FOUND, entityKey)));
+  }
+
+  public EntityDto getEntityByUuid(DbSession dbSession, String entityUuid) {
+    return dbClient.entityDao().selectByUuid(dbSession, entityUuid)
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_ENTITY_NOT_FOUND, entityUuid)));
   }
 
   public ProjectDto getProjectByKey(DbSession dbSession, String projectKey) {
@@ -107,12 +128,38 @@ public class ComponentFinder {
       .orElseThrow(() -> new NotFoundException(String.format("Branch uuid '%s' not found", branchUuid)));
   }
 
-  public BranchDto getBranchOrPullRequest(DbSession dbSession, ComponentDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
-    return getBranchOrPullRequest(dbSession, project.uuid(), project.getKey(), branchKey, pullRequestKey);
+  public BranchDto getBranchOrPullRequest(DbSession dbSession, EntityDto entity, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    return getBranchOrPullRequest(dbSession, entity.getUuid(), entity.getKey(), branchKey, pullRequestKey);
   }
 
-  public BranchDto getBranchOrPullRequest(DbSession dbSession, ProjectDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
-    return getBranchOrPullRequest(dbSession, project.getUuid(), project.getKey(), branchKey, pullRequestKey);
+  public ProjectAndBranch getAppOrProjectAndBranch(DbSession dbSession, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    ProjectDto projectOrApp = getProjectOrApplicationByKey(dbSession, projectKey);
+    BranchDto branch = getBranchOrPullRequest(dbSession, projectOrApp, branchKey, pullRequestKey);
+    return new ProjectAndBranch(projectOrApp, branch);
+  }
+
+  public ProjectAndBranch getProjectAndBranch(DbSession dbSession, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    ProjectDto project = getProjectByKey(dbSession, projectKey);
+    BranchDto branch = getBranchOrPullRequest(dbSession, project, branchKey, pullRequestKey);
+    return new ProjectAndBranch(project, branch);
+  }
+
+  public static class ProjectAndBranch {
+    private final ProjectDto project;
+    private final BranchDto branch;
+
+    public ProjectAndBranch(ProjectDto project, BranchDto branch) {
+      this.project = project;
+      this.branch = branch;
+    }
+
+    public ProjectDto getProject() {
+      return project;
+    }
+
+    public BranchDto getBranch() {
+      return branch;
+    }
   }
 
   public BranchDto getBranchOrPullRequest(DbSession dbSession, String projectUuid, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
@@ -123,12 +170,12 @@ public class ComponentFinder {
       return dbClient.branchDao().selectByPullRequestKey(dbSession, projectUuid, pullRequestKey)
         .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' in project '%s' not found", pullRequestKey, projectKey)));
     }
-    return dbClient.branchDao().selectByUuid(dbSession, projectUuid)
+    return dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, projectUuid)
       .orElseThrow(() -> new NotFoundException(String.format("Main branch in project '%s' not found", projectKey)));
   }
 
   public BranchDto getMainBranch(DbSession dbSession, ProjectDto projectDto) {
-    return dbClient.branchDao().selectByUuid(dbSession, projectDto.getUuid())
+    return dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, projectDto.getUuid())
       .orElseThrow(() -> new IllegalStateException(String.format("Can't find main branch for project '%s'", projectDto.getKey())));
   }
 
@@ -141,23 +188,22 @@ public class ComponentFinder {
   }
 
   private ComponentDto getByKey(DbSession dbSession, String key, String label) {
-    return checkComponent(dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
+    return checkComponent(dbSession, dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
   }
 
-  /**
-   * This method only returns components in main branches.
-   */
   public ComponentDto getByUuidFromMainBranch(DbSession dbSession, String uuid) {
     return getByUuidFromMainBranch(dbSession, uuid, LABEL_COMPONENT);
   }
 
   private ComponentDto getByUuidFromMainBranch(DbSession dbSession, String uuid, String label) {
-    return checkComponent(dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
+    return checkComponent(dbSession, dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
   }
 
-  private static ComponentDto checkComponent(Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
-    if (componentDto.isPresent() && componentDto.get().isEnabled() && componentDto.get().getMainBranchProjectUuid() == null) {
-      return componentDto.get();
+  private ComponentDto checkComponent(DbSession session, Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
+    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
+      if (dbClient.branchDao().selectByUuid(session, componentDto.get().branchUuid()).map(BranchDto::isMain).orElse(true)) {
+        return componentDto.get();
+      }
     }
     throw new NotFoundException(format(message, messageArguments));
   }
@@ -191,7 +237,7 @@ public class ComponentFinder {
     return rootTypes
       .stream()
       .map(ResourceType::getQualifier)
-      .collect(MoreCollectors.toSet(rootTypes.size()));
+      .collect(Collectors.toSet());
   }
 
   public OrganizationDto getOrganization(DbSession dbSession, ComponentDto component) {

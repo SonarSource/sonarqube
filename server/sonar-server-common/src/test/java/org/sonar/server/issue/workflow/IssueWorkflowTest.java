@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.DefaultTransitions;
@@ -42,7 +42,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.time.DateUtils.addDays;
+import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -85,7 +85,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_OPEN);
     List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix");
+    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
@@ -94,7 +94,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CONFIRMED);
     List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix");
+    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
@@ -112,7 +112,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_REOPENED);
     List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix");
+    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix", "accept");
   }
 
   @Test
@@ -305,8 +305,8 @@ public class IssueWorkflowTest {
     });
   }
 
-  private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[] {STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
-  private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[] {
+  private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[]{STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
+  private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[]{
     null,
     RESOLUTION_FIXED,
     RESOLUTION_WONT_FIX,
@@ -318,7 +318,7 @@ public class IssueWorkflowTest {
   @DataProvider
   public static Object[][] allStatusesLeadingToClosed() {
     return Arrays.stream(ALL_STATUSES_LEADING_TO_CLOSED)
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 
@@ -428,6 +428,25 @@ public class IssueWorkflowTest {
     // should remove assignee
     assertThat(issue.assignee()).isNull();
   }
+
+  @Test
+  public void doManualTransition_shouldTransitionToResolutionWontFix_whenAccepted() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setStatus(STATUS_OPEN)
+      .setRuleKey(RuleKey.of("java", "AvoidCycle"))
+      .setAssigneeUuid("morgan");
+
+    underTest.start();
+    underTest.doManualTransition(issue, DefaultTransitions.ACCEPT, issueChangeContextByScanBuilder(new Date()).build());
+
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
+
+    // should remove assignee
+    assertThat(issue.assignee()).isNull();
+  }
+
 
   private static DefaultIssue newClosedIssue(String resolution) {
     return new DefaultIssue()

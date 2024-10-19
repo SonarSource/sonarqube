@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,6 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -66,15 +65,15 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setSince("5.2")
       .setDescription("Remove a group from a permission template.<br /> " +
-        "The group id or group name must be provided. <br />" +
+        "The group name must be provided. <br />" +
         "Requires the following permission: 'Administer System'.")
       .setChangelog(
+        new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
 
     createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    createGroupIdParameter(action);
     createGroupNameParameter(action);
   }
 
@@ -84,7 +83,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.fromRequest(request));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
-      GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
+      GroupUuidOrAnyone group = wsSupport.findGroupUuidOrAnyone(dbSession, request);
       checkArgument(group.getOrganizationUuid().equals(template.getOrganizationUuid()), "Group and template are on different organizations");
 
       Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());

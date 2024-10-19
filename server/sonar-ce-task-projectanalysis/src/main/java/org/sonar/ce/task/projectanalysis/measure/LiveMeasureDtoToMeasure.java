@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,11 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
 
 public class LiveMeasureDtoToMeasure {
 
-  public Optional<Measure> toMeasure(@Nullable LiveMeasureDto measureDto, Metric metric) {
+  private LiveMeasureDtoToMeasure() {
+    // utility class
+  }
+
+  public static Optional<Measure> toMeasure(@Nullable LiveMeasureDto measureDto, Metric metric) {
     requireNonNull(metric);
     if (measureDto == null) {
       return Optional.empty();

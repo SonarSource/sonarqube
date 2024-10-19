@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.index;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,14 +26,13 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.permission.index.AuthorizationDoc;
 
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_CREATED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
@@ -53,7 +51,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
-  public static final Map<String, Integer> QUALITY_GATE_STATUS = ImmutableMap.of(OK.name(), 1, WARN.name(), 2, ERROR.name(), 3);
+  public static final Map<String, Integer> QUALITY_GATE_STATUS = Map.of(OK.name(), 1, ERROR.name(), 3);
 
   public ProjectMeasuresDoc() {
     super(TYPE_PROJECT_MEASURES, new HashMap<>(8));
@@ -115,6 +113,15 @@ public class ProjectMeasuresDoc extends BaseDoc {
     return this;
   }
 
+  public ProjectMeasuresDoc setCreatedAt(Date d) {
+    setField(FIELD_CREATED_AT, d);
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return getField(FIELD_CREATED_AT);
+  }
+
   public Collection<Map<String, Object>> getMeasures() {
     return getField(FIELD_MEASURES);
   }
@@ -127,10 +134,10 @@ public class ProjectMeasuresDoc extends BaseDoc {
   public ProjectMeasuresDoc setMeasuresFromMap(Map<String, Double> measures) {
     setMeasures(
       measures.entrySet().stream()
-        .map(entry -> ImmutableMap.<String, Object>of(
+        .map(entry -> Map.<String, Object>of(
           SUB_FIELD_MEASURES_KEY, entry.getKey(),
           SUB_FIELD_MEASURES_VALUE, entry.getValue()))
-        .collect(MoreCollectors.toList()));
+        .toList());
     return this;
   }
 
@@ -151,10 +158,10 @@ public class ProjectMeasuresDoc extends BaseDoc {
   public ProjectMeasuresDoc setNclocLanguageDistributionFromMap(Map<String, Integer> distribution) {
     setNclocLanguageDistribution(
       distribution.entrySet().stream()
-        .map(entry -> ImmutableMap.<String, Object>of(
+        .map(entry -> Map.<String, Object>of(
           SUB_FIELD_DISTRIB_LANGUAGE, entry.getKey(),
           SUB_FIELD_DISTRIB_NCLOC, entry.getValue()))
-        .collect(MoreCollectors.toList()));
+        .toList());
     return this;
   }
 

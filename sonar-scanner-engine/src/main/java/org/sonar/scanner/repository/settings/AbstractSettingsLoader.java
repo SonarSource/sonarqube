@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -74,7 +74,9 @@ public abstract class AbstractSettingsLoader {
   static Map<String, String> toMap(List<Settings.Setting> settingsList) {
     Map<String, String> result = new LinkedHashMap<>();
     for (Settings.Setting s : settingsList) {
-      if (!s.getInherited()) {
+      // we need the "*.file.suffixes" and "*.file.patterns" properties for language detection
+      // see DefaultLanguagesRepository.populateFileSuffixesAndPatterns()
+      if (!s.getInherited() || s.getKey().endsWith(".file.suffixes") || s.getKey().endsWith(".file.patterns")) {
         switch (s.getValueOneOfCase()) {
           case VALUE:
             result.put(s.getKey(), s.getValue());

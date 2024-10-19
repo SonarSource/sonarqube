@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,21 @@
  */
 package org.sonar.server.user;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.ws.SimpleGetRequest;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(DataProviderRunner.class)
 public class SystemPasscodeImplTest {
 
   @Rule
@@ -47,14 +52,14 @@ public class SystemPasscodeImplTest {
     configurePasscode("foo");
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is enabled");
+    assertThat(logTester.logs(Level.INFO)).contains("System authentication by passcode is enabled");
   }
 
   @Test
   public void startup_logs_show_that_feature_is_disabled() {
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is disabled");
+    assertThat(logTester.logs(Level.INFO)).contains("System authentication by passcode is disabled");
   }
 
   @Test
@@ -62,39 +67,37 @@ public class SystemPasscodeImplTest {
     configurePasscode("");
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is disabled");
+    assertThat(logTester.logs(Level.INFO)).contains("System authentication by passcode is disabled");
+  }
+
+  @DataProvider
+  public static Object[][] passcodeConfigurationAndUserInput() {
+    return new Object[][] {
+      {"toto", "toto", true},
+      {"toto", "tata", false},
+      {"toto", "Toto", false},
+      {"toto", "toTo", false},
+      {null, null, false},
+      {null, "toto", false},
+      {"toto", null, false},
+    };
+  }
+
+
+  @Test
+  @UseDataProvider("passcodeConfigurationAndUserInput")
+  public void isValidPasscode_worksCorrectly(String configuredPasscode, String userPasscode, boolean expectedResult) {
+    configurePasscode(configuredPasscode);
+    assertThat(underTest.isValidPasscode(userPasscode)).isEqualTo(expectedResult);
   }
 
   @Test
-  public void isValid_is_true_if_request_header_matches_configured_passcode() {
-    verifyIsValid(true, "foo", "foo");
-  }
-
-  @Test
-  public void isValid_is_false_if_request_header_matches_configured_passcode_with_different_case() {
-    verifyIsValid(false, "foo", "FOO");
-  }
-
-  @Test
-  public void isValid_is_false_if_request_header_does_not_match_configured_passcode() {
-    verifyIsValid(false, "foo", "bar");
-  }
-
-  @Test
-  public void isValid_is_false_if_request_header_is_defined_but_passcode_is_not_configured() {
-    verifyIsValid(false, null, "foo");
-  }
-
-  @Test
-  public void isValid_is_false_if_request_header_is_empty() {
-    verifyIsValid(false, "foo", "");
-  }
-
-  private void verifyIsValid(boolean expectedResult, String configuredPasscode, String header) {
+  @UseDataProvider("passcodeConfigurationAndUserInput")
+  public void isValid_worksCorrectly(String configuredPasscode, String userPasscode, boolean expectedResult) {
     configurePasscode(configuredPasscode);
 
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setHeader("X-Sonar-Passcode", header);
+    request.setHeader("X-Sonar-Passcode", userPasscode);
 
     assertThat(underTest.isValid(request)).isEqualTo(expectedResult);
   }

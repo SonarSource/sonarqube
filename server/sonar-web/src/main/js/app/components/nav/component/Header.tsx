@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,70 +18,43 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import Favorite from '../../../../components/controls/Favorite';
-import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
-import { BranchLike } from '../../../../types/branch-like';
 import { Component, Organization } from '../../../../types/types';
-import { CurrentUser, isLoggedIn } from '../../../../types/users';
+import { CurrentUser } from '../../../../types/users';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
-import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
-import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { Breadcrumb } from './Breadcrumb';
+import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import OrganizationAvatar from "../../../../apps/organizations/components/OrganizationAvatar";
 import OrganizationLink from "../../../../apps/organizations/components/OrganizationLink";
 
 export interface HeaderProps {
-  branchLikes: BranchLike[];
   component: Component;
-  currentBranchLike: BranchLike | undefined;
   currentUser: CurrentUser;
-  projectBinding?: ProjectAlmBindingResponse;
   organization: Organization;
   comparisonBranchesEnabled: boolean;
 }
 
 export function Header(props: HeaderProps) {
-  const { branchLikes, component, currentBranchLike, currentUser, projectBinding, organization } = props;
+  const { component, currentUser, organization, comparisonBranchesEnabled } = props;
 
   return (
-    <>
-      <Helmet title={component.name} />
-      <div className="display-flex-center flex-shrink">
-        {organization &&
-            <>
-              <OrganizationAvatar organization={organization} />
-              <OrganizationLink
-                  className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
-                  organization={organization}>
-                {organization.name}
-              </OrganizationLink>
-              <span className="slash-separator" />
-            </>
-        }
-        <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
-        {isLoggedIn(currentUser) && (
-          <Favorite
-            className="spacer-left"
-            component={component.key}
-            favorite={Boolean(component.isFavorite)}
-            qualifier={component.qualifier}
-          />
-        )}
-        {currentBranchLike && (
-          <>
-            <BranchLikeNavigation
-              branchLikes={branchLikes}
-              component={component}
-              currentBranchLike={currentBranchLike}
-              projectBinding={projectBinding}
-              comparisonBranchesEnabled={props.comparisonBranchesEnabled}
-            />
-            <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
-          </>
-        )}
-      </div>
-    </>
+    <div className="sw-flex sw-flex-shrink sw-items-center">
+      {organization &&
+        <>
+          <OrganizationAvatar organization={organization} />
+          <OrganizationLink
+            className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
+            organization={organization}
+          >
+            {organization.name}
+          </OrganizationLink>
+          <span className="slash-separator" />
+        </>
+      }
+
+      <Breadcrumb component={component} currentUser={currentUser} />
+
+      <BranchLikeNavigation component={component} comparisonBranchesEnabled={comparisonBranchesEnabled} />
+    </div>
   );
 }
 

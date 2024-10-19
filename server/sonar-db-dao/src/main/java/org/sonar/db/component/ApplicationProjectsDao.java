@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -51,11 +52,6 @@ public class ApplicationProjectsDao implements Dao {
 
   public Set<ProjectDto> selectProjects(DbSession dbSession, String applicationUuid) {
     return getMapper(dbSession).selectProjects(applicationUuid);
-  }
-
-  public void remove(DbSession dbSession, String applicationUuid) {
-    getMapper(dbSession).removeApplicationBranchProjectBranchesByApplication(applicationUuid);
-    getMapper(dbSession).removeApplicationProjectsByApplication(applicationUuid);
   }
 
   public void addProjectBranchToAppBranch(DbSession dbSession, BranchDto applicationBranch, BranchDto projectBranch) {
@@ -98,11 +94,11 @@ public class ApplicationProjectsDao implements Dao {
     return getMapper(dbSession).selectApplicationsFromProjects(projectUuids);
   }
 
-  private static ApplicationProjectsMapper getMapper(DbSession session) {
-    return session.getMapper(ApplicationProjectsMapper.class);
+  public List<BranchDto> selectProjectsMainBranchesOfApplication(DbSession dbSession, String applicationUuid) {
+    return getMapper(dbSession).selectProjectsMainBranchesOfApplication(applicationUuid);
   }
 
-  public void removeAllProjectBranchesOfAppBranch(DbSession dbSession, String applicationBranchUuid) {
-    getMapper(dbSession).removeAllProjectBranchesOfAppBranch(applicationBranchUuid);
+  private static ApplicationProjectsMapper getMapper(DbSession session) {
+    return session.getMapper(ApplicationProjectsMapper.class);
   }
 }

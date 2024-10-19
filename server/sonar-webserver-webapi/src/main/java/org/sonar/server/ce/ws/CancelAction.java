@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,10 +19,7 @@
  */
 package org.sonar.server.ce.ws;
 
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-
 import java.util.Optional;
-
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,12 +32,14 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+
 public class CancelAction implements CeWsAction {
 
   public static final String PARAM_TASK_ID = "id";
 
   private final UserSession userSession;
-  private DbClient dbClient;
+  private final DbClient dbClient;
   private final CeQueue queue;
 
   public CancelAction(UserSession userSession, DbClient dbClient, CeQueue queue) {

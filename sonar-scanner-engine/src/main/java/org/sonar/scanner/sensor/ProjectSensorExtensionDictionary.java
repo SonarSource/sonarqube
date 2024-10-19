@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,9 @@ package org.sonar.scanner.sensor;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.scanner.sensor.ProjectSensor;
-import org.sonar.scanner.bootstrap.AbstractExtensionDictionary;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.scanner.bootstrap.AbstractExtensionDictionary;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 
@@ -49,6 +48,6 @@ public class ProjectSensorExtensionDictionary extends AbstractExtensionDictionar
     return result.stream()
       .map(s -> new ProjectSensorWrapper(s, sensorContext, sensorOptimizer, fileSystem, branchConfiguration))
       .filter(ProjectSensorWrapper::shouldExecute)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,31 +19,23 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
+import { NumberedList, TutorialStep } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { rawSizes } from '../../../app/theme';
-import { Button, ButtonLink } from '../../../components/controls/buttons';
-import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
-import Step from '../components/Step';
 import WebhookStepBitbucket from './WebhookStepBitbucket';
-import WebhookStepGithub from './WebhookStepGithub';
 import WebhookStepGitLab from './WebhookStepGitLab';
+import WebhookStepGithub from './WebhookStepGithub';
 
 export interface WebhookStepProps {
   alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
-  finished: boolean;
-  onDone: () => void;
-  onOpen: () => void;
-  open: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
 }
 
 function renderAlmSpecificInstructions(props: WebhookStepProps) {
@@ -79,37 +71,14 @@ function renderAlmSpecificInstructions(props: WebhookStepProps) {
 }
 
 export default function WebhookStep(props: WebhookStepProps) {
-  const { alm, finished, open } = props;
+  const { alm } = props;
 
   return (
-    <Step
-      finished={finished}
-      onOpen={props.onOpen}
-      open={open}
-      renderForm={() => (
-        <div className="boxed-group-inner">
-          <p className="big-spacer-bottom">
-            <FormattedMessage
-              defaultMessage={translate('onboarding.tutorial.with.jenkins.webhook.intro.sentence')}
-              id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
-              values={{
-                link: (
-                  <ButtonLink onClick={props.onDone}>
-                    {translate('onboarding.tutorial.with.jenkins.webhook.intro.link')}
-                  </ButtonLink>
-                ),
-              }}
-            />
-          </p>
-          <ol className="list-styled">{renderAlmSpecificInstructions(props)}</ol>
-          <Button className="big-spacer-top" onClick={props.onDone}>
-            {translate('continue')}
-            <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
-          </Button>
-        </div>
-      )}
-      stepNumber={2}
-      stepTitle={translate('onboarding.tutorial.with.jenkins.webhook', alm, 'title')}
-    />
+    <TutorialStep title={translate('onboarding.tutorial.with.jenkins.webhook', alm, 'title')}>
+      <p className="sw-mb-4">
+        {translate('onboarding.tutorial.with.jenkins.webhook.intro.sentence')}
+      </p>
+      <NumberedList>{renderAlmSpecificInstructions(props)}</NumberedList>
+    </TutorialStep>
   );
 }

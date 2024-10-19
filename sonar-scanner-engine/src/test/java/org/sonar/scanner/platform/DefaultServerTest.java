@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,10 +46,8 @@ public class DefaultServerTest {
     assertThat(metadata.getVersion()).isEqualTo("2.2");
     assertThat(metadata.getStartedAt()).isNotNull();
     assertThat(metadata.getPublicRootUrl()).isEqualTo("http://foo.com");
-    assertThat(metadata.getPermanentServerId()).isEqualTo("123");
 
     assertThat(metadata.getContextPath()).isNull();
-    assertThat(metadata.isSecured()).isFalse();
   }
 
   @Test

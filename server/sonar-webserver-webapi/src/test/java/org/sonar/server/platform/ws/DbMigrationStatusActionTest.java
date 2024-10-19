@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,14 +23,15 @@ import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
@@ -47,28 +48,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.FAILED;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.MIGRATION_REQUIRED;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.NONE;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.RUNNING;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.SUCCEEDED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_MIGRATION_REQUIRED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_NONE;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_RUNNING;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_SUCCEEDED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_FAILED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_REQUIRED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_RUNNING;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_SUCCEEDED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NOT_SUPPORTED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NO_MIGRATION;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
 public class DbMigrationStatusActionTest {
 
-  private static final Date SOME_DATE = new Date();
+  private static final Instant SOME_DATE = Instant.now();
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
   private static final String DEFAULT_ERROR_MSG = "No failure error";
+  public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
   private Database database = mock(Database.class);
@@ -87,7 +79,7 @@ public class DbMigrationStatusActionTest {
   public void verify_example() {
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
-    when(migrationState.getStartedAt()).thenReturn(DateUtils.parseDateTime("2015-02-23T18:54:23+0100"));
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(DATE_TIME_FORMATTER.parse("2015-02-23T18:54:23+0100", Instant::from)));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -111,7 +103,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(NONE.toString(), NONE.getMessage()));
   }
 
   // this test will raise a IllegalArgumentException when an unsupported value is added to the Status enum
@@ -133,7 +125,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(NONE.toString(), NONE.getMessage()));
   }
 
   @Test
@@ -144,7 +136,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NOT_SUPPORTED, MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(Status.STATUS_NOT_SUPPORTED.toString(), Status.STATUS_NOT_SUPPORTED.getMessage()));
   }
 
   @Test
@@ -153,11 +145,11 @@ public class DbMigrationStatusActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_RUNNING, MESSAGE_STATUS_RUNNING, SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(RUNNING.toString(), RUNNING.getMessage(), SOME_DATE));
   }
 
   @Test
@@ -166,12 +158,12 @@ public class DbMigrationStatusActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(FAILED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
-    when(migrationState.getError()).thenReturn(new UnsupportedOperationException(SOME_THROWABLE_MSG));
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
+    when(migrationState.getError()).thenReturn(Optional.of(new UnsupportedOperationException(SOME_THROWABLE_MSG)));
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(FAILED.toString(), failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
   }
 
   @Test
@@ -180,12 +172,12 @@ public class DbMigrationStatusActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(FAILED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
-    when(migrationState.getError()).thenReturn(null); // no failure throwable caught
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
+    when(migrationState.getError()).thenReturn(Optional.empty()); // no failure throwable caught
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(FAILED.toString(), failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
   }
 
   @Test
@@ -194,11 +186,11 @@ public class DbMigrationStatusActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(SUCCEEDED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_SUCCEEDED, MESSAGE_STATUS_SUCCEEDED, SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(SUCCEEDED.toString(), SUCCEEDED.getMessage(), SOME_DATE));
   }
 
   @Test
@@ -207,11 +199,11 @@ public class DbMigrationStatusActionTest {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(NONE);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_REQUIRED, MESSAGE_MIGRATION_REQUIRED));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(MIGRATION_REQUIRED.toString(), MIGRATION_REQUIRED.getMessage()));
   }
 
   @DataProvider
@@ -233,11 +225,11 @@ public class DbMigrationStatusActionTest {
       "}";
   }
 
-  private static String expectedResponse(String status, String msg, Date date) {
+  private static String expectedResponse(String status, String msg, Instant date) {
     return "{" +
       "\"state\":\"" + status + "\"," +
       "\"message\":\"" + msg + "\"," +
-      "\"startedAt\":\"" + DateUtils.formatDateTime(date) + "\"" +
+      "\"startedAt\":\"" + DATE_TIME_FORMATTER.format(date.atZone(ZoneOffset.systemDefault())) + "\"" +
       "}";
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,53 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Checkbox, HelperHintIcon, InputSearch } from 'design-system';
 import * as React from 'react';
-import Checkbox from '../../../components/controls/Checkbox';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import SearchBox from '../../../components/controls/SearchBox';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { Query } from '../utils';
 
 interface Props {
-  query: Query;
   onSearch: (search: string) => void;
-  onToggleInternal: () => void;
   onToggleDeprecated: () => void;
+  onToggleInternal: () => void;
+  query: Query;
 }
 
 export default function Search(props: Props) {
   const { query, onToggleInternal, onToggleDeprecated } = props;
 
   return (
-    <div className="web-api-search">
+    <div>
       <div>
-        <SearchBox
+        <InputSearch
           onChange={props.onSearch}
           placeholder={translate('api_documentation.search')}
           value={query.search}
         />
       </div>
 
-      <div className="big-spacer-top">
-        <Checkbox checked={query.internal} className="text-middle" onCheck={onToggleInternal}>
-          <span className="little-spacer-left">{translate('api_documentation.show_internal')}</span>
+      <div className="sw-flex sw-items-center sw-mt-4">
+        <Checkbox checked={query.internal} onCheck={onToggleInternal}>
+          <span className="sw-ml-2">{translate('api_documentation.show_internal')}</span>
         </Checkbox>
-        <HelpTooltip
-          className="spacer-left"
-          overlay={translate('api_documentation.internal_tooltip')}
-        />
+        <HelpTooltip className="sw-ml-2" overlay={translate('api_documentation.internal_tooltip')}>
+          <HelperHintIcon />
+        </HelpTooltip>
       </div>
 
-      <div className="spacer-top">
-        <Checkbox checked={query.deprecated} className="text-middle" onCheck={onToggleDeprecated}>
-          <span className="little-spacer-left">
-            {translate('api_documentation.show_deprecated')}
-          </span>
+      <div className="sw-flex sw-items-center sw-mt-2">
+        <Checkbox checked={query.deprecated} onCheck={onToggleDeprecated}>
+          <span className="sw-ml-2">{translate('api_documentation.show_deprecated')}</span>
         </Checkbox>
         <HelpTooltip
-          className="spacer-left"
+          className="sw-ml-2"
           overlay={translate('api_documentation.deprecation_tooltip')}
-        />
+        >
+          <HelperHintIcon />
+        </HelpTooltip>
       </div>
     </div>
   );

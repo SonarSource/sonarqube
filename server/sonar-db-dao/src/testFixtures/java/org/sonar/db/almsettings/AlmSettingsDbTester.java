@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -88,7 +88,11 @@ public class AlmSettingsDbTester {
   }
 
   public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
-    return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project), gitlabAlmSetting.getKey(),
+    return insertGitlabProjectAlmSetting(gitlabAlmSetting, project, false);
+  }
+
+  public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project, boolean monorepo) {
+    return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project, monorepo), gitlabAlmSetting.getKey(),
       project.getName(), project.getKey());
   }
 

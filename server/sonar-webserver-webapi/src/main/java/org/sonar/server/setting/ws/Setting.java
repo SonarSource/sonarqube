@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ public class Setting {
   private Setting(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition) {
     this.key = propertyDto.getKey();
     this.value = propertyDto.getValue();
-    this.componentUuid = propertyDto.getComponentUuid();
+    this.componentUuid = propertyDto.getEntityUuid();
     this.definition = definition;
     this.propertySets = buildPropertySetValuesAsMap(key, propertyDtoSetValues);
     this.isDefault = false;

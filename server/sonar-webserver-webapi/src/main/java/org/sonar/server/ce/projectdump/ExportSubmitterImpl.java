@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyMap;
@@ -48,11 +49,13 @@ public class ExportSubmitterImpl implements ExportSubmitter {
     requireNonNull(projectKey, "Project key can not be null");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> project = dbClient.componentDao().selectByKey(dbSession, projectKey);
+      Optional<ProjectDto> project = dbClient.projectDao().selectProjectByKey(dbSession, projectKey);
+      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKey(dbSession, projectKey);
       checkArgument(project.isPresent(), "Project with key [%s] does not exist", projectKey);
+      checkArgument(componentDto.isPresent(), "Component with key [%s] does not exist", projectKey);
 
       CeTaskSubmit submit = ceQueue.prepareSubmit()
-        .setComponent(fromDto(project.get()))
+        .setComponent(fromDto(componentDto.get().uuid(), project.get().getUuid()))
         .setType(CeTaskTypes.PROJECT_EXPORT)
         .setSubmitterUuid(submitterUuid)
         .setCharacteristics(emptyMap())

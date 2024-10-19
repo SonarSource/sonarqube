@@ -1,189 +1,168 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: Zoom enabled 1`] = `
 <svg
-  className="line-chart"
-  height={100}
-  width={100}
+  class="line-chart"
+  height="100"
+  width="100"
 >
+  <defs>
+    <clippath
+      id="chart-clip"
+    >
+      <rect
+        height="34"
+        transform="translate(0,-5)"
+        width="40"
+      />
+    </clippath>
+  </defs>
   <g
-    transform="translate(60, 26)"
+    transform="translate(50, 26)"
   >
     <g>
-      <g
-        key="0"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={24}
-          y2={24}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
         />
       </g>
-      <g
-        key="0.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={22.4}
-          y2={22.4}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
         />
       </g>
-      <g
-        key="0.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={20.8}
-          y2={20.8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
         />
       </g>
-      <g
-        key="0.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={19.200000000000003}
-          y2={19.200000000000003}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
         />
       </g>
-      <g
-        key="0.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={17.6}
-          y2={17.6}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
         />
       </g>
-      <g
-        key="1"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={16}
-          y2={16}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
         />
       </g>
-      <g
-        key="1.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={14.400000000000002}
-          y2={14.400000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
         />
       </g>
-      <g
-        key="1.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={12.800000000000002}
-          y2={12.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
         />
       </g>
-      <g
-        key="1.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={11.2}
-          y2={11.2}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
         />
       </g>
-      <g
-        key="1.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={9.600000000000001}
-          y2={9.600000000000001}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
         />
       </g>
-      <g
-        key="2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={8}
-          y2={8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
         />
       </g>
-      <g
-        key="2.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={6.399999999999999}
-          y2={6.399999999999999}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
         />
       </g>
-      <g
-        key="2.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={4.800000000000002}
-          y2={4.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
         />
       </g>
-      <g
-        key="2.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={3.1999999999999993}
-          y2={3.1999999999999993}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
         />
       </g>
-      <g
-        key="2.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={1.6000000000000023}
-          y2={1.6000000000000023}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
         />
       </g>
-      <g
-        key="3"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={0}
-          y2={0}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
         />
       </g>
     </g>
@@ -191,311 +170,263 @@ exports[`should render correctly 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        className="line-chart-tick"
-        key="0"
-        textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
       >
         October
       </text>
       <text
-        className="line-chart-tick"
-        key="1"
-        textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="2"
-        textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="3"
-        textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
       >
         06 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="4"
-        textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
       >
         Wed 02
       </text>
       <text
-        className="line-chart-tick"
-        key="5"
-        textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="6"
-        textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="7"
-        textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
       >
         06 PM
       </text>
     </g>
     <g>
       <path
-        className="line-chart-path line-chart-path-0"
-        d="M0,16L15,8"
-        key="test-1"
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
-        className="line-chart-path line-chart-path-1"
-        d="M30,0Z"
-        key="test-2"
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
       <circle
-        className="line-chart-dot line-chart-dot-1"
-        cx={30}
-        cy={0}
-        key="test-20"
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
-      className="chart-mouse-events-overlay"
-      height={24}
-      width={30}
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
     />
   </g>
 </svg>
 `;
 
-exports[`should render correctly: Zoom enabled 1`] = `
+exports[`should render correctly: basisCurve 1`] = `
 <svg
-  className="line-chart"
-  height={100}
-  width={100}
+  class="line-chart"
+  height="100"
+  width="100"
 >
-  <defs>
-    <clipPath
-      id="chart-clip"
-    >
-      <rect
-        height={34}
-        transform="translate(0,-5)"
-        width={30}
-      />
-    </clipPath>
-  </defs>
   <g
-    transform="translate(60, 26)"
+    transform="translate(50, 26)"
   >
     <g>
-      <g
-        key="0"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={24}
-          y2={24}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
         />
       </g>
-      <g
-        key="0.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={22.4}
-          y2={22.4}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
         />
       </g>
-      <g
-        key="0.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={20.8}
-          y2={20.8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
         />
       </g>
-      <g
-        key="0.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={19.200000000000003}
-          y2={19.200000000000003}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
         />
       </g>
-      <g
-        key="0.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={17.6}
-          y2={17.6}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
         />
       </g>
-      <g
-        key="1"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={16}
-          y2={16}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
         />
       </g>
-      <g
-        key="1.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={14.400000000000002}
-          y2={14.400000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
         />
       </g>
-      <g
-        key="1.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={12.800000000000002}
-          y2={12.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
         />
       </g>
-      <g
-        key="1.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={11.2}
-          y2={11.2}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
         />
       </g>
-      <g
-        key="1.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={9.600000000000001}
-          y2={9.600000000000001}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
         />
       </g>
-      <g
-        key="2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={8}
-          y2={8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
         />
       </g>
-      <g
-        key="2.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={6.399999999999999}
-          y2={6.399999999999999}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
         />
       </g>
-      <g
-        key="2.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={4.800000000000002}
-          y2={4.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
         />
       </g>
-      <g
-        key="2.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={3.1999999999999993}
-          y2={3.1999999999999993}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
         />
       </g>
-      <g
-        key="2.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={1.6000000000000023}
-          y2={1.6000000000000023}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
         />
       </g>
-      <g
-        key="3"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={0}
-          y2={0}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
         />
       </g>
     </g>
@@ -503,112 +434,370 @@ exports[`should render correctly: Zoom enabled 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        className="line-chart-tick"
-        key="0"
-        textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
       >
         October
       </text>
       <text
-        className="line-chart-tick"
-        key="1"
-        textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="2"
-        textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="3"
-        textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
       >
         06 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="4"
-        textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
       >
         Wed 02
       </text>
       <text
-        className="line-chart-tick"
-        key="5"
-        textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="6"
-        textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="7"
-        textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
       >
         06 PM
       </text>
     </g>
     <g>
       <path
-        className="line-chart-path line-chart-path-0"
-        d="M0,16L15,8"
-        key="test-1"
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
-        className="line-chart-path line-chart-path-1"
-        d="M30,0Z"
-        key="test-2"
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
       <circle
-        className="line-chart-dot line-chart-dot-1"
-        cx={30}
-        cy={0}
-        key="test-20"
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
-      className="chart-mouse-events-overlay"
-      height={24}
-      onWheel={[Function]}
-      width={30}
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: default 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
     />
   </g>
 </svg>
@@ -616,348 +805,316 @@ exports[`should render correctly: Zoom enabled 1`] = `
 
 exports[`should render correctly: format y tick 1`] = `
 <svg
-  className="line-chart"
-  height={100}
-  width={100}
+  class="line-chart"
+  height="100"
+  width="100"
 >
   <g
-    transform="translate(60, 26)"
+    transform="translate(50, 26)"
   >
     <g>
-      <g
-        key="0"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={24}
+          text-anchor="end"
+          x="0"
+          y="24"
         >
           Nicer tick 0
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={24}
-          y2={24}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
         />
       </g>
-      <g
-        key="0.2"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={22.4}
+          text-anchor="end"
+          x="0"
+          y="22.4"
         >
           Nicer tick 0.2
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={22.4}
-          y2={22.4}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
         />
       </g>
-      <g
-        key="0.4"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={20.8}
+          text-anchor="end"
+          x="0"
+          y="20.8"
         >
           Nicer tick 0.4
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={20.8}
-          y2={20.8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
         />
       </g>
-      <g
-        key="0.6"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={19.200000000000003}
+          text-anchor="end"
+          x="0"
+          y="19.200000000000003"
         >
           Nicer tick 0.6
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={19.200000000000003}
-          y2={19.200000000000003}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
         />
       </g>
-      <g
-        key="0.8"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={17.6}
+          text-anchor="end"
+          x="0"
+          y="17.6"
         >
           Nicer tick 0.8
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={17.6}
-          y2={17.6}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
         />
       </g>
-      <g
-        key="1"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={16}
+          text-anchor="end"
+          x="0"
+          y="16"
         >
           Nicer tick 1
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={16}
-          y2={16}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
         />
       </g>
-      <g
-        key="1.2"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={14.400000000000002}
+          text-anchor="end"
+          x="0"
+          y="14.400000000000002"
         >
           Nicer tick 1.2
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={14.400000000000002}
-          y2={14.400000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
         />
       </g>
-      <g
-        key="1.4"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={12.800000000000002}
+          text-anchor="end"
+          x="0"
+          y="12.800000000000002"
         >
           Nicer tick 1.4
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={12.800000000000002}
-          y2={12.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
         />
       </g>
-      <g
-        key="1.6"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={11.2}
+          text-anchor="end"
+          x="0"
+          y="11.2"
         >
           Nicer tick 1.6
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={11.2}
-          y2={11.2}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
         />
       </g>
-      <g
-        key="1.8"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={9.600000000000001}
+          text-anchor="end"
+          x="0"
+          y="9.600000000000001"
         >
           Nicer tick 1.8
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={9.600000000000001}
-          y2={9.600000000000001}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
         />
       </g>
-      <g
-        key="2"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={8}
+          text-anchor="end"
+          x="0"
+          y="8"
         >
           Nicer tick 2
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={8}
-          y2={8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
         />
       </g>
-      <g
-        key="2.2"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={6.399999999999999}
+          text-anchor="end"
+          x="0"
+          y="6.399999999999999"
         >
           Nicer tick 2.2
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={6.399999999999999}
-          y2={6.399999999999999}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
         />
       </g>
-      <g
-        key="2.4"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={4.800000000000002}
+          text-anchor="end"
+          x="0"
+          y="4.800000000000002"
         >
           Nicer tick 2.4
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={4.800000000000002}
-          y2={4.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
         />
       </g>
-      <g
-        key="2.6"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={3.1999999999999993}
+          text-anchor="end"
+          x="0"
+          y="3.1999999999999993"
         >
           Nicer tick 2.6
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={3.1999999999999993}
-          y2={3.1999999999999993}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
         />
       </g>
-      <g
-        key="2.8"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={1.6000000000000023}
+          text-anchor="end"
+          x="0"
+          y="1.6000000000000023"
         >
           Nicer tick 2.8
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={1.6000000000000023}
-          y2={1.6000000000000023}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
         />
       </g>
-      <g
-        key="3"
-      >
+      <g>
         <text
-          className="line-chart-tick line-chart-tick-x"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
-          textAnchor="end"
-          x={0}
-          y={0}
+          text-anchor="end"
+          x="0"
+          y="0"
         >
           Nicer tick 3
         </text>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={0}
-          y2={0}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
         />
       </g>
     </g>
@@ -965,111 +1122,524 @@ exports[`should render correctly: format y tick 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        className="line-chart-tick"
-        key="0"
-        textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
       >
         October
       </text>
       <text
-        className="line-chart-tick"
-        key="1"
-        textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="2"
-        textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="3"
-        textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
       >
         06 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="4"
-        textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
       >
         Wed 02
       </text>
       <text
-        className="line-chart-tick"
-        key="5"
-        textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="6"
-        textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="7"
-        textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
       >
         06 PM
       </text>
     </g>
     <g>
       <path
-        className="line-chart-path line-chart-path-0"
-        d="M0,16L15,8"
-        key="test-1"
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
-        className="line-chart-path line-chart-path-1"
-        d="M30,0Z"
-        key="test-2"
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
       <circle
-        className="line-chart-dot line-chart-dot-1"
-        cx={30}
-        cy={0}
-        key="test-20"
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
-      className="chart-mouse-events-overlay"
-      height={24}
-      width={30}
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: leakPeriodDate 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <rect
+      class="leak-chart-rect"
+      fill="rgba(159,169,237,0.15)"
+      height="24"
+      width="20"
+      x="20"
+      y="0"
+    />
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: level metric 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12"
+          y2="12"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,NaNL20,NaN"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,NaNZ"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
     />
   </g>
 </svg>
@@ -1077,188 +1647,156 @@ exports[`should render correctly: format y tick 1`] = `
 
 exports[`should render correctly: no areas 1`] = `
 <svg
-  className="line-chart"
-  height={100}
-  width={100}
+  class="line-chart"
+  height="100"
+  width="100"
 >
   <g
-    transform="translate(60, 26)"
+    transform="translate(50, 26)"
   >
     <g>
-      <g
-        key="0"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={24}
-          y2={24}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
         />
       </g>
-      <g
-        key="0.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={22.4}
-          y2={22.4}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
         />
       </g>
-      <g
-        key="0.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={20.8}
-          y2={20.8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
         />
       </g>
-      <g
-        key="0.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={19.200000000000003}
-          y2={19.200000000000003}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
         />
       </g>
-      <g
-        key="0.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={17.6}
-          y2={17.6}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
         />
       </g>
-      <g
-        key="1"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={16}
-          y2={16}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
         />
       </g>
-      <g
-        key="1.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={14.400000000000002}
-          y2={14.400000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
         />
       </g>
-      <g
-        key="1.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={12.800000000000002}
-          y2={12.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
         />
       </g>
-      <g
-        key="1.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={11.2}
-          y2={11.2}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
         />
       </g>
-      <g
-        key="1.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={9.600000000000001}
-          y2={9.600000000000001}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
         />
       </g>
-      <g
-        key="2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={8}
-          y2={8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
         />
       </g>
-      <g
-        key="2.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={6.399999999999999}
-          y2={6.399999999999999}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
         />
       </g>
-      <g
-        key="2.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={4.800000000000002}
-          y2={4.800000000000002}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
         />
       </g>
-      <g
-        key="2.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={3.1999999999999993}
-          y2={3.1999999999999993}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
         />
       </g>
-      <g
-        key="2.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={1.6000000000000023}
-          y2={1.6000000000000023}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
         />
       </g>
-      <g
-        key="3"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={0}
-          y2={0}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
         />
       </g>
     </g>
@@ -1266,327 +1804,168 @@ exports[`should render correctly: no areas 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        className="line-chart-tick"
-        key="0"
-        textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
       >
         October
       </text>
       <text
-        className="line-chart-tick"
-        key="1"
-        textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="2"
-        textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="3"
-        textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
       >
         06 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="4"
-        textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
       >
         Wed 02
       </text>
       <text
-        className="line-chart-tick"
-        key="5"
-        textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="6"
-        textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="7"
-        textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
       >
         06 PM
       </text>
     </g>
     <g>
       <path
-        className="line-chart-path line-chart-path-0"
-        d="M0,16L15,8"
-        key="test-1"
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
-        className="line-chart-path line-chart-path-1"
-        d="M30,0Z"
-        key="test-2"
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
       <circle
-        className="line-chart-dot line-chart-dot-1"
-        cx={30}
-        cy={0}
-        key="test-20"
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
-      className="chart-mouse-events-overlay"
-      height={24}
-      width={30}
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
     />
   </g>
 </svg>
 `;
 
-exports[`should render correctly: no height 1`] = `<div />`;
+exports[`should render correctly: no height 1`] = `null`;
 
-exports[`should render correctly: no width 1`] = `<div />`;
+exports[`should render correctly: no width 1`] = `null`;
 
-exports[`should render leak legend correctly 1`] = `
+exports[`should render correctly: rating metric 1`] = `
 <svg
-  className="line-chart"
-  height={100}
-  width={100}
+  class="line-chart"
+  height="100"
+  width="100"
 >
   <g
-    transform="translate(60, 26)"
+    transform="translate(50, 26)"
   >
-    <rect
-      fill="#fbf3d5"
-      height={16}
-      width={15}
-      x={15}
-      y={-16}
-    />
-    <text
-      className="new-code-legend"
-      textAnchor="start"
-      x={19}
-      y={-4}
-    >
-      new code
-    </text>
-    <rect
-      className="leak-chart-rect"
-      fill="#fbf3d5"
-      height={24}
-      width={15}
-      x={15}
-      y={0}
-    />
     <g>
-      <g
-        key="0"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={24}
-          y2={24}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
         />
       </g>
-      <g
-        key="0.2"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={22.4}
-          y2={22.4}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="18"
+          y2="18"
         />
       </g>
-      <g
-        key="0.4"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={20.8}
-          y2={20.8}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12"
+          y2="12"
         />
       </g>
-      <g
-        key="0.6"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={19.200000000000003}
-          y2={19.200000000000003}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6"
+          y2="6"
         />
       </g>
-      <g
-        key="0.8"
-      >
+      <g>
         <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={17.6}
-          y2={17.6}
-        />
-      </g>
-      <g
-        key="1"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={16}
-          y2={16}
-        />
-      </g>
-      <g
-        key="1.2"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={14.400000000000002}
-          y2={14.400000000000002}
-        />
-      </g>
-      <g
-        key="1.4"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={12.800000000000002}
-          y2={12.800000000000002}
-        />
-      </g>
-      <g
-        key="1.6"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={11.2}
-          y2={11.2}
-        />
-      </g>
-      <g
-        key="1.8"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={9.600000000000001}
-          y2={9.600000000000001}
-        />
-      </g>
-      <g
-        key="2"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={8}
-          y2={8}
-        />
-      </g>
-      <g
-        key="2.2"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={6.399999999999999}
-          y2={6.399999999999999}
-        />
-      </g>
-      <g
-        key="2.4"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={4.800000000000002}
-          y2={4.800000000000002}
-        />
-      </g>
-      <g
-        key="2.6"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={3.1999999999999993}
-          y2={3.1999999999999993}
-        />
-      </g>
-      <g
-        key="2.8"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={1.6000000000000023}
-          y2={1.6000000000000023}
-        />
-      </g>
-      <g
-        key="3"
-      >
-        <line
-          className="line-chart-grid"
-          x1={0}
-          x2={30}
-          y1={0}
-          y2={0}
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
         />
       </g>
     </g>
@@ -1594,111 +1973,931 @@ exports[`should render leak legend correctly 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        className="line-chart-tick"
-        key="0"
-        textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
       >
         October
       </text>
       <text
-        className="line-chart-tick"
-        key="1"
-        textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="2"
-        textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="3"
-        textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
       >
         06 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="4"
-        textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
       >
         Wed 02
       </text>
       <text
-        className="line-chart-tick"
-        key="5"
-        textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
       >
         06 AM
       </text>
       <text
-        className="line-chart-tick"
-        key="6"
-        textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
       >
         12 PM
       </text>
       <text
-        className="line-chart-tick"
-        key="7"
-        textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
-        y={24}
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
       >
         06 PM
       </text>
     </g>
     <g>
       <path
-        className="line-chart-path line-chart-path-0"
-        d="M0,16L15,8"
-        key="test-1"
+        class="line-chart-path line-chart-path-0"
+        d="M0,0L20,6"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
-        className="line-chart-path line-chart-path-1"
-        d="M30,0Z"
-        key="test-2"
+        class="line-chart-path line-chart-path-1"
+        d="M40,12Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
       <circle
-        className="line-chart-dot line-chart-dot-1"
-        cx={30}
-        cy={0}
-        key="test-20"
+        cx="40"
+        cy="12"
+        fill="rgb(58,127,173)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
-      className="chart-mouse-events-overlay"
-      height={24}
-      width={30}
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: selected date 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <g>
+      <line
+        class="line-tooltip"
+        x1="0"
+        x2="0"
+        y1="24"
+        y2="0"
+      />
+      <circle
+        cx="0"
+        cy="16"
+        fill="rgb(85,170,223)"
+        r="4"
+        stroke="white"
+        stroke-width="1"
+      />
+      <circle
+        cx="0"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="4"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: split point, but not Rating 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+    <line
+      class="line-tooltip"
+      stroke-dasharray="2"
+      x1="20"
+      x2="20"
+      y1="24"
+      y2="-10"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: zoomSpeed 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-typo-default"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
     />
   </g>
 </svg>

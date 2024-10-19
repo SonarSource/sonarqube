@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.LdapAuthenticator;
 import org.sonar.auth.ldap.LdapGroupsProvider;
 import org.sonar.auth.ldap.LdapRealm;
@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.auth.ldap.LdapAuthenticationResult.failed;
 import static org.sonar.auth.ldap.LdapAuthenticationResult.success;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class LdapCredentialsAuthenticationTest {
@@ -87,7 +87,7 @@ public class LdapCredentialsAuthenticationTest {
   private AuthenticationEvent authenticationEvent;
 
   @Mock
-  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpRequest request = mock(HttpRequest.class);
 
   @Mock
   private LdapAuthenticator ldapAuthenticator;
@@ -253,10 +253,10 @@ public class LdapCredentialsAuthenticationTest {
     doThrow(new IllegalArgumentException(expectedMessage)).when(ldapAuthenticator).doAuthenticate(any(LdapAuthenticator.Context.class));
 
     Credentials credentials = new Credentials(LOGIN, PASSWORD);
-    assertThatThrownBy(() -> underTest.authenticate(credentials, request, BASIC_TOKEN))
+    assertThatThrownBy(() -> underTest.authenticate(credentials, request, SONARQUBE_TOKEN))
       .hasMessage(expectedMessage)
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.realm(BASIC_TOKEN, LDAP_SECURITY_REALM_NAME))
+      .hasFieldOrPropertyWithValue("source", Source.realm(SONARQUBE_TOKEN, LDAP_SECURITY_REALM_NAME))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
     verifyNoInteractions(ldapUsersProvider);

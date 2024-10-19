@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.dependency.CveMapper">
+
+    <sql id="cveColumns">
+      c.uuid as uuid,
+      c.id as id,
+      c.description as description,
+      c.cvss_score as cvssScore,
+      c.epss_score as epssScore,
+      c.epss_percentile as epssPercentile,
+      c.published_at as publishedAt,
+      c.last_modified_at as lastModifiedAt,
+      c.created_at as createdAt,
+      c.updated_at as updatedAt
+    </sql>
+
+   <insert id="insert" parameterType="Cve" useGeneratedKeys="false">
+    insert into cves (
+      uuid,
+      id,
+      description,
+      cvss_score,
+      epss_score,
+      epss_percentile,
+      published_at,
+      last_modified_at,
+      created_at,
+      updated_at
+    ) values (
+      #{uuid, jdbcType=VARCHAR},
+      #{id, jdbcType=VARCHAR},
+      #{description, jdbcType=VARCHAR},
+      #{cvssScore, jdbcType=DOUBLE},
+      #{epssScore, jdbcType=DOUBLE},
+      #{epssPercentile, jdbcType=DOUBLE},
+      #{publishedAt, jdbcType=BIGINT},
+      #{lastModifiedAt, jdbcType=BIGINT},
+      #{createdAt, jdbcType=BIGINT},
+      #{updatedAt, jdbcType=BIGINT}
+    )
+   </insert>
+
+  <select id="selectById" parameterType="string" resultType="Cve">
+    select <include refid="cveColumns"/>
+    from
+      cves c
+    where
+      c.id = #{id, jdbcType=VARCHAR}
+  </select>
+
+  <update id="update" parameterType="Cve" useGeneratedKeys="false">
+    update cves
+    set
+      id = #{id, jdbcType=VARCHAR},
+      description = #{description, jdbcType=VARCHAR},
+      cvss_score = #{cvssScore, jdbcType=DOUBLE},
+      epss_score = #{epssScore, jdbcType=DOUBLE},
+      epss_percentile = #{epssPercentile, jdbcType=DOUBLE},
+      published_at = #{publishedAt, jdbcType=BIGINT},
+      last_modified_at = #{lastModifiedAt, jdbcType=BIGINT},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=BIGINT}
+  </update>
+
+</mapper>

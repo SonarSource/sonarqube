@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,9 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -45,7 +47,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -166,12 +167,12 @@ public class QProfileExporters {
   private List<ActiveRuleChange> importProfile(QProfileDto profile, RulesProfile definition, DbSession dbSession) {
     Map<RuleKey, RuleDto> rulesByRuleKey = dbClient.ruleDao().selectAll(dbSession)
       .stream()
-      .collect(MoreCollectors.uniqueIndex(RuleDto::getKey));
+      .collect(Collectors.toMap(RuleDto::getKey, Function.identity()));
     List<ActiveRule> activeRules = definition.getActiveRules();
     List<RuleActivation> activations = activeRules.stream()
       .map(activeRule -> toRuleActivation(activeRule, rulesByRuleKey))
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toArrayList(activeRules.size()));
+      .toList();
     return qProfileRules.activateAndCommit(dbSession, profile, activations);
   }
 
@@ -199,7 +200,7 @@ public class QProfileExporters {
     }
     String severity = activeRule.getSeverity().name();
     Map<String, String> params = activeRule.getActiveRuleParams().stream()
-      .collect(MoreCollectors.uniqueIndex(ActiveRuleParam::getKey, ActiveRuleParam::getValue));
+      .collect(Collectors.toMap(ActiveRuleParam::getKey, ActiveRuleParam::getValue));
     return RuleActivation.create(ruleDto.getUuid(), severity, params);
   }
 

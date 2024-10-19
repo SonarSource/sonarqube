@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,45 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse } from '../../../types/webhook';
 
 interface Props {
   onClose: () => void;
   onSubmit: () => Promise<void>;
-  webhook: Webhook;
+  webhook: WebhookResponse;
 }
+
+const FORM_ID = 'delete-webhook-modal';
 
 export default function DeleteWebhookForm({ onClose, onSubmit, webhook }: Props) {
   const header = translate('webhooks.delete');
 
+  const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit();
+  };
+
+  const renderForm = (
+    <form id={FORM_ID} onSubmit={onFormSubmit}>
+      {translateWithParameters('webhooks.delete.confirm', webhook.name)}
+    </form>
+  );
+
   return (
-    <SimpleModal header={header} onClose={onClose} onSubmit={onSubmit}>
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-
-          <div className="modal-body">
-            {translateWithParameters('webhooks.delete.confirm', webhook.name)}
-          </div>
-
-          <footer className="modal-foot">
-            <DeferredSpinner className="spacer-right" loading={submitting} />
-            <SubmitButton className="button-red" disabled={submitting}>
-              {translate('delete')}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </footer>
-        </form>
-      )}
-    </SimpleModal>
+    <Modal
+      onClose={onClose}
+      headerTitle={header}
+      isOverflowVisible
+      body={renderForm}
+      primaryButton={
+        <Button form={FORM_ID} type="submit" variety={ButtonVariety.Danger}>
+          {translate('delete')}
+        </Button>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

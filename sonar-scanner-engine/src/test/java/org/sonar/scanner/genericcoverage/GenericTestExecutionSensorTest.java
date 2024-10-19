@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.scan.ProjectConfiguration;
@@ -62,11 +62,11 @@ public class GenericTestExecutionSensorTest {
     DefaultConfiguration config = new ProjectConfiguration(defs, new Encryption(null), settings);
 
     new GenericTestExecutionSensor(mock(TestPlanBuilder.class), config).execute(context);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
+    assertThat(logTester.logs(Level.WARN)).contains(
       "Using 'unitTest' as root element of the report is deprecated. Please change to 'testExecutions'.",
       "Property 'sonar.genericcoverage.unitTestReportPaths' is deprecated. Please use 'sonar.testExecutionReportPaths' instead.");
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       "Imported test execution data for 0 files",
       "Test execution data ignored for 1 unknown files, including:\nA.java");
   }

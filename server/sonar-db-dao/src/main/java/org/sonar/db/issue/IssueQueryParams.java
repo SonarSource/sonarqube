@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,11 @@
  */
 package org.sonar.db.issue;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNullElse;
 
 public class IssueQueryParams {
@@ -38,9 +38,9 @@ public class IssueQueryParams {
   public IssueQueryParams(String branchUuid, @Nullable List<String> languages, @Nullable List<String> ruleRepositories,
     @Nullable List<String> excludingRuleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
     this.branchUuid = branchUuid;
-    this.languages = requireNonNullElse(languages, new ArrayList<>());
-    this.ruleRepositories = requireNonNullElse(ruleRepositories, new ArrayList<>());
-    this.excludingRuleRepositories = requireNonNullElse(excludingRuleRepositories, new ArrayList<>());
+    this.languages = requireNonNullElse(languages, emptyList());
+    this.ruleRepositories = requireNonNullElse(ruleRepositories, emptyList());
+    this.excludingRuleRepositories = requireNonNullElse(excludingRuleRepositories, emptyList());
     this.resolvedOnly = resolvedOnly;
     this.changedSince = changedSince;
   }

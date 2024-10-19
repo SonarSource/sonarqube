@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 
@@ -54,6 +54,6 @@ public final class Markdown {
   }
 
   public static String convertToHtml(String input) {
-    return new Markdown().convert(StringEscapeUtils.escapeHtml(input));
+    return new Markdown().convert(StringEscapeUtils.escapeHtml4(input));
   }
 }

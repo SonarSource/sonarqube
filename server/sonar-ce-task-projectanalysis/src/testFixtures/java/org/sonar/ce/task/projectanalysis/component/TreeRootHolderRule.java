@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,13 +23,15 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
-public class TreeRootHolderRule extends ExternalResource implements TreeRootHolder {
+public class TreeRootHolderRule extends ExternalResource implements TreeRootHolder, AfterEachCallback {
   protected TreeRootHolderImpl delegate = new TreeRootHolderImpl();
 
   @CheckForNull
@@ -38,6 +40,11 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   @Override
   protected void after() {
     this.delegate = null;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) throws Exception {
+    after();
   }
 
   public TreeRootHolderRule setRoot(Component root) {

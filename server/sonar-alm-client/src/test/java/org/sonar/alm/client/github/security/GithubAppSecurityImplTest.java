@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,10 +28,10 @@ import java.time.ZoneId;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.alm.client.github.config.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppConfiguration;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -84,7 +84,7 @@ public class GithubAppSecurityImplTest {
     assertThatThrownBy(() -> underTest.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey()))
       .isInstanceOf(IllegalArgumentException.class)
       .hasRootCauseInstanceOf(IOException.class)
-      .hasRootCauseMessage("-----END RSA PRIVATE KEY not found");
+      .hasRootCauseMessage("-----END RSA PRIVATE KEY----- not found");
   }
 
   @Test

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,31 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Badge,
+  BasicSeparator,
+  ClipboardIconButton,
+  IssueMessageHighlighting,
+  Link,
+  LinkIcon,
+  Note,
+  PageContentFontWrapper,
+} from 'design-system';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { setIssueAssignee } from '../../../api/issues';
-import Link from '../../../components/common/Link';
-import LinkIcon from '../../../components/icons/LinkIcon';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
-import IssueChangelog from '../../../components/issue/components/IssueChangelog';
-import IssueMessageTags from '../../../components/issue/components/IssueMessageTags';
-import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { WorkspaceContext } from '../../../components/workspace/context';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
-import { getComponentIssuesUrl, getRuleUrl } from '../../../helpers/urls';
+import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { RuleStatus } from '../../../types/rules';
+import { IssueActions, IssueType } from '../../../types/issues';
 import { Issue, RuleDetails } from '../../../types/types';
+import IssueHeaderMeta from './IssueHeaderMeta';
+import IssueHeaderSide from './IssueHeaderSide';
+import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 
 interface Props {
   organization: string | undefined;
-  issue: Issue;
-  ruleDetails: RuleDetails;
   branchLike?: BranchLike;
+  issue: Issue;
   onIssueChange: (issue: Issue) => void;
+  ruleDetails: RuleDetails;
 }
 
 interface State {
@@ -66,19 +76,14 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
   }
 
   handleIssuePopupToggle = (popupName: string, open?: boolean) => {
-    const openPopupState = { issuePopupName: popupName };
-
-    const closePopupState = { issuePopupName: undefined };
-
     this.setState(({ issuePopupName }) => {
-      if (open) {
-        return openPopupState;
-      } else if (open === false) {
-        return closePopupState;
+      const samePopup = popupName && issuePopupName === popupName;
+      if (open !== false && !samePopup) {
+        return { issuePopupName: popupName };
+      } else if (open !== true && samePopup) {
+        return { issuePopupName: undefined };
       }
-
-      // toggle popup
-      return issuePopupName === popupName ? closePopupState : openPopupState;
+      return { issuePopupName };
     });
   };
 
@@ -87,7 +92,8 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     if (issue.assignee !== login) {
       updateIssue(
         this.props.onIssueChange,
-        setIssueAssignee({ issue: issue.key, assignee: login })
+        // eslint-disable-next-line local-rules/no-api-imports
+        setIssueAssignee({ issue: issue.key, assignee: login }),
       );
     }
     this.handleIssuePopupToggle('assign', false);
@@ -105,12 +111,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     } else if (event.key === KeyboardKeys.KeyM && this.props.issue.actions.includes('assign')) {
       event.preventDefault();
       return this.handleAssignement('_me');
-    } else if (event.key === KeyboardKeys.KeyI) {
-      event.preventDefault();
-      return this.handleIssuePopupToggle('set-severity');
-    } else if (event.key === KeyboardKeys.KeyC) {
-      event.preventDefault();
-      return this.handleIssuePopupToggle('comment');
     } else if (event.key === KeyboardKeys.KeyT) {
       event.preventDefault();
       return this.handleIssuePopupToggle('edit-tags');
@@ -118,85 +118,97 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     return true;
   };
 
-  render() {
+  renderRuleDescription = () => {
     const {
       issue,
-      ruleDetails: { key, name },
-      branchLike,
+      ruleDetails: { key, name, isExternal },
     } = this.props;
+
+    return (
+      <Note>
+        <span className="sw-pr-1">{name}</span>
+        {isExternal ? (
+          <span>({key})</span>
+        ) : (
+          <Link to={getRuleUrl(key, this.props.organization)} target="_blank">
+            {key}
+          </Link>
+        )}
+        <WorkspaceContext.Consumer>
+          {({ externalRulesRepoNames }) => {
+            const ruleEngine =
+              (issue.externalRuleEngine && externalRulesRepoNames[issue.externalRuleEngine]) ||
+              issue.externalRuleEngine;
+            if (ruleEngine) {
+              return <Badge className="sw-ml-1">{ruleEngine}</Badge>;
+            }
+
+            return null;
+          }}
+        </WorkspaceContext.Consumer>
+      </Note>
+    );
+  };
+
+  render() {
+    const { issue, branchLike } = this.props;
     const { issuePopupName } = this.state;
     const issueUrl = getComponentIssuesUrl(issue.project, {
       ...getBranchLikeQuery(branchLike),
       issues: issue.key,
       open: issue.key,
-      types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined,
+      types: issue.type === IssueType.SecurityHotspot ? issue.type : undefined,
     });
-    const ruleStatus = issue.ruleStatus as RuleStatus | undefined;
-    const { quickFixAvailable } = issue;
+
+    const canSetTags = issue.actions.includes(IssueActions.SetTags);
 
     return (
-      <>
-        <div className="display-flex-center display-flex-space-between big-padded-top">
-          <h1 className="text-bold spacer-right">
-            <span className="spacer-right issue-header" aria-label={issue.message}>
-              <IssueMessageHighlighting
-                message={issue.message}
-                messageFormattings={issue.messageFormattings}
-              />
-            </span>
-            <IssueMessageTags
-              engine={issue.externalRuleEngine}
-              quickFixAvailable={quickFixAvailable}
-              ruleStatus={ruleStatus}
-            />
-          </h1>
-          <div className="issue-meta issue-get-perma-link">
-            <Link
-              className="js-issue-permalink link-no-underline"
-              target="_blank"
-              title={translate('permalink')}
-              to={issueUrl}
-            >
-              {translate('issue.action.permalink')}
-              <LinkIcon />
-            </Link>
-          </div>
-        </div>
-        <div className="display-flex-center display-flex-space-between spacer-top big-spacer-bottom">
-          <div>
-            <span className="note padded-right">{name}</span>
-            <Link className="small" to={getRuleUrl(key, this.props.organization)} target="_blank">
-              {key}
-            </Link>
-          </div>
-          <div className="issue-meta-list">
-            <div className="issue-meta">
-              <IssueChangelog
-                creationDate={issue.creationDate}
-                isOpen={issuePopupName === 'changelog'}
-                issue={issue}
-                togglePopup={this.handleIssuePopupToggle}
-              />
+      <header className="sw-flex sw-mb-6">
+        <div className="sw-mr-8 sw-flex-1 sw-flex sw-flex-col sw-gap-4 sw-min-w-0">
+          <div className="sw-flex sw-flex-col sw-gap-2">
+            <div className="sw-flex sw-items-center">
+              <PageContentFontWrapper className="sw-typo-lg-semibold" as="h1">
+                <IssueMessageHighlighting
+                  message={issue.message}
+                  messageFormattings={issue.messageFormattings}
+                />
+                <ClipboardIconButton
+                  Icon={LinkIcon}
+                  aria-label={translate('permalink')}
+                  className="sw-ml-1 sw-align-bottom"
+                  copyValue={getPathUrlAsString(issueUrl, false)}
+                  discreet
+                />
+              </PageContentFontWrapper>
             </div>
-            {issue.textRange != null && (
-              <div className="issue-meta">
-                <span className="issue-meta-label" title={translate('line_number')}>
-                  L{issue.textRange.endLine}
-                </span>
-              </div>
-            )}
+
+            <div className="sw-flex sw-items-center sw-justify-between">
+              {this.renderRuleDescription()}
+            </div>
           </div>
+
+          <IssueHeaderMeta issue={issue} />
+
+          <BasicSeparator />
+
+          <IssueActionsBar
+            currentPopup={issuePopupName}
+            issue={issue}
+            onAssign={this.handleAssignement}
+            onChange={this.props.onIssueChange}
+            togglePopup={this.handleIssuePopupToggle}
+            canSetTags={canSetTags}
+            showTags
+            showSonarLintBadge
+          />
         </div>
-        <IssueActionsBar
-          className="issue-header-actions"
-          currentPopup={issuePopupName}
-          issue={issue}
-          onAssign={this.handleAssignement}
-          onChange={this.props.onIssueChange}
-          togglePopup={this.handleIssuePopupToggle}
-          showCommentsInPopup={true}
+        <IssueHeaderSide issue={issue} />
+        <IssueNewStatusAndTransitionGuide
+          run
+          issues={[issue]}
+          togglePopup={(_, popup, show) => this.handleIssuePopupToggle(popup, show)}
         />
-      </>
+      </header>
     );
   }
 }

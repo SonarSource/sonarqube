@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,15 +24,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.CeTask;
 import org.sonar.server.platform.ServerFileSystem;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ScoreMatrixDumperImpl implements ScoreMatrixDumper {
-  private static final Logger LOG = Loggers.get(ScoreMatrixDumperImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScoreMatrixDumperImpl.class);
 
   private final Configuration configuration;
   private final CeTask ceTask;

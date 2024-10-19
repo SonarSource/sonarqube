@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,11 @@
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import java.util.Map;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
-public class MutableQualityGateStatusHolderRule extends ExternalResource implements MutableQualityGateStatusHolder {
+public class MutableQualityGateStatusHolderRule extends ExternalResource implements MutableQualityGateStatusHolder, AfterEachCallback {
   private MutableQualityGateStatusHolder delegate = new QualityGateStatusHolderImpl();
 
   @Override
@@ -47,5 +49,10 @@ public class MutableQualityGateStatusHolderRule extends ExternalResource impleme
 
   public void reset() {
     this.delegate = new QualityGateStatusHolderImpl();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    reset();
   }
 }

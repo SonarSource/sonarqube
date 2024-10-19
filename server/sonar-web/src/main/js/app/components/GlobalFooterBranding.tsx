@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link, LinkHighlight } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { isOfficial } from '../../helpers/system';
 
@@ -26,30 +28,28 @@ export default function GlobalFooterBranding() {
   return official ? (
     <div>
       SonarQube&trade; technology is powered by{' '}
-      <a href="https://www.sonarsource.com" rel="noopener noreferrer" target="_blank">
+      <Link highlight={LinkHighlight.CurrentColor} to="https://www.sonarsource.com">
         SonarSource SA
-      </a>
+      </Link>
     </div>
   ) : (
     <div>
       This application is based on{' '}
-      <a
-        href="https://www.sonarqube.org/?referrer=sonarqube"
-        rel="noopener noreferrer"
-        target="_blank"
+      <Link
+        highlight={LinkHighlight.CurrentColor}
+        to="https://www.sonarsource.com/products/sonarqube/?referrer=sonarqube"
         title="SonarQube™"
       >
         SonarQube™
-      </a>{' '}
+      </Link>{' '}
       but is <strong>not</strong> an official version provided by{' '}
-      <a
-        href="https://www.sonarsource.com"
-        rel="noopener noreferrer"
-        target="_blank"
+      <Link
+        highlight={LinkHighlight.CurrentColor}
+        to="https://www.sonarsource.com"
         title="SonarSource SA"
       >
         SonarSource SA
-      </a>
+      </Link>
       .
     </div>
   );

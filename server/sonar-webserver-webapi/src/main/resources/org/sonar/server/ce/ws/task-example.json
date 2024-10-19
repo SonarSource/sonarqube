@@ -1,23 +1,23 @@
 {
   "task": {
-    "organization": "my-org-1",
-    "id": "AVAn5RKqYwETbXvgas-I",
+    "id": "AYhSC2-LY0CHkWJxvNA9",
     "type": "REPORT",
-    "componentId": "AVAn5RJmYwETbXvgas-H",
-    "componentKey": "project_1",
-    "componentName": "Project One",
+    "componentId": "AYhNmk00XxCL_lBVBziT",
+    "componentKey": "sonarsource_test_AYhCAUXoEy1XQQcbVndf",
+    "componentName": "test-scanner-maven",
     "componentQualifier": "TRK",
-    "analysisId": "123456",
-    "status": "FAILED",
-    "submittedAt": "2015-10-02T11:32:15+0200",
-    "startedAt": "2015-10-02T11:32:16+0200",
-    "executedAt": "2015-10-02T11:32:22+0200",
-    "executionTimeMs": 5286,
-    "errorMessage": "Fail to extract report AVaXuGAi_te3Ldc_YItm from database",
-    "logs": false,
-    "hasErrorStacktrace": true,
-    "errorStacktrace": "java.lang.IllegalStateException: Fail to extract report AVaXuGAi_te3Ldc_YItm from database\n\tat org.sonar.server.computation.task.projectanalysis.step.ExtractReportStep.execute(ExtractReportStep.java:50)",
-    "scannerContext": "SonarQube plugins:\n\t- Git 1.0 (scmgit)\n\t- Java 3.13.1 (java)",
-    "hasScannerContext": true
+    "analysisId": "AYhSC3WDE6ILQDIMAPIp",
+    "status": "SUCCESS",
+    "submittedAt": "2023-05-25T10:34:21+0200",
+    "submitterLogin": "admin",
+    "startedAt": "2023-05-25T10:34:22+0200",
+    "executedAt": "2023-05-25T10:34:25+0200",
+    "executionTimeMs": 2840,
+    "hasScannerContext": true,
+    "warningCount": 2,
+    "warnings": [
+      "The properties 'sonar.login' and 'sonar.password' are deprecated and will be removed in the future. Please pass a token with the 'sonar.token' property instead.",
+      "Missing blame information for 2 files. This may lead to some features not working correctly. Please check the analysis logs and refer to <a href=\"https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/scm-integration/\" rel=\"noopener noreferrer\" target=\"_blank\">the documentation</a>."
+    ]
   }
 }

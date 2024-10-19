@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.xoo.rule;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -79,7 +78,7 @@ public class MultilineIssuesSensorTest {
     List<Issue.Flow> flows = issue.flows();
     assertThat(flows).hasSize(2);
 
-    List<DefaultIssueFlow> defaultIssueFlows = flows.stream().map(DefaultIssueFlow.class::cast).collect(Collectors.toList());
+    List<DefaultIssueFlow> defaultIssueFlows = flows.stream().map(DefaultIssueFlow.class::cast).toList();
     assertThat(defaultIssueFlows).extracting(DefaultIssueFlow::type).containsExactlyInAnyOrder(FlowType.DATA, FlowType.EXECUTION);
 
     assertThat(flows.get(0).locations()).extracting(IssueLocation::messageFormattings).isNotEmpty();

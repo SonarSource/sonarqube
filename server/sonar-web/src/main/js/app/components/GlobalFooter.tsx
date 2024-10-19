@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,81 +17,118 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import DocLink from '../../components/common/DocLink';
-import InstanceMessage from '../../components/common/InstanceMessage';
-import Link from '../../components/common/Link';
-import { Alert } from '../../components/ui/Alert';
-import { getEdition } from '../../helpers/editions';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import { AppState } from '../../types/appstate';
-import withAppStateContext from './app-state/withAppStateContext';
-import GlobalFooterBranding from './GlobalFooterBranding';
 
-export interface GlobalFooterProps {
+import styled from '@emotion/styled';
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import {
+  FlagMessage,
+  LAYOUT_VIEWPORT_MIN_WIDTH,
+  PageContentFontWrapper,
+  themeBorder,
+  themeColor,
+} from 'design-system';
+import React from 'react';
+import { useIntl } from 'react-intl';
+import InstanceMessage from '../../components/common/InstanceMessage';
+import AppVersionStatus from '../../components/shared/AppVersionStatus';
+import { DocLink } from '../../helpers/doc-links';
+import { useDocUrl } from '../../helpers/docs';
+import { getEdition } from '../../helpers/editions';
+import GlobalFooterBranding from './GlobalFooterBranding';
+import { useAppState } from './app-state/withAppStateContext';
+
+interface GlobalFooterProps {
   hideLoggedInInfo?: boolean;
-  appState?: AppState;
 }
 
-export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) {
+export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooterProps>) {
+  const appState = useAppState();
   const currentEdition = appState?.edition && getEdition(appState.edition);
+  const intl = useIntl();
+
+  const docUrl = useDocUrl();
 
   return (
-    <div className="page-footer page-container" id="footer">
-      {appState?.productionDatabase === false && (
-        <Alert display="inline" id="evaluation_warning" variant="warning">
-          <p className="big">{translate('footer.production_database_warning')}</p>
-          <p>
-            <InstanceMessage message={translate('footer.production_database_explanation')} />
-          </p>
-        </Alert>
-      )}
+    <StyledFooter className="sw-p-6" id="footer">
+      <PageContentFontWrapper className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
+        {appState?.productionDatabase === false && (
+          <FlagMessage className="sw-mb-4" id="evaluation_warning" variant="warning">
+            <p>
+              <span className="sw-typo-lg-semibold">
+                {intl.formatMessage({ id: 'footer.production_database_warning' })}
+              </span>
 
-      <GlobalFooterBranding />
+              <br />
 
-      <ul className="page-footer-menu">
-        {!hideLoggedInInfo && currentEdition && (
-          <li className="page-footer-menu-item">{currentEdition.name}</li>
+              <InstanceMessage
+                message={intl.formatMessage({ id: 'footer.production_database_explanation' })}
+              />
+            </p>
+          </FlagMessage>
         )}
-        {!hideLoggedInInfo && appState?.version && (
-          <li className="page-footer-menu-item">
-            {translateWithParameters('footer.version_x', appState.version)}
-          </li>
-        )}
-        <li className="page-footer-menu-item">
-          <a
-            href="https://www.gnu.org/licenses/lgpl-3.0.txt"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {translate('footer.license')}
-          </a>
-        </li>
-        <li className="page-footer-menu-item">
-          <a
-            href="https://community.sonarsource.com/c/help/sq"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {translate('footer.community')}
-          </a>
-        </li>
-        <li className="page-footer-menu-item">
-          <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">{translate('footer.documentation')}</DocLink>
-        </li>
-        <li className="page-footer-menu-item">
-          <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
-            {translate('footer.plugins')}
-          </DocLink>
-        </li>
-        {!hideLoggedInInfo && (
-          <li className="page-footer-menu-item">
-            <Link to="/web_api">{translate('footer.web_api')}</Link>
-          </li>
-        )}
-      </ul>
-    </div>
+
+        <div className="sw-flex sw-justify-between sw-items-center">
+          <GlobalFooterBranding />
+
+          <ul className="sw-flex sw-items-center sw-gap-3 sw-ml-4">
+            {!hideLoggedInInfo && currentEdition && <li>{currentEdition.name}</li>}
+
+            {!hideLoggedInInfo && appState?.version && (
+              <li className="sw-code">
+                <AppVersionStatus />
+              </li>
+            )}
+
+            <li>
+              <LinkStandalone
+                highlight={LinkHighlight.CurrentColor}
+                to="https://www.gnu.org/licenses/lgpl-3.0.txt"
+              >
+                {intl.formatMessage({ id: 'footer.license' })}
+              </LinkStandalone>
+            </li>
+
+            <li>
+              <LinkStandalone
+                highlight={LinkHighlight.CurrentColor}
+                to="https://community.sonarsource.com/c/help/sq"
+              >
+                {intl.formatMessage({ id: 'footer.community' })}
+              </LinkStandalone>
+            </li>
+
+            <li>
+              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={docUrl(DocLink.Root)}>
+                {intl.formatMessage({ id: 'footer.documentation' })}
+              </LinkStandalone>
+            </li>
+
+            <li>
+              <LinkStandalone
+                highlight={LinkHighlight.CurrentColor}
+                to={docUrl(DocLink.InstanceAdminPluginVersionMatrix)}
+              >
+                {intl.formatMessage({ id: 'footer.plugins' })}
+              </LinkStandalone>
+            </li>
+
+            {!hideLoggedInInfo && (
+              <li>
+                <LinkStandalone highlight={LinkHighlight.CurrentColor} to="/web_api">
+                  {intl.formatMessage({ id: 'footer.web_api' })}
+                </LinkStandalone>
+              </li>
+            )}
+          </ul>
+        </div>
+      </PageContentFontWrapper>
+    </StyledFooter>
   );
 }
 
-export default withAppStateContext(GlobalFooter);
+const StyledFooter = styled.div`
+  background-color: ${themeColor('backgroundSecondary')};
+  border-top: ${themeBorder('default')};
+  box-sizing: border-box;
+  min-width: ${LAYOUT_VIEWPORT_MIN_WIDTH}px;
+`;

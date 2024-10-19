@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -88,7 +89,7 @@ public class GitIgnoreCommandTest {
       .isFalse();
 
     int expectedIncludedFiles = (int) Math.pow(child_folders_per_folder, folder_depth) + 1; // The .gitignore file is indexed
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
+    assertThat(logTester.logs(Level.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
   }
 
   @Test
@@ -114,7 +115,7 @@ public class GitIgnoreCommandTest {
     assertThat(underTest.isIgnored(projectDir.resolve("module1/folder_0_0/Foo.php"))).isFalse();
 
     int expectedIncludedFiles = 6;
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
+    assertThat(logTester.logs(Level.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
   }
 
   @Test
@@ -139,10 +140,10 @@ public class GitIgnoreCommandTest {
     assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.php"))).isFalse();
 
     // ignoring not cloned submodules
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Git submodule [module1] found, but has not been cloned, skipping.");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Git submodule [module1] found, but has not been cloned, skipping.");
 
     int expectedIncludedFiles = 3;
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
+    assertThat(logTester.logs(Level.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
   }
 
   @Test
@@ -168,7 +169,7 @@ public class GitIgnoreCommandTest {
       .isTrue();
 
     int expectedIncludedFiles = (int) Math.pow(child_folders_per_folder, folder_depth - 1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
+    assertThat(logTester.logs(Level.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
   }
 
   private Path createGitRepoWithIgnore() throws IOException, GitAPIException {

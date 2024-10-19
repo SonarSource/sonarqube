@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -36,7 +38,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
 
@@ -49,9 +51,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
@@ -107,7 +106,7 @@ public class SearchUsersAction implements QProfileWsAction {
       .createParam(PARAM_LANGUAGE)
       .setDescription("Quality profile language")
       .setRequired(true)
-      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(toSet()));
+      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet()));
 
     createOrganizationParam(action);
   }
@@ -129,13 +128,13 @@ public class SearchUsersAction implements QProfileWsAction {
       int total = dbClient.qProfileEditUsersDao().countByQuery(dbSession, query);
       List<SearchUserMembershipDto> usersMembership = dbClient.qProfileEditUsersDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
-      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).collect(toList()))
-        .stream().collect(uniqueIndex(UserDto::getUuid));
+      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).toList())
+        .stream().collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
       writeProtobuf(
         SearchUsersResponse.newBuilder()
           .addAllUsers(usersMembership.stream()
             .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserUuid()), userMembershipDto.isSelected()))
-            .collect(toList()))
+            .toList())
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

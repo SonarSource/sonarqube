@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,18 @@
 package org.sonar.server.es;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.util.Objects;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.tls.HandshakeCertificates;
+import okhttp3.tls.HeldCertificate;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
@@ -32,6 +40,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,6 +160,8 @@ public class EsClientTest {
 
   @Rule
   public MockWebServer mockWebServer = new MockWebServer();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   RestClient restClient = mock(RestClient.class);
   RestHighLevelClient client = new EsClient.MinimalRestHighLevelClient(restClient);
@@ -179,7 +190,7 @@ public class EsClientTest {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_nodes/stats/fs,process,jvm,indices,breaker"))))
-        .thenReturn(response);
+      .thenReturn(response);
 
     assertThat(underTest.nodesStats()).isNotNull();
   }
@@ -189,7 +200,7 @@ public class EsClientTest {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_nodes/stats/fs,process,jvm,indices,breaker"))))
-        .thenThrow(IOException.class);
+      .thenThrow(IOException.class);
 
     assertThatThrownBy(() -> underTest.nodesStats())
       .isInstanceOf(ElasticsearchException.class);
@@ -204,7 +215,7 @@ public class EsClientTest {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_stats"))))
-        .thenReturn(response);
+      .thenReturn(response);
 
     assertThat(underTest.indicesStats()).isNotNull();
   }
@@ -214,7 +225,7 @@ public class EsClientTest {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_stats"))))
-        .thenThrow(IOException.class);
+      .thenThrow(IOException.class);
 
     assertThatThrownBy(() -> underTest.indicesStats())
       .isInstanceOf(ElasticsearchException.class);
@@ -230,7 +241,7 @@ public class EsClientTest {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_cluster/stats"))))
-        .thenReturn(response);
+      .thenReturn(response);
 
     assertThat(underTest.clusterStats()).isNotNull();
   }
@@ -240,7 +251,7 @@ public class EsClientTest {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_cluster/stats"))))
-        .thenThrow(IOException.class);
+      .thenThrow(IOException.class);
 
     assertThatThrownBy(() -> underTest.clusterStats())
       .isInstanceOf(ElasticsearchException.class);
@@ -254,11 +265,52 @@ public class EsClientTest {
       .setHeader("Content-Type", "application/json"));
 
     String password = "test-password";
-    EsClient underTest = new EsClient(password, new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort()));
+    EsClient underTest = new EsClient(password, null, null, new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort()));
 
-    underTest.clusterStats();
+    assertThat(underTest.clusterStats()).isNotNull();
 
     assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic ZWxhc3RpYzp0ZXN0LXBhc3N3b3Jk");
+  }
+
+  @Test
+  public void newInstance_whenKeyStorePassed_shouldCreateClient() throws GeneralSecurityException, IOException {
+    mockWebServer.enqueue(new MockResponse()
+      .setResponseCode(200)
+      .setBody(EXAMPLE_CLUSTER_STATS_JSON)
+      .setHeader("Content-Type", "application/json"));
+
+    Path keyStorePath = temp.newFile("keystore.p12").toPath();
+    String password = "password";
+
+    HandshakeCertificates certificate = createCertificate(mockWebServer.getHostName(), keyStorePath, password);
+    mockWebServer.useHttps(certificate.sslSocketFactory(), false);
+
+    EsClient underTest = new EsClient(null, keyStorePath.toString(), password,
+      new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort(), "https"));
+
+    assertThat(underTest.clusterStats()).isNotNull();
+  }
+
+  static HandshakeCertificates createCertificate(String hostName, Path keyStorePath, String password) throws GeneralSecurityException, IOException {
+    HeldCertificate localhostCertificate = new HeldCertificate.Builder()
+      .addSubjectAlternativeName(hostName)
+      .build();
+
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      KeyStore ks = KeyStore.getInstance("PKCS12");
+      ks.load(null);
+      ks.setKeyEntry("alias", localhostCertificate.keyPair().getPrivate(), password.toCharArray(),
+        new java.security.cert.Certificate[]{localhostCertificate.certificate()});
+      ks.store(baos, password.toCharArray());
+
+      try (OutputStream outputStream = Files.newOutputStream(keyStorePath)) {
+        outputStream.write(baos.toByteArray());
+      }
+    }
+
+    return new HandshakeCertificates.Builder()
+      .heldCertificate(localhostCertificate)
+      .build();
   }
 
   static class RawRequestMatcher implements ArgumentMatcher<Request> {

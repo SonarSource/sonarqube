@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,91 +17,151 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import styled from '@emotion/styled';
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { Navigate } from 'react-router-dom';
+import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { Alert } from '../../../components/ui/Alert';
-import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
+import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getProjectTutorialLocation } from '../../../helpers/urls';
+import { hasGlobalPermission } from '../../../helpers/users';
+import { useBranchesQuery } from '../../../queries/branch';
+import { useTaskForComponentQuery } from '../../../queries/component';
+import { AlmKeys } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { Permissions } from '../../../types/permissions';
+import { TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import Link from "../../../components/common/Link";
 
 export interface EmptyOverviewProps {
+  hasAnalyses?: boolean;
   branchLike?: BranchLike;
-  branchLikes: BranchLike[];
   component: Component;
   currentUser: CurrentUser;
-  hasAnalyses?: boolean;
 }
 
-export function EmptyOverview(props: EmptyOverviewProps) {
-  const { branchLike, branchLikes, component, currentUser, hasAnalyses } = props;
+export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
+  const { hasAnalyses, branchLike, component, currentUser } = props;
+
+  const { data: branchLikes } = useBranchesQuery(component);
+
+  const [currentUserCanScanProject, setCurrentUserCanScanProject] = React.useState(
+    hasGlobalPermission(currentUser, Permissions.Scan),
+  );
+
+  const { data, isLoading } = useTaskForComponentQuery(component);
+
+  const hasQueuedAnalyses =
+    data && data.queue.filter((task) => task.type === TaskTypes.Report).length > 0;
+
+  let permissionInSyncFor: AlmKeys.GitHub | AlmKeys.GitLab = AlmKeys.GitHub;
+
+  const hasPermissionSyncInProgess =
+    data &&
+    data.queue.filter((task) => {
+      if (task.type === TaskTypes.GitlabProjectPermissionsProvisioning) {
+        permissionInSyncFor = AlmKeys.GitLab;
+        return true;
+      }
+      return task.type === TaskTypes.GithubProjectPermissionsProvisioning;
+    }).length > 0;
+
+  React.useEffect(() => {
+    if (currentUserCanScanProject || !isLoggedIn(currentUser)) {
+      return;
+    }
+
+    getScannableProjects()
+      .then(({ projects }) => {
+        setCurrentUserCanScanProject(projects.find((p) => p.key === component.key) !== undefined);
+      })
+      .catch(() => {});
+  }, [component.key, currentUser, currentUserCanScanProject]);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   if (component.qualifier === ComponentQualifier.Application) {
     return (
-      <div className="page page-limited">
-        <Alert variant="warning">{translate('provisioning.no_analysis.application')}</Alert>
-      </div>
+      <LargeCenteredLayout className="sw-pt-8">
+        <FlagMessage className="sw-w-full" variant="warning">
+          {translate('provisioning.no_analysis.application')}
+        </FlagMessage>
+      </LargeCenteredLayout>
     );
   } else if (!isBranch(branchLike)) {
     return null;
   }
 
   const hasBranches = branchLikes.length > 1;
+
   const hasBadBranchConfig =
     branchLikes.length > 2 ||
     (branchLikes.length === 2 && branchLikes.some((branch) => isBranch(branch)));
 
-  const showWarning = isMainBranch(branchLike) && hasBranches;
-  const showTutorial = isMainBranch(branchLike) && !hasBranches && !hasAnalyses;
+  if (hasPermissionSyncInProgess) {
+    return (
+      <LargeCenteredLayout className="sw-pt-8">
+        <PageContentFontWrapper>
+          <SynchInProgress>
+            <Spinner className="sw-mr-2" />
+            {translateWithParameters(
+              'provisioning.permission_synch_in_progress',
+              translate('alm', permissionInSyncFor),
+            )}
+          </SynchInProgress>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    );
+  }
+
+  const showTutorial =
+    currentUserCanScanProject && isMainBranch(branchLike) && !hasBranches && !hasQueuedAnalyses;
+
+  if (showTutorial && isLoggedIn(currentUser)) {
+    return <Navigate replace to={getProjectTutorialLocation(component.key)} />;
+  }
 
   let warning;
-  if (isLoggedIn(currentUser) && showWarning && hasBadBranchConfig) {
-    warning = (
-      <FormattedMessage
-        defaultMessage={translate('provisioning.no_analysis_on_main_branch.bad_configuration')}
-        id="provisioning.no_analysis_on_main_branch.bad_configuration"
-        values={{
-          branchName: getBranchLikeDisplayName(branchLike),
-          branchType: translate('branches.main_branch'),
-        }}
-      />
+
+  if (isLoggedIn(currentUser) && isMainBranch(branchLike) && hasBranches && hasBadBranchConfig) {
+    warning = translateWithParameters(
+      'provisioning.no_analysis_on_main_branch.bad_configuration',
+      getBranchLikeDisplayName(branchLike),
+      translate('branches.main_branch'),
     );
   } else {
-    warning = (
-      <FormattedMessage
-        defaultMessage={translate('provisioning.no_analysis_on_main_branch')}
-        id="provisioning.no_analysis_on_main_branch"
-        values={{
-          branchName: getBranchLikeDisplayName(branchLike),
-        }}
-      />
+    warning = translateWithParameters(
+      'provisioning.no_analysis_on_main_branch',
+      getBranchLikeDisplayName(branchLike),
     );
   }
 
   return (
-    <div className="page page-limited">
-      {isLoggedIn(currentUser) ? (
-        <>
-          {showWarning && <Alert variant="warning">{warning}</Alert>}
-          {showTutorial && (
-            <div className="page-header big-spacer-bottom">
-              <h1 className="page-title">{translate('onboarding.project_analysis.header')}</h1>
-              <p className="page-description">
-                {translate('layout.must_be_configured')}
-                Run analysis on <Link to={`/project/extension/developer/project?id=${component.key}`}>Project Analysis</Link> Page.
-              </p>
-            </div>
-          )}
-        </>
-      ) : (
-        <Alert variant="warning">{warning}</Alert>
-      )}
-    </div>
+    <LargeCenteredLayout className="sw-pt-8">
+      <PageContentFontWrapper>
+        <FlagMessage className="sw-w-full" variant="warning">
+          {warning}
+        </FlagMessage>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 
 export default withCurrentUserContext(EmptyOverview);
+
+const SynchInProgress = styled.div`
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;

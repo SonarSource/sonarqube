@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +20,12 @@
 package org.sonar.auth.ldap;
 
 import java.util.Collection;
-import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.server.http.HttpRequest;
 
 public interface LdapGroupsProvider {
 
   Collection<String> doGetGroups(Context context);
 
-  record Context(String serverKey, String username, HttpServletRequest request) {
+  record Context(String serverKey, String username, HttpRequest request) {
   }
 }

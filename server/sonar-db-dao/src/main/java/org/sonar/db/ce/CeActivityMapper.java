@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ public interface CeActivityMapper {
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
-  int countLastByStatusAndMainComponentUuid(@Param("status") CeActivityDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
+  int countLastByStatusAndEntityUuid(@Param("status") CeActivityDto.Status status, @Nullable @Param("entityUuid") String entityUuid);
 
   void insert(CeActivityDto dto);
 

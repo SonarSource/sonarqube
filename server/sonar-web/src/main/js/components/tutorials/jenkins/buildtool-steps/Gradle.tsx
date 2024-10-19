@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, NumberedListItem } from 'design-system';
 import * as React from 'react';
-import CodeSnippet from '../../../common/CodeSnippet';
-import FinishButton from '../../components/FinishButton';
-import SentenceWithFilename from '../../components/SentenceWithFilename';
+import { FormattedMessage } from 'react-intl';
+import { translate } from '../../../../helpers/l10n';
+import GradleBuildSelection from '../../components/GradleBuildSelection';
+import { InlineSnippet } from '../../components/InlineSnippet';
+import { GradleBuildDSL } from '../../types';
 import { buildGradleSnippet } from '../../utils';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
 const JENKINSFILE_SNIPPET = `node {
@@ -38,17 +41,34 @@ const JENKINSFILE_SNIPPET = `node {
 
 export default function Gradle(props: LanguageProps) {
   const { component } = props;
+
   return (
     <>
-      <li className="abs-width-600">
-        <SentenceWithFilename
-          filename="build.gradle"
-          translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2"
-        />
-        <CodeSnippet snippet={buildGradleSnippet(component.key)} />
-      </li>
+      <NumberedListItem>
+        <span>
+          <FormattedMessage
+            defaultMessage={translate(
+              'onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2',
+              'sentence',
+            )}
+            id="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2.sentence"
+            values={{
+              groovy: <InlineSnippet snippet={GradleBuildDSL.Groovy} />,
+              kotlin: <InlineSnippet snippet={GradleBuildDSL.Kotlin} />,
+            }}
+          />
+        </span>
+        <GradleBuildSelection className="sw-my-4">
+          {(build) => (
+            <CodeSnippet
+              className="sw-p-6"
+              language={build === GradleBuildDSL.Groovy ? 'groovy' : 'kotlin'}
+              snippet={buildGradleSnippet(component.key, component.name, build)}
+            />
+          )}
+        </GradleBuildSelection>
+      </NumberedListItem>
       <CreateJenkinsfileBulletPoint snippet={JENKINSFILE_SNIPPET} />
-      <FinishButton onClick={props.onDone} />
     </>
   );
 }
