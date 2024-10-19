@@ -72,7 +72,7 @@ export class IssueTags extends React.PureComponent<Props> {
         menuId="issue-tags-menu"
         onClose={this.handleClose}
         open={open}
-        overlay={<IssueTagsPopup selectedTags={tags} setTags={this.setTags} />}
+        overlay={<IssueTagsPopup organization={issue.projectOrganization} selectedTags={tags} setTags={this.setTags} />}
         popupPlacement={PopupPlacement.Bottom}
         tags={tags}
         tagsToDisplay={tagsToDisplay}

@@ -22,13 +22,14 @@ package org.sonar.server.qualitygate.ws;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -37,11 +38,9 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.qualitygate.QualityGateUpdater;
-import org.sonar.server.qualityprofile.ws.CopyAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
@@ -66,12 +65,13 @@ public class CreateAction implements QualityGatesWsAction {
 
   public static final int NAME_MAXIMUM_LENGTH = 100;
 
+  private final Logger logger = LoggerFactory.getLogger(CreateAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
   private final QualityGatesWsSupport wsSupport;
-  private final Logger logger = Loggers.get(CreateAction.class);
 
   public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater, QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;

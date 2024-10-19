@@ -49,7 +49,6 @@ include 'server:sonar-alm-client'
 include 'server:sonar-webserver-monitoring'
 
 include 'codescan-application'
-include 'sonar-check-api'
 include 'sonar-core'
 include 'sonar-sarif'
 include 'sonar-duplications'

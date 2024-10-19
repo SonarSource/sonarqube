@@ -30,7 +30,7 @@ export default function useApplicationLeakQuery(application: string, enabled = t
   });
 }
 
-export function useDeleteApplicationMutation() {
+export function useDeleteApplicationMutation(organization: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (key: string) => deleteApplication(key),

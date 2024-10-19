@@ -57,7 +57,7 @@ public class UsersSearchRestResponseGeneratorTest {
   public void toUsersForResponse_whenNoResults_mapsCorrectly() {
     PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
-    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(), paging);
+    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(), paging, false);
 
     assertThat(usersForResponse.users()).isEmpty();
     assertPaginationInformationAreCorrect(paging, usersForResponse.page());
@@ -73,7 +73,7 @@ public class UsersSearchRestResponseGeneratorTest {
     UserInformation userInformation1 = mockSearchResult(1, true);
     UserInformation userInformation2 = mockSearchResult(2, false);
 
-    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging);
+    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging, false);
 
     UserRestResponseForAdmins expectUser1 = buildExpectedResponseForAdmin(userInformation1);
     UserRestResponseForAdmins expectUser2 = buildExpectedResponseForAdmin(userInformation2);
@@ -109,7 +109,7 @@ public class UsersSearchRestResponseGeneratorTest {
     UserInformation userInformation1 = mockSearchResult(1, true);
     UserInformation userInformation2 = mockSearchResult(2, false);
 
-    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging);
+    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging, false);
 
     UserRestResponseForLoggedInUsers expectUser1 = buildExpectedResponseForUser(userInformation1);
     UserRestResponseForLoggedInUsers expectUser2 = buildExpectedResponseForUser(userInformation2);
@@ -138,7 +138,7 @@ public class UsersSearchRestResponseGeneratorTest {
     UserInformation userInformation1 = mockSearchResult(1, true);
     UserInformation userInformation2 = mockSearchResult(2, false);
 
-    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging);
+    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging, false);
 
     UserRestResponseForAnonymousUsers expectUser1 = buildExpectedResponseForAnonymous(userInformation1);
     UserRestResponseForAnonymousUsers expectUser2 = buildExpectedResponseForAnonymous(userInformation2);

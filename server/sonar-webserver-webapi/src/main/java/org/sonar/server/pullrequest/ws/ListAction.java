@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.pullrequest.ws.PullRequestsWs.addProjectParam;
 import static org.sonar.server.pullrequest.ws.PullRequestsWsParameters.PARAM_PROJECT;
@@ -38,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -100,25 +99,25 @@ public class ListAction implements PullRequestWsAction {
 
             List<BranchDto> pullRequests = dbClient.branchDao().selectByProject(dbSession, project).stream()
                     .filter(b -> b.getBranchType() == PULL_REQUEST)
-                    .collect(toList());
-            List<String> pullRequestUuids = pullRequests.stream().map(BranchDto::getUuid).collect(toList());
+                    .toList();
+            List<String> pullRequestUuids = pullRequests.stream().map(BranchDto::getUuid).toList();
 
             Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()
                     .selectByUuids(dbSession,
                             pullRequests.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull)
-                                    .collect(toList()))
-                    .stream().collect(uniqueIndex(BranchDto::getUuid));
+                                    .toList())
+                    .stream().collect(Collectors.toMap(BranchDto::getUuid, Function.identity()));
 
             Map<String, PrStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(
                             project.getUuid(), pullRequestUuids).stream()
-                    .collect(uniqueIndex(PrStatistics::getBranchUuid, Function.identity()));
+                    .collect(Collectors.toMap(PrStatistics::getBranchUuid, Function.identity()));
             Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
                     .selectByComponentUuidsAndMetricKeys(dbSession, pullRequestUuids, singletonList(ALERT_STATUS_KEY))
                     .stream()
-                    .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
+                    .collect(Collectors.toMap(LiveMeasureDto::getComponentUuid, Function.identity()));
             Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao()
                     .selectLastAnalysesByRootComponentUuids(dbSession, pullRequestUuids).stream()
-                    .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
+                    .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
             ProjectPullRequests.ListWsResponse.Builder protobufResponse = ProjectPullRequests.ListWsResponse.newBuilder();
             pullRequests
@@ -131,8 +130,8 @@ public class ListAction implements PullRequestWsAction {
     }
 
     private void checkPermission(ProjectDto project) {
-        if (userSession.hasProjectPermission(USER, project) ||
-                userSession.hasProjectPermission(UserRole.SCAN, project) ||
+        if (userSession.hasEntityPermission(USER, project) ||
+                userSession.hasEntityPermission(UserRole.SCAN, project) ||
                 userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
             return;
         }

@@ -26,6 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
@@ -34,6 +35,7 @@ import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -60,6 +62,8 @@ public class ImportProjectService {
 
   public ImportedProject importProject(ImportProjectRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.organization())
+              .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.organization()));
       checkNewCodeDefinitionParam(request.newCodeDefinitionType(), request.newCodeDefinitionValue());
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, request.almSettingId()).orElseThrow(() -> new IllegalArgumentException("ALM setting not found"));
       DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almSetting.getUrl(), request.repositoryIdentifier(),
@@ -71,6 +75,7 @@ public class ImportProjectService {
       CreationMethod creationMethod = getCreationMethod(request.monorepo());
       ComponentCreationData componentCreationData = projectCreator.createProjectAndBindToDevOpsPlatform(
         dbSession,
+        organization,
         creationMethod,
         request.monorepo(),
         request.projectKey(),

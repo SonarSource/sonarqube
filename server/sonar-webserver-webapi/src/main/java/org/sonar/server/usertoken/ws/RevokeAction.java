@@ -19,11 +19,11 @@
  */
 package org.sonar.server.usertoken.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -35,10 +35,11 @@ import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
 
 public class RevokeAction implements UserTokensWsAction {
 
+  private static final Logger logger = LoggerFactory.getLogger(RevokeAction.class);
+
   private final DbClient dbClient;
   private final UserTokenSupport userTokenSupport;
   private final UserSession userSession;
-  private static final Logger logger = Loggers.get(RevokeAction.class);
 
   public RevokeAction(DbClient dbClient, UserTokenSupport userTokenSupport, UserSession userSession) {
     this.dbClient = dbClient;

@@ -412,7 +412,7 @@ public class PermissionTemplateServiceIT {
   }
 
   private List<String> selectProjectPermissionsOfGroup(@Nullable GroupDto groupDto, String projectUuid) {
-    return dbTester.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(session, groupDto != null ? groupDto.getUuid() : null, projectUuid);
+    return dbTester.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(session, groupDto.getOrganizationUuid(), groupDto != null ? groupDto.getUuid() : null, projectUuid);
   }
 
   private List<String> selectProjectPermissionsOfUser(UserDto userDto, String projectUuid) {
@@ -477,7 +477,7 @@ public class PermissionTemplateServiceIT {
   }
 
   private void checkWouldUserHaveScanPermission(@Nullable String userUuid, boolean expectedResult) {
-    assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, userUuid, "PROJECT_KEY"))
+    assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, null, userUuid, "PROJECT_KEY"))
       .isEqualTo(expectedResult);
   }
 

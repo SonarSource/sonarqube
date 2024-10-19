@@ -53,7 +53,6 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class IssueUpdater {
 
@@ -149,7 +148,7 @@ public class IssueUpdater {
 
   private boolean hasNotificationSupport(BranchDto branch) {
     if (branch.getBranchType() == BranchType.PULL_REQUEST) {
-      return Optional.ofNullable(dbClient.propertiesDao().selectProjectProperty(branch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled"))
+      return dbClient.propertiesDao().selectProjectProperty(branch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled")
               .map(prop -> Boolean.parseBoolean(prop.getValue()))
               .orElse(false);
     }

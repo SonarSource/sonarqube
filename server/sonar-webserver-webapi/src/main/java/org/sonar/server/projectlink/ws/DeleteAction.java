@@ -26,7 +26,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -78,7 +79,9 @@ public class DeleteAction implements ProjectLinksWsAction {
       link = NotFoundException.checkFound(link, "Link with id '%s' not found", id);
       componentFinder.getProjectByUuidOrKey(dbSession, link.getProjectUuid(), null, PROJECT_ID_AND_KEY);
       ProjectDto projectDto = componentFinder.getProjectByUuidOrKey(dbSession, link.getProjectUuid(), null, PROJECT_ID_AND_KEY);
-      checkProjectAdminPermission(projectDto);
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, projectDto.getOrganizationUuid())
+              .orElseThrow(() -> new NotFoundException("No organization found with uuid: " + projectDto.getOrganizationUuid()));
+      checkProjectAdminPermission(projectDto, organization);
       checkNotProvided(link);
 
       dbClient.projectLinkDao().delete(dbSession, link.getUuid());
@@ -86,8 +89,8 @@ public class DeleteAction implements ProjectLinksWsAction {
     }
   }
 
-  private void checkProjectAdminPermission(ProjectDto projectDto) {
-    if (userSession.hasPermission(GlobalPermission.ADMINISTER)) {
+  private void checkProjectAdminPermission(ProjectDto projectDto, OrganizationDto organization) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organization)) {
       return;
     }
     userSession.checkEntityPermission(UserRole.ADMIN, projectDto);

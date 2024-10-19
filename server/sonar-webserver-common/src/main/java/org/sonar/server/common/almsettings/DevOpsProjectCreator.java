@@ -21,6 +21,7 @@ package org.sonar.server.common.almsettings;
 
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.server.component.ComponentCreationData;
 
@@ -28,7 +29,7 @@ public interface DevOpsProjectCreator {
 
   boolean isScanAllowedUsingPermissionsFromDevopsPlatform();
 
-  ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName);
+  ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, OrganizationDto organization, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
+                                                             @Nullable String projectName);
 
 }

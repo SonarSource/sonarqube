@@ -254,6 +254,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                 )}
                 <div className="sw-flex sw-flex-col sw-mt-6">
                   <TabsPanel
+                    grc={grc}
                     analyses={analyses}
                     component={component}
                     loading={loadingStatus}
@@ -265,6 +266,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                       <>
                         {hasNewCodeMeasures ? (
                           <NewCodeMeasuresPanel
+                            grc={grc}
                             qgStatuses={qgStatuses}
                             branch={branch}
                             component={component}

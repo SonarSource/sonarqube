@@ -32,13 +32,12 @@ interface Props {
   canCreate: boolean;
 }
 
-function CreateQualityGateModal() {
+function CreateQualityGateModal({ organization }) {
   const renderModal = React.useCallback(
-    ({ onClose }: ModalProps) => <CreateQualityGateForm onClose={onClose} />,
+    ({ onClose }: ModalProps) => <CreateQualityGateForm onClose={onClose} organization={organization} />,
     [],
   );
 
-export default function ListHeader({ canCreate, refreshQualityGates, organization }: Props) {
   return (
     <div>
       <ModalButton modal={renderModal}>
@@ -51,24 +50,8 @@ export default function ListHeader({ canCreate, refreshQualityGates, organizatio
     </div>
   );
 }
-    <div className="page-header">
-      {canCreate && (
-        <div className="page-actions">
-          <ModalButton
-            modal={({ onClose }) => (
-              <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} organization={organization} />
-            )}
-          >
-            {({ onClick }) => (
-              <Button data-test="quality-gates__add" onClick={onClick}>
-                {translate('create')}
-              </Button>
-            )}
-          </ModalButton>
-        </div>
-      )}
 
-export default function ListHeader({ canCreate }: Readonly<Props>) {
+export default function ListHeader({ organization, canCreate }: Readonly<Props>) {
   return (
     <div className="sw-flex sw-justify-between sw-pb-4">
       <div className="sw-flex sw-justify-between">
@@ -81,7 +64,6 @@ export default function ListHeader({ canCreate }: Readonly<Props>) {
           links={[
             {
               href: DocLink.QualityGates,
-              href: 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-gates',
               label: translate('learn_more'),
             },
           ]}
@@ -89,7 +71,7 @@ export default function ListHeader({ canCreate }: Readonly<Props>) {
           <HelperHintIcon />
         </DocHelpTooltip>
       </div>
-      {canCreate && <CreateQualityGateModal />}
+      {canCreate && <CreateQualityGateModal organization={organization} />}
     </div>
   );
 }

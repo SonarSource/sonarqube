@@ -19,17 +19,16 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -40,9 +39,10 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class RenameAction implements QualityGatesWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(RenameAction.class);
+
   private final DbClient dbClient;
   private final QualityGatesWsSupport wsSupport;
-  private final Logger logger = Loggers.get(RenameAction.class);
 
   public RenameAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;

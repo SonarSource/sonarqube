@@ -40,9 +40,10 @@ public class PopulateRuleTagsTable extends DataChange {
      FROM rules
      WHERE system_tags IS NOT NULL
     UNION ALL
-    SELECT uuid, tags AS tag, 0 as is_system_tag
-     FROM rules
-     WHERE tags IS NOT NULL
+    SELECT r.uuid, rm.tags AS tag, 0 as is_system_tag
+     FROM rules r
+       INNER JOIN rules_metadata rm ON rm.rule_uuid = r.uuid
+     WHERE rm.tags IS NOT NULL
       """;
 
   private static final String INSERT_QUERY = """

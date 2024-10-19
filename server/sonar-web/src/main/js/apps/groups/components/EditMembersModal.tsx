@@ -41,7 +41,7 @@ interface Props {
 }
 
 export default function EditMembersModal(props: Readonly<Props>) {
-  const { group } = props;
+  const { organization, group } = props;
 
   const [query, setQuery] = React.useState<string>('');
   const [changedUsers, setChangedUsers] = React.useState<Map<string, boolean>>(new Map());
@@ -62,6 +62,7 @@ export default function EditMembersModal(props: Readonly<Props>) {
 
   const handleSelect = (userId: string) =>
     addUserToGroup({
+      organization,
       groupId: group.id,
       userId,
     }).then(() => {
@@ -72,6 +73,7 @@ export default function EditMembersModal(props: Readonly<Props>) {
 
   const handleUnselect = (userId: string) =>
     removeUserFromGroup({
+      organization,
       userId,
       groupId: group.id,
     }).then(() => {

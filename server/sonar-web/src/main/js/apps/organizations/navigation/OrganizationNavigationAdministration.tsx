@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,12 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import classNames from 'classnames';
-import {translate} from "../../../helpers/l10n";
-import DropdownIcon from "../../../components/icons/DropdownIcon";
-import Dropdown from "../../../components/controls/Dropdown";
+import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
-import { NavLink } from "react-router-dom";
+import { DropdownMenu, IconChevronDown } from "@sonarsource/echoes-react";
 
 interface Props {
   location: { pathname: string };
@@ -47,59 +44,67 @@ export default function OrganizationNavigationAdministration({ location, organiz
   );
 
   return (
-    <Dropdown
-      overlay={
-        <ul className="menu">
-          <li>
-            <NavLink to={`/organizations/${organization.kee}/edit`}>
-              {translate('organization.settings')}
-            </NavLink>
-          </li>
+    <DropdownMenu.Root
+      id="organization-nav"
+      items={
+        <>
+          <DropdownMenu.ItemLink
+            isMatchingFullPath
+            to={`/organizations/${organization.kee}/edit`}
+          >
+            {translate('organization.settings')}
+          </DropdownMenu.ItemLink>
+
           {adminPages.map(extension => (
-            <li key={extension.key}>
-              <NavLink
-                to={`/organizations/${organization.kee}/extension/${extension.key}`}>
-                {extension.name}
-              </NavLink>
-            </li>
+            <DropdownMenu.ItemLink
+              isMatchingFullPath
+              to={`/organizations/${organization.kee}/extension/${extension.key}`}
+              key={extension.key}
+            >
+              {extension.name}
+            </DropdownMenu.ItemLink>
           ))}
-          <li>
-            <NavLink to={`/organizations/${organization.kee}/groups`}>
-              {translate('user_groups.page')}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={`/organizations/${organization.kee}/permissions`}>
-              {translate('permissions.page')}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to={`/organizations/${organization.kee}/permission_templates`}>
-              {translate('permission_templates')}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to={`/organizations/${organization.kee}/projects_management`}>
-              {translate('projects_management')}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={`/organizations/${organization.kee}/webhooks`}>
-              {translate('webhooks.page')}
-            </NavLink>
-          </li>
-        </ul>
+
+          <DropdownMenu.ItemLink
+            isMatchingFullPath
+            to={`/organizations/${organization.kee}/groups`}
+          >
+            {translate('user_groups.page')}
+          </DropdownMenu.ItemLink>
+
+          <DropdownMenu.ItemLink
+            isMatchingFullPath
+            to={`/organizations/${organization.kee}/permissions`}
+          >
+            {translate('permissions.page')}
+          </DropdownMenu.ItemLink>
+
+          <DropdownMenu.ItemLink
+            isMatchingFullPath
+            to={`/organizations/${organization.kee}/permission_templates`}
+          >
+            {translate('permission_templates')}
+          </DropdownMenu.ItemLink>
+
+          <DropdownMenu.ItemLink
+            isMatchingFullPath
+            to={`/organizations/${organization.kee}/projects_management`}
+          >
+            {translate('projects_management')}
+          </DropdownMenu.ItemLink>
+
+          <DropdownMenu.ItemLink
+            isMatchingFullPath
+            to={`/organizations/${organization.kee}/webhooks`}
+          >
+            {translate('webhooks.page')}
+          </DropdownMenu.ItemLink>
+        </>
       }
-      tagName="li">
-      <a
-        className={classNames('dropdown-toggle', { active: adminActive })}
-        href="#"
-        id="organization-navigation-admin">
-        {translate('layout.settings')}
-        <DropdownIcon className="little-spacer-left" />
-      </a>
-    </Dropdown>
+    >
+      {translate('layout.settings')}
+
+      <IconChevronDown />
+    </DropdownMenu.Root>
   );
 }

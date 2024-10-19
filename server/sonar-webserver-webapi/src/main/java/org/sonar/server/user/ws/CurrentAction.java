@@ -132,7 +132,7 @@ public class CurrentAction implements UsersWsAction {
       .addAllOrgGroups(toWsOrganizationGroups(orgGroups))
       .setOnboarded(user.isOnboarded())
       .addAllScmAccounts(user.getSortedScmAccounts())
-      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions(dbSession)).build())
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null);
 
@@ -162,7 +162,7 @@ public class CurrentAction implements UsersWsAction {
     return permissionService.getGlobalPermissions().stream()
             .map(GlobalPermission::getKey)
             .filter(permission -> userSession.hasPermission(OrganizationPermission.fromKey(permission), defaultOrganization))
-            .collect(toList());
+            .toList();
   }
 
   private CurrentWsResponse.Homepage buildHomepage(DbSession dbSession, UserDto user) {

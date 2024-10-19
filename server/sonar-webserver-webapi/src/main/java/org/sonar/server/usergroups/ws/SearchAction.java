@@ -41,7 +41,6 @@ import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupInformation;
 import org.sonar.server.common.group.service.GroupSearchRequest;
 import org.sonar.server.common.group.service.GroupService;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -118,12 +117,12 @@ public class SearchAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY))
-          .orElseThrow(() -> new NotFoundException("No organization found by key: " + request.mandatoryParam(PARAM_ORGANIZATION_KEY)));
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.mandatoryParam(PARAM_ORGANIZATION_KEY)));
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
       userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER, organization);
 
-      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(request.param(Param.TEXT_QUERY), request.paramAsBoolean(MANAGED_PARAM), page, pageSize);
+      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(organization, request.param(Param.TEXT_QUERY), request.paramAsBoolean(MANAGED_PARAM), page, pageSize);
       SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
 
       Set<String> groupUuids = extractGroupUuids(searchResults.searchResults());

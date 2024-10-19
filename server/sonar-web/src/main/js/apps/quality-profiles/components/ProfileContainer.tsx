@@ -33,7 +33,7 @@ export default function ProfileContainer() {
   const { key, language, name } = location.query;
 
   const context = useQualityProfilesContext();
-  const { profiles } = context;
+  const { organization, profiles } = context;
 
   // try to find a quality profile with the given key
   // if managed to find one, redirect to a new version
@@ -47,14 +47,14 @@ export default function ProfileContainer() {
   });
 
   if (key) {
-    return profileForKey ? null : <ProfileNotFound />;
+    return profileForKey ? null : <ProfileNotFound organization={organization} />;
   }
 
   const filteredProfiles = profiles.filter((p) => p.language === language);
   const profile = filteredProfiles.find((p) => p.name === name);
 
   if (!profile) {
-    return <ProfileNotFound organization={organization} language={language} name={name}/>;
+    return <ProfileNotFound organization={organization} />;
   }
 
   return (

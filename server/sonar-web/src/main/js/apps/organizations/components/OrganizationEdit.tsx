@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import OrganizationDelete from './OrganizationDelete';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from "../../../helpers/l10n";
 import OrganizationUrlInput from '../../create/components/OrganizationUrlInput';
-import { SubmitButton } from "../../../components/controls/buttons";
 import { Organization } from "../../../types/types";
 import OrganizationAvatar from "./OrganizationAvatar";
 import { withOrganizationContext } from "../OrganizationContext";
@@ -32,7 +31,8 @@ import { updateOrganization } from "../../../api/organizations";
 import OrganizationAvatarUrlInput from '../../create/components/OrganizationAvatarUrlInput';
 import OrganizationNameInput from '../../create/components/OrganizationNameInput';
 import OrganizationDescriptionInput from '../../create/components/OrganizationDescriptionInput';
-import { addGlobalSuccessMessage } from '../../../../js/helpers/globalMessages';
+import { addGlobalSuccessMessage } from 'design-system/lib';
+import { Button, ButtonVariety } from "@sonarsource/echoes-react";
 
 interface Props {
   organization: Organization;
@@ -189,8 +189,9 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                   {translate('organization.url.description')}
                 </div>
               </div>
-              <SubmitButton
-                  disabled={this.state.loading || !this.canSubmit(this.state)}>{translate('save')}</SubmitButton>
+              <Button variety={ButtonVariety.Primary} type="submit" disabled={this.state.loading || !this.canSubmit(this.state)}>
+                {translate('save')}
+              </Button>
               {this.state.loading && <i className="spinner spacer-left"/>}
             </form>
           </div>

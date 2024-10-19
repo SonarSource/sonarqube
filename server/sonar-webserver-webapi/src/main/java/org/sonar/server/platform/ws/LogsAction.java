@@ -63,7 +63,7 @@ public class LogsAction implements SystemWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    var values = stream(ProcessId.values()).map(ProcessId::getKey).collect(toList());
+    var values = stream(ProcessId.values()).map(ProcessId::getKey).toList();
     values.add(ACCESS_LOG);
     values.add(DEPRECATION_LOG);
     values.sort(String::compareTo);

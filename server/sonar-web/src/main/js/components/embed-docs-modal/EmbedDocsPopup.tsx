@@ -26,6 +26,9 @@ import { translate } from '../../helpers/l10n';
 import { SuggestionLink } from '../../types/types';
 import { DocItemLink } from './DocItemLink';
 import { SuggestionsContext } from './SuggestionsContext';
+import { getValue } from "../../api/settings";
+import { GlobalSettingKeys } from "../../types/settings";
+import { getRedirectUrlForZoho } from "../../api/codescan";
 
 function IconLink({
   icon = 'embed-doc/sq-icon.svg',
@@ -71,12 +74,22 @@ function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }
   );
 }
 
-export function EmbedDocsPopup() {
+export function EmbedDocsPopup({ setAboutCodescanOpen }) {
   const firstItemRef = React.useRef<HTMLAnchorElement>(null);
   const { suggestions } = React.useContext(SuggestionsContext);
+  const [zohoUrl, setZohoUrl] = useState<string>();
 
   React.useEffect(() => {
     firstItemRef.current?.focus();
+
+    getValue({ key: GlobalSettingKeys.CodescanSupportLink }).then((enabledSupportLink) => {
+      // Get zoho re-direct url.
+      if (!enabledSupportLink || enabledSupportLink.value === "true") {
+        getRedirectUrlForZoho().then(response => {
+          setZohoUrl(response.redirectUrl);
+        });
+      }
+    });
   }, []);
 
   return (
@@ -97,6 +110,16 @@ export function EmbedDocsPopup() {
 
       <DropdownMenu.ItemLink to="https://community.sonarsource.com/">
         {translate('docs.get_help')}
+      </DropdownMenu.ItemLink>
+
+      {zohoUrl && (
+        <DocItemLink to={zohoUrl}>
+          {translate('docs.get_help')}
+        </DocItemLink>
+      )}
+
+      <DropdownMenu.ItemLink onClick={() => setAboutCodescanOpen(true)}>
+        {translate('embed_docs.about_codescan')}
       </DropdownMenu.ItemLink>
 
       <DropdownMenu.Separator />

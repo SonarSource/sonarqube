@@ -43,7 +43,7 @@ interface Props {
   qualityGate: QualityGate;
 }
 
-export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
+export default function DetailsHeader({ organization, qualityGate }: Readonly<Props>) {
   const [isRenameFormOpen, setIsRenameFormOpen] = React.useState(false);
   const [isCopyFormOpen, setIsCopyFormOpen] = React.useState(false);
   const [isRemoveFormOpen, setIsRemoveFormOpen] = React.useState(false);
@@ -54,7 +54,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
     actions.delete,
     actions.setAsDefault,
   ])['true'];
-  const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation();
+  const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation(organization);
 
   const handleSetAsDefaultClick = () => {
     if (!qualityGate.isDefault) {

@@ -26,6 +26,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -60,6 +63,8 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 
 public class ComponentUpdater {
+
+  private static final Logger logger = LoggerFactory.getLogger(ComponentUpdater.class);
 
   private static final Set<String> PROJ_APP_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
   private static final String KEY_ALREADY_EXISTS_ERROR = "Could not create %s with key: \"%s\". A similar key already exists: \"%s\"";
@@ -98,6 +103,8 @@ public class ComponentUpdater {
    * - Index component in es indexes
    */
   public ComponentCreationData create(DbSession dbSession, ComponentCreationParameters componentCreationParameters) {
+    logger.debug("Update Component:: newComponent :{}, userUuid: {} ",
+        componentCreationParameters.newComponent().key(), componentCreationParameters.userUuid());
     ComponentCreationData componentCreationData = createWithoutCommit(dbSession, componentCreationParameters);
     commitAndIndex(dbSession, componentCreationData);
     return componentCreationData;
@@ -160,7 +167,7 @@ public class ComponentUpdater {
   }
 
   private UserPermissionChange toUserPermissionChange(String permission, ProjectDto projectDto, UserDto userDto) {
-    return new UserPermissionChange(Operation.ADD, permission, projectDto, userDto, permissionService);
+    return new UserPermissionChange(Operation.ADD, projectDto.getOrganizationUuid(), permission, projectDto, userDto, permissionService);
   }
 
   private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin) {
@@ -190,6 +197,7 @@ public class ComponentUpdater {
 
     ComponentDto component = new ComponentDto()
       .setUuid(uuid)
+      .setOrganizationUuid(newComponent.getOrganizationUuid())
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setBranchUuid(uuid)
       .setKey(newComponent.key())
@@ -208,6 +216,7 @@ public class ComponentUpdater {
   private ProjectDto toProjectDto(ComponentDto component, long now, CreationMethod creationMethod) {
     return new ProjectDto()
       .setUuid(uuidFactory.create())
+      .setOrganizationUuid(component.getOrganizationUuid())
       .setKey(component.getKey())
       .setQualifier(component.qualifier())
       .setName(component.name())

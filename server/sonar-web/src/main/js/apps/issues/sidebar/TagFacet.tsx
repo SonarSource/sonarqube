@@ -29,7 +29,7 @@ import { Query } from '../utils';
 import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
-  organization: Organization;
+  organization: string;
   branch?: string;
   component: Component | undefined;
   fetching: boolean;
@@ -46,7 +46,7 @@ const SEARCH_SIZE = 100;
 
 export class TagFacet extends React.PureComponent<Props> {
   handleSearch = (query: string) => {
-    const { component, branch } = this.props;
+    const { organization, component, branch } = this.props;
 
     const project =
       component &&
@@ -59,7 +59,7 @@ export class TagFacet extends React.PureComponent<Props> {
         : undefined;
 
     return searchIssueTags({
-      organization: this.props.organization.kee,
+      organization,
       project,
       branch,
       ps: SEARCH_SIZE,

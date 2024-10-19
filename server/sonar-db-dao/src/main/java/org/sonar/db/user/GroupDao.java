@@ -22,13 +22,10 @@ package org.sonar.db.user;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -41,7 +38,6 @@ public class GroupDao implements Dao {
 
   private final System2 system;
   private final AuditPersister auditPersister;
-  private final Logger logger = Loggers.get(GroupDao.class);
 
   public GroupDao(System2 system, AuditPersister auditPersister) {
     this.system = system;
@@ -72,7 +68,7 @@ public class GroupDao implements Dao {
 
   public void deleteByUuid(DbSession dbSession, String groupUuid, String groupName) {
     GroupDto dto = selectByUuid(dbSession, groupUuid);
-    logger.info("Group deleted :: groupName {} and orgId: {}", groupName, dto.getOrganizationUuid());
+    Objects.requireNonNull(dto.getOrganizationUuid());
 
     int deletedRows = mapper(dbSession).deleteByUuid(groupUuid);
 
@@ -94,8 +90,7 @@ public class GroupDao implements Dao {
     item.setCreatedAt(createdAt)
       .setUpdatedAt(createdAt);
     mapper(session).insert(item);
-    logger.info("Group Created :: groupName: {} and orgId: {}", item.getName(), item.getOrganizationUuid());
-    Objects.nonNull(item.getOrganizationUuid());
+    Objects.requireNonNull(item.getOrganizationUuid());
     auditPersister.addUserGroup(session, item.getOrganizationUuid(), new UserGroupNewValue(item.getUuid(), item.getName()));
     return item;
   }
@@ -103,7 +98,7 @@ public class GroupDao implements Dao {
   public GroupDto update(DbSession session, GroupDto item) {
     item.setUpdatedAt(new Date(system.now()));
     mapper(session).update(item);
-    Objects.nonNull(item.getOrganizationUuid());
+    Objects.requireNonNull(item.getOrganizationUuid());
     auditPersister.updateUserGroup(session, item.getOrganizationUuid(), new UserGroupNewValue(item));
     return item;
   }

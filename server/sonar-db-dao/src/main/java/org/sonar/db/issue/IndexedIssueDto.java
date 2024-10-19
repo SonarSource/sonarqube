@@ -31,6 +31,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 
 public final class IndexedIssueDto {
+  private String organizationUuid = null;
   private String issueKey = null;
   private String assignee = null;
   private Integer line = null;
@@ -65,6 +66,15 @@ public final class IndexedIssueDto {
 
   public IndexedIssueDto() {
     // empty constructor
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public IndexedIssueDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
   }
 
   public String getIssueKey() {

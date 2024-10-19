@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package io.codescan.sonarqube.codescanhosted.ce;
 
 import java.time.Clock;
@@ -29,6 +28,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.config.PurgeConstants;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -62,20 +62,20 @@ public class CodeScanBranchSupportDelegate implements BranchSupportDelegate {
 
     @Override
     public ComponentKey createComponentKey(String projectKey, Map<String, String> characteristics) {
-        String branchTypeParam = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristicDto.BRANCH_TYPE_KEY));
+        String branchTypeParam = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristics.BRANCH_TYPE));
 
         if (null == branchTypeParam) {
-            String pullRequest = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristicDto.PULL_REQUEST));
+            String pullRequest = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristics.PULL_REQUEST));
             if (null == pullRequest) {
                 throw new IllegalArgumentException(String.format("One of '%s' or '%s' parameters must be specified",
-                        CeTaskCharacteristicDto.BRANCH_TYPE_KEY,
-                        CeTaskCharacteristicDto.PULL_REQUEST));
+                    CeTaskCharacteristics.BRANCH_TYPE,
+                    CeTaskCharacteristics.PULL_REQUEST));
             } else {
                 return new BranchComponent(projectKey, null, pullRequest);
             }
         }
 
-        String branch = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristicDto.BRANCH_KEY));
+        String branch = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristics.BRANCH));
 
         try {
             BranchType.valueOf(branchTypeParam);
@@ -99,14 +99,11 @@ public class CodeScanBranchSupportDelegate implements BranchSupportDelegate {
 
         String branchUuid = uuidFactory.create();
         ComponentDto componentDto = mainComponentDto.copy()
-                .setUuid(branchUuid)
-                .setRootUuid(branchUuid)
-                .setBranchUuid(branchUuid)
-                .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
-                .setModuleUuidPath(ComponentDto.UUID_PATH_SEPARATOR + branchUuid + ComponentDto.UUID_PATH_SEPARATOR)
-                .setMainBranchProjectUuid(mainComponentDto.uuid())
-                .setCreatedAt(new Date(clock.millis()));
-        dbClient.componentDao().insert(dbSession, componentDto);
+            .setUuid(branchUuid)
+            .setBranchUuid(branchUuid)
+            .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
+            .setCreatedAt(new Date(clock.millis()));
+        dbClient.componentDao().insert(dbSession, componentDto, false);
 
         BranchDto branchDto = new BranchDto()
                 .setProjectUuid(mainComponentDto.uuid())
@@ -116,7 +113,7 @@ public class CodeScanBranchSupportDelegate implements BranchSupportDelegate {
                 .setKey(pullRequestKey));
         componentKey.getBranchName().ifPresent(branchName -> branchDto.setBranchType(BranchType.BRANCH)
                 .setExcludeFromPurge(isBranchExcludedFromPurge(
-                        projectConfigurationLoader.loadProjectConfiguration(dbSession, mainComponentDto), branchName))
+                        projectConfigurationLoader.loadProjectConfiguration(dbSession, mainComponentDto.uuid()), branchName))
                 .setKey(branchName));
         dbClient.branchDao().insert(dbSession, branchDto);
 

@@ -23,6 +23,7 @@ import { Group, Paging } from '../types/types';
 const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
 
 export function getUsersGroups(params: {
+  organization?: string;
   managed?: boolean;
   pageIndex?: number;
   pageSize?: number;
@@ -31,13 +32,14 @@ export function getUsersGroups(params: {
   return axios.get(GROUPS_ENDPOINT, { params });
 }
 
-export function createGroup(data: { description?: string; name: string }): Promise<Group> {
+export function createGroup(data: { organization?: string; description?: string; name: string }): Promise<Group> {
   return axios.post(GROUPS_ENDPOINT, data).then((r) => r.group);
 }
 
 export function updateGroup(
   id: string,
   data: {
+    organization?: string;
     description?: string;
     name?: string;
   },

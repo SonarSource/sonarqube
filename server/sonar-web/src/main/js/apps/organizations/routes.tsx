@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,14 +25,11 @@ import OrganizationProjects from "./components/OrganizationProjects";
 import OrganizationEdit from "./components/OrganizationEdit";
 import OrganizationDelete from "./components/OrganizationDelete";
 import PermissionTemplatesApp from "../permission-templates/components/PermissionTemplatesApp";
-import GlobalPermissionsApp from "../permissions/global/components/App";
-import GroupsApp from "../groups/components/App";
 import ProjectManagementApp from "../projectsManagement/ProjectManagementApp";
 import WebhookApp from "../webhooks/components/App";
 import IssuesApp from "../issues/components/IssuesApp";
 import QualityProfilesApp from "../quality-profiles/components/QualityProfilesApp";
 import qualityGatesRoutes from "../quality-gates/routes";
-import RulesApp from "../coding-rules/components/App";
 import ChangelogContainer from '../quality-profiles/changelog/ChangelogContainer';
 import ComparisonContainer from '../quality-profiles/compare/ComparisonContainer';
 import ProfileContainer from '../quality-profiles/components/ProfileContainer';
@@ -41,6 +38,9 @@ import HomeContainer from '../quality-profiles/home/HomeContainer';
 import OrganizationPageExtension from "../../app/components/extensions/OrganizationPageExtension";
 import OrganizationMembers from "../organizationMembers/OrganizationMembers";
 import PolicyResults from "../policy-results/components/PolicyResults";
+import PermissionsGlobalApp from "../permissions/global/components/PermissionsGlobalApp";
+import GroupsApp from "../groups/GroupsApp";
+import CodingRulesApp from "../coding-rules/components/CodingRulesApp";
 
 const routes = () => (
     <Route path="organizations">
@@ -50,7 +50,7 @@ const routes = () => (
         <Route path="edit" element={<OrganizationEdit />}/>
         <Route path="delete" element={<OrganizationDelete />}/>
         <Route path="permission_templates" element={<PermissionTemplatesApp />}/>
-        <Route path="permissions" element={<GlobalPermissionsApp />}/>
+        <Route path="permissions" element={<PermissionsGlobalApp />}/>
         <Route path="groups" element={<GroupsApp />}/>
         <Route path="projects_management" element={<ProjectManagementApp />}/>
         <Route path="webhooks" element={<WebhookApp />}/>
@@ -65,7 +65,7 @@ const routes = () => (
              <Route path="compare" element={<ComparisonContainer />} />
            </Route>
         </Route>
-        <Route path="rules" element={<RulesApp />}/>
+        <Route path="rules" element={<CodingRulesApp />}/>
         <Route path="members" element={<OrganizationMembers />}/>
         <Route path="extension/:pluginKey/:extensionKey" element={<OrganizationPageExtension />} />
       </Route>

@@ -34,7 +34,9 @@ export default function OAuthProviders({ identityProviders, returnTo }: Readonly
     (key: string) => {
       // We need a real page refresh, as the login mechanism is handled on the server
       window.location.replace(
-        `${getBaseUrl()}/sessions/init/${key}?return_to=${encodeURIComponent(returnTo)}`,
+        key === 'saml2'
+          ? `/sessions/sso?return_to=${encodeURIComponent(returnTo)}`
+          : `${getBaseUrl()}/sessions/init/${key}?return_to=${encodeURIComponent(returnTo)}`
       );
     },
     [returnTo],

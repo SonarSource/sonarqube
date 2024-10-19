@@ -19,23 +19,21 @@
  */
 package org.sonar.server.usertoken.ws;
 
-import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
@@ -47,9 +45,6 @@ import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -63,13 +58,14 @@ public class GenerateAction implements UserTokensWsAction {
 
   private static final int MAX_TOKEN_NAME_LENGTH = 100;
 
+  private static final Logger logger = LoggerFactory.getLogger(GenerateAction.class);
+
   private final DbClient dbClient;
   private final System2 system;
   private final ComponentFinder componentFinder;
   private final TokenGenerator tokenGenerator;
   private final UserTokenSupport userTokenSupport;
   private final GenerateActionValidation validation;
-  private static final Logger logger = Loggers.get(GenerateAction.class);
   private final UserSession userSession;
 
   public GenerateAction(DbClient dbClient, System2 system, ComponentFinder componentFinder, TokenGenerator tokenGenerator,

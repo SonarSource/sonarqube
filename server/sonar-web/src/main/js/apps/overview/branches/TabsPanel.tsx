@@ -35,6 +35,7 @@ import { Component } from '../../../types/types';
 import { MAX_ANALYSES_NB } from './ActivityPanel';
 
 export interface MeasuresPanelProps {
+  grc: boolean;
   analyses?: Analysis[];
   component: Component;
   isNewCode: boolean;
@@ -46,7 +47,7 @@ export interface MeasuresPanelProps {
 const SQ_UPGRADE_NOTIFICATION_TIMEOUT = { weeks: 3 };
 
 export default function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
-  const { analyses, component, loading, qgStatuses = [], isNewCode, children } = props;
+  const { grc, analyses, component, loading, qgStatuses = [], isNewCode, children } = props;
 
   const { failingConditionsOnNewCode, failingConditionsOnOverallCode } =
     countFailingConditions(qgStatuses);
@@ -95,12 +96,12 @@ export default function TabsPanel(props: React.PropsWithChildren<MeasuresPanelPr
   const tabs = [
     {
       value: CodeScope.New,
-      label: translate('overview.new_code'),
+      label: grc ? "New Violations" : translate('overview.new_code'),
       counter: failingConditionsOnNewCode,
     },
     {
       value: CodeScope.Overall,
-      label: translate('overview.overall_code'),
+      label: grc ? "Existing Violations" : translate('overview.overall_code'),
       counter: failingConditionsOnOverallCode,
     },
   ];

@@ -30,9 +30,10 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 public class PopulateCleanCodeAttributeColumnInRules extends DataChange {
 
   private static final String SELECT_QUERY = """
-    SELECT uuid, clean_code_attribute
-    FROM rules
-    WHERE clean_code_attribute is null and (rule_type <> %1$s or ad_hoc_type <> %1$s)
+    SELECT r.uuid, r.clean_code_attribute
+    FROM rules r
+      LEFT JOIN rules_metadata rm ON rm.rule_uuid = r.uuid
+    WHERE r.clean_code_attribute is null and (r.rule_type <> %1$s or rm.ad_hoc_type <> %1$s)
     """.formatted(SECURITY_HOTSPOT.getDbConstant());
 
   private static final String UPDATE_QUERY = """

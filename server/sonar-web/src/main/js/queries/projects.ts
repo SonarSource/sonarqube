@@ -30,10 +30,10 @@ export const useProjectQuery = createQueryHook((key: string) => {
   });
 });
 
-export function useDeleteProjectMutation() {
+export function useDeleteProjectMutation(organization: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (key: string) => deleteProject(key),
+    mutationFn: (key: string) => deleteProject(organization, key),
     onSuccess: (_, key) => {
       invalidateMeasuresByComponentKey(key, queryClient);
     },

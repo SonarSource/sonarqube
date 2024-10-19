@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,9 @@ import * as React from 'react';
 import { keyBy, pickBy, some } from 'lodash';
 import OrganizationGroupCheckbox from './OrganizationGroupCheckbox';
 import { getUserGroups, UserGroup } from '../../api/users';
-import DeferredSpinner from "../../components/ui/DeferredSpinner";
-import {ResetButtonLink, SubmitButton} from "../../components/controls/buttons";
 import {translate, translateWithParameters} from "../../helpers/l10n";
-import SimpleModal from "../../components/controls/SimpleModal";
 import { Group, Organization, OrganizationMember } from "../../types/types";
+import { Button, ButtonVariety, Modal, Spinner } from "@sonarsource/echoes-react";
 
 interface Props {
   onClose: () => void;
@@ -102,7 +100,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
     });
   };
 
-  handleSubmit = () => {
+  handleFormSubmit = () => {
     return this.props
       .updateMemberGroups(
         this.props.member,
@@ -112,52 +110,56 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
       .then(this.props.onClose);
   };
 
-  render() {
+  renderForm = () => {
     const { loading, userGroups = {} } = this.state;
-    const header = translate('organization.members.manage_groups');
     const hasChanges = some(userGroups, group => group.status !== undefined);
-    return (
-      <SimpleModal header={header} onClose={this.props.onClose} onSubmit={this.handleSubmit}>
-        {({ onCloseClick, onFormSubmit, submitting }) => (
-          <form onSubmit={onFormSubmit}>
-            <header className="modal-head">
-              <h2>{header}</h2>
-            </header>
-            <div className="modal-body modal-container">
-              <p>
-                <strong>
-                  {translateWithParameters(
-                    'organization.members.members_groups',
-                    this.props.member.name
-                  )}
-                </strong>
-              </p>
-              {loading ? (
-                <DeferredSpinner className="spacer-top" />
-              ) : (
-                <ul className="list-spaced">
-                  {this.props.organizationGroups.map(group => (
-                    <OrganizationGroupCheckbox
-                      checked={this.isGroupSelected(group.name)}
-                      group={group}
-                      key={group.id}
-                      onCheck={this.onCheck}
-                    />
-                  ))}
-                </ul>
-              )}
-            </div>
 
-            <footer className="modal-foot">
-              <DeferredSpinner className="spacer-right" loading={submitting} />
-              <SubmitButton disabled={submitting || !hasChanges}>{translate('save')}</SubmitButton>
-              <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-                {translate('cancel')}
-              </ResetButtonLink>
-            </footer>
-          </form>
-        )}
-      </SimpleModal>
+    return (
+      <form onSubmit={this.handleFormSubmit}>
+        <div className="modal-body modal-container">
+          <p>
+            <strong>
+              {translateWithParameters(
+                'organization.members.members_groups',
+                this.props.member.name
+              )}
+            </strong>
+          </p>
+          <Spinner isLoading={loading}>
+            <ul className="list-spaced">
+              {this.props.organizationGroups.map(group => (
+                <OrganizationGroupCheckbox
+                  checked={this.isGroupSelected(group.name)}
+                  group={group}
+                  key={group.id}
+                  onCheck={this.onCheck}
+                />
+              ))}
+            </ul>
+          </Spinner>
+        </div>
+
+        <footer className="modal-foot">
+          <Spinner className="sw-ml-2" loading={loading} />
+          <Button variety={ButtonVariety.Primary} type="submit" disabled={loading || !hasChanges}>
+            {translate('save')}
+          </Button>
+          <Button onClick={this.props.onClose} disabled={loading}>
+            {translate('cancel')}
+          </Button>
+        </footer>
+      </form>
+    );
+  }
+
+  render() {
+    return (
+      <Modal
+        title={translate('organization.members.manage_groups')}
+        onClose={this.props.onClose}
+        content={this.renderForm()}
+        loading={this.state.loading}
+      />
     );
   }
 }

@@ -19,13 +19,13 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -42,11 +42,12 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 
 public class DeactivateRuleAction implements QProfileWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(DeactivateRuleAction.class);
+
   private final DbClient dbClient;
   private final QProfileRules ruleActivator;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
-  private final Logger logger = Loggers.get(DeactivateRuleAction.class);
 
   public DeactivateRuleAction(DbClient dbClient, QProfileRules ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;

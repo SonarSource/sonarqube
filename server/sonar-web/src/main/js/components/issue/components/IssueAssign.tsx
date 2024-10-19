@@ -30,7 +30,7 @@ import Avatar from '../../ui/Avatar';
 interface Props {
   canAssign: boolean;
   isOpen: boolean;
-  issue: Issue;
+  issue: Pick<Issue, 'assignee' | 'assigneeActive' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization'>;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }

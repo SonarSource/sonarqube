@@ -42,12 +42,6 @@ import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 

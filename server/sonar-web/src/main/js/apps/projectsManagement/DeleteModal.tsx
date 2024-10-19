@@ -20,9 +20,10 @@
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import { FlagMessage, Modal } from 'design-system';
 import * as React from 'react';
-import { Project, bulkDeleteProjects } from '../../api/project-management';
-import { toNotSoISOString } from '../../helpers/dates';
+import { Project } from '../../api/project-management';
+import { toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { deleteBulkProjects } from '../../api/codescan';
 
 export interface Props {
   organization: string;
@@ -62,12 +63,12 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
         }
       : {
           organization: this.props.organization,
-          analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
+          analyzedBefore: analyzedBefore && toISO8601WithOffsetString(analyzedBefore),
           onProvisionedOnly: this.props.provisioned || undefined,
           qualifiers: this.props.qualifier,
           q: this.props.query || undefined,
         };
-    bulkDeleteProjects(parameters).then(
+    deleteBulkProjects(parameters).then(
       () => {
         if (this.mounted) {
           this.props.onConfirm();

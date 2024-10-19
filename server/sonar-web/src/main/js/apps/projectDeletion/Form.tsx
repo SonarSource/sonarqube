@@ -34,14 +34,15 @@ import { Component } from '../../types/types';
 import { deleteProject } from '../../api/codescan';
 
 interface Props {
+  organization: string;
   component: Pick<Component, 'id' | 'key' | 'name' | 'qualifier' | 'organization'>;
   router: Router;
 }
 
-export function Form({ component, router }: Readonly<Props>) {
-  const { mutate: deleteProject } = useDeleteProjectMutation();
-  const { mutate: deleteApplication } = useDeleteApplicationMutation();
-  const { mutate: deletePortfolio } = useDeletePortfolioMutation();
+export function Form({ organization, component, router }: Readonly<Props>) {
+  const { mutate: deleteProject } = useDeleteProjectMutation(organization);
+  const { mutate: deleteApplication } = useDeleteApplicationMutation(organization);
+  const { mutate: deletePortfolio } = useDeletePortfolioMutation(organization);
 
   const handleDelete = () => {
     let deleteMethod = deleteProject;
@@ -54,7 +55,7 @@ export function Form({ component, router }: Readonly<Props>) {
       deleteMethod = deleteApplication;
     }
 
-    deleteMethod(component.key, {
+    deleteMethod(component.organization, component.key, {
       onSuccess: () => {
         addGlobalSuccessMessage(
           translateWithParameters('project_deletion.resource_deleted', component.name),

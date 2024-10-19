@@ -74,35 +74,30 @@ public class GroupWsSupport {
   }
 
   public GroupDto findGroupDto(DbSession dbSession, Request request) {
-    String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
+    String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION_KEY);
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-    return findGroupDto(dbSession, groupName);
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+        .orElseThrow(() -> new NotFoundException("No organization found with key: " + organizationKey));
+    return findGroupDto(dbSession, organization.getUuid(), groupName);
   }
 
   @CheckForNull
-  public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, String groupName) {
+  public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, String organizationUuid, String groupName) {
     if (DefaultGroups.isAnyone(groupName)) {
       return null;
     }
-    return findGroupDto(dbSession, groupName);
+    return findGroupDto(dbSession, organizationUuid, groupName);
   }
 
-  public GroupDto findGroupDto(DbSession dbSession, String groupName) {
-    OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), groupName);
+  public GroupDto findGroupDto(DbSession dbSession, String organizationUuid, String groupName) {
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, organizationUuid, groupName);
     checkFoundWithOptional(group, "No group with name '%s'", groupName);
     return group.get();
   }
 
-  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, String groupName) {
-    OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
-
-    if (DefaultGroups.isAnyone(groupName)) {
-      return GroupUuidOrAnyone.forAnyone(org.getUuid());
-    }
-
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), groupName);
-    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", groupName, org.getKey());
+  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, String organizationUuid, String groupName) {
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, organizationUuid, groupName);
+    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", groupName, organizationUuid);
     return GroupUuidOrAnyone.from(group.get());
   }
 
@@ -117,18 +112,6 @@ public class GroupWsSupport {
     Optional<OrganizationDto> org = dbClient.organizationDao().selectByKey(dbSession, key);
     checkFoundWithOptional(org, "No organization with key '%s'", key);
     return org.get();
-  }
-
-  void checkNameDoesNotExist(DbSession dbSession, String organizationUuid, String name) {
-    // There is no database constraint on column groups.name
-    // because MySQL cannot create a unique index
-    // on a UTF-8 VARCHAR larger than 255 characters on InnoDB
-    checkRequest(!dbClient.groupDao().selectByName(dbSession, organizationUuid, name).isPresent(), "Group '%s' already exists", name);
-  }
-
-  void checkGroupIsNotDefault(DbSession dbSession, GroupDto groupDto) {
-    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, groupDto.getOrganizationUuid());
-    checkArgument(!defaultGroup.getUuid().equals(groupDto.getUuid()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
   }
 
   static UserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {

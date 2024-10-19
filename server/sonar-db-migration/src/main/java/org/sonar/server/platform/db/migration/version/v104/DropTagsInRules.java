@@ -24,7 +24,7 @@ import org.sonar.server.platform.db.migration.step.DropColumnChange;
 
 public class DropTagsInRules extends DropColumnChange {
   private static final String COLUMN_NAME = "tags";
-  private static final String TABLE_NAME = "rules";
+  private static final String TABLE_NAME = "rules_metadata";
 
   public DropTagsInRules(Database db) {
     super(db, TABLE_NAME, COLUMN_NAME);

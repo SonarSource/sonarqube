@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.projectbindings.controller;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.projectbindings.service.ProjectBindingInformation;
@@ -36,7 +37,7 @@ import org.sonar.server.v2.api.projectbindings.response.ProjectBindingsSearchRes
 import org.sonar.server.v2.api.response.PageRestResponse;
 
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 
 public class DefaultProjectBindingsController implements ProjectBindingsController {
 
@@ -73,7 +74,7 @@ public class DefaultProjectBindingsController implements ProjectBindingsControll
 
   @Override
   public ProjectBindingsSearchRestResponse searchProjectBindings(ProjectBindingsSearchRestRequest restRequest, RestPage restPage) {
-    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
+    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS, (OrganizationDto) null /* TODO */);
     ProjectBindingsSearchRequest serviceRequest = new ProjectBindingsSearchRequest(restRequest.repository(), restRequest.dopSettingId(), restPage.pageIndex(), restPage.pageSize());
     SearchResults<ProjectBindingInformation> searchResults = projectBindingsService.findProjectBindingsByRequest(serviceRequest);
     List<ProjectBinding> projectBindings = toProjectBindings(searchResults);

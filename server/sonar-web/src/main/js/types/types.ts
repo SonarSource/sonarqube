@@ -485,6 +485,7 @@ export interface QualityGate extends QualityGatePreview {
 }
 
 export interface Rule {
+  organization: string;
   cleanCodeAttribute?: CleanCodeAttribute;
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   impacts: SoftwareImpact[];
@@ -562,7 +563,6 @@ export interface RuleDetails extends Rule {
   repo: string;
   scope?: RuleScope;
   templateKey?: string;
-  organization: string;
 }
 
 export interface RestRuleDetails extends RestRule {

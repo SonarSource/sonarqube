@@ -461,20 +461,6 @@ export class StandardFacet extends React.PureComponent<Props, State> {
         ),
         property: SecurityStandard.OWASP_TOP10_2021,
       },
-      {
-        count: owaspTop10.length,
-        loading: fetchingOwaspTop10,
-        name: 'owaspTop10',
-        onClick: this.handleOwaspTop10HeaderClick,
-        open: owaspTop10Open,
-        panel: (
-          <>
-            {this.renderOwaspTop10List()}
-            {this.renderOwaspTop10Hint()}
-          </>
-        ),
-        property: SecurityStandard.OWASP_TOP10,
-      },
     ];
 
     return (

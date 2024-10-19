@@ -173,14 +173,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       data.setNcdId(instanceNcd.hashCode());
       data.setNewCodeDefinitions(newCodeDefinitions);
 
-      String defaultQualityGateUuid = qualityGateFinder.getDefault(dbSession).getUuid();
       String sonarWayQualityGateUuid = qualityGateFinder.getSonarWay(dbSession).getUuid();
       List<ProjectDto> projects = dbClient.projectDao().selectProjects(dbSession);
 
-      data.setDefaultQualityGate(defaultQualityGateUuid);
       data.setSonarWayQualityGate(sonarWayQualityGateUuid);
       resolveUnanalyzedLanguageCode(data, dbSession);
-      resolveProjectStatistics(data, dbSession, defaultQualityGateUuid, projects);
+      resolveProjectStatistics(data, dbSession, projects);
       resolveProjects(data, dbSession);
       resolveBranches(data, branchMeasuresDtos);
       resolveQualityGates(data, dbSession);
@@ -292,7 +290,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     return internalProperties.read(I_PROP_MESSAGE_SEQUENCE).map(Long::parseLong).orElse(0L);
   }
 
-  private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession, String defaultQualityGateUuid, List<ProjectDto> projects) {
+  private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession, List<ProjectDto> projects) {
     Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
     Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
     Map<String, ProjectAlmKeyAndProject> almAndUrlAndMonorepoByProject = getAlmAndUrlByProject(dbSession);
@@ -314,7 +312,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setProjectUuid(projectUuid)
         .setBranchCount(counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getBranch).orElse(0L))
         .setPRCount(counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest).orElse(0L))
-        .setQG(qgatesByProject.getOrDefault(projectUuid, defaultQualityGateUuid))
+        .setQG(qgatesByProject.get(projectUuid))
         .setScm(Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED))
         .setCi(Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED))
         .setDevops(resolveDevopsPlatform(almAndUrlAndMonorepoByProject, projectUuid))

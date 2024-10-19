@@ -28,7 +28,7 @@ class UserPermissionDtoTest {
 
   @Test
   void toString_shouldReturnInformationAboutAllFieldsExceptUuid() {
-    UserPermissionDto userPermissionDto = new UserPermissionDto("someUuid", "somePermission", "someUserUuid", "someEntityUuid");
+    UserPermissionDto userPermissionDto = new UserPermissionDto("someUuid", "org", "somePermission", "someUserUuid", "someEntityUuid");
 
     String toStringResult = userPermissionDto.toString();
 

@@ -49,7 +49,7 @@ export default function ComparisonResultActivation(props: React.PropsWithChildre
 
   const handleButtonClick = () => {
     setState('opening');
-    getRuleDetails({ key: ruleKey }).then(
+    getRuleDetails({ key: ruleKey, organization: props.organization }).then(
       ({ rule }) => {
         setState('open');
         setRule(rule);

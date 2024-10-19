@@ -38,11 +38,10 @@ import { isTransitionHidden, transitionRequiresComment } from '../../../componen
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { withBranchStatusRefresh } from '../../../queries/branch';
 import { IssueTransition } from '../../../types/issues';
-import { Issue, Paging } from '../../../types/types';
+import { Issue, Organization, Paging } from '../../../types/types';
 import AssigneeSelect from './AssigneeSelect';
 import TagsSelect from './TagsSelect';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
-import withComponentContext  from '../../../app/components/componentContext/withComponentContext';
 
 interface Props {
   organization: Organization;
@@ -448,4 +447,4 @@ function hasAction(action: string) {
   return (issue: Issue) => issue.actions?.includes(action);
 }
 
-export default withBranchStatusRefresh(withComponentContext(withOrganizationContext(BulkChangeModal)));
+export default withOrganizationContext(withBranchStatusRefresh(BulkChangeModal));

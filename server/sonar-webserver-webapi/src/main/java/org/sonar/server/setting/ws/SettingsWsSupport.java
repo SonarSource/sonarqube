@@ -78,11 +78,8 @@ public class SettingsWsSupport {
   }
 
   private boolean hasPermission(OrganizationPermission orgPermission, String projectPermission, Optional<EntityDto> component) {
-    if (userSession.hasPermission(orgPermission, component.getOrganizationUuid())) {
-      return true;
-    }
     return component
-      .map(c -> userSession.hasEntityPermission(projectPermission, c))
+      .map(c -> userSession.hasPermission(orgPermission, c.getOrganizationUuid()) || userSession.hasEntityPermission(projectPermission, c))
       .orElse(false);
   }
 

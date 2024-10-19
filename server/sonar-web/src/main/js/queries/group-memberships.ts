@@ -187,7 +187,7 @@ export function useRemoveGroupMembershipMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, groupId }: { groupId: string; userId: string }) => {
+    mutationFn: async ({ userId, groupId }: { organization: string; groupId: string; userId: string }) => {
       const memberships = await getGroupMemberships({ userId, groupId, pageSize: 1 });
       if (!memberships.page.total) {
         throw new Error(

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { PROFILE_PATH } from '../constants';
 
-export default function ProfileNotFound() {
+export default function ProfileNotFound({ organization }) {
   const intl = useIntl();
 
   return (
@@ -30,7 +30,7 @@ export default function ProfileNotFound() {
       <h1 className="sw-typo-lg-semibold sw-mb-4">
         {intl.formatMessage({ id: 'quality_profiles.not_found' })}
       </h1>
-      <Link className="sw-typo-semibold" to={PROFILE_PATH}>
+      <Link className="sw-typo-semibold" to={`/organizations/${organization}/${PROFILE_PATH}`}>
         {intl.formatMessage({ id: 'quality_profiles.back_to_list' })}
       </Link>
     </div>

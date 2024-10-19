@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,9 +26,11 @@ import './style.css';
 import { Organization } from "../../../types/types";
 import { CurrentUser } from "../../../types/users";
 import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";
-import { Router, withRouter } from "../../../components/hoc/withRouter";
-import { SubmitButton } from "../../../components/controls/buttons";
+import { Router } from '~sonar-aligned/types/router';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+
 import OrganizationInput from "../components/OrganizationInput";
+import { ButtonPrimary } from "design-system";
 
 interface Props {
   currentUser: CurrentUser;
@@ -62,9 +64,9 @@ const CreateProjectPageSonarCloud: React.FC<Props> = ({ userOrganizations, route
                         organizations={userOrganizations}
                     />
                 )}
-                <SubmitButton disabled={!selectedOrganization}>
+                <ButtonPrimary type="submit" disabled={!selectedOrganization}>
                   {translate('set_up')}
-                </SubmitButton>
+                </ButtonPrimary>
               </form>
             </div>
           </div>

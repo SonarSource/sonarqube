@@ -17,28 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import { IconChevronDown } from '@sonarsource/echoes-react';
-import {
-  ButtonSecondary,
-  Dropdown,
-  ItemDivider,
-  ItemLink,
-  PopupPlacement,
-  PopupZLevel,
-} from 'design-system';
+import { Button, ButtonVariety, IconChevronDown } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { Button } from '../../../components/controls/buttons';
 import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
 import { LoggedInUser } from '../../../types/users';
-
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 
 interface Props {
   currentUser: LoggedInUser;
@@ -133,7 +123,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Button className="button-primary" onClick={this.handleProjectCreate}>
+      <Button variety={ButtonVariety.Primary} onClick={this.handleProjectCreate}>
         {translate('projects.add')}
 
         <IconChevronDown className="sw-ml-1" />

@@ -27,8 +27,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -38,9 +39,11 @@ import org.sonar.db.audit.model.UserTokenNewValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserTokenDao implements Dao {
+
+  private final Logger logger = LoggerFactory.getLogger(UserTokenDao.class);
+
   private final UuidFactory uuidFactory;
   private final AuditPersister auditPersister;
-  private final Logger logger = Loggers.get(UserTokenDao.class);
 
   public UserTokenDao(UuidFactory uuidFactory, AuditPersister auditPersister) {
     this.uuidFactory = uuidFactory;

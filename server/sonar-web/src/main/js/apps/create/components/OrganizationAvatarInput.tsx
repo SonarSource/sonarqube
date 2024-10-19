@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,14 +20,14 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import { isWebUri } from 'valid-url';
-import ValidationInput from "../../../components/controls/ValidationInput";
 import { translate } from "../../../helpers/l10n";
 import OrganizationAvatar from "../../organizations/components/OrganizationAvatar";
-import { getWhiteListDomains } from '../../../../js/api/organizations';
-import { throwGlobalError } from '../../../../js/helpers/error';
+import { getWhiteListDomains } from '../../../api/organizations';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
-import { AppState } from '../../../../js/types/appstate';
-import { allowSpecificDomains } from '../../../../js/helpers/urls';
+import { AppState } from '../../../types/appstate';
+import { allowSpecificDomains } from '../../../helpers/urls';
+import { FormField } from "design-system";
 
 interface Props {
   initialValue?: string;
@@ -44,78 +44,78 @@ interface State {
 }
 
 class OrganizationAvatarInput extends React.PureComponent<Props, State> {
-  state: State = {error: undefined, editing: false, touched: false, value: ''};
+  state: State = { error: undefined, editing: false, touched: false, value: '' };
   whiteListDomains: string[] = [];
 
   async fetchWhiteListDomains() {
-    await getWhiteListDomains().then((data : string[])=>{
-      this.whiteListDomains = data;
-    },
-    throwGlobalError)
+    await getWhiteListDomains().then((data: string[]) => {
+        this.whiteListDomains = data;
+      },
+      throwGlobalError)
   }
 
 
   async componentDidMount() {
     await this.fetchWhiteListDomains();
-    setTimeout(()=>{
+    setTimeout(() => {
       if (this.props.initialValue) {
         const value = this.props.initialValue;
         const error = this.validateUrl(value);
-        this.setState({error, touched: Boolean(error), value});
+        this.setState({ error, touched: Boolean(error), value });
       }
-    },0);
+    }, 0);
   }
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value.trim();
     const error = this.validateUrl(value);
-    this.setState({error, touched: true, value});
+    this.setState({ error, touched: true, value });
     this.props.onChange(error === undefined ? value : undefined);
   };
 
   handleBlur = () => {
-    this.setState({editing: false});
+    this.setState({ editing: false });
   };
 
   handleFocus = () => {
-    this.setState({editing: true});
+    this.setState({ editing: true });
   };
 
-  domainFromUrl = (url:string) => {
+  domainFromUrl = (url: string) => {
     let result;
     let match;
     if (match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im)) {
+      result = match[1]
+      if (match = result.match(/^[^\.]+\.(.+\..+)$/)) {
         result = match[1]
-        if (match = result.match(/^[^\.]+\.(.+\..+)$/)) {
-            result = match[1]
-        }
+      }
     }
     return result
   }
-  
-  isValidDomain = (url : string) => {
+
+  isValidDomain = (url: string) => {
     const validDomainUrls = this.whiteListDomains;
     let isUrlValid = false;
-    
+
     let domain = this.domainFromUrl(url);
-    for(const element of validDomainUrls){
-      if(domain?.endsWith(element)){
+    for (const element of validDomainUrls) {
+      if (domain?.endsWith(element)) {
         isUrlValid = true;
         break;
-      }  
+      }
     }
     return isUrlValid;
   }
-  
 
-  validateUrl=(url: string)=> {
+
+  validateUrl = (url: string) => {
 
     const { whiteLabel } = this.props.appState
-    if (url.length > 0 && !isWebUri(url) ){
+    if (url.length > 0 && !isWebUri(url)) {
       return translate('onboarding.create_organization.url.error');
     }
 
-    if(allowSpecificDomains(whiteLabel) && url.length > 0 && !this.isValidDomain(url)){
+    if (allowSpecificDomains(whiteLabel) && url.length > 0 && !this.isValidDomain(url)) {
       return translate('onboarding.create_organization.url.domain.error');
     }
     return undefined;
@@ -126,38 +126,38 @@ class OrganizationAvatarInput extends React.PureComponent<Props, State> {
     const isValidUrl = this.state.error === undefined && this.state.value !== '';
     const isValid = this.state.touched && isValidUrl;
     return (
-        <ValidationInput
-            description={translate('onboarding.create_organization.avatar.description')}
-            error={this.state.error}
-            isInvalid={isInvalid}
-            isValid={isValid}
-            labelHtmlFor="organization-avatar"
-            label={translate('onboarding.create_organization.avatar')}>
-          <>
-            {(isValidUrl || this.props.name) && (
-                <OrganizationAvatar
-                    className="display-block spacer-bottom"
-                    organization={{
-                      avatar: isValidUrl ? this.state.value : undefined,
-                      name: this.props.name || ''
-                    }}
-                />
-            )}
-            <input
-                className={classNames('input-super-large', 'text-middle', {
-                  'is-invalid': isInvalid,
-                  'is-valid': isValid
-                })}
-                id="organization-avatar"
-                onBlur={this.handleBlur}
-                onChange={this.handleChange}
-                onFocus={this.handleFocus}
-                placeholder={translate('onboarding.create_organization.avatar.placeholder')}
-                type="text"
-                value={this.state.value}
+      <FormField
+        description={translate('onboarding.create_organization.avatar.description')}
+        error={this.state.error}
+        isInvalid={isInvalid}
+        isValid={isValid}
+        htmlFor="organization-avatar"
+        label={translate('onboarding.create_organization.avatar')}>
+        <>
+          {(isValidUrl || this.props.name) && (
+            <OrganizationAvatar
+              className="display-block spacer-bottom"
+              organization={{
+                avatar: isValidUrl ? this.state.value : undefined,
+                name: this.props.name || ''
+              }}
             />
-          </>
-        </ValidationInput>
+          )}
+          <input
+            className={classNames('input-super-large', 'text-middle', {
+              'is-invalid': isInvalid,
+              'is-valid': isValid
+            })}
+            id="organization-avatar"
+            onBlur={this.handleBlur}
+            onChange={this.handleChange}
+            onFocus={this.handleFocus}
+            placeholder={translate('onboarding.create_organization.avatar.placeholder')}
+            type="text"
+            value={this.state.value}
+          />
+        </>
+      </FormField>
     );
   }
 }

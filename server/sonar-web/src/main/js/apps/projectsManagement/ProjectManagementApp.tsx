@@ -35,7 +35,7 @@ import ListFooter from '../../components/controls/ListFooter';
 import { toShortISO8601String } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { SettingsKey } from '../../types/settings';
-import { Organization, Visibility } from '../../types/types';
+import { Organization } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
 import Header from './Header';
 import Projects from './Projects';
@@ -101,7 +101,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
   };
 
   handleDefaultProjectVisibilityChange = async (visibility: Visibility) => {
-    await changeProjectDefaultVisibility(this.props.organization.kee, visibility);
+    await changeProjectDefaultVisibility(this.props.organization!.kee, visibility);
 
     if (this.mounted) {
       this.setState({ defaultProjectVisibility: visibility });
@@ -217,6 +217,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
           />
 
           <Search
+            organization={organization!.kee}
             analyzedBefore={this.state.analyzedBefore}
             onAllDeselected={this.onAllDeselected}
             onAllSelected={this.onAllSelected}

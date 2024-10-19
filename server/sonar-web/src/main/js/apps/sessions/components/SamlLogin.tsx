@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from "react";
-import { SubmitButton } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import './Login.css';
-import './LoginForm.css';
 import { getReturnUrl } from '../../../helpers/urls';
-import { useLocation } from '../../../components/hoc/withRouter';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
+import { ButtonPrimary } from "design-system";
 
 export default function SamlLogin() {
+
+  const location = useLocation();
 
   const [email, setEmail] = React.useState<string>();
 
@@ -38,7 +38,7 @@ export default function SamlLogin() {
       <div className="login-page" id="login_form">
         <h1 className="login-title text-center">Sign in Using SSO</h1>
         <form className="login-form" action={
-            `/_codescan/saml2/login/${email}?return_to=${encodeURIComponent(getReturnUrl(useLocation()))}`
+            `/_codescan/saml2/login/${email}?return_to=${encodeURIComponent(getReturnUrl(location))}`
          } method="POST">
           <div className="big-spacer-bottom">
             <input
@@ -56,9 +56,9 @@ export default function SamlLogin() {
 
           <div>
             <div className="text-right overflow-hidden">
-              <SubmitButton>
+              <ButtonPrimary type="submit">
                 {translate('sessions.log_in')}
-              </SubmitButton>
+              </ButtonPrimary>
               <a className="spacer-left" href={`${getBaseUrl()}/`}>
                 {translate('back')}
               </a>

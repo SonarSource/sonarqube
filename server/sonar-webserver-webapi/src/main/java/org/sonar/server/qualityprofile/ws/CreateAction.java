@@ -23,6 +23,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Change;
@@ -30,8 +33,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -46,7 +47,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.language.LanguageParamUtils.getOrderedLanguageKeys;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -62,6 +62,8 @@ public class CreateAction implements QProfileWsAction {
   private static final String PARAM_BACKUP_FORMAT = "backup_%s";
   static final int NAME_MAXIMUM_LENGTH = 100;
 
+  private final Logger logger = LoggerFactory.getLogger(CreateAction.class);
+
   private final DbClient dbClient;
   private final QProfileFactory profileFactory;
   private final QProfileExporters exporters;
@@ -70,7 +72,6 @@ public class CreateAction implements QProfileWsAction {
   private final UserSession userSession;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final QProfileWsSupport wsSupport;
-  private final Logger logger = Loggers.get(CreateAction.class);
 
   @Autowired(required = false)
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,

@@ -36,7 +36,6 @@ import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
 import { Dict } from '../types/types';
 import { HomePage } from '../types/users';
-import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
 import { WHITELIST_VALUE_AMAZON, WHITELIST_VALUE_CODESCAN } from './constants';
 import { serializeOptionalBoolean } from './query';
 import { getBaseUrl } from './system';
@@ -329,7 +328,7 @@ export function getProjectSettingsUrl(id: string, category?: string): Partial<Pa
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(organization: string, query: Query): Partial<Path> {
+export function getRulesUrl(query: Query, organization: string): Partial<Path> {
   return { pathname: `/organizations/${organization}/coding_rules`, search: queryToSearchString(query) };
 }
 

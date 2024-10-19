@@ -157,15 +157,15 @@ public class BulkDeleteAction implements ProjectsWsAction {
       checkAtLeastOneParameterIsPresent(searchRequest);
       checkIfAnalyzedBeforeIsFutureDate(searchRequest);
 
-      ComponentQuery query = buildDbQuery(searchRequest);
-      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, forPage(1).andSize(Integer.MAX_VALUE)));
+      ComponentQuery query = buildDbQuery(searchRequest, organization);
+      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, forPage(1).andSize(Integer.MAX_VALUE)));
       List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
       Set<String> entityUuids = entities.stream().map(EntityDto::getUuid).collect(toSet());
       Map<String, String> mainBranchUuidByEntityUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, entityUuids).stream()
         .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
 
       try {
-        entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p));
+        entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p, userSession.getLogin()));
       } finally {
         callDeleteListeners(mainBranchUuidByEntityUuid, entities);
       }

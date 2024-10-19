@@ -25,6 +25,6 @@ import org.sonar.server.common.user.service.UserInformation;
 
 public interface UsersSearchResponseGenerator<T> {
 
-  T toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation);
+  T toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation, boolean showEmailAndLastConnectionInfo);
 
 }

@@ -204,7 +204,7 @@ class AzureDevOpsProjectCreatorTest {
     when(projectDto.getUuid()).thenReturn(PROJECT_UUID);
     when(projectDto.getKey()).thenReturn(projectKey);
     when(projectDto.getName()).thenReturn(projectName);
-    when(projectCreator.createProject(any(), eq(projectKey), eq(projectName), eq(MAIN_BRANCH_NAME), eq(CreationMethod.ALM_IMPORT_API)))
+    when(projectCreator.createProject(any(), any(), eq(projectKey), eq(projectName), eq(MAIN_BRANCH_NAME), eq(CreationMethod.ALM_IMPORT_API)))
       .thenReturn(componentCreationData);
   }
 

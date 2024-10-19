@@ -19,9 +19,12 @@
  */
 package org.sonar.server.common.group.service;
 
+import org.sonar.db.organization.OrganizationDto;
+
 import javax.annotation.Nullable;
 
 public record GroupSearchRequest(
+  OrganizationDto organization,
   @Nullable String query,
   @Nullable Boolean managed,
   int page,

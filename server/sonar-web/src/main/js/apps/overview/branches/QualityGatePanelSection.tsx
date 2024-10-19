@@ -25,6 +25,7 @@ import { QualityGate } from '../../../types/types';
 import FailedConditions from './FailedConditions';
 
 export interface QualityGatePanelSectionProps {
+  grc: boolean;
   isApplication?: boolean;
   isLastStatus?: boolean;
   isNewCode: boolean;
@@ -34,17 +35,7 @@ export interface QualityGatePanelSectionProps {
 
 export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
   const { isApplication, isLastStatus, qgStatus, qualityGate, isNewCode } = props;
-  const { component, qgStatus, grc } = props;
   const [collapsed, setCollapsed] = React.useState(false);
-
-  let newCodeTitle = translate('quality_gates.conditions.new_code');
-  let existingCodeTitle = translate('quality_gates.conditions.overall_code');
-  if(grc){
-    //newCodeTitle = translate('grc.quality_gates.conditions.new_code');
-    //existingCodeTitle = translate('grc.quality_gates.conditions.overall_code');
-    newCodeTitle = "On New Violations";
-    existingCodeTitle = "On Overall Violations";
-  }
 
   const toggle = React.useCallback(() => {
     setCollapsed(!collapsed);

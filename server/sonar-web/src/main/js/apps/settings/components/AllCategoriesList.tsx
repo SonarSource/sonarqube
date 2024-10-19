@@ -59,28 +59,44 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
     [component, navigate],
   );
 
-  const categoriesWithName = categories
-    .filter((key) => CATEGORY_OVERRIDES[key.toLowerCase()] === undefined)
-    .map((key) => ({
-      key,
-      name: getCategoryName(key),
-    }))
-    .concat(
-      ADDITIONAL_CATEGORIES.filter((c) => {
-        const availableForCurrentMenu = component
-          ? // Project settings
+  const { canAdmin } = props.appState;
+  let categoriesWithName;
+  if (canAdmin) {
+    categoriesWithName = categories
+      .filter((key) => CATEGORY_OVERRIDES[key.toLowerCase()] === undefined)
+      .map((key) => ({
+        key,
+        name: getCategoryName(key),
+      }))
+      .concat(
+        ADDITIONAL_CATEGORIES.filter((c) => {
+          const availableForCurrentMenu = component
+            ? // Project settings
             c.availableForProject
-          : // Global settings
+            : // Global settings
             c.availableGlobally;
 
-        return (
-          c.displayTab &&
-          availableForCurrentMenu &&
-          (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport) &&
-          (props.hasFeature(Feature.FixSuggestions) || c.key !== 'codefix')
-        );
-      }),
-    );
+          return (
+            c.displayTab &&
+            availableForCurrentMenu &&
+            (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport) &&
+            (props.hasFeature(Feature.FixSuggestions) || c.key !== 'codefix')
+          );
+        }),
+      );
+  } else {
+    categoriesWithName = props.categories
+      .filter(key => ALL_CUSTOMER_CATEGORIES[key.toLowerCase()])
+      .map(key => ({
+        key,
+        name: getCategoryName(key)
+      }))
+      .concat(
+        ADDITIONAL_CATEGORIES
+          .filter(c => c.displayTab)
+          .filter(c => ALL_CUSTOMER_CATEGORIES[c.key.toLowerCase()])
+      );
+  }
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 
   return (

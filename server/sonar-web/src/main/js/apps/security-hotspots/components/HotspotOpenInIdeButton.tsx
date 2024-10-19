@@ -127,10 +127,6 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
             </DropdownMenu>
           }
         >
-          <ButtonSecondary onClick={this.handleOnClick}>
-            {translate('open_in_ide')}
-            <Spinner loading={loading} className="sw-ml-4" />
-          </ButtonSecondary>
         </DropdownToggler>
       </div>
     );

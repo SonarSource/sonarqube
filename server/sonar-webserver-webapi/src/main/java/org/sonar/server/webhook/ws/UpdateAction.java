@@ -30,6 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -48,7 +49,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
 import static org.sonarqube.ws.WsUtils.checkArgument;
-import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 
 public class UpdateAction implements WebhooksWsAction {
 
@@ -121,9 +121,9 @@ public class UpdateAction implements WebhooksWsAction {
 
       String organizationUuid = webhookDto.getOrganizationUuid();
       if (organizationUuid != null) {
-        Optional<OrganizationDto> optionalDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
-        OrganizationDto organizationDto = checkStateWithOptional(optionalDto, "the requested organization '%s' was not found", organizationUuid);
-        webhookSupport.checkPermission(organizationDto);
+        OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+            .orElseThrow(() -> new NotFoundException("No organization found with uuid: " + organizationUuid));
+        webhookSupport.checkPermission(organization);
         updateWebhook(dbSession, webhookDto, name, url, secret, null, null);
       }
 

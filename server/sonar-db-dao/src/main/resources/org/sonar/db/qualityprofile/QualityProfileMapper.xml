@@ -191,6 +191,13 @@
     inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
   </select>
 
+  <select id="selectAll" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
+  </select>
+
   <select id="selectBuiltInRuleProfilesWithActiveRules" resultType="org.sonar.db.qualityprofile.RulesProfileDto">
     select <include refid="ruleProfileColumns"/>
     from rules_profiles rp

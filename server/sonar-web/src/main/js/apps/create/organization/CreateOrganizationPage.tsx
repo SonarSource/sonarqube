@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,8 @@ import { Helmet } from 'react-helmet-async';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
 import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
-import { Router, withRouter } from "../../../components/hoc/withRouter";
+import { Router } from '~sonar-aligned/types/router';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getOrganizationUrl } from "../../../helpers/urls";
 import { getUserOrganizations } from "../../../api/organizations";
 import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";

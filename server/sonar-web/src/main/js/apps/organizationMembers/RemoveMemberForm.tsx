@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,7 @@
 import * as React from 'react';
 import {Organization, OrganizationMember} from "../../types/types";
 import {translate, translateWithParameters} from "../../helpers/l10n";
-import Modal from "../../components/controls/Modal";
-import {ResetButtonLink, SubmitButton} from "../../components/controls/buttons";
+import { Button, ButtonVariety, Modal } from "@sonarsource/echoes-react";
 
 interface Props {
   onClose: () => void;
@@ -40,28 +39,29 @@ export default class RemoveMemberForm extends React.PureComponent<Props> {
   render() {
     const header = translate('users.remove');
     return (
-      <Modal contentLabel={header} key="remove-member-modal" onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
+      <Modal
+        title={header}
+        onClose={this.props.onClose}
+        content={(
+          <form id="remove-member-form" onSubmit={this.handleSubmit}>
             {translateWithParameters(
               'organization.members.remove_x',
               this.props.member.name,
               this.props.organization.name
             )}
-          </div>
-          <footer className="modal-foot">
-            <div>
-              <SubmitButton autoFocus={true} className="button-red">
-                {translate('remove')}
-              </SubmitButton>
-              <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-            </div>
-          </footer>
-        </form>
-      </Modal>
+          </form>
+        )}
+        primaryButton={(
+          <Button
+            variety={ButtonVariety.Primary}
+            type="submit"
+            form="remove-member-form"
+          >
+            {translate('remove')}
+          </Button>
+        )}
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

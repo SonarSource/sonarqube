@@ -1,5 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.sonar.build.LicenseReader
 
 plugins {
   id "com.github.hierynomus.license-report"
@@ -44,6 +45,7 @@ shadowJar {
   archiveBaseName = 'codescan-application'
   archiveClassifier = null
   mergeServiceFiles()
+  zip64 true
   manifest {
     attributes('Main-Class': 'org.sonar.application.App')
   }
@@ -62,7 +64,7 @@ dependencies {
     api project(':sonar-core')
     api project(':sonar-plugin-api-impl')
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
     scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
     cyclonedx project(path: ':sonar-scanner-engine-shaded')
@@ -90,20 +92,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
     into("${archiveDir}/") {
       from(tasks.downloadLicenses.outputs) {
         include 'dependency-license.json'
-        eachFile { jsonFile ->
-          def json = new JsonSlurper().parse(jsonFile.file)
-          json.dependencies.each { dependency ->
-            if (dependency.licenses.size() > 1) {
-              def idx = dependency.licenses.findIndexOf { it.name == "Elastic License 2.0" }
-              if (idx >= 0) {
-                dependency.licenses = [dependency.licenses[idx]]
-              }
-            }
-          }
-          json.dependencies.sort { it.name }
-          def jsonText = JsonOutput.toJson(json)
-          jsonFile.file.text = JsonOutput.prettyPrint(jsonText)
-        }
+        filter(LicenseReader)
       }
     }
   }
@@ -146,16 +135,26 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
     from configurations.shutdowner
   }
 }
-// Check the size of the archive
-zip.doLast {
-  def minLength = 205000000
-  def maxLength = 260000000
 
-  def length = archiveFile.get().asFile.length()
-  if (length < minLength)
-    throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
-  if (length > maxLength)
-    throw new GradleException("$distsDir/$archiveName size ($length) too large. Max is $maxLength")
+// Check the size of the archive
+zip {
+  mustRunAfter cyclonedxBom
+  doLast {
+    //When the archive size increases due to dependencies, the expected size should be updated as well.
+    //Bump the expected size by at least 10 more megabytes than what is strictly needed, this in conjunction with the
+    //tolerance will allow for some growth in the archive size.
+    def expectedSize = 300_000_000
+    //We set a tolerance of 15MB to avoid failing the build for small differences in the archive size.
+    def tolerance = 15_000_000
+    def minArchiveSize = expectedSize - tolerance
+    def maxArchiveSize = expectedSize + tolerance
+
+    def archiveSize = archiveFile.get().asFile.length()
+    if (archiveSize < minArchiveSize)
+      throw new GradleException("${archiveFileName.get()} size ($archiveSize) too small. Min is $minArchiveSize")
+    if (archiveSize > maxArchiveSize)
+      throw new GradleException("${destinationDirectory.get()}/${archiveFileName.get()} size ($archiveSize) too large. Max is $maxArchiveSize")
+  }
 }
 assemble.dependsOn zip
 
@@ -179,7 +178,7 @@ artifactoryPublish.skip = false
 
 def bomFile = layout.buildDirectory.file('reports/bom.json')
 cyclonedxBom {
-  includeConfigs += ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
+  includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
                      "cyclonedx"]
   outputs.file bomFile
 }

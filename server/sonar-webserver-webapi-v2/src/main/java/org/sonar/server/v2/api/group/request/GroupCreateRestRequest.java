@@ -29,6 +29,10 @@ import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 public record GroupCreateRestRequest(
 
   @NotEmpty
+  @Schema(description = "Key of organization.")
+  String organization,
+
+  @NotEmpty
   @Size(min = 1, max = GROUP_NAME_MAX_LENGTH)
   @Schema(description = "Name for the new group. Must be unique. The value 'anyone' is reserved and cannot be used.")
   String name,

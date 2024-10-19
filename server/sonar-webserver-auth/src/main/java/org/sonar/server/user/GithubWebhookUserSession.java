@@ -85,11 +85,6 @@ public class GithubWebhookUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected boolean hasPermissionImpl(GlobalPermission permission) {
-    return false;
-  }
-
-  @Override
   protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
     return Optional.empty();
   }

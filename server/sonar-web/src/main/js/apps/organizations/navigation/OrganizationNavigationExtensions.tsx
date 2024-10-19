@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,12 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import classNames from 'classnames';
-import Dropdown from "../../../components/controls/Dropdown";
-import {translate} from "../../../helpers/l10n";
-import DropdownIcon from "../../../components/icons/DropdownIcon";
+import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
-import Link from "../../../components/common/Link";
+import { ButtonIcon, ButtonSize, ButtonVariety, DropdownMenu, IconChevronDown } from "@sonarsource/echoes-react";
 
 interface Props {
   location: { pathname: string };
@@ -37,43 +34,42 @@ export default function OrganizationNavigationExtensions({ location, organizatio
   }
 
   // removing request error extenstion link.
-  extensions = extensions.filter((e)=>{
+  extensions = extensions.filter((e) => {
     return e.name !== "Request Error"
   });
 
-  const active = extensions.some(
-    extension =>
-      location.pathname === `/organizations/${organization.kee}/extension/${extension.key}`
-  );
-
   return (
-    <Dropdown
-      overlay={
-        <ul className="menu">
+    <DropdownMenu.Root
+      id="organization-nav-extensions"
+      items={
+        <>
           {extensions.map(extension => (
-            <li key={extension.key}>
-              <Link
-                to={`/organizations/${organization.kee}/extension/${extension.key}`}>
-                {extension.name}
-              </Link>
-            </li>
+            <DropdownMenu.ItemLink
+              key={extension.key}
+              isMatchingFullPath
+              to={`/organizations/${organization.kee}/extension/${extension.key}`}
+            >
+              {extension.name}
+            </DropdownMenu.ItemLink>
           ))}
-          <li key="policy-results">
-              <Link
-                to={`/organizations/${organization.kee}/policy-results`}>
-                Policy Results
-              </Link>
-          </li>
-        </ul>
+
+          <DropdownMenu.ItemLink
+            key="policy-results"
+            isMatchingFullPath
+            to={`/organizations/${organization.kee}/policy-results`}
+          >
+            Policy Results
+          </DropdownMenu.ItemLink>
+        </>
       }
-      tagName="li">
-      <a
-        className={classNames('dropdown-toggle', { active })}
-        href="#"
-        id="organization-navigation-more">
-        {translate('more')}
-        <DropdownIcon className="little-spacer-left" />
-      </a>
-    </Dropdown>
+    >
+      <ButtonIcon
+        Icon={IconChevronDown}
+        ariaLabel={translate('more')}
+        className="sw-m-1 sw-mr-2"
+        size={ButtonSize.Medium}
+        variety={ButtonVariety.Default}
+      />
+    </DropdownMenu.Root>
   );
 }

@@ -28,9 +28,9 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -49,10 +49,11 @@ public class PermissionTemplateDao implements Dao {
 
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
+  private static final Logger logger = LoggerFactory.getLogger(PermissionTemplateDao.class);
+
   private final System2 system;
   private final UuidFactory uuidFactory;
   private final AuditPersister auditPersister;
-  private static final Logger logger = Loggers.get(PermissionTemplateDao.class);
 
   public PermissionTemplateDao(UuidFactory uuidFactory, System2 system, AuditPersister auditPersister) {
     this.uuidFactory = uuidFactory;

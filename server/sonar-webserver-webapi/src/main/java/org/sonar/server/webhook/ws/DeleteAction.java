@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -78,9 +79,9 @@ public class DeleteAction implements WebhooksWsAction {
 
       String organizationUuid = webhookDto.getOrganizationUuid();
       if (organizationUuid != null) {
-        Optional<OrganizationDto> optionalDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
-        OrganizationDto organizationDto = checkStateWithOptional(optionalDto, "the requested organization '%s' was not found", organizationUuid);
-        webhookSupport.checkPermission(organizationDto);
+        OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+            .orElseThrow(() -> new NotFoundException("No organization found with uuid: " + organizationUuid));
+        webhookSupport.checkPermission(organization);
         deleteWebhook(dbSession, webhookDto);
       }
 

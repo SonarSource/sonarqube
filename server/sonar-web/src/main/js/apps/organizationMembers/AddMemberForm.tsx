@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,12 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { translate } from "../../helpers/l10n";
-import Modal from "../../components/controls/Modal";
-import { Button, ResetButtonLink, SubmitButton } from "../../components/controls/buttons";
 import Link from "../../components/common/Link";
 import { Organization, OrganizationMember } from "../../types/types";
 import withAppStateContext from "../../app/components/app-state/withAppStateContext";
 import { AppState } from "../../types/appstate";
 import UsersSelectSearch from "./UsersSelectSearch";
+import { Button, Modal } from "@sonarsource/echoes-react";
 
 interface AddMemberFormProps {
   appState: AppState;
@@ -65,49 +64,49 @@ function AddMemberForm(props: AddMemberFormProps) {
   const renderModal = () => {
     const header = translate('users.add');
     return (
-        <Modal contentLabel={header} key="add-member-modal" onRequestClose={closeForm}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-          <form onSubmit={handleSubmit}>
-            <div className="modal-body">
-              <div className="modal-field">
-                <label>{translate('users.search_description')}</label>
-                <UsersSelectSearch
-                    autoFocus={true}
-                    excludedUsers={props.memberLogins}
-                    handleValueChange={selectedMemberChange}
-                    selectedUser={selectedMember}
-                    organization={props.organization}
-                />
-              </div>
-            </div>
-            <footer className="modal-foot">
-              <div>
-                <SubmitButton disabled={!selectedMember}>
-                  {translate('organization.members.add_to_members')}
-                </SubmitButton>
-                <ResetButtonLink onClick={closeForm}>{translate('cancel')}</ResetButtonLink>
-              </div>
-            </footer>
-          </form>
-        </Modal>
+        <Modal
+          title={header}
+          key="add-member-form"
+          onClose={closeForm}
+          content={(
+            <form onSubmit={handleSubmit}>
+              <label>{translate('users.search_description')}</label>
+              <UsersSelectSearch
+                autoFocus={true}
+                excludedUsers={props.memberLogins}
+                handleValueChange={selectedMemberChange}
+                selectedUser={selectedMember}
+                organization={props.organization}
+              />
+            </form>
+          )}
+          primaryButton={(
+            <Button
+              type="submit"
+              form="add-member-form"
+              disabled={!selectedMember}
+            >
+              {translate('organization.members.add_to_members')}
+            </Button>
+          )}
+          secondaryButtonLabel={translate('cancel')}
+        />
     );
   }
 
   return (
-      <>
-        {(canAdmin || canCustomerAdmin) && (
-            <Button key="add-member-button" onClick={openForm}>
-              {translate('organization.members.add')}
-            </Button>
-        )}
-        <Link to={"/organizations/" + props.organization.kee + "/extension/developer/invite_users"}
-              className="button little-spacer-left">
-          Invite Member
-        </Link>
-        {open && renderModal()}
-      </>
+    <>
+      {(canAdmin || canCustomerAdmin) && (
+        <Button key="add-member-button" onClick={openForm}>
+          {translate('organization.members.add')}
+        </Button>
+      )}
+      <Link to={"/organizations/" + props.organization.kee + "/extension/developer/invite_users"}
+            className="button sw-ml-2">
+        Invite Member
+      </Link>
+      {open && renderModal()}
+    </>
   );
 }
 

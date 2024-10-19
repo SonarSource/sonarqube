@@ -31,10 +31,8 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.permission.GroupPermissionChange;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.user.GroupDto;
-import org.sonar.server.permission.GroupPermissionChange;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
@@ -103,13 +101,20 @@ public class RemoveGroupAction implements PermissionsWsAction {
       if (entityDto != null && entityDto.isProject() && groupDto != null) {
         managedInstanceChecker.throwIfGroupAndProjectAreManaged(dbSession, groupDto.getUuid(), entityDto.getUuid());
       }
-      wsSupport.checkPermissionManagementAccess(userSession, entityDto.getOrganizationUuid(), entityDto);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
 
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entityDto, permission, GroupUuidOrAnyone.from(groupDto));
 
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, groupDto.getOrganizationUuid())
+          .orElseThrow(() -> new NotFoundException("No organization found with uuid: " + groupDto.getOrganizationUuid()));
+      logger.info("Remove Permission for Group: {} :: permission type: {}, organization: {}, orgId: {}, groupId: {}, user: {}",
+          groupDto.getName(), request.mandatoryParam(PARAM_PERMISSION), organization.getKey(),
+          organization.getUuid(), groupDto.getUuid(), userSession.getLogin());
+
       GroupPermissionChange change = new GroupPermissionChange(
         Operation.REMOVE,
+        organization.getUuid(),
         permission,
         entityDto,
         groupDto,

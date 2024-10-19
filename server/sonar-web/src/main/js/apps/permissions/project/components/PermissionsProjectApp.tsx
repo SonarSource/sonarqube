@@ -34,15 +34,13 @@ import {
 } from '../../../../helpers/permissions';
 import { ComponentContextShape } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
-import { Component, Organization, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
+import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';
 import PageHeader from './PageHeader';
 import PermissionsProjectVisibility from './PermissionsProjectVisibility';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
-import { withOrganizationContext } from "../../../organizations/OrganizationContext";
 
 interface Props extends ComponentContextShape {
-  organization: Organization;
   component: Component;
 }
 
@@ -225,6 +223,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .grantPermissionToGroup({
+        organization: this.props.component.organization,
         projectKey: this.props.component.key,
         groupName: group,
         permission,
@@ -243,6 +242,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .grantPermissionToUser({
+        organization: this.props.component.organization,
         projectKey: this.props.component.key,
         login: user,
         permission,
@@ -261,6 +261,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .revokePermissionFromGroup({
+        organization: this.props.component.organization,
         projectKey: this.props.component.key,
         groupName: group,
         permission,
@@ -279,6 +280,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .revokePermissionFromUser({
+        organization: this.props.component.organization,
         projectKey: this.props.component.key,
         login: user,
         permission,
@@ -416,4 +418,4 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withOrganizationContext(withComponentContext(PermissionsProjectApp));
+export default withComponentContext(PermissionsProjectApp);

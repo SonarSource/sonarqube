@@ -24,13 +24,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -44,12 +45,13 @@ import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganiz
 
 public class DeleteAction implements QProfileWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(DeleteAction.class);
+
   private final Languages languages;
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
-  private final Logger logger = Loggers.get(DeleteAction.class);
 
   public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
     this.languages = languages;

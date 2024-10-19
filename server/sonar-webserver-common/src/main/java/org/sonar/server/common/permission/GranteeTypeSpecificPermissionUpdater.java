@@ -26,7 +26,7 @@ import org.sonar.db.DbSession;
 public interface GranteeTypeSpecificPermissionUpdater<T extends PermissionChange> {
   Class<T> getHandledClass();
 
-  Set<String> loadExistingEntityPermissions(DbSession dbSession, String uuidOfGrantee, @Nullable String entityUuid);
+  Set<String> loadExistingEntityPermissions(DbSession dbSession, String organizationUuid, String uuidOfGrantee, @Nullable String entityUuid);
 
   boolean apply(DbSession dbSession, Set<String> existingPermissions, T change);
 }

@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
 import org.sonar.server.authentication.IdentityProviderRepository;
@@ -51,6 +52,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.auth.ldap.LdapRealm.LDAP_SECURITY_REALM;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class UserService {
@@ -110,7 +112,6 @@ public class UserService {
     } else if (request.isManaged() != null) {
       throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
     }
-
     return builder
       .isActive(!request.isDeactivated())
       .searchText(request.getQuery())

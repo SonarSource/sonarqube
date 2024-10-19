@@ -20,28 +20,18 @@
 package org.sonar.server.user.ws;
 
 import java.util.Optional;
-import com.google.common.collect.Multimap;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.common.user.service.UsersSearchRequest;
-import org.sonar.api.utils.Paging;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
@@ -52,9 +42,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.common.PaginationInformation.forPageIndex;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -69,12 +56,14 @@ public class SearchAction implements UsersWsAction {
   static final String SONAR_LINT_LAST_CONNECTION_DATE_TO = "slLastConnectedBefore";
   static final String EXTERNAL_IDENTITY = "externalIdentity";
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final UserService userService;
   private final SearchWsReponseGenerator searchWsReponseGenerator;
 
-  public SearchAction(UserSession userSession,
+  public SearchAction(DbClient dbClient, UserSession userSession,
     UserService userService, SearchWsReponseGenerator searchWsReponseGenerator) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.userService = userService;
     this.searchWsReponseGenerator = searchWsReponseGenerator;
@@ -176,7 +165,26 @@ public class SearchAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     throwIfAdminOnlyParametersAreUsed(request);
-    Users.SearchWsResponse wsResponse = doHandle(toSearchRequest(request));
+
+    var searchRequest = toSearchRequest(request);
+
+    boolean showEmailAndLastConnectionInfo = false;
+    if (!userSession.isSystemAdministrator()) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        var userOrganizations = dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, userSession.getUuid());
+        var orgsWithUserAsAdmin = userOrganizations.stream()
+            .filter(o -> userSession.hasPermission(OrganizationPermission.ADMINISTER, o))
+            .toList();
+        if (!orgsWithUserAsAdmin.isEmpty()) {
+          searchRequest.setOrganizationUuids(orgsWithUserAsAdmin);
+          showEmailAndLastConnectionInfo = true;
+        } else {
+          throw insufficientPrivilegesException();
+        }
+      }
+    }
+
+    Users.SearchWsResponse wsResponse = doHandle(searchRequest.build(), showEmailAndLastConnectionInfo);
     writeProtobuf(wsResponse, request, response);
   }
 
@@ -190,14 +198,14 @@ public class SearchAction implements UsersWsAction {
     }
   }
 
-  private Users.SearchWsResponse doHandle(UsersSearchRequest request) {
+  private Users.SearchWsResponse doHandle(UsersSearchRequest request, boolean showEmailAndLastConnectionInfo) {
     SearchResults<UserInformation> userSearchResults = userService.findUsers(request);
     PaginationInformation paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(userSearchResults.total());
 
-    return searchWsReponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
+    return searchWsReponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging, showEmailAndLastConnectionInfo);
   }
 
-  private static UsersSearchRequest toSearchRequest(Request request) {
+  private UsersSearchRequest.Builder toSearchRequest(Request request) {
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
     return UsersSearchRequest.builder()
@@ -210,8 +218,7 @@ public class SearchAction implements UsersWsAction {
       .setSonarLintLastConnectionDateTo(request.param(SONAR_LINT_LAST_CONNECTION_DATE_TO))
       .setExternalLogin(request.param(EXTERNAL_IDENTITY))
       .setPage(request.mandatoryParamAsInt(PAGE))
-      .setPageSize(pageSize)
-      .build();
+      .setPageSize(pageSize);
   }
 
   private static void throwIfParameterValuePresent(Request request, String parameter) {

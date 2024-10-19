@@ -19,19 +19,19 @@
  */
 package org.sonar.server.common.group.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.UserGroupValidation;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupQuery;
 import org.sonar.server.common.SearchResults;
@@ -41,10 +41,14 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Boolean.TRUE;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
 public class GroupService {
+
+  private static final Logger logger = LoggerFactory.getLogger(GroupService.class);
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
@@ -59,8 +63,8 @@ public class GroupService {
     this.managedInstanceService = managedInstanceService;
   }
 
-  public Optional<GroupDto> findGroup(DbSession dbSession, String groupName) {
-    return dbClient.groupDao().selectByName(dbSession, groupName);
+  public Optional<GroupDto> findGroup(DbSession dbSession, OrganizationDto organization, String groupName) {
+    return dbClient.groupDao().selectByName(dbSession, organization.getUuid(), groupName);
   }
 
   public Optional<GroupInformation> findGroupByUuid(DbSession dbSession, String groupUuid) {
@@ -70,7 +74,7 @@ public class GroupService {
   }
 
   public SearchResults<GroupInformation> search(DbSession dbSession, GroupSearchRequest groupSearchRequest) {
-    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
+    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, groupSearchRequest.organization().getUuid());
     GroupQuery query = toGroupQuery(groupSearchRequest);
 
     int limit = dbClient.groupDao().countByQuery(dbSession, query);
@@ -91,6 +95,7 @@ public class GroupService {
 
   private GroupQuery toGroupQuery(GroupSearchRequest groupSearchRequest) {
     return GroupQuery.builder()
+      .organizationUuid(groupSearchRequest.organization().getUuid())
       .searchText(groupSearchRequest.query())
       .isManagedClause(getManagedInstanceSql(groupSearchRequest.managed()))
       .build();
@@ -116,7 +121,10 @@ public class GroupService {
     return new GroupInformation(groupDto, groupUuidToIsManaged.getOrDefault(groupDto.getUuid(), false), defaultGroupUuid.equals(groupDto.getUuid()));
   }
 
-  public void delete(DbSession dbSession, GroupDto group) {
+  public void delete(DbSession dbSession, OrganizationDto organization, GroupDto group) {
+    logger.info("Delete Group Request :: groupName: {} and organization: {}, orgId: {}", group.getName(),
+        organization.getKey(), organization.getUuid());
+
     checkGroupIsNotDefault(dbSession, group);
     checkNotTryingToDeleteLastAdminGroup(dbSession, group);
 
@@ -130,39 +138,53 @@ public class GroupService {
     removeGithubOrganizationGroup(dbSession, group);
 
     removeGroup(dbSession, group);
+    logger.info("Group deleted :: groupName {} and orgId: {}", group.getName(), group.getOrganizationUuid());
   }
 
-  public GroupInformation updateGroup(DbSession dbSession, GroupDto group, @Nullable String newName) {
+  public GroupInformation updateGroup(DbSession dbSession, OrganizationDto organization, GroupDto group, @Nullable String newName) {
     checkGroupIsNotDefault(dbSession, group);
-    return groupDtoToGroupInformation(updateName(dbSession, group, newName), dbSession);
+    return groupDtoToGroupInformation(updateName(dbSession, organization, group, newName), dbSession);
   }
 
-  public GroupInformation updateGroup(DbSession dbSession, GroupDto group, @Nullable String newName, @Nullable String newDescription) {
+  public GroupInformation updateGroup(DbSession dbSession, OrganizationDto organization, GroupDto group, @Nullable String newName, @Nullable String newDescription) {
     checkGroupIsNotDefault(dbSession, group);
-    GroupDto withUpdatedName = updateName(dbSession, group, newName);
+    GroupDto withUpdatedName = updateName(dbSession, organization, group, newName);
     return groupDtoToGroupInformation(updateDescription(dbSession, withUpdatedName, newDescription), dbSession);
   }
 
-  public GroupInformation createGroup(DbSession dbSession, String name, @Nullable String description) {
+  public GroupInformation createGroup(DbSession dbSession, OrganizationDto organization, String name, @Nullable String description) {
     validateGroupName(name);
-    checkNameDoesNotExist(dbSession, name);
+    checkNameDoesNotExist(dbSession, organization, name);
+
+    logger.info("Create Group Request :: group name: {} and organization: {}", name, organization.getUuid());
 
     GroupDto group = new GroupDto()
       .setUuid(uuidFactory.create())
+      .setOrganizationUuid(organization.getUuid())
       .setName(name)
       .setDescription(description);
-    return groupDtoToGroupInformation(dbClient.groupDao().insert(dbSession, group), dbSession);
+    try {
+      return groupDtoToGroupInformation(dbClient.groupDao().insert(dbSession, group), dbSession);
+    } finally {
+      logger.info("Group Created :: groupName: {} and orgId: {}", name, organization.getUuid());
+    }
+  }
+
+  public GroupDto findDefaultGroup(DbSession dbSession, String organizationUuid) {
+    Objects.requireNonNull(organizationUuid);
+    String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organizationUuid)
+        .orElseThrow(() -> new IllegalStateException(format("Default group cannot be found on organization '%s'", organizationUuid)));
+    return requireNonNull(dbClient.groupDao().selectByUuid(dbSession, defaultGroupUuid), format("Group '%s' cannot be found", defaultGroupUuid));
   }
 
   private GroupInformation groupDtoToGroupInformation(GroupDto groupDto, DbSession dbSession) {
-    return new GroupInformation(groupDto, managedInstanceService.isGroupManaged(dbSession, groupDto.getUuid()),
-      defaultGroupFinder.findDefaultGroup(dbSession).getUuid().equals(groupDto.getUuid()));
+    return new GroupInformation(groupDto, managedInstanceService.isGroupManaged(dbSession, groupDto.getUuid()), false);
   }
 
-  private GroupDto updateName(DbSession dbSession, GroupDto group, @Nullable String newName) {
+  private GroupDto updateName(DbSession dbSession, OrganizationDto organization, GroupDto group, @Nullable String newName) {
     if (newName != null && !newName.equals(group.getName())) {
       validateGroupName(newName);
-      checkNameDoesNotExist(dbSession, newName);
+      checkNameDoesNotExist(dbSession, organization, newName);
       group.setName(newName);
       return dbClient.groupDao().update(dbSession, group);
     }
@@ -177,11 +199,11 @@ public class GroupService {
     }
   }
 
-  private void checkNameDoesNotExist(DbSession dbSession, String name) {
+  private void checkNameDoesNotExist(DbSession dbSession, OrganizationDto organization, String name) {
     // There is no database constraint on column groups.name
     // because MySQL cannot create a unique index
     // on a UTF-8 VARCHAR larger than 255 characters on InnoDB
-    checkRequest(!dbClient.groupDao().selectByName(dbSession, name).isPresent(), "Group '%s' already exists", name);
+    checkRequest(dbClient.groupDao().selectByName(dbSession, organization.getUuid(), name).isEmpty(), "Group '%s' already exists", name);
   }
 
   private GroupDto updateDescription(DbSession dbSession, GroupDto group, @Nullable String newDescription) {
@@ -193,31 +215,29 @@ public class GroupService {
   }
 
   private void checkGroupIsNotDefault(DbSession dbSession, GroupDto groupDto) {
-    GroupDto defaultGroup = findDefaultGroup(dbSession);
+    GroupDto defaultGroup = findDefaultGroup(dbSession, groupDto.getOrganizationUuid());
     checkArgument(!defaultGroup.getUuid().equals(groupDto.getUuid()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
-  }
-
-  private GroupDto findDefaultGroup(DbSession dbSession) {
-    return dbClient.groupDao().selectByName(dbSession, DefaultGroups.USERS)
-      .orElseThrow(() -> new IllegalStateException("Default group cannot be found"));
   }
 
   private void checkNotTryingToDeleteLastAdminGroup(DbSession dbSession, GroupDto group) {
     int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
-      GlobalPermission.ADMINISTER.getKey(), group.getUuid());
+      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getUuid());
 
     checkArgument(remaining > 0, "The last system admin group cannot be deleted");
   }
 
   private void removeGroupPermissions(DbSession dbSession, GroupDto group) {
+    logger.debug("Removing group permissions for group: {}", group.getName());
     dbClient.roleDao().deleteGroupRolesByGroupUuid(dbSession, group.getUuid());
   }
 
   private void removeGroupFromPermissionTemplates(DbSession dbSession, GroupDto group) {
+    logger.debug("Removing group from permission template for group: {}", group.getName());
     dbClient.permissionTemplateDao().deleteByGroup(dbSession, group.getUuid(), group.getName());
   }
 
   private void removeGroupMembers(DbSession dbSession, GroupDto group) {
+    logger.debug("Removing group members for group: {}", group.getName());
     dbClient.userGroupDao().deleteByGroupUuid(dbSession, group.getUuid(), group.getName());
   }
 

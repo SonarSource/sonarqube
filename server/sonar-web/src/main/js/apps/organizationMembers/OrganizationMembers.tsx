@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,209 +22,192 @@ import { Helmet } from 'react-helmet-async';
 import MembersPageHeader from './MembersPageHeader';
 import MembersListHeader from './MembersListHeader';
 import MembersList from './MembersList';
-import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../api/user_groups';
+import { getUsersGroups } from '../../api/user_groups';
 import Suggestions from "../../components/embed-docs-modal/Suggestions";
-import {translate} from "../../helpers/l10n";
+import { translate } from "../../helpers/l10n";
 import ListFooter from "../../components/controls/ListFooter";
-import {addMember, removeMember, searchMembers} from "../../api/organizations";
-import {Group, Organization, OrganizationMember, Paging} from "../../types/types";
-import {LoggedInUser} from "../../types/users";
+import { addMember, removeMember, searchMembers } from "../../api/organizations";
+import { Group, Organization, OrganizationMember, Paging } from "../../types/types";
+import { LoggedInUser } from "../../types/users";
 import { withOrganizationContext } from "../organizations/OrganizationContext";
 import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";
+import {
+  useAddGroupMembershipMutation,
+  useGroupMembersQuery,
+  useRemoveGroupMembershipMutation
+} from "../../queries/group-memberships";
 
 interface Props {
   currentUser: LoggedInUser;
   organization: Organization;
 }
 
-interface State {
-  groups: Group[];
-  loading: boolean;
-  members?: OrganizationMember[];
-  paging?: Paging;
-  query: string;
-}
-
 const PAGE_SIZE = 50;
 
-class OrganizationMembers extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {
-    groups: [],
-    loading: true,
-    query: ''
-  };
+function OrganizationMembers({ currentUser, organization }: Props) {
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchMembers();
+  const [members, setMembers] = React.useState<OrganizationMember[]>();
+  const [groups, setGroups] = React.useState<Group[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [query, setQuery] = React.useState<string>();
+  const [paging, setPaging] = React.useState<Paging>();
+
+  const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
+  const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
+  const { data, isLoading, fetchNextPage } = useGroupMembersQuery({
+    q: query,
+    groupId: group.id,
+    filter,
+  });
+
+  React.useEffect(() => {
+    fetchMembers();
+
     if (this.props.organization.actions && this.props.organization.actions.admin) {
-      this.fetchGroups();
+      fetchGroups();
     }
-  }
+  }, []);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
+  const stopLoading = () => {
+    setLoading(false);
   };
 
-  fetchMembers = (query?: string) => {
-    this.setState({ loading: true });
+  const fetchMembers = (query?: string) => {
+    setLoading(true);
     searchMembers({
       organization: this.props.organization.kee,
       ps: PAGE_SIZE,
       q: query
     }).then(({ paging, users }) => {
-      if (this.mounted) {
-        this.setState({ loading: false, members: users, paging });
-      }
-    }, this.stopLoading);
+      setLoading(false);
+      setMembers(members);
+      setPaging(paging);
+    }, stopLoading);
   };
 
-  fetchGroups = () => {
-    searchUsersGroups({ organization: this.props.organization.kee }).then(
+  const fetchGroups = () => {
+    getUsersGroups({ organization: this.props.organization.kee }).then(
       ({ groups }) => {
-        if (this.mounted) {
-          this.setState({ groups });
-        }
+        setGroups(groups);
       },
-      () => {}
+      () => {
+      }
     );
   };
 
-  handleSearchMembers = (query: string) => {
-    this.setState({ query });
-    this.fetchMembers(query || undefined); // empty string -> undefined
+  const handleSearchMembers = (query: string) => {
+    setQuery(query);
+    fetchMembers(query || undefined); // empty string -> undefined
   };
 
-  handleLoadMoreMembers = () => {
-    const { paging, query } = this.state;
+  const handleLoadMoreMembers = () => {
     if (!paging) {
       return;
     }
 
-    this.setState({ loading: true });
+    setLoading(true);
     searchMembers({
       organization: this.props.organization.kee,
       p: paging.pageIndex + 1,
       ps: PAGE_SIZE,
       q: query || undefined // empty string -> undefined
     }).then(({ paging, users }) => {
-      if (this.mounted) {
-        this.setState(({ members = [] }) => ({
-          loading: false,
-          members: [...members, ...users],
-          paging
-        }));
-      }
-    }, this.stopLoading);
+      setLoading(false);
+      setMembers([...members, ...users]);
+      setPaging(paging);
+    }, stopLoading);
   };
 
-  handleAddMember = ({ login }: OrganizationMember) => {
+  const handleAddMember = ({ login }: OrganizationMember) => {
     // TODO optimistic update
-    addMember({ login, organization: this.props.organization.kee }).then(
+    addMember({ login, organization: organization.kee }).then(
       member => {
-        if (this.mounted) {
-          this.setState(({ members, paging }) => ({
-            members: members && [...members, member],
-            paging: paging && { ...paging, total: paging.total + 1 }
-          }));
-        }
+        setMembers(members && [...members, member]);
+        setPaging(paging && { ...paging, total: paging.total + 1 });
       },
-      () => {}
-    );
-  };
-
-  handleRemoveMember = ({ login }: OrganizationMember) => {
-    // TODO optimistic update
-    removeMember({ login, organization: this.props.organization.kee }).then(
       () => {
-        if (this.mounted) {
-          this.setState(({ members, paging }) => ({
-            members: members && members.filter(member => member.login !== login),
-            paging: paging && { ...paging, total: paging.total - 1 }
-          }));
-        }
-      },
-      () => {}
+      }
     );
   };
 
-  updateGroup = (
+  const handleRemoveMember = ({ login }: OrganizationMember) => {
+    // TODO optimistic update
+    removeMember({ login, organization: organization.kee }).then(
+      () => {
+        setMembers(members && members.filter(member => member.login !== login));
+        setPaging(paging && { ...paging, total: paging.total - 1 });
+      },
+      () => {
+      }
+    );
+  };
+
+  const updateGroup = (
     login: string,
     updater: (member: OrganizationMember) => OrganizationMember
   ) => {
-    this.setState(({ members }) => ({
-      members: members && members.map(member => (member.login === login ? updater(member) : member))
-    }));
+    setMembers(members && members.map(member => (member.login === login ? updater(member) : member)));
   };
 
-  updateMemberGroups = ({ login }: OrganizationMember, add: string[], remove: string[]) => {
+  const updateMemberGroups = ({ login }: OrganizationMember, add: string[], remove: string[]) => {
     // TODO optimistic update
     const promises = [
       ...add.map(name =>
-        addUserToGroup({ name, login, organization: this.props.organization.kee })
+        addUserToGroup({ name, login, organization: organization.kee })
       ),
       ...remove.map(name =>
-        removeUserFromGroup({ name, login, organization: this.props.organization.kee })
+        removeUserFromGroup({
+          organization: organization.kee,
+          name,
+          login,
+        })
       )
-    ];
+    ]
     return Promise.all(promises).then(() => {
-      if (this.mounted) {
-        this.updateGroup(login, member => ({
-          ...member,
-          groupCount: (member.groupCount || 0) + add.length - remove.length
-        }));
-      }
+      updateGroup(login, member => ({
+        ...member,
+        groupCount: (member.groupCount || 0) + add.length - remove.length
+      }));
     });
   };
 
-  render() {
-    const { currentUser, organization } = this.props;
-    const { groups, loading, members, paging } = this.state;
-    return (
-      <div className="page page-limited">
-        <Helmet title={translate('organization.members.page')} />
-        <Suggestions suggestions="organization_members" />
-        <MembersPageHeader
-          handleAddMember={this.handleAddMember}
-          loading={loading}
-          members={members}
-          organization={organization}
-        />
-        {members !== undefined &&
-          paging !== undefined && (
-            <>
-              <MembersListHeader
-                handleSearch={this.handleSearchMembers}
+  return (
+    <div className="page page-limited">
+      <Helmet title={translate('organization.members.page')}/>
+      <Suggestions suggestions="organization_members"/>
+      <MembersPageHeader
+        handleAddMember={handleAddMember}
+        loading={loading}
+        members={members}
+        organization={organization}
+      />
+      {members !== undefined &&
+        paging !== undefined && (
+          <>
+            <MembersListHeader
+              handleSearch={handleSearchMembers}
+              total={paging.total}
+            />
+            <MembersList
+              currentUser={currentUser}
+              members={members}
+              organization={organization}
+              organizationGroups={groups}
+              removeMember={handleRemoveMember}
+              updateMemberGroups={updateMemberGroups}
+            />
+            {paging.total !== 0 && (
+              <ListFooter
+                count={members.length}
+                loadMore={handleLoadMoreMembers}
+                ready={!loading}
                 total={paging.total}
               />
-              <MembersList
-                currentUser={currentUser}
-                members={members}
-                organization={organization}
-                organizationGroups={groups}
-                removeMember={this.handleRemoveMember}
-                updateMemberGroups={this.updateMemberGroups}
-              />
-              {paging.total !== 0 && (
-                <ListFooter
-                  count={members.length}
-                  loadMore={this.handleLoadMoreMembers}
-                  ready={!loading}
-                  total={paging.total}
-                />
-              )}
-            </>
-          )}
-      </div>
-    );
-  }
+            )}
+          </>
+        )}
+    </div>
+  )
 }
 
 export default withCurrentUserContext(withOrganizationContext(OrganizationMembers));

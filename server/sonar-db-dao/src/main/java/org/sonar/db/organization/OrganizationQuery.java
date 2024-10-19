@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,10 +22,9 @@ package org.sonar.db.organization;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class OrganizationQuery {
   private static final OrganizationQuery NO_FILTER = newOrganizationQueryBuilder().build();
@@ -87,7 +86,7 @@ public class OrganizationQuery {
       if (keys != null && !keys.isEmpty()) {
         this.keys = keys.stream()
           .filter(Objects::nonNull)
-          .collect(toSet(keys.size()));
+          .collect(Collectors.toSet());
       }
       return this;
     }

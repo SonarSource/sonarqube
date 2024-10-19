@@ -21,13 +21,14 @@ package org.sonar.server.user.ws;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -42,7 +43,7 @@ import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class DeactivateAction implements UsersWsAction {
 
-  private static final Logger logger = Loggers.get(DeactivateAction.class);
+  private static final Logger logger = LoggerFactory.getLogger(DeactivateAction.class);
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_ANONYMIZE = "anonymize";

@@ -110,7 +110,7 @@ public interface RuleMapper {
 
   void deleteRuleTags(String ruleUuid);
 
-  List<String> selectTags(@Param("query") String query, @Param("pagination") Pagination pagination);
+  List<String> selectTags(@Param("organizationUuid") String organizationUuid, @Param("query") String query, @Param("pagination") Pagination pagination);
 
   List<String> selectRules(@Param("query") RuleListQuery query, @Param("pagination") Pagination pagination);
 

@@ -22,14 +22,14 @@ package org.sonar.server.qualityprofile.ws;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,18 +43,18 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
 
 public class RestoreAction implements QProfileWsAction {
+
+  private final Logger logger = LoggerFactory.getLogger(RestoreAction.class);
 
   private final DbClient dbClient;
   private final QProfileBackuper backuper;
   private final Languages languages;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
-  private final Logger logger = Loggers.get(RestoreAction.class);
 
   public RestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;

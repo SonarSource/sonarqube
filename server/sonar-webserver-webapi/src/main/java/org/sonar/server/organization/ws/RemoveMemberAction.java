@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.server.organization.ws;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -62,8 +61,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     action
       .createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
-      .setRequired(true)
-      .setExampleValue(KEY_ORG_EXAMPLE_001);
+      .setRequired(true);
 
     action
       .createParam(PARAM_LOGIN)

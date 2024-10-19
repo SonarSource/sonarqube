@@ -22,17 +22,19 @@ package org.sonar.server.permission.ws.template;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserId;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -50,11 +52,13 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class AddUserToTemplateAction implements PermissionsWsAction {
+
+  private static final Logger logger = LoggerFactory.getLogger(AddUserToTemplateAction.class);
+
   private final DbClient dbClient;
   private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
   private final WsParameters wsParameters;
-  private static final Logger logger = Loggers.get(AddUserToTemplateAction.class);
 
   public AddUserToTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, WsParameters wsParameters) {
     this.dbClient = dbClient;
@@ -100,7 +104,8 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
-      OrganizationDto organizationDto = wsSupport.findOrganization(dbSession, request.getOrganization());
+      OrganizationDto organizationDto = dbClient.organizationDao().selectByKey(dbSession, request.getOrganization())
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.getOrganization()));
       logger.info("Adding User: {} to Permission Template Request :: organization : {}, orgId: {}, templateName: {} and permissionType: {}",
               userLogin, organizationDto.getKey(), organizationDto.getUuid(), template.getName(), permission);
       checkGlobalAdmin(userSession, organizationDto.getUuid());

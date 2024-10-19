@@ -43,12 +43,12 @@ function Header() {
 }
 
 export default function List(props: Readonly<Props>) {
-  const { groups, manageProvider } = props;
+  const { organization, groups, manageProvider } = props;
 
   return (
     <StickyTable columnCount={4} header={<Header />} id="groups-list">
       {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
-        <ListItem group={group} key={group.name} manageProvider={manageProvider} />
+        <ListItem organization={organization} group={group} key={group.name} manageProvider={manageProvider} />
       ))}
     </StickyTable>
   );

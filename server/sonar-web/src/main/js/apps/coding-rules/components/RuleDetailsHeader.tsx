@@ -33,9 +33,9 @@ interface Props {
   ruleDetails: RuleDetails;
 }
 
-export default function RuleDetailsMeta(props: Readonly<Props>) {
+export default function RuleDetailsHeader(props: Readonly<Props>) {
   const { ruleDetails, onTagsChange, referencedRepositories, canWrite } = props;
-  const ruleUrl = getRuleUrl(ruleDetails.key);
+  const ruleUrl = getRuleUrl(ruleDetails.key, ruleDetails.organization);
 
   const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
   return (

@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
  */
 public class EntityDto {
 
+  protected String organizationUuid;
   protected String kee;
   protected String uuid;
   protected String name;
@@ -44,6 +45,10 @@ public class EntityDto {
       return authUuid;
     }
     return uuid;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   public String getKey() {

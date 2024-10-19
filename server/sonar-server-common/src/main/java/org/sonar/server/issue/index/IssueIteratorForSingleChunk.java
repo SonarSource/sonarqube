@@ -114,6 +114,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     doc.setRuleUuid(indexedIssueDto.getRuleUuid());
     doc.setLanguage(indexedIssueDto.getLanguage());
     doc.setComponentUuid(indexedIssueDto.getComponentUuid());
+    doc.setOrganizationUuid(indexedIssueDto.getOrganizationUuid());
     String scope = indexedIssueDto.getScope();
     String filePath = extractFilePath(indexedIssueDto.getPath(), scope);
     doc.setFilePath(filePath);
@@ -147,7 +148,6 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     String codeVariants = indexedIssueDto.getCodeVariants();
     doc.setCodeVariants(STRING_LIST_SPLITTER.splitToList(codeVariants == null ? "" : codeVariants));
     doc.setPrioritizedRule(indexedIssueDto.isPrioritizedRule());
-    doc.setOrganizationUuid(indexedIssueDto.getO);
     return doc;
 
   }

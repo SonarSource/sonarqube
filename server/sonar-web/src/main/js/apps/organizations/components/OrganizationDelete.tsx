@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,15 @@
  */
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
-import ConfirmButton from "../../../components/controls/ConfirmButton";
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import { translate, translateWithParameters } from "../../../helpers/l10n";
-import { Button } from "../../../components/controls/buttons";
-import { Alert } from "../../../components/ui/Alert";
-import { addGlobalSuccessMessage } from "../../../helpers/globalMessages";
 import { Organization } from "../../../types/types";
 import { whenLoggedIn } from "../../../components/hoc/whenLoggedIn";
 import { deleteOrganization } from "../../../api/organizations";
 import { withOrganizationContext } from "../OrganizationContext";
+import { addGlobalSuccessMessage, FlagMessage } from "design-system";
+import { Button, ButtonVariety, ModalAlert } from "@sonarsource/echoes-react";
 
 interface Props {
   organization: Organization;
@@ -68,8 +67,8 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
           pathname: '/feedback/downgrade',
           state: {
             confirmationMessage: translateWithParameters(
-                'organization.deleted_x',
-                organization.name
+              'organization.deleted_x',
+              organization.name
             ),
             organization,
             title: translate('billing.downgrade.reason.title_deleted')
@@ -86,52 +85,50 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
   render() {
     const { hasPaidPlan } = this.state;
     return (
-        <div className="boxed-group boxed-group-inner">
-          <h2 className="boxed-title">{translate('organization.delete')}</h2>
-          <p className="big-spacer-bottom width-50">
-            <InstanceMessage message={translate('organization.delete.description')}/>
-          </p>
-          <ConfirmButton
-              confirmButtonText={translate('delete')}
-              confirmDisable={!this.isVerified()}
-              isDestructive={true}
-              modalBody={
-                <div>
-                  {hasPaidPlan && (
-                      <Alert variant="warning">
-                        {translate('organization.delete.sonarcloud.paid_plan_info')}
-                      </Alert>
-                  )}
-                  <p>{translate('organization.delete.question')}</p>
-                  <div className="spacer-top">
-                    <label htmlFor="downgrade-organization-name">
-                      {translate('billing.downgrade.modal.type_to_proceed')}
-                    </label>
-                    <div className="little-spacer-top">
-                      <input
-                          autoFocus={true}
-                          className="input-super-large"
-                          id="downgrade-organization-name"
-                          onChange={this.handleInput}
-                          type="text"
-                          value={this.state.verify}
-                      />
-                    </div>
-                  </div>
-                </div>
-              }
-              modalHeader={translateWithParameters(
-                  'organization.delete_x',
-                  this.props.organization.name
+      <div className="boxed-group boxed-group-inner">
+        <h2 className="boxed-title">{translate('organization.delete')}</h2>
+        <p className="big-spacer-bottom width-50">
+          <InstanceMessage message={translate('organization.delete.description')}/>
+        </p>
+        <ModalAlert
+          title={translateWithParameters('organization.delete_x', this.props.organization.name)}
+          content={
+            <div>
+              {hasPaidPlan && (
+                <FlagMessage variant="warning">
+                  {translate('organization.delete.sonarcloud.paid_plan_info')}
+                </FlagMessage>
               )}
-              onConfirm={this.onDelete}>
-            {({ onClick }) => (
-                <Button className="js-custom-measure-delete button-red" onClick={onClick}>
-                  {translate('delete')}
-                </Button>
-            )}
-          </ConfirmButton>
-        </div>
+              <p>{translate('organization.delete.question')}</p>
+              <div className="spacer-top">
+                <label htmlFor="downgrade-organization-name">
+                  {translate('billing.downgrade.modal.type_to_proceed')}
+                </label>
+                <div className="little-spacer-top">
+                  <input
+                    autoFocus={true}
+                    className="input-super-large"
+                    id="downgrade-organization-name"
+                    onChange={this.handleInput}
+                    type="text"
+                    value={this.state.verify}
+                  />
+                </div>
+              </div>
+            </div>
+          }
+          primaryButton={
+            <Button
+              variety={ButtonVariety.Danger}
+              isDisabled={!this.isVerified()}
+              onClick={this.onDelete}
+            >
+              {translate('delete')}
+            </Button>
+          }
+          secondaryButtonLabel={translate('close')}
+        />
+      </div>
     );
   }
 }

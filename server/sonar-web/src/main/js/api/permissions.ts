@@ -80,6 +80,7 @@ export function getPermissionTemplates(organization: string): Promise<GetPermiss
 }
 
 export function createPermissionTemplate(data: {
+  organization: string;
   description?: string;
   name: string;
   projectKeyPattern?: string;

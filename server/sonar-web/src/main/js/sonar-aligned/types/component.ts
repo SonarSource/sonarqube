@@ -35,6 +35,7 @@ export interface Breadcrumb {
   qualifier: string;
 }
 export interface LightComponent {
+  organization: string;
   key: string;
   name: string;
   qualifier: string;

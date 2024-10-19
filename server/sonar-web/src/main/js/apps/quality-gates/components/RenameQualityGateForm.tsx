@@ -36,9 +36,9 @@ interface Props {
 
 const FORM_ID = 'rename-quality-gate';
 
-export default function RenameQualityGateForm({ qualityGate, onClose }: Readonly<Props>) {
+export default function RenameQualityGateForm({ organization, qualityGate, onClose }: Readonly<Props>) {
   const [name, setName] = React.useState(qualityGate.name);
-  const { mutateAsync: renameQualityGate } = useRenameQualityGateMutation(qualityGate.name);
+  const { mutateAsync: renameQualityGate } = useRenameQualityGateMutation(organization, qualityGate.name);
   const router = useRouter();
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,8 +48,8 @@ export default function RenameQualityGateForm({ qualityGate, onClose }: Readonly
   const handleRename = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    await renameQualityGate(name, this.props.organization);
-    router.push(getQualityGateUrl(name, this.props.organization));
+    await renameQualityGate(name);
+    router.push(getQualityGateUrl(name, organization));
   };
 
   const confirmDisable = !name || (qualityGate && qualityGate.name === name);

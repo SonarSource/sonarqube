@@ -54,7 +54,7 @@ export function App(props: AppProps) {
       {isPullRequest(branchLike) ? (
         <main>
           <Suggestions suggestionGroup="pull_requests" />
-          <PullRequestOverview pullRequest={branchLike} component={component} />
+          <PullRequestOverview grc={false} pullRequest={branchLike} component={component} />
         </main>
       ) : (
         <main>

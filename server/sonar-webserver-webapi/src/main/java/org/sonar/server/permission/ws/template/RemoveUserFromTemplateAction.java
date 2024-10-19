@@ -22,11 +22,12 @@ package org.sonar.server.permission.ws.template;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -49,12 +50,14 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class RemoveUserFromTemplateAction implements PermissionsWsAction {
+
+  private static final Logger logger = LoggerFactory.getLogger(RemoveUserFromTemplateAction.class);
+
   private final DbClient dbClient;
   private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
   private final WsParameters wsParameters;
   private final RequestValidator requestValidator;
-  private static final Logger logger = Loggers.get(RemoveUserFromTemplateAction.class);
 
   public RemoveUserFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, WsParameters wsParameters, RequestValidator requestValidator) {
     this.dbClient = dbClient;

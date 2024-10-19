@@ -36,6 +36,7 @@ import ConditionOperator from './ConditionOperator';
 import ThresholdInput from './ThresholdInput';
 
 interface Props {
+  organization: string;
   condition: Condition;
   header: string;
   metric: Metric;
@@ -44,7 +45,7 @@ interface Props {
 
 const EDIT_CONDITION_MODAL_ID = 'edit-condition-modal';
 
-export default function EditConditionModal({ condition, metric, qualityGate }: Readonly<Props>) {
+export default function EditConditionModal({ organization, condition, metric, qualityGate }: Readonly<Props>) {
   const [open, setOpen] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -53,7 +54,7 @@ export default function EditConditionModal({ condition, metric, qualityGate }: R
   const [selectedOperator, setSelectedOperator] = React.useState<string | undefined>(
     condition ? condition.op : undefined,
   );
-  const { mutateAsync: updateCondition } = useUpdateConditionMutation(qualityGate.name);
+  const { mutateAsync: updateCondition } = useUpdateConditionMutation(organization, qualityGate.name);
 
   const getSinglePossibleOperator = (metric: Metric) => {
     const operators = getPossibleOperators(metric);

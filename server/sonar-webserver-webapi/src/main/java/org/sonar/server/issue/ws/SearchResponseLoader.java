@@ -226,7 +226,7 @@ public class SearchResponseLoader {
     Collection<ComponentDto> components = result.getComponents();
     dbClient.organizationDao().selectByUuids(
                     dbSession,
-                    components.stream().map(ComponentDto::getOrganizationUuid).collect(MoreCollectors.toSet()))
+                    components.stream().map(ComponentDto::getOrganizationUuid).collect(Collectors.toSet()))
             .forEach(result::addOrganization);
 
     if (userSession.isLoggedIn()) {

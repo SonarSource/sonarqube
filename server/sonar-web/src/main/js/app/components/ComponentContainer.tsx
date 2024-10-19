@@ -25,8 +25,6 @@ import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { validateProjectAlmBinding } from '../../api/alm-settings';
 import { getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/navigation';
@@ -35,12 +33,10 @@ import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers/urls';
 import { useCurrentBranchQuery } from '../../queries/branch';
 import { useIsLegacyCCTMode } from '../../queries/settings';
-import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
 import { isFile } from '../../types/component';
-import { Feature } from '../../types/features';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
-import { Component } from '../../types/types';
+import { Component, Organization } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import withAvailableFeatures, {
@@ -48,6 +44,7 @@ import withAvailableFeatures, {
 } from './available-features/withAvailableFeatures';
 import { ComponentContext } from './componentContext/ComponentContext';
 import ComponentNav from './nav/component/ComponentNav';
+import { getOrganization, getOrganizationNavigation } from "../../api/organizations";
 
 const FETCH_STATUS_WAIT_TIME = 3000;
 
@@ -62,11 +59,11 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   } = useLocation();
   const router = useRouter();
 
+  const [comparisonBranchesEnabled, setComparisonBranchesEnabled] = React.useState<boolean>();
+  const [organization, setOrganization] = React.useState<Organization>();
   const [component, setComponent] = React.useState<Component>();
   const [currentTask, setCurrentTask] = React.useState<Task>();
   const [tasksInProgress, setTasksInProgress] = React.useState<Task[]>();
-  const [projectBindingErrors, setProjectBindingErrors] =
-    React.useState<ProjectAlmBindingConfigurationErrors>();
   const [loading, setLoading] = React.useState(true);
   const [isPending, setIsPending] = React.useState(false);
   const { data: branchLike, isFetching } = useCurrentBranchQuery(
@@ -93,6 +90,14 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
         ]);
 
         componentWithQualifier = addQualifier({ ...nav, ...component });
+
+        const [organization, navigation, settings] = await Promise.all([
+          getOrganization(component.organization),
+          getOrganizationNavigation(component.organization),
+          getValues({ keys: ['codescan.comparison.branches'], component: component.key }),
+        ]);
+        setOrganization({ organization: { ...organization, ...navigation } });
+        setComparisonBranchesEnabled(settings[0].value === "true");
       } catch (e) {
         if (e instanceof Response && e.status === HttpStatus.Forbidden) {
           handleRequiredAuthorization();
@@ -129,25 +134,6 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
       }
     },
     [branch, isInTutorials, pullRequest],
-  );
-
-  const fetchProjectBindingErrors = React.useCallback(
-    async (component: Component) => {
-      if (
-        component.qualifier === ComponentQualifier.Project &&
-        component.analysisDate === undefined &&
-        hasFeature(Feature.BranchSupport)
-      ) {
-        try {
-          const projectBindingErrors = await validateProjectAlmBinding(component.key);
-
-          setProjectBindingErrors(projectBindingErrors);
-        } catch {
-          // noop
-        }
-      }
-    },
-    [hasFeature],
   );
 
   const handleComponentChange = React.useCallback(
@@ -263,12 +249,14 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
 
   const componentProviderProps = React.useMemo(
     () => ({
+      organization,
       component,
       currentTask,
       isInProgress,
       isPending,
       onComponentChange: handleComponentChange,
       fetchComponent,
+      comparisonBranchesEnabled,
     }),
     [component, currentTask, isInProgress, isPending, handleComponentChange, fetchComponent],
   );
@@ -289,16 +277,17 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
           component?.name ?? '',
         )}
       />
-      {component &&
+      {component && organization &&
         !isFile(component.qualifier) &&
         portalAnchor.current &&
         /* Use a portal to fix positioning until we can fully review the layout */
         createPortal(
           <ComponentNav
+            organization={organization}
             component={component}
             isInProgress={isInProgress}
             isPending={isPending}
-            projectBindingErrors={projectBindingErrors}
+            comparisonBranchesEnabled={comparisonBranchesEnabled}
           />,
           portalAnchor.current,
         )}

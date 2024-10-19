@@ -56,13 +56,13 @@ import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
 
 interface Props {
+  organization: string;
   appState: AppState;
   currentUser: CurrentUser;
   isFavorite: boolean;
   isLegacy: boolean;
   location: Location;
   router: Router;
-  organization: string;
 }
 
 interface State {
@@ -175,13 +175,21 @@ export class AllProjects extends React.PureComponent<Props, State> {
     save(LS_PROJECTS_VIEW, query.view);
   };
 
-  handleQueryChange() {
+  handleQueryChange(initialMount: boolean, organization: string) {
     const { isFavorite, isLegacy } = this.props;
 
     const queryRaw = this.props.location.query;
     const query = parseUrlQuery(queryRaw);
+    const savedOptions = getStorageOptions();
+    const savedOptionsSet = savedOptions.sort || savedOptions.view;
 
     this.setState({ loading: true, query });
+
+    // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
+    if (initialMount && savedOptionsSet) {
+      this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
+      //this.setState({ loading: false });
+    }
 
     fetchProjects({ isFavorite, query, isLegacy }).then((response) => {
       // We ignore the request if the query changed since the time it was initiated
@@ -268,6 +276,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
   renderHeader = () => (
     <PageHeaderWrapper className="sw-w-full">
       <PageHeader
+        showHomepageIcon={!this.props.organization}
         currentUser={this.props.currentUser}
         onPerspectiveChange={this.handlePerspectiveChange}
         onQueryChange={this.updateLocationQuery}

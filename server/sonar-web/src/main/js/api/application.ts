@@ -58,6 +58,6 @@ export function createApplication(
   );
 }
 
-export function deleteApplication(application: string) {
-  return post('/api/applications/delete', { application }).catch(throwGlobalError);
+export function deleteApplication(organization: string, application: string) {
+  return post('/api/applications/delete', { organization, application }).catch(throwGlobalError);
 }

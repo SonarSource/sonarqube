@@ -87,7 +87,7 @@ function BranchLikeTable(props: BranchLikeTableProps) {
       >
         {branchLikes.map((branchLike) => (
           <BranchLikeRow
-            branchLike={branchLike}
+            branchLike={{...branchLike, isComparisonBranch: props.comparisonBranchesEnabled}}
             component={component}
             displayPurgeSetting={displayPurgeSetting}
             key={getBranchLikeKey(branchLike)}

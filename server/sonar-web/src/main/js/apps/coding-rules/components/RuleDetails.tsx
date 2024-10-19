@@ -110,7 +110,6 @@ export default function RuleDetails(props: Readonly<Props>) {
         {ruleDetails && (
           <>
             <RuleDetailsHeader
-              organization={organization}
               canWrite={canWrite}
               onTagsChange={handleTagsChange}
               referencedRepositories={referencedRepositories}

@@ -47,8 +47,9 @@ const COLUMN_COUNT = 2;
 const COLUMN_COUNT_WITH_EDIT_PERMISSIONS = 3;
 
 export default function RuleDetailsCustomRules(props: Readonly<Props>) {
-  const { ruleDetails, canChange } = props;
+  const { ruleDetails, canChange, organization } = props;
   const rulesSearchParams = {
+    organization,
     f: 'name,severity,params',
     template_key: ruleDetails.key,
   };
@@ -60,7 +61,7 @@ export default function RuleDetailsCustomRules(props: Readonly<Props>) {
 
   const handleRuleDelete = React.useCallback(
     (ruleKey: string) => {
-      deleteRules({ key: ruleKey });
+      deleteRules({ organization, key: ruleKey });
     },
     [deleteRules],
   );
@@ -88,6 +89,7 @@ export default function RuleDetailsCustomRules(props: Readonly<Props>) {
           >
             {sortBy(rules, (rule) => rule.name).map((rule) => (
               <RuleListItem
+                organization={organization}
                 key={rule.key}
                 rule={rule}
                 editable={canChange}
@@ -104,17 +106,18 @@ export default function RuleDetailsCustomRules(props: Readonly<Props>) {
 
 function RuleListItem(
   props: Readonly<{
+    organization: string;
     editable?: boolean;
     onDelete: (ruleKey: string) => void;
     rule: Rule;
   }>,
 ) {
-  const { rule, editable } = props;
+  const { rule, editable, organization } = props;
   return (
     <TableRow data-rule={rule.key}>
       <ContentCell>
         <div>
-          <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>
+          <Link to={getRuleUrl(rule.key, organization)}>{rule.name}</Link>
         </div>
       </ContentCell>
 

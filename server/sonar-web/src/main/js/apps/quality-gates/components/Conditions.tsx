@@ -61,7 +61,7 @@ interface Props {
   qualityGate: QualityGate;
 }
 
-export default function Conditions({ qualityGate, isFetching }: Readonly<Props>) {
+export default function Conditions({ organization, qualityGate, isFetching }: Readonly<Props>) {
   const { name, isBuiltIn, actions, conditions = [], caycStatus } = qualityGate;
 
   const [editing, setEditing] = React.useState<boolean>(caycStatus === CaycStatus.NonCompliant);
@@ -190,7 +190,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
         </div>
         <div>
           {(caycStatus === CaycStatus.NonCompliant || editing) && canEdit && (
-            <AddConditionModal qualityGate={qualityGate} />
+            <AddConditionModal organization={organization} qualityGate={qualityGate} />
           )}
         </div>
       </header>
@@ -251,7 +251,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
             </HeadingDark>
 
             <ConditionsTable
-              organization={this.props.organization}
+              organization={organization}
               qualityGate={qualityGate}
               metrics={metrics}
               canEdit={canEdit}
@@ -275,13 +275,12 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
             </HeadingDark>
 
             <ConditionsTable
-              organization={this.props.organization}
+              organization={organization}
               qualityGate={qualityGate}
               metrics={metrics}
               canEdit={canEdit}
               conditions={overallCodeConditions}
               scope="overall"
-              organization={this.props.organization}
             />
 
             {hasFeature(Feature.BranchSupport) && (

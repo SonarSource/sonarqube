@@ -158,9 +158,9 @@ public class RuleDao implements Dao {
     updateRuleTags(ruleDto, mapper);
   }
 
-  public List<String> selectTags(DbSession session, @Nullable String query, Pagination pagination) {
+  public List<String> selectTags(DbSession session, String organizationUuid, @Nullable String query, Pagination pagination) {
     String queryUpgraded = toLowerCaseAndSurroundWithPercentSigns(query);
-    return mapper(session).selectTags(queryUpgraded, pagination);
+    return mapper(session).selectTags(organizationUuid, queryUpgraded, pagination);
   }
 
   private static void updateRuleDescriptionSectionDtos(RuleDto ruleDto, RuleMapper mapper) {
@@ -209,6 +209,15 @@ public class RuleDao implements Dao {
     for (String tag : tags) {
       mapper(dbSession).insertRuleTag(ruleUuid, tag, isSystemTag);
     }
+  }
+
+  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<RuleExtensionId> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
+    RuleMapper mapper = mapper(dbSession);
+
+    executeLargeInputsWithoutOutput(ruleExtensionIds,
+        pageOfRuleExtensionIds -> mapper
+            .selectIndexingRuleExtensionsByIds(pageOfRuleExtensionIds)
+            .forEach(consumer));
   }
 
   public void scrollIndexingRuleExtensions(DbSession dbSession, Consumer<RuleExtensionForIndexingDto> consumer) {

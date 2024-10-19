@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,9 @@ import RemoveMemberForm from './RemoveMemberForm';
 import ManageMemberGroupsForm from './ManageMemberGroupsForm';
 import Avatar from '../../components/ui/Avatar';
 import {translate, translateWithParameters} from "../../helpers/l10n";
-import {formatMeasure} from "../../helpers/measures";
-import ActionsDropdown, {ActionsDropdownDivider, ActionsDropdownItem} from "../../components/controls/ActionsDropdown";
 import { Group, Organization, OrganizationMember } from "../../types/types";
+import { ButtonIcon, ButtonVariety, DropdownMenu, IconMoreVertical } from "@sonarsource/echoes-react";
+import { formatMeasure } from "~sonar-aligned/helpers/measures";
 
 interface Props {
   member: OrganizationMember;
@@ -87,7 +87,7 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
         </td>
         <td className="nowrap text-middle">
           <strong>{member.name}</strong>
-          <span className="note little-spacer-left">{member.login}</span>
+          <span className="note sw-ml-2">{member.login}</span>
         </td>
         {actions.admin && (
           <td className="text-right text-middle">
@@ -100,19 +100,26 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
         {actions.admin && (
           <>
             <td className="nowrap text-middle text-right">
-              <ActionsDropdown>
-                <ActionsDropdownItem onClick={this.handleManageGroupsClick}>
-                  {translate('organization.members.manage_groups')}
-                </ActionsDropdownItem>
-                {removeMember && (
+              <DropdownMenu.Root
+                items={
                   <>
-                    <ActionsDropdownDivider />
-                    <ActionsDropdownItem destructive={true} onClick={this.handleRemoveMemberClick}>
-                      {translate('organization.members.remove')}
-                    </ActionsDropdownItem>
+                    <DropdownMenu.ItemButton onClick={this.handleManageGroupsClick}>
+                      {translate('organization.members.manage_groups')}
+                    </DropdownMenu.ItemButton>
+                    {removeMember && (
+                      <DropdownMenu.ItemButton onClick={this.handleRemoveMemberClick}>
+                        {translate('organization.members.remove')}
+                      </DropdownMenu.ItemButton>
+                    )}
                   </>
-                )}
-              </ActionsDropdown>
+                }
+              >
+                <ButtonIcon
+                  className="it__user-actions-toggle"
+                  Icon={IconMoreVertical}
+                  variety={ButtonVariety.DefaultGhost}
+                />
+              </DropdownMenu.Root>
             </td>
 
             {this.state.manageGroupsForm && (

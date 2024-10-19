@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,52 +19,52 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import Dropdown from "../../../components/controls/Dropdown";
-import DropdownIcon from "../../../components/icons/DropdownIcon";
 import { Organization } from "../../../types/types";
 import OrganizationAvatar from "../components/OrganizationAvatar";
 import OrganizationListItem from "../components/OrganizationListItem";
+import { DropdownMenu } from "@sonarsource/echoes-react";
+import { NavBarTabLink } from "design-system";
 
 export interface Props {
   organization: Organization;
   organizations: Organization[];
 }
 
-export default function OrganizationNavigationHeader({
-                                                       organization,
-                                                       organizations
-                                                     }: Props) {
+export default function OrganizationNavigationHeader({ organization, organizations }: Props) {
   const other = organizations.filter(o => o.kee !== organization.kee);
 
   return (
       <header className="navbar-context-header">
         <OrganizationAvatar organization={organization}/>
         {other.length ? (
-            <Dropdown
-                className="display-inline-block"
-                overlay={
-                  <ul className="menu">
-                    {sortBy(other, org => org.name.toLowerCase()).map(organization => (
-                        <OrganizationListItem key={organization.kee} organization={organization}/>
-                    ))}
-                  </ul>
-                }>
-              <a
-                  className="display-inline-flex-center spacer-left link-base-color link-no-underline"
-                  href="#">
-                {organization.name}
-                <DropdownIcon className="little-spacer-left"/>
-              </a>
-            </Dropdown>
+          <DropdownMenu.Root
+            items={
+              <>
+                {sortBy(other, org => org.name.toLowerCase()).map(organization => (
+                  <DropdownMenu.ItemLink isMatchingFullPath to="/admin/settings">
+                    <OrganizationListItem key={organization.kee} organization={organization}/>
+                  </DropdownMenu.ItemLink>
+                ))}
+              </>
+            }
+          >
+            <NavBarTabLink
+              aria-haspopup="menu"
+              active={this.isSecurityActive()}
+              to={{}}
+              text={organization.name}
+              withChevron
+            />
+          </DropdownMenu.Root>
         ) : (
-            <span className="spacer-left">{organization.name}</span>
+          <span className="spacer-left">{organization.name}</span>
         )}
         {organization.description != null && (
-            <div className="navbar-context-description">
-              <p className="text-limited text-top" title={organization.description}>
-                {organization.description}
-              </p>
-            </div>
+          <div className="navbar-context-description">
+            <p className="text-limited text-top" title={organization.description}>
+              {organization.description}
+            </p>
+          </div>
         )}
       </header>
   );

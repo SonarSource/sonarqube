@@ -39,15 +39,16 @@ export interface AppProps {
   component?: Component;
 }
 
-export function App({ component }: AppProps) {
+export function App({ organization, component }: AppProps) {
   const [loading, setLoading] = useState(true);
   const [webhooks, setWebhooks] = useState<WebhookResponse[]>([]);
 
   const getScopeParams = useCallback(
     () => ({
+      organization: component ? component.organization : organization?.kee,
       project: component?.key,
     }),
-    [component?.key],
+    [organization?.kee, component?.key],
   );
 
   const fetchWebhooks = useCallback(async () => {

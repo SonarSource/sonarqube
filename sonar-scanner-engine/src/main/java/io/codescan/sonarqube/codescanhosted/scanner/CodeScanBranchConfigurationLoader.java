@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package io.codescan.sonarqube.codescanhosted.scanner;
 
 import java.util.Arrays;
@@ -27,9 +26,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
@@ -43,7 +42,7 @@ import org.sonar.scanner.scan.branch.ProjectBranches;
  */
 public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoader {
 
-    private static final Logger LOG = Loggers.get(CodeScanBranchConfigurationLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CodeScanBranchConfigurationLoader.class);
 
     private static final String BRANCH_TYPE = "sonar.branch.type";
 
@@ -74,7 +73,7 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
     private BranchConfiguration createBranchConfiguration(Map<String, String> projectSettings,
             ProjectBranches branches) {
         String branchName = StringUtils.trimToNull(projectSettings.get(ScannerProperties.BRANCH_NAME));
-        String branchTarget = StringUtils.trimToNull(projectSettings.get(ScannerProperties.BRANCH_TARGET));
+        String branchTarget = StringUtils.trimToNull(projectSettings.get(ScannerProperties.BRANCH_TARGET /* TODO */));
         String targetScmBranch = branchTarget;
         BranchType branchType = convertBranchType(projectSettings.get(BRANCH_TYPE));
 

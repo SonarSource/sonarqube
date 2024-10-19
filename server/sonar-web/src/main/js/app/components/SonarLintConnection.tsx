@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety, IconCheck, LinkStandalone } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, IconCheck, LinkStandalone, Select } from '@sonarsource/echoes-react';
 import {
   Card,
   CardSeparator,
@@ -47,7 +47,7 @@ import { LoggedInUser } from '../../types/users';
 import withAppStateContext from './app-state/withAppStateContext';
 import { AppState } from '../../types/appstate';
 import { isDeploymentForAmazon} from '../../helpers/urls';
-import Select, { BasicSelectOption } from '../../components/controls/Select';
+import { getScannableProjects } from "../../api/components";
 
 enum Status {
   request,
@@ -84,8 +84,8 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
 
   const { login } = currentUser;
 
-  const [projects, setProjects] = React.useState<BasicSelectOption[]>([]);
-  const [selectedProject, setSelectedProject] = React.useState<BasicSelectOption>(undefined);
+  const [projects, setProjects] = React.useState<{ label, value }[]>([]);
+  const [selectedProject, setSelectedProject] = React.useState<string>();
 
   React.useEffect(() => {
     const fetchProjects = async () => {
@@ -93,12 +93,12 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
         const projects = projectArray.map((project) => ({ label: project.name, value: project.key }));
 
         setProjects(projects);
-        setSelectedProject(projects.length === 1 ? projects[0] : undefined);
+        setSelectedProject(projects.length === 1 ? projects[0].value : undefined);
     };
     fetchProjects();
   },[]);
 
-  const handleProjectChange = (selectedProject: BasicSelectOption) => {
+  const handleProjectChange = (value: string) => {
     setSelectedProject(selectedProject);
   };
 

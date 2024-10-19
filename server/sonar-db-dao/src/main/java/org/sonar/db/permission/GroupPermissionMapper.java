@@ -47,6 +47,8 @@ public interface GroupPermissionMapper {
 
   List<String> selectGlobalPermissionsOfGroups(@Nullable @Param("groupUuid") String groupUuid);
 
+  List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid);
+
   List<String> selectEntityPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid, @Param("entityUuid") String entityUuid);
 
   /**

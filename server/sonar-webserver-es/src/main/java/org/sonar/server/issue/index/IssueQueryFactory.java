@@ -56,7 +56,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueFixedDto;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
@@ -431,7 +430,7 @@ public class IssueQueryFactory {
 
   private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<ComponentDto> viewOrSubViewUuids) {
     List<String> filteredViewUuids = viewOrSubViewUuids.stream()
-      .filter(uuid -> (userSession.hasComponentPermission(USER, uuid) || userSession.hasComponentPermission(SCAN, uuid) || userSession.hasPermission(GlobalPermission.SCAN)))
+      .filter(uuid -> (userSession.hasComponentPermission(USER, uuid) || userSession.hasComponentPermission(SCAN, uuid)))
       .map(ComponentDto::uuid)
       .collect(Collectors.toCollection(ArrayList::new));
     if (filteredViewUuids.isEmpty()) {

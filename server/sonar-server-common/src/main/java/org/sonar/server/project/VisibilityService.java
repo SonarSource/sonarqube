@@ -118,7 +118,7 @@ public class VisibilityService {
   }
 
   private void insertProjectPermissionOnUser(DbSession dbSession, EntityDto entity, String permission, UserId userId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), entity.getUuid()),
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), entity.getOrganizationUuid(), permission, userId.getUuid(), entity.getUuid()),
       entity, userId, null);
   }
 

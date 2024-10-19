@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,10 @@ import * as React from 'react';
 import OrganizationNavigationExtensions from './OrganizationNavigationExtensions';
 import OrganizationNavigationAdministration from './OrganizationNavigationAdministration';
 import { getQualityGatesUrl } from '../../../helpers/urls';
-import NavBarTabs from "../../../components/ui/NavBarTabs";
 import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
 import { NavLink } from "react-router-dom";
+import { NavBarTabs } from "design-system";
 
 interface OwnProps {
   location: { pathname: string };
@@ -71,7 +71,7 @@ export default function OrganizationNavigationMenu({ location, organization }: O
         </li>
         <OrganizationNavigationExtensions location={location} organization={organization}/>
         {actions.admin && (
-            <OrganizationNavigationAdministration location={location} organization={organization}/>
+          <OrganizationNavigationAdministration location={location} organization={organization}/>
         )}
       </NavBarTabs>
   );

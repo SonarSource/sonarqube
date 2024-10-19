@@ -86,7 +86,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
 
     try {
       const hotspot = await getSecurityHotspotDetails(this.props.hotspotKey);
-      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then((r) => r.rule);
+      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key, organization: this.props.component.organization }).then((r) => r.rule);
       let cve;
       if (typeof this.props.cveId === 'string') {
         cve = await getCve(this.props.cveId);

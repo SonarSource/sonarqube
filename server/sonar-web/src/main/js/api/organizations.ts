@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {Extension, Organization, OrganizationBase, OrganizationMember, Paging} from "../types/types";
-import { deleteRequest, getJSON, post, postJSON, postJSONBody, putJsonBody } from "../helpers/request";
-import {throwGlobalError} from "../helpers/error";
+import { deleteRequest, post, postJSON, postJSONBody, putJsonBody } from "../helpers/request";
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
 
 export function checkOrganizationKeyExistence(key: string): Promise<Organization | undefined> {
   return getJSON(`/_codescan/organizations/${key}/exists`).then(

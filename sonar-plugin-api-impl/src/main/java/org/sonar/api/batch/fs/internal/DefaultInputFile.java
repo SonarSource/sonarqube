@@ -276,15 +276,6 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return metadata.lastValidOffset();
   }
 
-  /**
-   * Digest hash of the file.
-   */
-  @Override
-  public String md5Hash() {
-    checkMetadata();
-    return metadata.hash();
-  }
-
   public int nonBlankLines() {
     checkMetadata();
     return metadata.nonBlankLines();

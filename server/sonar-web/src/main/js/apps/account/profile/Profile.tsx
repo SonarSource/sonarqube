@@ -42,7 +42,7 @@ export function Profile({ currentUser }: ProfileProps) {
       {renderLogin()}
       {renderEmail()}
       <GreySeparator className="sw-my-4" />
-      {renderUserGroups()}
+      {renderOrganizationGroups()}
       {renderScmAccounts()}
       <GreySeparator className="sw-my-4" />
       <Preferences />

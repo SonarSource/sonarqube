@@ -52,7 +52,7 @@ export default function RuleDetailsDescription(props: Readonly<Props>) {
 
   const updateDescription = (text = '') => {
     updateRule({
-      organization: this.props.organization,
+      organization: props.organization,
       key: ruleDetails.key,
       markdown_note: text,
     });

@@ -48,8 +48,12 @@ public class QualityGateDao implements Dao {
     mapper(dbSession).insertOrgQualityGate(uuid, organization.getUuid(), qualityGate.getUuid());
   }
 
+  public Collection<QualityGateDto> selectAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
+
   public Collection<QualityGateDto> selectAll(DbSession session, OrganizationDto organization) {
-    return mapper(session).selectAll(organization.getUuid());
+    return mapper(session).selectAllByOrganization(organization.getUuid());
   }
 
   @CheckForNull

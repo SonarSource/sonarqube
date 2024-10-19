@@ -184,7 +184,7 @@ public class RuleIndexer implements ResilientIndexer {
     Set<RuleExtensionId> docIds = items
             .stream()
             .map(RuleIndexer::explodeRuleExtensionDocId)
-            .collect(toHashSet(items.size()));
+            .collect(Collectors.toSet());
 
     dbClient.ruleDao().scrollIndexingRuleExtensionsByIds(dbSession, docIds,
             // only index requests, no deletion requests.

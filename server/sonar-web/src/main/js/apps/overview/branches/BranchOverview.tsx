@@ -55,6 +55,7 @@ import { BRANCH_OVERVIEW_METRICS, HISTORY_METRICS_LIST, Status } from '../utils'
 import BranchOverviewRenderer from './BranchOverviewRenderer';
 
 interface Props {
+  grc: boolean;
   branch?: Branch;
   branchesEnabled?: boolean;
   component: Component;
@@ -67,7 +68,7 @@ export const NO_CI_DETECTED = 'undetected';
 const FROM_DATE = toISO8601WithOffsetString(new Date().setFullYear(new Date().getFullYear() - 1));
 
 export default function BranchOverview(props: Readonly<Props>) {
-  const { component, branch, branchesEnabled } = props;
+  const { grc, component, branch, branchesEnabled } = props;
   const { graph: initialGraph } = getActivityGraph(
     BRANCH_OVERVIEW_ACTIVITY_GRAPH,
     props.component.key,
@@ -383,6 +384,7 @@ export default function BranchOverview(props: Readonly<Props>) {
 
   return (
     <BranchOverviewRenderer
+      grc={grc}
       analyses={analyses}
       appLeak={appLeak}
       branch={branch}

@@ -23,12 +23,13 @@ import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.dop.response.DopSettingsResource;
 import org.sonar.server.v2.api.dop.response.DopSettingsRestResponse;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 
 public class DefaultDopSettingsController implements DopSettingsController {
@@ -43,7 +44,7 @@ public class DefaultDopSettingsController implements DopSettingsController {
 
   @Override
   public DopSettingsRestResponse fetchAllDopSettings() {
-    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
+    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS, (OrganizationDto) null /* TODO */);
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<DopSettingsResource> dopSettingsResources = dbClient.almSettingDao().selectAll(dbSession)
         .stream()

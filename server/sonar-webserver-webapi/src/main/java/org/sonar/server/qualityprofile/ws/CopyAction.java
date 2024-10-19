@@ -20,14 +20,15 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -47,12 +48,13 @@ public class CopyAction implements QProfileWsAction {
   private static final String PARAM_TO_NAME = "toName";
   private static final String PARAM_FROM_KEY = "fromKey";
 
+  private final Logger logger = LoggerFactory.getLogger(CopyAction.class);
+
   private final DbClient dbClient;
   private final QProfileCopier profileCopier;
   private final Languages languages;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
-  private final Logger logger = Loggers.get(CopyAction.class);
 
   public CopyAction(DbClient dbClient, QProfileCopier profileCopier, Languages languages, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;

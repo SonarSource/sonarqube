@@ -93,7 +93,7 @@ class ActionsCell extends React.PureComponent<Props, State> {
 
   handleDeleteSubmit = () => {
     return deletePermissionTemplate({ templateId: this.props.permissionTemplate.id }).then(() => {
-      this.props.router.replace(`/organizations/${this.props.organization.kee}/${PERMISSION_TEMPLATES_PATH}``);
+      this.props.router.replace(`/organizations/${this.props.organization.kee}/${PERMISSION_TEMPLATES_PATH}`);
       this.props.refresh();
     });
   };
@@ -172,7 +172,7 @@ class ActionsCell extends React.PureComponent<Props, State> {
             {!this.props.fromDetails && (
               <ItemLink
                 to={{
-                  pathname: PERMISSION_TEMPLATES_PATH,
+                  pathname: `/organizations/${organization.kee}/${PERMISSION_TEMPLATES_PATH}`,
                   search: queryToSearchString({ id: t.id }),
                 }}
               >

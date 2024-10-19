@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
@@ -69,7 +70,7 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
   }
 
   @Override
-  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
+  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, OrganizationDto organization, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
     @Nullable String projectName) {
     String pat = findPersonalAccessTokenOrThrow(dbSession, almSettingDto);
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
@@ -78,6 +79,7 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
 
     ComponentCreationData componentCreationData = projectCreator.createProject(
       dbSession,
+      organization,
       getProjectKey(projectKey, repo),
       getProjectName(projectName, repo),
       repo.getDefaultBranchName(),

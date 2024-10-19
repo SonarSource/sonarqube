@@ -35,6 +35,7 @@ import { Hotspot, HotspotResolution, HotspotStatus } from '../../../types/securi
 import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 
 interface Props {
+  organization: string;
   hotspot: Hotspot;
   onAssigneeChange: () => Promise<void>;
 }
@@ -49,7 +50,7 @@ const renderAvatar = (name?: string, avatar?: string) => (
 
 export default function Assignee(props: Props) {
   const {
-    hotspot: { assigneeUser, status, resolution, key },
+    organization, hotspot: { assigneeUser, status, resolution, key },
   } = props;
 
   const { currentUser } = React.useContext(CurrentUserContext);
@@ -84,7 +85,7 @@ export default function Assignee(props: Props) {
     query: string,
     cb: (options: Options<LabelValueSelectOption<string>>) => void,
   ) => {
-    getUsers<RestUser>({ q: query })
+    getUsers<RestUser>({ organization, q: query })
       .then((result) => {
         const options: Array<LabelValueSelectOption<string>> = result.users
           .filter(isUserActive)

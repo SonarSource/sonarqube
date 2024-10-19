@@ -35,6 +35,7 @@ import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
 
 interface Props {
+  organization: string;
   qualityGate: QualityGate;
 }
 
@@ -63,7 +64,7 @@ const FORBIDDEN_METRICS: string[] = [
 
 const ADD_CONDITION_MODAL_ID = 'add-condition-modal';
 
-export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
+export default function AddConditionModal({ organization, qualityGate }: Readonly<Props>) {
   const [open, setOpen] = React.useState(false);
   const closeModal = React.useCallback(() => setOpen(false), []);
 
@@ -71,7 +72,7 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
   const [scope, setScope] = React.useState<'new' | 'overall'>('new');
   const [selectedMetric, setSelectedMetric] = React.useState<Metric | undefined>();
   const [selectedOperator, setSelectedOperator] = React.useState<string | undefined>();
-  const { mutateAsync: createCondition } = useCreateConditionMutation(qualityGate.name);
+  const { mutateAsync: createCondition } = useCreateConditionMutation(organization, qualityGate.name);
   const { hasFeature } = useAvailableFeatures();
   const metrics = useMetrics();
 

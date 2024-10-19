@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,10 @@ import OrganizationAvatarInput from '../components/OrganizationAvatarInput';
 import OrganizationKeyInput from '../components/OrganizationKeyInput';
 import OrganizationNameInput from '../components/OrganizationNameInput';
 import OrganizationUrlInput from '../components/OrganizationUrlInput';
-import {ResetButtonLink, SubmitButton} from "../../../components/controls/buttons";
-import DropdownIcon from "../../../components/icons/DropdownIcon";
-import {translate} from "../../../helpers/l10n";
-import DeferredSpinner from "../../../components/ui/DeferredSpinner";
+import { translate } from "../../../helpers/l10n";
 import { Organization, OrganizationBase } from "../../../types/types";
 import OrganizationDescriptionInput from '../components/OrganizationDescriptionInput';
+import { Button, ButtonVariety, IconChevronDown, Spinner } from "@sonarsource/echoes-react";
 
 type RequiredOrganization = Required<OrganizationBase>;
 
@@ -142,14 +140,15 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
           <OrganizationKeyInput initialValue={this.state.kee} onChange={this.handleKeyUpdate} />
         )}
         <div className="big-spacer-top">
-          <ResetButtonLink onClick={this.handleAdditionalClick}>
+          <Button onClick={this.handleAdditionalClick}>
             {translate(
               this.state.additional
                 ? 'onboarding.create_organization.hide_additional_info'
                 : 'onboarding.create_organization.add_additional_info'
             )}
-            <DropdownIcon className="little-spacer-left" turned={this.state.additional} />
-          </ResetButtonLink>
+
+            <IconChevronDown />
+          </Button>
         </div>
         <div className="js-additional-info" hidden={!this.state.additional}>
           <div className="big-spacer-top">
@@ -195,10 +194,14 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
         {infoBlock}
 
         <div className="display-flex-center big-spacer-top">
-          <SubmitButton disabled={submitting || !this.canSubmit(this.state)}>
+          <Button
+            variety={ButtonVariety.Primary}
+            disabled={submitting || !this.canSubmit(this.state)}
+            type="submit"
+          >
             {this.props.submitText}
-          </SubmitButton>
-          {submitting && <DeferredSpinner className="spacer-left" />}
+          </Button>
+          <Spinner isLoading={submitting} className="spacer-left" />
         </div>
       </form>
     );

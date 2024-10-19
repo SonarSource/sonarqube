@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import './OrganizationAvatar.css';
-import {OrganizationBase} from "../../../types/types";
-import GenericAvatar from "../../../components/ui/GenericAvatar";
+import { OrganizationBase } from "../../../types/types";
+import { Avatar } from "design-system";
 
 interface Props {
   className?: string;
@@ -34,34 +34,34 @@ interface State {
 }
 
 export default class OrganizationAvatar extends React.PureComponent<Props, State> {
-  state = {imgLoadError: false};
+  state = { imgLoadError: false };
 
   handleImgError = () => {
-    this.setState({imgLoadError: true});
+    this.setState({ imgLoadError: true });
   };
 
   render() {
-    const {className, organization, small} = this.props;
-    const {imgLoadError} = this.state;
+    const { className, organization, small } = this.props;
+    const { imgLoadError } = this.state;
     return (
-        <div
-            className={classNames(
-                'navbar-context-avatar',
-                'rounded',
-                {'no-border': !organization.avatar, 'is-small': small},
-                className
-            )}>
-          {organization.avatar && !imgLoadError ? (
-              <img
-                  alt={organization.name}
-                  className="rounded"
-                  onError={this.handleImgError}
-                  src={organization.avatar}
-              />
-          ) : (
-              <GenericAvatar name={organization.name} size={small ? 15 : 30}/>
-          )}
-        </div>
+      <div
+        className={classNames(
+          'navbar-context-avatar',
+          'rounded',
+          { 'no-border': !organization.avatar, 'is-small': small },
+          className
+        )}>
+        {organization.avatar && !imgLoadError ? (
+          <img
+            alt={organization.name}
+            className="rounded"
+            onError={this.handleImgError}
+            src={organization.avatar}
+          />
+        ) : (
+          <Avatar name={organization.name} size={small ? "xs" : "md"} />
+        )}
+      </div>
     );
   }
 }

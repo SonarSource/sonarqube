@@ -26,6 +26,7 @@ import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import Assignee from './Assignee';
 
 interface Props {
+  organization: string;
   categoryStandard?: string;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
@@ -56,7 +57,7 @@ export default function HotspotHeaderRightSection(props: Props) {
         </HotspotHeaderInfo>
       )}
       <HotspotHeaderInfo title={translate('assignee')}>
-        <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
+        <Assignee organization={organization} hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
       </HotspotHeaderInfo>
     </>
   );

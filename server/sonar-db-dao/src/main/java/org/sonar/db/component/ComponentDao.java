@@ -96,18 +96,6 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectByBranchUuid(branchUuid);
   }
 
-  /*
-    SELECT BY QUERY
-   */
-
-  /**
-   * Same as {@link #selectByQuery(DbSession, String, ComponentQuery, int, int)} except
-   * that the filter on organization is disabled.
-   */
-  public List<ComponentDto> selectByQuery(DbSession session, ComponentQuery query, int offset, int limit) {
-    return selectByQueryImpl(session, null, query, offset, limit);
-  }
-
   /**
    * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values

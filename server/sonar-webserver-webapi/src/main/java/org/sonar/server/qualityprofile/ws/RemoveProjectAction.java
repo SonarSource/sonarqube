@@ -19,13 +19,13 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,13 +43,14 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 
 public class RemoveProjectAction implements QProfileWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(RemoveProjectAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final Languages languages;
   private final ComponentFinder componentFinder;
   private final QProfileWsSupport wsSupport;
   private final QualityProfileChangeEventService qualityProfileChangeEventService;
-  private final Logger logger = Loggers.get(RemoveProjectAction.class);
 
   public RemoveProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder,
     QProfileWsSupport wsSupport, QualityProfileChangeEventService qualityProfileChangeEventService) {

@@ -35,6 +35,7 @@ public class ScannerProperties {
   public static final String ORGANIZATION = "sonar.organization";
 
   public static final String BRANCH_NAME = "sonar.branch.name";
+  public static final String BRANCH_TARGET = "sonar.branch.target";
 
   public static final String PULL_REQUEST_KEY = "sonar.pullrequest.key";
   public static final String PULL_REQUEST_BRANCH = "sonar.pullrequest.branch";

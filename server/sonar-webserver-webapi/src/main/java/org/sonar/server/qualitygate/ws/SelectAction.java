@@ -94,7 +94,7 @@ public class SelectAction implements QualityGatesWsAction {
       QualityGateDto qualityGate;
       qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
       ProjectDto project = wsSupport.getProject(dbSession, projectKey);
-      wsSupport.checkCanAdminProject(organization, project);
+      checkPermissions(organization, project);
 
       QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());
       if (currentQualityGate == null) {
@@ -111,8 +111,8 @@ public class SelectAction implements QualityGatesWsAction {
     response.noContent();
   }
 
-  private void checkProjectQGCanChange(ProjectDto project) {
-    wsSupport.checkCanAdminProject(project);
+  private void checkPermissions(OrganizationDto organization, ProjectDto project) {
+    wsSupport.checkCanAdminProject(organization, project);
     if (aiCodeAssuranceVerifier.isAiCodeAssured(project)) {
       throw new ForbiddenException("Quality gate cannot be changed for project with AI Code Assurance enabled.");
     }

@@ -40,4 +40,5 @@ export interface PullRequestBase {
   target: string;
   title: string;
   url?: string;
+  isComparisonBranch?: boolean;
 }
