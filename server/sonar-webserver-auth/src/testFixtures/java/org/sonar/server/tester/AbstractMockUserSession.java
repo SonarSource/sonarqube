@@ -65,11 +65,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
-  @Override
-  protected boolean hasPermissionImpl(GlobalPermission permission) {
-    return permissions.contains(permission);
-  }
-
   /**
    * Use this method to register public root component and non root components the UserSession must be aware of.
    * (ie. this method can be used to emulate the content of the DB)

@@ -446,6 +446,20 @@ public class UserSessionRule implements TestRule, UserSession, BeforeTestExecuti
     return currentUserSession.isAuthenticatedBrowserSession();
   }
 
+  @Override
+  public boolean isRoot() {
+    return false;
+  }
+
+  @Override
+  public boolean hasMembership(OrganizationDto organization) {
+    return false;
+  }
+
+  @Override
+  public void checkMembership(OrganizationDto organization) {
+  }
+
   public void flagSessionAsGui() {
     currentUserSession.flagAsBrowserSession();
   }
