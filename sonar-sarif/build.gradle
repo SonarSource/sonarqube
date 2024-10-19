@@ -25,3 +25,18 @@ license {
 tasks.withType(License).configureEach { licenseTask ->
   licenseTask.mustRunAfter(tasks.named("generateJsonSchema2Pojo"))
 }
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      if (release) {
+        artifact sourcesJar
+        artifact javadocJar
+      }
+    }
+  }
+}
