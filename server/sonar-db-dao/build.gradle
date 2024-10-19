@@ -96,3 +96,18 @@ jar {
     // remove exclusion on proto files so that they can be included by other modules
     setExcludes([])
 }
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      if (release) {
+        artifact sourcesJar
+        artifact javadocJar
+      }
+    }
+  }
+}
