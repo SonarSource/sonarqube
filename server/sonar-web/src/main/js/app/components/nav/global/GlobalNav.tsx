@@ -26,6 +26,7 @@ import GlobalNavMenu from './GlobalNavMenu';
 import { GlobalNavUser } from './GlobalNavUser';
 import MainSonarQubeBar from './MainSonarQubeBar';
 import { Organization } from "../../../../types/types";
+import GlobalNavPlus from "./GlobalNavPlus";
 
 export interface GlobalNavProps {
   currentUser: CurrentUser;
@@ -53,7 +54,7 @@ export function GlobalNav(props: GlobalNavProps) {
             </div>
           )}
           <div className="sw-ml-4">
-            <GlobalNavUser userOrganizations={userOrganizations} />
+            <GlobalNavUser currentUser={currentUser} userOrganizations={userOrganizations} />
           </div>
         </div>
       </div>

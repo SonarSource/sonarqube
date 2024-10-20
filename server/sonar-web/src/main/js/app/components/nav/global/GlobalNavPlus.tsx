@@ -19,24 +19,24 @@
  */
 import * as React from 'react';
 import GlobalNavPlusMenu from './GlobalNavPlusMenu';
-import Dropdown from "../../../../components/controls/Dropdown";
-import PlusIcon from "../../../../components/icons/PlusIcon";
 import { translate } from "../../../../helpers/l10n";
+import { PlusIcon } from "@primer/octicons-react";
+import { DropdownMenu } from "@sonarsource/echoes-react";
 
 export default class GlobalNavPlus extends React.PureComponent {
 
   render() {
     return (
-        <Dropdown
+        <DropdownMenu.Root
             overlay={<GlobalNavPlusMenu/>}
             tagName="li">
           <a
               className="navbar-icon navbar-plus"
               href="#"
               title={translate('my_account.create_new_project_portfolio_or_application')}>
-            <PlusIcon/>
+            <PlusIcon />
           </a>
-        </Dropdown>
+        </DropdownMenu.Root>
     );
   }
 }

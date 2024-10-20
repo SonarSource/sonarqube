@@ -193,10 +193,7 @@ import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
 import org.sonar.server.platform.telemetry.TelemetryPortfolioConfidentialFlagProvider;
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
-import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
-import org.sonar.server.platform.web.SonarLintConnectionFilter;
-import org.sonar.server.platform.web.WebServiceFilter;
-import org.sonar.server.platform.web.WebServiceReroutingFilter;
+import org.sonar.server.platform.web.*;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelServiceModule;
 import org.sonar.server.platform.ws.HealthCheckerModule;
@@ -418,6 +415,7 @@ public class PlatformLevel4 extends PlatformLevel {
       SonarLintConnectionFilter.class,
       WebServiceFilter.class,
       WebServiceReroutingFilter.class,
+      CustomerAdminFilter.class,
 
       // localization
       L10nWs.class,

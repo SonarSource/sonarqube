@@ -23,7 +23,7 @@ import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { GlobalSettingKeys } from '../../../../types/settings';
-import { isLoggedIn } from '../../../../types/users';
+import { CurrentUser, isLoggedIn } from '../../../../types/users';
 import { AppStateContext } from '../../app-state/AppStateContext';
 import { CurrentUserContext } from '../../current-user/CurrentUserContext';
 import { GlobalNavUserMenu } from './GlobalNavUserMenu';
@@ -31,9 +31,12 @@ import { Organization } from "../../../../types/types";
 import OrganizationListItem from "../../../../apps/organizations/components/OrganizationListItem";
 import { sortBy } from "lodash";
 
-export function GlobalNavUser() {
-  const userContext = React.useContext(CurrentUserContext);
-  const currentUser = userContext?.currentUser;
+export interface GlobalNavUserProps {
+  currentUser: CurrentUser;
+  userOrganizations: Organization[];
+}
+
+export function GlobalNavUser({ currentUser, userOrganizations }: GlobalNavUserProps) {
 
   const { settings } = React.useContext(AppStateContext);
 
@@ -44,12 +47,12 @@ export function GlobalNavUser() {
   }, []);
 
   const initializePendo = () => {
-    const hasOrganizations = this.props.userOrganizations.length > 0;
+    const hasOrganizations = userOrganizations.length > 0;
 
     const isCodescan = window.location.hostname.includes('codescan.io') || window.location.hostname.includes('autorabit.com');
     if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized && isCodescan) {
       const script = document.createElement('script');
-      const orgKeys = this.props.userOrganizations.map(o => o.kee).join(',');
+      const orgKeys = userOrganizations.map(o => o.kee).join(',');
       const host = window.location.hostname;
 
       script.innerHTML =
