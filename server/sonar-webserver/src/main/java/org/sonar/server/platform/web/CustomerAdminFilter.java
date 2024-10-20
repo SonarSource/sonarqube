@@ -22,6 +22,9 @@ package org.sonar.server.platform.web;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -34,19 +37,19 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class CustomerAdminFilter implements Filter {
+public class CustomerAdminFilter extends HttpFilter {
+
+    private static final UrlPattern URL_PATTERN = UrlPattern.builder()
+        .includes("/api/system/info", "/api/ce/task",
+            "/api/ce/task_types", "/api/ce/worker_count", "/api/ce/activity", "/api/organizations/search",
+            "/api/ce/activity_status", "/api/settings/set", "/api/settings/reset", "/api/new_code_periods/set")
+        .build();
 
     private static final Set<String> includeUrls = new HashSet<>(Arrays.asList("/api/system/info", "/api/ce/task",
             "/api/ce/task_types", "/api/ce/worker_count", "/api/ce/activity", "/api/organizations/search",
@@ -62,16 +65,13 @@ public class CustomerAdminFilter implements Filter {
         this.platform = platform;
     }
 
-
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // nothing to do
+    public UrlPattern doGetPattern() {
+        return URL_PATTERN;
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-        HttpRequest request = (HttpRequest) servletRequest;
-        HttpResponse response = (HttpResponse) servletResponse;
+    public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException {
         String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
         if (includeUrls.contains(path)) {
             DbClient dbClient = platform.getContainer().getComponentByType(DbClient.class);
@@ -79,10 +79,8 @@ public class CustomerAdminFilter implements Filter {
             OrganizationDto organization = dbClient.organizationDao().getDefaultOrganization(dbSession);
             ThreadLocalUserSession threadLocalUserSession = getComponent(ThreadLocalUserSession.class);
             UserSession userSession = threadLocalUserSession.get();
-            if (userSession.hasPermission(OrganizationPermission.ADMINISTER_CUSTOMER,
-                    organization.getUuid())) {
-                Optional<JwtHttpHandler.Token> tokenOpt = getComponent(JwtHttpHandler.class)
-                        .getToken(request, response);
+            if (userSession.hasPermission(OrganizationPermission.ADMINISTER_CUSTOMER, organization.getUuid())) {
+                Optional<JwtHttpHandler.Token> tokenOpt = getComponent(JwtHttpHandler.class).getToken(request, response);
                 if (tokenOpt.isPresent()) {
                     UserDto userDto = tokenOpt.get().getUserDto();
                     userDto.setRoot(true);
@@ -92,7 +90,7 @@ public class CustomerAdminFilter implements Filter {
 
             }
         }
-        chain.doFilter(servletRequest, servletResponse);
+        chain.doFilter(request, response);
     }
 
     private <T> T getComponent(Class<T> type) {

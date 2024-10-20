@@ -22,6 +22,27 @@ package org.sonar.server.platform.platformlevel;
 import io.codescan.sonarqube.codescanhosted.ce.CodeScanBranchSupportDelegate;
 import io.codescan.sonarqube.codescanhosted.web.CodeScanBranchFeatureExtension;
 import java.util.List;
+import org.sonar.alm.client.RatioBasedRateLimitChecker;
+import org.sonar.alm.client.TimeoutConfigurationImpl;
+import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.azure.AzureDevOpsValidator;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClientConfiguration;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudValidator;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
+import org.sonar.alm.client.github.GithubApplicationClientImpl;
+import org.sonar.alm.client.github.GithubApplicationHttpClient;
+import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.github.GithubHeaders;
+import org.sonar.alm.client.github.GithubPaginatedHttpClient;
+import org.sonar.alm.client.github.GithubPermissionConverter;
+import org.sonar.alm.client.github.config.GithubProvisioningConfigValidator;
+import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
+import org.sonar.alm.client.gitlab.GitlabApplicationHttpClient;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
+import org.sonar.alm.client.gitlab.GitlabHeaders;
+import org.sonar.alm.client.gitlab.GitlabPaginatedHttpClient;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.bitbucket.BitbucketModule;
@@ -57,7 +78,15 @@ import org.sonar.server.branch.ws.BranchWsModule;
 import org.sonar.server.ce.CeModule;
 import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
+import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjectCreatorFactory;
+import org.sonar.server.common.almsettings.github.GithubDevOpsProjectCreationContextService;
+import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
+import org.sonar.server.common.almsettings.gitlab.GitlabDevOpsProjectCreationContextService;
+import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
@@ -556,6 +585,45 @@ public class PlatformLevel4 extends PlatformLevel {
       // Scanner Cache
       ScannerCache.class,
       new AnalysisCacheWsModule(),
+
+        // ALM integrations
+        TimeoutConfigurationImpl.class,
+//        CredentialsEncoderHelper.class,
+//        ImportHelper.class,
+        ProjectKeyGenerator.class,
+        RatioBasedRateLimitChecker.class,
+        GithubAppSecurityImpl.class,
+        GithubHeaders.class,
+        GithubApplicationHttpClient.class,
+        GithubPaginatedHttpClient.class,
+        GithubApplicationClientImpl.class,
+        GithubProvisioningConfigValidator.class,
+//        GithubProvisioningWs.class,
+        GithubDevOpsProjectCreationContextService.class,
+        GithubProjectCreatorFactory.class,
+        GithubPermissionConverter.class,
+        GitlabDevOpsProjectCreationContextService.class,
+        BitbucketCloudRestClientConfiguration.class,
+        BitbucketServerRestClient.class,
+        AzureDevOpsHttpClient.class,
+        AzureDevOpsProjectCreatorFactory.class,
+//        new AlmIntegrationsWSModule(),
+        BitbucketCloudValidator.class,
+        BitbucketCloudProjectCreatorFactory.class,
+        BitbucketServerProjectCreatorFactory.class,
+        BitbucketServerSettingsValidator.class,
+        GithubGlobalSettingsValidator.class,
+        GitlabHeaders.class,
+        GitlabApplicationHttpClient.class,
+        GitlabPaginatedHttpClient.class,
+        GitlabApplicationClient.class,
+        GitlabGlobalSettingsValidator.class,
+        GitlabProjectCreatorFactory.class,
+        AzureDevOpsValidator.class,
+
+        // ALM settings
+//        new AlmSettingsWsModule(),
+        ProjectBindingsService.class,
 
       // Project export
       new ProjectExportWsModule(),

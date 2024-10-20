@@ -119,7 +119,7 @@ public class JwtHttpHandler {
 
   public Optional<Token> getToken(HttpRequest request, HttpResponse response) {
     Optional<String> encodedToken = getTokenFromCookie(request);
-    if (!encodedToken.isPresent()) {
+    if (encodedToken.isEmpty()) {
       return Optional.empty();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {

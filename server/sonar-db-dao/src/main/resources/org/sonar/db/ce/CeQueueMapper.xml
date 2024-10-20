@@ -34,7 +34,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
-    inner join projects pj on pj.uuid = cq.main_component_uuid
+    inner join projects pj on pj.uuid = cq.entity_uuid
     where
       cq.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
@@ -90,7 +90,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
-    inner join projects pj on pj.uuid = cq.main_component_uuid
+    inner join projects pj on pj.uuid = cq.entity_uuid
     where
       cq.entity_uuid=#{entityUuid,jdbcType=VARCHAR}
     <include refid="orderByDateAndUuid"/>
@@ -101,7 +101,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
-    inner join projects pj on pj.uuid = cq.main_component_uuid
+    inner join projects pj on pj.uuid = cq.entity_uuid
     <include refid="orderByDateAndUuid"/>
   </select>
 
@@ -122,7 +122,7 @@
   <sql id="sqlSelectByQuery">
     from
       ce_queue cq
-    inner join projects pj on pj.uuid = cq.main_component_uuid
+    inner join projects pj on pj.uuid = cq.entity_uuid
     <where>
       <if test="query.entityUuids != null and query.entityUuids.size()>0">
         and cq.entity_uuid in
@@ -184,7 +184,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
-    inner join projects pj on pj.uuid = cq.main_component_uuid
+    inner join projects pj on pj.uuid = cq.entity_uuid
     where
       cq.status = 'PENDING'
   </select>
@@ -194,7 +194,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
-    inner join projects pj on pj.uuid = cq.main_component_uuid
+    inner join projects pj on pj.uuid = cq.entity_uuid
     where
       cq.status = 'PENDING'
       and cq.started_at is not null
@@ -205,7 +205,7 @@
     <include refid="columns"/>
     from
       ce_queue cq
-    inner join projects pj on pj.uuid = cq.main_component_uuid
+    inner join projects pj on pj.uuid = cq.entity_uuid
     where
       cq.status = 'IN_PROGRESS'
       and cq.started_at is not null

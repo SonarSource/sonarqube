@@ -65,6 +65,9 @@ public class JresHandlerImpl implements JresHandler {
   private List<JreInfoRestResponse> readJresMetadata() {
     ObjectMapper objectMapper = new ObjectMapper();
     try (InputStream is = getClass().getClassLoader().getResourceAsStream(jresMetadataFilename)) {
+      if (is == null) {
+        return List.of();
+      }
       return objectMapper.readValue(is, objectMapper.getTypeFactory().constructCollectionType(List.class, JreInfoRestResponse.class));
     } catch (IOException ioException) {
       throw new UncheckedIOException(ioException);

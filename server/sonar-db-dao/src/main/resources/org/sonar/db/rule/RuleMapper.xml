@@ -34,7 +34,6 @@
     rm.remediation_function as "remediationFunction",
     rm.remediation_gap_mult as "remediationGapMultiplier",
     rm.remediation_base_effort as "remediationBaseEffort",
-    rm.tags as "tagsField",
     rm.ad_hoc_name as "adHocName",
     rm.ad_hoc_description as "adHocDescription",
     rm.ad_hoc_severity as "adHocSeverity",
@@ -173,6 +172,8 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
         r.uuid=#{uuid,jdbcType=VARCHAR}

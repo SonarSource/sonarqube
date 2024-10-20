@@ -75,7 +75,7 @@ const TABS_SF = [
     value: Tabs.Branch,
     label: (
         <>
-          <BranchIcon />
+          <IconGitBranch />
           <span className="spacer-left">
           {translate('project_branch_pull_request.tabs.branches')}
         </span>
@@ -87,7 +87,7 @@ const TABS_SF = [
     value: Tabs.PullRequest,
     label: (
         <>
-          <PullRequestIcon />
+          <IconPullrequest />
           <span className="spacer-left">
           {translate('project_branch_pull_request.tabs.pull_requests.sf')}
         </span>

@@ -33,11 +33,8 @@ const { spawn } = require('child_process');
 const { buildDesignSystem } = require('./build-design-system');
 
 const STATUS_OK = 200;
-const STATUS_ERROR = 500;
 
 const port = process.env.PORT || 3000;
-const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
-const host = process.env.HOST || 'localhost';
 const proxyTarget = process.env.PROXY || 'http://localhost:9000';
 
 const config = getConfig(false);
@@ -75,11 +72,11 @@ async function run() {
       servedir: 'build/webapp',
     })
     .then((result) => {
-      const { port: esbuildport } = result;
+      const { port: esbuildport, host: esbuildhost } = result;
 
       const proxy = httpProxy.createProxyServer();
       const esbuildProxy = httpProxy.createProxyServer({
-        target: `http://localhost:${esbuildport}`,
+        target: `http://${esbuildhost}:${esbuildport}`,
       });
 
       proxy.on('error', (error) => {
@@ -105,7 +102,7 @@ async function run() {
                 req,
                 res,
                 {
-                  target: proxyTarget
+                  target: 'http://localhost:8080'
                 },
                 e => console.error('req error', e)
             );
@@ -114,11 +111,12 @@ async function run() {
             req.url.includes('images/') ||
             req.url.includes('static/')
           ) {
+            console.info('proxu', req.url);
             proxy.web(
               req,
               res,
               {
-                target: proxyTarget,
+                target: 'http://localhost:9000',
                 changeOrigin: true,
               },
               (e) => console.error('req error', e),

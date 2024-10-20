@@ -216,6 +216,15 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
+  public Set<String> getTags() {
+    return getField(RuleIndexDefinition.FIELD_RULE_TAGS);
+  }
+
+  public RuleDoc setTags(Set<String> tags) {
+    setField(RuleIndexDefinition.FIELD_RULE_TAGS, tags);
+    return this;
+  }
+
   @CheckForNull
   public RuleStatus status() {
     return RuleStatus.valueOf(getField(RuleIndexDefinition.FIELD_RULE_STATUS));
@@ -335,6 +344,7 @@ public class RuleDoc extends BaseDoc {
       .setType(getType(dto))
       .setOrganizationUuid(dto.getOrganizationUuid())
       .setCreatedAt(dto.getCreatedAt())
+      .setTags(Sets.union(dto.getTags(), dto.getSystemTags()))
       .setUpdatedAt(dto.getUpdatedAt())
       .setHtmlDescription(getConcatenatedSectionsInHtml(dto))
       .setTemplateKey(getRuleKey(dto))

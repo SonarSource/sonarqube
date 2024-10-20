@@ -66,6 +66,7 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_OWASP_TOP_10_2021 = "owaspTop10-2021";
   public static final String FIELD_RULE_SANS_TOP_25 = "sansTop25";
   public static final String FIELD_RULE_SONARSOURCE_SECURITY = "sonarsourceSecurity";
+  public static final String FIELD_RULE_TAGS = "tags";
 
   public static final Set<String> SORT_FIELDS = Set.of(
     FIELD_RULE_NAME,
@@ -137,6 +138,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_TAGS).build();
 
     ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
     ruleMapping.textFieldBuilder(FIELD_RULE_HTML_DESCRIPTION)

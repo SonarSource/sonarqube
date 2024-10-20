@@ -23,10 +23,6 @@
     <async-supported>true</async-supported>
   </filter>
   <filter>
-    <filter-name>CustomerAdminFilter</filter-name>
-    <filter-class>org.sonar.server.platform.web.CustomerAdminFilter</filter-class>
-  </filter>
-  <filter>
     <filter-name>SetCharacterEncodingFilter</filter-name>
     <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
     <async-supported>true</async-supported>
@@ -115,10 +111,6 @@
   </filter-mapping>
   <filter-mapping>
     <filter-name>UserSessionFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>CustomerAdminFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
   <filter-mapping>
