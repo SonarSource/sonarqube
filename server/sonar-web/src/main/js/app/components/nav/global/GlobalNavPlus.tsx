@@ -27,9 +27,7 @@ export default class GlobalNavPlus extends React.PureComponent {
 
   render() {
     return (
-        <DropdownMenu.Root
-            overlay={<GlobalNavPlusMenu/>}
-            tagName="li">
+        <DropdownMenu.Root overlay={<GlobalNavPlusMenu/>}>
           <a
               className="navbar-icon navbar-plus"
               href="#"

@@ -22,16 +22,10 @@ import { MainAppBar, SonarQubeLogo } from 'design-system';
 import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../../../helpers/l10n';
-import { GlobalSettingKeys } from '../../../../types/settings';
-import { AppStateContext } from '../../app-state/AppStateContext';
-
-const DEFAULT_CUSTOM_LOGO_WIDTH_IN_PX = 100;
 
 function LogoWithAriaText() {
-  const { settings } = React.useContext(AppStateContext);
-  const customLogoUrl = settings[GlobalSettingKeys.LogoUrl];
-  const customLogoWidth = settings[GlobalSettingKeys.LogoWidth] ?? DEFAULT_CUSTOM_LOGO_WIDTH_IN_PX;
 
+  const customLogoUrl = `/images/sonarcloud-logo-wb.svg`;
   const title = customLogoUrl
     ? translate('layout.nav.home_logo_alt')
     : translate('layout.nav.home_sonarqube_logo_alt');
@@ -39,7 +33,7 @@ function LogoWithAriaText() {
   return (
     <div aria-label={title} role="img">
       {customLogoUrl ? (
-        <Image alt={title} src={customLogoUrl} width={customLogoWidth} />
+        <Image alt={title} src={customLogoUrl} width={120} />
       ) : (
         <SonarQubeLogo />
       )}

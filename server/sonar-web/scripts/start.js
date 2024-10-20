@@ -111,12 +111,11 @@ async function run() {
             req.url.includes('images/') ||
             req.url.includes('static/')
           ) {
-            console.info('proxu', req.url);
             proxy.web(
               req,
               res,
               {
-                target: 'http://localhost:9000',
+                target: proxyTarget,
                 changeOrigin: true,
               },
               (e) => console.error('req error', e),

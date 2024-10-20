@@ -20,51 +20,83 @@
 import * as React from 'react';
 import { getYear } from "date-fns";
 import { translate } from "../../helpers/l10n";
+import styled from "@emotion/styled";
+import { LAYOUT_VIEWPORT_MIN_WIDTH, PageContentFontWrapper, themeBorder, themeColor } from "design-system";
+import GlobalFooterBranding from "./GlobalFooterBranding";
 
 export default function GlobalFooterCodescan() {
   return (
-      <div className="page-footer page-container" id="footer">
-        <div>
-          © 2017-{getYear(new Date())} <a
-            href="https://www.codescan.io"
-            rel="noopener noreferrer"
-            target="_blank"
-            title="CodeScan Enterprises LLC">
-          CodeScan Enterprises LLC
-        </a>
-          . All rights reserved.
+    <StyledFooter className="sw-p-6" id="footer">
+      <PageContentFontWrapper className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
+
+        <div className="sw-flex sw-justify-center sw-items-center">
+          <div>
+            © 2017-{getYear(new Date())}&nbsp;
+            <a href="https://www.codescan.io"
+               rel="noopener noreferrer"
+               target="_blank"
+               title="CodeScan Enterprises LLC"
+            >
+              CodeScan Enterprises LLC
+            </a>
+            . All rights reserved.
+          </div>
         </div>
 
-        <ul className="page-footer-menu">
-          <li className="page-footer-menu-item">
+        <StyledFooterLinks className="sw-flex sw-justify-center sw-items-center" >
+          <div>
             Version {translate('footer.codescan_version')}
-          </li>
-          <li className="page-footer-menu-item">
+          </div>
+          <div>
             <a rel="noopener noreferrer" target="_blank" href="https://www.gnu.org/licenses/lgpl-3.0.txt">LGPL v3</a>
-          </li>
-          <li className="page-footer-menu-item">
+          </div>
+          <div>
             <a rel="noopener noreferrer" target="_blank"
                href="https://www.codescan.io/tos/">{translate('footer.terms')}</a>
-          </li>
-          <li className="page-footer-menu-item">
-            <a rel="noopener noreferrer" target="_blank" href="https://www.linkedin.com/company/code-scan">Linkedin</a>
-          </li>
-          <li className="page-footer-menu-item">
+          </div>
+          <div>
+            <a rel="noopener noreferrer" target="_blank"
+               href="https://www.linkedin.com/company/code-scan">Linkedin</a>
+          </div>
+          <div>
             <a rel="noopener noreferrer" target="_blank"
                href="https://www.facebook.com/CodeScanForSalesforce/">Facebook</a>
-          </li>
-          <li className="page-footer-menu-item">
+          </div>
+          <div>
             <a rel="noopener noreferrer" target="_blank" href="https://twitter.com/CodeScanforSFDC">Twitter</a>
-          </li>
-          <li className="page-footer-menu-item">
+          </div>
+          <div>
             <a rel="noopener noreferrer" target="_blank"
                href="https://www.codescan.io/contact/">{translate('footer.help')}</a>
-          </li>
-          <li className="page-footer-menu-item">
+          </div>
+          <div>
             <a rel="noopener noreferrer" target="_blank"
                href="https://knowledgebase.autorabit.com/codescan/docs/codescan-getting-started">{translate('footer.about')}</a>
-          </li>
-        </ul>
-      </div>
+          </div>
+        </StyledFooterLinks>
+      </PageContentFontWrapper>
+    </StyledFooter>
   );
 }
+
+const StyledFooter = styled.div`
+  background-color: ${
+    themeColor('backgroundSecondary')};
+  border-top: ${themeBorder('default')};
+  box-sizing: border-box;
+  min-width: ${LAYOUT_VIEWPORT_MIN_WIDTH}px;
+`;
+
+const StyledFooterLinks = styled.div`
+  > div:before {
+    content: "-";
+    padding: 0 4px;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  > div:first-child:before {
+    display: none;
+  }
+`;
