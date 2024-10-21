@@ -20,6 +20,7 @@
 import React from 'react';
 import { Organization } from "../../types/types";
 import { getWrappedDisplayName } from "~sonar-aligned/components/hoc/utils";
+import { useOutletContext } from "react-router-dom";
 
 export const OrganizationContext = React.createContext<OrganizationContextProps>({});
 
@@ -30,17 +31,14 @@ export interface OrganizationContextProps {
 export function withOrganizationContext<P extends Partial<OrganizationContextProps>>(
   WrappedComponent: React.ComponentType<React.PropsWithChildren<P & OrganizationContextProps>>,
 ): React.ComponentType<Omit<P, keyof OrganizationContextProps>> {
-  return class WithOrganizationContext extends React.PureComponent<
-    Omit<P, keyof OrganizationContextProps>
-  > {
-    static displayName = getWrappedDisplayName(WrappedComponent, 'withOrganizationContext');
 
-    render() {
-      return (
-        <OrganizationContext.Consumer>
-          {(organization) => <WrappedComponent organization={organization} {...(this.props as P)} />}
-        </OrganizationContext.Consumer>
-      );
-    }
-  };
+  function ComponentWithOrganizationContextProps(props: P) {
+    const context = useOutletContext<OrganizationContextProps>();
+    return <WrappedComponent {...props} {...context} />;
+  }
+
+  (ComponentWithOrganizationContextProps as React.FC<React.PropsWithChildren<P>>).displayName =
+    getWrappedDisplayName(WrappedComponent, 'withOrganizationContext');
+
+  return ComponentWithOrganizationContextProps;
 }

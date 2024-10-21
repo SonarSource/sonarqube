@@ -22,7 +22,6 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from "../../../helpers/l10n";
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import './style.css';
 import { Organization } from "../../../types/types";
 import { CurrentUser } from "../../../types/users";
 import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";

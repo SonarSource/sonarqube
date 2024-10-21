@@ -30,8 +30,8 @@ import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import { DopSetting } from '../../../types/dop-translation';
 import { Feature } from '../../../types/features';
-import NewCodeDefinitionSelection from './components/NewCodeDefinitionSelection';
 import { CreateProjectModes } from './types';
+import CreateProjectPageSonarCloud from "./CreateProjectPageSonarCloud";
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   location: Location;
@@ -175,13 +175,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           <Helmet title={pageTitle} titleTemplate="%s" />
           <A11ySkipTarget anchor="create_project_main" />
 
-          {importProjects !== undefined && isProjectSetupDone && (
-            <NewCodeDefinitionSelection
-              importProjects={importProjects}
-              onClose={() => this.props.router.push({ pathname: redirectTo })}
-              redirectTo={redirectTo}
-            />
-          )}
+          <CreateProjectPageSonarCloud />
         </div>
       </LargeCenteredLayout>
     );

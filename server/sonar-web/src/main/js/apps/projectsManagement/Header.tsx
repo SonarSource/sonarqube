@@ -21,7 +21,6 @@ import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import { Title } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
@@ -30,12 +29,11 @@ export interface Props {
   defaultProjectVisibility?: Visibility;
   hasProvisionPermission?: boolean;
   onChangeDefaultProjectVisibility: (visibility: Visibility) => void;
+  onProjectCreate: () => void;
 }
 
 export default function Header(props: Readonly<Props>) {
   const [visibilityForm, setVisibilityForm] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const { defaultProjectVisibility, hasProvisionPermission } = props;
 
@@ -47,11 +45,7 @@ export default function Header(props: Readonly<Props>) {
           {hasProvisionPermission && (
             <Button
               id="create-project"
-              onClick={() =>
-                navigate('/projects/create?mode=manual', {
-                  state: { from: location.pathname },
-                })
-              }
+              onClick={props.onProjectCreate}
               variety={ButtonVariety.Primary}
             >
               {translate('qualifiers.create.TRK')}

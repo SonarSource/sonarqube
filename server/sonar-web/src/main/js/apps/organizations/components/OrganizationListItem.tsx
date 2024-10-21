@@ -22,6 +22,7 @@ import { Organization } from "../../../types/types";
 import OrganizationLink from "./OrganizationLink";
 import OrganizationAvatar from "./OrganizationAvatar";
 import { translate } from "../../../helpers/l10n";
+import { Badge } from "design-system";
 
 interface Props {
   organization: Organization;
@@ -30,14 +31,10 @@ interface Props {
 export default function OrganizationListItem({ organization }: Props) {
   const { actions = {} } = organization;
   return (
-      <li>
-        <OrganizationLink className="display-flex-center" organization={organization}>
-          <div>
-            <OrganizationAvatar organization={organization} small={true}/>
-            <span className="spacer-left">{organization.name}</span>
-          </div>
-          {actions.admin && <span className="badge spacer-left">{translate('admin')}</span>}
-        </OrganizationLink>
-      </li>
+    <OrganizationLink className="sw-flex sw-gap-3 sw-items-center" organization={organization}>
+      <OrganizationAvatar organization={organization} small={true} />
+      <span className="spacer-left">{organization.name}</span>
+      {actions.admin && <Badge>{translate('admin')}</Badge>}
+    </OrganizationLink>
   );
 }

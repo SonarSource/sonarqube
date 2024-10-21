@@ -95,7 +95,7 @@ export function GlobalNavUser({ currentUser, userOrganizations }: GlobalNavUserP
       align={DropdownMenuAlign.End}
       header={{ helpText: currentUser.email ?? '', label: currentUser.name }}
       id="userAccountMenuDropdown"
-      items={<GlobalNavUserMenu />}
+      items={<GlobalNavUserMenu userOrganizations={userOrganizations} />}
     >
       <Tooltip content={translate('global_nav.account.tooltip')}>
         <BareButton aria-label={translate('global_nav.account.tooltip')}>

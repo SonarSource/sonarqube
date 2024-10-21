@@ -21,6 +21,7 @@ import * as React from 'react';
 import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
 import { DropdownMenu, IconChevronDown } from "@sonarsource/echoes-react";
+import { NavBarTabLink } from "design-system";
 
 interface Props {
   location: { pathname: string };
@@ -102,9 +103,7 @@ export default function OrganizationNavigationAdministration({ location, organiz
         </>
       }
     >
-      {translate('layout.settings')}
-
-      <IconChevronDown />
+      <NavBarTabLink preventDefault text={translate('more')} withChevron to={{}} style={{fontSize: "14px!important", padding: 0}}/>
     </DropdownMenu.Root>
   );
 }

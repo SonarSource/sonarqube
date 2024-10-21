@@ -21,15 +21,34 @@
 import { DropdownMenu } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { sortBy } from "lodash";
+import OrganizationListItem from "../../../../apps/organizations/components/OrganizationListItem";
+import { Organization } from "../../../../types/types";
 
-export function GlobalNavUserMenu() {
+type GlobalNavUserMenuProps = {
+  userOrganizations: Organization[];
+}
+
+export function GlobalNavUserMenu({ userOrganizations }: GlobalNavUserMenuProps) {
   return (
     <>
       <DropdownMenu.ItemLink isMatchingFullPath to="/account">
         {translate('my_account.page')}
       </DropdownMenu.ItemLink>
 
-      <DropdownMenu.Separator />
+      <DropdownMenu.Separator/>
+
+      <DropdownMenu.ItemLink to="/account/organizations">
+        {translate('my_organizations')}
+      </DropdownMenu.ItemLink>
+
+      {sortBy(userOrganizations, org => org.name.toLowerCase()).map(organization => (
+        <DropdownMenu.ItemButton>
+          <OrganizationListItem organization={organization} />
+        </DropdownMenu.ItemButton>
+      ))}
+
+      <DropdownMenu.Separator/>
 
       <DropdownMenu.ItemLink to="/sessions/logout">
         {translate('layout.logout')}
