@@ -77,7 +77,7 @@ function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }
 export function EmbedDocsPopup({ setAboutCodescanOpen }) {
   const firstItemRef = React.useRef<HTMLAnchorElement>(null);
   const { suggestions } = React.useContext(SuggestionsContext);
-  const [zohoUrl, setZohoUrl] = useState<string>();
+  const [zohoUrl, setZohoUrl] = React.useState<string>();
 
   React.useEffect(() => {
     firstItemRef.current?.focus();
@@ -118,9 +118,9 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
         </DocItemLink>
       )}
 
-      <DropdownMenu.ItemLink onClick={() => setAboutCodescanOpen(true)}>
+      <DropdownMenu.ItemButton onClick={() => setAboutCodescanOpen(true)}>
         {translate('embed_docs.about_codescan')}
-      </DropdownMenu.ItemLink>
+      </DropdownMenu.ItemButton>
 
       <DropdownMenu.Separator />
 
