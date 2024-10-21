@@ -29,9 +29,9 @@ import {
 } from 'design-system';
 import { isEmpty } from 'lodash';
 import * as React from 'react';
-import { isDeploymentForAmazon, isDeploymentForCodeScan } from '../../../../js/helpers/urls';
+import { isDeploymentForAmazon, isDeploymentForCodeScan } from '../../../helpers/urls';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
-import { AppState } from '../../../../js/types/appstate';
+import { AppState } from '../../../types/appstate';
 import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';
@@ -89,10 +89,10 @@ export function TokensForm(props: Readonly<Props>) {
 
     // Adding user token if it is amazon deployment and have admin permissions.
     // or it is codescan SaaS deployment.
-    const { whiteLabel } = this.props.appState;
+    const { whiteLabel } = props.appState;
     if ((isDeploymentForAmazon(whiteLabel) && hasGlobalPermission(currentUser, Permissions.Admin))
       || (isDeploymentForCodeScan(whiteLabel))) {
-      tokenTypeOptions.unshift({
+      value.unshift({
         label: translate('users.tokens', TokenType.User),
         value: TokenType.User,
       });
