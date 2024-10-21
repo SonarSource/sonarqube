@@ -20,21 +20,16 @@
 import * as React from 'react';
 import GlobalNavPlusMenu from './GlobalNavPlusMenu';
 import { translate } from "../../../../helpers/l10n";
-import { PlusIcon } from "@primer/octicons-react";
-import { DropdownMenu } from "@sonarsource/echoes-react";
+import { ButtonIcon, ButtonVariety, DropdownMenu, IconPlus } from "@sonarsource/echoes-react";
 
-export default class GlobalNavPlus extends React.PureComponent {
-
-  render() {
-    return (
-        <DropdownMenu.Root overlay={<GlobalNavPlusMenu/>}>
-          <a
-              className="navbar-icon navbar-plus"
-              href="#"
-              title={translate('my_account.create_new_project_portfolio_or_application')}>
-            <PlusIcon />
-          </a>
-        </DropdownMenu.Root>
-    );
-  }
+export default function GlobalNavPlus() {
+  return (
+    <DropdownMenu.Root items={<GlobalNavPlusMenu/>}>
+      <ButtonIcon
+        Icon={IconPlus}
+        variety={ButtonVariety.DefaultGhost}
+        title={translate('my_account.create_new_project_portfolio_or_application')}
+      />
+    </DropdownMenu.Root>
+  )
 }

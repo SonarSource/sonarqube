@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Link from "../../../../components/common/Link";
 import {translate} from "../../../../helpers/l10n";
 import { AppState } from "../../../../types/appstate";
 import withAppStateContext from "../../app-state/withAppStateContext";
 import { GlobalSettingKeys } from "../../../../types/settings";
+import { DropdownMenu } from "@sonarsource/echoes-react";
 
 interface Props {
   appState: AppState;
@@ -35,20 +35,16 @@ function GlobalNavPlusMenu(props: Props) {
   const canCreateOrganizations = (anyoneCanCreate || canAdmin || canCustomerAdmin);
 
   return (
-      <ul className="menu">
-        <li>
-          <Link to="/projects/create">
-            {translate('my_account.analyze_new_project')}
-          </Link>
-        </li>
-        {canCreateOrganizations && (
-          <li>
-            <Link to="/organizations/create">
-              {translate('my_account.create_new_organization')}
-            </Link>
-          </li>
-        )}
-      </ul>
+    <>
+      <DropdownMenu.ItemLink to="/projects/create">
+        {translate('my_account.analyze_new_project')}
+      </DropdownMenu.ItemLink>
+      {canCreateOrganizations && (
+        <DropdownMenu.ItemLink to="/organizations/create">
+          {translate('my_account.create_new_organization')}
+        </DropdownMenu.ItemLink>
+      )}
+    </>
   );
 }
 
