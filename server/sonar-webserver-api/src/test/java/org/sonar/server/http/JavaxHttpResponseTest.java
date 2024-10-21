@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.sonar.api.server.http.Cookie;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,7 +50,7 @@ public class JavaxHttpResponseTest {
 
     assertThat(underTest.getDelegate()).isSameAs(responseMock);
     assertThat(underTest.getHeader("h1")).isEqualTo("hvalue1");
-    assertThat(underTest.getHeaders("h1")).asList().containsExactly("hvalue1");
+    assertThat(underTest.getHeaders("h1")).containsExactly("hvalue1");
     assertThat(underTest.getStatus()).isEqualTo(200);
     assertThat(underTest.getWriter()).isEqualTo(writer);
     assertThat(underTest.getOutputStream()).isEqualTo(outputStream);

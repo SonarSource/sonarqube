@@ -214,8 +214,8 @@ public class MasterServletFilterTest {
     }
 
     @Override
-    public void doFilter(HttpRequest request, HttpResponse response, org.sonar.api.web.FilterChain chain) throws IOException {
-
+    public void doFilter(HttpRequest request, HttpResponse response, org.sonar.api.web.FilterChain chain) {
+      //Not needed for this test
     }
 
     @Override
