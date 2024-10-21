@@ -46,6 +46,8 @@ import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissi
 import { translate } from '../../../helpers/l10n';
 import {
   areCCTMeasuresComputed,
+  areLeakCCTMeasuresComputed,
+  areLeakSoftwareQualityRatingsComputed,
   areSoftwareQualityRatingsComputed,
 } from '../../../helpers/measures';
 import { useCurrentBranchQuery } from '../../../queries/branch';
@@ -103,6 +105,10 @@ export default function ComponentMeasuresApp() {
   const leakPeriod =
     componentWithMeasures?.qualifier === ComponentQualifier.Project ? period : undefined;
   const displayOverview = hasBubbleChart(bubblesByDomain, query.metric);
+
+  const showMissingAnalysisMessage = isPullRequest(branchLike)
+    ? !areLeakCCTMeasuresComputed(measures) || !areLeakSoftwareQualityRatingsComputed(measures)
+    : !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
 
   if (!component) {
     return null;
@@ -226,8 +232,7 @@ export default function ComponentMeasuresApp() {
                   />
                 </FlagMessage>
               )}
-              {(!areCCTMeasuresComputed(measures) ||
-                !areSoftwareQualityRatingsComputed(measures)) && (
+              {showMissingAnalysisMessage && (
                 <AnalysisMissingInfoMessage
                   className="sw-mb-4"
                   qualifier={component?.qualifier as ComponentQualifier}

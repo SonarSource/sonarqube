@@ -129,6 +129,18 @@ export function areSoftwareQualityRatingsComputed(measures?: Measure[] | Measure
   );
 }
 
+export function areLeakSoftwareQualityRatingsComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  return [
+    MetricKey.new_software_quality_reliability_rating,
+    MetricKey.new_software_quality_security_rating,
+    MetricKey.new_software_quality_maintainability_rating,
+  ].every((metric) =>
+    measures?.find((measure) =>
+      isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
+    ),
+  );
+}
+
 export function areLeakAndOverallCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
   return areLeakCCTMeasuresComputed(measures) && areCCTMeasuresComputed(measures);
 }
