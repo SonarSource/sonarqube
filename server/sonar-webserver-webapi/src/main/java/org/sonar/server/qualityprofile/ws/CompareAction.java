@@ -51,6 +51,9 @@ import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 
@@ -100,7 +103,8 @@ public class CompareAction implements QProfileWsAction {
         new Change("10.3", String.format("Added '%s' and '%s' fields", ATTRIBUTE_CLEAN_CODE_ATTRIBUTE_CATEGORY, ATTRIBUTE_IMPACTS)),
         new Change("10.3", String.format("Dropped '%s' field from '%s', '%s' and '%s' objects",
           ATTRIBUTE_SEVERITY, ATTRIBUTE_SAME, ATTRIBUTE_IN_LEFT, ATTRIBUTE_IN_RIGHT)),
-    new Change("10.8", "'impacts' are part of the 'left' and 'right' sections of the 'modified' array"));
+        new Change("10.8", "'impacts' are part of the 'left' and 'right' sections of the 'modified' array"),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())));
 
     compare.createParam(PARAM_LEFT_KEY)
       .setDescription("Profile key.")
@@ -226,7 +230,6 @@ public class CompareAction implements QProfileWsAction {
 
       json.name(ATTRIBUTE_LEFT).beginObject();
       json.prop(ATTRIBUTE_SEVERITY, value.leftSeverity());
-
 
       List<ImpactDto> leftImpacts = getLeftImpactDtos(value);
       json.name(ATTRIBUTE_IMPACTS);

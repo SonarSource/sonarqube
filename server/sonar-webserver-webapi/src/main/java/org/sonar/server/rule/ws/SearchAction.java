@@ -56,8 +56,11 @@ import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
+import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static java.lang.String.format;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
@@ -141,6 +144,9 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this)
       .setChangelog(
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added", INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'", IssuesWsParameters.PARAM_SEVERITIES, INFO.name(), BLOCKER.name())),
         new Change("10.6", format("Parameter '%s has been added", PARAM_PRIORITIZED_RULE)),
         new Change("5.5", "The field 'effortToFixDescription' has been deprecated, use 'gapDescription' instead"),
         new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated, use 'remFnGapMultiplier' instead"),

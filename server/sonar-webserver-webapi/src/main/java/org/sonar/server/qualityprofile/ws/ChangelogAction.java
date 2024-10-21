@@ -49,6 +49,8 @@ import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.user.UserDto;
 
 import static java.lang.String.format;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
@@ -84,7 +86,8 @@ public class ChangelogAction implements QProfileWsAction {
         new Change("10.3", "Added fields 'oldCleanCodeAttribute', 'newCleanCodeAttribute', 'oldCleanCodeAttributeCategory', " +
           "'newCleanCodeAttributeCategory' and 'impactChanges' to 'params' section of response"),
         new Change("10.3", "Added field 'sonarQubeVersion' to 'params' section of response"),
-        new Change("10.8", format("Added parameter '%s'", PARAM_FILTER_MODE)))
+        new Change("10.8", format("Added parameter '%s'", PARAM_FILTER_MODE)),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())))
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
@@ -233,10 +236,8 @@ public class ChangelogAction implements QProfileWsAction {
       json
         .prop("oldCleanCodeAttribute", nameOrNull(ruleChange.getOldCleanCodeAttribute()))
         .prop("newCleanCodeAttribute", nameOrNull(ruleChange.getNewCleanCodeAttribute()))
-        .prop("oldCleanCodeAttributeCategory", ruleChange.getOldCleanCodeAttribute() == null ? null :
-          nameOrNull(ruleChange.getOldCleanCodeAttribute().getAttributeCategory()))
-        .prop("newCleanCodeAttributeCategory", ruleChange.getNewCleanCodeAttribute() == null ? null :
-          nameOrNull(ruleChange.getNewCleanCodeAttribute().getAttributeCategory()));
+        .prop("oldCleanCodeAttributeCategory", ruleChange.getOldCleanCodeAttribute() == null ? null : nameOrNull(ruleChange.getOldCleanCodeAttribute().getAttributeCategory()))
+        .prop("newCleanCodeAttributeCategory", ruleChange.getNewCleanCodeAttribute() == null ? null : nameOrNull(ruleChange.getNewCleanCodeAttribute().getAttributeCategory()));
 
       if (ruleChange.getRuleImpactChanges() != null) {
         json.name("impactChanges").beginArray();
