@@ -20,8 +20,8 @@
 
 import styled from '@emotion/styled';
 import { Button } from '@sonarsource/echoes-react';
-import { ButtonPrimary, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
+import { ButtonPrimary, themeBorder, themeColor } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { dismissNotice } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { InputSize, Select } from '@sonarsource/echoes-react';
-import { SubHeading } from 'design-system';
 import * as React from 'react';
+import { SubHeading } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+
+import { screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import { byRole } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
@@ -47,7 +48,7 @@ describe('Rules app list', () => {
     const { ui } = getPageObjects();
     renderCodingRulesApp();
 
-    await ui.appLoaded();
+    await ui.listLoaded();
 
     // Renders list
     rulesHandler
@@ -100,7 +101,7 @@ describe('Rules app list', () => {
     settingsHandler.set(SettingsKey.MQRMode, 'false');
     renderCodingRulesApp();
 
-    await ui.appLoaded();
+    await ui.listLoaded();
 
     // Renders list
     rulesHandler
@@ -148,7 +149,7 @@ describe('Rules app list', () => {
     it('combine facet filters', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
@@ -184,7 +185,7 @@ describe('Rules app list', () => {
     it('filter by repository', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
@@ -202,7 +203,7 @@ describe('Rules app list', () => {
     it('filter by quality profile, tag and search by tag, does not show prioritized rule', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
@@ -227,7 +228,7 @@ describe('Rules app list', () => {
     it('filter by clean code category, software quality and severity', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
       // Filter by clean code category
@@ -251,7 +252,7 @@ describe('Rules app list', () => {
       const { ui, user } = getPageObjects();
       settingsHandler.set(SettingsKey.MQRMode, 'false');
       renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
       // Filter by type
@@ -267,7 +268,7 @@ describe('Rules app list', () => {
     it('filter by standards', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
       await user.click(ui.standardsFacet.get());
@@ -300,7 +301,7 @@ describe('Rules app list', () => {
     it('filters by search', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       await user.type(ui.searchInput.get(), 'Python');
       expect(ui.getAllRuleListItems()).toHaveLength(4);
@@ -310,10 +311,10 @@ describe('Rules app list', () => {
       expect(ui.getAllRuleListItems()).toHaveLength(1);
     });
 
-    it('filter by quality profileand prioritizedRule', async () => {
+    it('filter by quality profile and prioritizedRule', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser(), undefined, [Feature.PrioritizedRules]);
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
@@ -344,7 +345,7 @@ describe('Rules app list', () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       await user.click(ui.facetItem('C').get());
       await user.click(ui.bulkChangeButton.get());
@@ -362,12 +363,11 @@ describe('Rules app list', () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       const [selectQPSuccess, selectQPWarning] = rulesHandler.allQualityProfile('java');
 
       const rulesCount = rulesHandler.allRulesCount();
-
       await ui.bulkActivate(rulesCount, selectQPSuccess);
 
       expect(
@@ -391,7 +391,7 @@ describe('Rules app list', () => {
       const { ui } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser());
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       const [selectQP] = rulesHandler.allQualityProfile('java');
       const rulesCount = rulesHandler.allRulesCount();
@@ -413,7 +413,7 @@ describe('Rules app list', () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), undefined, [Feature.PrioritizedRules]);
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Bar Python').get());
@@ -441,7 +441,7 @@ describe('Rules app list', () => {
       await user.click(ui.prioritizedSwitch.get(ui.activateQPDialog.get()));
       await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
 
-      expect(ui.activateButton.getAll()).toHaveLength(1);
+      await waitFor(() => expect(ui.activateButton.getAll()).toHaveLength(1));
       expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
       expect(ui.deactivateButton.getAll()).toHaveLength(1);
 
@@ -478,7 +478,7 @@ describe('Rules app list', () => {
       settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), undefined, [Feature.PrioritizedRules]);
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Bar Python').get());
@@ -508,8 +508,8 @@ describe('Rules app list', () => {
       await user.click(ui.revertToParentDefinitionButton.get());
       await user.click(ui.yesButton.get());
 
+      await waitForElementToBeRemoved(ui.revertToParentDefinitionButton.query());
       expect(ui.getAllRuleListItems()).toHaveLength(1);
-      expect(ui.revertToParentDefinitionButton.query()).not.toBeInTheDocument();
       expect(ui.deactivateButton.get()).toBeInTheDocument();
       expect(ui.deactivateButton.get()).toBeDisabled();
       expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
@@ -529,7 +529,7 @@ describe('Rules app list', () => {
       settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), undefined, [Feature.PrioritizedRules]);
-      await ui.appLoaded();
+      await ui.facetsLoaded();
 
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Bar Python').get());
@@ -560,7 +560,7 @@ describe('Rules app list', () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), undefined, []);
-      await ui.appLoaded();
+      await ui.facetsLoaded();
 
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Bar Python').get());
@@ -586,7 +586,7 @@ describe('Rules app list', () => {
 
       await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
 
-      expect(ui.activateButton.getAll()).toHaveLength(1);
+      await waitFor(() => expect(ui.activateButton.getAll()).toHaveLength(1));
       expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
       expect(ui.deactivateButton.getAll()).toHaveLength(1);
 
@@ -628,7 +628,7 @@ describe('Rules app list', () => {
       settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), undefined, [Feature.PrioritizedRules]);
-      await ui.appLoaded();
+      await ui.listLoaded();
 
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Bar Python').get());
@@ -665,8 +665,8 @@ describe('Rules app list', () => {
       await user.click(ui.revertToParentDefinitionButton.get());
       await user.click(ui.yesButton.get());
 
+      await waitForElementToBeRemoved(ui.revertToParentDefinitionButton.query());
       expect(ui.getAllRuleListItems()).toHaveLength(1);
-      expect(ui.revertToParentDefinitionButton.query()).not.toBeInTheDocument();
       expect(ui.deactivateButton.get()).toBeInTheDocument();
       expect(ui.deactivateButton.get()).toBeDisabled();
       expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
@@ -691,7 +691,7 @@ describe('Rules app list', () => {
       settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), undefined, []);
-      await ui.appLoaded();
+      await ui.facetsLoaded();
 
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Bar Python').get());
@@ -719,7 +719,7 @@ describe('Rules app list', () => {
       settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), undefined, []);
-      await ui.appLoaded();
+      await ui.facetsLoaded();
 
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Bar Python').get());
@@ -757,7 +757,7 @@ describe('Rules app list', () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser());
-    await ui.appLoaded();
+    await ui.facetsLoaded();
 
     await user.click(ui.qpFacet.get());
     await user.click(ui.facetItem('QP Bar Python').get());
@@ -774,7 +774,7 @@ describe('Rules app list', () => {
       mockLoggedInUser(),
       'coding_rules?activation=true&tags=cute&qprofile=' + QP_2,
     );
-    await ui.appLoaded();
+    await ui.listLoaded();
 
     // Only rule 9 is shown (inherited, activated)
     expect(ui.getAllRuleListItems()).toHaveLength(1);
@@ -784,7 +784,7 @@ describe('Rules app list', () => {
   it('navigates by keyboard', async () => {
     const { user, ui } = getPageObjects();
     renderCodingRulesApp();
-    await ui.appLoaded();
+    await ui.listLoaded();
 
     expect(
       ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get()),
@@ -812,8 +812,8 @@ describe('redirects', () => {
   it('should open with permalink', async () => {
     const { ui } = getPageObjects();
     renderCodingRulesApp(undefined, 'coding_rules?rule_key=rule1');
-    await ui.appLoaded();
-    expect(ui.ruleListItemLink('Awsome java rule').get()).toBeInTheDocument();
+    await ui.listLoaded();
+    expect(await ui.ruleListItemLink('Awsome java rule').find()).toBeInTheDocument();
     expect(ui.ruleListItemLink('Hot hotspot').query()).not.toBeInTheDocument();
   });
 
@@ -824,7 +824,7 @@ describe('redirects', () => {
       mockLoggedInUser(),
       'coding_rules#languages=c,js|impactSoftwareQualities=MAINTAINABILITY|cleanCodeAttributeCategories=INTENTIONAL',
     );
-    await ui.appLoaded();
+    await ui.facetsLoaded();
     await user.click(ui.cleanCodeCategoriesFacet.get());
     expect(
       await ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').find(),
@@ -845,7 +845,7 @@ describe('redirects', () => {
       mockLoggedInUser(),
       'coding_rules#languages=c,js|severities=MAJOR|types=BUG',
     );
-    await ui.appLoaded();
+    await ui.listLoaded();
 
     expect(ui.facetItem(/issue.type.BUG/).get()).toBeChecked();
     expect(ui.facetItem(/severity.MAJOR/).get()).toBeChecked();

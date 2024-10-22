@@ -20,6 +20,10 @@
 
 import styled from '@emotion/styled';
 import { Checkbox, Spinner } from '@sonarsource/echoes-react';
+import { keyBy, omit, without } from 'lodash';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
 import {
   ButtonSecondary,
   FlagMessage,
@@ -29,11 +33,7 @@ import {
   ToggleButton,
   themeBorder,
   themeColor,
-} from 'design-system';
-import { keyBy, omit, without } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
-import { MainMenu, MainMenuItem } from 'design-system';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
+import { MainMenu, MainMenuItem } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { isMySet } from '../../../../apps/issues/utils';
 import Link from '../../../../components/common/Link';

@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import * as React from 'react';
+import { DraggableCore, DraggableData } from 'react-draggable';
 import {
   CloseIcon,
   CollapseIcon,
@@ -26,9 +29,7 @@ import {
   InteractiveIcon,
   MinimizeIcon,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { DraggableCore, DraggableData } from 'react-draggable';
+} from '~design-system';
 import { translate } from '../../helpers/l10n';
 import Tooltip from '../controls/Tooltip';
 

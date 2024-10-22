@@ -20,17 +20,17 @@
 
 import styled from '@emotion/styled';
 import { Heading, Spinner } from '@sonarsource/echoes-react';
+import { keyBy, mapValues, omitBy, pick } from 'lodash';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useSearchParams } from 'react-router-dom';
 import {
   LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import { keyBy, mapValues, omitBy, pick } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useSearchParams } from 'react-router-dom';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';

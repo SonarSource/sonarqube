@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import * as React from 'react';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {

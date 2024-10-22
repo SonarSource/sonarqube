@@ -21,6 +21,8 @@
 import styled from '@emotion/styled';
 import { Link, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { isEmpty } from 'lodash';
+import { FormattedMessage } from 'react-intl';
 import {
   Badge,
   Card,
@@ -33,10 +35,7 @@ import {
   Tags,
   themeBorder,
   themeColor,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';

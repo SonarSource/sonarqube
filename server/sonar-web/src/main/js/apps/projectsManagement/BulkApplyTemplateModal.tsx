@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import * as React from 'react';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -26,8 +27,7 @@ import {
   LabelValueSelectOption,
   Modal,
   Spinner,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
 import { Project } from '../../api/project-management';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';

@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Helmet } from 'react-helmet-async';
 import {
   FlagMessage,
   LargeCenteredLayout,
   PageContentFontWrapper,
   SubHeading,
   Title,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import ResetPasswordForm from '../../components/common/ResetPasswordForm';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate } from '../../helpers/l10n';

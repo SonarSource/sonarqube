@@ -19,7 +19,7 @@
  */
 
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useAppState } from '../../app/components/app-state/withAppStateContext';
 import { DocLink } from '../../helpers/doc-links';

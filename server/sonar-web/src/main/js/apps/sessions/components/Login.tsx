@@ -20,6 +20,7 @@
 
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
+import { Helmet } from 'react-helmet-async';
 import {
   Card,
   FlagMessage,
@@ -29,9 +30,7 @@ import {
   Title,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { Location } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';

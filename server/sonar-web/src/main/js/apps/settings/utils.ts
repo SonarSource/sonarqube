@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { InputSizeKeys } from 'design-system';
 import { sortBy } from 'lodash';
 import { Path } from 'react-router-dom';
+import { InputSizeKeys } from '~design-system';
 import { hasMessage, translate } from '../../helpers/l10n';
 import { isDefined } from '../../helpers/types';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';

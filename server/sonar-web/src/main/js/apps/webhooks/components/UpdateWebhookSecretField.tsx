@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DiscreetLink, FlagMessage } from 'design-system';
+
 import { useField } from 'formik';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DiscreetLink, FlagMessage } from '~design-system';
 import InputValidationField from '../../../components/controls/InputValidationField';
 import ModalValidationField from '../../../components/controls/ModalValidationField';
 import { translate } from '../../../helpers/l10n';

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FishVisual, Highlight, StandoutLink } from 'design-system';
-import * as React from 'react';
+
 import { FormattedMessage } from 'react-intl';
+import { FishVisual, Highlight, StandoutLink } from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';

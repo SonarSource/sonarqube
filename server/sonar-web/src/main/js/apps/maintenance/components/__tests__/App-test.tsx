@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byText } from '~sonar-aligned/helpers/testSelector';
 import { getMigrationsStatus, getSystemStatus, migrateDatabase } from '../../../../api/system';
 import { mockLocation } from '../../../../helpers/testMocks';
@@ -261,7 +261,7 @@ describe('Setup', () => {
     title = await screen.findByRole('heading', { name: 'maintenance.database_migration' });
     expect(title).toBeInTheDocument();
 
-    expect(byText(/maintenance.running.progress/).get()).toBeInTheDocument();
+    expect(await byText(/maintenance.running.progress/).find()).toBeInTheDocument();
 
     // Trigger refresh; migration done.
     jest.runOnlyPendingTimers();

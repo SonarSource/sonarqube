@@ -20,6 +20,8 @@
 
 import styled from '@emotion/styled';
 import { LinkStandalone, Text, Tooltip } from '@sonarsource/echoes-react';
+import { filter, isEqual } from 'lodash';
+import { FormattedMessage } from 'react-intl';
 import {
   ActionCell,
   CellComponent,
@@ -32,10 +34,7 @@ import {
   Table,
   TableRow,
   TableRowInteractive,
-} from 'design-system';
-import { filter, isEqual } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';

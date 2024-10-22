@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Note } from 'design-system';
-import * as React from 'react';
+import { Note } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';

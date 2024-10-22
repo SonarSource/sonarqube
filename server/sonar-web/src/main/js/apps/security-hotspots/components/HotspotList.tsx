@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { HotspotRating, HotspotRatingEnum, SubnavigationHeading, themeColor } from 'design-system';
 import { groupBy } from 'lodash';
 import * as React from 'react';
+import { HotspotRating, HotspotRatingEnum, SubnavigationHeading, themeColor } from '~design-system';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 import { RawHotspot } from '../../../types/security-hotspots';

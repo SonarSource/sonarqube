@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { LargeCenteredLayout, PageContentFontWrapper, TopBar } from 'design-system';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
+import { LargeCenteredLayout, PageContentFontWrapper, TopBar } from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useCurrentLoginUser } from '../../app/components/current-user/CurrentUserContext';
 import { translate, translateWithParameters } from '../../helpers/l10n';

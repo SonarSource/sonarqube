@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LargeCenteredLayout, Spinner } from 'design-system';
+
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
+import { LargeCenteredLayout, Spinner } from '~design-system';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';

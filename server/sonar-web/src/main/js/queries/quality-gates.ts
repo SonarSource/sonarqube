@@ -19,7 +19,7 @@
  */
 
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addGlobalSuccessMessage } from 'design-system';
+import { addGlobalSuccessMessage } from '~design-system';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import {
   copyQualityGate,

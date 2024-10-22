@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SpotlightTour, SpotlightTourStep } from 'design-system';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { CallBackProps } from 'react-joyride';
+import { SpotlightTour, SpotlightTourStep } from '~design-system';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { SCREEN_POSITION_COMPUTE_DELAY } from '../../../components/common/ScreenPositionHelper';

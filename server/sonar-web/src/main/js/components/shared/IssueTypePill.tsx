@@ -20,9 +20,8 @@
 
 import { Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Pill, PillVariant } from 'design-system';
-import React from 'react';
 import { useIntl } from 'react-intl';
+import { Pill, PillVariant } from '~design-system';
 import { IssueSeverity, IssueType } from '../../types/issues';
 import IssueTypeIcon from '../icon-mappers/IssueTypeIcon';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';

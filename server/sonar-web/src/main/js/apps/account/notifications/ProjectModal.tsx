@@ -19,6 +19,7 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import * as React from 'react';
 import {
   DropdownMenu,
   InputSearch,
@@ -28,8 +29,7 @@ import {
   PopupPlacement,
   PopupZLevel,
   Spinner,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getSuggestions } from '../../../api/components';
 import { KeyboardKeys } from '../../../helpers/keycodes';

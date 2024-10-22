@@ -19,8 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { LightLabel } from 'design-system';
-import * as React from 'react';
+import { LightLabel } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';

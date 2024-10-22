@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, FlagErrorIcon, FormField, InputSelect, SelectionCard } from 'design-system';
-import * as React from 'react';
+
 import { MenuPlacement, OptionProps, components } from 'react-select';
+import { Badge, FlagErrorIcon, FormField, InputSelect, SelectionCard } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { FlagMessage, PageContentFontWrapper, RadioButton, SelectionCard } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
+import { FlagMessage, PageContentFontWrapper, RadioButton, SelectionCard } from '~design-system';
 import { getNewCodeDefinition } from '../../api/newCodeDefinition';
 import { translate } from '../../helpers/l10n';
 import {

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { searchForBitbucketCloudRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
@@ -122,7 +122,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(screen.getByRole('button', { name: 'save' })).toBeEnabled();
   await user.click(screen.getByRole('button', { name: 'save' }));
 
-  expect(screen.getByText('BitbucketCloud Repo 1')).toBeInTheDocument();
+  expect(await screen.findByText('BitbucketCloud Repo 1')).toBeInTheDocument();
   expect(screen.getByText('BitbucketCloud Repo 2')).toBeInTheDocument();
 });
 

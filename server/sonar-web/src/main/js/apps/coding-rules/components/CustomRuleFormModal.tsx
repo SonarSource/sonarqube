@@ -19,6 +19,7 @@
  */
 
 import { HttpStatusCode } from 'axios';
+import * as React from 'react';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -31,8 +32,7 @@ import {
   Modal,
   SafeHTMLInjection,
   SanitizeLevel,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { Status } from '~sonar-aligned/types/common';
 import FormattingTips from '../../../components/common/FormattingTips';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';

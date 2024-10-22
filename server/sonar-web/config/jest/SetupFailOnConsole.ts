@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import failOnConsole from 'jest-fail-on-console';
 const IGNORED_ERROR_MESSAGES: string[] = [
   // react-virtualized & react-draggable use `findDOMNode` which is deprecated

@@ -26,7 +26,7 @@ import {
   hljsIssueIndicatorPlugin,
   hljsUnderlinePlugin,
   UnderlineRangePosition,
-} from 'design-system';
+} from '~design-system';
 
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';

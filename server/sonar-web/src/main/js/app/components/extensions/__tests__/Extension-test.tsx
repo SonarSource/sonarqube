@@ -20,9 +20,9 @@
 
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { addGlobalErrorMessage, lightTheme } from 'design-system';
-import * as React from 'react';
 import { IntlShape } from 'react-intl';
+import { setImmediate } from 'timers';
+import { addGlobalErrorMessage, lightTheme } from '~design-system';
 import { getEnhancedWindow } from '../../../../helpers/browser';
 import { installExtensionsHandler } from '../../../../helpers/extensionsHandler';
 import {
@@ -35,8 +35,8 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ExtensionStartMethodParameter } from '../../../../types/extension';
 import Extension, { ExtensionProps } from '../Extension';
 
-jest.mock('design-system', () => ({
-  ...jest.requireActual('design-system'),
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
   addGlobalErrorMessage: jest.fn(),
 }));
 

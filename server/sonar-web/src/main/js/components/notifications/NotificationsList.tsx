@@ -20,10 +20,9 @@
 
 import { Checkbox, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { CellComponent, Table, TableRowInteractive } from 'design-system';
-import * as React from 'react';
 import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { CellComponent, Table, TableRowInteractive } from '~design-system';
 import { hasMessage, translate, translateWithParameters } from '../../helpers/l10n';
 import {
   useAddNotificationMutation,

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce, uniq } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { Visibility } from '~sonar-aligned/types/component';
 import {

@@ -20,6 +20,7 @@
 
 /* eslint-disable react/no-unused-prop-types */
 import styled from '@emotion/styled';
+import { FormattedMessage } from 'react-intl';
 import {
   FlagErrorIcon,
   FlagSuccessIcon,
@@ -29,9 +30,7 @@ import {
   ThemeColors,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';

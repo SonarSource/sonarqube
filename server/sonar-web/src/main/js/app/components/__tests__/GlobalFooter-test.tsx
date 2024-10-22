@@ -19,7 +19,6 @@
  */
 
 import { addDays, subDays } from 'date-fns';
-import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import { mockAppState } from '../../../helpers/testMocks';

@@ -20,7 +20,7 @@
 
 import styled from '@emotion/styled';
 import { IconSparkle } from '@sonarsource/echoes-react';
-import { themeColor } from 'design-system';
+import { themeColor } from '~design-system';
 
 const AIGeneratedIcon = styled(IconSparkle)`
   color: ${themeColor('primary')};

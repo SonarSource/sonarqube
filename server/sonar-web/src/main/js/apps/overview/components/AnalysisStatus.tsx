@@ -20,8 +20,8 @@
 
 import { Link, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FlagMessage } from 'design-system';
 import * as React from 'react';
+import { FlagMessage } from '~design-system';
 import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import { translate } from '../../../helpers/l10n';
 import { useBranchWarningQuery } from '../../../queries/branch';

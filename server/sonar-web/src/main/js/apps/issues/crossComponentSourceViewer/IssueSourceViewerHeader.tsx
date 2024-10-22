@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ButtonIcon, ButtonVariety, IconUnfold } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import * as React from 'react';
 import {
   ChevronRightIcon,
   ClipboardIconButton,
@@ -29,8 +31,7 @@ import {
   Link,
   Spinner,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';

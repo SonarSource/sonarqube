@@ -19,8 +19,7 @@
  */
 
 import { Checkbox, LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import { ActionCell, Badge, ContentCell, Note, TableRow } from 'design-system';
-import * as React from 'react';
+import { ActionCell, Badge, ContentCell, Note, TableRow } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Project } from '../../api/project-management';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';

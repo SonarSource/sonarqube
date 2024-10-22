@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import autoprefixer from 'autoprefixer';
-import browserslistToEsbuild from 'browserslist-to-esbuild';
 import path, { resolve } from 'path';
 import postCssCalc from 'postcss-calc';
 import license from 'rollup-plugin-license';
@@ -32,6 +32,7 @@ import requireTransform from 'vite-plugin-require-transform';
 import babelConfig from './babel.config';
 import { ALLOWED_LICENSES, ALLOWED_LICENSE_TEXT, generateLicenseText } from './config/license';
 import { viteDevServerHtmlPlugin } from './config/vite-dev-server-html-plugin.mjs';
+import packageJson from './package.json';
 
 const DEFAULT_DEV_SERVER_PORT = 3000;
 const DEFAULT_WS_PROXY_PORT = 3010;
@@ -66,8 +67,6 @@ export default ({ mode }) => {
       },
     },
     build: {
-      // reads from the package.json's browserslist to determine transforms required to support those browsers
-      target: browserslistToEsbuild(),
       outDir: 'build/webapp',
       rollupOptions: {
         // we define all the places where a user can land that requires its own bundle entry point.
@@ -90,6 +89,12 @@ export default ({ mode }) => {
             echoes: ['@sonarsource/echoes-react'],
             datefns: ['date-fns'],
             lodash: ['lodash/lodash.js'],
+            highlightjs: [
+              'highlight.js',
+              'highlightjs-apex',
+              'highlightjs-cobol',
+              'highlightjs-sap-abap',
+            ],
           },
         },
         plugins: [
@@ -147,6 +152,12 @@ export default ({ mode }) => {
     plugins: [
       // additional plugins to allow for the transformation of our existing code to what vite is expecting.
       requireTransform({}),
+      legacy({
+        modernTargets: packageJson.browserslist,
+        polyfills: false,
+        modernPolyfills: true,
+        renderLegacyChunks: false,
+      }),
       react({
         babel: babelConfig,
       }),
@@ -169,6 +180,7 @@ export default ({ mode }) => {
         // in other configs - tsconfig and storybook
         src: path.resolve(__dirname, 'src'),
         '~sonar-aligned': path.resolve(__dirname, 'src/main/js/sonar-aligned'),
+        '~design-system': path.resolve(__dirname, 'src/main/js/design-system/index.ts'),
       },
     },
     server: {

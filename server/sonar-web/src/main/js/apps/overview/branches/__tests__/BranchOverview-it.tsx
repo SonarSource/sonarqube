@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
-import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -755,7 +755,9 @@ it.each([
     // wait for loading
     await screen.findByText('overview.quality_gate');
 
-    expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
+    await waitFor(() => {
+      expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
+    });
   },
 );
 

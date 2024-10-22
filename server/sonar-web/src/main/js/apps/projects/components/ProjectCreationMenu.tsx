@@ -19,6 +19,7 @@
  */
 
 import { IconChevronDown } from '@sonarsource/echoes-react';
+import * as React from 'react';
 import {
   ButtonSecondary,
   Dropdown,
@@ -26,8 +27,7 @@ import {
   ItemLink,
   PopupPlacement,
   PopupZLevel,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';

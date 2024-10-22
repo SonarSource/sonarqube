@@ -19,8 +19,7 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import { FlagMessage, SubTitle } from 'design-system';
-import * as React from 'react';
+import { FlagMessage, SubTitle } from '~design-system';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 import { Exporter, Profile } from '../types';

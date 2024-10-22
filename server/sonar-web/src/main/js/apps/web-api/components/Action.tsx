@@ -18,8 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Badge, Card, LinkBox, LinkIcon, SafeHTMLInjection, SubHeading, Tabs } from 'design-system';
 import * as React from 'react';
+import {
+  Badge,
+  Card,
+  LinkBox,
+  LinkIcon,
+  SafeHTMLInjection,
+  SubHeading,
+  Tabs,
+} from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebApi } from '../../../types/types';

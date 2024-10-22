@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { extent, max } from 'd3-array';
 import { ScaleTime, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
-import { CSSColor, DraggableIcon, themeColor } from 'design-system';
 import { flatten, sortBy, throttle } from 'lodash';
 import * as React from 'react';
 import Draggable, { DraggableBounds, DraggableCore, DraggableData } from 'react-draggable';
+import { CSSColor, DraggableIcon, themeColor } from '~design-system';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { Chart } from '../../types/types';
 import { LINE_CHART_DASHES } from '../activity-graph/utils';

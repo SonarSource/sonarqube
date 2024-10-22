@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonSecondary, Spinner } from 'design-system';
 import React, { FormEvent } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { ButtonSecondary, Spinner } from '~design-system';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { DocLink } from '../../../../helpers/doc-links';

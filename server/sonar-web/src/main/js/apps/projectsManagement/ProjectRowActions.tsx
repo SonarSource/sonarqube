@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonIcon,
   ButtonSize,
@@ -25,7 +26,7 @@ import {
   Spinner,
 } from '@sonarsource/echoes-react';
 import { noop } from 'lodash';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponentNavigation } from '../../api/navigation';
 import { Project } from '../../api/project-management';

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import React from 'react';
 import { Outlet, Route } from 'react-router-dom';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getMyProjects, getScannableProjects } from '../../../api/components';

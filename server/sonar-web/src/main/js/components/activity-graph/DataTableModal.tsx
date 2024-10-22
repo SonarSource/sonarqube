@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { FlagMessage, Modal } from 'design-system';
 import { filter, slice, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage, Modal } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { ParsedAnalysis, Serie } from '../../types/project-activity';

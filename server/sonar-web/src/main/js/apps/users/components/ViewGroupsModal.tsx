@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, Modal, ModalSize, Spinner, Text } from '@sonarsource/echoes-react';
-import { Badge, InputSearch } from 'design-system/lib';
 import * as React from 'react';
+import { Badge, InputSearch } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { useUserGroupsQuery } from '../../../queries/group-memberships';
 import { RestUserDetailed } from '../../../types/users';

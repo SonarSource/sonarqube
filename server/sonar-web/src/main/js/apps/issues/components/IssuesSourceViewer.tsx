@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ToggleButton } from 'design-system';
+
 import * as React from 'react';
+import { ToggleButton } from '~design-system';
 import { isJupyterNotebookFile } from '~sonar-aligned/helpers/component';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';

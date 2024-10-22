@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { noop } from 'lodash';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import {
   DismissableFlagMessage,
   FlagErrorIcon,
   InputField,
   Note,
   SelectionCard,
-} from 'design-system';
-import { noop } from 'lodash';
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
 import { DocLink } from '../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../helpers/l10n';

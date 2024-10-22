@@ -20,6 +20,7 @@
 
 import styled from '@emotion/styled';
 import { LinkStandalone } from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
 import {
   ClipboardIconButton,
   DrilldownLink,
@@ -35,9 +36,7 @@ import {
   QualifierIcon,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { useIntl } from 'react-intl';
+} from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import {

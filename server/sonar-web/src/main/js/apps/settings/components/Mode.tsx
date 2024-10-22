@@ -27,9 +27,9 @@ import {
   Text,
   TextSize,
 } from '@sonarsource/echoes-react';
-import { SelectionCard } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { SelectionCard } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { useSaveSimpleValueMutation, useStandardExperienceMode } from '../../../queries/settings';

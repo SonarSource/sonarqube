@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, FormField, Modal, Spinner } from 'design-system';
 import * as React from 'react';
+import { FlagMessage, FormField, Modal, Spinner } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { Profile, bulkActivateRules, bulkDeactivateRules } from '../../../api/quality-profiles';

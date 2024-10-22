@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption } from 'design-system';
-import React, { useCallback, useMemo, useState } from 'react';
+
+import { useCallback, useMemo, useState } from 'react';
+import { LabelValueSelectOption } from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { searchForBitbucketCloudRepositories } from '../../../../api/alm-integrations';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';

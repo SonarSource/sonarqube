@@ -19,14 +19,13 @@
  */
 
 import styled from '@emotion/styled';
+import { Helmet } from 'react-helmet-async';
 import {
   LargeCenteredLayout,
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';

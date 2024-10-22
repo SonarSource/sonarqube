@@ -20,7 +20,7 @@
 
 import styled from '@emotion/styled';
 import { IconRecommended } from '@sonarsource/echoes-react';
-import { themeColor } from 'design-system';
+import { themeColor } from '~design-system';
 
 const QGRecommendedIcon = styled(IconRecommended)`
   color: ${themeColor('primary')};

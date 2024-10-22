@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
-import { MultiSelector, SubHeading, Tags } from 'design-system';
 import { difference, without } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { MultiSelector, SubHeading, Tags } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { searchProjectTags, setApplicationTags, setProjectTags } from '../../../../api/components';
 import Tooltip from '../../../../components/controls/Tooltip';

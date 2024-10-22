@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { ClipboardIconButton, Note, QualifierIcon, themeBorder, themeColor } from 'design-system';
-import React from 'react';
+import { ClipboardIconButton, Note, QualifierIcon, themeBorder, themeColor } from '~design-system';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';

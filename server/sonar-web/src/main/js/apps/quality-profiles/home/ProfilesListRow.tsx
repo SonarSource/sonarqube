@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionCell, Badge, BaseLink, ContentCell, Link, Note, TableRow } from 'design-system';
+
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { ActionCell, Badge, BaseLink, ContentCell, Link, Note, TableRow } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { getRulesUrl } from '../../../helpers/urls';

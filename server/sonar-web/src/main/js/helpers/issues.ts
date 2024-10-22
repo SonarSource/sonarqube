@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from 'design-system';
+
 import { flatten, sortBy } from 'lodash';
+import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { SoftwareQuality } from '../types/clean-code-taxonomy';
 import { IssueType, RawIssue } from '../types/issues';

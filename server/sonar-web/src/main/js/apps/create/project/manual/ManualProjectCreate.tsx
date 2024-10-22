@@ -20,6 +20,9 @@
 
 import { ButtonIcon, ButtonSize, ButtonVariety, IconX } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { isEmpty } from 'lodash';
+import * as React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -31,10 +34,7 @@ import {
   Link,
   Note,
   Title,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+} from '~design-system';
 import { getValue } from '../../../../api/settings';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';

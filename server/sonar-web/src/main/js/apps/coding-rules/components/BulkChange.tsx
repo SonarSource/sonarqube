@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import * as React from 'react';
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -25,8 +27,7 @@ import {
   ItemButton,
   PopupPlacement,
   PopupZLevel,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';

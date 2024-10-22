@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { HelperHintIcon } from 'design-system';
+
 import * as React from 'react';
+import { HelperHintIcon } from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import Facet, { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';

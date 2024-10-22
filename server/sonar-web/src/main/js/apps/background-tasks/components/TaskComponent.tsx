@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   BranchIcon,
@@ -25,8 +26,7 @@ import {
   PullRequestIcon,
   QualifierIcon,
   StandoutLink,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { translate } from '../../../helpers/l10n';
 import {

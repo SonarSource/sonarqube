@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
+
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from '~design-system';
 import { createLink, deleteLink, getProjectLinks } from '../../api/projectLinks';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { translate } from '../../helpers/l10n';

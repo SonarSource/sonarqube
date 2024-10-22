@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonIcon,
   ButtonSize,
@@ -31,8 +32,7 @@ import {
   ContentCell,
   FlagWarningIcon,
   TableRowInteractive,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import BranchLikeIcon from '../../../components/icon-mappers/BranchLikeIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

@@ -19,8 +19,8 @@
  */
 
 import { Button, Label } from '@sonarsource/echoes-react';
-import { InputSearch } from 'design-system';
 import * as React from 'react';
+import { InputSearch } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { DEFAULT_FILTERS } from '../constants';
 import { Query } from '../utils';

@@ -19,7 +19,6 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { useState } from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

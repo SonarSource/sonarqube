@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Route } from 'react-router-dom';
 import * as withRouter from '~sonar-aligned/components/hoc/withRouter';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';

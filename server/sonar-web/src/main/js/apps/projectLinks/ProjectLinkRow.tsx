@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonIcon, ButtonSize, ButtonVariety, IconDelete } from '@sonarsource/echoes-react';
-import { ActionCell, ContentCell, Link, Note, TableRow } from 'design-system';
 import * as React from 'react';
+import { ActionCell, ContentCell, Link, Note, TableRow } from '~design-system';
 import isValidUri from '../../app/utils/isValidUri';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../helpers/l10n';

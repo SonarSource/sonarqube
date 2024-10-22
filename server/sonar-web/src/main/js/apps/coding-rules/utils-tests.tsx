@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { waitFor } from '@testing-library/react';
+
 import userEvent from '@testing-library/user-event';
 import {
   byLabelText,
@@ -51,6 +51,7 @@ const selectors = {
   currentListItem: byRole('listitem', { current: true }),
 
   // Filters
+  filtersHeading: byRole('heading', { name: 'filters' }),
   searchInput: byRole('searchbox', { name: 'search.search_for_rules' }),
   clearAllFiltersButton: byRole('button', { name: 'clear_all_filters' }),
 
@@ -219,15 +220,19 @@ export function getPageObjects() {
 
   const ui = {
     ...selectors,
-    async appLoaded() {
-      await waitFor(() => {
-        expect(selectors.loading.query()).not.toBeInTheDocument();
-      });
+
+    async listLoaded() {
+      expect(await selectors.filtersHeading.find()).toBeInTheDocument();
+      expect(await selectors.rulesList.find()).toBeInTheDocument();
+    },
+
+    async facetsLoaded() {
+      expect(await selectors.filtersHeading.find()).toBeInTheDocument();
     },
 
     async detailsloaded() {
       expect(await byRole('heading', { level: 1 }).find()).toBeInTheDocument();
-      await ui.appLoaded();
+      await ui.facetsLoaded();
     },
 
     async bulkActivate(rulesCount: number, profile: Profile) {

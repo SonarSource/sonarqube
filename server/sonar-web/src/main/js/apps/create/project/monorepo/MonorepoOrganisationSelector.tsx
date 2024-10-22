@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Link, Spinner } from '@sonarsource/echoes-react';
-import { DarkLabel, FlagMessage, InputSelect } from 'design-system';
-import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { DarkLabel, FlagMessage, InputSelect } from '~design-system';
 import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { LabelValueSelectOption } from '../../../../helpers/search';
 import { AlmKeys } from '../../../../types/alm-settings';

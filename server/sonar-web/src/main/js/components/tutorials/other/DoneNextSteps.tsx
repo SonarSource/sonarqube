@@ -21,9 +21,9 @@
 import styled from '@emotion/styled';
 import { animated, config, useSpring } from '@react-spring/web';
 import { LinkStandalone as Link } from '@sonarsource/echoes-react';
-import { BasicSeparator, FlagVisual } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { BasicSeparator, FlagVisual } from '~design-system';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';

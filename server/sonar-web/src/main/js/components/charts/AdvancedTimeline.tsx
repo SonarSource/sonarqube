@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { bisector, extent, max } from 'd3-array';
@@ -30,9 +31,9 @@ import {
   scaleTime,
 } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
-import { CSSColor, ThemeProp, themeColor, withTheme } from 'design-system';
 import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import * as React from 'react';
+import { CSSColor, ThemeProp, themeColor, withTheme } from '~design-system';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { isDefined } from '../../helpers/types';
 import { Chart } from '../../types/types';

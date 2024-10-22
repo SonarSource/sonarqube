@@ -19,8 +19,8 @@
  */
 
 import { Spinner, Tooltip } from '@sonarsource/echoes-react';
-import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
+import { MetricsRatingBadge, RatingEnum } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { getLeakValue } from '../../../components/measure/utils';

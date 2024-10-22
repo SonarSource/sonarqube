@@ -19,10 +19,10 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
-import { ButtonSecondary, FlagMessage, Highlight, Note } from 'design-system/lib';
 import { isEmpty, omitBy } from 'lodash';
 import React, { FormEvent, useContext, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { ButtonSecondary, FlagMessage, Highlight, Note } from '~design-system';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import DocumentationLink from '../../../../components/common/DocumentationLink';

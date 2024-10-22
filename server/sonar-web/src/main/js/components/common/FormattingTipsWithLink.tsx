@@ -19,9 +19,9 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import { CodeSnippet } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { CodeSnippet } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import { getFormattingHelpUrl } from '../../helpers/urls';
 

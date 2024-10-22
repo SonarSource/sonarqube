@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
@@ -24,7 +25,7 @@ import {
   CodeSyntaxHighlighter,
   InputTextArea,
   SanitizeLevel,
-} from 'design-system';
+} from '~design-system';
 
 import * as React from 'react';
 import FormattingTips from '../../../components/common/FormattingTips';

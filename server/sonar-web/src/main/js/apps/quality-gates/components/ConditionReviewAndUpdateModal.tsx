@@ -19,10 +19,10 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { Link, Modal, SubHeading, Title } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link, Modal, SubHeading, Title } from '~design-system';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

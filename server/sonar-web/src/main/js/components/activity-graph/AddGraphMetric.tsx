@@ -19,9 +19,9 @@
  */
 
 import { Button, IconChevronDown } from '@sonarsource/echoes-react';
-import { Dropdown } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { Dropdown } from '~design-system';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,

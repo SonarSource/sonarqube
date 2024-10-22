@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { groupBy, omit } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';

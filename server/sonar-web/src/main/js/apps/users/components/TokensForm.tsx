@@ -19,6 +19,8 @@
  */
 
 import { Button, ButtonVariety, Heading, Label, Spinner } from '@sonarsource/echoes-react';
+import { isEmpty } from 'lodash';
+import * as React from 'react';
 import {
   ContentCell,
   GreySeparator,
@@ -26,9 +28,7 @@ import {
   InputSelect,
   Table,
   TableRow,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
+} from '~design-system';
 import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';

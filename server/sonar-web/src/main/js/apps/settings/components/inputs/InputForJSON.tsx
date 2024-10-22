@@ -19,8 +19,8 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, InputTextArea } from 'design-system';
 import * as React from 'react';
+import { FlagMessage, InputTextArea } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 

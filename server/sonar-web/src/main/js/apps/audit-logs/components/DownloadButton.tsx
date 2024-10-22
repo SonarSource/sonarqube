@@ -19,8 +19,7 @@
  */
 
 import { endOfDay, startOfDay, subDays } from 'date-fns';
-import { ButtonPrimary } from 'design-system';
-import * as React from 'react';
+import { ButtonPrimary } from '~design-system';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import '../style.css';

@@ -21,7 +21,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getScannableProjects } from '../../../api/components';
 import AlmSettingsServiceMock from '../../../api/mocks/AlmSettingsServiceMock';

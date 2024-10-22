@@ -19,6 +19,9 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
+import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
+import { OptionProps, components } from 'react-select';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -32,11 +35,7 @@ import {
   RadioButton,
   Spinner,
   Title,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { FormattedMessage } from 'react-intl';
-import { OptionProps, components } from 'react-select';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import withAvailableFeatures, {

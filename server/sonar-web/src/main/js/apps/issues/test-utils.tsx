@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { waitFor } from '@testing-library/react';
-import React from 'react';
+
+import { waitForElementToBeRemoved } from '@testing-library/react';
 import { Outlet, Route } from 'react-router-dom';
 import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
@@ -183,9 +183,8 @@ export const ui = {
 };
 
 export async function waitOnDataLoaded() {
-  await waitFor(() => {
-    expect(ui.loading.query()).not.toBeInTheDocument();
-  });
+  expect(await ui.loading.find()).toBeInTheDocument();
+  await waitForElementToBeRemoved(ui.loading.query());
 }
 
 export function renderIssueApp(

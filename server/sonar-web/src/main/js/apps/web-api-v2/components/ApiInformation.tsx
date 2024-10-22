@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, SubHeading, Title } from 'design-system';
+
 import { OpenAPIV3 } from 'openapi-types';
-import React from 'react';
+import { Badge, SubHeading, Title } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { ExcludeReferences, InternalExtension } from '../types';
 import { getApiEndpointKey } from '../utils';

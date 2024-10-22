@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, TableRow } from 'design-system';
-import * as React from 'react';
+
+import { ContentCell, TableRow } from '~design-system';
 import { PermissionTemplate } from '../../../types/types';
 import ActionsCell from './ActionsCell';
 import NameCell from './NameCell';

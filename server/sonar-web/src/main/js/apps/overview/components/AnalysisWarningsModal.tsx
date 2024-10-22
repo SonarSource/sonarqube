@@ -19,6 +19,7 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import * as React from 'react';
 import {
   FlagMessage,
   HtmlFormatter,
@@ -26,8 +27,7 @@ import {
   SafeHTMLInjection,
   SanitizeLevel,
   Spinner,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';
 import { useDismissBranchWarningMutation } from '../../../queries/branch';

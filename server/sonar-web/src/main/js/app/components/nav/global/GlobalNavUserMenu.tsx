@@ -19,7 +19,6 @@
  */
 
 import { DropdownMenu } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 
 export function GlobalNavUserMenu() {

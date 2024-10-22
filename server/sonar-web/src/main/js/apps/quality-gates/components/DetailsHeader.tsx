@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonIcon, DropdownMenu, IconMoreVertical, Tooltip } from '@sonarsource/echoes-react';
-import { Badge, ButtonSecondary, DangerButtonPrimary, SubTitle } from 'design-system';
 import { countBy } from 'lodash';
 import * as React from 'react';
+import { Badge, ButtonSecondary, DangerButtonPrimary, SubTitle } from '~design-system';
 import LegacyTooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { useSetQualityGateAsDefaultMutation } from '../../../queries/quality-gates';

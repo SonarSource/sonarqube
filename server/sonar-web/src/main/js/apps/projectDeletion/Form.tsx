@@ -19,8 +19,7 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { addGlobalSuccessMessage } from 'design-system';
-import * as React from 'react';
+import { addGlobalSuccessMessage } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { Router } from '~sonar-aligned/types/router';

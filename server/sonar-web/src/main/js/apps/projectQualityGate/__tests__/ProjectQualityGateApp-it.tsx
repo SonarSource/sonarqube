@@ -20,7 +20,7 @@
 
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from '~design-system';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { QualityGatesServiceMock } from '../../../api/mocks/QualityGatesServiceMock';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
@@ -37,8 +37,8 @@ jest.mock('../../../api/quality-gates');
 
 jest.mock('../../../app/utils/handleRequiredAuthorization');
 
-jest.mock('design-system', () => ({
-  ...jest.requireActual('design-system'),
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
   addGlobalErrorMessage: jest.fn(),
   addGlobalSuccessMessage: jest.fn(),
 }));

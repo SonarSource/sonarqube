@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card, LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
-import React, { useEffect, useState } from 'react';
+
+import { useEffect, useState } from 'react';
+import { Card, LargeCenteredLayout, PageContentFontWrapper, Title } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getMeasures } from '../../api/measures';
 import withAvailableFeatures, {

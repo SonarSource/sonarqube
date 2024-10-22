@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Tooltip } from '@sonarsource/echoes-react';
-import { Badge, BareButton, SubnavigationGroup, SubnavigationItem } from 'design-system';
-import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Badge, BareButton, SubnavigationGroup, SubnavigationItem } from '~design-system';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';

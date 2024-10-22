@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
-import { Card, ClipboardButton, FlagMessage, Title } from 'design-system';
-import * as React from 'react';
+import { Card, ClipboardButton, FlagMessage, Title } from '~design-system';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import AppVersionStatus from '../../../components/shared/AppVersionStatus';
 import { toShortISO8601String } from '../../../helpers/dates';

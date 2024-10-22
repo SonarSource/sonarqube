@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';

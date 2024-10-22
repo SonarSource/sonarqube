@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ListItem } from 'design-system';
+
 import { isEmpty } from 'lodash';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { ListItem } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {

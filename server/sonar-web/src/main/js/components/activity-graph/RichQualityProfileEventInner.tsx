@@ -19,7 +19,6 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import React from 'react';
 import { useIntl } from 'react-intl';
 import { getProfileChangelogPath } from '../../apps/quality-profiles/utils';
 import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../types/project-activity';

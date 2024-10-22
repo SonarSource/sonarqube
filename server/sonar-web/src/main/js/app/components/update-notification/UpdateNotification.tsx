@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Banner } from 'design-system';
+
 import { groupBy, isEmpty, mapValues } from 'lodash';
-import * as React from 'react';
+import { Banner } from '~design-system';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
 import { UpdateUseCase } from '../../../components/upgrade/utils';

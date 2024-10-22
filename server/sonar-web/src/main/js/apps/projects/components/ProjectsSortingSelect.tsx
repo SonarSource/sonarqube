@@ -20,9 +20,9 @@
 
 import { InputSize, Select, SelectOption, Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { InteractiveIcon, SortAscendIcon, SortDescendIcon, StyledPageTitle } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { InteractiveIcon, SortAscendIcon, SortDescendIcon, StyledPageTitle } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { SORTING_LEAK_METRICS, SORTING_METRICS, parseSorting } from '../utils';
 

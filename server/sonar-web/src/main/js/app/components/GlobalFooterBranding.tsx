@@ -19,7 +19,6 @@
  */
 
 import { Link, LinkHighlight } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { isOfficial } from '../../helpers/system';
 
 export default function GlobalFooterBranding() {

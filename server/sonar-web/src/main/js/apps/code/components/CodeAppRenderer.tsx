@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { IconQuestionMark, Spinner, Text } from '@sonarsource/echoes-react';
-import { Card, FlagMessage, KeyboardHint, LargeCenteredLayout } from 'design-system';
 import { difference, intersection } from 'lodash';
-import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Card, FlagMessage, KeyboardHint, LargeCenteredLayout } from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';

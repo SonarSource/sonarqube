@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FlagMessage, Spinner, SubTitle, Table } from 'design-system';
 import * as React from 'react';
+import { FlagMessage, Spinner, SubTitle, Table } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';
 import { Profile } from '../types';

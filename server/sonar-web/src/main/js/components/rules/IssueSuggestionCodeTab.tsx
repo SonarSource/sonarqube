@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { InProgressVisual, OverviewQGNotComputedIcon, OverviewQGPassedIcon } from 'design-system';
-import React from 'react';
+import { InProgressVisual, OverviewQGNotComputedIcon, OverviewQGPassedIcon } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import { usePrefetchSuggestion, useUnifiedSuggestionsQuery } from '../../queries/fix-suggestions';
 import { useRawSourceQuery } from '../../queries/sources';

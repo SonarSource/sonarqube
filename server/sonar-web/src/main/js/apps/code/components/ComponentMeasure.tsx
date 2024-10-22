@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ContentCell, NumericalCell, QualityGateIndicator, RatingCell } from 'design-system';
-import * as React from 'react';
+import { ContentCell, NumericalCell, QualityGateIndicator, RatingCell } from '~design-system';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';

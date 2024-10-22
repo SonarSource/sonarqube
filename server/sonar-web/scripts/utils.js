@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
@@ -29,7 +30,7 @@ const extensionsL10nFilepaths = [
   '../../../private/core-extension-enterprise-server/src/main/resources/org/sonar/l10n/governance.properties',
   '../../../private/core-extension-license/src/main/resources/org/sonar/l10n/license.properties',
   '../../../private/core-extension-developer-server/src/main/resources/org/sonar/l10n/developer-server.properties',
-  '../../../private/core-extension-securityreport/src/main/resources/org/sonar/l10n/securityreport.properties'
+  '../../../private/core-extension-securityreport/src/main/resources/org/sonar/l10n/securityreport.properties',
 ];
 
 const STATUS_OK = 200;
@@ -37,10 +38,10 @@ const STATUS_ERROR = 500;
 
 function getFileMessage(filename) {
   return readFileAsync(path.resolve(__dirname, filename), 'utf-8').then(
-    content => {
+    (content) => {
       const messages = {};
       const lines = content.split('\n');
-      lines.forEach(line => {
+      lines.forEach((line) => {
         const parts = line.split('=');
         if (parts.length > 1) {
           messages[parts[0]] = parts.slice(1).join('=');
@@ -48,23 +49,23 @@ function getFileMessage(filename) {
       });
       return messages;
     },
-    () => ({})
+    () => ({}),
   );
 }
 
 function getMessages() {
   return Promise.all(
-    [l10nFilePath, ...extensionsL10nFilepaths].map(filename => getFileMessage(filename))
-  ).then(filesMessages => filesMessages.reduce((acc, messages) => ({ ...acc, ...messages }), {}));
+    [l10nFilePath, ...extensionsL10nFilepaths].map((filename) => getFileMessage(filename)),
+  ).then((filesMessages) => filesMessages.reduce((acc, messages) => ({ ...acc, ...messages }), {}));
 }
 
 function handleL10n(res) {
   getMessages()
-    .then(messages => {
+    .then((messages) => {
       res.writeHead(STATUS_OK, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ effectiveLocale: 'en', messages }));
     })
-    .catch(e => {
+    .catch((e) => {
       console.error(e);
       res.writeHead(STATUS_ERROR);
       res.end(e);

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Banner, Link } from 'design-system';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { Banner, Link } from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';

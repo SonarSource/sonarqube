@@ -19,8 +19,7 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import { HelperHintIcon } from 'design-system';
-import React from 'react';
+import { HelperHintIcon } from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { DocLink } from '../../../../../helpers/doc-links';

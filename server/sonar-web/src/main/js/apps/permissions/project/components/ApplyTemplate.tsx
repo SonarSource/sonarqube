@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import * as React from 'react';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -24,8 +26,7 @@ import {
   InputSelect,
   LabelValueSelectOption,
   Modal,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { PermissionTemplate } from '../../../../types/types';

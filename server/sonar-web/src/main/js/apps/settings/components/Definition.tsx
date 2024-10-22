@@ -19,8 +19,8 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, Note, TextError } from 'design-system';
 import * as React from 'react';
+import { FlagMessage, Note, TextError } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 import {

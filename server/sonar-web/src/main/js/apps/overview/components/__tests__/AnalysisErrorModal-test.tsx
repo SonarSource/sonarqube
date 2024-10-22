@@ -19,7 +19,6 @@
  */
 
 import { screen } from '@testing-library/react';
-import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockTask } from '../../../../helpers/mocks/tasks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';

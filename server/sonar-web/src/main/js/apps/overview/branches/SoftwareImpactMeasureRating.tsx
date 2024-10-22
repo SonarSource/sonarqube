@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RatingEnum } from 'design-system/lib';
-import * as React from 'react';
+
 import { useCallback } from 'react';
 import { useIntl } from 'react-intl';
+import { RatingEnum } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';

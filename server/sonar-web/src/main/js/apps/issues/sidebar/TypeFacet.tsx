@@ -19,9 +19,9 @@
  */
 
 import { IconBug, IconCodeSmell, IconVulnerability } from '@sonarsource/echoes-react';
-import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem } from '~design-system';
 import { ISSUE_TYPES } from '../../../helpers/constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';

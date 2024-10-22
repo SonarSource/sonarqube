@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { Spinner, Title } from 'design-system';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Spinner, Title } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { Router } from '~sonar-aligned/types/router';

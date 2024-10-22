@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from 'design-system';
+
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 import { useStandardExperienceMode } from '../../../queries/settings';
 import { Issue, SourceLine } from '../../../types/types';

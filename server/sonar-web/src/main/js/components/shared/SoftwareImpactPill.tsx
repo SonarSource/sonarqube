@@ -20,10 +20,9 @@
 
 import { Popover } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Pill, PillVariant } from 'design-system';
 import { noop } from 'lodash';
-import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Pill, PillVariant } from '~design-system';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';

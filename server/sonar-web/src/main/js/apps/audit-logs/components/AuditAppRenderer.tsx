@@ -20,16 +20,15 @@
 
 import { Link, RadioButtonGroup } from '@sonarsource/echoes-react';
 import { subDays } from 'date-fns';
+import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
 import {
   DateRangePicker,
   LargeCenteredLayout,
   PageContentFontWrapper,
   PopupZLevel,
   Title,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';

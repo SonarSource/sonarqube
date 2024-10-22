@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import axios, { AxiosResponse } from 'axios';
 import { isNil, omitBy } from 'lodash';
 import { Dict } from '../types/types';
 import { getCookie } from './cookies';
+import handleRequiredAuthentication from './handleRequiredAuthentication';
 import { translate } from './l10n';
 import { stringify } from './stringify-queryparams';
 import { getBaseUrl } from './system';
@@ -161,7 +163,8 @@ export function corsRequest(url: string, mode: RequestMode = 'cors'): Request {
 export function checkStatus(response: Response, bypassRedirect = false): Promise<Response> {
   return new Promise((resolve, reject) => {
     if (response.status === HttpStatus.Unauthorized && !bypassRedirect) {
-      import('./handleRequiredAuthentication').then((i) => i.default()).then(reject, reject);
+      handleRequiredAuthentication();
+      reject(response);
     } else if (isSuccessStatus(response.status)) {
       resolve(response);
     } else {

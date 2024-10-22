@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button } from '@sonarsource/echoes-react';
-import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from 'design-system';
-import React from 'react';
 import { useIntl } from 'react-intl';
+import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from '~design-system';
 import { setHomePage } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';

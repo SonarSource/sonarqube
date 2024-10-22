@@ -26,8 +26,7 @@ import {
   SubHeadingHighlight,
   Table,
   TableRow,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { RuleParameter } from '../../../types/types';
 

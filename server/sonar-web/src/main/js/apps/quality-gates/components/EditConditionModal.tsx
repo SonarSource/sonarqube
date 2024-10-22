@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   Button,
   ButtonIcon,
@@ -25,9 +26,9 @@ import {
   IconEdit,
   Modal,
 } from '@sonarsource/echoes-react';
-import { FormField, Highlight, Note } from 'design-system';
 import { isArray } from 'lodash';
 import * as React from 'react';
+import { FormField, Highlight, Note } from '~design-system';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { useUpdateConditionMutation } from '../../../queries/quality-gates';
 import { Condition, Metric, QualityGate } from '../../../types/types';

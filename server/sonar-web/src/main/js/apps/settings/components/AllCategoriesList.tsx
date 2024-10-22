@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubnavigationGroup, SubnavigationItem } from 'design-system';
+
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SubnavigationGroup, SubnavigationItem } from '~design-system';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';

@@ -19,9 +19,8 @@
  */
 
 import { Global, css, useTheme } from '@emotion/react';
-import { themeColor } from 'design-system';
-import React from 'react';
 import twDefaultTheme from 'tailwindcss/defaultTheme';
+import { themeColor } from '~design-system';
 
 export function GlobalStyles() {
   const theme = useTheme();

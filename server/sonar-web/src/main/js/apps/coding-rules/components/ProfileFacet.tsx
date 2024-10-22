@@ -19,9 +19,9 @@
  */
 
 import styled from '@emotion/styled';
-import { FacetBox, FacetItem, HelperHintIcon, Note, themeColor } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem, HelperHintIcon, Note, themeColor } from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { Profile } from '../../../api/quality-profiles';
 import { DocLink } from '../../../helpers/doc-links';

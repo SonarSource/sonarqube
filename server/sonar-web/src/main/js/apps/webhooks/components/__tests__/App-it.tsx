@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import WebhooksMock from '../../../../api/mocks/WebhooksMock';
 import { mockComponent } from '../../../../helpers/mocks/component';

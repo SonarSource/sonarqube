@@ -19,9 +19,9 @@
  */
 
 import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, RadioButton } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
+import { FlagMessage, RadioButton } from '~design-system';
 import GlobalNewCodeDefinitionDescription from '../../../components/new-code-definition/GlobalNewCodeDefinitionDescription';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';

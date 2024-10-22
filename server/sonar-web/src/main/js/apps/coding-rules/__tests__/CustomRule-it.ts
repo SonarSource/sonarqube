@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
@@ -37,9 +38,9 @@ describe('custom rule', () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser());
-    await ui.appLoaded();
+    await ui.facetsLoaded();
 
-    await user.click(ui.templateFacet.get());
+    await user.click(await ui.templateFacet.find());
     await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
 
     // Shows only one template rule
@@ -172,7 +173,7 @@ describe('custom rule', () => {
   it('anonymous user cannot modify custom rule', async () => {
     const { ui } = getPageObjects();
     renderCodingRulesApp(undefined, 'coding_rules?open=rule9');
-    await ui.appLoaded();
+    await ui.facetsLoaded();
 
     expect(ui.editCustomRuleButton.query()).not.toBeInTheDocument();
     expect(ui.deleteButton.query()).not.toBeInTheDocument();

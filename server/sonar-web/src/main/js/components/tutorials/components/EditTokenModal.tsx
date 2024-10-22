@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import {
   ButtonSecondary,
   ClipboardIconButton,
@@ -29,9 +32,7 @@ import {
   Modal,
   Spinner,
   TrashIcon,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
 
 import { translate, translateWithParameters } from '../../../helpers/l10n';

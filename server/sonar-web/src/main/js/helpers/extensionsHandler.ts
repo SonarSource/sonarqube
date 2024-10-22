@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 // Do not import dependencies in this helper, to keep initial bundle load as small as possible
 
 import { ExtensionRegistryEntry, ExtensionStartMethod } from '../types/extension';

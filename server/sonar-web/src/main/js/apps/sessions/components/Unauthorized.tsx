@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card, CenteredLayout, Link, PageContentFontWrapper } from 'design-system';
-import * as React from 'react';
+
 import { Helmet } from 'react-helmet-async';
+import { Card, CenteredLayout, Link, PageContentFontWrapper } from '~design-system';
 import { getCookie } from '../../../helpers/cookies';
 import { translate } from '../../../helpers/l10n';
 

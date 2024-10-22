@@ -26,10 +26,9 @@ import {
   isStream,
 } from '@jupyterlab/nbformat';
 import classNames from 'classnames';
-import { CodeSnippet } from 'design-system';
 import { isArray } from 'lodash';
-import React from 'react';
 import Markdown from 'react-markdown';
+import { CodeSnippet } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { Image } from '../common/Image';
 

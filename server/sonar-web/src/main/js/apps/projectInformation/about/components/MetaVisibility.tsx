@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubHeading } from 'design-system';
-import * as React from 'react';
+
+import { SubHeading } from '~design-system';
 import { Visibility } from '~sonar-aligned/types/component';
 import PrivacyBadgeContainer from '../../../../components/common/PrivacyBadgeContainer';
 import { translate } from '../../../../helpers/l10n';

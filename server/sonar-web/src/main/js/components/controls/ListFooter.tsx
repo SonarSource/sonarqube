@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Button } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Spinner } from 'design-system';
 import * as React from 'react';
+import { Spinner } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { translate, translateWithParameters } from '../../helpers/l10n';

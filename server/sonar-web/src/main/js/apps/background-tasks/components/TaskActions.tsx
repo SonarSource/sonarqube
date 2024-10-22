@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonIcon,
   ButtonVariety,
   DropdownMenu,
   IconMoreVertical,
 } from '@sonarsource/echoes-react';
-import { ActionCell, ItemDangerButton } from 'design-system';
 import * as React from 'react';
+import { ActionCell, ItemDangerButton } from '~design-system';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Task, TaskStatuses } from '../../../types/tasks';

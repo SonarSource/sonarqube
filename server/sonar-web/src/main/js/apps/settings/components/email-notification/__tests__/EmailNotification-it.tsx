@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { addGlobalSuccessMessage } from 'design-system/lib';
-import React from 'react';
+import { addGlobalSuccessMessage } from '~design-system';
 import { byLabelText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import * as settingsApi from '../../../../../api/settings';
@@ -36,8 +36,8 @@ import EmailNotification from '../EmailNotification';
 jest.mock('../../../../../api/system');
 jest.mock('../../../../../api/settings');
 
-jest.mock('design-system', () => ({
-  ...jest.requireActual('design-system'),
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
   addGlobalSuccessMessage: jest.fn(),
 }));
 

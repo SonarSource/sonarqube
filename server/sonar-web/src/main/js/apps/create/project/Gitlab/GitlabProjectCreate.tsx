@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption } from 'design-system';
-import React, { useCallback, useMemo } from 'react';
+
+import { useCallback, useMemo } from 'react';
+import { LabelValueSelectOption } from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
 import { GitlabProject } from '../../../../types/alm-integration';

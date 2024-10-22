@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable no-undef */
 // make __webpack_public_path__ a free variable
 // see https://github.com/webpack/webpack/issues/443

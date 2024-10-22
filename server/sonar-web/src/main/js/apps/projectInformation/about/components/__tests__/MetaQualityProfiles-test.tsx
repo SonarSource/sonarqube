@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
-import * as React from 'react';
 import { searchRules } from '../../../../../api/rules';
 import { LanguagesContext } from '../../../../../app/components/languages/LanguagesContext';
 import { mockLanguage, mockPaging, mockQualityProfile } from '../../../../../helpers/testMocks';
@@ -55,7 +55,7 @@ it('should render correctly', async () => {
   renderMetaQualityprofiles();
 
   expect(await screen.findByText('overview.deleted_profile.javascript')).toBeInTheDocument();
-  expect(screen.getByText('overview.deprecated_profile.10')).toBeInTheDocument();
+  expect(await screen.findByText('overview.deprecated_profile.10')).toBeInTheDocument();
 });
 
 function renderMetaQualityprofiles(

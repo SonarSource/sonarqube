@@ -20,7 +20,6 @@
 
 import { IconProject, Spinner } from '@sonarsource/echoes-react';
 import { omit } from 'lodash';
-import * as React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getTree, searchProjects } from '../../../api/components';

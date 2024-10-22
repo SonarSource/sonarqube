@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { BasicSeparator, Note, SafeHTMLInjection, SanitizeLevel, SubTitle } from 'design-system';
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
+import { BasicSeparator, Note, SafeHTMLInjection, SanitizeLevel, SubTitle } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
 import { SettingDefinitionAndValue } from '../../../types/settings';

@@ -20,9 +20,8 @@
 
 import { ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled';
-import { lightTheme, themeColor } from 'design-system';
-import * as React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { lightTheme, themeColor } from '~design-system';
 import A11yProvider from '~sonar-aligned/components/a11y/A11yProvider';
 import A11ySkipLinks from '~sonar-aligned/components/a11y/A11ySkipLinks';
 import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';

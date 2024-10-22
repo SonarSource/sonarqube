@@ -20,9 +20,8 @@
 
 import styled from '@emotion/styled';
 import { ButtonIcon, ButtonVariety, IconX } from '@sonarsource/echoes-react';
-import { themeBorder } from 'design-system';
-import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { themeBorder } from '~design-system';
 import { MessageTypes } from '../../../api/messages';
 import { translate } from '../../../helpers/l10n';
 import {

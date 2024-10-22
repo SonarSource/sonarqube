@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+import { ButtonSecondary } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { AdvancedTimeline } from '../../components/charts/AdvancedTimeline';
 import { translate } from '../../helpers/l10n';

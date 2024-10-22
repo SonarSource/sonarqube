@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { differenceInDays } from 'date-fns';
-import { Highlight, Note, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { Highlight, Note, themeBorder, themeColor } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';

@@ -19,6 +19,9 @@
  */
 
 import styled from '@emotion/styled';
+import { keyBy } from 'lodash';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   InputSearch,
   LAYOUT_FOOTER_HEIGHT,
@@ -27,10 +30,7 @@ import {
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import { keyBy } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, RawQuery, Router } from '~sonar-aligned/types/router';

@@ -20,9 +20,8 @@
 
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import { FlagMessage, LAYOUT_VIEWPORT_MIN_WIDTH, themeBorder, themeColor } from 'design-system';
-import React from 'react';
 import { useIntl } from 'react-intl';
+import { FlagMessage, LAYOUT_VIEWPORT_MIN_WIDTH, themeBorder, themeColor } from '~design-system';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import AppVersionStatus from '../../components/shared/AppVersionStatus';
 import { DocLink } from '../../helpers/doc-links';

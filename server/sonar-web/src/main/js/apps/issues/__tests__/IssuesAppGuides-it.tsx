@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
@@ -45,17 +46,20 @@ jest.mock('../sidebar/Sidebar', () => {
   };
 });
 
-jest.mock('../../../components/common/ScreenPositionHelper', () => ({
-  __esModule: true,
-  default: class ScreenPositionHelper extends React.Component<{
-    children: (args: { top: number }) => React.ReactNode;
-  }> {
-    render() {
-      // eslint-disable-next-line testing-library/no-node-access
-      return this.props.children({ top: 10 });
-    }
-  },
-}));
+jest.mock('../../../components/common/ScreenPositionHelper', () => {
+  const React = jest.requireActual('react');
+  return {
+    __esModule: true,
+    default: class ScreenPositionHelper extends React.Component<{
+      children: (args: { top: number }) => React.ReactNode;
+    }> {
+      render() {
+        // eslint-disable-next-line testing-library/no-node-access
+        return this.props.children({ top: 10 });
+      }
+    },
+  };
+});
 
 describe('issue guides', () => {
   beforeEach(() => {
@@ -234,7 +238,7 @@ describe('issue guides', () => {
 
       expect(await ui.guidePopup.find()).toBeInTheDocument();
       await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
-      expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.2.3');
+      expect(await ui.guidePopup.find()).toHaveTextContent('guiding.step_x_of_y.2.3');
 
       await user.click(ui.issueItemAction1.get());
 

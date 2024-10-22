@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { Feature } from '../../../types/features';
@@ -43,7 +43,7 @@ jest.mock('../components/IssuesList', () => {
     return (
       <>
         {props.issues.map((i) => (
-          <section key={i.key} aria-label={i.message}>
+          <section key={i.key} aria-label={i.message} data-moar={`scope: ${i.scope}`}>
             {i.message}
           </section>
         ))}
@@ -68,27 +68,41 @@ beforeEach(() => {
 
 describe('issues app filtering', () => {
   it('should combine sidebar filters properly', async () => {
-    jest.useFakeTimers();
     issuesHandler.setPageSize(50);
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    const user = userEvent.setup();
     renderIssueApp(undefined, [Feature.PrioritizedRules]);
     await waitOnDataLoaded();
 
     // Select CC responsible category (should make the first issue disappear)
     await user.click(await ui.responsibleCategoryFilter.find());
+    await waitFor(() => {
+      expect(ui.issueItems.getAll()).toHaveLength(10);
+    });
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
 
     // Select responsible + Maintainability quality
     await user.click(ui.softwareQualityMaintainabilityFilter.get());
+    await waitFor(() => {
+      expect(ui.issueItems.getAll()).toHaveLength(9);
+    });
     expect(ui.issueItem5.query()).not.toBeInTheDocument();
 
     // Select MEDIUM severity
     await user.click(ui.mediumSeverityFilter.get());
+    await waitFor(() => {
+      expect(ui.issueItems.getAll()).toHaveLength(8);
+    });
     expect(ui.issueItem8.query()).not.toBeInTheDocument();
 
     // Expand scope and set code smells + major severity + main scope
     await user.click(ui.scopeFacet.get());
+    await waitFor(() => expect(ui.mainScopeFilter.get()).toBeEnabled());
     await user.click(ui.mainScopeFilter.get());
+
+    await waitFor(() => {
+      expect(ui.issueItems.getAll()).toHaveLength(6);
+    });
+
     expect(ui.issueItem4.query()).not.toBeInTheDocument();
 
     // Check that filters were applied as expected
@@ -96,18 +110,22 @@ describe('issues app filtering', () => {
 
     // Status
     await user.click(ui.issueStatusFacet.get());
+    await waitFor(() => expect(ui.openStatusFilter.get()).toBeEnabled());
     await user.click(ui.openStatusFilter.get());
+    await waitFor(() => {
+      expect(ui.issueItems.getAll()).toHaveLength(3);
+    });
     expect(ui.issueItem6.query()).not.toBeInTheDocument(); // Issue 6 should vanish
 
     // Ctrl+click on confirmed status
     await user.keyboard('{Control>}');
     await user.click(ui.confirmedStatusFilter.get());
     await user.keyboard('{/Control}');
-    expect(ui.issueItem6.get()).toBeInTheDocument(); // Issue 6 should come back
+    expect(await ui.issueItem6.find()).toBeInTheDocument(); // Issue 6 should come back
 
     // Rule
     await user.click(ui.ruleFacet.get());
-    await user.click(screen.getByRole('checkbox', { name: 'other' }));
+    await user.click(await screen.findByRole('checkbox', { name: 'other' }));
 
     // Name should apply to the rule
     expect(screen.getByRole('checkbox', { name: '(HTML) Advanced rule' })).toBeInTheDocument();
@@ -120,7 +138,7 @@ describe('issues app filtering', () => {
     // Project
     await user.click(ui.projectFacet.get());
     expect(
-      screen.getByRole('checkbox', { name: 'org.sonarsource.javascript:javascript' }),
+      await screen.findByRole('checkbox', { name: 'org.sonarsource.javascript:javascript' }),
     ).toHaveTextContent('SonarJS');
     await user.click(
       screen.getByRole('checkbox', { name: 'org.sonarsource.javascript:javascript' }),
@@ -128,13 +146,13 @@ describe('issues app filtering', () => {
 
     // Assignee
     await user.click(ui.assigneeFacet.get());
-    await user.click(screen.getByRole('checkbox', { name: 'email2@sonarsource.com' }));
+    await user.click(await screen.findByRole('checkbox', { name: 'email2@sonarsource.com' }));
     await user.click(screen.getByRole('checkbox', { name: 'email1@sonarsource.com' })); // Change assignee
 
     // Author
     await user.click(ui.authorFacet.get());
     await user.type(ui.authorFacetSearch.get(), 'email');
-    await user.click(screen.getByRole('checkbox', { name: 'email4@sonarsource.com' }));
+    await user.click(await screen.findByRole('checkbox', { name: 'email4@sonarsource.com' }));
     await user.click(screen.getByRole('checkbox', { name: 'email3@sonarsource.com' })); // Change author
 
     // No filters from standard mode
@@ -142,9 +160,14 @@ describe('issues app filtering', () => {
     expect(ui.standardSeverityFacet.query()).not.toBeInTheDocument();
 
     // Prioritized Rule
-    expect(ui.issueItem7.get()).toBeInTheDocument();
+    expect(await ui.issueItem7.find()).toBeInTheDocument();
     await user.click(ui.prioritizedRuleFacet.get());
+    await waitFor(() => expect(ui.prioritizedRuleFilter.get()).toBeEnabled());
     await user.click(ui.prioritizedRuleFilter.get());
+
+    await waitFor(() => {
+      expect(ui.issueItems.getAll()).toHaveLength(1);
+    });
 
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
     expect(ui.issueItem2.query()).not.toBeInTheDocument();
@@ -166,7 +189,7 @@ describe('issues app filtering', () => {
     await user.click(ui.clearAssigneeFacet.get());
     await user.click(ui.clearAuthorFacet.get());
     await user.click(ui.clearPrioritizedRuleFacet.get());
-    expect(ui.issueItem1.get()).toBeInTheDocument();
+    expect(await ui.issueItem1.find()).toBeInTheDocument();
     expect(ui.issueItem2.get()).toBeInTheDocument();
     expect(ui.issueItem3.get()).toBeInTheDocument();
     expect(ui.issueItem4.get()).toBeInTheDocument();
@@ -174,15 +197,12 @@ describe('issues app filtering', () => {
     expect(ui.issueItem6.get()).toBeInTheDocument();
     expect(ui.issueItem7.get()).toBeInTheDocument();
     expect(ui.issueItem10.get()).toBeInTheDocument();
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
   });
 
   it('should combine sidebar filters properly in standard mode', async () => {
-    jest.useFakeTimers();
     issuesHandler.setPageSize(50);
     settingsHandler.set(SettingsKey.MQRMode, 'false');
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    const user = userEvent.setup();
     renderIssueApp(undefined, [Feature.PrioritizedRules]);
     await waitOnDataLoaded();
 
@@ -197,7 +217,7 @@ describe('issues app filtering', () => {
 
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
     expect(ui.issueItem2.query()).not.toBeInTheDocument();
-    expect(ui.issueItem3.get()).toBeInTheDocument();
+    expect(await ui.issueItem3.find()).toBeInTheDocument();
     expect(ui.issueItem4.query()).not.toBeInTheDocument();
     expect(ui.issueItem5.get()).toBeInTheDocument();
     expect(ui.issueItem6.get()).toBeInTheDocument();
@@ -207,7 +227,7 @@ describe('issues app filtering', () => {
     // Clear filters one by one
     await user.click(ui.clearIssueTypeFacet.get());
     await user.click(ui.clearStandardSeverityFacet.get());
-    expect(ui.issueItem1.get()).toBeInTheDocument();
+    expect(await ui.issueItem1.find()).toBeInTheDocument();
     expect(ui.issueItem2.get()).toBeInTheDocument();
     expect(ui.issueItem3.get()).toBeInTheDocument();
     expect(ui.issueItem4.get()).toBeInTheDocument();
@@ -215,8 +235,6 @@ describe('issues app filtering', () => {
     expect(ui.issueItem6.get()).toBeInTheDocument();
     expect(ui.issueItem7.get()).toBeInTheDocument();
     expect(ui.issueItem10.get()).toBeInTheDocument();
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
   });
 
   it('should properly filter by code variants', async () => {
@@ -228,7 +246,7 @@ describe('issues app filtering', () => {
     await user.click(screen.getByRole('checkbox', { name: /variant 1/ }));
 
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
-    expect(ui.issueItem7.get()).toBeInTheDocument();
+    expect(await ui.issueItem7.find()).toBeInTheDocument();
 
     // Clear filter
     await user.click(ui.clearCodeVariantsFacet.get());
@@ -276,7 +294,7 @@ describe('issues app filtering', () => {
     await user.click(screen.getByText('1', { selector: 'button' }));
     await user.click(screen.getByText('10'));
 
-    expect(ui.issueItem1.get()).toBeInTheDocument();
+    expect(await ui.issueItem1.find()).toBeInTheDocument();
     expect(ui.issueItem2.query()).not.toBeInTheDocument();
     expect(ui.issueItem3.query()).not.toBeInTheDocument();
     expect(ui.issueItem4.query()).not.toBeInTheDocument();
@@ -293,7 +311,7 @@ describe('issues app filtering', () => {
     await waitOnDataLoaded();
 
     // By default, it should show all issues
-    expect(ui.issueItem2.get()).toBeInTheDocument();
+    expect(await ui.issueItem2.find()).toBeInTheDocument();
     expect(ui.issueItem3.get()).toBeInTheDocument();
 
     // Only show my issues
@@ -303,7 +321,7 @@ describe('issues app filtering', () => {
 
     // Show all issues again
     await user.click(screen.getByRole('radio', { name: 'all' }));
-    expect(ui.issueItem2.get()).toBeInTheDocument();
+    expect(await ui.issueItem2.find()).toBeInTheDocument();
     expect(ui.issueItem3.get()).toBeInTheDocument();
   });
 

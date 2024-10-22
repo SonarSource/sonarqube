@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ToggleButton } from 'design-system';
+
 import * as React from 'react';
+import { ToggleButton } from '~design-system';
 import { withRouter, WithRouterProps } from '~sonar-aligned/components/hoc/withRouter';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';

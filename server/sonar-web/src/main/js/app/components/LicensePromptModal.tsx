@@ -19,9 +19,8 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import { Modal } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Modal } from '~design-system';
 import { translate } from '../../helpers/l10n';
 
 interface Props {

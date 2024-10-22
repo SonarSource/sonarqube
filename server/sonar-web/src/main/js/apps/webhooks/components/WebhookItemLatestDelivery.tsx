@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonIcon, ButtonSize, IconMoreVertical } from '@sonarsource/echoes-react';
-import { FlagErrorIcon, FlagSuccessIcon } from 'design-system';
-import * as React from 'react';
 import { useState } from 'react';
+import { FlagErrorIcon, FlagSuccessIcon } from '~design-system';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookResponse } from '../../../types/webhook';

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { hasMessage } from '../../../helpers/l10n';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockDefinition, mockSettingValue } from '../../../helpers/mocks/settings';

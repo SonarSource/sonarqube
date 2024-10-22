@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+
+import { screen, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { IssueType } from '../../../types/issues';
@@ -81,13 +81,15 @@ describe('issues app', () => {
       const user = userEvent.setup();
       renderIssueApp();
 
+      await waitForElementToBeRemoved(screen.queryByText('issues.loading_issues'));
+
       // Navigate to 2nd issue
       await user.keyboard('{ArrowDown}');
 
       // Select it
       await user.keyboard('{ArrowRight}');
       expect(
-        screen.getByRole('heading', { name: issuesHandler.list[1].issue.message }),
+        await screen.findByRole('heading', { name: issuesHandler.list[1].issue.message }),
       ).toBeInTheDocument();
 
       // Go back
@@ -230,7 +232,7 @@ describe('issues app', () => {
       expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
 
       // Select all issues
-      await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+      await user.click(await screen.findByRole('checkbox', { name: 'issues.select_all_issues' }));
       expect(
         screen.getByRole('button', { name: 'issues.bulk_change_X_issues.11' }),
       ).toBeInTheDocument();

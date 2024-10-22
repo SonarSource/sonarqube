@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import { BasicSeparator, ClipboardIconButton, NumberedList, NumberedListItem } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import {
+  BasicSeparator,
+  ClipboardIconButton,
+  NumberedList,
+  NumberedListItem,
+} from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { useProjectBindingQuery } from '../../../queries/devops-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';

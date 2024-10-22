@@ -19,8 +19,8 @@
  */
 
 import { InputSize, Select } from '@sonarsource/echoes-react';
-import { StyledPageTitle } from 'design-system';
 import * as React from 'react';
+import { StyledPageTitle } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { VIEWS } from '../utils';
 

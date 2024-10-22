@@ -19,9 +19,9 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
-import { Modal } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
+import { Modal } from '~design-system';
 import { getTask } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';

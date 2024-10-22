@@ -20,10 +20,10 @@
 
 import { Link, Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FlagMessage, SubTitle, ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
+import { FlagMessage, SubTitle, ToggleButton, getTabId, getTabPanelId } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import withAvailableFeatures, {

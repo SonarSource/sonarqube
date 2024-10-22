@@ -20,6 +20,7 @@
 
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
+import { Helmet } from 'react-helmet-async';
 import {
   FlagMessage,
   LargeCenteredLayout,
@@ -27,9 +28,7 @@ import {
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { IssueSuggestionCodeTab } from '../../../components/rules/IssueSuggestionCodeTab';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';

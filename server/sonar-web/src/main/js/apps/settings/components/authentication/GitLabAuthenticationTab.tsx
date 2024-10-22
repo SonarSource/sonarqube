@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonSecondary, Highlight, Note, Spinner } from 'design-system';
 import { isEmpty, omitBy } from 'lodash';
-import React, { FormEvent, useContext, useState } from 'react';
+import { FormEvent, useContext, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { ButtonSecondary, Highlight, Note, Spinner } from '~design-system';
 import GitLabSynchronisationWarning from '../../../../app/components/GitLabSynchronisationWarning';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import DocumentationLink from '../../../../components/common/DocumentationLink';

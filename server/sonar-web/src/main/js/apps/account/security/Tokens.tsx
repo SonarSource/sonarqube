@@ -19,7 +19,6 @@
  */
 
 import { Heading } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
 import TokensForm from '../../users/components/TokensForm';

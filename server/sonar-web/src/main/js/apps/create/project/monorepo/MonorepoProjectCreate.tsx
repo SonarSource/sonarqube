@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
-import { BlueGreySeparator } from 'design-system';
 import React, { useEffect, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { GroupBase } from 'react-select';
+import { BlueGreySeparator } from '~design-system';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponents } from '../../../../api/project-management';

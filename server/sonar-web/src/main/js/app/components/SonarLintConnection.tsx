@@ -19,6 +19,9 @@
  */
 
 import { Button, ButtonVariety, IconCheck, LinkStandalone } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useSearchParams } from 'react-router-dom';
 import {
   Card,
   CardSeparator,
@@ -28,10 +31,7 @@ import {
   Note,
   OrderedList,
   Title,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { useSearchParams } from 'react-router-dom';
+} from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate, translateWithParameters } from '../../helpers/l10n';

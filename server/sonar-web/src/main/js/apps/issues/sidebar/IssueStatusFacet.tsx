@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem } from 'design-system';
+
 import { isEqual, sortBy, without } from 'lodash';
-import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { FacetBox, FacetItem } from '~design-system';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { ISSUE_STATUSES } from '../../../helpers/constants';
 import { IssueStatus } from '../../../types/issues';

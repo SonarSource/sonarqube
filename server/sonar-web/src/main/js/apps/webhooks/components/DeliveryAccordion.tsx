@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagErrorIcon, FlagSuccessIcon, TextAccordion } from 'design-system';
-import * as React from 'react';
+
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
+import { FlagErrorIcon, FlagSuccessIcon, TextAccordion } from '~design-system';
 import { getDelivery } from '../../../api/webhooks';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';

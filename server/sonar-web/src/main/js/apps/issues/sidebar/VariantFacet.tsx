@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem, Note } from 'design-system';
+
 import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem, Note } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';

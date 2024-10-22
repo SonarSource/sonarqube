@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CodeSnippet, FlagMessage, HelperHintIcon, NumberedListItem } from 'design-system';
+
 import * as React from 'react';
+import { CodeSnippet, FlagMessage, HelperHintIcon, NumberedListItem } from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';

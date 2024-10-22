@@ -19,7 +19,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addGlobalSuccessMessage } from 'design-system';
+import { addGlobalSuccessMessage } from '~design-system';
 import {
   createGitHubConfiguration,
   deleteGitHubConfiguration,

@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputField, InputSelect } from 'design-system';
+
 import * as React from 'react';
+import { InputField, InputSelect } from '~design-system';
 import { LabelValueSelectOption } from '../../../helpers/search';
 import { Metric } from '../../../types/types';
 

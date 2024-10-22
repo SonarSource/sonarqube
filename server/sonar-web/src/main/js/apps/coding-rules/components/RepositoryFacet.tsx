@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Note } from 'design-system';
+
 import * as React from 'react';
+import { Note } from '~design-system';
 import { getRuleRepositories } from '../../../api/rules';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { BasicProps } from '../../../components/facets/Facet';

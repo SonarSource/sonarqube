@@ -21,9 +21,9 @@
 import styled from '@emotion/styled';
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { ContentCell, FlagWarningIcon, TableRow, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { ContentCell, FlagWarningIcon, TableRow, themeColor } from '~design-system';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';

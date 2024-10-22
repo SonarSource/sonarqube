@@ -19,8 +19,8 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import { ContentCell, Key, KeyboardHint, Modal, SubTitle, Table, TableRow } from 'design-system';
 import * as React from 'react';
+import { ContentCell, Key, KeyboardHint, Modal, SubTitle, Table, TableRow } from '~design-system';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate } from '../../helpers/l10n';

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { Modal, PageContentFontWrapper, Spinner } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
+import { Modal, PageContentFontWrapper, Spinner } from '~design-system';
 import { setNewCodeDefinition } from '../../../api/newCodeDefinition';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';

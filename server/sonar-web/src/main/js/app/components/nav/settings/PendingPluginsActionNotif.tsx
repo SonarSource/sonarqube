@@ -19,9 +19,9 @@
  */
 
 import { Button, ButtonGroup } from '@sonarsource/echoes-react';
-import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage } from '~design-system';
 import { cancelPendingPlugins } from '../../../../api/plugins';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import RestartButton from '../../../../components/common/RestartButton';

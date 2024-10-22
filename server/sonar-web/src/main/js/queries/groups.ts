@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { infiniteQueryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createGroup, deleteGroup, getUsersGroups, updateGroup } from '../api/user_groups';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';

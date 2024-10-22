@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { IconError } from '@sonarsource/echoes-react';
-import { FormField, Highlight, InputField, Note, RequiredIcon, TextError } from 'design-system';
-import React from 'react';
 import { useIntl } from 'react-intl';
+import { FormField, Highlight, InputField, Note, RequiredIcon, TextError } from '~design-system';
 import { isDefined } from '../../../../helpers/types';
 import { DefinitionV2, ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { getPropertyDescription, getPropertyName, isSecuredDefinition } from '../../utils';

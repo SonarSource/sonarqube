@@ -20,7 +20,6 @@
 
 import { Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
 import EmptySearch from '../../../components/common/EmptySearch';

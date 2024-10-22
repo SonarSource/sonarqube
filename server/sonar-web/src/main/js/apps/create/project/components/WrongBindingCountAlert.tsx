@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Link } from '@sonarsource/echoes-react';
-import { FlagMessage } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage } from '~design-system';
 import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { translate } from '../../../../helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../../helpers/urls';

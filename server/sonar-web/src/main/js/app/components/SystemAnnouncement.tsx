@@ -19,9 +19,9 @@
  */
 
 import styled from '@emotion/styled';
-import { FlagWarningIcon, themeBorder, themeColor } from 'design-system';
 import { keyBy, throttle } from 'lodash';
 import * as React from 'react';
+import { FlagWarningIcon, themeBorder, themeColor } from '~design-system';
 import { getValues } from '../../api/settings';
 import { Feature } from '../../types/features';
 import { GlobalSettingKeys } from '../../types/settings';

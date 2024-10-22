@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage } from 'design-system';
+
 import React, { Component, lazy, Suspense } from 'react';
+import { FlagMessage } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import { requestTryAndRepeatUntil } from '../../helpers/request';
 

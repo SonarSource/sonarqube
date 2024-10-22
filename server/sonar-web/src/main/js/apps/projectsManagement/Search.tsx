@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { sortBy } from 'lodash';
+import * as React from 'react';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import {
   ButtonSecondary,
   Checkbox,
@@ -27,10 +30,7 @@ import {
   InputSearch,
   InputSelect,
   Spinner,
-} from 'design-system';
-import { sortBy } from 'lodash';
-import * as React from 'react';
-import { OptionProps, SingleValueProps, components } from 'react-select';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Visibility } from '~sonar-aligned/types/component';
 import { Project } from '../../api/project-management';

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Note } from 'design-system';
-import React from 'react';
+
+import { Note } from '~design-system';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import { isDiffMetric } from '../../../helpers/measures';

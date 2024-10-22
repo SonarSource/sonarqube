@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
@@ -65,7 +66,7 @@ describe('rendering', () => {
     await ui.appLoaded();
 
     // Lists all templates.
-    expect(ui.templateLink('Permission Template 1').get()).toBeInTheDocument();
+    expect(await ui.templateLink('Permission Template 1').find()).toBeInTheDocument();
     expect(ui.templateLink('Permission Template 2').get()).toBeInTheDocument();
 
     // Shows warning for browse and code viewer permissions.

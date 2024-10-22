@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FlagMessage } from 'design-system';
-import * as React from 'react';
+import { FlagMessage } from '~design-system';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 

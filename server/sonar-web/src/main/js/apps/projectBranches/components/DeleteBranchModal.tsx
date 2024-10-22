@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Modal } from '~design-system';
 import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { useDeletBranchMutation } from '../../../queries/branch';

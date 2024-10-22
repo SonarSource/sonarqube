@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonIcon,
   ButtonVariety,
   DropdownMenu,
   IconMoreVertical,
 } from '@sonarsource/echoes-react';
-import { ActionCell, Badge, ContentCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
+import { ActionCell, Badge, ContentCell, TableRowInteractive } from '~design-system';
 import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import QualityGateStatus from '../../../app/components/nav/component/branch-like/QualityGateStatus';
 import BranchLikeIcon from '../../../components/icon-mappers/BranchLikeIcon';

@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { themeColor } from 'design-system/lib';
+import { themeColor } from '~design-system';
 
 export const GridContainer = styled.div`
   --column-grids-gaps: var(--echoes-dimension-space-600);

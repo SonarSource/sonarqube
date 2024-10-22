@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { sanitizeHTMLNoSVGNoMathML } from 'design-system';
 import { diffLines } from 'diff';
 import { groupBy, keyBy } from 'lodash';
+import { sanitizeHTMLNoSVGNoMathML } from '~design-system';
 
 const NUMBER_OF_EXAMPLES = 2;
 

@@ -19,9 +19,9 @@
  */
 
 import { Button, ButtonVariety, IconCheckCircle, IconError, Text } from '@sonarsource/echoes-react';
-import { FlagMessage, FormField, InputField, Modal, Spinner } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
+import { FlagMessage, FormField, InputField, Modal, Spinner } from '~design-system';
 import EmailIput, { EmailChangeHandlerParams } from '../../../components/common/EmailInput';
 import UserPasswordInput, {
   PasswordChangeHandlerParams,

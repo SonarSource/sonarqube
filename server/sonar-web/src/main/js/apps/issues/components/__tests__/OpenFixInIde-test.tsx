@@ -21,7 +21,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { ComponentProps } from 'react';
+import { ComponentProps } from 'react';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { ComponentContext } from '../../../../app/components/componentContext/ComponentContext';
 import { mockComponent } from '../../../../helpers/mocks/component';

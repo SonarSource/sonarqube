@@ -19,9 +19,8 @@
  */
 
 import { IconFile, IconFileCode } from '@sonarsource/echoes-react';
-import { FacetBox, FacetItem } from 'design-system';
 import { without } from 'lodash';
-import * as React from 'react';
+import { FacetBox, FacetItem } from '~design-system';
 import { SOURCE_SCOPES } from '../../../helpers/constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';

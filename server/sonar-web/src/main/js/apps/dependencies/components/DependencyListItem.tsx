@@ -19,10 +19,8 @@
  */
 
 import { IconArrowRight, LinkStandalone, Text } from '@sonarsource/echoes-react';
-import { Card, Pill, PillHighlight, PillVariant } from 'design-system';
-import React from 'react';
-
 import { FormattedMessage } from 'react-intl';
+import { Card, Pill, PillHighlight, PillVariant } from '~design-system';
 import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';

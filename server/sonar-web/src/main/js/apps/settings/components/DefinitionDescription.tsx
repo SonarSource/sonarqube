@@ -19,8 +19,7 @@
  */
 
 import { Text, Tooltip } from '@sonarsource/echoes-react';
-import { SafeHTMLInjection, SanitizeLevel, SubHeading } from 'design-system';
-import * as React from 'react';
+import { SafeHTMLInjection, SanitizeLevel, SubHeading } from '~design-system';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { getPropertyDescription, getPropertyName } from '../utils';

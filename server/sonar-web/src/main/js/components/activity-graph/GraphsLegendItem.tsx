@@ -20,9 +20,8 @@
 
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Badge, CloseIcon, FlagWarningIcon, InteractiveIcon, themeBorder } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { Badge, CloseIcon, FlagWarningIcon, InteractiveIcon, themeBorder } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
 import { translateWithParameters } from '../../helpers/l10n';

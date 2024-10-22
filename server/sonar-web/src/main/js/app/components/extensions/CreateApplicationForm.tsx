@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import * as React from 'react';
 import {
   ButtonSecondary,
   FormField,
@@ -24,8 +26,7 @@ import {
   InputTextArea,
   Modal,
   RadioButton,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { createApplication } from '../../../api/application';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';

@@ -1,7 +1,14 @@
 {
   "extends": "sonarqube",
-  "plugins": ["header", "typescript-sort-keys", "eslint-plugin-local-rules"],
-  "ignorePatterns": ["eslint-local-rules/**/*"],
+  "plugins": [
+    "header",
+    "typescript-sort-keys",
+    "eslint-plugin-local-rules"
+  ],
+  "ignorePatterns": [
+    "config/jest/**/*.ts",
+    "eslint-local-rules/**/*"
+  ],
   "root": true,
   "parserOptions": {
     "project": "./tsconfig.json"
@@ -33,7 +40,7 @@
         " * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.",
         " "
       ],
-      1
+      2
     ],
     "react/forbid-component-props": [
       "error",
@@ -69,6 +76,7 @@
       }
     ],
     "react/jsx-curly-brace-presence": "warn",
+    "react/react-in-jsx-scope": "off",
     "testing-library/render-result-naming-convention": "off",
     "typescript-sort-keys/interface": "error",
     /* Local rules, defined in ./eslint-local-rules/ */

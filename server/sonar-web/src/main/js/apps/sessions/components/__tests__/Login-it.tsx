@@ -20,8 +20,7 @@
 
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { addGlobalErrorMessage } from 'design-system';
-import * as React from 'react';
+import { addGlobalErrorMessage } from '~design-system';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getLoginMessage } from '../../../../api/settings';
 import { getIdentityProviders } from '../../../../api/users';
@@ -51,8 +50,8 @@ jest.mock('../../../../api/settings', () => ({
   getLoginMessage: jest.fn().mockResolvedValue({ message: '' }),
 }));
 
-jest.mock('design-system', () => ({
-  ...jest.requireActual('design-system'),
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
   addGlobalErrorMessage: jest.fn(),
 }));
 

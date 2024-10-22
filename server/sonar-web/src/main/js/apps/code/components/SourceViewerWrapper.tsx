@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
-import { ToggleButton } from 'design-system';
 import * as React from 'react';
+import { ToggleButton } from '~design-system';
 import { Location } from '~sonar-aligned/types/router';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';

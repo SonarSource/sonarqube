@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { render } from '@testing-library/react';
-import { SafeHTMLInjection } from 'design-system/lib';
-import React from 'react';
+import { SafeHTMLInjection } from '~design-system';
 import applyCodeDifferences from '../code-difference';
 
 it('should apply diff view correctly', () => {

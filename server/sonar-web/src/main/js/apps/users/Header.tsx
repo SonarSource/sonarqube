@@ -19,9 +19,9 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Title } from '~design-system';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';

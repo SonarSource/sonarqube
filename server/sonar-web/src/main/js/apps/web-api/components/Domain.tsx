@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SafeHTMLInjection, SubTitle } from 'design-system';
 import { isEmpty } from 'lodash';
-import * as React from 'react';
+import { SafeHTMLInjection, SubTitle } from '~design-system';
 import { WebApi } from '../../../types/types';
 import { Query, actionsFilter, getActionKey } from '../utils';
 import Action from './Action';

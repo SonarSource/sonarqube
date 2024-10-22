@@ -19,6 +19,8 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
+import { isEmpty } from 'lodash';
+import { useState } from 'react';
 import {
   BasicSeparator,
   ButtonSecondary,
@@ -29,10 +31,7 @@ import {
   InputSelect,
   SubTitle,
   ToggleButton,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
-import { useState } from 'react';
+} from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';

@@ -20,9 +20,9 @@
 
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Navigate } from 'react-router-dom';
+import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getScannableProjects } from '../../../api/components';

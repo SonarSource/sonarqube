@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Accordion, Badge, TextMuted } from 'design-system';
+
 import { isEmpty } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
 import React, { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Accordion, Badge, TextMuted } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { ExcludeReferences, InternalExtension } from '../types';
 import ApiFilterContext from './ApiFilterContext';

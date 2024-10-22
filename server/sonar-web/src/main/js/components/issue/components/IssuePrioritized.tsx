@@ -19,8 +19,7 @@
  */
 
 import { Tooltip } from '@sonarsource/echoes-react';
-import { TextSubdued } from 'design-system';
-import * as React from 'react';
+import { TextSubdued } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 
 export default function IssuePrioritized() {

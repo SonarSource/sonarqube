@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, SubTitle } from 'design-system';
-import * as React from 'react';
+
+import { FlagMessage, SubTitle } from '~design-system';
 import NotificationsList from '../../../components/notifications/NotificationsList';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';

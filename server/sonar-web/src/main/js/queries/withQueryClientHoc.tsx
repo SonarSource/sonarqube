@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import * as React from 'react';
 import { ComponentClass, VFC } from 'react';
 
 export function withQueryClient<P>(

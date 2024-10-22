@@ -13,23 +13,9 @@ sonar {
 
 def webappDir = "${buildDir}/webapp"
 
-task "yarn_design-system"(type: Exec) {
-  inputs.dir('design-system/src')
-  workingDir "design-system"
-  commandLine osAdaptiveCommand(['npm', 'run', 'build-release'])
-  outputs.dir("design-system/lib")
-  outputs.cacheIf { true }
-}
-
 compileJava.onlyIf {false}
 
 task yarn_run(type: Exec) {
-  dependsOn "yarn_design-system"
-
-  tasks."yarn_design-system".getOutputs().getFiles().each {
-    inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
-  }
-
   ['config', 'public', 'scripts', 'src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
@@ -58,10 +44,8 @@ task "yarn_lint-report-ci"(type: Exec) {
 }
 
 task "yarn_validate-ci"(type: Exec) {
-  dependsOn "yarn_design-system"
-
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
-  ['config', 'src/main/js', 'design-system'].each {
+  ['config', 'src/main/js'].each {
     inputs.dir(it)
   }
   ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc', 'jest.config.js'].each {
@@ -74,8 +58,6 @@ task "yarn_validate-ci"(type: Exec) {
 }
 
 task "yarn_check-ci"(type: Exec) {
-  dependsOn "yarn_design-system"
-
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
     inputs.dir(it)
@@ -87,7 +69,7 @@ task "yarn_check-ci"(type: Exec) {
   commandLine osAdaptiveCommand(['npm', 'run', 'check-ci'])
 }
 
-def sources = fileTree(dir: "src/main/js") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "eslint-local-rules") + fileTree(dir: "__mocks__") + fileTree(dir: "design-system/config") + fileTree(dir: "design-system/src") + files("file:tailwind.config.js") + files("file:jest.config.js") + files("file:tailwind.base.config.js") + files("file:tailwind.config.js") + files("file:tailwind.utilities.js")
+def sources = fileTree(dir: "src/main/js") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "eslint-local-rules") + fileTree(dir: "__mocks__") + files("file:tailwind.config.js") + files("file:jest.config.js") + files("file:tailwind.base.config.js") + files("file:tailwind.config.js") + files("file:tailwind.utilities.js")
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
   source = sources

@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { isEqual } from 'date-fns';
-import { Badge, HelperHintIcon, LightLabel, Spinner, themeColor } from 'design-system';
 import * as React from 'react';
+import { Badge, HelperHintIcon, LightLabel, Spinner, themeColor } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { toShortISO8601String } from '../../../helpers/dates';

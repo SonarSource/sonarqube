@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { HeadingDark, LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { HeadingDark, LargeCenteredLayout, PageContentFontWrapper, Spinner } from '~design-system';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {

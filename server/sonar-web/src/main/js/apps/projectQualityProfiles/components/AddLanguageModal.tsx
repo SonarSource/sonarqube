@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FormField, InputSelect, Modal } from 'design-system';
 import { difference } from 'lodash';
 import * as React from 'react';
+import { FormField, InputSelect, Modal } from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate } from '../../../helpers/l10n';

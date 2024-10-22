@@ -19,6 +19,8 @@
  */
 
 import { Button, ButtonVariety, Checkbox, Modal, Select, Text } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   FlagMessage,
   FormField,
@@ -27,9 +29,7 @@ import {
   Note,
   SafeHTMLInjection,
   SanitizeLevel,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+} from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../components/common/DocumentationLink';

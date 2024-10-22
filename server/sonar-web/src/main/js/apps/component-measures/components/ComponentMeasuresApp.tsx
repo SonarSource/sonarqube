@@ -21,6 +21,8 @@
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   FlagMessage,
   LargeCenteredLayout,
@@ -28,9 +30,7 @@ import {
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';

@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Heading, Spinner } from '@sonarsource/echoes-react';
+import { keyBy } from 'lodash';
+import * as React from 'react';
 import {
   ButtonPrimary,
   ContentCell,
@@ -26,9 +29,7 @@ import {
   Table,
   TableRow,
   themeColor,
-} from 'design-system';
-import { keyBy } from 'lodash';
-import * as React from 'react';
+} from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
-import { InputSearch, Spinner, ToggleButton } from 'design-system';
 import { isEmpty, omit } from 'lodash';
 import * as React from 'react';
+import { InputSearch, Spinner, ToggleButton } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';

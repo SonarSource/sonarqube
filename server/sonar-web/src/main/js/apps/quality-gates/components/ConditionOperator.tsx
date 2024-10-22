@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSelect, Note } from 'design-system';
+
 import * as React from 'react';
+import { InputSelect, Note } from '~design-system';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { Metric } from '../../../types/types';
 import { getPossibleOperators } from '../utils';

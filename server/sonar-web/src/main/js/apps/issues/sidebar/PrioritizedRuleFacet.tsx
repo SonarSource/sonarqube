@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FacetBox, FacetItem } from 'design-system';
-import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { FacetBox, FacetItem } from '~design-system';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
 import { FacetItemsList } from './FacetItemsList';

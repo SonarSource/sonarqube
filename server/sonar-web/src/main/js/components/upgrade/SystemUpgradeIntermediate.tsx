@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Accordion, BasicSeparator, Link, Note } from 'design-system';
+
 import * as React from 'react';
+import { Accordion, BasicSeparator, Link, Note } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
 import DateFormatter from '../intl/DateFormatter';

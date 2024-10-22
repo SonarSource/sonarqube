@@ -19,6 +19,11 @@
  */
 
 import { ButtonIcon, ButtonSize, ButtonVariety, IconX } from '@sonarsource/echoes-react';
+import { omit } from 'lodash';
+import * as React from 'react';
+import { useEffect } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -28,12 +33,7 @@ import {
   Title,
   addGlobalErrorMessage,
   addGlobalSuccessMessage,
-} from 'design-system';
-import { omit } from 'lodash';
-import * as React from 'react';
-import { useEffect } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
+} from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';

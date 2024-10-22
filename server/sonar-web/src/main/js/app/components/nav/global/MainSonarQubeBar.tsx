@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { MainAppBar, SonarQubeLogo } from 'design-system';
 import * as React from 'react';
+import { MainAppBar, SonarQubeLogo } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../../../helpers/l10n';
 import { GlobalSettingKeys } from '../../../../types/settings';

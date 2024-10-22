@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getTextColor } from 'design-system';
 import * as React from 'react';
+import { getTextColor } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { getIdentityProviders } from '../../../api/users';
 import { IdentityProvider } from '../../../types/types';

@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   BubbleColorVal,
   HelperHintIcon,
@@ -27,8 +29,7 @@ import {
   BubbleChart as OriginalBubbleChart,
   themeColor,
   themeContrast,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey } from '~sonar-aligned/types/metrics';

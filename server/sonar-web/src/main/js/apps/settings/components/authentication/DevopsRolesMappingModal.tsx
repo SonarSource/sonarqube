@@ -19,6 +19,7 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
+import * as React from 'react';
 import {
   ButtonSecondary,
   Checkbox,
@@ -32,8 +33,7 @@ import {
   TableRow,
   TableRowInteractive,
   TrashIcon,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import PermissionHeader from '../../../../components/permissions/PermissionHeader';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import {

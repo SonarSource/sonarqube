@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import React from 'react';
+import { useIntl } from 'react-intl';
 import {
   Card,
   CheckIcon,
@@ -28,9 +31,7 @@ import {
   StandoutLink,
   SubTitle,
   SubnavigationFlowSeparator,
-} from 'design-system';
-import React from 'react';
-import { useIntl } from 'react-intl';
+} from '~design-system';
 import { Status } from '~sonar-aligned/types/common';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import useLocalStorage from '../../../hooks/useLocalStorage';

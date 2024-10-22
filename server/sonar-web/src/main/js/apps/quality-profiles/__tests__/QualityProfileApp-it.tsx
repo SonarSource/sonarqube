@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -162,7 +163,7 @@ describe('Admin or user with permission', () => {
     it('should not be able to grant permission if the profile is built-in', async () => {
       renderQualityProfile('sonar');
       await ui.waitForDataLoaded();
-      expect(screen.getByRole('heading', { name: /\bSonar way\b/ })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: /\bSonar way\b/ })).toBeInTheDocument();
       expect(ui.permissionSection.query()).not.toBeInTheDocument();
     });
   });
@@ -390,7 +391,7 @@ describe('Admin or user with permission', () => {
       expect(ui.setAsDefaultButton.get()).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it("should be able to delete a Quality Profile and it's children", async () => {
+    it('should be able to delete a Quality Profile and its children', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
       await ui.waitForDataLoaded();
@@ -406,7 +407,7 @@ describe('Admin or user with permission', () => {
       ).toBeInTheDocument();
       await user.click(ui.dialog.byRole('button', { name: 'delete' }).get());
 
-      expect(ui.qualityProfilesHeader.get()).toBeInTheDocument();
+      expect(await ui.qualityProfilesHeader.find()).toBeInTheDocument();
       // children
       expect(screen.queryByText('PHP way')).not.toBeInTheDocument();
       expect(screen.queryByText('Good old PHP quality profile')).not.toBeInTheDocument();

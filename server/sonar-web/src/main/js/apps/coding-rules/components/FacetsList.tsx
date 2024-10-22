@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator } from 'design-system';
-import * as React from 'react';
+
+import { BasicSeparator } from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import SeverityFacet from '../../../components/facets/SeverityFacet';

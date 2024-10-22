@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary } from 'design-system';
+
 import * as React from 'react';
+import { ButtonSecondary } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { ComponentQualifier } from '~sonar-aligned/types/component';

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonIcon, ButtonVariety, IconSearch } from '@sonarsource/echoes-react';
-import { DropdownMenu, InputSearch, Popup, PopupZLevel, TextMuted } from 'design-system';
 import { debounce, isEmpty, uniqBy } from 'lodash';
 import * as React from 'react';
+import { DropdownMenu, InputSearch, Popup, PopupZLevel, TextMuted } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Router } from '~sonar-aligned/types/router';

@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { useState } from 'react';
+import { useIntl } from 'react-intl';
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -25,10 +28,7 @@ import {
   ItemDivider,
   PageContentFontWrapper,
   Spinner,
-} from 'design-system';
-import * as React from 'react';
-import { useState } from 'react';
-import { useIntl } from 'react-intl';
+} from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { IssueActions, IssueTransition } from '../../../types/issues';
 import { Issue } from '../../../types/types';

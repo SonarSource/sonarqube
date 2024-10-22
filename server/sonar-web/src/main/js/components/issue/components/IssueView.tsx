@@ -21,8 +21,8 @@
 import styled from '@emotion/styled';
 import { Checkbox } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { BasicSeparator, themeBorder } from 'design-system';
 import * as React from 'react';
+import { BasicSeparator, themeBorder } from '~design-system';
 import { deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';

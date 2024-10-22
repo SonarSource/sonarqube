@@ -19,9 +19,8 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import { LightPrimary, Title } from 'design-system';
-import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { LightPrimary, Title } from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';

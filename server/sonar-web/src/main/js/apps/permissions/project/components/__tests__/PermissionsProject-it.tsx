@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
@@ -92,9 +93,8 @@ describe('rendering', () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
     renderPermissionsProjectApp({ qualifier, visibility: Visibility.Private });
-    await ui.appLoaded();
 
-    expect(screen.getByText(description)).toBeInTheDocument();
+    expect(await screen.findByText(description)).toBeInTheDocument();
     permissions.forEach((permission) => {
       expect(ui.projectPermissionCheckbox('johndoe', permission).get()).toBeInTheDocument();
     });

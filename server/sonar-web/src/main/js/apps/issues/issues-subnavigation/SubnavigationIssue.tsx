@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { noop } from 'lodash';
+import * as React from 'react';
 import {
   BareButton,
   IssueMessageHighlighting,
   SubnavigationItem,
   themeColor,
   themeContrast,
-} from 'design-system';
-import { noop } from 'lodash';
-import * as React from 'react';
+} from '~design-system';
 import { Issue } from '../../../types/types';
 import IssueItemLocationsQuantity from './IssueItemLocationsQuantity';
 import IssueLocationsNavigator from './IssueLocationsNavigator';

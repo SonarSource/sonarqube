@@ -19,6 +19,9 @@
  */
 
 import { Checkbox, RadioButtonGroup, Spinner } from '@sonarsource/echoes-react';
+import { countBy, flattenDeep, pickBy, sortBy } from 'lodash';
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -27,10 +30,7 @@ import {
   InputTextArea,
   LightLabel,
   Modal,
-} from 'design-system';
-import { countBy, flattenDeep, pickBy, sortBy } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import FormattingTips from '../../../components/common/FormattingTips';

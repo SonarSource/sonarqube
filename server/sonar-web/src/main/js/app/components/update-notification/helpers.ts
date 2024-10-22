@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Variant } from 'design-system';
 import { isEmpty } from 'lodash';
+import { Variant } from '~design-system';
 import { UpdateUseCase, sortUpgrades } from '../../../components/upgrade/utils';
 import { SystemUpgrade } from '../../../types/system';
 import { Dict } from '../../../types/types';

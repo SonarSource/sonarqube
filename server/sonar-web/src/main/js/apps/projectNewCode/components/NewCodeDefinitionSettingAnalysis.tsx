@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { subDays } from 'date-fns';
-import { SelectionCard } from 'design-system';
-import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { SelectionCard } from '~design-system';
 import { getProjectActivity } from '../../../api/projectActivity';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import NewCodeDefinitionAnalysisWarning from '../../../components/new-code-definition/NewCodeDefinitionAnalysisWarning';

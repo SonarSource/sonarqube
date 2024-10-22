@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { mockQualityProfile } from '../../../helpers/testMocks';
 import { QP_1, QP_2, QP_2_Parent, QP_3, QP_4, QP_5, QP_6 } from './ids';
 

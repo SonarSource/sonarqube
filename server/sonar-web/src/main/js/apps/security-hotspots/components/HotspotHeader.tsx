@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { IconLink } from '@sonarsource/echoes-react';
 import {
   ClipboardIconButton,
@@ -25,8 +26,7 @@ import {
   LightPrimary,
   Link,
   StyledPageTitle,
-} from 'design-system';
-import React from 'react';
+} from '~design-system';
 import { getComponentSecurityHotspotsUrl } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';

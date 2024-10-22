@@ -20,9 +20,9 @@
 
 import styled from '@emotion/styled';
 import { Button, ButtonVariety, Checkbox } from '@sonarsource/echoes-react';
-import { InputSearch, LightPrimary, themeBorder, themeColor } from 'design-system';
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { InputSearch, LightPrimary, themeBorder, themeColor } from '~design-system';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { getBaseUrl } from '../../../../helpers/system';
 import { GithubRepository, GitlabProject } from '../../../../types/alm-integration';

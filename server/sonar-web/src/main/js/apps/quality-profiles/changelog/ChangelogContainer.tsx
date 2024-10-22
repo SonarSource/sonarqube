@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, Spinner } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';

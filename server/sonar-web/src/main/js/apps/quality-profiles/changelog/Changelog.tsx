@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { isSameMinute } from 'date-fns';
+import { sortBy } from 'lodash';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   CellComponent,
   ContentCell,
@@ -28,10 +31,7 @@ import {
   Table,
   TableRow,
   TableRowInteractive,
-} from 'design-system';
-import { sortBy } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+} from '~design-system';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { parseDate } from '../../../helpers/dates';
 import { isDefined } from '../../../helpers/types';

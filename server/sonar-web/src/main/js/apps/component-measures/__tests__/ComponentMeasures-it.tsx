@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
@@ -43,8 +44,9 @@ jest.mock('lodash', () => ({
 
 jest.mock('../../../api/metrics', () => {
   const { DEFAULT_METRICS } = jest.requireActual('../../../helpers/mocks/metrics');
+  const { MetricKey } = jest.requireActual('~sonar-aligned/types/metrics');
   const metrics = Object.values(MetricKey).map(
-    (key) => DEFAULT_METRICS[key] ?? mockMetric({ key }),
+    (key: MetricKey) => DEFAULT_METRICS[key] ?? mockMetric({ key }),
   );
   return {
     getAllMetrics: jest.fn().mockResolvedValue(metrics),

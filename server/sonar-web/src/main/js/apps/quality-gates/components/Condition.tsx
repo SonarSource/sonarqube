@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   Button,
   ButtonIcon,
@@ -25,8 +26,7 @@ import {
   IconDelete,
   ModalAlert,
 } from '@sonarsource/echoes-react';
-import { ActionCell, ContentCell, NumericalCell, TableRow, TextError } from 'design-system';
-import * as React from 'react';
+import { ActionCell, ContentCell, NumericalCell, TableRow, TextError } from '~design-system';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { getOperatorLabel } from '../../../helpers/qualityGates';

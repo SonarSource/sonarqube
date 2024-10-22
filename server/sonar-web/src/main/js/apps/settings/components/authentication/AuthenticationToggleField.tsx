@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Switch } from 'design-system';
-import React from 'react';
+
+import { Switch } from '~design-system';
 
 interface SamlToggleFieldProps {
   ariaDescribedby: string;

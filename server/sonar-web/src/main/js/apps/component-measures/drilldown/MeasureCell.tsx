@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { NumericalCell } from 'design-system';
-import * as React from 'react';
+
+import { NumericalCell } from '~design-system';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';

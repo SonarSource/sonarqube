@@ -19,8 +19,8 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
+import { FormField, InputField, Modal } from '~design-system';
 import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';

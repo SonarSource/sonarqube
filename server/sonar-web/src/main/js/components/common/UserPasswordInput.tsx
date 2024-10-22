@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { IconCheck, IconCheckCircle, IconError, IconX, Text } from '@sonarsource/echoes-react';
-import { FormField, InputField, InputSizeKeys } from 'design-system';
 import * as React from 'react';
+import { FormField, InputField, InputSizeKeys } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import FocusOutHandler from '../controls/FocusOutHandler';
 

@@ -21,9 +21,9 @@
 import styled from '@emotion/styled';
 import { Link, Spinner } from '@sonarsource/echoes-react';
 import { formatDistance } from 'date-fns';
-import { CheckIcon, FlagMessage, FlagWarningIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { CheckIcon, FlagMessage, FlagWarningIcon, themeColor } from '~design-system';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AlmKeys } from '../../types/alm-settings';
 import { AlmSyncStatus } from '../../types/provisioning';

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byPlaceholderText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -27,6 +28,7 @@ import GitlabProvisioningServiceMock from '../../../api/mocks/GitlabProvisioning
 import PermissionsServiceMock from '../../../api/mocks/PermissionsServiceMock';
 import ProjectManagementServiceMock from '../../../api/mocks/ProjectsManagementServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { getComponentNavigation } from '../../../api/navigation';
 import { mockGitlabConfiguration } from '../../../helpers/mocks/alm-integrations';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockGitHubConfiguration } from '../../../helpers/mocks/dop-translation';
@@ -50,8 +52,10 @@ const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
 const gitlabHandler = new GitlabProvisioningServiceMock();
 const handler = new ProjectManagementServiceMock(settingsHandler);
 
-jest.mock('../../../api/navigation', () => ({
-  getComponentNavigation: jest.fn().mockImplementation(async ({ component }) => {
+jest.mock('../../../api/navigation', () => ({ getComponentNavigation: jest.fn() }));
+
+beforeAll(() => {
+  jest.mocked(getComponentNavigation).mockImplementation(async ({ component }) => {
     const canBrowseProjectResponse = await permissionsHandler.handleGetPermissionUsersForComponent({
       projectKey: component,
       q: login,
@@ -71,8 +75,8 @@ jest.mock('../../../api/navigation', () => ({
         },
       }),
     );
-  }),
-}));
+  });
+});
 
 const ui = {
   pageDescription: byText('projects_management.page.description'),
@@ -200,9 +204,17 @@ it('should filter projects', async () => {
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   await user.click(ui.analysisDateFilter.get());
   await user.click(await screen.findByRole('gridcell', { name: '5' }));
-  expect(ui.row.getAll()).toHaveLength(3);
+
+  await waitFor(() => {
+    expect(ui.row.getAll()).toHaveLength(3);
+  });
+
   await user.click(ui.provisionedFilter.get());
-  expect(ui.row.getAll()).toHaveLength(2);
+
+  await waitFor(() => {
+    expect(ui.row.getAll()).toHaveLength(2);
+  });
+
   expect(ui.row.getAll()[1]).toHaveTextContent('Project 4');
 
   await user.click(ui.qualifierFilter.get());
@@ -262,7 +274,11 @@ it('should delete projects, but not Portfolios or Applications', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   expect(await ui.deleteProjects.find()).toBeDisabled();
-  expect(ui.row.getAll()).toHaveLength(5);
+
+  await waitFor(() => {
+    expect(ui.row.getAll()).toHaveLength(5);
+  });
+
   await user.click(ui.checkbox('Project 1').get());
   await user.click(ui.checkbox('Project 2').get());
 
@@ -285,17 +301,21 @@ describe('Bulk permission templates', () => {
     renderProjectManagementApp();
 
     expect(await ui.bulkApplyButton.find()).toBeDisabled();
-    const projects = ui.row.getAll().slice(1);
-    expect(projects).toHaveLength(11);
+
+    await waitFor(() => {
+      const projects = ui.row.getAll().slice(1);
+      expect(projects).toHaveLength(11);
+    });
+
     await user.click(ui.checkAll.get());
     expect(ui.bulkApplyButton.get()).toBeEnabled();
 
     await user.click(ui.bulkApplyButton.get());
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
-      ui.bulkApplyDialog
+      await ui.bulkApplyDialog
         .byText('permission_templates.bulk_apply_permission_template.apply_to_selected.11')
-        .get(),
+        .find(),
     ).toBeInTheDocument();
 
     await user.click(ui.bulkApplyDialog.by(ui.apply).get());
@@ -315,9 +335,9 @@ describe('Bulk permission templates', () => {
 
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
-      ui.bulkApplyDialog
+      await ui.bulkApplyDialog
         .byText('permission_templates.bulk_apply_permission_template.apply_to_selected.2')
-        .get(),
+        .find(),
     ).toBeInTheDocument();
 
     await user.click(ui.bulkApplyDialog.by(ui.selectTemplate('required')).get());
@@ -343,15 +363,19 @@ describe('Bulk permission templates', () => {
     renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
 
     expect(await ui.bulkApplyButton.find()).toBeDisabled();
-    const projects = ui.row.getAll().slice(1);
-    expect(projects).toHaveLength(11);
+
+    await waitFor(() => {
+      const projects = ui.row.getAll().slice(1);
+      expect(projects).toHaveLength(11);
+    });
+
     await user.click(ui.checkAll.get());
     expect(ui.bulkApplyButton.get()).toBeEnabled();
 
     await user.click(ui.bulkApplyButton.get());
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
-      within(ui.bulkApplyDialog.get()).getByText(
+      await within(ui.bulkApplyDialog.get()).findByText(
         'permission_templates.bulk_apply_permission_template.apply_to_only_managed_projects.alm.github',
       ),
     ).toBeInTheDocument();
@@ -372,15 +396,19 @@ describe('Bulk permission templates', () => {
     renderProjectManagementApp({}, {}, { featureList: [Feature.GitlabProvisioning] });
 
     expect(await ui.bulkApplyButton.find()).toBeDisabled();
-    const projects = ui.row.getAll().slice(1);
-    expect(projects).toHaveLength(11);
+
+    await waitFor(() => {
+      const projects = ui.row.getAll().slice(1);
+      expect(projects).toHaveLength(11);
+    });
+
     await user.click(ui.checkAll.get());
     expect(ui.bulkApplyButton.get()).toBeEnabled();
 
     await user.click(ui.bulkApplyButton.get());
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
-      within(ui.bulkApplyDialog.get()).getByText(
+      await within(ui.bulkApplyDialog.get()).findByText(
         'permission_templates.bulk_apply_permission_template.apply_to_only_managed_projects.alm.gitlab',
       ),
     ).toBeInTheDocument();
@@ -405,15 +433,19 @@ describe('Bulk permission templates', () => {
     renderProjectManagementApp({}, {}, { featureList: [Feature.GitlabProvisioning] });
 
     expect(await ui.bulkApplyButton.find()).toBeDisabled();
-    const projects = ui.row.getAll().slice(1);
-    expect(projects).toHaveLength(11);
+
+    await waitFor(() => {
+      const projects = ui.row.getAll().slice(1);
+      expect(projects).toHaveLength(11);
+    });
+
     await user.click(ui.checkAll.get());
     expect(ui.bulkApplyButton.get()).toBeEnabled();
 
     await user.click(ui.bulkApplyButton.get());
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
-      within(ui.bulkApplyDialog.get()).getByText(
+      await within(ui.bulkApplyDialog.get()).findByText(
         /permission_templates.bulk_apply_permission_template.apply_to_selected.5/,
       ),
     ).toBeInTheDocument();
@@ -444,15 +476,18 @@ it('should not be applied to managed GitHub projects but to local project', asyn
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
 
   expect(await ui.bulkApplyButton.find()).toBeDisabled();
-  const projects = ui.row.getAll().slice(1);
-  expect(projects).toHaveLength(11);
+
+  await waitFor(() => {
+    const projects = ui.row.getAll().slice(1);
+    expect(projects).toHaveLength(11);
+  });
   await user.click(ui.checkAll.get());
   expect(ui.bulkApplyButton.get()).toBeEnabled();
 
   await user.click(ui.bulkApplyButton.get());
   expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
   expect(
-    within(ui.bulkApplyDialog.get()).getByText(
+    await within(ui.bulkApplyDialog.get()).findByText(
       /permission_templates.bulk_apply_permission_template.apply_to_selected.5/,
     ),
   ).toBeInTheDocument();
@@ -493,8 +528,13 @@ it('should load more and change the filter without caching old pages', async () 
 
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(51));
   await user.click(ui.showMore.get());
+
+  // WaitFor to wait for the rerender
+  await waitFor(() => {
+    expect(ui.row.getAll()).toHaveLength(61);
+  });
   const projectRows = ui.row.getAll();
-  expect(projectRows).toHaveLength(61);
+
   expect(projectRows[1]).toHaveTextContent('Project 0');
   expect(projectRows[60]).toHaveTextContent('Project 59');
 
@@ -507,8 +547,12 @@ it('should load more and change the filter without caching old pages', async () 
   expect(portfolioRows[1]).toHaveTextContent('Portfolio 0');
 
   await user.click(ui.showMore.get());
+
+  // WaitFor to wait for the rerender
+  await waitFor(() => {
+    expect(ui.row.getAll()).toHaveLength(61);
+  });
   const allPortfolioRows = ui.row.getAll();
-  expect(allPortfolioRows).toHaveLength(61);
   expect(allPortfolioRows[1]).toHaveTextContent('Portfolio 0');
   expect(allPortfolioRows[60]).toHaveTextContent('Portfolio 59');
 });
@@ -545,7 +589,7 @@ it('should apply template for single object', async () => {
 
   expect(ui.applyTemplateDialog.get()).toBeInTheDocument();
 
-  await user.click(ui.applyTemplateDialog.by(ui.selectTemplate('required')).get());
+  await user.click(await ui.applyTemplateDialog.by(ui.selectTemplate('required')).find());
   await user.click(byRole('option', { name: 'Permission Template 2' }).get());
 
   await user.click(ui.applyTemplateDialog.by(ui.apply).get());
@@ -609,10 +653,11 @@ it('should not allow to restore access on github project for GH user', async () 
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   await user.click(await ui.projectActions('Project 4').find());
+  expect(await ui.noActionsAvailable.find()).toBeInTheDocument();
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   await user.click(await ui.projectActions('Project 1').find());
+  expect(await ui.restoreAccess.find()).toBeInTheDocument();
   expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
-  expect(ui.restoreAccess.get()).toBeInTheDocument();
 });
 
 it('should show github warning on changing default visibility to admin', async () => {
@@ -641,9 +686,9 @@ it('should not apply permissions for github projects', async () => {
   expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
   await user.click(ui.projectActions('Project 1').get());
+  expect(await ui.editPermissions.find()).toBeInTheDocument();
   expect(ui.applyPermissionTemplate.get()).toBeInTheDocument();
   expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
-  expect(ui.editPermissions.get()).toBeInTheDocument();
   expect(ui.showPermissions.query()).not.toBeInTheDocument();
 });
 

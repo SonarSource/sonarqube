@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { CodeSnippet, Link, Note, SubHeading } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { CodeSnippet, Link, Note, SubHeading } from '~design-system';
 import { GRADLE_SCANNER_VERSION } from '../../../../helpers/constants';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';

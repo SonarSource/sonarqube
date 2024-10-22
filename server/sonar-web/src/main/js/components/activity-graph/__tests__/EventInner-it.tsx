@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';

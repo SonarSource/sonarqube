@@ -19,8 +19,8 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { HelperHintIcon, Title } from 'design-system';
 import * as React from 'react';
+import { HelperHintIcon, Title } from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { DocLink } from '../../../helpers/doc-links';

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { AutoSizerProps } from 'react-virtualized';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
@@ -86,7 +86,7 @@ it('changes sort and perspective', async () => {
   await user.click(await ui.sortSelect.find());
   await user.click(screen.getByText('projects.sorting.size'));
 
-  const projects = ui.projects.getAll();
+  const projects = await ui.projects.findAll();
 
   expect(await within(projects[0]).findByRole('link')).toHaveTextContent(
     'sonarlint-omnisharp-dotnet',
@@ -115,7 +115,7 @@ it('handles showing favorite projects on load', async () => {
 
   await user.click(ui.allToggleOption.get());
 
-  expect(ui.projects.getAll()).toHaveLength(20);
+  expect(await ui.projects.findAll()).toHaveLength(20);
 });
 
 function renderProjects(navigateTo?: string) {

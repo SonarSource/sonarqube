@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FlagMessage, IssueMessageHighlighting, LineFinding, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage, IssueMessageHighlighting, LineFinding, themeColor } from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getSources } from '../../../api/components';
 import { TabKeys } from '../../../components/rules/IssueTabViewer';

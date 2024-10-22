@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor } from '@testing-library/react';
+
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
@@ -741,26 +741,23 @@ it('accessibility', async () => {
 
   // user list page should be accessible
   expect(await ui.aliceRow.find()).toBeInTheDocument();
-  await expect(document.body).toHaveNoA11yViolations();
+  await act(async () => {
+    await expect(document.body).toHaveNoA11yViolations();
+  });
 
   // user creation dialog should be accessible
   await user.click(await ui.createUserButton.find());
-  expect(await ui.dialogCreateUser.find()).toBeInTheDocument();
   await expect(await ui.dialogCreateUser.find()).toHaveNoA11yViolations();
-
   await user.click(ui.cancelButton.get());
 
   // users group membership dialog should be accessible
   await user.click(await ui.aliceUpdateGroupButton.find());
-  expect(await ui.dialogGroups.find()).toBeInTheDocument();
   await expect(await ui.dialogGroups.find()).toHaveNoA11yViolations();
-
   await user.click(ui.doneButton.get());
 
   // user update dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
   await user.click(await byText('update_details').find());
-  expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
   await expect(await ui.dialogUpdateUser.find()).toHaveNoA11yViolations();
   await user.click(ui.cancelButton.get());
 
@@ -772,16 +769,14 @@ it('accessibility', async () => {
       })
       .find(),
   );
-
-  expect(await ui.dialogTokens.find()).toBeInTheDocument();
   await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
   await user.click(ui.closeButton.get());
 
   // user password dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
   await user.click(await byText('my_profile.password.title').find());
-  expect(await ui.dialogPasswords.find()).toBeInTheDocument();
   await expect(await ui.dialogPasswords.find()).toHaveNoA11yViolations();
+  await user.click(ui.cancelButton.get());
 });
 
 function renderUsersApp(featureList: Feature[] = [], currentUser?: CurrentUser) {

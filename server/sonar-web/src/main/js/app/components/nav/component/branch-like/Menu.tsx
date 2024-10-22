@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DropdownMenu, InputSearch, ItemDivider, Link } from 'design-system';
+
 import * as React from 'react';
+import { DropdownMenu, InputSearch, ItemDivider, Link } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';

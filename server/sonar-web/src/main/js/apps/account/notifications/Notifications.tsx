@@ -19,9 +19,8 @@
  */
 
 import { Heading, Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, GreySeparator } from 'design-system';
-import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { FlagMessage, GreySeparator } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { useNotificationsQuery } from '../../../queries/notifications';
 import GlobalNotifications from './GlobalNotifications';

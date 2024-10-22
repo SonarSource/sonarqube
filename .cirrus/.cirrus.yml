@@ -58,14 +58,12 @@ eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
   eslint_report_cache:
     folders:
       - server/sonar-web/eslint-report/
-      - server/sonar-web/design-system/eslint-report/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
   jest_report_cache:
     folders:
       - server/sonar-web/coverage/
-      - server/sonar-web/design-system/coverage/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE

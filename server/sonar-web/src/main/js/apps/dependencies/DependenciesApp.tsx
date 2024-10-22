@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Spinner, Text } from '@sonarsource/echoes-react';
-import { InputSearch, LargeCenteredLayout } from 'design-system';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
+import { InputSearch, LargeCenteredLayout } from '~design-system';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';

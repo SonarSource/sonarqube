@@ -19,9 +19,8 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import { Note, getTabPanelId } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Note, getTabPanelId } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';

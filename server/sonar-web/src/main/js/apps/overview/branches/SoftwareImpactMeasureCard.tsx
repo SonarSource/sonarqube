@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone, Text, Tooltip } from '@sonarsource/echoes-react';
-import { Badge, themeColor } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { Badge, themeColor } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';

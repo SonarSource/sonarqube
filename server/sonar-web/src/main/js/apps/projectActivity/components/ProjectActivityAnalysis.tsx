@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   ButtonIcon,
@@ -26,9 +27,9 @@ import {
   IconMoreVertical,
 } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { HelperHintIcon, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { HelperHintIcon, themeBorder, themeColor } from '~design-system';
 import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
 import Tooltip from '../../../components/controls/Tooltip';
 import { formatterOption } from '../../../components/intl/DateTimeFormatter';

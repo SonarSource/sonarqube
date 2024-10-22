@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
-import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { FacetKey } from '../../apps/coding-rules/query';

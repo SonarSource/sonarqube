@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import * as React from 'react';
 import {
   ContentCell,
   DarkLabel,
@@ -26,8 +27,7 @@ import {
   SafeHTMLInjection,
   Table,
   TableRow,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebApi } from '../../../types/types';
 import DeprecatedBadge from './DeprecatedBadge';

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { mockCondition, mockMetric } from '../../../helpers/testMocks';
 import { Condition } from '../../../types/types';

@@ -20,10 +20,10 @@
 
 import styled from '@emotion/styled';
 import { Button, ButtonVariety, Link, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
-import { Card, CenteredLayout, Note, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
+import { Card, CenteredLayout, Note, Title } from '~design-system';
 import { getMigrationsStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import InstanceMessage from '../../../components/common/InstanceMessage';

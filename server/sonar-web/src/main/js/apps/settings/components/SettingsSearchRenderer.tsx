@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
+import * as React from 'react';
 import {
   DropdownMenu,
   InputSearch,
@@ -28,8 +30,7 @@ import {
   Popup,
   PopupPlacement,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';

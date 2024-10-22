@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonIcon,
   ButtonSize,
@@ -24,8 +25,8 @@ import {
   IconMoreVertical,
   Spinner,
 } from '@sonarsource/echoes-react';
-import { ActionCell, Avatar, ContentCell, TableRow } from 'design-system';
 import * as React from 'react';
+import { ActionCell, Avatar, ContentCell, TableRow } from '~design-system';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useUserGroupsCountQuery } from '../../../queries/group-memberships';

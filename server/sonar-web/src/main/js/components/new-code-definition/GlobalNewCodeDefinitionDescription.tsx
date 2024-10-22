@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { TextSubdued } from 'design-system';
-import * as React from 'react';
+import { TextSubdued } from '~design-system';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-definition';
 

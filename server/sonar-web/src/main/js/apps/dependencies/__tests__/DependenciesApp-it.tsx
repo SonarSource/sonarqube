@@ -21,7 +21,7 @@
 import { byRole, byText } from '../../../sonar-aligned/helpers/testSelector';
 
 import userEvent from '@testing-library/user-event';
-import { DEBOUNCE_DELAY } from 'design-system';
+import { DEBOUNCE_DELAY } from '~design-system';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import DependenciesServiceMock from '../../../api/mocks/DependenciesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';

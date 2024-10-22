@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SpotlightTour, SpotlightTourStep } from 'design-system';
+
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { SpotlightTour, SpotlightTourStep } from '~design-system';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import Link from '../../../components/common/Link';

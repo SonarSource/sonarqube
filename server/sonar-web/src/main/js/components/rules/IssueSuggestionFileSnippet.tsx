@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { max } from 'lodash';
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 
 import {
   ClipboardIconButton,
@@ -28,7 +29,7 @@ import {
   LineCodeEllipsisStyled,
   SonarCodeColorizer,
   themeColor,
-} from 'design-system';
+} from '~design-system';
 import { OpenFixInIde } from '../../apps/issues/components/OpenFixInIde';
 import { IssueSourceViewerHeader } from '../../apps/issues/crossComponentSourceViewer/IssueSourceViewerHeader';
 import { translate } from '../../helpers/l10n';

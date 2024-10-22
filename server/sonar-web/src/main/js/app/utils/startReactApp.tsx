@@ -22,8 +22,6 @@ import { ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled';
 import { EchoesProvider } from '@sonarsource/echoes-react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ToastMessageContainer, lightTheme } from 'design-system';
-import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { IntlShape, RawIntlProvider } from 'react-intl';
@@ -33,6 +31,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
+import { ToastMessageContainer, lightTheme } from '~design-system';
 import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import accountRoutes from '../../apps/account/routes';
 import auditLogsRoutes from '../../apps/audit-logs/routes';
@@ -119,12 +118,8 @@ function renderComponentRoutes() {
           element={<ProjectPageExtension />}
         />
         {projectIssuesRoutes()}
-<<<<<<< HEAD
         {dependenciesRoutes()}
-        <Route path="security_hotspots" element={<SecurityHotspotsApp />} />
-=======
         {securityHotspotsRoutes()}
->>>>>>> 6803c465323 (SONAR-23205 Add lazy loading on most routes to improve build and dev server perfs)
         {projectQualityGateRoutes()}
         {projectQualityProfilesRoutes()}
         {projectInfoRoutes()}

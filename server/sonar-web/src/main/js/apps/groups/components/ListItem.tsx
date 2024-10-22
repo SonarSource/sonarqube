@@ -19,6 +19,7 @@
  */
 
 import { ButtonIcon, DropdownMenu, IconMoreVertical } from '@sonarsource/echoes-react';
+import { useState } from 'react';
 import {
   Badge,
   ContentCell,
@@ -27,9 +28,7 @@ import {
   Spinner,
   TableRow,
   TrashIcon,
-} from 'design-system';
-import * as React from 'react';
-import { useState } from 'react';
+} from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useGroupMembersCountQuery } from '../../../queries/group-memberships';

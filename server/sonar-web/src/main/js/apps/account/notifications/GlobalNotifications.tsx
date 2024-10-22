@@ -19,7 +19,6 @@
  */
 
 import { Heading } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import NotificationsList from '../../../components/notifications/NotificationsList';
 import { translate } from '../../../helpers/l10n';
 

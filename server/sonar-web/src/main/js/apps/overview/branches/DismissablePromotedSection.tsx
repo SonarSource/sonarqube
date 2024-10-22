@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { ButtonIcon, ButtonSize, ButtonVariety, Heading, IconX } from '@sonarsource/echoes-react';
-import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from 'design-system';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

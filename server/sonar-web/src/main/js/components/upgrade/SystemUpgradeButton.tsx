@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Link } from '@sonarsource/echoes-react';
-import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
+import { ButtonSecondary } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
 import SystemUpgradeForm from './SystemUpgradeForm';

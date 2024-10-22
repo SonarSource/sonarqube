@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   DangerButtonPrimary,
   DestructiveIcon,
@@ -31,8 +32,7 @@ import {
   SanitizeLevel,
   TrashIcon,
   themeBorder,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
 import Avatar from '../../../components/ui/Avatar';

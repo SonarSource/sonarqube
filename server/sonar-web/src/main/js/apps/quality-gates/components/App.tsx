@@ -20,6 +20,9 @@
 
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { useCallback, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Card,
   LAYOUT_FOOTER_HEIGHT,
@@ -29,11 +32,7 @@ import {
   Spinner,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { useCallback, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useNavigate, useParams } from 'react-router-dom';
+} from '~design-system';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
 import { DocLink } from '../../../helpers/doc-links';

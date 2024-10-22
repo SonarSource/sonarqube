@@ -19,17 +19,17 @@
  */
 
 import styled from '@emotion/styled';
+import { maxBy } from 'lodash';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Params, useParams } from 'react-router-dom';
 import {
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
   Title,
-} from 'design-system';
-import { maxBy } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Params, useParams } from 'react-router-dom';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';

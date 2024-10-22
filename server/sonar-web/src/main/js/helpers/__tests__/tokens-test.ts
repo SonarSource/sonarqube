@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { getAllValues } from '../../api/settings';
 import { SettingsKey } from '../../types/settings';
 import { TokenExpiration } from '../../types/token';

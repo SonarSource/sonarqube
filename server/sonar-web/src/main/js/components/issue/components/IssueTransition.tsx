@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   Dropdown,
   DropdownMenuWrapper,
@@ -25,8 +27,7 @@ import {
   PopupPlacement,
   PopupZLevel,
   SearchSelectDropdownControl,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { addIssueComment, setIssueTransition } from '../../../api/issues';
 import { SESSION_STORAGE_TRANSITION_GUIDE_KEY } from '../../../apps/issues/components/IssueNewStatusAndTransitionGuide';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

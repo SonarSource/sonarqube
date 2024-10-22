@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   ButtonSecondary,
   HtmlFormatter,
@@ -28,8 +29,7 @@ import {
   SanitizeLevel,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import FormattingTipsWithLink from '../../../../components/common/FormattingTipsWithLink';
 import { translate } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';

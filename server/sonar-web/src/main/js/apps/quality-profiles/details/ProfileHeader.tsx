@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, Breadcrumbs, HoverLink, Link, PageContentFontWrapper } from 'design-system';
-import * as React from 'react';
+
 import { Helmet } from 'react-helmet-async';
+import { Badge, Breadcrumbs, HoverLink, Link, PageContentFontWrapper } from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { AdminPageHeader } from '../../../components/ui/AdminPageHeader';

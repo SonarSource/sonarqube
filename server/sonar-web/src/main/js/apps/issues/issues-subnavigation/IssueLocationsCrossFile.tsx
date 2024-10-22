@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { BareButton, themeBorder, themeContrast } from 'design-system';
-import React, { PureComponent } from 'react';
+import { PureComponent } from 'react';
+import { BareButton, themeBorder, themeContrast } from '~design-system';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 import { FlowLocation, Issue } from '../../../types/types';

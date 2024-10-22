@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import React from 'react';
+import { useIntl } from 'react-intl';
 import {
   Checkbox,
   FormField,
@@ -25,9 +28,7 @@ import {
   LightPrimary,
   RequiredIcon,
   TextError,
-} from 'design-system';
-import React from 'react';
-import { useIntl } from 'react-intl';
+} from '~design-system';
 import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import {
   CLEAN_CODE_ATTRIBUTES_BY_CATEGORY,

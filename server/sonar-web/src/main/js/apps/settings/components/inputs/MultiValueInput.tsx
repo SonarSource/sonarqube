@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonIcon, ButtonVariety, IconDelete } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translateWithParameters } from '../../../../helpers/l10n';

@@ -19,6 +19,8 @@
  */
 
 import { subDays, subSeconds } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   HelperHintIcon,
   InputSearch,
@@ -27,9 +29,7 @@ import {
   PageContentFontWrapper,
   Spinner,
   StyledPageTitle,
-} from 'design-system';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { getIdentityProviders } from '../../api/users';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';

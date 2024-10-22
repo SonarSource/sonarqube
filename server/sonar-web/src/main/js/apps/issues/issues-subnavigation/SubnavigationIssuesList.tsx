@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { themeBorder, themeColor, themeShadow } from 'design-system';
 import * as React from 'react';
+import { themeBorder, themeColor, themeShadow } from '~design-system';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Issue, Paging } from '../../../types/types';
 import SubnavigationIssue from './SubnavigationIssue';

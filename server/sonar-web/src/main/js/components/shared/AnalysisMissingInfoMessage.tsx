@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FlagMessage } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { FlagMessage } from '~design-system';
 import { DocLink } from '../../helpers/doc-links';
 import { useStandardExperienceMode } from '../../queries/settings';
 import DocumentationLink from '../common/DocumentationLink';

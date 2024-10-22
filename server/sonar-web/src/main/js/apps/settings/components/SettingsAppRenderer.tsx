@@ -19,10 +19,10 @@
  */
 
 import styled from '@emotion/styled';
-import { LargeCenteredLayout, PageContentFontWrapper, themeBorder } from 'design-system';
 import { uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { LargeCenteredLayout, PageContentFontWrapper, themeBorder } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';

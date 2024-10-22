@@ -18,6 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { sortBy, uniqBy } from 'lodash';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
 import {
   BasicSeparator,
   FlagMessage,
@@ -25,11 +29,7 @@ import {
   PageContentFontWrapper,
   Spinner,
   SubTitle,
-} from 'design-system';
-import { sortBy, uniqBy } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { getAvailablePlugins, getInstalledPlugins } from '../../api/plugins';

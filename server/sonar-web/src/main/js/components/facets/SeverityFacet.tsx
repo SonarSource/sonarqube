@@ -19,9 +19,9 @@
  */
 
 import { Popover } from '@sonarsource/echoes-react';
-import { BareButton, HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { BareButton, HelperHintIcon } from '~design-system';
 import { IMPACT_SEVERITIES } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';

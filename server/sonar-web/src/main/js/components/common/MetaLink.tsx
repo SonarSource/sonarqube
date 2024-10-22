@@ -19,8 +19,8 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import { CloseIcon, InputField, InteractiveIcon } from 'design-system';
 import React, { useState } from 'react';
+import { CloseIcon, InputField, InteractiveIcon } from '~design-system';
 import isValidUri from '../../app/utils/isValidUri';
 import { translate } from '../../helpers/l10n';
 import { getLinkName } from '../../helpers/projectLinks';

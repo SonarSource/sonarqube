@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+
+import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { keyBy } from 'lodash';
 import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
@@ -118,8 +119,8 @@ describe('issues source viewer', () => {
     renderProjectIssuesApp('project/issues?issues=issue1&open=issue1&id=myproject');
     await waitOnDataLoaded();
 
+    expect(await ui.line45.find()).toBeInTheDocument();
     expect(ui.line44.query()).not.toBeInTheDocument();
-    expect(ui.line45.get()).toBeInTheDocument();
     expect(ui.line199.query()).not.toBeInTheDocument();
 
     // Expand lines below snippet
@@ -141,7 +142,7 @@ describe('issues source viewer', () => {
 
     expect(ui.line199.query()).not.toBeInTheDocument();
 
-    await user.click(ui.expandAllLines.get());
+    await user.click(await ui.expandAllLines.find());
 
     // All lines should be rendered now
     expect(ui.line199.get()).toBeInTheDocument();
@@ -156,7 +157,7 @@ describe('issues source viewer', () => {
     expect(ui.line44.query()).not.toBeInTheDocument();
 
     // There currently are two snippet shown
-    expect(screen.getAllByRole('table')).toHaveLength(2);
+    expect(await screen.findAllByRole('table')).toHaveLength(2);
 
     // Expand lines above second snippet
     await user.click(ui.expandLinesAbove.get());
@@ -229,7 +230,7 @@ describe('issues source viewer', () => {
         await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
       ).toBeInTheDocument();
 
-      expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
+      await waitForElementToBeRemoved(screen.queryByText('issue.preview.jupyter_notebook.error'));
       expect(screen.getByTestId('hljs-sonar-underline')).toHaveTextContent('matplotlib');
       expect(screen.getByText(/pylab/, { exact: false })).toBeInTheDocument();
     });
@@ -282,7 +283,7 @@ describe('issues source viewer', () => {
         await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
       ).toBeInTheDocument();
 
-      expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
+      await waitForElementToBeRemoved(screen.queryByText('issue.preview.jupyter_notebook.error'));
 
       const underlined = screen.getAllByTestId('hljs-sonar-underline');
       expect(underlined).toHaveLength(4);

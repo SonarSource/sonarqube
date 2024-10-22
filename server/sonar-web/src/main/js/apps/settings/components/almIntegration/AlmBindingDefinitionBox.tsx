@@ -19,6 +19,7 @@
  */
 
 import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormattedMessage } from 'react-intl';
 import {
   BasicSeparator,
   ButtonSecondary,
@@ -27,9 +28,7 @@ import {
   FlagSuccessIcon,
   HelperHintIcon,
   Spinner,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import Tooltip from '../../../../components/controls/Tooltip';

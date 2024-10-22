@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ICodeCell, INotebookContent, isCode } from '@jupyterlab/nbformat';
 import { Spinner } from '@sonarsource/echoes-react';
+import React from 'react';
 import {
   FlagMessage,
   hljsUnderlinePlugin,
   IssueMessageHighlighting,
   LineFinding,
-} from 'design-system';
-import React from 'react';
+} from '~design-system';
 import { JupyterCodeCell } from '~sonar-aligned/components/SourceViewer/JupyterNotebookViewer';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getOffsetsForIssue } from '~sonar-aligned/helpers/json-issue-mapper';

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   BugIcon,
   CodeSmellIcon,
   IconProps,
   SecurityHotspotIcon,
   VulnerabilityIcon,
-} from 'design-system';
-import React from 'react';
+} from '~design-system';
 import { IssueType } from '../../types/issues';
 
 export interface Props extends IconProps {

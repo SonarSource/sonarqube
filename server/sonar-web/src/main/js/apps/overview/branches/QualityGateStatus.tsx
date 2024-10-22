@@ -19,8 +19,7 @@
  */
 
 import { Display } from '@sonarsource/echoes-react';
-import { Note, QualityGateIndicator } from 'design-system';
-import React from 'react';
+import { Note, QualityGateIndicator } from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { Status } from '../../../sonar-aligned/types/common';

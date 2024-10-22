@@ -20,9 +20,8 @@
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from '~design-system';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { DocLink } from '../../../../helpers/doc-links';
@@ -39,8 +38,8 @@ jest.mock('../../../../helpers/sonarlint', () => ({
   probeSonarLintServers: jest.fn(),
 }));
 
-jest.mock('design-system', () => ({
-  ...jest.requireActual('design-system'),
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
   addGlobalErrorMessage: jest.fn(),
   addGlobalSuccessMessage: jest.fn(),
 }));

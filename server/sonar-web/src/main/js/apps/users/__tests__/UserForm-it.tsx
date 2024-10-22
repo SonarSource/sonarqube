@@ -19,7 +19,6 @@
  */
 
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { mockRestUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';

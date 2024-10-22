@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety, DropdownMenu } from '@sonarsource/echoes-react';
-import { addGlobalErrorMessage } from 'design-system/lib';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { addGlobalErrorMessage } from '~design-system';
 import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import { translate } from '../../../helpers/l10n';

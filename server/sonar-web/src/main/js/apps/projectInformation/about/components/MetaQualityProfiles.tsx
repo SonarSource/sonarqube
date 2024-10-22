@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, Link, SubHeading } from 'design-system';
+
 import React, { useContext, useEffect } from 'react';
+import { Badge, Link, SubHeading } from '~design-system';
 import { ComponentQualityProfile } from '~sonar-aligned/types/component';
 import { searchRules } from '../../../../api/rules';
 import { LanguagesContext } from '../../../../app/components/languages/LanguagesContext';

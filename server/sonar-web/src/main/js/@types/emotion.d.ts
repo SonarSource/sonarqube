@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import '@emotion/react';
-import { Theme as SQTheme } from 'design-system';
+import { Theme as SQTheme } from '~design-system';
 
 declare module '@emotion/react' {
   export interface Theme extends SQTheme {}

@@ -19,9 +19,8 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import { FlagMessage, SubTitle, ToggleButton } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage, SubTitle, ToggleButton } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';

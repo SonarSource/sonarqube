@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { uniqBy } from 'lodash';
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import {
   ButtonSecondary,
   FlagMessage,
@@ -30,10 +33,7 @@ import {
   Note,
   Spinner,
   SubHeading,
-} from 'design-system';
-import { uniqBy } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
