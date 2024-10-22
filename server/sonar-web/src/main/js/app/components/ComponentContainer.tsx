@@ -45,6 +45,9 @@ import withAvailableFeatures, {
 import { ComponentContext } from './componentContext/ComponentContext';
 import ComponentNav from './nav/component/ComponentNav';
 import { getOrganization, getOrganizationNavigation } from "../../api/organizations";
+import { ComponentQualifier } from "~sonar-aligned/types/component";
+import { Feature } from "../../types/features";
+import { ProjectAlmBindingConfigurationErrors } from "../../types/alm-settings";
 
 const FETCH_STATUS_WAIT_TIME = 3000;
 
@@ -64,6 +67,8 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   const [component, setComponent] = React.useState<Component>();
   const [currentTask, setCurrentTask] = React.useState<Task>();
   const [tasksInProgress, setTasksInProgress] = React.useState<Task[]>();
+  const [projectBindingErrors, setProjectBindingErrors] =
+    React.useState<ProjectAlmBindingConfigurationErrors>();
   const [loading, setLoading] = React.useState(true);
   const [isPending, setIsPending] = React.useState(false);
   const { data: branchLike, isFetching } = useCurrentBranchQuery(
@@ -134,6 +139,25 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
       }
     },
     [branch, isInTutorials, pullRequest],
+  );
+
+  const fetchProjectBindingErrors = React.useCallback(
+    async (component: Component) => {
+      if (
+        component.qualifier === ComponentQualifier.Project &&
+        component.analysisDate === undefined &&
+        hasFeature(Feature.BranchSupport)
+      ) {
+        try {
+          const projectBindingErrors = await validateProjectAlmBinding(component.key);
+
+          setProjectBindingErrors(projectBindingErrors);
+        } catch {
+          // noop
+        }
+      }
+    },
+    [hasFeature],
   );
 
   const handleComponentChange = React.useCallback(
@@ -287,6 +311,7 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
             component={component}
             isInProgress={isInProgress}
             isPending={isPending}
+            projectBindingErrors={projectBindingErrors}
             comparisonBranchesEnabled={comparisonBranchesEnabled}
           />,
           portalAnchor.current,
