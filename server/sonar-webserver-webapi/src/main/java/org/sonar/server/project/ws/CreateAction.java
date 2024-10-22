@@ -42,7 +42,6 @@ import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.CreateWsResponse;
@@ -186,11 +185,11 @@ public class CreateAction implements ProjectsWsAction {
 
   private static CreateRequest toCreateRequest(Request request) {
     return CreateRequest.builder()
-      .setOrganization(request.param(PARAM_ORGANIZATION))
+      .setOrganization(request.mandatoryParam(PARAM_ORGANIZATION))
       .setProjectKey(request.mandatoryParam(PARAM_PROJECT))
       .setName(abbreviate(request.mandatoryParam(PARAM_NAME), MAX_COMPONENT_NAME_LENGTH))
-      .setVisibility(request.param(PARAM_VISIBILITY))
       .setMainBranchKey(request.param(PARAM_MAIN_BRANCH))
+      .setVisibility(request.param(PARAM_VISIBILITY))
       .setNewCodeDefinitionType(request.param(PARAM_NEW_CODE_DEFINITION_TYPE))
       .setNewCodeDefinitionValue(request.param(PARAM_NEW_CODE_DEFINITION_VALUE))
       .build();
@@ -230,7 +229,6 @@ public class CreateAction implements ProjectsWsAction {
       this.newCodeDefinitionValue = builder.newCodeDefinitionValue;
     }
 
-    @CheckForNull
     public String getOrganization() {
       return organization;
     }

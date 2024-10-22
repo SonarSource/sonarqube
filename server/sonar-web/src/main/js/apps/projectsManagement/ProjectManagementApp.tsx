@@ -204,7 +204,6 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
   render() {
     const { organization, currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
-    const { actions = {} } = organization;
 
     return (
       <LargeCenteredLayout as="main" id="projects-management-page">
@@ -213,8 +212,9 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
 
           <Header
             defaultProjectVisibility={defaultProjectVisibility}
-            hasProvisionPermission={actions.provision}
+            hasProvisionPermission={organization.actions?.provision}
             onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
+            onCreateProjectFormClosed={this.requestProjects}
           />
 
           <Search

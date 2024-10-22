@@ -24,16 +24,18 @@ import { useState } from 'react';
 import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
+import CreateProjectForm from "./CreateProjectForm";
 
 export interface Props {
   defaultProjectVisibility?: Visibility;
   hasProvisionPermission?: boolean;
   onChangeDefaultProjectVisibility: (visibility: Visibility) => void;
-  onProjectCreate: () => void;
+  onCreateProjectFormClosed: () => void;
 }
 
 export default function Header(props: Readonly<Props>) {
   const [visibilityForm, setVisibilityForm] = useState(false);
+  const [createProjectForm, setCreateProjectForm] = useState(false);
 
   const { defaultProjectVisibility, hasProvisionPermission } = props;
 
@@ -45,7 +47,7 @@ export default function Header(props: Readonly<Props>) {
           {hasProvisionPermission && (
             <Button
               id="create-project"
-              onClick={props.onProjectCreate}
+              onClick={() => setCreateProjectForm(true)}
               variety={ButtonVariety.Primary}
             >
               {translate('qualifiers.create.TRK')}
@@ -63,6 +65,15 @@ export default function Header(props: Readonly<Props>) {
           onConfirm={props.onChangeDefaultProjectVisibility}
         />
       )}
+
+      <CreateProjectForm
+        isOpen={createProjectForm}
+        onOpenChange={setCreateProjectForm}
+        onClose={() => {
+          setCreateProjectForm(false);
+          props.onCreateProjectFormClosed();
+        }}
+      />
     </header>
   );
 }

@@ -19,7 +19,7 @@
  */
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { searchProjects } from '../api/components';
-import { deleteProject } from '../api/project-management';
+import { createProject, deleteProject } from '../api/project-management';
 import { createQueryHook } from './common';
 import { invalidateMeasuresByComponentKey } from './measures';
 
@@ -36,6 +36,17 @@ export function useDeleteProjectMutation(organization: string) {
     mutationFn: (key: string) => deleteProject(organization, key),
     onSuccess: (_, key) => {
       invalidateMeasuresByComponentKey(key, queryClient);
+    },
+  });
+}
+
+export function useCreateProjectMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Parameters<typeof createProject>[0]) => createProject(data),
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['project', 'list'] });
     },
   });
 }
