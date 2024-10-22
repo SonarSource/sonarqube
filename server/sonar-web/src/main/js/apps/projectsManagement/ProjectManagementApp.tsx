@@ -205,6 +205,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
     const { organization, currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
     const { actions = {} } = organization;
+
     return (
       <LargeCenteredLayout as="main" id="projects-management-page">
         <PageContentFontWrapper className="sw-typo-default sw-my-8">
@@ -238,7 +239,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
           />
 
           <Projects
-            currentUser={this.props.currentUser}
+            currentUser={currentUser}
             onProjectDeselected={this.onProjectDeselected}
             onProjectSelected={this.onProjectSelected}
             projects={this.state.projects}

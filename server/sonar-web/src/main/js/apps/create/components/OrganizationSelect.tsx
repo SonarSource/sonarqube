@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy } from 'lodash';
+import { find, sortBy } from 'lodash';
 import { translate } from "../../../helpers/l10n";
-import Select from "../../../components/controls/Select";
 import { Organization } from "../../../types/types";
-import { components, OptionProps, SingleValueProps } from "react-select";
+import { Select } from "@sonarsource/echoes-react";
 
 interface Props {
   onChange: (organization: Organization) => void;
@@ -30,43 +29,28 @@ interface Props {
   organizations: Organization[];
 }
 
-const optionRenderer = (props: OptionProps<Organization, false>) => {
-  return <components.Option {...props}>{renderValue(props.data)}</components.Option>;
-}
-
-const singleValueRenderer = (props: SingleValueProps<Organization>) => (
-    <components.SingleValue {...props}>{renderValue(props.data)}</components.SingleValue>
-);
-
-function renderValue(organization: Organization) {
-  return (
-      <div className="display-flex-space-between">
-        <span className="text-ellipsis flex-1">
-          {organization.name}
-          <span className="note sw-ml-2">{organization.kee}</span>
-        </span>
-      </div>
-  );
-}
-
 export default function OrganizationSelect({ onChange, organization, organizations }: Props) {
+
+  const options = React.useMemo(
+    () => sortBy(organizations, (org) => org.name.toLowerCase())
+      .map((org) => ({ label: org.name, value: org.kee })),
+    [organizations],
+  );
+
   return (
-      <Select
-          autoFocus={!organization}
-          className="input-super-large"
-          isClearable={false}
-          id="select-organization"
-          onChange={onChange}
-          options={sortBy(organizations, o => o.name.toLowerCase())}
-          getOptionLabel={(org) => org.name}
-          getOptionValue={(org) => org.kee}
-          isSearchable={true}
-          components={{
-            Option: optionRenderer,
-            SingleValue: singleValueRenderer,
-          }}
-          placeholder={translate('onboarding.import_organization.choose_organization')}
-          value={organization}
-      />
+    <Select
+      autoFocus={!organization}
+      onChange={(key) => {
+        const org = find(organizations, (org) => org.kee === key);
+        if (org) {
+          onChange(org);
+        }
+      }}
+      data={options}
+      isSearchable
+      isNotClearable
+      placeholder={translate('onboarding.import_organization.choose_organization')}
+      value={organization?.kee}
+    />
   );
 }

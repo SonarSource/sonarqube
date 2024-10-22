@@ -41,8 +41,8 @@ export default function OrganizationNavigationHeader({ organization, organizatio
             items={
               <>
                 {sortBy(other, org => org.name.toLowerCase()).map(organization => (
-                  <DropdownMenu.ItemLink isMatchingFullPath to="/admin/settings">
-                    <OrganizationListItem key={organization.kee} organization={organization}/>
+                  <DropdownMenu.ItemLink key={organization.kee} isMatchingFullPath to="/admin/settings">
+                    <OrganizationListItem organization={organization} />
                   </DropdownMenu.ItemLink>
                 ))}
               </>
@@ -50,7 +50,6 @@ export default function OrganizationNavigationHeader({ organization, organizatio
           >
             <NavBarTabLink
               aria-haspopup="menu"
-              active={this.isSecurityActive()}
               to={{}}
               text={organization.name}
               withChevron
