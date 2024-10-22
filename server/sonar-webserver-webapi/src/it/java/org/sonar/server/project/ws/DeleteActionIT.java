@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -51,6 +52,7 @@ import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -175,7 +177,7 @@ public class DeleteActionIT {
 
   private String verifyDeletedKey() {
     ArgumentCaptor<ProjectDto> argument = ArgumentCaptor.forClass(ProjectDto.class);
-    verify(componentCleanerService).deleteEntity(any(DbSession.class), argument.capture());
+    verify(componentCleanerService).deleteEntity(any(DbSession.class), argument.capture(), any(OrganizationDto.class), anyString());
     return argument.getValue().getKey();
   }
 

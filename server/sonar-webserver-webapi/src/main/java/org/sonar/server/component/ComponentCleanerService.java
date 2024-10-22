@@ -32,6 +32,7 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.Indexers;
+import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -51,7 +52,9 @@ public class ComponentCleanerService {
 
   public void delete(DbSession dbSession, List<ProjectDto> projects, String user) {
     for (ProjectDto project : projects) {
-      deleteEntity(dbSession, project, user);
+      OrganizationDto organization =  dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid())
+          .orElseThrow(() -> new NotFoundException("No organization found with uuid: " + project.getOrganizationUuid()));
+      deleteEntity(dbSession, project, organization, user);
     }
   }
 
@@ -69,9 +72,7 @@ public class ComponentCleanerService {
     dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
   }
 
-  public void deleteEntity(DbSession dbSession, EntityDto entity, String user) {
-    OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, entity.getOrganizationUuid())
-        .orElseThrow(() -> new IllegalStateException("No organization found: " + entity.getOrganizationUuid()));
+  public void deleteEntity(DbSession dbSession, EntityDto entity, OrganizationDto organization, String user) {
     logger.info("Cleaning component entries for projectName: {}, projectKey: {}, projectId: {}, organization: {}, orgId: {}, user: {}",
         entity.getName(), entity.getKey(), entity.getUuid(), organization.getKey(),
         organization.getUuid(), user);

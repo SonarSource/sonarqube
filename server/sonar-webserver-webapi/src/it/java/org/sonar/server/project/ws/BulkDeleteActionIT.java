@@ -46,6 +46,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
@@ -61,6 +62,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -87,7 +89,7 @@ public class BulkDeleteActionIT {
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
   private final Random random = new SecureRandom();
 
-  private final BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, projectLifeCycleListeners);
+  private final BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, projectLifeCycleListeners, null);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -245,7 +247,7 @@ public class BulkDeleteActionIT {
       .setParam("projects", StringUtils.join(keys, ","))
       .execute();
 
-    verify(componentCleanerService, times(1_000)).deleteEntity(any(DbSession.class), any(EntityDto.class));
+    verify(componentCleanerService, times(1_000)).deleteEntity(any(DbSession.class), any(EntityDto.class), any(OrganizationDto.class), anyString());
     ArgumentCaptor<Set<DeletedProject>> projectsCaptor = ArgumentCaptor.forClass(Set.class);
     verify(projectLifeCycleListeners).onProjectsDeleted(projectsCaptor.capture());
     assertThat(projectsCaptor.getValue()).hasSize(1_000);
@@ -262,7 +264,7 @@ public class BulkDeleteActionIT {
     doNothing()
       .doThrow(expectedException)
       .when(componentCleanerService)
-      .deleteEntity(any(), any(ProjectDto.class));
+      .deleteEntity(any(), any(ProjectDto.class), any(OrganizationDto.class), anyString());
 
     try {
       ws.newRequest()
@@ -321,7 +323,7 @@ public class BulkDeleteActionIT {
 
   private void verifyEntityDeleted(EntityDto... entities) {
     ArgumentCaptor<EntityDto> argument = ArgumentCaptor.forClass(EntityDto.class);
-    verify(componentCleanerService, times(entities.length)).deleteEntity(any(DbSession.class), argument.capture());
+    verify(componentCleanerService, times(entities.length)).deleteEntity(any(DbSession.class), argument.capture(), any(OrganizationDto.class), anyString());
 
     for (EntityDto entity : entities) {
       assertThat(argument.getAllValues()).extracting(EntityDto::getUuid).contains(entity.getUuid());

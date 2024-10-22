@@ -26,10 +26,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.DeletedProject;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -84,7 +86,9 @@ public class DeleteAction implements ProjectsWsAction {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
       BranchDto mainBranch = componentFinder.getMainBranch(dbSession, project);
       checkPermission(project);
-      componentCleanerService.deleteEntity(dbSession, project, userSession.getLogin());
+      OrganizationDto organization =  dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid())
+          .orElseThrow(() -> new NotFoundException("No organization found with uuid: " + project.getOrganizationUuid()));
+      componentCleanerService.deleteEntity(dbSession, project, organization, userSession.getLogin());
       projectLifeCycleListeners.onProjectsDeleted(singleton(new DeletedProject(Project.fromProjectDtoWithTags(project), mainBranch.getUuid())));
     }
 

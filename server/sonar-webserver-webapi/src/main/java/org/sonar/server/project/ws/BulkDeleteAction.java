@@ -165,7 +165,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
         .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
 
       try {
-        entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p, userSession.getLogin()));
+        entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p, organization, userSession.getLogin()));
       } finally {
         callDeleteListeners(mainBranchUuidByEntityUuid, entities);
       }
