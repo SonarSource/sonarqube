@@ -32,6 +32,7 @@ import requireTransform from 'vite-plugin-require-transform';
 import babelConfig from './babel.config';
 import { ALLOWED_LICENSES, ALLOWED_LICENSE_TEXT, generateLicenseText } from './config/license';
 import { viteDevServerHtmlPlugin } from './config/vite-dev-server-html-plugin.mjs';
+import { viteDevServerL10nPlugin } from './config/vite-dev-server-l10n-plugin.mjs';
 import packageJson from './package.json';
 
 const DEFAULT_DEV_SERVER_PORT = 3000;
@@ -39,7 +40,6 @@ const DEFAULT_WS_PROXY_PORT = 3010;
 
 const port = process.env.PORT || DEFAULT_DEV_SERVER_PORT;
 const proxyTarget = (process.env.PROXY || 'http://localhost:9000').replace(/\/$/, '');
-const isProxied = !proxyTarget.includes('localhost');
 const isProduction = process.env.NODE_ENV === 'production';
 const analyzeBundle = process.env.BUNDLE_ANALYSIS || false;
 
@@ -165,6 +165,7 @@ export default ({ mode }) => {
       // More Info: https://www.npmjs.com/package/babel-plugin-macros
       macrosPlugin(),
       viteDevServerHtmlPlugin(),
+      viteDevServerL10nPlugin(),
       analyzeBundle &&
         visualizer({
           filename: './build/bundle-analyzer.html',

@@ -6,7 +6,12 @@
     "eslint-plugin-local-rules"
   ],
   "ignorePatterns": [
-    "config/jest/**/*.ts",
+    "babel.config.js",
+    "jest.config.js",
+    "vite.config.mjs",
+    "tailwind*.js",
+    "script/**/*",
+    "config/**/*",
     "eslint-local-rules/**/*"
   ],
   "root": true,

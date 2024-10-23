@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { promisify } = require('util');
+import fs from 'node:fs';
+import path from 'node:path';
+import { promisify } from 'node:util';
 
 const readFileAsync = promisify(fs.readFile);
 
@@ -59,17 +59,26 @@ function getMessages() {
   ).then((filesMessages) => filesMessages.reduce((acc, messages) => ({ ...acc, ...messages }), {}));
 }
 
-function handleL10n(res) {
-  getMessages()
-    .then((messages) => {
-      res.writeHead(STATUS_OK, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ effectiveLocale: 'en', messages }));
-    })
-    .catch((e) => {
-      console.error(e);
-      res.writeHead(STATUS_ERROR);
-      res.end(e);
-    });
-}
-
-module.exports = { handleL10n };
+// this is a custom l10n-dev-server when proxying locally against another environment so that
+// we don't need to rebuild the server when changing the l10n files
+export const viteDevServerL10nPlugin = () => {
+  return {
+    name: 'l10n-dev-server',
+    apply: 'serve',
+    configureServer(server) {
+      const app = server.middlewares;
+      app.use('/api/l10n', (_req, res) => {
+        getMessages()
+          .then((messages) => {
+            res.writeHead(STATUS_OK, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ effectiveLocale: 'en', messages }));
+          })
+          .catch((e) => {
+            console.error(e);
+            res.writeHead(STATUS_ERROR);
+            res.end(e);
+          });
+      });
+    },
+  };
+};
