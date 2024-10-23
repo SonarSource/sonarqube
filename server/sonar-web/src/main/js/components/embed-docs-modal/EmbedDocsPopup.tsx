@@ -21,14 +21,14 @@
 import { DropdownMenu } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
+import { getRedirectUrlForZoho } from "../../api/codescan";
+import { getValue } from "../../api/settings";
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
+import { GlobalSettingKeys } from "../../types/settings";
 import { SuggestionLink } from '../../types/types';
 import { DocItemLink } from './DocItemLink';
 import { SuggestionsContext } from './SuggestionsContext';
-import { getValue } from "../../api/settings";
-import { GlobalSettingKeys } from "../../types/settings";
-import { getRedirectUrlForZoho } from "../../api/codescan";
 
 function IconLink({
   icon = 'embed-doc/sq-icon.svg',
@@ -77,7 +77,7 @@ function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }
 export function EmbedDocsPopup({ setAboutCodescanOpen }) {
   const firstItemRef = React.useRef<HTMLAnchorElement>(null);
   const { suggestions } = React.useContext(SuggestionsContext);
-  const [zohoUrl, setZohoUrl] = React.useState<string>();
+  const [zohoUrl, setZohoUrl] = React.useState<any>();
 
   React.useEffect(() => {
     firstItemRef.current?.focus();
@@ -96,7 +96,14 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
     <>
       {suggestions.length !== 0 && <Suggestions suggestions={suggestions} />}
 
-      <DocItemLink to={DocLink.Root}>{translate('docs.documentation')}</DocItemLink>
+      <DropdownMenu.GroupLabel>{translate('docs.suggestion')}</DropdownMenu.GroupLabel>
+      <DropdownMenu.ItemLink to="https://knowledgebase.autorabit.com/product-guides/codescan/getting-started">
+        {translate('docs.suggestion_help')}
+      </DropdownMenu.ItemLink>
+
+      <DropdownMenu.Separator />
+      
+      <DocItemLink to={DocLink.Documentation}>{translate('docs.documentation')}</DocItemLink>
 
       <DropdownMenu.ItemLink to="/web_api">
         {translate('api_documentation.page')}
@@ -108,14 +115,10 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
 
       <DropdownMenu.Separator />
 
-      <DropdownMenu.ItemLink to="https://community.sonarsource.com/">
-        {translate('docs.get_help')}
-      </DropdownMenu.ItemLink>
-
       {zohoUrl && (
-        <DocItemLink to={zohoUrl}>
+        <DropdownMenu.ItemLink to={zohoUrl}>
           {translate('docs.get_help')}
-        </DocItemLink>
+        </DropdownMenu.ItemLink>
       )}
 
       <DropdownMenu.ItemButton onClick={() => setAboutCodescanOpen(true)}>
@@ -127,19 +130,15 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
       <DropdownMenu.GroupLabel>{translate('docs.stay_connected')}</DropdownMenu.GroupLabel>
 
       <IconLink
-        link="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
-        text={translate('docs.news')}
-      />
-
-      <IconLink
-        link="https://www.sonarsource.com/products/sonarqube/roadmap/?referrer=sonarqube"
-        text={translate('docs.roadmap')}
+        icon="sonarcloud-square-logo.svg"
+        link="https://www.codescan.io/blog"
+        text="CodeScan Blog "
       />
 
       <IconLink
         icon="embed-doc/x-icon-black.svg"
-        link="https://twitter.com/SonarQube"
-        text="X @SonarQube"
+        link="https://twitter.com/CodeScanforSFDC"
+        text="@CodeScanforSFDC"
       />
     </>
   );
