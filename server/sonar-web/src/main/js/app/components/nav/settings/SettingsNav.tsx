@@ -111,10 +111,6 @@ export class SettingsNav extends React.PureComponent<Props> {
                 <DropdownMenu.ItemLink isMatchingFullPath to="/admin/settings/encryption">
                   {translate('property.category.security.encryption')}
                 </DropdownMenu.ItemLink>
-
-                <DropdownMenu.ItemLink isMatchingFullPath to="/admin/webhooks">
-                  {translate('webhooks.page')}
-                </DropdownMenu.ItemLink>
               </>
             )}
 

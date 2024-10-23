@@ -102,7 +102,7 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
           getOrganizationNavigation(component.organization),
           getValues({ keys: ['codescan.comparison.branches'], component: component.key }),
         ]);
-        setOrganization({ organization: { ...organization, ...navigation } });
+        setOrganization({ ...organization, ...navigation });
         setComparisonBranchesEnabled(settings[0]?.value === "true");
       } catch (e) {
         if (e instanceof Response && e.status === HttpStatus.Forbidden) {
