@@ -19,6 +19,7 @@
  */
 package org.sonar.process.cluster.hz;
 
+import com.google.common.net.HostAndPort;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MemberAttributeConfig;
@@ -29,7 +30,6 @@ import java.util.stream.Stream;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember.Attribute;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
@@ -100,16 +100,19 @@ public class HazelcastMemberBuilder {
     joinConfig.getAwsConfig().setEnabled(false);
     joinConfig.getMulticastConfig().setEnabled(false);
 
+    final int defaultHzNodePort = Integer.parseInt(CLUSTER_NODE_HZ_PORT.getDefaultValue());
     if (KUBERNETES.equals(type)) {
       joinConfig.getKubernetesConfig().setEnabled(true)
         .setProperty("service-dns", requireNonNull(members, "Service DNS is missing"))
-        .setProperty("service-port", CLUSTER_NODE_HZ_PORT.getDefaultValue());
+        .setProperty("service-port", String.valueOf(defaultHzNodePort));
     } else {
       List<String> addressesWithDefaultPorts = Stream.of(this.members.split(","))
-          .filter(host -> !host.isBlank())
-          .map(String::trim)
-          .map(HazelcastMemberBuilder::applyDefaultPortToHost)
-          .toList();
+        .filter(host -> !host.isBlank())
+        .map(String::trim)
+        .map(HostAndPort::fromString)
+        .map(parsedHost -> parsedHost.withDefaultPort(defaultHzNodePort))
+        .map(HostAndPort::toString)
+        .toList();
       joinConfig.getTcpIpConfig().setEnabled(true);
       joinConfig.getTcpIpConfig().setMembers(requireNonNull(addressesWithDefaultPorts, "Members are missing"));
     }
@@ -136,9 +139,4 @@ public class HazelcastMemberBuilder {
 
     return new HazelcastMemberImpl(Hazelcast.newHazelcastInstance(config));
   }
-
-  private static String applyDefaultPortToHost(String host) {
-    return host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_HZ_PORT.getDefaultValue());
-  }
-
 }

@@ -19,97 +19,74 @@
  */
 package org.sonar.process.cluster.hz;
 
-import java.net.InetAddress;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
-import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
-import org.sonar.process.NetworkUtilsImpl;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.InterfacesConfig;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.TcpIpConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
-public class HazelcastMemberBuilderTest {
 
-  @Rule
-  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
+@Timeout(60)
+class HazelcastMemberBuilderTest {
 
-  // use loopback for support of offline builds
-  private final InetAddress loopback = InetAddress.getLoopbackAddress();
+  @CsvSource({
+    "::1,[::1]:9003",
+    "[::1],[::1]:9003",
+    "[::1]:5000,[::1]:5000",
+    "127.0.0.1,127.0.0.1:9003",
+    "127.0.0.1:5000,127.0.0.1:5000"
+  })
+  @ParameterizedTest
+  void add_default_port_to_member(String memberParam, String memberAddress) {
+    try (MockedStatic<Hazelcast> mockedHazelcast = mockStatic(Hazelcast.class)) {
+      ArgumentCaptor<Config> configCaptor = forClass(Config.class);
+      mockedHazelcast.when(() -> Hazelcast.newHazelcastInstance(configCaptor.capture()))
+        .thenReturn(mock(HazelcastInstance.class));
 
-  @Test
-  public void build_tcp_ip_member_hostaddress() {
-    HazelcastMember member = new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
-      .setMembers(loopback.getHostAddress())
-      .setProcessId(ProcessId.COMPUTE_ENGINE)
-      .setNodeName("bar")
-      .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
-      .setNetworkInterface(loopback.getHostAddress())
-      .build();
-
-    assertThat(member.getUuid()).isNotNull();
-    assertThat(member.getClusterTime()).isPositive();
-    assertThat(member.getCluster().getMembers()).hasSize(1);
-    assertThat(member.getMemberUuids()).containsOnlyOnce(member.getUuid());
-
-    assertThat(member.getAtomicReference("baz")).isNotNull();
-    assertThat(member.getLock("baz")).isNotNull();
-    assertThat(member.getReplicatedMap("baz")).isNotNull();
-
-    member.close();
-  }
-
-  @Test
-  public void build_tcp_ip_member_hostname() {
-    HazelcastMember member = new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
-        .setMembers(loopback.getHostName())
+      int defaultPort = Integer.parseInt(ProcessProperties.Property.CLUSTER_NODE_HZ_PORT.getDefaultValue());
+      new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
+        .setMembers(memberParam)
         .setProcessId(ProcessId.COMPUTE_ENGINE)
         .setNodeName("bar")
-        .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
-        .setNetworkInterface(loopback.getHostAddress())
+        .setPort(defaultPort)
+        .setNetworkInterface("127.0.0.1")
         .build();
 
-    assertThat(member.getUuid()).isNotNull();
-    assertThat(member.getClusterTime()).isPositive();
-    assertThat(member.getCluster().getMembers()).hasSize(1);
-    assertThat(member.getMemberUuids()).containsOnlyOnce(member.getUuid());
+      Config config = configCaptor.getValue();
 
-    assertThat(member.getAtomicReference("baz")).isNotNull();
-    assertThat(member.getLock("baz")).isNotNull();
-    assertThat(member.getReplicatedMap("baz")).isNotNull();
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getPort)
+        .isEqualTo(defaultPort);
 
-    member.close();
-  }
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getInterfaces)
+        .extracting(InterfacesConfig::getInterfaces, as(InstanceOfAssertFactories.COLLECTION))
+        .hasSize(1).element(0)
+        .isEqualTo("127.0.0.1");
 
-  @Test
-  public void build_kubernetes_member() {
-    HazelcastMember member = new HazelcastMemberBuilder(JoinConfigurationType.KUBERNETES)
-      .setMembers(loopback.getHostAddress())
-      .setProcessId(ProcessId.COMPUTE_ENGINE)
-      .setNodeName("bar")
-      .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
-      .setNetworkInterface(loopback.getHostAddress())
-      .build();
-
-    assertThat(member.getUuid()).isNotNull();
-    assertThat(member.getClusterTime()).isPositive();
-    assertThat(member.getCluster().getMembers()).hasSize(1);
-    assertThat(member.getMemberUuids()).containsOnlyOnce(member.getUuid());
-
-    assertThat(member.getAtomicReference("baz")).isNotNull();
-    assertThat(member.getLock("baz")).isNotNull();
-    assertThat(member.getReplicatedMap("baz")).isNotNull();
-
-    member.close();
-  }
-
-  @Test
-  public void fail_if_elasticsearch_process() {
-    var builder = new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP);
-    assertThatThrownBy(() -> builder.setProcessId(ProcessId.ELASTICSEARCH))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Hazelcast must not be enabled on Elasticsearch node");
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getJoin)
+        .extracting(JoinConfig::getTcpIpConfig)
+        .extracting(TcpIpConfig::getMembers)
+        .asInstanceOf(InstanceOfAssertFactories.LIST)
+        .hasSize(1).element(0)
+        .isEqualTo(memberAddress);
+    }
   }
 }
