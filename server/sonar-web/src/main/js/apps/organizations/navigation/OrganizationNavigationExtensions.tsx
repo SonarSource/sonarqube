@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
-import { ButtonIcon, ButtonSize, ButtonVariety, DropdownMenu, IconChevronDown } from "@sonarsource/echoes-react";
+import { DropdownMenu } from "@sonarsource/echoes-react";
+import { NavBarTabLink } from "design-system";
 
 interface Props {
   location: { pathname: string };
@@ -63,13 +64,7 @@ export default function OrganizationNavigationExtensions({ location, organizatio
         </>
       }
     >
-      <ButtonIcon
-        Icon={IconChevronDown}
-        ariaLabel={translate('more')}
-        className="sw-m-1 sw-mr-2"
-        size={ButtonSize.Medium}
-        variety={ButtonVariety.Default}
-      />
+      <NavBarTabLink preventDefault text={translate('more')} withChevron to={{}} />
     </DropdownMenu.Root>
   );
 }

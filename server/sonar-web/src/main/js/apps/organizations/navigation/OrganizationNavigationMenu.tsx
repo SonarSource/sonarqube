@@ -23,8 +23,7 @@ import OrganizationNavigationAdministration from './OrganizationNavigationAdmini
 import { getQualityGatesUrl } from '../../../helpers/urls';
 import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
-import { NavLink } from "react-router-dom";
-import { NavBarTabs } from "design-system";
+import { NavBarTabLink, NavBarTabs } from "design-system";
 
 interface OwnProps {
   location: { pathname: string };
@@ -34,45 +33,23 @@ interface OwnProps {
 export default function OrganizationNavigationMenu({ location, organization }: OwnProps) {
   const { actions = {} } = organization;
   return (
-      <NavBarTabs className="navbar-context-tabs">
-        <li>
-          <NavLink to={`/organizations/${organization.kee}/projects`}>
-            {translate('projects')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-              to={{
-                pathname: `/organizations/${organization.kee}/issues`,
-                search: new URLSearchParams({ resolved: 'false' }).toString()
-              }}>
-            {translate('issues.facet.mode.count')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to={`/organizations/${organization.kee}/quality_profiles`}>
-            {translate('quality_profiles.page')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to={`/organizations/${organization.kee}/rules`}>
-            {translate('coding_rules.page')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to={getQualityGatesUrl(organization.kee)}>
-            {translate('quality_gates.page')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to={`/organizations/${organization.kee}/members`}>
-            {translate('organization.members.page')}
-          </NavLink>
-        </li>
-        <OrganizationNavigationExtensions location={location} organization={organization}/>
-        {actions.admin && (
-          <OrganizationNavigationAdministration location={location} organization={organization}/>
-        )}
-      </NavBarTabs>
+    <NavBarTabs>
+      <NavBarTabLink to={`/organizations/${organization.kee}/projects`} text={translate('projects')} />
+      <NavBarTabLink
+          to={{
+            pathname: `/organizations/${organization.kee}/issues`,
+            search: new URLSearchParams({ resolved: 'false' }).toString()
+          }}
+          text={translate('issues.facet.mode.count')}
+      />
+      <NavBarTabLink to={`/organizations/${organization.kee}/quality_profiles`} text={translate('quality_profiles.page')} />
+      <NavBarTabLink to={`/organizations/${organization.kee}/rules`} text={translate('coding_rules.page')} />
+      <NavBarTabLink to={getQualityGatesUrl(organization.kee)} text={translate('quality_gates.page')} />
+      <NavBarTabLink to={`/organizations/${organization.kee}/members`} text={translate('organization.members.page')} />
+      <OrganizationNavigationExtensions location={location} organization={organization}/>
+      {actions.admin && (
+        <OrganizationNavigationAdministration location={location} organization={organization}/>
+      )}
+    </NavBarTabs>
   );
 }
