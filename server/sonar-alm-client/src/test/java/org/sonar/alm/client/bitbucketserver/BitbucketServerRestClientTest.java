@@ -70,6 +70,7 @@ public class BitbucketServerRestClientTest {
     "    }\n" +
     "  ]\n" +
     "}";
+  private static final String STATUS_BODY = "{\"state\": \"RUNNING\"}";
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -474,7 +475,7 @@ public class BitbucketServerRestClientTest {
   @Test
   public void validate_url_success() {
     server.enqueue(new MockResponse().setResponseCode(200)
-      .setBody(REPOS_BODY));
+      .setBody(STATUS_BODY));
 
     underTest.validateUrl(server.url("/").toString());
   }
