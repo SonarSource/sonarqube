@@ -21,6 +21,8 @@ package org.sonar.server.almintegration.ws.gitlab;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
@@ -43,10 +45,12 @@ import org.sonarqube.ws.AlmIntegrations.GitlabRepository;
 import org.sonarqube.ws.AlmIntegrations.SearchGitlabReposWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
@@ -104,6 +108,88 @@ public class SearchGitlabReposActionIT {
         tuple(2L, "repoName2", "path1", "repo-slug-2", "path-1", "url-2", false, false),
         tuple(3L, "repoName3", "repoName3", "repo-slug-3", "repo-slug-3", "url-3", false, false),
         tuple(4L, "repoName4", "repoName4 / repoName4", "repo-slug-4", "repo-slug-4/repo-slug-4", "url-4", false, false));
+  }
+
+  @Test
+  public void handle_whenPageSizeIsValid_shouldReturnRepositories() {
+    int pageSize = 50; // Page size within the maximum limit of 100
+
+    Project gitlabProject1 = new Project(1L, "repoName1", "repoNamePath1", "repo-slug-1", "repo-path-slug-1", "url-1");
+
+    when(gitlabApplicationClient.searchProjects(any(), any(), any(), anyInt(), eq(pageSize)))
+      .thenReturn(new ProjectList(List.of(gitlabProject1), 1, pageSize, 1));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken("some-pat");
+    });
+
+    SearchGitlabReposWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("ps", String.valueOf(pageSize))
+      .executeProtobuf(SearchGitlabReposWsResponse.class);
+
+    assertThat(response.getRepositoriesCount()).isEqualTo(1);
+    assertThat(response.getRepositoriesList())
+      .extracting(AlmIntegrations.GitlabRepository::getName)
+      .containsExactly("repoName1");
+  }
+
+  @Test
+  public void handle_whenPageSizeIs10AndThereAre25Repos_shouldReturnCorrectTotal() {
+    int pageNumber = 1; // First page
+    int pageSize = 10; // Page size within the limit
+    int totalRepos = 25; // Total number of repositories on GitLab
+
+    List<Project> firstPageProjects = IntStream.range(1, pageSize + 1)
+      .mapToObj(i -> new Project(i, "repoName" + i, "repoNamePath" + i, "repo-slug-" + i, "repo-path-slug-" + i, "url-" + i))
+      .toList();
+
+    when(gitlabApplicationClient.searchProjects(any(), any(), any(), eq(pageNumber), eq(pageSize)))
+      .thenReturn(new ProjectList(firstPageProjects, pageNumber, pageSize, totalRepos));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken("some-pat");
+    });
+
+    SearchGitlabReposWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("ps", String.valueOf(pageSize))
+      .setParam("p", String.valueOf(pageNumber))
+      .executeProtobuf(SearchGitlabReposWsResponse.class);
+
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(pageNumber);
+    assertThat(response.getRepositoriesCount()).isEqualTo(pageSize);
+    assertThat(response.getPaging().getTotal()).isEqualTo(totalRepos);
+    assertThat(response.getRepositoriesList())
+      .extracting(AlmIntegrations.GitlabRepository::getName)
+      .containsExactly("repoName1", "repoName2", "repoName3", "repoName4", "repoName5", "repoName6", "repoName7", "repoName8", "repoName9", "repoName10");
+  }
+
+  @Test
+  public void handle_whenPageSizeExceedsMaxLimit_shouldThrowException() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("ps", "101"); // Page size exceeding the maximum limit of 100
+
+    assertThatIllegalArgumentException()
+      .isThrownBy(request::execute)
+      .withMessage("'ps' value (101) must be less than 100");
   }
 
   @Test

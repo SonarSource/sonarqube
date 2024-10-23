@@ -54,7 +54,7 @@ public class SearchGitlabReposAction implements AlmIntegrationsWsAction {
   private static final String PARAM_ALM_SETTING = "almSetting";
   private static final String PARAM_PROJECT_NAME = "projectName";
   private static final int DEFAULT_PAGE_SIZE = 20;
-  private static final int MAX_PAGE_SIZE = 500;
+  private static final int MAX_PAGE_SIZE = 100;
 
   private final DbClient dbClient;
   private final UserSession userSession;
