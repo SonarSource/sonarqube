@@ -86,6 +86,7 @@ export enum DocLink {
   SonarScannerMaven = 'https://knowledgebase.autorabit.com/codescan/docs',
   SonarWayQualityGate = '/user-guide/quality-gates/#using-sonar-way-the-recommended-quality-gate', // to be confirmed
   Webhooks = 'https://knowledgebase.autorabit.com/codescan/docs/webhooks/',
+  Documentation='/product-guides/codescan/codescan-overview/',
 }
 
 export const DocTitle = {
@@ -99,6 +100,7 @@ export const DocTitle = {
   [DocLink.SecurityReports]: 'About Security Reports',
   [DocLink.SonarLintConnectedMode]: 'SonarLint Connected Mode',
   [DocLink.Webhooks]: 'About Webhooks',
+  [DocLink.Documentation]: 'Documentation',
 };
 
 export type DocTitleKey = keyof typeof DocTitle;
