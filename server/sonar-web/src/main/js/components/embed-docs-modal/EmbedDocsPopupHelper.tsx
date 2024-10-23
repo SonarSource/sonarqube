@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import {
   ButtonIcon,
   ButtonVariety,
@@ -31,26 +30,31 @@ import { EmbedDocsPopup } from './EmbedDocsPopup';
 import { getBaseUrl } from "../../helpers/system";
 import { Modal } from "design-system";
 
-export default function EmbedDocsPopupHelper() {
+const ClearButton = ({ onClick }: { onClick: () => void }) => (
+  <button onClick={onClick} aria-label={translate('close')}>
+    &#10005; {/* Unicode for "X" close icon */}
+  </button>
+);
 
-  const [aboutCodescanOpen, setAboutCodescanOpen] = React.useState<boolean>();
+export default function EmbedDocsPopupHelper() {
+  const [aboutCodescanOpen, setAboutCodescanOpen] = React.useState<boolean>(false);
 
   const renderAboutCodescan = (link: string, icon: string, text: string) => {
     return (
       <Modal
-        className="abs-width-auto"
         onRequestClose={() => setAboutCodescanOpen(false)}
-        contentLabel=''
+        contentLabel={translate('embed_docs.codescan_version')}
+        isOpen={aboutCodescanOpen}
       >
         <a href={link} rel="noopener noreferrer" target="_blank">
-          <img alt={text} src={`${getBaseUrl()}/images/${icon}`}/>
+          <img alt={text} src={`${getBaseUrl()}/images/${icon}`} />
         </a>
         <span className="cross-button">
-            <ClearButton onClick={() => setAboutCodescanOpen(false)}/>
-          </span>
+          <ClearButton onClick={() => setAboutCodescanOpen(false)} />
+        </span>
       </Modal>
     );
-  }
+  };
 
   return (
     <div className="dropdown">
@@ -69,8 +73,8 @@ export default function EmbedDocsPopupHelper() {
       </DropdownMenu.Root>
 
       {aboutCodescanOpen && renderAboutCodescan(
-        'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
-        'embed-doc/codescan-version-24_0_11.png',
+       'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
+       'embed-doc/codescan-version-24_0_11.png',
         translate('embed_docs.codescan_version')
       )}
     </div>
