@@ -59,7 +59,7 @@ export interface Profile {
 }
 
 export interface SearchQualityProfilesParameters {
-  organization?: string;
+  organization: string;
   defaults?: boolean;
   language?: string;
   project?: string;

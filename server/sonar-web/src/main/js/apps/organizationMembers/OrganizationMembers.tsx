@@ -33,7 +33,6 @@ import { withOrganizationContext } from "../organizations/OrganizationContext";
 import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";
 import {
   useAddGroupMembershipMutation,
-  useGroupMembersQuery,
   useRemoveGroupMembershipMutation
 } from "../../queries/group-memberships";
 
@@ -54,16 +53,11 @@ function OrganizationMembers({ currentUser, organization }: Props) {
 
   const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
   const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
-  const { data, isLoading, fetchNextPage } = useGroupMembersQuery({
-    q: query,
-    groupId: group.id,
-    filter,
-  });
 
   React.useEffect(() => {
     fetchMembers();
 
-    if (this.props.organization.actions && this.props.organization.actions.admin) {
+    if (organization.actions && organization.actions.admin) {
       fetchGroups();
     }
   }, []);
@@ -75,7 +69,7 @@ function OrganizationMembers({ currentUser, organization }: Props) {
   const fetchMembers = (query?: string) => {
     setLoading(true);
     searchMembers({
-      organization: this.props.organization.kee,
+      organization: organization.kee,
       ps: PAGE_SIZE,
       q: query
     }).then(({ paging, users }) => {
@@ -86,7 +80,7 @@ function OrganizationMembers({ currentUser, organization }: Props) {
   };
 
   const fetchGroups = () => {
-    getUsersGroups({ organization: this.props.organization.kee }).then(
+    getUsersGroups({ organization: organization.kee }).then(
       ({ groups }) => {
         setGroups(groups);
       },
@@ -107,7 +101,7 @@ function OrganizationMembers({ currentUser, organization }: Props) {
 
     setLoading(true);
     searchMembers({
-      organization: this.props.organization.kee,
+      organization: organization.kee,
       p: paging.pageIndex + 1,
       ps: PAGE_SIZE,
       q: query || undefined // empty string -> undefined

@@ -152,7 +152,7 @@ export default function BranchLikeTabs(props: Props) {
           onRename={setRenaming}
           onSetAsMain={handleSetAsMainBranchOption}
           title={title}
-          comparisonBranchesEnabled={this.props.comparisonBranchesEnabled}
+          comparisonBranchesEnabled={props.comparisonBranchesEnabled}
         />
       </div>
 

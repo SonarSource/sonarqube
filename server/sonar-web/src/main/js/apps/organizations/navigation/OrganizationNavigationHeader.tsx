@@ -39,8 +39,6 @@ export default function OrganizationNavigationHeader({ organization, organizatio
 
   const other = organizations.filter(o => o.kee !== organization.kee);
 
-  console.info("isMenuOpen", isMenuOpen);
-
   return (
     <div>
       <div className="sw-flex sw-items-center">

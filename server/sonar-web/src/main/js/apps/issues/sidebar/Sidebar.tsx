@@ -82,6 +82,7 @@ export interface Props {
 
 export function Sidebar(props: Readonly<Props>) {
   const {
+    organization,
     component,
     facets,
     loadingFacets,
@@ -168,9 +169,7 @@ export function Sidebar(props: Readonly<Props>) {
 
   const needIssueSync = component?.needIssueSync;
 
-  const organizationKey =
-    (component && component.organization) ||
-    (this.props.organization && this.props.organization.kee);
+  const organizationKey = component?.organization || organization?.kee;
 
   return (
     <>

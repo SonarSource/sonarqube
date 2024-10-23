@@ -75,7 +75,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
   fetchProfiles = async () => {
     const { component, organization } = this.props;
 
-    const allProfiles = await searchQualityProfiles({organization: organization.kee})
+    const allProfiles = await searchQualityProfiles({ organization: organization.kee })
       .then(({ profiles }) => profiles)
       .catch(() => [] as Profile[]);
 
