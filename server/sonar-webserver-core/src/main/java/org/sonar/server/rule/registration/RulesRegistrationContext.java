@@ -84,7 +84,7 @@ class RulesRegistrationContext {
       RuleDto rule = dbRulesByRuleUuid.get(ruleUuid);
       if (rule == null) {
         LOG.warn("Could not retrieve rule with uuid %s referenced by a deprecated rule key. " +
-            "The following deprecated rule keys seem to be referencing a non-existing rule",
+          "The following deprecated rule keys seem to be referencing a non-existing rule",
           ruleUuid, entry.getValue());
       } else {
         entry.getValue().forEach(d -> rulesByKey.put(d.getOldRuleKeyAsRuleKey(), rule));
@@ -143,10 +143,10 @@ class RulesRegistrationContext {
 
   Stream<RuleDto> getAllModified() {
     return Stream.of(
-        created.stream(),
-        updated.stream(),
-        removed.stream(),
-        renamed.keySet().stream())
+      created.stream(),
+      updated.stream(),
+      removed.stream(),
+      renamed.keySet().stream())
       .flatMap(s -> s);
   }
 
@@ -191,9 +191,8 @@ class RulesRegistrationContext {
     checkState(known.contains(ruleDto), "unknown RuleDto");
   }
 
-  static RulesRegistrationContext create(DbClient dbClient, DbSession dbSession, boolean onlyBuiltIn) {
+  static RulesRegistrationContext create(DbClient dbClient, DbSession dbSession) {
     Map<RuleKey, RuleDto> allRules = dbClient.ruleDao().selectAll(dbSession).stream()
-      .filter(rule -> !onlyBuiltIn || rule.getPluginKey() == null)
       .collect(Collectors.toMap(RuleDto::getKey, Function.identity()));
     Map<String, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById = loadDeprecatedRuleKeys(dbClient, dbSession);
     Map<String, List<RuleParamDto>> ruleParamsByRuleUuid = loadAllRuleParameters(dbClient, dbSession);

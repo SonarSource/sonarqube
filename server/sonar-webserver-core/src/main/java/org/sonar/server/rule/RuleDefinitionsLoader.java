@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import java.util.Objects;
-import java.util.function.Predicate;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.server.plugins.ServerPluginRepository;
@@ -49,22 +47,12 @@ public class RuleDefinitionsLoader {
     this(serverPluginRepository, new RulesDefinition[0]);
   }
 
-  public RulesDefinition.Context loadFromPlugins() {
-    return load(Predicate.not(Objects::isNull));
-  }
-
-  public RulesDefinition.Context loadBuiltIn() {
-    return load(Objects::isNull);
-  }
-
-  private RulesDefinition.Context load(Predicate<String> pluginKeyPredicate) {
+  public RulesDefinition.Context load() {
     RulesDefinition.Context context = new RulesDefinitionContext();
     for (RulesDefinition rulesDefinition : rulesDefinitions) {
       var pluginKey = serverPluginRepository.getPluginKey(rulesDefinition);
-      if (pluginKeyPredicate.test(pluginKey)) {
-        context.setCurrentPluginKey(pluginKey);
-        rulesDefinition.define(context);
-      }
+      context.setCurrentPluginKey(pluginKey);
+      rulesDefinition.define(context);
     }
     context.setCurrentPluginKey(null);
     return context;
