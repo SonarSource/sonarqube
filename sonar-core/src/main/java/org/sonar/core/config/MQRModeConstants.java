@@ -24,6 +24,7 @@ public class MQRModeConstants {
   public static final String UI_MODE = "Mode";
   public static final String UI_MODE_SUB_CATEGORY = "Mode";
   public static final String MULTI_QUALITY_MODE_ENABLED = "sonar.multi-quality-mode.enabled";
+  public static final boolean MULTI_QUALITY_MODE_DEFAULT_VALUE = true;
 
   private MQRModeConstants() {
     //class cannot be instantiated

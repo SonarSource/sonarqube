@@ -24,6 +24,7 @@ import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
 import static org.sonar.core.config.MQRModeConstants.UI_MODE;
 import static org.sonar.core.config.MQRModeConstants.UI_MODE_SUB_CATEGORY;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
@@ -36,7 +37,7 @@ public final class MQRModeProperties {
   public static List<PropertyDefinition> all() {
     return Collections.singletonList(
       PropertyDefinition.builder(MULTI_QUALITY_MODE_ENABLED)
-        .defaultValue(Boolean.TRUE.toString())
+        .defaultValue(Boolean.toString(MULTI_QUALITY_MODE_DEFAULT_VALUE))
         .name("Enable Multi-Quality Rule Mode")
         .description("Aims to more accurately represent the impact software has on all software qualities. " +
                 "It does this by mapping rules to every software quality they can impact, not just the one " +
