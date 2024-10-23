@@ -73,6 +73,7 @@ dependencies {
   testImplementation project(':plugins:sonar-xoo-plugin')
   testImplementation 'org.wiremock:wiremock-standalone'
   testImplementation 'org.junit-pioneer:junit-pioneer'
+  testImplementation 'org.awaitility:awaitility'
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'

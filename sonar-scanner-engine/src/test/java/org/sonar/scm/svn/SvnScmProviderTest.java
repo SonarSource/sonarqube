@@ -86,10 +86,6 @@ public class SvnScmProviderTest {
   @Before
   public void before() throws IOException, SVNException {
     svnTester = new SvnTester(temp.newFolder().toPath());
-
-    Path worktree = temp.newFolder().toPath();
-    svnTester.checkout(worktree, "trunk");
-    createAndCommitFile(worktree, "file-in-first-commit.xoo");
   }
 
   @Test
@@ -119,33 +115,36 @@ public class SvnScmProviderTest {
   }
 
   @Test
-  public void branchChangedFiles_and_lines_from_diverged() throws IOException, SVNException {
+  public void branchChangedFiles_and_lines_from_diverged() throws IOException, SVNException, InterruptedException {
     Path trunk = temp.newFolder().toPath();
     svnTester.checkout(trunk, "trunk");
-    createAndCommitFile(trunk, "file-m1.xoo");
-    createAndCommitFile(trunk, "file-m2.xoo");
-    createAndCommitFile(trunk, "file-m3.xoo");
-    createAndCommitFile(trunk, "lao.txt", CONTENT_LAO);
+    createFile(trunk, "file-m1.xoo");
+    createFile(trunk, "file-m2.xoo");
+    createFile(trunk, "file-m3.xoo");
+    createFile(trunk, "lao.txt", CONTENT_LAO);
+    svnTester.commit(trunk);
 
     // create branch from trunk
     svnTester.createBranch("b1");
 
     // still on trunk
-    appendToAndCommitFile(trunk, "file-m3.xoo");
-    createAndCommitFile(trunk, "file-m4.xoo");
+    svnTester.appendToFile(trunk, "file-m3.xoo");
+    createFile(trunk, "file-m4.xoo");
+    svnTester.commit(trunk);
 
     Path b1 = temp.newFolder().toPath();
     svnTester.checkout(b1, "branches/b1");
     Files.createDirectories(b1.resolve("sub"));
-    createAndCommitFile(b1, "sub/file-b1.xoo");
-    appendToAndCommitFile(b1, "file-m1.xoo");
-    deleteAndCommitFile(b1, "file-m2.xoo");
+    createFile(b1, "sub/file-b1.xoo");
+    svnTester.appendToFile(b1, "file-m1.xoo");
+    deleteFile(b1, "file-m2.xoo");
 
     createAndCommitFile(b1, "file-m5.xoo");
-    deleteAndCommitFile(b1, "file-m5.xoo");
+    deleteFile(b1, "file-m5.xoo");
 
     svnCopyAndCommitFile(b1, "file-m1.xoo", "file-m1-copy.xoo");
-    appendToAndCommitFile(b1, "file-m1.xoo");
+    svnTester.appendToFile(b1, "file-m1.xoo");
+    svnTester.commit(b1);
 
     // modify file without committing it -> should not be included (think generated files)
     svnTester.appendToFile(b1, "file-m3.xoo");
@@ -268,8 +267,7 @@ public class SvnScmProviderTest {
   }
 
   private void createAndCommitFile(Path worktree, String filename, String content) throws IOException, SVNException {
-    svnTester.createFile(worktree, filename, content);
-    svnTester.add(worktree, filename);
+    createFile(worktree, filename, content);
     svnTester.commit(worktree);
   }
 
@@ -277,14 +275,18 @@ public class SvnScmProviderTest {
     createAndCommitFile(worktree, filename, filename + "\n");
   }
 
-  private void appendToAndCommitFile(Path worktree, String filename) throws IOException, SVNException {
-    svnTester.appendToFile(worktree, filename);
-    svnTester.commit(worktree);
+  private void createFile(Path worktree, String filename) throws IOException, SVNException {
+    svnTester.createFile(worktree, filename, filename + "\n");
+    svnTester.add(worktree, filename);
   }
 
-  private void deleteAndCommitFile(Path worktree, String filename) throws SVNException {
+  private void createFile(Path worktree, String filename, String content) throws IOException, SVNException {
+    svnTester.createFile(worktree, filename, content);
+    svnTester.add(worktree, filename);
+  }
+
+  private void deleteFile(Path worktree, String filename) throws SVNException {
     svnTester.deleteFile(worktree, filename);
-    svnTester.commit(worktree);
   }
 
   private void svnCopyAndCommitFile(Path worktree, String src, String dst) throws SVNException {

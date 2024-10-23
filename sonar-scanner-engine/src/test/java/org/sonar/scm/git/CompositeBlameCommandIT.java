@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -57,18 +58,24 @@ import static org.mockito.Mockito.when;
 
 class CompositeBlameCommandIT {
 
+  private static final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
+  private static final NativeGitBlameCommand nativeGitBlameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
+
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
 
   private final BlameCommand.BlameInput input = mock(BlameCommand.BlameInput.class);
   private final JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
 
-  private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
-  private final NativeGitBlameCommand nativeGitBlameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
-
   // In JUnit4, if the cleanup cannot be performed, the test would not fail. This has changed with JUnit5
   // As we cannot find the cause of failure during cleanup, we disable it for now
   @TempDir (cleanup = NEVER)
   private File temp;
+
+  @BeforeAll
+  public static void setUp() {
+    // locating the git executable is a costly operation that can be done just once for all tests in this class
+    nativeGitBlameCommand.checkIfEnabled();
+  }
 
   @ParameterizedTest
   @MethodSource("namesOfTheTestRepositoriesWithBlameAlgorithm")

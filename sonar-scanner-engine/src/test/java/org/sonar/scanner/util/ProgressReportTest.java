@@ -20,7 +20,10 @@
 package org.sonar.scanner.util;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -57,18 +60,25 @@ public class ProgressReportTest {
   }
 
   @Test
-  public void do_log() throws InterruptedException {
+  public void do_log() {
     logTester.setLevel(Level.DEBUG);
     underTest.start("start");
     underTest.message("Some message");
     boolean logged = false;
-    Thread.sleep(2000);
     while (!logged) {
-      logged = logTester.logs().contains("Some message");
+      logged = containsWithRetry("Some message");
     }
     underTest.stop("stop");
-    Thread.sleep(1000);
-    assertThat(logTester.logs().stream().anyMatch(s -> Pattern.matches("stop", s))).isTrue();
+    assertThat(containsWithRetry("stop")).isTrue();
+  }
+
+  private boolean containsWithRetry(String message) {
+    try {
+      Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> logTester.logs().contains(message));
+    } catch (ConditionTimeoutException e) {
+      return false;
+    }
+    return true;
   }
 
   @Test
