@@ -458,7 +458,7 @@ public class SearchAction implements IssuesWsAction {
       .setSince("10.4");
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
-      .setRequired(true)
+      .setRequired(false)
       .setInternal(true);
     action.createParam(PARAM_SEARCH_AFTER)
         .setDescription("By default, you cannot get more than 10,000 items by using from/size parameters.<br>" +
@@ -755,7 +755,7 @@ public class SearchAction implements IssuesWsAction {
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
       .setTimeZone(request.param(PARAM_TIMEZONE))
       .setSearchAfter(request.param(PARAM_SEARCH_AFTER))
-      .setOrganization(request.mandatoryParam(PARAM_ORGANIZATION))
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setCodeVariants(request.paramAsStrings(PARAM_CODE_VARIANTS))
       .setFixedInPullRequest(request.param(PARAM_FIXED_IN_PULL_REQUEST));
   }

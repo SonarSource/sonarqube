@@ -23,7 +23,8 @@ import { Notification } from "../types/types";
 import axios from "axios";
 
 export function getRawNotificationsForOrganization(key: string): Promise<Notification> {
-  return axios.get('/_codescan/notifications', { organizationId: key })
+  const params = { organizationId: key };
+  return axios.get('/_codescan/notifications', { params })
     .catch(throwGlobalError);
 }
 
