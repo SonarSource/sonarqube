@@ -76,7 +76,7 @@ export default function AboutProject(props: AboutProjectProps) {
           (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
           <ProjectInformationSection className="sw-pt-0 sw-flex sw-flex-col sw-gap-4">
             {component.qualityGate && (
-              <MetaQualityGate qualityGate={component.qualityGate} isAiAssured={isAiAssured} />
+              <MetaQualityGate organization={component.organization} qualityGate={component.qualityGate} isAiAssured={isAiAssured} />
             )}
 
             {component.qualityProfiles && component.qualityProfiles.length > 0 && (

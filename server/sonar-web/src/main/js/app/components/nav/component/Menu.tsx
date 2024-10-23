@@ -338,7 +338,7 @@ export function Menu(props: Readonly<Props>) {
         to={{ pathname: '/project/branches', search: new URLSearchParams(query).toString() }}
       >
         {
-          this.props.comparisonBranchesEnabled
+          props.comparisonBranchesEnabled
             ? translate('project_branches.page')
             : translate('project_branch_pull_request.page')
         }

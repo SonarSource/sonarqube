@@ -26,9 +26,10 @@ import { getQualityGateUrl } from '../../../../helpers/urls';
 interface Props {
   isAiAssured?: boolean;
   qualityGate: { isDefault?: boolean; name: string };
+  organizzation: string;
 }
 
-export default function MetaQualityGate({ qualityGate, isAiAssured }: Props) {
+export default function MetaQualityGate({ organization, qualityGate, isAiAssured }: Props) {
   return (
     <div>
       <SubHeading id="quality-gate-header">{translate('project.info.quality_gate')}</SubHeading>
@@ -36,7 +37,7 @@ export default function MetaQualityGate({ qualityGate, isAiAssured }: Props) {
       <ul className="sw-flex sw-flex-col sw-gap-2" aria-labelledby="quality-gate-header">
         <li>
           {qualityGate.isDefault && <Note className="sw-mr-2">({translate('default')})</Note>}
-          <Link to={getQualityGateUrl(qualityGate.name)}>{qualityGate.name}</Link>
+          <Link to={getQualityGateUrl(organization, qualityGate.name)}>{qualityGate.name}</Link>
         </li>
       </ul>
       {isAiAssured === true && (

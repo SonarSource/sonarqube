@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Spinner } from '@sonarsource/echoes-react';
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Navigate } from 'react-router-dom';
@@ -38,6 +38,7 @@ import { Permissions } from '../../../types/permissions';
 import { TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
+import { Helmet } from "react-helmet-async";
 
 export interface EmptyOverviewProps {
   branchLike?: BranchLike;
@@ -68,11 +69,12 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
       .then(({ projects }) => {
         setCurrentUserCanScanProject(projects.find((p) => p.key === component.key) !== undefined);
       })
-      .catch(() => {});
+      .catch(() => {
+      });
   }, [component.key, currentUser, currentUserCanScanProject]);
 
   if (isLoading) {
-    return <Spinner />;
+    return <Spinner/>;
   }
 
   if (component.qualifier === ComponentQualifier.Application) {
@@ -97,7 +99,18 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
     currentUserCanScanProject && isMainBranch(branchLike) && !hasBranches && !hasQueuedAnalyses;
 
   if (showTutorial && isLoggedIn(currentUser)) {
-    return <Navigate replace to={getProjectTutorialLocation(component.key)} />;
+    return (
+      <LargeCenteredLayout className="sw-pt-8">
+        <PageContentFontWrapper>
+          <h1>{translate('onboarding.project_analysis.header')}</h1>
+          <p className="sw-pt-4">
+            {translate('layout.must_be_configured')}
+            Run analysis on <Link to={`/project/extension/developer/project?id=${component.key}`}>Project
+            Analysis</Link> Page.
+          </p>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    );
   }
 
   let warning;

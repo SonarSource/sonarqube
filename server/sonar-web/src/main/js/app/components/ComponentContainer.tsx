@@ -48,6 +48,7 @@ import { getOrganization, getOrganizationNavigation } from "../../api/organizati
 import { ComponentQualifier } from "~sonar-aligned/types/component";
 import { Feature } from "../../types/features";
 import { ProjectAlmBindingConfigurationErrors } from "../../types/alm-settings";
+import { getValues } from '../../api/settings';
 
 const FETCH_STATUS_WAIT_TIME = 3000;
 
@@ -102,7 +103,7 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
           getValues({ keys: ['codescan.comparison.branches'], component: component.key }),
         ]);
         setOrganization({ organization: { ...organization, ...navigation } });
-        setComparisonBranchesEnabled(settings[0].value === "true");
+        setComparisonBranchesEnabled(settings[0]?.value === "true");
       } catch (e) {
         if (e instanceof Response && e.status === HttpStatus.Forbidden) {
           handleRequiredAuthorization();

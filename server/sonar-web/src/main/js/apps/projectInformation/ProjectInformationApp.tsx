@@ -37,6 +37,7 @@ import AboutProject from './about/AboutProject';
 import ProjectBadges from './badges/ProjectBadges';
 import ProjectNotifications from './notifications/ProjectNotifications';
 import RegulatoryReport from './projectRegulatoryReport/RegulatoryReport';
+import { withOrganizationContext } from "../organizations/OrganizationContext";
 
 interface Props extends WithAvailableFeaturesProps {
   branchLike?: BranchLike;
@@ -113,5 +114,5 @@ function ProjectInformationApp(props: Props) {
 }
 
 export default withComponentContext(
-  withCurrentUserContext(withMetricsContext(withAvailableFeatures(ProjectInformationApp))),
+  withCurrentUserContext(withMetricsContext(withAvailableFeatures(withOrganizationContext(ProjectInformationApp)))),
 );
