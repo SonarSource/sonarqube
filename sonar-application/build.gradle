@@ -109,6 +109,10 @@ downloadLicenses {
 }
 
 tasks.register('downloadJres') {
+  inputs.file(layout.projectDirectory.dir('src/main/resources/jres-metadata.json').asFile).withPathSensitivity(PathSensitivity.RELATIVE)
+  outputs.dir(layout.buildDirectory.file('jres'))
+  outputs.cacheIf { true }
+
   doLast {
     def jresMetadata = new JsonSlurper().parse(file(layout.projectDirectory.dir('src/main/resources/jres-metadata.json').asFile))
     jresMetadata.each { jre ->
@@ -363,6 +367,7 @@ task cleanLocalUnzippedDir(dependsOn: zip) {
   def unzippedDir = file("$buildDir/distributions/sonarqube-$version")
   inputs.files(file("$buildDir/distributions/sonar-application-${version}.zip"))
   outputs.upToDateWhen { true }
+  outputs.cacheIf('Caching has not been enabled for the task.') { false }
 
   doLast {
     println("delete directory ${unzippedDir}")
