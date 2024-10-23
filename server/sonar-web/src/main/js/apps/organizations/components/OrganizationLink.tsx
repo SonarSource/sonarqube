@@ -23,18 +23,16 @@ import Link from "../../../components/common/Link";
 interface Props {
   children?: React.ReactNode;
   organization: { kee: string };
+  onClick?: () => void;
 
   [x: string]: any;
 }
 
-function handleClick(){
-}
-
 export default function OrganizationLink(props: Props) {
-  const { children, organization, ...other } = props;
+  const { children, organization, onClick, ...other } = props;
 
   return (
-      <Link onClick={handleClick} to={`/organizations/${organization.kee}`} {...other}>
+      <Link onClick={onClick} to={`/organizations/${organization.kee}`} {...other}>
         {children}
       </Link>
   );

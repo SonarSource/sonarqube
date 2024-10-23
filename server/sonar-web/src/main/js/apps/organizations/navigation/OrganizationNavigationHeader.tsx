@@ -22,8 +22,11 @@ import { sortBy } from 'lodash';
 import { Organization } from "../../../types/types";
 import OrganizationAvatar from "../components/OrganizationAvatar";
 import OrganizationListItem from "../components/OrganizationListItem";
-import { DropdownMenu } from "@sonarsource/echoes-react";
-import { NavBarTabLink } from "design-system";
+import { Button, DropdownMenu, DropdownMenuAlign, IconChevronDown } from "@sonarsource/echoes-react";
+import { NavBarTabLink, Popup, PopupPlacement, PopupZLevel, TopBar } from "design-system";
+import FocusOutHandler from "../../../components/controls/FocusOutHandler";
+import EscKeydownHandler from "../../../components/controls/EscKeydownHandler";
+import OutsideClickHandler from "../../../components/controls/OutsideClickHandler";
 
 export interface Props {
   organization: Organization;
@@ -31,40 +34,61 @@ export interface Props {
 }
 
 export default function OrganizationNavigationHeader({ organization, organizations }: Props) {
+
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
   const other = organizations.filter(o => o.kee !== organization.kee);
 
+  console.info("isMenuOpen", isMenuOpen);
+
   return (
-      <header className="navbar-context-header">
+    <div>
+      <div className="sw-flex sw-items-center">
         <OrganizationAvatar organization={organization}/>
+
         {other.length ? (
           <DropdownMenu.Root
+            isOpen={isMenuOpen}
+            align={DropdownMenuAlign.Start}
+            className="sw-p-3"
             items={
               <>
                 {sortBy(other, org => org.name.toLowerCase()).map(organization => (
-                  <DropdownMenu.ItemLink key={organization.kee} isMatchingFullPath to="/admin/settings">
-                    <OrganizationListItem organization={organization} />
-                  </DropdownMenu.ItemLink>
+                  <OrganizationListItem
+                    key={organization.kee}
+                    organization={organization}
+                    onClick={() => setIsMenuOpen(false)}
+                  />
                 ))}
               </>
             }
           >
-            <NavBarTabLink
+            <Button
+              className="sw-max-w-abs-800 sw-px-3 sw-outline-none"
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+              isDisabled={organizations.length === 1}
+              aria-expanded={isMenuOpen}
               aria-haspopup="menu"
-              to={{}}
-              text={organization.name}
-              withChevron
-            />
+              suffix={<IconChevronDown/>}
+              style={{ border: "none" }}
+            >
+              {organization.name}
+            </Button>
           </DropdownMenu.Root>
         ) : (
           <span className="spacer-left">{organization.name}</span>
         )}
-        {organization.description != null && (
-          <div className="navbar-context-description">
-            <p className="text-limited text-top" title={organization.description}>
-              {organization.description}
-            </p>
-          </div>
-        )}
-      </header>
+      </div>
+
+      {organization.description != null && (
+        <div className="navbar-context-description">
+          <p className="text-limited text-top" title={organization.description}>
+            {organization.description}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

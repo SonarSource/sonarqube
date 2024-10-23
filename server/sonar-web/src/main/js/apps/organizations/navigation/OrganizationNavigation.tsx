@@ -61,7 +61,7 @@ export function OrganizationNavigation({ location, organization, userOrganizatio
 
   return (
     <TopBar id="context-navigation">
-      <div style={{ height: height + "px" }} className="navbar-context-justified">
+      <div style={{ height: height + "px" }} className="sw-flex sw-justify-between">
         <OrganizationNavigationHeader
           organization={organization}
           organizations={userOrganizations}

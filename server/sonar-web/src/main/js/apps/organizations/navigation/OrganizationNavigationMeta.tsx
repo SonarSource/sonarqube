@@ -29,27 +29,26 @@ interface Props {
 export default function OrganizationNavigationMeta({ organization }: Props) {
 
   let orgType: any = "ORGANIZATION";
-  if(window.location.href.indexOf("policy-results")>0){
+  if (window.location.href.indexOf("policy-results") > 0) {
     orgType = "POLICY_RESULTS";
   }
 
   return (
-      <div className="navbar-context-meta">
-        {organization.url != null && (
-            <a
-                className="spacer-right text-limited"
-                href={organization.url}
-                rel="nofollow"
-                title={organization.url}>
-              {organization.url}
-            </a>
-        )}
-        <div className="text-muted">
-          <strong>{translate('organization.key')}:</strong> {organization.kee}
-        </div>
-        <div className="navbar-context-meta-secondary">
-          <HomePageSelect currentPage={{ type: orgType, organization: organization.kee }}/>
-        </div>
+    <div className="sw-text-right">
+      {organization.url && (
+        <a
+          className="spacer-right text-limited"
+          href={organization.url}
+          rel="nofollow"
+          title={organization.url}
+        >
+          {organization.url}
+        </a>
+      )}
+      <div className="text-muted">
+        <strong>{translate('organization.key')}:</strong> {organization.kee}
       </div>
+      <HomePageSelect currentPage={{ type: orgType, organization: organization.kee }}/>
+    </div>
   );
 }

@@ -26,12 +26,17 @@ import { Badge } from "design-system";
 
 interface Props {
   organization: Organization;
+  onClick?: () => void;
 }
 
-export default function OrganizationListItem({ organization }: Props) {
+export default function OrganizationListItem({ organization, onClick }: Props) {
   const { actions = {} } = organization;
   return (
-    <OrganizationLink className="sw-flex sw-gap-3 sw-items-center" organization={organization}>
+    <OrganizationLink
+      className="sw-flex sw-gap-3 sw-items-center"
+      organization={organization}
+      onClick={onClick}
+    >
       <OrganizationAvatar organization={organization} small={true} />
       <span className="spacer-left">{organization.name}</span>
       {actions.admin && <Badge>{translate('admin')}</Badge>}
