@@ -70,8 +70,8 @@ public class BitbucketServerRestClient {
   }
 
   public void validateUrl(String serverUrl) {
-    HttpUrl url = buildUrl(serverUrl, "/rest/api/1.0/repos");
-    doGet("", url, body -> buildGson().fromJson(body, RepositoryList.class));
+    HttpUrl url = buildUrl(serverUrl, "/status");
+    doGet("", url, body -> buildGson().fromJson(body, State.class));
   }
 
   public void validateToken(String serverUrl, String token) {
