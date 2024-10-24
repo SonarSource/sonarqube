@@ -27,19 +27,20 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeThat;
 
-public class NetworkUtilsImplTest {
+class NetworkUtilsImplTest {
 
+  public static final String PREFER_IPV_6_ADDRESSES = "java.net.preferIPv6Addresses";
 
-  private NetworkUtilsImpl underTest = new NetworkUtilsImpl();
+  private final NetworkUtilsImpl underTest = new NetworkUtilsImpl();
 
   @Test
-  public void getNextAvailablePort_returns_a_port() throws Exception {
+  void getNextAvailablePort_returns_a_port() throws Exception {
     String localhost = InetAddress.getLocalHost().getHostName();
     int port = underTest.getNextAvailablePort(localhost).getAsInt();
     assertThat(port)
@@ -48,7 +49,7 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void getNextAvailablePort_does_not_return_twice_the_same_port() throws Exception {
+  void getNextAvailablePort_does_not_return_twice_the_same_port() throws Exception {
     String localhost = InetAddress.getLocalHost().getHostName();
     Set<Integer> ports = new HashSet<>(Arrays.asList(
       underTest.getNextAvailablePort(localhost).getAsInt(),
@@ -58,7 +59,7 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void getLocalNonLoopbackIpv4Address_returns_a_valid_local_and_non_loopback_ipv4() {
+  void getLocalNonLoopbackIpv4Address_returns_a_valid_local_and_non_loopback_ipv4() {
     Optional<InetAddress> address = underTest.getLocalNonLoopbackIpv4Address();
 
     // address is empty on offline builds
@@ -69,7 +70,7 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void getHostname_returns_hostname_of_localhost_otherwise_a_constant() {
+  void getHostname_returns_hostname_of_localhost_otherwise_a_constant() {
     try {
       InetAddress localHost = InetAddress.getLocalHost();
       assertThat(underTest.getHostname()).isEqualTo(localHost.getHostName());
@@ -80,41 +81,41 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void getLocalInetAddress_filters_local_addresses() {
+  void getLocalInetAddress_filters_local_addresses() {
     InetAddress address = underTest.getLocalInetAddress(InetAddress::isLoopbackAddress).get();
     assertThat(address.isLoopbackAddress()).isTrue();
   }
 
   @Test
-  public void getLocalInetAddress_returns_empty_if_no_local_addresses_match() {
+  void getLocalInetAddress_returns_empty_if_no_local_addresses_match() {
     Optional<InetAddress> address = underTest.getLocalInetAddress(a -> false);
     assertThat(address).isEmpty();
   }
 
   @Test
-  public void toInetAddress_supports_host_names() {
+  void toInetAddress_supports_host_names() {
     assertThat(underTest.toInetAddress("localhost")).isNotEmpty();
     // do not test values that require DNS calls. Build must support offline mode.
   }
 
   @Test
-  public void toInetAddress_supports_ipv4() {
+  void toInetAddress_supports_ipv4() {
     assertThat(underTest.toInetAddress("1.2.3.4")).isNotEmpty();
   }
 
   @Test
-  public void toInetAddress_supports_ipv6() {
+  void toInetAddress_supports_ipv6() {
     assertThat(underTest.toInetAddress("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb")).isNotEmpty();
     assertThat(underTest.toInetAddress("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]")).isNotEmpty();
   }
 
   @Test
-  public void toInetAddress_returns_empty_on_unvalid_IP_and_hostname() {
+  void toInetAddress_returns_empty_on_unvalid_IP_and_hostname() {
     assertThat(underTest.toInetAddress(secure().nextAlphabetic(32))).isEmpty();
   }
 
   @Test
-  public void isLoopback_returns_true_on_loopback_address_or_host() {
+  void isLoopback_returns_true_on_loopback_address_or_host() {
     InetAddress loopback = InetAddress.getLoopbackAddress();
 
     assertThat(underTest.isLoopback(loopback.getHostAddress())).isTrue();
@@ -122,7 +123,7 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void isLoopback_returns_true_on_localhost_address_or_host_if_loopback() {
+  void isLoopback_returns_true_on_localhost_address_or_host_if_loopback() {
     try {
       InetAddress localHost = InetAddress.getLocalHost();
       boolean isLoopback = localHost.isLoopbackAddress();
@@ -134,7 +135,7 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void isLocal_returns_true_on_loopback_address_or_host() {
+  void isLocal_returns_true_on_loopback_address_or_host() {
     InetAddress loopback = InetAddress.getLoopbackAddress();
 
     assertThat(underTest.isLocal(loopback.getHostAddress())).isTrue();
@@ -142,7 +143,7 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void isLocal_returns_true_on_localhost_address_or_host() {
+  void isLocal_returns_true_on_localhost_address_or_host() {
     try {
       InetAddress localHost = InetAddress.getLocalHost();
 
@@ -152,4 +153,18 @@ public class NetworkUtilsImplTest {
       // ignore, host running the test has no localhost
     }
   }
+
+  @Test
+  void isIpv6Address_returnsAccordingToAddressAndIPv6Preference() {
+    System.setProperty(PREFER_IPV_6_ADDRESSES, "false");
+    assertThat(underTest.isIpv6Address("2001:db8:3::91")).isTrue();
+    assertThat(underTest.isIpv6Address("192.168.1.1")).isFalse();
+    assertThat(underTest.isIpv6Address("")).isFalse();
+
+    System.setProperty(PREFER_IPV_6_ADDRESSES, "true");
+    assertThat(underTest.isIpv6Address("2001:db8:3::91")).isTrue();
+    assertThat(underTest.isIpv6Address("192.168.1.1")).isFalse();
+    assertThat(underTest.isIpv6Address("")).isTrue();
+  }
+
 }

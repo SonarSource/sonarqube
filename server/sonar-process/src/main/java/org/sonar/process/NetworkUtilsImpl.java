@@ -22,6 +22,7 @@ package org.sonar.process;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.InetAddresses;
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -102,7 +103,7 @@ public class NetworkUtilsImpl implements NetworkUtils {
       return InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
       LOG.trace("Failed to get hostname", e);
-      return  "unresolved hostname";
+      return "unresolved hostname";
     }
   }
 
@@ -142,6 +143,17 @@ public class NetworkUtilsImpl implements NetworkUtils {
     return toInetAddress(hostOrAddress)
       .filter(InetAddress::isLoopbackAddress)
       .isPresent();
+  }
+
+  @Override
+  public boolean isIpv6Address(String hostOrAddress) {
+    Optional<InetAddress> inetAddress = toInetAddress(hostOrAddress);
+    boolean ipv6Preferred = Boolean.parseBoolean(System.getProperty("java.net.preferIPv6Addresses"));
+
+    if (inetAddress.isEmpty() || inetAddress.get().isLoopbackAddress()) {
+      return ipv6Preferred;
+    }
+    return inetAddress.get() instanceof Inet6Address;
   }
 
   @Override

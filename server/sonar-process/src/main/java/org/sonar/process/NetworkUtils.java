@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -51,6 +52,8 @@ public interface NetworkUtils {
 
   boolean isLoopback(String hostOrAddress);
 
+  boolean isIpv6Address(String hostOrAddress);
+
   /**
    * Returns the machine {@link InetAddress} that matches the specified
    * predicate. If multiple addresses match then a single one
@@ -65,5 +68,14 @@ public interface NetworkUtils {
    */
   default Optional<InetAddress> getLocalNonLoopbackIpv4Address() {
     return getLocalInetAddress(a -> !a.isLoopbackAddress() && a instanceof Inet4Address);
+  }
+
+  /**
+   * Returns a local {@link InetAddress} that is IPv6 and not
+   * loopback. If multiple addresses match then a single one
+   * is picked in a non deterministic way.
+   */
+  default Optional<InetAddress> getLocalNonLoopbackIpv6Address() {
+    return getLocalInetAddress(a -> !a.isLoopbackAddress() && a instanceof Inet6Address);
   }
 }
