@@ -37,7 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -172,10 +172,10 @@ public class SearchProjectsActionIT {
   @DataProvider
   public static Object[][] component_qualifiers_for_valid_editions() {
     return new Object[][] {
-      {new String[] {Qualifiers.PROJECT}, Edition.COMMUNITY},
-      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
-      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
-      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
+      {new String[] {ComponentQualifiers.PROJECT}, Edition.COMMUNITY},
+      {new String[] {ComponentQualifiers.APP, ComponentQualifiers.PROJECT}, Edition.DEVELOPER},
+      {new String[] {ComponentQualifiers.APP, ComponentQualifiers.PROJECT}, Edition.ENTERPRISE},
+      {new String[] {ComponentQualifiers.APP, ComponentQualifiers.PROJECT}, Edition.DATACENTER},
     };
   }
 
@@ -1503,7 +1503,7 @@ public class SearchProjectsActionIT {
   private void index() {
     projectMeasuresIndexer.indexAll();
     ResultHandler<EntityDto> rh = r -> {
-      if (!r.getResultObject().getQualifier().equals(Qualifiers.SUBVIEW)) {
+      if (!r.getResultObject().getQualifier().equals(ComponentQualifiers.SUBVIEW)) {
         authorizationIndexerTester.allowOnlyAnyone(r.getResultObject());
       }
     };

@@ -30,7 +30,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -455,13 +455,13 @@ class MeasureDaoIT {
     newMeasureForMetrics(branch1, metric1, metric2);
 
     ComponentDto file = db.components().insertComponent(newFileDto(branch1));
-    ComponentDto uts = db.components().insertComponent(newFileDto(branch1).setQualifier(Qualifiers.UNIT_TEST_FILE));
+    ComponentDto uts = db.components().insertComponent(newFileDto(branch1).setQualifier(ComponentQualifiers.UNIT_TEST_FILE));
     MeasureDto measureOnFile11 = newMeasureForMetrics(file, metric1, metric2);
     newMeasureForMetrics(uts, metric1, metric2);
 
     underTest.selectTreeByQuery(db.getSession(), branch1,
       MeasureTreeQuery.builder()
-        .setQualifiers(Collections.singletonList(Qualifiers.FILE))
+        .setQualifiers(Collections.singletonList(ComponentQualifiers.FILE))
         .setStrategy(MeasureTreeQuery.Strategy.LEAVES).build(),
       context -> results.add(context.getResultObject()));
 

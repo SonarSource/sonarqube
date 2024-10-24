@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -52,9 +52,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -73,7 +73,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
   private ProjectDto project;
   private PermissionTemplateDto template1;
 
-  private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
+  private final ComponentTypesRule resourceTypesRule = new ComponentTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
   private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbTester.getDbClient(), resourceTypesRule);
   private final PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
     new TestIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());

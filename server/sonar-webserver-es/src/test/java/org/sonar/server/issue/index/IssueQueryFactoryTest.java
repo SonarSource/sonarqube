@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbTester;
@@ -52,7 +52,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
-import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -510,7 +510,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void param_componentUuids_enables_search_by_test_file() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setQualifier(Qualifiers.UNIT_TEST_FILE));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setQualifier(ComponentQualifiers.UNIT_TEST_FILE));
     SearchRequest request = new SearchRequest()
       .setComponentUuids(asList(file.uuid()));
 

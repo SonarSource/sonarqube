@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -202,7 +202,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   private ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
     String userUuid = requireNonNull(userSession.getUuid(), "Current user must be authenticated");
 
-    List<String> entitiesUuid = dbClient.roleDao().selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, userUuid, Set.of(Qualifiers.PROJECT));
+    List<String> entitiesUuid = dbClient.roleDao().selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, userUuid, Set.of(ComponentQualifiers.PROJECT));
 
     ImmutableSet<String> subSetEntityUuids = ImmutableSet.copyOf(entitiesUuid.subList(0, Math.min(entitiesUuid.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)));
     Pagination pagination = Pagination.forPage(request.page).andSize(request.pageSize);

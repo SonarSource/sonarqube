@@ -22,7 +22,7 @@ package org.sonar.server.project.ws;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -94,7 +94,7 @@ class SearchRequest {
   }
 
   public static class Builder {
-    private List<String> qualifiers = singletonList(Qualifiers.PROJECT);
+    private List<String> qualifiers = singletonList(ComponentQualifiers.PROJECT);
     private Integer page;
     private Integer pageSize;
     private String query;

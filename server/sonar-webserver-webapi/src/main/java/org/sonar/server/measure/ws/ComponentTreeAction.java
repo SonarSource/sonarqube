@@ -43,9 +43,9 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -153,21 +153,21 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
   private static final int MAX_METRIC_KEYS = 25;
   private static final String COMMA_JOIN_SEPARATOR = ", ";
-  private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = Set.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
+  private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = Set.of(ComponentQualifiers.FILE, ComponentQualifiers.UNIT_TEST_FILE);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final I18n i18n;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
 
   public ComponentTreeAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, I18n i18n,
-    ResourceTypes resourceTypes) {
+    ComponentTypes componentTypes) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.i18n = i18n;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
   }
 
   @Override
@@ -280,7 +280,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
         join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.PARTIALLY_SUPPORTED_METRICS.get(DATA.name())))
       .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
-    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, componentTypes));
 
     action.createParam(PARAM_STRATEGY)
       .setDescription("Strategy to search for base component descendants:" +
@@ -445,8 +445,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   // show them as apps, not sub-portfolios
   private static String getDisplayQualifier(ComponentDto component, ComponentDto referenceComponent) {
     String qualifier = component.qualifier();
-    if (qualifier.equals(Qualifiers.SUBVIEW) && referenceComponent.qualifier().equals(Qualifiers.APP)) {
-      return Qualifiers.APP;
+    if (qualifier.equals(ComponentQualifiers.SUBVIEW) && referenceComponent.qualifier().equals(ComponentQualifiers.APP)) {
+      return ComponentQualifiers.APP;
     }
     return qualifier;
   }
@@ -657,7 +657,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<String> requestQualifiers = request.getQualifiers();
     List<String> childrenQualifiers = null;
     if (LEAVES_STRATEGY.equals(request.getStrategy())) {
-      childrenQualifiers = resourceTypes.getLeavesQualifiers(baseQualifier);
+      childrenQualifiers = componentTypes.getLeavesQualifiers(baseQualifier);
     }
 
     if (requestQualifiers == null) {
@@ -693,7 +693,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   private void checkPermissions(ComponentDto baseComponent) {
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
 
-    if (Scopes.PROJECT.equals(baseComponent.scope()) && Qualifiers.APP.equals(baseComponent.qualifier())) {
+    if (ComponentScopes.PROJECT.equals(baseComponent.scope()) && ComponentQualifiers.APP.equals(baseComponent.qualifier())) {
       userSession.checkChildProjectsPermission(UserRole.USER, baseComponent);
     }
   }

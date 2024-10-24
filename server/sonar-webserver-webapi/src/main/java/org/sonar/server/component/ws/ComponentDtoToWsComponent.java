@@ -22,7 +22,7 @@ package org.sonar.server.component.ws;
 import java.util.Arrays;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
@@ -38,7 +38,7 @@ class ComponentDtoToWsComponent {
   /**
    * The concept of "visibility" will only be configured for these qualifiers.
    */
-  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
+  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW, ComponentQualifiers.APP);
 
   private ComponentDtoToWsComponent() {
     // prevent instantiation
@@ -84,7 +84,7 @@ class ComponentDtoToWsComponent {
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
-      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && parentProjectDto != null && isMainBranch) {
+      if (Arrays.asList(ComponentQualifiers.PROJECT, ComponentQualifiers.APP).contains(dto.qualifier()) && parentProjectDto != null && isMainBranch) {
         wsComponent.getTagsBuilder().addAllTags(parentProjectDto.getTags());
       }
     }

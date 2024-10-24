@@ -21,7 +21,7 @@ package org.sonar.server.almsettings.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -53,7 +53,7 @@ public class ListActionIT {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));
+  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class));
   private final WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, componentFinder));
 
   @Test

@@ -29,7 +29,7 @@ import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudValidator;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.ALM;
@@ -65,7 +65,7 @@ public class ValidateActionIT {
   public DbTester db = DbTester.create();
 
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
-  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));
+  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class));
   private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession, componentFinder, multipleAlmFeature);
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);

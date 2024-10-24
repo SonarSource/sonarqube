@@ -24,13 +24,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -66,7 +66,7 @@ public class RemoveProjectActionIT {
 
   private final QualityProfileChangeEventService qualityProfileChangeEventService = Mockito.mock(QualityProfileChangeEventService.class);
   private final RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages,
-    new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)), wsSupport, qualityProfileChangeEventService);
+    new ComponentFinder(dbClient, new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT)), wsSupport, qualityProfileChangeEventService);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test

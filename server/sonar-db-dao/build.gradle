@@ -44,7 +44,7 @@ dependencies {
 
   testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
   testFixturesApi testFixtures(project(':server:sonar-db-core'))
-    testFixturesApi testFixtures(project(':server:sonar-db-migration'))
+  testFixturesApi testFixtures(project(':server:sonar-db-migration'))
 
   testFixturesImplementation 'com.h2database:h2'
 

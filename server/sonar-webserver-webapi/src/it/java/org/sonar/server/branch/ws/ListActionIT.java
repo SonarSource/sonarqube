@@ -22,7 +22,7 @@ package org.sonar.server.branch.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -30,7 +30,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -75,13 +75,13 @@ public class ListActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
-  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+  private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(PROJECT);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), asyncIssueIndexing);
   private final PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
 
   private MetricDto qualityGateStatus;
 
-  public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
+  public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), componentTypes)));
 
   @Before
   public void setUp() {

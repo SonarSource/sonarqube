@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.queue.CeQueue;
@@ -146,7 +146,7 @@ public class ReportSubmitter {
   private void validateProject(DbSession dbSession, ComponentDto component, String rawProjectKey) {
     List<String> errors = new ArrayList<>();
 
-    if (!Qualifiers.PROJECT.equals(component.qualifier()) || !Scopes.PROJECT.equals(component.scope())) {
+    if (!ComponentQualifiers.PROJECT.equals(component.qualifier()) || !ComponentScopes.PROJECT.equals(component.scope())) {
       errors.add(format("Component '%s' is not a project", rawProjectKey));
     }
     if (!component.branchUuid().equals(component.uuid())) {

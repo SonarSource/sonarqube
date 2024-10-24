@@ -27,8 +27,8 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -512,8 +512,8 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     assertThat(dto.path()).isNull();
     assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.branchUuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.qualifier()).isEqualTo(Qualifiers.VIEW);
-    assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(dto.qualifier()).isEqualTo(ComponentQualifiers.VIEW);
+    assertThat(dto.scope()).isEqualTo(ComponentScopes.PROJECT);
     assertThat(dto.getCopyComponentUuid()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(now);
   }
@@ -528,8 +528,8 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     assertThat(dto.path()).isNull();
     assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.branchUuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.qualifier()).isEqualTo(Qualifiers.APP);
-    assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(dto.qualifier()).isEqualTo(ComponentQualifiers.APP);
+    assertThat(dto.scope()).isEqualTo(ComponentScopes.PROJECT);
     assertThat(dto.getCopyComponentUuid()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(now);
   }
@@ -544,8 +544,8 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     assertThat(sv1Dto.path()).isNull();
     assertThat(sv1Dto.uuid()).isEqualTo(SUBVIEW_1_UUID);
     assertThat(sv1Dto.branchUuid()).isEqualTo(viewDto.uuid());
-    assertThat(sv1Dto.qualifier()).isEqualTo(Qualifiers.SUBVIEW);
-    assertThat(sv1Dto.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(sv1Dto.qualifier()).isEqualTo(ComponentQualifiers.SUBVIEW);
+    assertThat(sv1Dto.scope()).isEqualTo(ComponentScopes.PROJECT);
     assertThat(sv1Dto.getCopyComponentUuid()).isNull();
     assertThat(sv1Dto.getCreatedAt()).isEqualTo(now);
   }
@@ -557,8 +557,8 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     assertThat(pv1Dto.path()).isNull();
     assertThat(pv1Dto.uuid()).isEqualTo(PROJECT_VIEW_1_UUID);
     assertThat(pv1Dto.branchUuid()).isEqualTo(viewDto.uuid());
-    assertThat(pv1Dto.qualifier()).isEqualTo(Qualifiers.PROJECT);
-    assertThat(pv1Dto.scope()).isEqualTo(Scopes.FILE);
+    assertThat(pv1Dto.qualifier()).isEqualTo(ComponentQualifiers.PROJECT);
+    assertThat(pv1Dto.scope()).isEqualTo(ComponentScopes.FILE);
     assertThat(pv1Dto.getCopyComponentUuid()).isEqualTo(project.uuid());
     assertThat(pv1Dto.getCreatedAt()).isEqualTo(now);
   }

@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -46,10 +46,10 @@ import org.sonarqube.ws.Components.SearchWsResponse;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
@@ -63,13 +63,13 @@ public class SearchAction implements ComponentsWsAction {
     .build();
   private final ComponentIndex componentIndex;
   private final DbClient dbClient;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
   private final I18n i18n;
 
-  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n) {
+  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ComponentTypes componentTypes, I18n i18n) {
     this.componentIndex = componentIndex;
     this.dbClient = dbClient;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
     this.i18n = i18n;
   }
 
@@ -96,7 +96,7 @@ public class SearchAction implements ComponentsWsAction {
         DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH + " (inclusive) characters. In case longer value is provided it will be truncated.")
       .setExampleValue("sonar");
 
-    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes), VALID_QUALIFIERS)
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, componentTypes), VALID_QUALIFIERS)
       .setRequired(true);
   }
 

@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubPermissionConverter;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
@@ -43,7 +43,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -124,7 +124,7 @@ public class ImportGithubProjectActionIT {
     new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
     Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
       new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
-  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT));
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
     permissionTemplateService, new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
     defaultBranchNameResolver, userPermissionUpdater, permissionService);

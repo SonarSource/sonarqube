@@ -31,7 +31,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbSession;
@@ -158,7 +158,7 @@ public class LiveMeasureComputerImplIT {
   }
 
   private SnapshotDto markProjectAsAnalyzed(ComponentDto p, @Nullable Long periodDate) {
-    assertThat(p.qualifier()).isEqualTo(Qualifiers.PROJECT);
+    assertThat(p.qualifier()).isEqualTo(ComponentQualifiers.PROJECT);
     return db.components().insertSnapshot(p, s -> s.setPeriodDate(periodDate));
   }
 

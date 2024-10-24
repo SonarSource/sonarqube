@@ -21,7 +21,7 @@ package org.sonar.server.permission.ws.template;
 
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -35,9 +35,9 @@ import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -60,7 +60,7 @@ public class SetDefaultTemplateActionIT extends BasePermissionWsIT<SetDefaultTem
     PermissionTemplateDto template = insertTemplate();
     loginAsAdmin();
 
-    newRequest(template.getUuid(), Qualifiers.PROJECT);
+    newRequest(template.getUuid(), ComponentQualifiers.PROJECT);
 
     assertDefaultTemplates(template.getUuid(), applicationDefaultTemplate.getUuid(), portfolioDefaultTemplate.getUuid());
   }
@@ -162,7 +162,7 @@ public class SetDefaultTemplateActionIT extends BasePermissionWsIT<SetDefaultTem
     loginAsAdmin();
 
     assertThatThrownBy(() ->  {
-      newRequest(template.getUuid(), Qualifiers.FILE);
+      newRequest(template.getUuid(), ComponentQualifiers.FILE);
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value of parameter 'qualifier' (FIL) must be one of: [APP, TRK, VW]");

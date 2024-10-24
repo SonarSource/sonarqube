@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -37,9 +36,9 @@ import org.sonar.db.project.ProjectDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.NONE;
 
@@ -592,7 +591,7 @@ public class ComponentDbTester {
     return new ProjectDto()
       .setUuid(Uuids.createFast())
       .setKey(componentDto.getKey())
-      .setQualifier(componentDto.qualifier() != null ? componentDto.qualifier() : Qualifiers.PROJECT)
+      .setQualifier(componentDto.qualifier() != null ? componentDto.qualifier() : ComponentQualifiers.PROJECT)
       .setCreatedAt(createTime)
       .setUpdatedAt(createTime)
       .setPrivate(componentDto.isPrivate())

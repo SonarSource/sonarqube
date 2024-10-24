@@ -29,8 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -190,7 +190,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
   private ComponentDto searchComponent(SearchHistoryRequest request, DbSession dbSession) {
     ComponentDto component = loadComponent(dbSession, request);
     userSession.checkComponentPermission(UserRole.USER, component);
-    if (Scopes.PROJECT.equals(component.scope()) && Qualifiers.APP.equals(component.qualifier())) {
+    if (ComponentScopes.PROJECT.equals(component.scope()) && ComponentQualifiers.APP.equals(component.qualifier())) {
       userSession.checkChildProjectsPermission(UserRole.USER, component);
     }
     return component;

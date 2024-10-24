@@ -23,7 +23,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
@@ -31,7 +31,6 @@ import org.sonar.xoo.extensions.XooExcludeFileFilter;
 import org.sonar.xoo.extensions.XooIssueFilter;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
-import org.sonar.xoo.rule.telemetry.SensorMetrics;
 import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
@@ -87,6 +86,7 @@ import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
 import org.sonar.xoo.rule.telemetry.OneIssuePerUninitializedVariableForTelemetrySensor;
+import org.sonar.xoo.rule.telemetry.SensorMetrics;
 import org.sonar.xoo.rule.variant.HotspotWithCodeVariantsSensor;
 import org.sonar.xoo.rule.variant.IssueWithCodeVariantsSensor;
 import org.sonar.xoo.scm.XooBlameCommand;
@@ -106,7 +106,7 @@ public class XooPlugin implements Plugin {
         .name("File suffixes")
         .description("Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.")
         .subCategory("General")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .multiValues(true)
         .build(),
       PropertyDefinition.builder(Xoo2.FILE_SUFFIXES_KEY)
@@ -114,15 +114,15 @@ public class XooPlugin implements Plugin {
         .name("File suffixes")
         .description("Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.")
         .subCategory("General")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .build(),
       // Used by DuplicationsTest and IssueFilterOnCommonRulesTest. If not declared it is not returned by api/settings
       PropertyDefinition.builder("sonar.cpd.xoo.minimumTokens")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .type(PropertyType.INTEGER)
         .build(),
       PropertyDefinition.builder("sonar.cpd.xoo.minimumLines")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .type(PropertyType.INTEGER)
         .build(),
       Xoo.class,

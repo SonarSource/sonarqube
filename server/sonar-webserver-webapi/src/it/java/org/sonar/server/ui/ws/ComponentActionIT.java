@@ -28,10 +28,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -39,7 +39,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
-import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -104,16 +104,16 @@ public class ComponentActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final ComponentDbTester componentDbTester = db.components();
   private final PropertyDbTester propertyDbTester = new PropertyDbTester(db);
-  private final ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private final ComponentTypes componentTypes = mock(ComponentTypes.class);
   private final Configuration config = mock(Configuration.class);
 
   private WsActionTester ws;
 
   @Before
   public void setup() {
-    ResourceType resourceType = mock(ResourceType.class);
-    when(resourceType.getBooleanProperty(any())).thenReturn(true);
-    when(resourceTypes.get(any())).thenReturn(resourceType);
+    ComponentType componentType = mock(ComponentType.class);
+    when(componentType.getBooleanProperty(any())).thenReturn(true);
+    when(componentTypes.get(any())).thenReturn(componentType);
   }
 
   @Test
@@ -516,7 +516,7 @@ public class ComponentActionIT {
       .addProjectPermission(UserRole.USER, project.getProjectDto())
       .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
-    ResourceType projectResourceType = ResourceType.builder(project.getProjectDto().getQualifier())
+    ComponentType projectComponentType = ComponentType.builder(project.getProjectDto().getQualifier())
       .setProperty("comparable", true)
       .setProperty("configurable", true)
       .setProperty("hasRolePolicy", true)
@@ -524,8 +524,8 @@ public class ComponentActionIT {
       .setProperty("updatable_key", true)
       .setProperty("deletable", true)
       .build();
-    when(resourceTypes.get(project.getProjectDto().getQualifier()))
-      .thenReturn(projectResourceType);
+    when(componentTypes.get(project.getProjectDto().getQualifier()))
+      .thenReturn(projectComponentType);
     init();
 
     executeAndVerify(project.projectKey(), "return_configuration_with_all_properties.json");
@@ -749,7 +749,7 @@ public class ComponentActionIT {
       .setProjectVersion("6.3")
       .setLast(true);
     componentDbTester.insertSnapshot(analysis);
-    when(resourceTypes.get(projectDto.getQualifier())).thenReturn(DefaultResourceTypes.get().getRootType());
+    when(componentTypes.get(projectDto.getQualifier())).thenReturn(DefaultComponentTypes.get().getRootType());
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setEntityUuid(projectDto.getUuid()).setUserUuid(user.getUuid()),
       projectDto.getKey(), projectDto.getName(), projectDto.getQualifier(), user.getLogin());
@@ -808,8 +808,8 @@ public class ComponentActionIT {
       .setBranchUuid("abcd")
       .setName("Polop")
       .setDescription("test project")
-      .setQualifier(Qualifiers.PROJECT)
-      .setScope(Scopes.PROJECT));
+      .setQualifier(ComponentQualifiers.PROJECT)
+      .setScope(ComponentScopes.PROJECT));
   }
 
   private void init(Page... pages) {
@@ -825,7 +825,7 @@ public class ComponentActionIT {
     }});
     pageRepository.start();
     ws = new WsActionTester(
-      new ComponentAction(dbClient, pageRepository, resourceTypes, userSession, new ComponentFinder(dbClient, resourceTypes),
+      new ComponentAction(dbClient, pageRepository, componentTypes, userSession, new ComponentFinder(dbClient, componentTypes),
         new QualityGateFinder(dbClient), config));
   }
 

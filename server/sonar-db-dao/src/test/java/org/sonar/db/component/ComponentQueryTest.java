@@ -27,7 +27,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 class ComponentQueryTest {
 

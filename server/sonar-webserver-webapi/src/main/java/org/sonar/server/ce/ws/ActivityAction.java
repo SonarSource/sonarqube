@@ -31,7 +31,7 @@ import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -77,7 +77,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
-  private static final String[] POSSIBLE_QUALIFIERS = new String[]{Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
+  private static final String[] POSSIBLE_QUALIFIERS = new String[]{ComponentQualifiers.PROJECT, ComponentQualifiers.APP, ComponentQualifiers.VIEW};
   private static final String INVALID_QUERY_PARAM_ERROR_MESSAGE = "%s and %s must not be set at the same time";
 
   private final UserSession userSession;

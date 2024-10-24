@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -79,7 +79,7 @@ public class PermissionTemplateService {
       return true;
     }
 
-    ProjectDto projectDto = new ProjectDto().setKey(projectKey).setQualifier(Qualifiers.PROJECT);
+    ProjectDto projectDto = new ProjectDto().setKey(projectKey).setQualifier(ComponentQualifiers.PROJECT);
     PermissionTemplateDto template = findTemplate(dbSession, projectDto);
     if (template == null) {
       return false;
@@ -208,13 +208,13 @@ public class PermissionTemplateService {
     String qualifier = entityDto.getQualifier();
     DefaultTemplatesResolver.ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(dbSession);
     switch (qualifier) {
-      case Qualifiers.PROJECT:
+      case ComponentQualifiers.PROJECT:
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, resolvedDefaultTemplates.getProject());
-      case Qualifiers.VIEW:
+      case ComponentQualifiers.VIEW:
         String portDefaultTemplateUuid = resolvedDefaultTemplates.getPortfolio().orElseThrow(
           () -> new IllegalStateException("Failed to find default template for portfolios"));
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, portDefaultTemplateUuid);
-      case Qualifiers.APP:
+      case ComponentQualifiers.APP:
         String appDefaultTemplateUuid = resolvedDefaultTemplates.getApplication().orElseThrow(
           () -> new IllegalStateException("Failed to find default template for applications"));
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, appDefaultTemplateUuid);

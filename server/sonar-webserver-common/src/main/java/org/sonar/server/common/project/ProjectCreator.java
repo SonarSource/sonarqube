@@ -30,7 +30,7 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 @ServerSide
 public class ProjectCreator {

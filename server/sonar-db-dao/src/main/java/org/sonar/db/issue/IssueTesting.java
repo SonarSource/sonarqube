@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
@@ -48,7 +48,7 @@ public class IssueTesting {
   }
 
   public static IssueDto newIssue(RuleDto rule, ComponentDto branch, ComponentDto file) {
-    checkArgument(branch.qualifier().equals(Qualifiers.PROJECT), "Second parameter should be a branch that belongs to a project");
+    checkArgument(branch.qualifier().equals(ComponentQualifiers.PROJECT), "Second parameter should be a branch that belongs to a project");
     return newIssue(rule, branch.uuid(), branch.getKey(), file);
   }
 

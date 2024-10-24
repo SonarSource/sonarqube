@@ -36,7 +36,7 @@ import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -212,7 +212,7 @@ public class BulkDeleteActionIT {
 
     ws.newRequest()
       .setParam(PARAM_PROJECTS, project.getProjectDto().getKey() + "," + view.getKey())
-      .setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.VIEW))
+      .setParam(PARAM_QUALIFIERS, String.join(",", ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW))
       .execute();
 
     verifyEntityDeleted(project.getProjectDto(), portfolioDto);

@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.Encryption;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -58,7 +58,7 @@ public class CreateGithubActionIT {
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
 
   private final WsActionTester ws = new WsActionTester(new CreateGithubAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class)),
       multipleAlmFeature)));
 
   @Before

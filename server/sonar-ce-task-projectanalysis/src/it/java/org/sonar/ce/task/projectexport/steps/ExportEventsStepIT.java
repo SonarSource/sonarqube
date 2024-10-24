@@ -25,8 +25,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
@@ -51,8 +51,8 @@ public class ExportEventsStepIT {
     .setUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setBranchUuid(PROJECT_UUID)
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.PROJECT)
+    .setScope(ComponentScopes.PROJECT)
+    .setQualifier(ComponentQualifiers.PROJECT)
     .setKey("the_project")
     .setEnabled(true);
 

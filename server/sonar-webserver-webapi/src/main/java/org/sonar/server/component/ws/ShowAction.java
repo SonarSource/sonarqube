@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -55,8 +55,8 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SH
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 
 public class ShowAction implements ComponentsWsAction {
-  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
-  private static final Set<String> APP_VIEW_OR_SUBVIEW_QUALIFIERS = Set.of(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.APP);
+  private static final Set<String> APP_VIEW_OR_SUBVIEW_QUALIFIERS = Set.of(ComponentQualifiers.APP, ComponentQualifiers.VIEW, ComponentQualifiers.SUBVIEW);
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -178,7 +178,7 @@ public class ShowAction implements ComponentsWsAction {
   }
 
   private boolean isMainBranchOfProjectOrApp(ComponentDto component, DbSession dbSession) {
-    if (!PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier()) || !Scopes.PROJECT.equals(component.scope())) {
+    if (!PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier()) || !ComponentScopes.PROJECT.equals(component.scope())) {
       return false;
     }
     Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, component.branchUuid());

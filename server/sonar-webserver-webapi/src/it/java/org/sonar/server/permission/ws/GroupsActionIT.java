@@ -22,14 +22,14 @@ package org.sonar.server.permission.ws;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
@@ -63,8 +63,8 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
   private GroupDto group1;
   private GroupDto group2;
-  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(componentTypes);
   private final WsParameters wsParameters = new WsParameters(permissionService);
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 

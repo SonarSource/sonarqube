@@ -21,12 +21,12 @@ package org.sonar.server.source.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -49,7 +49,7 @@ public class RawActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
 
   private WsActionTester ws = new WsActionTester(new RawAction(db.getDbClient(),
     new SourceService(db.getDbClient(), null), userSession,

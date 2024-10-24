@@ -29,7 +29,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.auth.DevOpsPlatformSettings;
 import org.sonar.db.DbClient;
@@ -325,7 +325,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     NewComponent newComponent = componentCreationParameters.newComponent();
     assertThat(newComponent.isProject()).isTrue();
-    assertThat(newComponent.qualifier()).isEqualTo(Qualifiers.PROJECT);
+    assertThat(newComponent.qualifier()).isEqualTo(ComponentQualifiers.PROJECT);
     assertThat(newComponent.key()).isEqualTo(expectedKey);
     assertThat(newComponent.name()).isEqualTo(REPOSITORY_NAME);
   }

@@ -28,8 +28,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
@@ -52,8 +52,8 @@ public class ExportComponentsStepIT {
   private static final String PROJECT_UUID = "PROJECT_UUID";
   private static final ComponentDto PROJECT = new ComponentDto()
     // no id yet
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.PROJECT)
+    .setScope(ComponentScopes.PROJECT)
+    .setQualifier(ComponentQualifiers.PROJECT)
     .setKey("the_project")
     .setName("The Project")
     .setDescription("The project description")
@@ -67,8 +67,8 @@ public class ExportComponentsStepIT {
   private static final String FILE_UUID_PATH = PROJECT_UUID + FILE_UUID + UUID_PATH_SEPARATOR;
   private static final ComponentDto FILE = new ComponentDto()
     // no id yet
-    .setScope(Scopes.FILE)
-    .setQualifier(Qualifiers.FILE)
+    .setScope(ComponentScopes.FILE)
+    .setQualifier(ComponentQualifiers.FILE)
     .setKey("the_file")
     .setName("The File")
     .setUuid(FILE_UUID)
@@ -110,8 +110,8 @@ public class ExportComponentsStepIT {
     List<ProjectDump.Component> components = dumpWriter.getWrittenMessagesOf(DumpElement.COMPONENTS);
     assertThat(components).extracting(ProjectDump.Component::getQualifier, ProjectDump.Component::getUuid, ProjectDump.Component::getUuidPath)
       .containsExactlyInAnyOrder(
-        tuple(Qualifiers.FILE, FILE_UUID, FILE_UUID_PATH),
-        tuple(Qualifiers.PROJECT, PROJECT_UUID, UUID_PATH_OF_ROOT));
+        tuple(ComponentQualifiers.FILE, FILE_UUID, FILE_UUID_PATH),
+        tuple(ComponentQualifiers.PROJECT, PROJECT_UUID, UUID_PATH_OF_ROOT));
   }
 
   @Test

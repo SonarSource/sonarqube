@@ -23,11 +23,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -59,8 +59,8 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   private GroupDto group;
   private PermissionTemplateDto template;
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(componentTypes);
   private WsParameters wsParameters = new WsParameters(permissionService);
 
   @Override

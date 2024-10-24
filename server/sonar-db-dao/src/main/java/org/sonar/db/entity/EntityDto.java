@@ -21,7 +21,7 @@ package org.sonar.db.entity;
 
 import java.util.Objects;
 import javax.annotation.CheckForNull;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 
 /**
  * Represents a project, an application, a portfolio or a sub-portfolio.
@@ -40,7 +40,7 @@ public class EntityDto {
   protected String authUuid;
 
   public String getAuthUuid() {
-    if (Qualifiers.SUBVIEW.equals(qualifier)) {
+    if (ComponentQualifiers.SUBVIEW.equals(qualifier)) {
       return authUuid;
     }
     return uuid;
@@ -79,15 +79,15 @@ public class EntityDto {
   }
 
   public boolean isPortfolio() {
-    return Qualifiers.VIEW.equals(qualifier) || Qualifiers.SUBVIEW.equals(qualifier);
+    return ComponentQualifiers.VIEW.equals(qualifier) || ComponentQualifiers.SUBVIEW.equals(qualifier);
   }
 
   public boolean isProject() {
-    return Qualifiers.PROJECT.equals(qualifier);
+    return ComponentQualifiers.PROJECT.equals(qualifier);
   }
 
   public boolean isProjectOrApp() {
-    return Qualifiers.APP.equals(qualifier) || isProject();
+    return ComponentQualifiers.APP.equals(qualifier) || isProject();
   }
 
   @Override

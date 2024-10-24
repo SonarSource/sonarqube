@@ -24,7 +24,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -477,7 +477,7 @@ public class ShowActionIT {
         .setKey("com.sonarsource:java-markdown")
         .setName("Java Markdown")
         .setDescription("Java Markdown Project")
-        .setQualifier(Qualifiers.PROJECT),
+        .setQualifier(ComponentQualifiers.PROJECT),
       p -> p.setTagsString("language, plugin"));
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto())
@@ -489,7 +489,7 @@ public class ShowActionIT {
     ComponentDto directory = newDirectory(mainBranch, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
       .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setName("src/main/java/com/sonarsource/markdown/impl")
-      .setQualifier(Qualifiers.DIRECTORY);
+      .setQualifier(ComponentQualifiers.DIRECTORY);
     db.components().insertComponent(directory);
     db.components().insertComponent(
       newFileDto(directory, directory, "AVIF-FffA3Ax6PH2efPD")
@@ -497,6 +497,6 @@ public class ShowActionIT {
         .setName("Rule.java")
         .setPath("src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setLanguage("java")
-        .setQualifier(Qualifiers.FILE));
+        .setQualifier(ComponentQualifiers.FILE));
   }
 }

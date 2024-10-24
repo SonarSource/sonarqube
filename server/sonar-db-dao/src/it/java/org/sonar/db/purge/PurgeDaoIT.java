@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
@@ -396,7 +396,7 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     logTester.setLevel(Level.DEBUG);
-    underTest.deleteProject(db.getSession(), project.uuid(), Qualifiers.PROJECT, project.name(), project.getKey());
+    underTest.deleteProject(db.getSession(), project.uuid(), ComponentQualifiers.PROJECT, project.name(), project.getKey());
 
     assertThat(logTester.getLogs(LoggerLevel.DEBUG).stream()
       .map(LogAndArguments::getFormattedMsg)
@@ -409,7 +409,7 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     logTester.setLevel(Level.INFO);
-    underTest.deleteProject(db.getSession(), project.uuid(), Qualifiers.PROJECT, project.name(), project.getKey());
+    underTest.deleteProject(db.getSession(), project.uuid(), ComponentQualifiers.PROJECT, project.name(), project.getKey());
 
     assertThat(logTester.getLogs(LoggerLevel.DEBUG).stream()
       .map(LogAndArguments::getFormattedMsg)
@@ -1611,7 +1611,7 @@ project.getProjectDto().getKey());
     dbClient.scannerAnalysisCacheDao().insert(dbSession, branch.getUuid(), IOUtils.toInputStream("test1", UTF_8));
     dbClient.scannerAnalysisCacheDao().insert(dbSession, project.getUuid(), IOUtils.toInputStream("test2", UTF_8));
 
-    underTest.deleteProject(dbSession, project.getUuid(), Qualifiers.PROJECT, "project", "project");
+    underTest.deleteProject(dbSession, project.getUuid(), ComponentQualifiers.PROJECT, "project", "project");
 
     assertThat(dbClient.scannerAnalysisCacheDao().selectData(dbSession, project.getUuid())).isNull();
     assertThat(dbClient.scannerAnalysisCacheDao().selectData(dbSession, branch.getUuid())).isNull();

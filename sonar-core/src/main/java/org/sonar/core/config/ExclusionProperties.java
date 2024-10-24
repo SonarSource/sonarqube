@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
 public class ExclusionProperties {
 
@@ -40,7 +40,7 @@ public class ExclusionProperties {
         .subCategory(CoreProperties.SUBCATEGORY_COVERAGE_EXCLUSIONS)
         .type(PropertyType.STRING)
         .multiValues(true)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .build(),
 
       // FILES
@@ -64,7 +64,7 @@ public class ExclusionProperties {
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(0)
         .build(),
 
@@ -73,7 +73,7 @@ public class ExclusionProperties {
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(1)
         .build(),
       PropertyDefinition.builder(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY)
@@ -81,7 +81,7 @@ public class ExclusionProperties {
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(2)
         .build(),
       PropertyDefinition.builder(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY)
@@ -89,7 +89,7 @@ public class ExclusionProperties {
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(3)
         .build()
 

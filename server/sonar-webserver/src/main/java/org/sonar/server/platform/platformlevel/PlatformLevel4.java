@@ -41,7 +41,7 @@ import org.sonar.alm.client.gitlab.GitlabApplicationHttpClient;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabHeaders;
 import org.sonar.alm.client.gitlab.GitlabPaginatedHttpClient;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
@@ -54,7 +54,7 @@ import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
-import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
@@ -331,8 +331,8 @@ public class PlatformLevel4 extends PlatformLevel {
       PluginUninstaller.class,
       PluginDownloader.class,
       PageRepository.class,
-      ResourceTypes.class,
-      DefaultResourceTypes.get(),
+      ComponentTypes.class,
+      DefaultComponentTypes.get(),
       SettingsChangeNotifier.class,
       ServerWs.class,
       IndexDefinitions.class,

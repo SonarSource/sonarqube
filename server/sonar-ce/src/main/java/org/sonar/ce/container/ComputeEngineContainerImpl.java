@@ -29,7 +29,7 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.profile.BuiltInQualityProfileAnnotationLoader;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
@@ -60,7 +60,7 @@ import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
-import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
@@ -350,8 +350,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static void populateLevel4(Container container, Props props) {
     container.add(
       RuleDescriptionFormatter.class,
-      ResourceTypes.class,
-      DefaultResourceTypes.get(),
+      ComponentTypes.class,
+      DefaultComponentTypes.get(),
 
       // quality profile
       ActiveRuleIndexer.class,

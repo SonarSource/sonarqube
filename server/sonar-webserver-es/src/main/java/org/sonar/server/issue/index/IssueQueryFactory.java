@@ -45,7 +45,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -103,8 +103,8 @@ public class IssueQueryFactory {
     .map(Enum::name)
     .collect(Collectors.toSet());
   private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setBranchUuid(UNKNOWN);
-  private static final Set<String> QUALIFIERS_WITHOUT_LEAK_PERIOD = new HashSet<>(Arrays.asList(Qualifiers.APP, Qualifiers.VIEW,
-    Qualifiers.SUBVIEW));
+  private static final Set<String> QUALIFIERS_WITHOUT_LEAK_PERIOD = new HashSet<>(Arrays.asList(ComponentQualifiers.APP, ComponentQualifiers.VIEW,
+    ComponentQualifiers.SUBVIEW));
   private final DbClient dbClient;
   private final Clock clock;
   private final UserSession userSession;
@@ -381,20 +381,20 @@ public class IssueQueryFactory {
     setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest(), dbSession);
     String qualifier = qualifiers.iterator().next();
     switch (qualifier) {
-      case Qualifiers.VIEW, Qualifiers.SUBVIEW:
+      case ComponentQualifiers.VIEW, ComponentQualifiers.SUBVIEW:
         addViewsOrSubViews(builder, components);
         break;
-      case Qualifiers.APP:
+      case ComponentQualifiers.APP:
         addApplications(builder, dbSession, components, request);
         addProjectUuidsForApplication(builder, dbSession, request);
         break;
-      case Qualifiers.PROJECT:
+      case ComponentQualifiers.PROJECT:
         builder.projectUuids(retrieveProjectUuidsFromComponents(dbSession, components));
         break;
-      case Qualifiers.DIRECTORY:
+      case ComponentQualifiers.DIRECTORY:
         addDirectories(builder, components);
         break;
-      case Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE:
+      case ComponentQualifiers.FILE, ComponentQualifiers.UNIT_TEST_FILE:
         builder.componentUuids(components.stream().map(ComponentDto::uuid).toList());
         break;
       default:

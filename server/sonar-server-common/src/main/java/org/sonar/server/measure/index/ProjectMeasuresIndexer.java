@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -60,7 +60,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE
 public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, NeedAuthorizationIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_PROJECT_MEASURES,
-    entity -> Qualifiers.PROJECT.equals(entity.getQualifier()) || Qualifiers.APP.equals(entity.getQualifier()));
+    entity -> ComponentQualifiers.PROJECT.equals(entity.getQualifier()) || ComponentQualifiers.APP.equals(entity.getQualifier()));
   private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_PROJECT_MEASURES);
 
   private final DbClient dbClient;

@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -417,7 +417,7 @@ public class UserDbTester {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     EntityDto entityDto;
-    if (project.qualifier().equals(Qualifiers.VIEW) || project.qualifier().equals(Qualifiers.SUBVIEW)) {
+    if (project.qualifier().equals(ComponentQualifiers.VIEW) || project.qualifier().equals(ComponentQualifiers.SUBVIEW)) {
       entityDto = db.getDbClient().portfolioDao().selectByUuid(db.getSession(), project.uuid())
         .orElseThrow();
     } else {

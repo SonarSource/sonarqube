@@ -26,7 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.PluginRiskConsent;
 
@@ -78,7 +78,7 @@ public class CorePropertyDefinitions {
           "necessary changes, clear this setting to prevent analysis from showing a warning about it.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_MODULES)
-        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .onlyOnConfigScopes(ConfigScope.PROJECT)
         .type(TEXT)
         .build(),
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
@@ -179,7 +179,7 @@ public class CorePropertyDefinitions {
         .description("Don't show issue facets aggregating information per developer")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .type(BOOLEAN)
         .defaultValue(Boolean.toString(false))
         .build(),
@@ -189,7 +189,7 @@ public class CorePropertyDefinitions {
         .description("New issues will be assigned to this user each time it is not possible to determine the user who is the author of the issue.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .type(PropertyType.USER_LOGIN)
         .build(),
 
@@ -199,7 +199,7 @@ public class CorePropertyDefinitions {
         .description("Quality Gate conditions about duplications in new code and coverage on new code are ignored until the number of new lines is at least 20.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_QUALITY_GATE)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .type(BOOLEAN)
         .defaultValue(Boolean.toString(true))
         .build(),
@@ -214,7 +214,7 @@ public class CorePropertyDefinitions {
           + "this property will significantly increase each SonarQube analysis time, "
           + "and therefore badly impact the performances of report processing as more and more projects "
           + "are getting involved in this cross project duplication mechanism.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
         .type(BOOLEAN)
@@ -224,7 +224,7 @@ public class CorePropertyDefinitions {
         .name("Duplication Exclusions")
         .description("Patterns used to exclude some source files from the duplication detection mechanism. " +
           "See below to know how to use wildcards to specify this property.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)

@@ -26,7 +26,7 @@ import static com.google.common.base.Strings.repeat;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.server.common.component.NewComponent.newComponentBuilder;
 
 public class NewComponentTest {

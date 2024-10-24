@@ -19,15 +19,15 @@
  */
 package org.sonar.server.component.ws;
 
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 
 import static java.util.Arrays.stream;
 
 public enum SuggestionCategory {
-  VIEW(Qualifiers.VIEW),
-  SUBVIEW(Qualifiers.SUBVIEW),
-  APP(Qualifiers.APP),
-  PROJECT(Qualifiers.PROJECT);
+  VIEW(ComponentQualifiers.VIEW),
+  SUBVIEW(ComponentQualifiers.SUBVIEW),
+  APP(ComponentQualifiers.APP),
+  PROJECT(ComponentQualifiers.PROJECT);
 
   private final String qualifier;
 

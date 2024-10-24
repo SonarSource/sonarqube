@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -99,21 +99,21 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
     ResolvedDefaultTemplates resolvedDefaultTemplates = data.defaultTemplates();
     response.addDefaultTemplates(templateUuidQualifierBuilder
-      .setQualifier(Qualifiers.PROJECT)
+      .setQualifier(ComponentQualifiers.PROJECT)
       .setTemplateId(resolvedDefaultTemplates.getProject()));
 
     resolvedDefaultTemplates.getApplication()
       .ifPresent(viewDefaultTemplate -> response.addDefaultTemplates(
         templateUuidQualifierBuilder
           .clear()
-          .setQualifier(Qualifiers.APP)
+          .setQualifier(ComponentQualifiers.APP)
           .setTemplateId(viewDefaultTemplate)));
 
     resolvedDefaultTemplates.getPortfolio()
       .ifPresent(viewDefaultTemplate -> response.addDefaultTemplates(
         templateUuidQualifierBuilder
           .clear()
-          .setQualifier(Qualifiers.VIEW)
+          .setQualifier(ComponentQualifiers.VIEW)
           .setTemplateId(viewDefaultTemplate)));
   }
 

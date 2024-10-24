@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
@@ -164,9 +164,9 @@ class ComponentTreeSortTest {
   @Test
   void sort_by_name_ascending_in_case_of_equality() {
     components = newArrayList(
-      newComponentWithoutSnapshotId("PROJECT 12", Qualifiers.PROJECT, "PROJECT_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT 11", Qualifiers.PROJECT, "PROJECT_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT 0", Qualifiers.PROJECT, "PROJECT_PATH_2"));
+      newComponentWithoutSnapshotId("PROJECT 12", ComponentQualifiers.PROJECT, "PROJECT_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT 11", ComponentQualifiers.PROJECT, "PROJECT_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT 0", ComponentQualifiers.PROJECT, "PROJECT_PATH_2"));
 
     ComponentTreeRequest wsRequest = newRequest(newArrayList(PATH_SORT), false, null);
 
@@ -178,10 +178,10 @@ class ComponentTreeSortTest {
   @Test
   void sort_by_alert_status_ascending() {
     components = newArrayList(
-      newComponentWithoutSnapshotId("PROJECT OK 1", Qualifiers.PROJECT, "PROJECT_OK_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT ERROR 1", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT OK 2", Qualifiers.PROJECT, "PROJECT_OK_PATH_2"),
-      newComponentWithoutSnapshotId("PROJECT ERROR 2", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_2"));
+      newComponentWithoutSnapshotId("PROJECT OK 1", ComponentQualifiers.PROJECT, "PROJECT_OK_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT ERROR 1", ComponentQualifiers.PROJECT, "PROJECT_ERROR_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT OK 2", ComponentQualifiers.PROJECT, "PROJECT_OK_PATH_2"),
+      newComponentWithoutSnapshotId("PROJECT ERROR 2", ComponentQualifiers.PROJECT, "PROJECT_ERROR_PATH_2"));
     metrics = singletonList(newMetricDto()
       .setKey(CoreMetrics.ALERT_STATUS_KEY)
       .setValueType(ValueType.LEVEL.name()));

@@ -34,9 +34,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -306,7 +307,7 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.PROPERTY_SET)
       .defaultValue("default")
-      .onQualifiers(Qualifiers.PROJECT)
+      .onConfigScopes(ConfigScope.PROJECT)
       .fields(List.of(
         PropertyFieldDefinition.build("firstField")
           .name("First Field")
@@ -734,7 +735,7 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.INTEGER)
       .defaultValue("default")
-      .onlyOnQualifiers(Qualifiers.PROJECT)
+      .onlyOnConfigScopes(ConfigScope.PROJECT)
       .build());
 
     assertThatThrownBy(() -> callForGlobalSetting("my.key", "42"))
@@ -752,10 +753,10 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.STRING)
       .defaultValue("default")
-      .onQualifiers(Qualifiers.PROJECT)
+      .onConfigScopes(ConfigScope.PROJECT)
       .build());
     ComponentDto view = db.components().insertPublicPortfolio();
-    i18n.put("qualifier." + Qualifiers.VIEW, "View");
+    i18n.put("qualifier." + ComponentQualifiers.VIEW, "View");
 
     assertThatThrownBy(() -> {
       logInAsPortfolioAdministrator(db.components().getPortfolioDto(view));
@@ -776,7 +777,7 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.STRING)
       .defaultValue("default")
-      .onQualifiers(Qualifiers.PROJECT)
+      .onConfigScopes(ConfigScope.PROJECT)
       .build());
     i18n.put("qualifier." + portfolio.getQualifier(), "CptLabel");
     logInAsPortfolioAdministrator(portfolio);
@@ -1095,7 +1096,7 @@ public class SetActionIT {
       .defaultValue("default")
       .fields(List.of(PropertyFieldDefinition.build("firstField").name("First Field").type(PropertyType.STRING).build()))
       .build());
-    i18n.put("qualifier." + Qualifiers.PROJECT, "Project");
+    i18n.put("qualifier." + ComponentQualifiers.PROJECT, "Project");
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 

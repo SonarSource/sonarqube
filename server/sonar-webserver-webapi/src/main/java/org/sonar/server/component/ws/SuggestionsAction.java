@@ -34,8 +34,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -79,16 +79,16 @@ public class SuggestionsAction implements ComponentsWsAction {
   private final ComponentIndex index;
   private final FavoriteFinder favoriteFinder;
   private final UserSession userSession;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
 
   private final DbClient dbClient;
 
-  public SuggestionsAction(DbClient dbClient, ComponentIndex index, FavoriteFinder favoriteFinder, UserSession userSession, ResourceTypes resourceTypes) {
+  public SuggestionsAction(DbClient dbClient, ComponentIndex index, FavoriteFinder favoriteFinder, UserSession userSession, ComponentTypes componentTypes) {
     this.dbClient = dbClient;
     this.index = index;
     this.favoriteFinder = favoriteFinder;
     this.userSession = userSession;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
   }
 
   @Override
@@ -246,8 +246,8 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private List<String> getQualifiers(@Nullable String more) {
-    Set<String> availableQualifiers = resourceTypes.getAll().stream()
-      .map(ResourceType::getQualifier)
+    Set<String> availableQualifiers = componentTypes.getAll().stream()
+      .map(ComponentType::getQualifier)
       .collect(Collectors.toSet());
     if (more == null) {
       return stream(SuggestionCategory.values())

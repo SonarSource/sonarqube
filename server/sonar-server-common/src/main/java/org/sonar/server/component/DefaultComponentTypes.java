@@ -17,31 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.component;
+package org.sonar.server.component;
 
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.component.ComponentQualifiers;
 
-@ScannerSide
 @ServerSide
 @ComputeEngineSide
-public final class DefaultResourceTypes {
+public final class DefaultComponentTypes {
 
   private static final String CONFIGURABLE = "configurable";
   private static final String UPDATABLE_KEY = "updatable_key";
   public static final String IGNORED = "ignored";
 
-  private DefaultResourceTypes() {
+  private DefaultComponentTypes() {
     // only static methods
   }
 
-  public static ResourceTypeTree get() {
-    return ResourceTypeTree.builder()
-      .addType(ResourceType.builder(Qualifiers.PROJECT)
+  public static ComponentTypeTree get() {
+    return ComponentTypeTree.builder()
+      .addType(ComponentType.builder(ComponentQualifiers.PROJECT)
         .setProperty("deletable", true)
         .setProperty("modifiable_history", true)
         .setProperty("hasRolePolicy", true)
@@ -49,22 +45,22 @@ public final class DefaultResourceTypes {
         .setProperty("comparable", true)
         .setProperty(CONFIGURABLE, true)
         .build())
-      .addType(ResourceType.builder(Qualifiers.MODULE)
+      .addType(ComponentType.builder(ComponentQualifiers.MODULE)
         .setProperty(UPDATABLE_KEY, true)
         .setProperty(CONFIGURABLE, true)
         .setProperty(IGNORED, true)
         .build())
-      .addType(ResourceType.builder(Qualifiers.DIRECTORY)
+      .addType(ComponentType.builder(ComponentQualifiers.DIRECTORY)
         .build())
-      .addType(ResourceType.builder(Qualifiers.FILE)
+      .addType(ComponentType.builder(ComponentQualifiers.FILE)
         .hasSourceCode()
         .build())
-      .addType(ResourceType.builder(Qualifiers.UNIT_TEST_FILE)
+      .addType(ComponentType.builder(ComponentQualifiers.UNIT_TEST_FILE)
         .hasSourceCode()
         .build())
 
-      .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
-      .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE)
+      .addRelations(ComponentQualifiers.PROJECT, ComponentQualifiers.DIRECTORY)
+      .addRelations(ComponentQualifiers.DIRECTORY, ComponentQualifiers.FILE, ComponentQualifiers.UNIT_TEST_FILE)
 
       .build();
   }

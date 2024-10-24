@@ -23,7 +23,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
@@ -89,7 +89,7 @@ public class PageRepositoryTest {
     underTest = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{plugin});
     underTest.start();
 
-    List<Page> result = underTest.getComponentPages(false, Qualifiers.PROJECT);
+    List<Page> result = underTest.getComponentPages(false, ComponentQualifiers.PROJECT);
 
     assertThat(result)
       .extracting(Page::getKey)

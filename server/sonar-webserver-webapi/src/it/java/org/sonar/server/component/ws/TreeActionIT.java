@@ -30,21 +30,21 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypeTree;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -62,9 +62,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.FILE;
+import static org.sonar.db.component.ComponentQualifiers.UNIT_TEST_FILE;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
@@ -85,10 +85,10 @@ public class TreeActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = db.getDbClient();
-  private final ResourceTypes defaultResourceTypes = new ResourceTypes(new ResourceTypeTree[]{DefaultResourceTypes.get()});
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule()
-    .setRootQualifiers(defaultResourceTypes.getRoots())
-    .setAllQualifiers(defaultResourceTypes.getAll())
+  private final ComponentTypes defaultComponentTypes = new ComponentTypes(new ComponentTypeTree[]{DefaultComponentTypes.get()});
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule()
+    .setRootQualifiers(defaultComponentTypes.getRoots())
+    .setAllQualifiers(defaultComponentTypes.getAll())
     .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
   private final WsActionTester ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient, resourceTypes), resourceTypes, userSession,
     mock(I18n.class)));

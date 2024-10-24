@@ -39,7 +39,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;

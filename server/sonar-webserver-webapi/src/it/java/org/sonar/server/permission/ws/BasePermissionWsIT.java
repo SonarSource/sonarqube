@@ -24,11 +24,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
@@ -75,8 +75,8 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
     return new PermissionWsSupport(dbClient, configuration, newGroupWsSupport());
   }
 
-  protected ResourceTypesRule newRootResourceTypes() {
-    return new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
+  protected ComponentTypesRule newRootResourceTypes() {
+    return new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW, ComponentQualifiers.APP);
   }
 
   protected PermissionUpdater newPermissionUpdater() {

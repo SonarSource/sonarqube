@@ -32,7 +32,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -80,7 +80,7 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
   private static final String ID_TYPE_DELETE_PROJECT_UUID = "deleteProjectUuid";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IssueIndexer.class);
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_ISSUE, entity -> Qualifiers.PROJECT.equals(entity.getQualifier()));
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_ISSUE, entity -> ComponentQualifiers.PROJECT.equals(entity.getQualifier()));
   private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_ISSUE);
 
   private final EsClient esClient;

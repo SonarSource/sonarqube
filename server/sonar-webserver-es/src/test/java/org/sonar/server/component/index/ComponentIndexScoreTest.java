@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 public class ComponentIndexScoreTest extends ComponentIndexTest {
   @Test

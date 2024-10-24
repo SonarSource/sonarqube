@@ -26,8 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.UuidFactory;
@@ -61,7 +61,7 @@ import static org.sonar.server.exceptions.BadRequestException.throwBadRequestExc
 
 public class ComponentUpdater {
 
-  private static final Set<String> PROJ_APP_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> PROJ_APP_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.APP);
   private static final String KEY_ALREADY_EXISTS_ERROR = "Could not create %s with key: \"%s\". A similar key already exists: \"%s\"";
   private static final String MALFORMED_KEY_ERROR = "Malformed key for %s: '%s'. %s.";
   private final DbClient dbClient;
@@ -196,7 +196,7 @@ public class ComponentUpdater {
       .setName(newComponent.name())
       .setDescription(newComponent.description())
       .setLongName(newComponent.name())
-      .setScope(Scopes.PROJECT)
+      .setScope(ComponentScopes.PROJECT)
       .setQualifier(newComponent.qualifier())
       .setPrivate(newComponent.isPrivate())
       .setCreatedAt(new Date(now));
@@ -236,7 +236,7 @@ public class ComponentUpdater {
   }
 
   private static boolean isPortfolio(ComponentDto componentDto) {
-    return Qualifiers.VIEW.contains(componentDto.qualifier());
+    return ComponentQualifiers.VIEW.contains(componentDto.qualifier());
   }
 
   private BranchDto createMainBranch(DbSession session, String componentUuid, String projectUuid, @Nullable String mainBranch) {

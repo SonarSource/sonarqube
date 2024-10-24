@@ -26,8 +26,8 @@ import java.util.Set;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -71,7 +71,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private final PageRepository pageRepository;
   private final Configuration config;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
   private final Server server;
   private final NodeInformation nodeInformation;
   private final DbClient dbClient;
@@ -82,13 +82,13 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
   private final DocumentationLinkGenerator documentationLinkGenerator;
 
-  public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
+  public GlobalAction(PageRepository pageRepository, Configuration config, ComponentTypes componentTypes, Server server,
     NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
     WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
     DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier, DocumentationLinkGenerator documentationLinkGenerator) {
     this.pageRepository = pageRepository;
     this.config = config;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
     this.server = server;
     this.nodeInformation = nodeInformation;
     this.dbClient = dbClient;
@@ -173,7 +173,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeQualifiers(JsonWriter json) {
     json.name("qualifiers").beginArray();
-    for (ResourceType rootType : resourceTypes.getRoots()) {
+    for (ComponentType rootType : componentTypes.getRoots()) {
       json.value(rootType.getQualifier());
     }
     json.endArray();

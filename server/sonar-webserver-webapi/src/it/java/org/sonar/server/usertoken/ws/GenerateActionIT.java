@@ -34,7 +34,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
@@ -90,7 +90,7 @@ public class GenerateActionIT {
   private final MapSettings mapSettings = new MapSettings();
   private final Configuration configuration = mapSettings.asConfig();
   private final GenerateActionValidation validation = new GenerateActionValidation(configuration, runtime);
-  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), new ResourceTypesRule());
+  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), new ComponentTypesRule());
 
   private final WsActionTester ws = new WsActionTester(
     new GenerateAction(db.getDbClient(), System2.INSTANCE, componentFinder, tokenGenerator, new UserTokenSupport(db.getDbClient(), userSession), validation));

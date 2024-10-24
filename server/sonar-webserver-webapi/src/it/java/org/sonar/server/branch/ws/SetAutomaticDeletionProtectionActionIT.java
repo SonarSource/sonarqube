@@ -22,13 +22,13 @@ package org.sonar.server.branch.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -39,7 +39,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class SetAutomaticDeletionProtectionActionIT {
@@ -49,8 +49,8 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
-  private ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
+  private ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(PROJECT);
+  private ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), componentTypes);
   private WsActionTester tester = new WsActionTester(new SetAutomaticDeletionProtectionAction(db.getDbClient(), userSession, componentFinder));
 
   @Test

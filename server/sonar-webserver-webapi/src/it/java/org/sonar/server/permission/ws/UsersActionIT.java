@@ -21,15 +21,15 @@ package org.sonar.server.permission.ws;
 
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -63,8 +63,8 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 
 public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
 
-  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(componentTypes);
   private final WsParameters wsParameters = new WsParameters(permissionService);
   private final RequestValidator requestValidator = new RequestValidator(permissionService);
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);

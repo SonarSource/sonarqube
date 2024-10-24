@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonar.server.component;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,78 +25,75 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
-public class ResourceTypesRule extends ResourceTypes {
-  private Set<ResourceType> allResourceTypes = emptySet();
-  private Set<ResourceType> rootResourceTypes = emptySet();
+public class ComponentTypesRule extends ComponentTypes {
+  private Set<ComponentType> allComponentTypes = emptySet();
+  private Set<ComponentType> rootComponentTypes = emptySet();
   private List<String> leavesQualifiers = emptyList();
 
-  public ResourceTypesRule() {
-    super(new ResourceTypeTree[0]);
+  public ComponentTypesRule() {
+    super(new ComponentTypeTree[0]);
   }
 
 
   @Override
-  public Collection<ResourceType> getAll() {
-    return allResourceTypes;
+  public Collection<ComponentType> getAll() {
+    return allComponentTypes;
   }
 
   @Override
-  public Collection<ResourceType> getRoots() {
-    return rootResourceTypes;
+  public Collection<ComponentType> getRoots() {
+    return rootComponentTypes;
   }
 
-  public ResourceTypesRule setRootQualifiers(Collection<ResourceType> qualifiers) {
-    rootResourceTypes = Set.copyOf(qualifiers);
+  public ComponentTypesRule setRootQualifiers(Collection<ComponentType> qualifiers) {
+    rootComponentTypes = Set.copyOf(qualifiers);
     return this;
   }
 
-  public ResourceTypesRule setRootQualifiers(String... qualifiers) {
-    Set<ResourceType> resourceTypes = new LinkedHashSet<>();
+  public ComponentTypesRule setRootQualifiers(String... qualifiers) {
+    Set<ComponentType> componentTypes = new LinkedHashSet<>();
     for (String qualifier : qualifiers) {
-      resourceTypes.add(ResourceType.builder(qualifier).setProperty("deletable", true).build());
+      componentTypes.add(ComponentType.builder(qualifier).setProperty("deletable", true).build());
     }
-    rootResourceTypes = Set.copyOf(resourceTypes);
+    rootComponentTypes = Set.copyOf(componentTypes);
 
     return this;
   }
 
-  public ResourceTypesRule setLeavesQualifiers(String... qualifiers) {
+  public ComponentTypesRule setLeavesQualifiers(String... qualifiers) {
     leavesQualifiers = List.copyOf(Arrays.asList(qualifiers));
     return this;
   }
 
-  public ResourceTypesRule setAllQualifiers(String... qualifiers) {
-    Set<ResourceType> resourceTypes = new HashSet<>();
+  public ComponentTypesRule setAllQualifiers(String... qualifiers) {
+    Set<ComponentType> componentTypes = new HashSet<>();
     for (String qualifier : qualifiers) {
-      resourceTypes.add(ResourceType.builder(qualifier).setProperty("deletable", true).build());
+      componentTypes.add(ComponentType.builder(qualifier).setProperty("deletable", true).build());
     }
-    allResourceTypes = Set.copyOf(resourceTypes);
+    allComponentTypes = Set.copyOf(componentTypes);
 
     return this;
   }
 
-  public ResourceTypesRule setAllQualifiers(Collection<ResourceType> qualifiers) {
-    allResourceTypes = Set.copyOf(qualifiers);
+  public ComponentTypesRule setAllQualifiers(Collection<ComponentType> qualifiers) {
+    allComponentTypes = Set.copyOf(qualifiers);
     return this;
   }
 
   @Override
-  public ResourceType get(String qualifier) {
-    return allResourceTypes.stream()
+  public ComponentType get(String qualifier) {
+    return allComponentTypes.stream()
       .filter(resourceType -> qualifier.equals(resourceType.getQualifier()))
       .findAny().orElse(null);
   }
 
   @Override
   public boolean isQualifierPresent(String qualifier) {
-    return rootResourceTypes.stream()
+    return rootComponentTypes.stream()
       .anyMatch(resourceType -> qualifier.equals(resourceType.getQualifier()));
   }
 

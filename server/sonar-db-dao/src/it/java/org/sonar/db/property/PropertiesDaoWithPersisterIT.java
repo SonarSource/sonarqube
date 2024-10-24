@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -102,7 +102,7 @@ class PropertiesDaoWithPersisterIT {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
-    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, ComponentQualifiers.PROJECT);
 
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
     PropertyNewValue newValue = newValueCaptor.getValue();
@@ -121,7 +121,7 @@ class PropertiesDaoWithPersisterIT {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
-    underTest.saveProperty(session, propertyDto, USER_LOGIN, "app-key", "app-name", Qualifiers.APP);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, "app-key", "app-name", ComponentQualifiers.APP);
 
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
     PropertyNewValue newValue = newValueCaptor.getValue();
@@ -141,7 +141,7 @@ class PropertiesDaoWithPersisterIT {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
-    underTest.saveProperty(session, propertyDto, USER_LOGIN, "portfolio-key", "portfolio-name", Qualifiers.VIEW);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, "portfolio-key", "portfolio-name", ComponentQualifiers.VIEW);
 
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
     PropertyNewValue newValue = newValueCaptor.getValue();
@@ -161,7 +161,7 @@ class PropertiesDaoWithPersisterIT {
     when(auditPersister.isTrackedProperty(SECURED_KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(SECURED_KEY, PROJECT_UUID, USER_UUID);
-    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, ComponentQualifiers.PROJECT);
 
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
     PropertyNewValue newValue = newValueCaptor.getValue();
@@ -180,7 +180,7 @@ class PropertiesDaoWithPersisterIT {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
     PropertyQuery query = getPropertyQuery(KEY);
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
-    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, ComponentQualifiers.PROJECT);
 
     underTest.deleteByQuery(session, query);
 
@@ -211,7 +211,7 @@ class PropertiesDaoWithPersisterIT {
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
     underTest.saveProperty(session, propertyDto, USER_LOGIN, null, null, null);
 
-    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
+    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, ComponentQualifiers.PROJECT);
 
     verify(auditPersister).deleteProperty(any(), newValueCaptor.capture(), eq(false));
     PropertyNewValue newValue = newValueCaptor.getValue();
@@ -229,7 +229,7 @@ class PropertiesDaoWithPersisterIT {
   void deleteTrackedPropertyWithoutAffectedRowsIsNotPersisted() {
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
 
-    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
+    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, ComponentQualifiers.PROJECT);
 
     verifyNoInteractions(auditPersister);
   }

@@ -20,14 +20,14 @@
 package org.sonar.server.permission;
 
 import org.junit.Test;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PermissionServiceImplTest {
 
-  private ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers("APP", "VW");
+  private ComponentTypesRule resourceTypesRule = new ComponentTypesRule().setRootQualifiers("APP", "VW");
   private PermissionServiceImpl underTest = new PermissionServiceImpl(resourceTypesRule);
 
   @Test

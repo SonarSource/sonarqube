@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
-import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.api.rules.CleanCodeAttributeCategory.ADAPTABLE;
 import static org.sonar.api.rules.CleanCodeAttributeCategory.CONSISTENT;
 import static org.sonar.api.rules.CleanCodeAttributeCategory.INTENTIONAL;

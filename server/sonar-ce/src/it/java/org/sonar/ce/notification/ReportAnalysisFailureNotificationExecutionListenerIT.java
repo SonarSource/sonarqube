@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
@@ -146,7 +146,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
   @Test
   public void onEnd_fails_with_ISE_if_branch_does_not_exist_in_DB() {
     String componentUuid = secure().nextAlphanumeric(6);
-    ProjectDto project = new ProjectDto().setUuid(componentUuid).setKey(secure().nextAlphanumeric(5)).setQualifier(Qualifiers.PROJECT).setCreationMethod(CreationMethod.LOCAL_API);
+    ProjectDto project = new ProjectDto().setUuid(componentUuid).setKey(secure().nextAlphanumeric(5)).setQualifier(ComponentQualifiers.PROJECT).setCreationMethod(CreationMethod.LOCAL_API);
     dbTester.getDbClient().projectDao().insert(dbTester.getSession(), project);
     dbTester.getSession().commit();
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);

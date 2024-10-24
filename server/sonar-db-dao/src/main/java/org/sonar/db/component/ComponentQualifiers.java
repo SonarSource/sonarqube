@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.component;
+package org.sonar.db.component;
 
-import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypeTree;
+public final class ComponentQualifiers {
+  public static final String VIEW = "VW";
+  public static final String SUBVIEW = "SVW";
+  public static final String APP = "APP";
+  public static final String PROJECT = "TRK";
+  /** @deprecated */
+  @Deprecated(since = "10.8", forRemoval = true)
+  public static final String MODULE = "BRC";
+  public static final String DIRECTORY = "DIR";
+  public static final String FILE = "FIL";
+  public static final String UNIT_TEST_FILE = "UTS";
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class DefaultResourceTypesTest {
-  @Test
-  public void provide_types() {
-    ResourceTypeTree tree = DefaultResourceTypes.get();
-
-    assertThat(tree.getTypes()).hasSize(5);
-    assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.DIRECTORY);
+  private ComponentQualifiers() {
   }
 }

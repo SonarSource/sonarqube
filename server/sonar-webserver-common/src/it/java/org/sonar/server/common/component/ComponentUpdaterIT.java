@@ -26,8 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -37,7 +37,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -72,9 +72,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class ComponentUpdaterIT {
@@ -110,7 +110,7 @@ public class ComponentUpdaterIT {
     new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
     Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
       new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
-  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT));
 
   private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
@@ -134,8 +134,8 @@ public class ComponentUpdaterIT {
     assertThat(loaded.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(loaded.name()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
-    assertThat(loaded.qualifier()).isEqualTo(Qualifiers.PROJECT);
-    assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(loaded.qualifier()).isEqualTo(ComponentQualifiers.PROJECT);
+    assertThat(loaded.scope()).isEqualTo(ComponentScopes.PROJECT);
     assertThat(loaded.uuid()).isNotNull();
     assertThat(loaded.branchUuid()).isEqualTo(loaded.uuid());
     assertThat(loaded.isPrivate()).isEqualTo(PRIVATE_COMPONENT.isPrivate());

@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -112,7 +112,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
 
   private EntityDto getEntityByKeyOrUuid(@Nullable String uuid, @Nullable String key, DbSession dbSession) {
     Optional<EntityDto> entityDto = uuid != null ? dbClient.entityDao().selectByUuid(dbSession, uuid) : dbClient.entityDao().selectByKey(dbSession, key);
-    if (entityDto.isPresent() && !Qualifiers.SUBVIEW.equals(entityDto.get().getQualifier())) {
+    if (entityDto.isPresent() && !ComponentQualifiers.SUBVIEW.equals(entityDto.get().getQualifier())) {
       return entityDto.get();
     } else {
       throw new NotFoundException("Entity not found");

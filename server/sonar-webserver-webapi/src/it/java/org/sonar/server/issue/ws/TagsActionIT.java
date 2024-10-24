@@ -29,7 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
@@ -57,7 +57,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -76,7 +76,7 @@ public class TagsActionIT {
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private final ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(PROJECT);
 
   private final WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, issueIndexSyncProgressChecker, db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes)));
 

@@ -22,11 +22,11 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
@@ -58,8 +58,8 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   private UserDto user;
-  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(componentTypes);
   private final WsParameters wsParameters = new WsParameters(permissionService);
   private final Configuration configuration = mock(Configuration.class);
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);

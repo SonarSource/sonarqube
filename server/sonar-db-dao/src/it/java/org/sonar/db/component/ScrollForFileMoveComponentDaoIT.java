@@ -40,8 +40,8 @@ import org.sonar.db.source.FileSourceDto;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.db.component.ComponentQualifiers.FILE;
+import static org.sonar.db.component.ComponentQualifiers.UNIT_TEST_FILE;
 
 class ScrollForFileMoveComponentDaoIT {
   @RegisterExtension

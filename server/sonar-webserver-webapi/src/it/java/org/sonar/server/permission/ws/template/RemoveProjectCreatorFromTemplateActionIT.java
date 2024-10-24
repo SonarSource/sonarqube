@@ -22,12 +22,12 @@ package org.sonar.server.permission.ws.template;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -52,8 +52,8 @@ public class RemoveProjectCreatorFromTemplateActionIT extends BasePermissionWsIT
 
   private System2 system = mock(System2.class);
   private PermissionTemplateDto template;
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(componentTypes);
   private WsParameters wsParameters = new WsParameters(permissionService);
   private RequestValidator requestValidator = new RequestValidator(permissionService);
 

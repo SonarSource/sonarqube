@@ -37,7 +37,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DatabaseUtils;
@@ -200,8 +200,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       PreparedStatement stmt = session.getConnection().prepareStatement(sql.toString());
       stmt.setBoolean(1, true);
       stmt.setBoolean(2, true);
-      stmt.setString(3, Qualifiers.PROJECT);
-      stmt.setString(4, Qualifiers.APP);
+      stmt.setString(3, ComponentQualifiers.PROJECT);
+      stmt.setString(4, ComponentQualifiers.APP);
       if (projectUuid != null) {
         stmt.setString(5, projectUuid);
       }

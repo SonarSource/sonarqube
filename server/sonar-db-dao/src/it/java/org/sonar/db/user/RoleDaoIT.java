@@ -25,7 +25,7 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -40,7 +40,7 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
 class RoleDaoIT {
 
-  private static final Set<String> PROJECT_QUALIFIER = Set.of(Qualifiers.PROJECT);
+  private static final Set<String> PROJECT_QUALIFIER = Set.of(ComponentQualifiers.PROJECT);
 
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);

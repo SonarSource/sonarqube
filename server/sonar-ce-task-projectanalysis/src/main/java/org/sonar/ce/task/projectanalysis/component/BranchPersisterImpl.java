@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectanalysis.component;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbClient;
@@ -88,7 +88,7 @@ public class BranchPersisterImpl implements BranchPersister {
     dto.setExcludeFromPurge(excludeFromPurge);
 
     // merge branch is only present if it's not a main branch and not an application
-    if (!branch.isMain() && !Qualifiers.APP.equals(componentDto.qualifier())) {
+    if (!branch.isMain() && !ComponentQualifiers.APP.equals(componentDto.qualifier())) {
       dto.setMergeBranchUuid(branch.getReferenceBranchUuid());
     }
 

@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
@@ -81,7 +79,8 @@ public class ComponentKeyUpdaterDao implements Dao {
         resource.setDeprecatedKey(newResourceDeprecatedKey);
       }
       mapper.updateComponent(resource);
-      if (resource.getScope().equals(Scopes.PROJECT) && (resource.getQualifier().equals(Qualifiers.PROJECT) || resource.getQualifier().equals(Qualifiers.APP))) {
+      if (resource.getScope().equals(ComponentScopes.PROJECT)
+        && (resource.getQualifier().equals(ComponentQualifiers.PROJECT) || resource.getQualifier().equals(ComponentQualifiers.APP))) {
         auditPersister.componentKeyUpdate(dbSession, new ComponentKeyNewValue(resource.getUuid(), oldResourceKey, newResourceKey), resource.getQualifier());
         mapper.updateProject(oldResourceKey, newResourceKey);
       }

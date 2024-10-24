@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
 import static java.util.Arrays.asList;
 import static org.sonar.core.config.Frequency.MONTHLY;
@@ -42,7 +42,7 @@ public final class PurgeProperties {
         .description("After this number of hours, if there are several analyses during the same day, "
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(1)
@@ -54,7 +54,7 @@ public final class PurgeProperties {
         .description("After this number of weeks, if there are several analyses during the same week, "
           + "the DbCleaner keeps the most recent one and fully deletes the other ones")
         .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(2)
@@ -66,7 +66,7 @@ public final class PurgeProperties {
         .description("After this number of weeks, if there are several analyses during the same month, "
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(3)
@@ -77,7 +77,7 @@ public final class PurgeProperties {
         .name("Keep only analyses with a version event after")
         .description("After this number of weeks, the DbCleaner keeps only analyses with a version event associated.")
         .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(4)
@@ -88,7 +88,7 @@ public final class PurgeProperties {
         .name("Delete all analyses after")
         .description("After this number of weeks, all analyses are fully deleted.")
         .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(5)
@@ -99,7 +99,7 @@ public final class PurgeProperties {
         .name("Delete closed issues after")
         .description("Issues that have been closed for more than this number of days will be deleted.")
         .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(6)
@@ -110,7 +110,7 @@ public final class PurgeProperties {
         .name("Delete anticipated transitions after")
         .description("Anticipated transitions that have not been applied for more than this number of days will be deleted.")
         .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(7)

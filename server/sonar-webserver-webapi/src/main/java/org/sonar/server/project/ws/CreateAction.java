@@ -44,7 +44,7 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;

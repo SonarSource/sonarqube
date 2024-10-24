@@ -30,13 +30,13 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.rule.ImpactFormatter;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
@@ -87,7 +87,7 @@ public class PullTaintActionIT {
 
   private final System2 system2 = mock(System2.class);
   private final TaintChecker taintChecker = mock(TaintChecker.class);
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
 

@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -292,12 +292,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Optional<Edition> edition = editionProvider.get();
 
     if (edition.isEmpty()) {
-      return Sets.newHashSet(Qualifiers.PROJECT);
+      return Sets.newHashSet(ComponentQualifiers.PROJECT);
     }
 
     return switch (edition.get()) {
-      case ENTERPRISE, DATACENTER, DEVELOPER -> Sets.newHashSet(Qualifiers.PROJECT, Qualifiers.APP);
-      default -> Sets.newHashSet(Qualifiers.PROJECT);
+      case ENTERPRISE, DATACENTER, DEVELOPER -> Sets.newHashSet(ComponentQualifiers.PROJECT, ComponentQualifiers.APP);
+      default -> Sets.newHashSet(ComponentQualifiers.PROJECT);
     };
   }
 
@@ -337,7 +337,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private Map<String, Long> getApplicationsLeakPeriod(DbSession dbSession, SearchProjectsRequest request, Set<String> qualifiers, Collection<String> mainBranchUuids) {
-    if (qualifiers.contains(Qualifiers.APP) && request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
+    if (qualifiers.contains(ComponentQualifiers.APP) && request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
       return dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
         .stream()
         .filter(m -> !Objects.isNull(m.getString(METRIC_LEAK_PROJECTS_KEY)))
@@ -498,7 +498,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
           wsComponent.setAnalysisDate(formatDateTime(snapshotDto.getCreatedAt()));
         }
         if (request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-          if (Qualifiers.APP.equals(dbProject.getQualifier())) {
+          if (ComponentQualifiers.APP.equals(dbProject.getQualifier())) {
             ofNullable(applicationsLeakPeriod.get(dbProject.getUuid())).ifPresent(leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
           } else {
             ofNullable(snapshotDto.getPeriodDate()).ifPresent(leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));

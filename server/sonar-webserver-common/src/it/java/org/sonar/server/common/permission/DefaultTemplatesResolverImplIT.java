@@ -24,22 +24,22 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 
 public class DefaultTemplatesResolverImplIT {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ResourceTypesRule resourceTypesWithPortfoliosInstalled = new ResourceTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
-  private ResourceTypesRule resourceTypesWithApplicationInstalled = new ResourceTypesRule().setRootQualifiers(PROJECT, APP);
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+  private ComponentTypesRule resourceTypesWithPortfoliosInstalled = new ComponentTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
+  private ComponentTypesRule resourceTypesWithApplicationInstalled = new ComponentTypesRule().setRootQualifiers(PROJECT, APP);
+  private ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(PROJECT);
 
   private DefaultTemplatesResolverImpl underTestWithPortfoliosInstalled = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesWithPortfoliosInstalled);
   private DefaultTemplatesResolverImpl underTestWithApplicationInstalled = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesWithApplicationInstalled);

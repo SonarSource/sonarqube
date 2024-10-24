@@ -36,7 +36,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -1049,7 +1049,7 @@ class PropertiesDaoIT {
   private void insertProperties(@Nullable String userLogin, @Nullable String projectKey,
     @Nullable String projectName, PropertyDto... properties) {
     for (PropertyDto propertyDto : properties) {
-      underTest.saveProperty(session, propertyDto, userLogin, projectKey, projectName, Qualifiers.PROJECT);
+      underTest.saveProperty(session, propertyDto, userLogin, projectKey, projectName, ComponentQualifiers.PROJECT);
     }
     session.commit();
   }
@@ -1062,7 +1062,7 @@ class PropertiesDaoIT {
       .setUserUuid(userUuid)
       .setValue(value);
     boolean isNew = session.getMapper(PropertiesMapper.class).selectByKey(dto) == null;
-    db.properties().insertProperty(dto, projectKey, projectName, Qualifiers.PROJECT, userLogin);
+    db.properties().insertProperty(dto, projectKey, projectName, ComponentQualifiers.PROJECT, userLogin);
     if (isNew) {
       verify(auditPersister).addProperty(any(), any(), anyBoolean());
     } else {

@@ -36,8 +36,8 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.FILE;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 public abstract class ComponentIndexTest {
 

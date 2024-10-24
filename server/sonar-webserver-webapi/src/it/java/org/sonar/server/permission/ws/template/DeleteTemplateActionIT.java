@@ -28,7 +28,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
@@ -51,9 +51,9 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -65,7 +65,7 @@ public class DeleteTemplateActionIT {
 
   private final UserSessionRule userSession = UserSessionRule.standalone();
   private final DbClient dbClient = db.getDbClient();
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
   private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbClient, resourceTypes);
   private final Configuration configuration = mock(Configuration.class);
 

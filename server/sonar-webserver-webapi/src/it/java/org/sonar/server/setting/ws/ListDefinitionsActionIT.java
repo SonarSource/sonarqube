@@ -48,8 +48,7 @@ import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Definition.CategoryOneOfCase.CATEGORYONEOF_NOT_SET;
 import static org.sonarqube.ws.Settings.Definition.DefaultValueOneOfCase.DEFAULTVALUEONEOF_NOT_SET;
@@ -57,7 +56,6 @@ import static org.sonarqube.ws.Settings.Definition.DeprecatedKeyOneOfCase.DEPREC
 import static org.sonarqube.ws.Settings.Definition.NameOneOfCase.NAMEONEOF_NOT_SET;
 import static org.sonarqube.ws.Settings.Definition.SubCategoryOneOfCase.SUBCATEGORYONEOF_NOT_SET;
 import static org.sonarqube.ws.Settings.Type.BOOLEAN;
-import static org.sonarqube.ws.Settings.Type.LICENSE;
 import static org.sonarqube.ws.Settings.Type.PROPERTY_SET;
 import static org.sonarqube.ws.Settings.Type.SINGLE_SELECT_LIST;
 import static org.sonarqube.ws.Settings.Type.STRING;

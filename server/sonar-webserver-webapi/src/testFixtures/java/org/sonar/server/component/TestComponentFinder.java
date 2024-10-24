@@ -19,18 +19,16 @@
  */
 package org.sonar.server.component;
 
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
 
 public class TestComponentFinder extends ComponentFinder {
-  private TestComponentFinder(DbClient dbClient, ResourceTypes resourceTypes) {
-    super(dbClient, resourceTypes);
+  private TestComponentFinder(DbClient dbClient, ComponentTypes componentTypes) {
+    super(dbClient, componentTypes);
   }
 
   public static TestComponentFinder from(DbTester dbTester) {
-    return new TestComponentFinder(dbTester.getDbClient(), new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
+    return new TestComponentFinder(dbTester.getDbClient(), new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT));
   }
 }

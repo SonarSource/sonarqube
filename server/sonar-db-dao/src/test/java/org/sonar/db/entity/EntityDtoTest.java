@@ -20,7 +20,7 @@
 package org.sonar.db.entity;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 
@@ -78,7 +78,7 @@ class EntityDtoTest {
   @Test
   void getAuthUuid_whenEntityIsSubportfolio_shouldReturnAuthUuid() {
     PortfolioDto portfolioDto = new PortfolioDto();
-    portfolioDto.qualifier = Qualifiers.SUBVIEW;
+    portfolioDto.qualifier = ComponentQualifiers.SUBVIEW;
     portfolioDto.authUuid = "authUuid";
     portfolioDto.setUuid("uuid");
 
@@ -90,7 +90,7 @@ class EntityDtoTest {
   @Test
   void isProjectOrApp_whenQualifierIsProject_shouldReturnTrue() {
     ProjectDto projectDto = new ProjectDto();
-    projectDto.setQualifier(Qualifiers.PROJECT);
+    projectDto.setQualifier(ComponentQualifiers.PROJECT);
 
     boolean projectOrApp = projectDto.isProjectOrApp();
 
@@ -100,7 +100,7 @@ class EntityDtoTest {
   @Test
   void isProjectOrApp_whenQualifierIsPortfolio_shouldReturnFalse() {
     ProjectDto projectDto = new ProjectDto();
-    projectDto.setQualifier(Qualifiers.VIEW);
+    projectDto.setQualifier(ComponentQualifiers.VIEW);
 
     boolean projectOrApp = projectDto.isProjectOrApp();
 
@@ -110,7 +110,7 @@ class EntityDtoTest {
   @Test
   void isPortfolio_whenQualifierIsPortfolio_shouldReturnTrue() {
     ProjectDto projectDto = new ProjectDto();
-    projectDto.setQualifier(Qualifiers.VIEW);
+    projectDto.setQualifier(ComponentQualifiers.VIEW);
 
     boolean projectOrApp = projectDto.isPortfolio();
 
@@ -120,7 +120,7 @@ class EntityDtoTest {
   @Test
   void isPortfolio_whenQualifierIsProject_shouldReturnFalse() {
     ProjectDto projectDto = new ProjectDto();
-    projectDto.setQualifier(Qualifiers.PROJECT);
+    projectDto.setQualifier(ComponentQualifiers.PROJECT);
 
     boolean projectOrApp = projectDto.isPortfolio();
 

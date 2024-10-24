@@ -22,7 +22,6 @@ package org.sonar.scanner.bootstrap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.sarif.SarifSerializerImpl;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
@@ -48,7 +47,6 @@ public class BatchComponents {
 
   public static Collection<Object> all() {
     List<Object> components = new ArrayList<>();
-    components.add(DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
     components.add(ZeroCoverageSensor.class);
     components.add(JavaCpdBlockIndexerSensor.class);

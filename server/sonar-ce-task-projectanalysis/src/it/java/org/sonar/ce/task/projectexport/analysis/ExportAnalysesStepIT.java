@@ -31,8 +31,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
@@ -59,8 +59,8 @@ public class ExportAnalysesStepIT {
   private static final String PROJECT_UUID = "PROJECT_UUID";
   private static final ComponentDto PROJECT = new ComponentDto()
     // no id yet
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.PROJECT)
+    .setScope(ComponentScopes.PROJECT)
+    .setQualifier(ComponentQualifiers.PROJECT)
     .setKey("the_project")
     .setName("The Project")
     .setDescription("The project description")
@@ -73,8 +73,8 @@ public class ExportAnalysesStepIT {
   private static final String UUID_PATH = UUID_PATH_OF_ROOT + UUID_PATH_SEPARATOR + DIR_UUID;
   private static final ComponentDto DIR = new ComponentDto()
     // no id yet
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.DIRECTORY)
+    .setScope(ComponentScopes.PROJECT)
+    .setQualifier(ComponentQualifiers.DIRECTORY)
     .setKey("the_dir")
     .setName("The Dir")
     .setDescription("description of dir")
@@ -86,8 +86,8 @@ public class ExportAnalysesStepIT {
   private static final String FILE_UUID = "FILE_UUID";
   private static final ComponentDto FILE = new ComponentDto()
     // no id yet
-    .setScope(Scopes.FILE)
-    .setQualifier(Qualifiers.FILE)
+    .setScope(ComponentScopes.FILE)
+    .setQualifier(ComponentQualifiers.FILE)
     .setKey("the_file")
     .setName("The File")
     .setUuid(FILE_UUID)

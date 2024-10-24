@@ -27,10 +27,10 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypeTree;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -64,8 +64,8 @@ public class CurrentActionHomepageIT {
 
   private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
   private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
-  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ComponentTypes(new ComponentTypeTree[] {
+    ComponentTypeTree.builder().addType(ComponentType.builder(ComponentQualifiers.PROJECT).build()).build()}));
   private final WsActionTester ws = new WsActionTester(
     new CurrentAction(userSessionRule, dbClient, new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
 

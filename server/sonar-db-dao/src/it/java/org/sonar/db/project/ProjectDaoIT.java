@@ -35,7 +35,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -434,7 +434,7 @@ class ProjectDaoIT {
     return new ProjectDto()
       .setName("projectName_" + name)
       .setKey("projectKee_" + org + "_" + name)
-      .setQualifier(Qualifiers.PROJECT)
+      .setQualifier(ComponentQualifiers.PROJECT)
       .setUuid("uuid_" + org + "_" + name)
       .setTags(Arrays.asList("tag1", "tag2"))
       .setDescription("desc_" + name)

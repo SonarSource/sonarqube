@@ -34,7 +34,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ResourceForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
-import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public abstract class AbstractUserSession implements UserSession {

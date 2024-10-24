@@ -25,11 +25,11 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypeTree;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,7 +37,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -71,10 +71,10 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.DIRECTORY;
-import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.DIRECTORY;
+import static org.sonar.db.component.ComponentQualifiers.FILE;
+import static org.sonar.db.component.ComponentQualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -112,10 +112,10 @@ class ComponentTreeActionIT {
 
   private final I18nRule i18n = new I18nRule();
 
-  private final ResourceTypes defaultResourceTypes = new ResourceTypes(new ResourceTypeTree[]{DefaultResourceTypes.get()});
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule()
-    .setRootQualifiers(defaultResourceTypes.getRoots())
-    .setAllQualifiers(defaultResourceTypes.getAll())
+  private final ComponentTypes defaultComponentTypes = new ComponentTypes(new ComponentTypeTree[]{DefaultComponentTypes.get()});
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule()
+    .setRootQualifiers(defaultComponentTypes.getRoots())
+    .setAllQualifiers(defaultComponentTypes.getAll())
     .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
 
   private final DbClient dbClient = db.getDbClient();

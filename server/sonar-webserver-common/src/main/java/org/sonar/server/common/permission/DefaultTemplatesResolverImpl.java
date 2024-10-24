@@ -19,9 +19,9 @@
  */
 package org.sonar.server.common.permission;
 
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.property.InternalProperties;
@@ -29,11 +29,11 @@ import org.sonar.server.property.InternalProperties;
 public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
 
   private final DbClient dbClient;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
 
-  public DefaultTemplatesResolverImpl(DbClient dbClient, ResourceTypes resourceTypes) {
+  public DefaultTemplatesResolverImpl(DbClient dbClient, ComponentTypes componentTypes) {
     this.dbClient = dbClient;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
   }
 
   @Override
@@ -45,27 +45,27 @@ public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
     String defaultPortfolioTemplate = null;
     String defaultApplicationTemplate = null;
 
-    if (isPortfolioEnabled(resourceTypes)) {
+    if (isPortfolioEnabled(componentTypes)) {
       defaultPortfolioTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_PORTFOLIO_TEMPLATE).orElse(defaultProjectTemplate);
     }
-    if (isApplicationEnabled(resourceTypes)) {
+    if (isApplicationEnabled(componentTypes)) {
       defaultApplicationTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_APPLICATION_TEMPLATE).orElse(defaultProjectTemplate);
     }
     return new ResolvedDefaultTemplates(defaultProjectTemplate, defaultApplicationTemplate, defaultPortfolioTemplate);
   }
 
-  private static boolean isPortfolioEnabled(ResourceTypes resourceTypes) {
-    return resourceTypes.getRoots()
+  private static boolean isPortfolioEnabled(ComponentTypes componentTypes) {
+    return componentTypes.getRoots()
       .stream()
-      .map(ResourceType::getQualifier)
-      .anyMatch(Qualifiers.VIEW::equals);
+      .map(ComponentType::getQualifier)
+      .anyMatch(ComponentQualifiers.VIEW::equals);
   }
 
-  private static boolean isApplicationEnabled(ResourceTypes resourceTypes) {
-    return resourceTypes.getRoots()
+  private static boolean isApplicationEnabled(ComponentTypes componentTypes) {
+    return componentTypes.getRoots()
             .stream()
-            .map(ResourceType::getQualifier)
-            .anyMatch(Qualifiers.APP::equals);
+            .map(ComponentType::getQualifier)
+            .anyMatch(ComponentQualifiers.APP::equals);
   }
 
 }

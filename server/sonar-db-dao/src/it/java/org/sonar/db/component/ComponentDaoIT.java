@@ -37,8 +37,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -72,10 +70,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
@@ -830,8 +828,8 @@ class ComponentDaoIT {
 
   static Object[][] portfolioOrApplicationRootViewQualifier() {
     return new Object[][]{
-      {Qualifiers.VIEW},
-      {Qualifiers.APP},
+      {ComponentQualifiers.VIEW},
+      {ComponentQualifiers.APP},
     };
   }
 
@@ -850,7 +848,7 @@ class ComponentDaoIT {
 
   private ComponentDto insertView(String rootViewQualifier, Consumer<ComponentDto> dtoPopulators) {
     ComponentDbTester tester = db.components();
-    if (rootViewQualifier.equals(Qualifiers.VIEW)) {
+    if (rootViewQualifier.equals(ComponentQualifiers.VIEW)) {
       return random.nextBoolean() ? tester.insertPublicPortfolio(dtoPopulators) : tester.insertPrivatePortfolio(dtoPopulators);
     }
     return random.nextBoolean() ? tester.insertPublicApplication(dtoPopulators).getMainBranchComponent() :
@@ -945,7 +943,7 @@ class ComponentDaoIT {
     assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers(PROJECT, "XXX").build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid());
-    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build(), forPage(1).andSize(10)))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers(PROJECT, ComponentQualifiers.VIEW).build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid(), provisionedPortfolio.uuid());
 
@@ -1026,8 +1024,8 @@ class ComponentDaoIT {
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setOnProvisionedOnly(true);
 
     assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT).build())).isOne();
-    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(Qualifiers.VIEW).build())).isZero();
-    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build())).isOne();
+    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(ComponentQualifiers.VIEW).build())).isZero();
+    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT, ComponentQualifiers.VIEW).build())).isOne();
   }
 
   @Test
@@ -1537,7 +1535,7 @@ class ComponentDaoIT {
     assertThat(children).extracting("uuid").containsOnly(FILE_1_UUID, DIR_UUID);
 
     // test children of root, filtered by qualifier
-    query = newTreeQuery(PROJECT_UUID).setQualifiers(asList(Qualifiers.DIRECTORY)).build();
+    query = newTreeQuery(PROJECT_UUID).setQualifiers(asList(ComponentQualifiers.DIRECTORY)).build();
     children = underTest.selectDescendants(dbSession, query);
     assertThat(children).extracting("uuid").containsOnly(DIR_UUID);
 
@@ -1582,11 +1580,11 @@ class ComponentDaoIT {
     assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
 
     // test filtering by scope
-    query = newTreeQuery(project.uuid()).setScopes(asList(Scopes.FILE)).build();
+    query = newTreeQuery(project.uuid()).setScopes(asList(ComponentScopes.FILE)).build();
     assertThat(underTest.selectDescendants(dbSession, query))
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(fileInProject.uuid());
-    query = newTreeQuery(project.uuid()).setScopes(asList(Scopes.DIRECTORY)).build();
+    query = newTreeQuery(project.uuid()).setScopes(asList(ComponentScopes.DIRECTORY)).build();
     assertThat(underTest.selectDescendants(dbSession, query))
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(dir.uuid());

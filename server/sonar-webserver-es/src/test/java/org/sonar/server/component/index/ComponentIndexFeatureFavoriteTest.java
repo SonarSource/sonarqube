@@ -28,7 +28,7 @@ import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.singletonList;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 
 public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {

@@ -21,7 +21,7 @@ package org.sonar.ce.notification;
 
 import java.time.Duration;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
@@ -97,7 +97,7 @@ public class ReportAnalysisFailureNotificationExecutionListener implements CeWor
    */
   private static void checkQualifier(ProjectDto projectDto) {
     String qualifier = projectDto.getQualifier();
-    checkArgument(qualifier.equals(Qualifiers.PROJECT), "Component %s must be a project (qualifier=%s)", projectDto.getUuid(), qualifier);
+    checkArgument(qualifier.equals(ComponentQualifiers.PROJECT), "Component %s must be a project (qualifier=%s)", projectDto.getUuid(), qualifier);
   }
 
   private ReportAnalysisFailureNotificationBuilder buildNotification(CeActivityDto ceActivityDto, ProjectDto projectDto, BranchDto branchDto,
