@@ -117,4 +117,4 @@ export const isProfileComparePath = (pathname: string): boolean => {
 };
 
 export const getProfilesPath = (organization: string) =>
-  organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
+  organization ? `/organizations/${organization}/profiles` : '/profiles';

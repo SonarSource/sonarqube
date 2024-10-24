@@ -34,20 +34,20 @@ import {
 import { ProfileInheritanceDetails } from '../types/types';
 
 export function useProfileInheritanceQuery(
-  profile?: Pick<Profile, 'language' | 'name' | 'parentKey'>,
+  profile?: Pick<Profile, 'organization' | 'language' | 'name' | 'parentKey'>,
 ): UseQueryResult<{
   ancestors: ProfileInheritanceDetails[];
   children: ProfileInheritanceDetails[];
   profile: ProfileInheritanceDetails | null;
 }> {
-  const { language, name, parentKey } = profile ?? {};
+  const { organization, language, name, parentKey } = profile ?? {};
   return useQuery({
-    queryKey: ['quality-profiles', 'inheritance', language, name, parentKey],
-    queryFn: async ({ queryKey: [, , language, name] }) => {
-      if (!language || !name) {
+    queryKey: ['quality-profiles', 'inheritance', organization, language, name, parentKey],
+    queryFn: async ({ queryKey: [, , organization, language, name] }) => {
+      if (!organization || !language || !name) {
         return { ancestors: [], children: [], profile: null };
       }
-      const response = await getProfileInheritance({ language, name });
+      const response = await getProfileInheritance({ organization, language, name });
       response.ancestors.reverse();
       return response;
     },

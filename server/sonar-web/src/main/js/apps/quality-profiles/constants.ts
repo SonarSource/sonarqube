@@ -17,5 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const PROFILE_PATH = '/profiles';
+export const PROFILE_PATH = 'profiles';
 export const PROFILE_COMPARE_PATH = `${PROFILE_PATH}/compare`;

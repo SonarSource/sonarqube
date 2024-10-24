@@ -113,7 +113,7 @@ export function getProfileInheritance({
   organization,
   language,
   name: qualityProfile,
-}: Pick<Profile, 'language' | 'name'>): Promise<{
+}: Pick<Profile, 'organization' | 'language' | 'name'>): Promise<{
   ancestors: ProfileInheritanceDetails[];
   children: ProfileInheritanceDetails[];
   profile: ProfileInheritanceDetails;

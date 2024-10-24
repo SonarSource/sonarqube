@@ -24,6 +24,7 @@ import { getQualityGatesUrl } from '../../../helpers/urls';
 import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
 import { NavBarTabLink, NavBarTabs } from "design-system";
+import { getProfilesPath } from "../../quality-profiles/utils";
 
 interface OwnProps {
   location: { pathname: string };
@@ -42,7 +43,7 @@ export default function OrganizationNavigationMenu({ location, organization }: O
           }}
           text={translate('issues.facet.mode.count')}
       />
-      <NavBarTabLink to={`/organizations/${organization.kee}/quality_profiles`} text={translate('quality_profiles.page')} />
+      <NavBarTabLink to={getProfilesPath(organization.kee)} text={translate('quality_profiles.page')} />
       <NavBarTabLink to={`/organizations/${organization.kee}/rules`} text={translate('coding_rules.page')} />
       <NavBarTabLink to={getQualityGatesUrl(organization.kee)} text={translate('quality_gates.page')} />
       <NavBarTabLink to={`/organizations/${organization.kee}/members`} text={translate('organization.members.page')} />

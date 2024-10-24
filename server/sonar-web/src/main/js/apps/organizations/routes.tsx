@@ -57,7 +57,7 @@ const routes = () => (
         <Route path="issues" element={<IssuesApp />}/>
         <Route path="policy-results" element={<PolicyResults/>}/>
         {qualityGatesRoutes()}
-        <Route path="quality_profiles" element={<QualityProfilesApp />}>
+        <Route path="profiles" element={<QualityProfilesApp />}>
            <Route index={true} element={<HomeContainer />} />
            <Route element={<ProfileContainer />}>
              <Route path="show" element={<ProfileDetails />} />
