@@ -44,7 +44,7 @@ export default function CreateQualityGateForm({ onClose, organization }: Readonl
     if (name !== undefined) {
       const qualityGate = await createQualityGate(name);
       onClose();
-      router.push(getQualityGateUrl(qualityGate.name, this.props.organization));
+      router.push(getQualityGateUrl(organization, qualityGate.name));
     }
   };
 

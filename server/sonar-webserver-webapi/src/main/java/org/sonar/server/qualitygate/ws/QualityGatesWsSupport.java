@@ -31,7 +31,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -57,12 +56,6 @@ public class QualityGatesWsSupport {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
-  }
-
-  public QualityGateDto getByOrganizationAndUuid(DbSession dbSession, OrganizationDto organization, String qualityGateUuid) {
-    return checkFound(
-      dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGateUuid),
-      "No quality gate has been found for id %s in organization %s", qualityGateUuid, organization.getName());
   }
 
   public QualityGateDto getByOrganizationAndName(DbSession dbSession, OrganizationDto organization, String qualityGateName) {

@@ -176,17 +176,23 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
         <RenameQualityGateForm
           onClose={() => setIsRenameFormOpen(false)}
           qualityGate={qualityGate}
+          organization={organization}
         />
       )}
 
       {isCopyFormOpen && (
-        <CopyQualityGateForm onClose={() => setIsCopyFormOpen(false)} qualityGate={qualityGate} />
+        <CopyQualityGateForm
+          onClose={() => setIsCopyFormOpen(false)}
+          qualityGate={qualityGate}
+          organization={organization}
+        />
       )}
 
       {isRemoveFormOpen && (
         <DeleteQualityGateForm
           onClose={() => setIsRemoveFormOpen(false)}
           qualityGate={qualityGate}
+          organization={organization}
         />
       )}
     </>

@@ -54,7 +54,7 @@ export default function List({ organization, qualityGates, currentQualityGate }:
             active={currentQualityGate === name}
             key={name}
             onClick={() => {
-              navigateTo(getQualityGateUrl(name, organization));
+              navigateTo(getQualityGateUrl(organization, name));
             }}
           >
             <div className="sw-flex sw-flex-col sw-min-w-0">

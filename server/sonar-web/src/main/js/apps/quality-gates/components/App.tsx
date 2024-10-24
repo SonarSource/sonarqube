@@ -65,7 +65,7 @@ function App({ organization } : OrganizationContextProps) {
       if (!defaultQualityGate) {
         return;
       }
-      navigate(getQualityGateUrl(defaultQualityGate.name, organization!.kee), { replace: true });
+      navigate(getQualityGateUrl(organization!.kee, defaultQualityGate.name), { replace: true });
     },
     [navigate],
   );

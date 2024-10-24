@@ -43,7 +43,7 @@ export default class OrganizationAvatar extends React.PureComponent<Props, State
   render() {
     const { className, organization, small } = this.props;
     const { imgLoadError } = this.state;
-    return (
+    return organization.avatar && !imgLoadError ? (
       <div
         className={classNames(
           'navbar-context-avatar',
@@ -51,17 +51,15 @@ export default class OrganizationAvatar extends React.PureComponent<Props, State
           { 'no-border': !organization.avatar, 'is-small': small },
           className
         )}>
-        {organization.avatar && !imgLoadError ? (
-          <img
-            alt={organization.name}
-            className="rounded"
-            onError={this.handleImgError}
-            src={organization.avatar}
-          />
-        ) : (
-          <Avatar name={organization.name} size={small ? "xs" : "md"} />
-        )}
+        <img
+          alt={organization.name}
+          className="rounded"
+          onError={this.handleImgError}
+          src={organization.avatar}
+        />
       </div>
+    ) : (
+      <Avatar name={organization.name} size={small ? "xs" : "md"}/>
     );
   }
 }

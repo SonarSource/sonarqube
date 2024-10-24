@@ -38,7 +38,7 @@ export default function DeleteQualityGateForm({ organization, qualityGate, onClo
 
   const onDelete = async () => {
     await deleteQualityGate();
-    router.push(getQualityGatesUrl());
+    router.push(getQualityGatesUrl(organization));
   };
 
   return (

@@ -49,7 +49,7 @@ export default function RenameQualityGateForm({ organization, qualityGate, onClo
     event.preventDefault();
 
     await renameQualityGate(name);
-    router.push(getQualityGateUrl(name, organization));
+    router.push(getQualityGateUrl(organization, name));
   };
 
   const confirmDisable = !name || (qualityGate && qualityGate.name === name);

@@ -92,7 +92,7 @@ public class ShowAction implements QualityGatesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QualityGateDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, name);
+      QualityGateDto qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, name);
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, conditions);
       QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession, organization);

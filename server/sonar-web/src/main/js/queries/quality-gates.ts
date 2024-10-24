@@ -230,7 +230,7 @@ export function useUpdateConditionMutation(organization: string, gateName: strin
 
   return useMutation({
     mutationFn: (condition: Condition) => {
-      return updateCondition({ organization, condition });
+      return updateCondition({ organization, ...condition });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
