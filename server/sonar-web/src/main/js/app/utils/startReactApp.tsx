@@ -38,7 +38,6 @@ import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import ChangeAdminPasswordApp from '../../apps/change-admin-password/ChangeAdminPasswordApp';
 import codeRoutes from '../../apps/code/routes';
-import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import { globalIssuesRoutes, projectIssuesRoutes } from '../../apps/issues/routes';
@@ -202,8 +201,6 @@ const router = createBrowserRouter(
 
           <Route element={<GlobalContainer />}>
             {accountRoutes()}
-
-            {codingRulesRoutes()}
 
             <Route path="extension/:pluginKey/:extensionKey" element={<GlobalPageExtension />} />
 

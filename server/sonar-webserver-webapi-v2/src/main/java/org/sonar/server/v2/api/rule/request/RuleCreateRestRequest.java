@@ -34,6 +34,11 @@ import org.sonar.server.v2.api.rule.resource.Parameter;
 public record RuleCreateRestRequest(
 
   @NotNull
+  @Size(max = 255)
+  @Schema(description = "Key of the organization")
+  String organization,
+
+  @NotNull
   @Size(max = 200)
   @Schema(description = "Key of the custom rule to create, must include the repository")
   String key,

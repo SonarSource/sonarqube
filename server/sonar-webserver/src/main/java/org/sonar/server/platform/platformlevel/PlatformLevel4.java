@@ -93,6 +93,7 @@ import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.common.permission.GroupPermissionChanger;
 import org.sonar.server.common.permission.PermissionTemplateService;
@@ -350,6 +351,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new UpdateCenterModule(),
 
       // organizations
+      OrganizationService.class,
       new OrganizationsWsModule(),
       BillingValidationsProxyImpl.class,
 

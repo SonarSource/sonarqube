@@ -77,7 +77,7 @@ public class RuleDao implements Dao {
   }
 
   public RuleDto selectOrFailByKey(DbSession session, OrganizationDto organization, RuleKey key) {
-    RuleDto rule =  Optional.ofNullable(mapper(session).selectByKeyAndOrganization(organization.getUuid(), key))
+    RuleDto rule =  Optional.ofNullable(mapper(session).selectByOrganizationAndKey(organization.getUuid(), key))
       .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
     ensureOrganizationIsSet(organization.getUuid(), rule);
     return rule;

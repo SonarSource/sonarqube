@@ -46,7 +46,7 @@ export function useSearchRulesQuery(data: SearchRulesQuery) {
 }
 
 export function useRuleDetailsQuery<T = Awaited<ReturnType<typeof getRuleDetails>>>(
-  data: { actives?: boolean; key: string },
+  data: { organization: string, actives?: boolean; key: string },
   options?: Omit<
     UseQueryOptions<Awaited<ReturnType<typeof getRuleDetails>>, Error, T>,
     'queryKey' | 'queryFn'

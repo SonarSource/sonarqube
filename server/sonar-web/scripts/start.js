@@ -106,6 +106,24 @@ async function run() {
                 },
                 e => console.error('req error', e)
             );
+          } else if (req.url.includes('static/developer/')) {
+            proxy.web(
+              req,
+              res,
+              {
+                target: 'http://localhost:3001'
+              },
+              e => console.error('req error', e)
+            );
+          } else if (req.url.includes('static/billing/')) {
+            proxy.web(
+              req,
+              res,
+              {
+                target: 'http://localhost:3002'
+              },
+              e => console.error('req error', e)
+            );
           } else if (
             (req.url.includes('api/') && !req.url.includes('/web_api')) ||
             req.url.includes('images/') ||

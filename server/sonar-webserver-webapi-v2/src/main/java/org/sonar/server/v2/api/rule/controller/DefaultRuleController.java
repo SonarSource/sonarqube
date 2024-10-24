@@ -22,7 +22,7 @@ package org.sonar.server.v2.api.rule.controller;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.common.rule.ReactivationException;
 import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.common.rule.service.RuleInformation;
@@ -43,18 +43,20 @@ public class DefaultRuleController implements RuleController {
   private final UserSession userSession;
   private final RuleService ruleService;
   private final RuleRestResponseGenerator ruleRestResponseGenerator;
+  private final OrganizationService organizationService;
 
-  public DefaultRuleController(UserSession userSession, RuleService ruleService, RuleRestResponseGenerator ruleRestResponseGenerator) {
+  public DefaultRuleController(UserSession userSession, RuleService ruleService, RuleRestResponseGenerator ruleRestResponseGenerator, OrganizationService organizationService) {
     this.userSession = userSession;
     this.ruleService = ruleService;
     this.ruleRestResponseGenerator = ruleRestResponseGenerator;
+    this.organizationService = organizationService;
   }
 
   @Override
   public RuleRestResponse create(RuleCreateRestRequest request) {
     userSession
       .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, (OrganizationDto) null /* TODO */);
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, organizationService.getOrganizationByKey(request.organization()));
     try {
       RuleInformation ruleInformation = ruleService.createCustomRule(toNewCustomRule(request));
       return ruleRestResponseGenerator.toRuleRestResponse(ruleInformation);
@@ -65,6 +67,7 @@ public class DefaultRuleController implements RuleController {
 
   private static NewCustomRule toNewCustomRule(RuleCreateRestRequest request) {
     NewCustomRule newCustomRule = NewCustomRule.createForCustomRule(RuleKey.parse(request.key()), RuleKey.parse(request.templateKey()))
+      .setOrganizationKey(request.organization())
       .setName(request.name())
       .setMarkdownDescription(request.markdownDescription())
       .setStatus(ofNullable(request.status()).map(RuleStatusRestEnum::getRuleStatus).orElse(null))

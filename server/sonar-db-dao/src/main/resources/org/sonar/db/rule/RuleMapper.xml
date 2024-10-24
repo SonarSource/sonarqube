@@ -204,24 +204,11 @@
       rules r
     <include refid="leftOuterJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
-    where
-      r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
-      and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectByKeyAndOrganization" parameterType="map" resultMap="ruleResultMap">
-    select
-      <include refid="selectJoinedTablesColumns"/>
-    from
-      rules r
-    <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
     <include refid="leftOuterJoinRulesTags"/>
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
-    order by r.uuid
   </select>
 
   <select id="selectByOrganizationAndKey" parameterType="map" resultMap="ruleResultMap">
@@ -231,6 +218,8 @@
       rules r
     <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}

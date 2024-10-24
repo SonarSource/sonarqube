@@ -30,6 +30,7 @@ const EXTERNAL_RULE_REPO_PREFIX = 'external_';
 interface Props {
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   ruleDetails: RuleDetails;
+  organization: string;
 }
 
 export default function RuleDetailsHeaderMeta(props: Readonly<Props>) {
@@ -63,7 +64,7 @@ export default function RuleDetailsHeaderMeta(props: Readonly<Props>) {
             <span>
               {translate('coding_rules.custom_rule')}
               {' ('}
-              <Link to={getRuleUrl(ruleDetails.templateKey)}>
+              <Link to={getRuleUrl(ruleDetails.templateKey, props.organization)}>
                 {translate('coding_rules.show_template')}
               </Link>
               {') '}

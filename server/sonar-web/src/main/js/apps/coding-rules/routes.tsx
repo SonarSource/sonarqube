@@ -59,6 +59,6 @@ function HashEditWrapper() {
   return <CodingRulesApp />;
 }
 
-const routes = () => <Route path="coding_rules" element={<HashEditWrapper />} />;
+const routes = () => <Route path="rules" element={<HashEditWrapper />} />;
 
 export default routes;

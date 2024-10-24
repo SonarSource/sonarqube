@@ -31,6 +31,7 @@ interface Props {
   onTagsChange: (tags: string[]) => void;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   ruleDetails: RuleDetails;
+  organization: string;
 }
 
 export default function RuleDetailsHeader(props: Readonly<Props>) {
@@ -55,6 +56,7 @@ export default function RuleDetailsHeader(props: Readonly<Props>) {
         <div className="sw-flex sw-flex-wrap sw-gap-2">
           {hasTypeData && (
             <RuleDetailsHeaderMeta
+              organization={props.organization}
               ruleDetails={ruleDetails}
               referencedRepositories={referencedRepositories}
             />

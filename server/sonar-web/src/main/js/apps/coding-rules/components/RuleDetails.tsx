@@ -73,6 +73,7 @@ export default function RuleDetails(props: Readonly<Props>) {
     referencedRepositories,
   } = props;
   const { isLoading: loadingRule, data } = useRuleDetailsQuery({
+    organization,
     actives: true,
     key: ruleKey,
   });
@@ -86,7 +87,7 @@ export default function RuleDetails(props: Readonly<Props>) {
   const isEditable = canWrite && !!allowCustomRules && isCustom;
 
   const handleTagsChange = (tags: string[]) => {
-    updateRule({ key: ruleKey, tags: tags.join() });
+    updateRule({ organization, key: ruleKey, tags: tags.join() });
   };
 
   const handleActivate = () => {
@@ -114,6 +115,7 @@ export default function RuleDetails(props: Readonly<Props>) {
               onTagsChange={handleTagsChange}
               referencedRepositories={referencedRepositories}
               ruleDetails={ruleDetails}
+              organization={organization}
             />
 
             <RuleDetailsDescription organization={organization} canWrite={canWrite} ruleDetails={ruleDetails} />

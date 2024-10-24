@@ -35,6 +35,7 @@ import {
 const RULES_ENDPOINT = '/api/v2/clean-code-policy/rules';
 
 export interface CreateRuleData {
+  organization: string;
   cleanCodeAttribute: CleanCodeAttribute;
   impacts: SoftwareImpact[];
   key: string;

@@ -34,6 +34,7 @@ import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.common.health.EsStatusNodeCheck;
 import org.sonar.server.common.health.WebServerStatusNodeCheck;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.common.platform.LivenessCheckerImpl;
 import org.sonar.server.common.project.ImportProjectService;
@@ -149,8 +150,8 @@ public class PlatformLevel4WebConfig {
   }
 
   @Bean
-  public RuleController ruleController(UserSession userSession, RuleService ruleService, RuleRestResponseGenerator ruleRestResponseGenerator) {
-    return new DefaultRuleController(userSession, ruleService, ruleRestResponseGenerator);
+  public RuleController ruleController(UserSession userSession, RuleService ruleService, RuleRestResponseGenerator ruleRestResponseGenerator, OrganizationService organizationService) {
+    return new DefaultRuleController(userSession, ruleService, ruleRestResponseGenerator, organizationService);
   }
 
   @Primary

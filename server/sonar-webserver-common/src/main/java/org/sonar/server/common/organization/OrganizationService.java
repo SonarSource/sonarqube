@@ -17,32 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { RuleDetails } from '../../../types/types';
-import CustomRuleFormModal from './CustomRuleFormModal';
+package org.sonar.server.common.organization;
 
-interface Props {
-  children: (props: { onClick: () => void }) => React.ReactNode;
-  customRule?: RuleDetails;
-  templateRule: RuleDetails;
-  organization: string;
-}
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 
-export default function CustomRuleButton(props: Props) {
-  const { customRule, templateRule } = props;
-  const [modalOpen, setModalOpen] = React.useState(false);
+public class OrganizationService {
 
-  return (
-    <>
-      {props.children({ onClick: () => setModalOpen(true) })}
-      {modalOpen && (
-        <CustomRuleFormModal
-          organization={props.organization}
-          customRule={customRule}
-          onClose={() => setModalOpen(false)}
-          templateRule={templateRule}
-        />
-      )}
-    </>
-  );
+  private final DbClient dbClient;
+
+  public OrganizationService(DbClient dbClient) {
+    this.dbClient = dbClient;
+  }
+
+  public OrganizationDto getOrganizationByKey(String key) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.organizationDao().selectByKey(dbSession, key)
+          .orElseThrow(() -> new IllegalArgumentException("No organization found by key: " + key));
+    }
+  }
+
 }

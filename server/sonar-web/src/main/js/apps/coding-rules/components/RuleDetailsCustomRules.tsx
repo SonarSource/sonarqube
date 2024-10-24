@@ -72,7 +72,7 @@ export default function RuleDetailsCustomRules(props: Readonly<Props>) {
         <HeadingDark as="h2">{translate('coding_rules.custom_rules')}</HeadingDark>
 
         {props.canChange && (
-          <CustomRuleButton templateRule={ruleDetails}>
+          <CustomRuleButton organization={organization} templateRule={ruleDetails}>
             {({ onClick }) => (
               <ButtonSecondary className="js-create-custom-rule sw-mt-6" onClick={onClick}>
                 {translate('coding_rules.create')}

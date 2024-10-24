@@ -40,7 +40,7 @@ import OrganizationMembers from "../organizationMembers/OrganizationMembers";
 import PolicyResults from "../policy-results/components/PolicyResults";
 import PermissionsGlobalApp from "../permissions/global/components/PermissionsGlobalApp";
 import GroupsApp from "../groups/GroupsApp";
-import CodingRulesApp from "../coding-rules/components/CodingRulesApp";
+import codingRulesRoutes from "../coding-rules/routes";
 
 const routes = () => (
     <Route path="organizations">
@@ -65,7 +65,7 @@ const routes = () => (
              <Route path="compare" element={<ComparisonContainer />} />
            </Route>
         </Route>
-        <Route path="rules" element={<CodingRulesApp />}/>
+        {codingRulesRoutes()}
         <Route path="members" element={<OrganizationMembers />}/>
         <Route path="extension/:pluginKey/:extensionKey" element={<OrganizationPageExtension />} />
       </Route>
