@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import { Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
@@ -51,6 +52,7 @@ export interface FacetBoxProps {
   onClear?: () => void;
   onClick?: (isOpen: boolean) => void;
   open?: boolean;
+  secondLine?: string;
   tooltipComponent?: React.ComponentType<React.PropsWithChildren<{ content: React.ReactNode }>>;
 }
 
@@ -65,6 +67,7 @@ export function FacetBox(props: FacetBoxProps) {
     'data-property': dataProperty,
     disabled = false,
     disabledHelper,
+    secondLine,
     hasEmbeddedFacets = false,
     help,
     id: idProp,
@@ -82,6 +85,7 @@ export function FacetBox(props: FacetBoxProps) {
   const expandable = !disabled && Boolean(onClick);
   const id = React.useMemo(() => idProp ?? uniqueId('filter-facet-'), [idProp]);
   const Tooltip = tooltipComponent ?? SCTooltip;
+
   return (
     <Accordion
       className={classNames(className, { open })}
@@ -117,7 +121,14 @@ export function FacetBox(props: FacetBoxProps) {
                 </HeaderTitle>
               </Tooltip>
             ) : (
-              <HeaderTitle>{name}</HeaderTitle>
+              <div>
+                <HeaderTitle>{name}</HeaderTitle>
+                {secondLine !== undefined && (
+                  <Text as="div" isSubdued>
+                    {secondLine}
+                  </Text>
+                )}
+              </div>
             )}
           </ChevronAndTitle>
           {help && <span className="sw-ml-1">{help}</span>}

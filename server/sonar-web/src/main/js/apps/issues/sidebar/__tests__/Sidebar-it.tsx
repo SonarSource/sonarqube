@@ -25,7 +25,10 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQuery } from '../../../../helpers/mocks/issues';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../sonar-aligned/helpers/testSelector';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { Feature } from '../../../../types/features';
+import { IssueSeverity, IssueType } from '../../../../types/issues';
 import { GlobalSettingKeys, SettingsKey } from '../../../../types/settings';
 import { Sidebar } from '../Sidebar';
 
@@ -73,6 +76,60 @@ describe('MQR mode', () => {
       'issues.facet.authors',
       'issues.facet.prioritized_rule.category',
     ]);
+  });
+
+  it('should show show mqr filters if they exist in query', async () => {
+    let component = renderSidebar({
+      query: mockQuery({ types: [IssueType.CodeSmell] }),
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'issues.facet.types' })
+        .byText('issues.facet.second_line.mode.standard')
+        .get(),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'issues.facet.severities' }),
+    ).not.toBeInTheDocument();
+
+    component.unmount();
+
+    component = renderSidebar({
+      query: mockQuery({ severities: [IssueSeverity.Blocker] }),
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'issues.facet.severities' })).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'issues.facet.severities' })
+        .byText('issues.facet.second_line.mode.standard')
+        .get(),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'issues.facet.types' })).not.toBeInTheDocument();
+
+    component.unmount();
+
+    renderSidebar({
+      query: mockQuery({
+        types: [IssueType.CodeSmell],
+        severities: [IssueSeverity.Blocker],
+      }),
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'issues.facet.severities' })).toBeInTheDocument();
   });
 
   it('should render correct facets for Application', () => {
@@ -177,6 +234,64 @@ describe('Standard mode', () => {
       'issues.facet.authors',
       'issues.facet.prioritized_rule.category',
     ]);
+  });
+
+  it('should show show mqr filters if they exist in query', async () => {
+    let component = renderSidebar({
+      query: mockQuery({ impactSeverities: [SoftwareImpactSeverity.Blocker] }),
+    });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+    ).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'coding_rules.facet.impactSeverities' })
+        .byText('issues.facet.second_line.mode.mqr')
+        .get(),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).not.toBeInTheDocument();
+
+    component.unmount();
+
+    component = renderSidebar({
+      query: mockQuery({ impactSoftwareQualities: [SoftwareQuality.Maintainability] }),
+    });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'issues.facet.impactSoftwareQualities' })
+        .byText('issues.facet.second_line.mode.mqr')
+        .get(),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+    ).not.toBeInTheDocument();
+
+    component.unmount();
+
+    renderSidebar({
+      query: mockQuery({
+        impactSoftwareQualities: [SoftwareQuality.Maintainability],
+        impactSeverities: [SoftwareImpactSeverity.Blocker],
+      }),
+    });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+    ).toBeInTheDocument();
   });
 
   it('should render correct facets for Application', async () => {

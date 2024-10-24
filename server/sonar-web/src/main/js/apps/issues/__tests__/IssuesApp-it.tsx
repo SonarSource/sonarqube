@@ -74,6 +74,18 @@ describe('issues app', () => {
 
       expect(await ui.fixedIssuesHeading.find()).toBeInTheDocument();
     });
+
+    it('should show issue type if old filter exists', async () => {
+      const component = renderProjectIssuesApp('project/issues?id=my-project');
+
+      expect(await ui.issueItem1.find()).not.toHaveTextContent('issue.type.VULNERABILITY');
+
+      component.unmount();
+
+      renderProjectIssuesApp('project/issues?id=my-project&types=VULNERABILITY');
+
+      expect(await ui.issueItem1.find()).toHaveTextContent('issue.type.VULNERABILITY');
+    });
   });
 
   describe('navigation', () => {
@@ -229,7 +241,7 @@ describe('issues app', () => {
       renderIssueApp(currentUser);
 
       // Check that the bulk button has correct behavior
-      expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
+      expect(await screen.findByRole('button', { name: 'bulk_change' })).toBeDisabled();
 
       // Select all issues
       await user.click(await screen.findByRole('checkbox', { name: 'issues.select_all_issues' }));

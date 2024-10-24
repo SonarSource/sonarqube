@@ -60,6 +60,7 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
 import {
@@ -109,6 +110,7 @@ interface Props extends WithIndexationContextProps {
   component?: Component;
   currentUser: CurrentUser;
   isFetchingBranch?: boolean;
+  isStandard?: boolean;
   location: Location;
   router: Router;
 }
@@ -154,6 +156,9 @@ export class App extends React.PureComponent<Props, State> {
     super(props);
     const query = parseQuery(props.location.query, props.component?.needIssueSync);
     this.bulkButtonRef = React.createRef();
+    const hasFilterFromOtherMode = props.isStandard
+      ? query.impactSoftwareQualities.length !== 0 || query.impactSeverities.length !== 0
+      : query.types.length !== 0 || query.severities.length !== 0;
 
     this.state = {
       bulkChangeModal: false,
@@ -165,21 +170,23 @@ export class App extends React.PureComponent<Props, State> {
       loadingMore: false,
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
-      openFacets: {
-        owaspTop10: shouldOpenStandardsChildFacet({}, query, SecurityStandard.OWASP_TOP10),
-        'owaspTop10-2021': shouldOpenStandardsChildFacet(
-          {},
-          query,
-          SecurityStandard.OWASP_TOP10_2021,
-        ),
-        cleanCodeAttributeCategories: true,
-        impactSoftwareQualities: true,
-        severities: true,
-        types: true,
-        impactSeverities: true,
-        sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
-        standards: shouldOpenStandardsFacet({}, query),
-      },
+      openFacets: hasFilterFromOtherMode
+        ? {}
+        : {
+            owaspTop10: shouldOpenStandardsChildFacet({}, query, SecurityStandard.OWASP_TOP10),
+            'owaspTop10-2021': shouldOpenStandardsChildFacet(
+              {},
+              query,
+              SecurityStandard.OWASP_TOP10_2021,
+            ),
+            cleanCodeAttributeCategories: true,
+            impactSoftwareQualities: true,
+            severities: true,
+            types: true,
+            impactSeverities: true,
+            sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
+            standards: shouldOpenStandardsFacet({}, query),
+          },
       query,
       referencedComponentsById: {},
       referencedComponentsByKey: {},
@@ -1228,13 +1235,23 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
+function WrappedApp(props: Readonly<Omit<Props, 'isStandard'>>) {
+  const { data: isStandard, isLoading } = useStandardExperienceMode();
+
+  return (
+    <Spinner ariaLabel={translate('issues.loading_issues')} isLoading={isLoading}>
+      <App {...props} isStandard={isStandard} />
+    </Spinner>
+  );
+}
+
 export default withRouter(
   withComponentContext(
     withCurrentUserContext(
       withBranchLikes(
         withIndexationContext(
           withIndexationGuard<Props & WithIndexationContextProps>({
-            Component: App,
+            Component: WrappedApp,
             showIndexationMessage: ({
               component,
               indexationContext: {

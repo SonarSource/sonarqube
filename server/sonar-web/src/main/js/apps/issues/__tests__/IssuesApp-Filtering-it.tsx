@@ -391,6 +391,7 @@ describe('issues app filtering', () => {
   it('should support OWASP Top 10 version 2021', async () => {
     const user = userEvent.setup();
     renderIssueApp();
+    await waitOnDataLoaded();
     await user.click(screen.getByRole('button', { name: 'issues.facet.standards' }));
     const owaspTop102021 = screen.getByRole('button', { name: 'issues.facet.owaspTop10_2021' });
     expect(owaspTop102021).toBeInTheDocument();
@@ -404,6 +405,26 @@ describe('issues app filtering', () => {
         expect(screen.getByRole('checkbox', { name: linkName })).toBeInTheDocument();
       }),
     );
+  });
+
+  it('should close all filters if there is a filter from other mode', async () => {
+    let component = renderIssueApp();
+    await waitOnDataLoaded();
+    expect(screen.getAllByRole('button', { expanded: true })).toHaveLength(3);
+
+    component.unmount();
+
+    component = renderIssueApp(undefined, undefined, 'issues?types=CODE_SMELL');
+    await waitOnDataLoaded();
+    expect(screen.queryByRole('button', { expanded: true })).not.toBeInTheDocument();
+
+    component.unmount();
+
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+
+    renderIssueApp(undefined, undefined, 'issues?impactSeverities=BLOCKER');
+    await waitOnDataLoaded();
+    expect(screen.queryByRole('button', { expanded: true })).not.toBeInTheDocument();
   });
 });
 

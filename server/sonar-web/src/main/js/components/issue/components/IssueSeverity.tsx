@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { IconProps, TextSubdued } from '~design-system';
-import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
-import { DocLink } from '../../../helpers/doc-links';
+import { Text } from '@sonarsource/echoes-react';
+import { IconProps } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { IssueSeverity as IssueSeverityType } from '../../../types/issues';
 import { Issue } from '../../../types/types';
-import IssueSeverityIcon from '../../icon-mappers/IssueSeverityIcon';
-import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
+import SoftwareImpactSeverityIcon from '../../icon-mappers/SoftwareImpactSeverityIcon';
 
 interface Props extends IconProps {
   issue: Pick<Issue, 'severity'>;
@@ -33,24 +31,14 @@ interface Props extends IconProps {
 
 export default function IssueSeverity({ issue, ...iconProps }: Readonly<Props>) {
   return (
-    <DocHelpTooltip
-      content={<DeprecatedFieldTooltip field="severity" />}
-      links={[
-        {
-          href: DocLink.Issues,
-          label: translate('learn_more'),
-        },
-      ]}
-    >
-      <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
-        <IssueSeverityIcon
-          aria-hidden
-          fill="var(--echoes-color-icon-disabled)"
-          severity={issue.severity as IssueSeverityType}
-          {...iconProps}
-        />
-        {translate('severity', issue.severity)}
-      </TextSubdued>
-    </DocHelpTooltip>
+    <Text isSubdued className="sw-flex sw-items-center sw-gap-1/2">
+      <SoftwareImpactSeverityIcon
+        aria-hidden
+        disabled
+        severity={issue.severity as IssueSeverityType}
+        {...iconProps}
+      />
+      {translate('severity', issue.severity)}
+    </Text>
   );
 }

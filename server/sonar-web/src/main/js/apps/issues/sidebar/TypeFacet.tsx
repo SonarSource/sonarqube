@@ -35,6 +35,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
+  secondLine?: string;
   stats: Dict<number> | undefined;
   types: string[];
 }
@@ -108,7 +109,7 @@ export class TypeFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { fetching, open, types } = this.props;
+    const { fetching, open, types, secondLine } = this.props;
 
     const nbSelectableItems = AVAILABLE_TYPES.filter(this.getStat.bind(this)).length;
     const nbSelectedItems = types.length;
@@ -127,6 +128,7 @@ export class TypeFacet extends React.PureComponent<Props> {
         onClear={this.handleClear}
         onClick={this.handleHeaderClick}
         open={open}
+        secondLine={secondLine}
       >
         <FacetItemsList labelledby={typeFacetHeaderId}>
           {AVAILABLE_TYPES.map(this.renderItem)}

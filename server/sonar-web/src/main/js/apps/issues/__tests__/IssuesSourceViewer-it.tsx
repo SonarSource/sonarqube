@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { keyBy } from 'lodash';
 import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
@@ -103,7 +103,6 @@ describe('issues source viewer', () => {
   it('should show source across components', async () => {
     const user = userEvent.setup();
     renderProjectIssuesApp('project/issues?issues=issue101&open=issue101&id=myproject');
-    await waitOnDataLoaded();
 
     expect(await screen.findByLabelText('test1.js')).toBeInTheDocument();
     expect(screen.getByLabelText('test2.js')).toBeInTheDocument();
@@ -153,11 +152,11 @@ describe('issues source viewer', () => {
     renderProjectIssuesApp('project/issues?issues=issue1&open=issue1&id=myproject');
     await waitOnDataLoaded();
 
-    // Line 44 is between both snippets, it should not be shown
-    expect(ui.line44.query()).not.toBeInTheDocument();
-
     // There currently are two snippet shown
     expect(await screen.findAllByRole('table')).toHaveLength(2);
+
+    // Line 44 is between both snippets, it should not be shown
+    expect(ui.line44.query()).not.toBeInTheDocument();
 
     // Expand lines above second snippet
     await user.click(ui.expandLinesAbove.get());
@@ -175,10 +174,9 @@ describe('issues source viewer', () => {
       issuesHandler.setIssueList([JUPYTER_ISSUE]);
       sourcesHandler.setSource('{not a JSON file}');
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(
@@ -204,10 +202,9 @@ describe('issues source viewer', () => {
         },
       ]);
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(
@@ -220,17 +217,16 @@ describe('issues source viewer', () => {
     it('should show preview tab when jupyter notebook issue', async () => {
       issuesHandler.setIssueList([JUPYTER_ISSUE]);
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(
         await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
       ).toBeInTheDocument();
 
-      await waitForElementToBeRemoved(screen.queryByText('issue.preview.jupyter_notebook.error'));
+      expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
       expect(screen.getByTestId('hljs-sonar-underline')).toHaveTextContent('matplotlib');
       expect(screen.getByText(/pylab/, { exact: false })).toBeInTheDocument();
     });
@@ -249,9 +245,8 @@ describe('issues source viewer', () => {
       ]);
       const user = userEvent.setup();
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
-      await user.click(ui.code.get());
+      await user.click(await ui.code.find());
 
       expect(screen.getAllByRole('button', { name: 'Issue on Jupyter Notebook' })).toHaveLength(2);
       expect(screen.queryByText('Another unrelated issue')).not.toBeInTheDocument();
@@ -273,17 +268,16 @@ describe('issues source viewer', () => {
         },
       ]);
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(
         await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
       ).toBeInTheDocument();
 
-      await waitForElementToBeRemoved(screen.queryByText('issue.preview.jupyter_notebook.error'));
+      expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
 
       const underlined = screen.getAllByTestId('hljs-sonar-underline');
       expect(underlined).toHaveLength(4);

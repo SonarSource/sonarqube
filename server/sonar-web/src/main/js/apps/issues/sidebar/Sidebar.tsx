@@ -170,6 +170,10 @@ export function Sidebar(props: Readonly<Props>) {
 
   const needIssueSync = component?.needIssueSync;
 
+  const secondLine = translate(
+    `issues.facet.second_line.mode.${isStandardMode ? 'mqr' : 'standard'}`,
+  );
+
   return (
     <>
       {displayPeriodFilter && (
@@ -200,6 +204,39 @@ export function Sidebar(props: Readonly<Props>) {
           />
 
           <BasicSeparator className="sw-my-4" />
+
+          {query.types.length > 0 && (
+            <>
+              <TypeFacet
+                fetching={props.loadingFacets.types === true}
+                needIssueSync={needIssueSync}
+                onChange={props.onFilterChange}
+                onToggle={props.onFacetToggle}
+                open={!!openFacets.types}
+                stats={facets.types}
+                types={query.types}
+                secondLine={secondLine}
+              />
+              <BasicSeparator className="sw-my-4" />
+            </>
+          )}
+
+          {query.severities.length > 0 && (
+            <>
+              <StandardSeverityFacet
+                fetching={props.loadingFacets.severities === true}
+                onChange={props.onFilterChange}
+                onToggle={props.onFacetToggle}
+                open={!!openFacets.severities}
+                stats={facets.severities}
+                values={query.severities}
+                headerName={translate('issues.facet.severities')}
+                secondLine={secondLine}
+              />
+
+              <BasicSeparator className="sw-my-4" />
+            </>
+          )}
 
           <AttributeCategoryFacet
             fetching={props.loadingFacets.cleanCodeAttributeCategories === true}
@@ -241,6 +278,39 @@ export function Sidebar(props: Readonly<Props>) {
               />
 
               <BasicSeparator className="sw-my-4" />
+
+              {query.impactSoftwareQualities.length > 0 && (
+                <>
+                  <SoftwareQualityFacet
+                    fetching={props.loadingFacets.impactSoftwareQualities === true}
+                    needIssueSync={needIssueSync}
+                    onChange={props.onFilterChange}
+                    onToggle={props.onFacetToggle}
+                    open={!!openFacets.impactSoftwareQualities}
+                    stats={facets.impactSoftwareQualities}
+                    qualities={query.impactSoftwareQualities}
+                    secondLine={secondLine}
+                  />
+
+                  <BasicSeparator className="sw-my-4" />
+                </>
+              )}
+
+              {query.impactSeverities.length > 0 && (
+                <>
+                  <SeverityFacet
+                    fetching={props.loadingFacets.impactSeverities === true}
+                    onChange={props.onFilterChange}
+                    onToggle={props.onFacetToggle}
+                    open={!!openFacets.impactSeverities}
+                    stats={facets.impactSeverities}
+                    values={query.impactSeverities}
+                    secondLine={secondLine}
+                  />
+
+                  <BasicSeparator className="sw-my-4" />
+                </>
+              )}
             </>
           )}
         </>

@@ -195,8 +195,13 @@ export function renderIssueApp(
     },
   }),
   featureList: Feature[] = [],
+  navigateTo?: string,
 ) {
-  renderApp('issues', <IssuesApp />, { currentUser, featureList });
+  return renderApp('issues', <IssuesApp />, {
+    currentUser,
+    featureList,
+    navigateTo,
+  });
 }
 
 export function renderProjectIssuesApp(
@@ -210,7 +215,7 @@ export function renderProjectIssuesApp(
   }),
   featureList = [Feature.BranchSupport],
 ) {
-  renderAppWithComponentContext(
+  return renderAppWithComponentContext(
     'project/issues',
     () => (
       <Route

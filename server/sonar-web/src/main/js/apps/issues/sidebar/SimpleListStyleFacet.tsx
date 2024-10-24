@@ -34,6 +34,7 @@ export interface CommonProps {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
+  secondLine?: string;
   stats: Dict<number> | undefined;
 }
 
@@ -50,6 +51,7 @@ export function SimpleListStyleFacet(props: Props) {
     fetching,
     open,
     selectedItems = [],
+    secondLine,
     stats = {},
     needIssueSync,
     property,
@@ -77,6 +79,7 @@ export function SimpleListStyleFacet(props: Props) {
       onClick={() => props.onToggle(property)}
       open={open}
       help={help}
+      secondLine={secondLine}
     >
       <FacetItemsList labelledby={headerId}>
         {listItems.map((item) => {

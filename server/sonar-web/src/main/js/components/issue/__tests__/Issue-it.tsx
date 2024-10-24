@@ -67,7 +67,10 @@ describe('rendering', () => {
     const { ui } = getPageObject();
     const issue = mockIssue(true, { effort: '2 days', message: 'This is an issue' });
     const onClick = jest.fn();
-    renderIssue({ issue, onSelect: onClick });
+    renderIssue(
+      { issue, onSelect: onClick },
+      'scopes=MAIN&impactSeverities=LOW&types=VULNERABILITY',
+    );
 
     expect(ui.effort('2 days').get()).toBeInTheDocument();
     expect(ui.issueMessageLink.get()).toHaveAttribute(
@@ -383,6 +386,7 @@ function getPageObject() {
 
 function renderIssue(
   props: Partial<Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>> = {},
+  query?: string,
 ) {
   function Wrapper(
     wrapperProps: Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>,
@@ -405,7 +409,7 @@ function renderIssue(
   }
 
   return renderAppRoutes(
-    'issues?scopes=MAIN&impactSeverities=LOW&types=VULNERABILITY',
+    `issues${query ? `?${query}` : ''}`,
     () => (
       <Route
         path="issues"

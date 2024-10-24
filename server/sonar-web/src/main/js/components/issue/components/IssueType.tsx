@@ -18,13 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { IconProps, TextSubdued } from '~design-system';
-import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
-import { DocLink } from '../../../helpers/doc-links';
+import { Text } from '@sonarsource/echoes-react';
+import { IconProps } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
-import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
 interface Props extends IconProps {
   issue: Pick<Issue, 'type'>;
@@ -32,24 +30,14 @@ interface Props extends IconProps {
 
 export default function IssueType({ issue, ...iconProps }: Readonly<Props>) {
   return (
-    <DocHelpTooltip
-      content={<DeprecatedFieldTooltip field="type" />}
-      links={[
-        {
-          href: DocLink.Issues,
-          label: translate('learn_more'),
-        },
-      ]}
-    >
-      <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
-        <IssueTypeIcon
-          aria-hidden
-          fill="var(--echoes-color-icon-disabled)"
-          type={issue.type}
-          {...iconProps}
-        />
-        {translate('issue.type', issue.type)}
-      </TextSubdued>
-    </DocHelpTooltip>
+    <Text isSubdued className="sw-flex sw-items-center sw-gap-1/2">
+      <IssueTypeIcon
+        aria-hidden
+        fill="var(--echoes-color-icon-disabled)"
+        type={issue.type}
+        {...iconProps}
+      />
+      {translate('issue.type', issue.type)}
+    </Text>
   );
 }

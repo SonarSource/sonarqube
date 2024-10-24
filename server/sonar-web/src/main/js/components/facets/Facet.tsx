@@ -37,6 +37,7 @@ export interface BasicProps {
   onChange: (changes: Dict<string | string[] | undefined>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
+  secondLine?: string;
   stats?: Dict<number>;
   values: string[];
 }
@@ -103,6 +104,7 @@ export default class Facet extends React.PureComponent<Props> {
       open,
       property,
       renderTextName = defaultRenderName,
+      secondLine,
       stats,
       help,
       values,
@@ -140,6 +142,7 @@ export default class Facet extends React.PureComponent<Props> {
         disabledHelper={disabledHelper}
         tooltipComponent={Tooltip}
         help={help}
+        secondLine={secondLine}
       >
         {open && items !== undefined && (
           <FacetItemsList labelledby={headerId}>{items.map(this.renderItem)}</FacetItemsList>
