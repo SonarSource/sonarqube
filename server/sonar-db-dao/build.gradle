@@ -60,6 +60,9 @@ test {
 task dumpSchema(type:JavaExec) {
     mainClass = 'org.sonar.db.dump.DumpSQSchema'
     classpath = sourceSets.test.runtimeClasspath
+
+    outputs.file 'src/schema/schema-sq.ddl'
+    outputs.doNotCacheIf('Caching has not been enabled for the task.') { true }
 }
 
 tasks.check.dependsOn dumpSchema

@@ -521,47 +521,69 @@ subprojects {
   }
 
   task generatePackageInfo {
-    doLast {
-      def allPathsContainingJavaFiles = [] as Set
+    String srcMainJava = 'src/main/java'
+    File outputDir = project.layout.buildDirectory.dir(name).get().asFile
+    inputs.files(fileTree(srcMainJava).matching() {
+      include "*/**/*.java"
+      exclude "*/**/package-info.java"
+    }).withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.dir outputDir
+    outputs.cacheIf { true }
 
-      fileTree('src/main/java/').matching() {
-        include "*/**/*.java"
-        exclude "*/**/package-info.java"
-      }.forEach {
-        allPathsContainingJavaFiles << it.toPath().toFile().getParent();
+    doLast {
+      Set<String> allPathsContainingJavaFiles = [] as Set<String>
+      inputs.files.files.forEach {
+        allPathsContainingJavaFiles << it.toPath().toFile().parent
       }
 
       allPathsContainingJavaFiles.each {
-        String packageInfoPath = it + "/package-info.java"
-        File packageInfoFile = new File (packageInfoPath)
-        if (!packageInfoFile.exists()) {
-            logger.info("Creating file: " + packageInfoPath)
-            def packageName = packageInfoFile.getParent().replaceAll("[\\\\ /]", ".").takeAfter("src.main.java.");
+        String dir = it as String
+        File packageInfoInputFile = project.file("${dir}/package-info.java")
+
+        File packageInfoOutputDir = project.file(dir.replace(project.file(srcMainJava).absolutePath, outputDir.absolutePath))
+        packageInfoOutputDir.mkdirs()
+        String packageInfoOutputPath = "${packageInfoOutputDir.absolutePath}/package-info.java"
+        File packageInfoOutputFile = project.file(packageInfoOutputPath)
+
+        if (!packageInfoInputFile.exists()) {
+            logger.info("Creating file: " + packageInfoOutputPath)
+            def packageName = packageInfoOutputFile.getParent().replaceAll("[\\\\ /]", ".").takeAfter("${name}.");
             String packageInfoContent = applyPackageInfoTemplate(packageName)
-            packageInfoFile << packageInfoContent
+            packageInfoOutputFile << packageInfoContent
         }
       }
 
       def allPackageInfoFiles = [] as Set
 
-      fileTree('src/main/java/').matching() {
+      fileTree(outputDir).matching() {
         include "*/**/package-info.java"
       }.forEach {
-        allPackageInfoFiles << it.toPath().toFile();
+        allPackageInfoFiles << it.toPath().toFile()
       }
 
       allPackageInfoFiles.forEach {
-        File packageInfoFile = it;
-        if (!allPathsContainingJavaFiles.contains(packageInfoFile.getParent())) {
+        File packageInfoFile = it as File
+        if (!allPathsContainingJavaFiles.contains(packageInfoFile.parent)) {
           logger.warn("Deleting package info file: " + packageInfoFile)
-          packageInfoFile.delete();
+          packageInfoFile.delete()
         }
       }
 
     }
   }
+
+  task copyPackageInfo(type: Copy) {
+    from generatePackageInfo
+    into 'src/main/java'
+  }
+
   build.dependsOn(generatePackageInfo)
+  tasks.named('licenseMain').configure { it.mustRunAfter(generatePackageInfo, copyPackageInfo) }
+  tasks.named('licenseFormatMain').configure { it.mustRunAfter(generatePackageInfo, copyPackageInfo) }
+  tasks.named('compileJava').configure { it.mustRunAfter(generatePackageInfo, copyPackageInfo) }
   generatePackageInfo.finalizedBy(licenseFormat)
+  generatePackageInfo.finalizedBy(copyPackageInfo)
+
 
   jacocoTestReport {
     reports {

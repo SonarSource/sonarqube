@@ -75,11 +75,17 @@ task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
   source = sources
   exclude 'main/js/helpers/standards.json'
   if (official) exclude 'main/js/app/components/GlobalFooterBranding.js'
+  subprojects { subproject ->
+    mustRunAfter(subproject.copyPackageInfo)
+  }
 }
 licenseMain.dependsOn licenseCheckWeb
 
 task licenseFormatWeb(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
   source = sources
   if (official) exclude 'main/js/app/components/GlobalFooterBranding.js'
+  subprojects { subproject ->
+    mustRunAfter(subproject.copyPackageInfo)
+  }
 }
 licenseFormat.dependsOn licenseFormatWeb
