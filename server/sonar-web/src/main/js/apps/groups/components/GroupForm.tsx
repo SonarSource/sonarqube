@@ -25,31 +25,34 @@ import { useState } from 'react';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { useCreateGroupMutation, useUpdateGroupMutation } from '../../../queries/groups';
-import { Group } from '../../../types/types';
+import { Group, Organization } from '../../../types/types';
+import { withOrganizationContext } from '../../organizations/OrganizationContext';
 
 type Props =
-  | {
+    {
       create: true;
       group?: undefined;
+      organization: Organization;
       onClose: () => void;
     }
   | {
       create: false;
       group: Group;
+      organization: Organization;
       onClose: () => void;
     };
 
-export default function GroupForm(props: Props) {
-  const { group, create } = props;
+  function GroupForm(props: Props) {
+  const { organization, group, create } = props;
 
   const [name, setName] = useState<string>(create ? '' : group.name);
   const [description, setDescription] = useState<string>(create ? '' : (group.description ?? ''));
-
+  
   const { mutate: createGroup, isPending: isCreating } = useCreateGroupMutation();
   const { mutate: updateGroup, isPending: isUpdating } = useUpdateGroupMutation();
 
   const handleCreateGroup = () => {
-    createGroup({ name, description }, { onSuccess: props.onClose });
+    createGroup({ organization: organization.kee, name, description }, { onSuccess: props.onClose });
   };
 
   const handleUpdateGroup = () => {
@@ -60,6 +63,7 @@ export default function GroupForm(props: Props) {
       {
         id: group.id,
         data: {
+          organization: organization.kee,
           name,
           description,
         },
@@ -116,3 +120,5 @@ export default function GroupForm(props: Props) {
     />
   );
 }
+
+export default (withOrganizationContext(GroupForm));

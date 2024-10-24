@@ -29,6 +29,7 @@ public class GroupUpdateRestRequest {
 
   private UpdateField<String> name = UpdateField.undefined();
   private UpdateField<String> description = UpdateField.undefined();
+  private String organization;  // Added organization field
   @Size(min=1, max = GROUP_NAME_MAX_LENGTH)
   @Schema(implementation = String.class, description = "Group name")
   public UpdateField<String> getName() {
@@ -47,6 +48,9 @@ public class GroupUpdateRestRequest {
 
   public void setDescription(String description) {
     this.description = UpdateField.withValue(description);
+  }
+  public String getOrganization() {
+    return organization;
   }
 
 }

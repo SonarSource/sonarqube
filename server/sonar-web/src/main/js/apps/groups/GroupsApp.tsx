@@ -24,22 +24,31 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
+import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import { translate } from '../../helpers/l10n';
 import { useGroupsQueries } from '../../queries/groups';
 import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
-import { Provider } from '../../types/types';
+import { Organization, Provider } from '../../types/types';
+import { LoggedInUser } from "../../types/users";
+import { withOrganizationContext } from "../organizations/OrganizationContext";
 import Header from './components/Header';
 import List from './components/List';
 
-export default function GroupsApp() {
+interface Props {
+  currentUser: LoggedInUser;
+  organization: Organization;
+}
+
+function GroupsApp({organization }: Props) {
   const [search, setSearch] = useState<string>('');
   const [managed, setManaged] = useState<boolean | undefined>();
   const { data: manageProvider } = useIdentityProviderQuery();
 
   const { data, isLoading, fetchNextPage } = useGroupsQueries({
     q: search,
+    organization: organization.kee,
     managed,
   });
 
@@ -84,3 +93,4 @@ export default function GroupsApp() {
     </LargeCenteredLayout>
   );
 }
+export default withCurrentUserContext(withOrganizationContext(GroupsApp));

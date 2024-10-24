@@ -138,13 +138,13 @@
       <include refid="selectColumns"/>
     from organizations org
     inner join user_roles ur on ur.user_uuid = #{userUuid,jdbcType=VARCHAR}
-      and ur.component_uuid is null
+      and ur.entity_uuid is null
       and ur.role = #{permission,jdbcType=VARCHAR}
     union
     select
     <include refid="selectColumns"/>
     from organizations org
-    inner join group_roles g on g.component_uuid is null
+    inner join group_roles g on g.entity_uuid is null
     and g.role = #{permission,jdbcType=VARCHAR}
     inner join groups_users gu on
     gu.group_uuid = g.group_uuid

@@ -21,8 +21,13 @@ package org.sonar.server.v2.api.group.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotEmpty;
 
 public record GroupsSearchRestRequest(
+  @NotEmpty
+  @Schema(description = "Key of organization.")
+  String organization,
+
   @Nullable
   @Schema(description = "Return managed or non-managed groups. Only available for managed instances, throws for non-managed instances")
   Boolean managed,
