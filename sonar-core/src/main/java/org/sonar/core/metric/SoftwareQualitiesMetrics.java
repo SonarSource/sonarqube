@@ -202,7 +202,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
   public static final String NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY =
     "new_software_quality_maintainability_remediation_effort";
   public static final Metric<Long> NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT =
-    new Metric.Builder(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY, "Technical Debt Ratio",
+    new Metric.Builder(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY, "Added Technical Debt",
       Metric.ValueType.WORK_DUR)
       .setDescription("Total effort (in minutes) to fix all the maintainability issues on new code on the component and therefore to " +
         "comply to all the requirements.")
@@ -279,9 +279,9 @@ public class SoftwareQualitiesMetrics implements Metrics {
 
   public static final String NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY = "new_software_quality_maintainability_debt_ratio";
   public static final Metric<Double> NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO =
-    new Metric.Builder(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY, "Added Technical Debt",
+    new Metric.Builder(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY, "Technical Debt Ratio on New Code",
       Metric.ValueType.PERCENT)
-      .setDescription("Added Technical Debt")
+      .setDescription("Technical Debt Ratio on New Code")
       .setDomain(DOMAIN_MAINTAINABILITY)
       .setDirection(Metric.DIRECTION_WORST)
       .setOptimizedBestValue(true)
