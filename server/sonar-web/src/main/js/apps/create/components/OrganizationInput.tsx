@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from "../../../helpers/l10n";
-import OrganizationSelect from './OrganizationSelect';
-import { Organization } from "../../../types/types";
-import { NavLink } from "react-router-dom";
-import { AppState } from '../../../../js/types/appstate';
+import { NavLink } from 'react-router-dom';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
+import { AppState } from '../../../../js/types/appstate';
 import { GlobalSettingKeys } from '../../../../js/types/settings';
-
+import '../../../app/styles/pages/CreateProject.css';
+import { translate } from '../../../helpers/l10n';
+import { Organization } from '../../../types/types';
+import OrganizationSelect from './OrganizationSelect';
 
 interface Props {
   onChange: (organization: Organization) => void;
@@ -34,13 +34,18 @@ interface Props {
   organizations: Organization[];
 }
 function OrganizationInput(props: Props) {
-
-  const { appState: { settings, canAdmin, canCustomerAdmin }, onChange, organization, organizations } = props;
+  const {
+    appState: { settings, canAdmin, canCustomerAdmin },
+    onChange,
+    organization,
+    organizations,
+  } = props;
   const anyoneCanCreate = settings[GlobalSettingKeys.OrganizationsAnyoneCanCreate] === 'true';
-  const canCreateOrganizations = (anyoneCanCreate || canAdmin || canCustomerAdmin);
+  const canCreateOrganizations = anyoneCanCreate || canAdmin || canCustomerAdmin;
 
   return (
-      <div className="form-field spacer-bottom">
+    <div className="form-field spacer-bottom form-ctnr-analyze-project">
+      <div>
         <label htmlFor="select-organization">
           <span className="text-middle">
             <strong>{translate('onboarding.create_project.organization')}</strong>
@@ -48,16 +53,18 @@ function OrganizationInput(props: Props) {
           </span>
         </label>
         <OrganizationSelect
-            onChange={onChange}
-            organization={organization}
-            organizations={organizations}
+          onChange={onChange}
+          organization={organization}
+          organizations={organizations}
         />
-        {canCreateOrganizations && (
-          <NavLink className="big-spacer-left" to="/organizations/create">
-            {translate('onboarding.create_project.create_new_org')}
-          </NavLink>
-         )}
       </div>
+
+      {canCreateOrganizations && (
+        <NavLink className="big-spacer-left sw-pl-4 sw-pt-2 " to="/organizations/create">
+          {translate('onboarding.create_project.create_new_org')}
+        </NavLink>
+      )}
+    </div>
   );
 }
 

@@ -1,0 +1,18 @@
+.analyza-project-ctnr {
+  margin-top: 50px !important;
+  margin-left: 50px !important;
+}
+
+.page-header-ctnr {
+  padding-bottom: 20px;
+  font-size: 10px;
+}
+
+.organization-selectbox {
+  width: 320px !important;
+}
+
+.form-ctnr-analyze-project {
+  display: flex;
+  align-items: center;
+}
