@@ -70,9 +70,7 @@ public class BitbucketServerRestClientTest {
     "    }\n" +
     "  ]\n" +
     "}";
-    private static final String STATUS_BODY = "{\n" +
-    "  \"state\": \"RUNNING\"\n" +
-    "}";
+    private static final String STATUS_BODY = "{\"state\": \"RUNNING\"}";
 
   @Rule
   public LogTester logTester = new LogTester();
