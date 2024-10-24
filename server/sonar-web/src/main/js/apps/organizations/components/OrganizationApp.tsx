@@ -36,6 +36,7 @@ import { Permissions } from "../../../types/permissions";
 import { CurrentUser } from "../../../types/users";
 import NotFound from "../../../app/components/NotFound";
 import { FlagMessage } from "design-system";
+import { createPortal } from "react-dom";
 
 interface OrganizationAppProps {
   currentUser: CurrentUser;
@@ -46,20 +47,26 @@ interface OrganizationAppProps {
 const OrganizationApp: React.FC<OrganizationAppProps> = ({ currentUser, userOrganizations, location }) => {
 
   const { organizationKey } = useParams();
+  const portalAnchor = React.useRef<Element | null>(null);
   const [organization, setOrganization] = useState<Organization>();
 
-    useEffect(() => {
-      if (organizationKey != null) {
-        Promise.all([getOrganization(organizationKey), getOrganizationNavigation(organizationKey)]).then(
-            ([organization, navigation]) => {
-              if (organization) {
-                const organizationWithPermissions = { ...organization, ...navigation };
-                setOrganization(organizationWithPermissions);
-              }
-            }
-        ).catch(throwGlobalError);
-      }
-    }, [organizationKey]);
+  // Set portal anchor on mount
+  useEffect(() => {
+    portalAnchor.current = document.querySelector('#component-nav-portal');
+  }, []);
+
+  useEffect(() => {
+    if (organizationKey != null) {
+      Promise.all([getOrganization(organizationKey), getOrganizationNavigation(organizationKey)]).then(
+        ([organization, navigation]) => {
+          if (organization) {
+            const organizationWithPermissions = { ...organization, ...navigation };
+            setOrganization(organizationWithPermissions);
+          }
+        }
+      ).catch(throwGlobalError);
+    }
+  }, [organizationKey]);
 
   const renderChildren = (organization: Organization) => {
     const context: OrganizationContextProps = {
@@ -76,38 +83,48 @@ const OrganizationApp: React.FC<OrganizationAppProps> = ({ currentUser, userOrga
   const isMember = userOrganizations.find(o => o.kee == organization.kee);
   const isSysAdmin = hasGlobalPermission(currentUser, Permissions.Admin);
   if (!isMember && !isSysAdmin) {
-    return <NotFound withContainer={false} />;
+    return <NotFound withContainer={false}/>;
   }
 
   return (
-      <div>
-        <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name}/>
-        <Suggestions suggestions="organization_space"/>
-        <OrganizationNavigation
+    <div>
+      <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name}/>
+      <Suggestions suggestions="organization_space"/>
+
+      {organization && portalAnchor.current &&
+        /* Use a portal to fix positioning until we can fully review the layout */
+        createPortal(
+          <OrganizationNavigation
             location={location}
             organization={organization}
             userOrganizations={userOrganizations}
-        />
-        {
-          organization.notifications ? organization.notifications.map((notification, index) => (
-              <FlagMessage
-                variant={notification.type}
-                display="banner"
-                className={'top-fixed alert-' + notification.type}
-              >
-                <div className="alert-inner-content">
+          />,
+          portalAnchor.current,
+        )
+      }
+
+      {
+        organization.notifications ? organization.notifications.map((notification, index) => (
+            <FlagMessage
+              variant={notification.type}
+              display="banner"
+              className={'top-fixed alert-' + notification.type}
+            >
+              <div className="alert-inner-content">
                   <span
                     dangerouslySetInnerHTML={{
                       __html: notification.message
                     }}
                   />
-                </div>
-              </FlagMessage>
-            )
-          ) : null
-        }
+              </div>
+            </FlagMessage>
+          )
+        ) : null
+      }
+      <main className="sw-my-6">
         {renderChildren(organization)}
-      </div>
+      </main>
+    </div>
   );
 }
 
