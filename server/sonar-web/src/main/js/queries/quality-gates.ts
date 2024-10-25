@@ -19,6 +19,7 @@
  */
 
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIntl } from 'react-intl';
 import { addGlobalSuccessMessage } from '~design-system';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import {
@@ -234,6 +235,42 @@ export function useUpdateConditionMutation(gateName: string) {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
       queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
       addGlobalSuccessMessage(translate('quality_gates.condition_updated'));
+    },
+  });
+}
+
+export function useUpdateOrDeleteConditionsMutation(gateName: string, isSingleMetric?: boolean) {
+  const queryClient = useQueryClient();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: (
+      conditions: (Omit<Condition, 'metric'> & { metric: string | null | undefined })[],
+    ) => {
+      const promiseArr = conditions.map((condition) =>
+        condition.metric
+          ? updateCondition(condition as Condition)
+          : deleteCondition({ id: condition.id }),
+      );
+
+      return Promise.all(promiseArr);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
+      addGlobalSuccessMessage(
+        intl.formatMessage(
+          {
+            id: isSingleMetric
+              ? 'quality_gates.condition_updated'
+              : 'quality_gates.conditions_updated_to_the_mode',
+          },
+          { qualityGateName: gateName },
+        ),
+      );
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
     },
   });
 }
