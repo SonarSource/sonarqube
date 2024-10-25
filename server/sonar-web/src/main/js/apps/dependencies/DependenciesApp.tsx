@@ -20,12 +20,13 @@
 
 import styled from '@emotion/styled';
 import { Spinner, Text } from '@sonarsource/echoes-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { InputSearch, LargeCenteredLayout } from '~design-system';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import DocumentationLink from '../../components/common/DocumentationLink';
+import ListFooter from '../../components/controls/ListFooter';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { useCurrentBranchQuery } from '../../queries/branch';
@@ -48,7 +49,15 @@ function App(props: Readonly<Props>) {
 
   const [search, setSearch] = useState('');
 
-  const { data: { dependencies = [] } = {}, isLoading } = useDependenciesQuery({
+  const {
+    data: { pages, pageParams } = {
+      pages: [],
+      pageParams: [],
+    },
+    isLoading,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useDependenciesQuery({
     projectKey: component.key,
     q: search,
     branchParameters: getBranchLikeQuery(branchLike) as BranchLikeParameters,
@@ -56,7 +65,19 @@ function App(props: Readonly<Props>) {
 
   const listName = search ? 'dependencies.list.name_search.title' : 'dependencies.list.title';
 
-  const resultsExist = dependencies.length > 0 || search.length >= SEARCH_MIN_LENGTH;
+  const { resultsExist, allDependencies, totalDependencies, itemCount } = useMemo(() => {
+    // general paging information
+    const { total, pageSize } = pages[0]?.page ?? { total: 0, pageSize: 0 };
+
+    const resultsExist = total > 0 || search.length >= SEARCH_MIN_LENGTH;
+
+    const allDependencies = pages.flatMap((page) => page.dependencies);
+    const totalDependencies = pages[0]?.page.total ?? 0;
+
+    const itemCount = pageSize * pages.length > total ? total : pageSize * pages.length;
+
+    return { resultsExist, allDependencies, totalDependencies, itemCount };
+  }, [pages, search]);
 
   return (
     <LargeCenteredLayout className="sw-py-8 sw-typo-lg sw-h-full" id="dependencies-page">
@@ -77,7 +98,7 @@ function App(props: Readonly<Props>) {
         )}
 
         <Spinner isLoading={isLoading}>
-          {dependencies.length === 0 && <EmptyState />}
+          {!resultsExist && <EmptyState />}
           {resultsExist && (
             <div className="sw-overflow-auto">
               <Text>
@@ -85,17 +106,26 @@ function App(props: Readonly<Props>) {
                   id={listName}
                   defaultMessage={translate(listName)}
                   values={{
-                    count: dependencies.length,
+                    count: allDependencies.length,
                   }}
                 />
               </Text>
               <ul className="sw-py-4">
-                {dependencies.map((dependency) => (
+                {allDependencies.map((dependency) => (
                   <li key={dependency.key}>
                     <DependencyListItem dependency={dependency} />
                   </li>
                 ))}
               </ul>
+              {pageParams.length > 0 && (
+                <ListFooter
+                  className="sw-mb-4"
+                  count={itemCount}
+                  loadMore={() => fetchNextPage()}
+                  loading={isFetchingNextPage}
+                  total={totalDependencies}
+                />
+              )}
             </div>
           )}
         </Spinner>

@@ -18,21 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { queryOptions } from '@tanstack/react-query';
+import { infiniteQueryOptions } from '@tanstack/react-query';
 import { getDependencies } from '../api/dependencies';
 import { BranchLikeParameters } from '../sonar-aligned/types/branch-like';
-import { createQueryHook } from './common';
+import { createInfiniteQueryHook } from './common';
 
-export const useDependenciesQuery = createQueryHook(
-  (data: { branchParameters: BranchLikeParameters; projectKey: string; q?: string }) => {
-    return queryOptions({
-      queryKey: ['dependencies', data.projectKey, data.branchParameters, data.q],
-      queryFn: () =>
-        getDependencies({
+export const useDependenciesQuery = createInfiniteQueryHook(
+  (data: {
+    branchParameters: BranchLikeParameters;
+    pageIndex?: number;
+    projectKey: string;
+    q?: string;
+  }) => {
+    return infiniteQueryOptions({
+      queryKey: ['dependencies', data.projectKey, data.branchParameters, data.q, data.pageIndex],
+      queryFn: ({ pageParam }) => {
+        return getDependencies({
           projectKey: data.projectKey,
           q: data.q,
           ...data.branchParameters,
-        }),
+          pageParam,
+        });
+      },
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => {
+        return lastPage.page.pageIndex + 1;
+      },
     });
   },
 );

@@ -37,7 +37,7 @@ const settingsHandler = new SettingsServiceMock();
 const MOCK_RESPONSE: DependenciesResponse = {
   page: {
     pageIndex: 1,
-    pageSize: 100,
+    pageSize: 50,
     total: 4,
   },
   dependencies: [
@@ -85,6 +85,48 @@ const MOCK_RESPONSE: DependenciesResponse = {
       findingsCount: 0,
       findingsSeverities: {},
       findingsExploitableCount: 0,
+      project: 'project1',
+    },
+  ],
+};
+
+const MOCK_RESPONSE_NO_FINDINGS_PAGING: DependenciesResponse = {
+  page: {
+    pageIndex: 1,
+    pageSize: 2,
+    total: 4,
+  },
+  dependencies: [
+    {
+      key: '1',
+      name: 'jackson-databind',
+      longName: 'com.fasterxml.jackson.core:jackson-databind',
+      version: '2.10.0',
+      transitive: false,
+      project: 'project1',
+    },
+    {
+      key: '2',
+      name: 'snappy-java',
+      longName: 'org.xerial.snappy:snappy-java',
+      version: '3.52',
+      transitive: true,
+      project: 'project1',
+    },
+    {
+      key: '3',
+      name: 'SnakeYAML',
+      longName: 'org.yaml:SnakeYAML',
+      version: '2.10.0',
+      transitive: true,
+      project: 'project1',
+    },
+    {
+      key: '4',
+      name: 'random-lib',
+      longName: 'com.random:random-lib',
+      version: '2.10.0',
+      transitive: true,
       project: 'project1',
     },
   ],
@@ -201,6 +243,21 @@ it('should correctly show empty results state when no dependencies are found', a
   expect(await ui.searchTitle.get()).toBeInTheDocument();
 });
 
+it('should correctly fetch additional pages of dependencies', async () => {
+  depsHandler.setDefaultDependencies(MOCK_RESPONSE_NO_FINDINGS_PAGING);
+  const { ui, user } = getPageObject();
+
+  renderDependenciesApp();
+
+  expect(await ui.dependencies.findAll()).toHaveLength(2);
+
+  expect(await ui.twoOfFour.find()).toBeInTheDocument();
+
+  await user.click(ui.showMore.get());
+  expect(await ui.fourOfFour.find()).toBeInTheDocument();
+  expect(await ui.dependencies.findAll()).toHaveLength(4);
+});
+
 function getPageObject() {
   const user = userEvent.setup();
   const ui = {
@@ -211,6 +268,9 @@ function getPageObject() {
     dependencies: byRole('listitem'),
     searchInput: byRole('searchbox'),
     searchTitle: byText('dependencies.list.name_search.title0'),
+    showMore: byText('show_more'),
+    twoOfFour: byText('x_of_y_shown.2.4'),
+    fourOfFour: byText('x_of_y_shown.4.4'),
   };
   return { ui, user };
 }

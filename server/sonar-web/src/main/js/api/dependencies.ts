@@ -24,6 +24,17 @@ import { DependenciesResponse } from '../types/dependencies';
 
 const DEPENDENCY_PATH = '/api/v2/analysis/dependencies';
 
-export function getDependencies(params: { projectKey: string; q?: string } & BranchLikeParameters) {
+export function getDependencies({
+  pageParam,
+  projectKey,
+  q,
+  ...branchParameters
+}: { pageParam: number; projectKey: string; q?: string } & BranchLikeParameters) {
+  const params = {
+    pageIndex: pageParam,
+    projectKey,
+    q,
+    ...branchParameters,
+  };
   return axios.get<DependenciesResponse>(DEPENDENCY_PATH, { params });
 }

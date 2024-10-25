@@ -27,7 +27,7 @@ jest.mock('../dependencies');
 export const DEFAULT_DEPENDENCIES_MOCK: DependenciesResponse = {
   page: {
     pageIndex: 1,
-    pageSize: 100,
+    pageSize: 50,
     total: 0,
   },
   dependencies: [],
@@ -49,7 +49,20 @@ export default class DependenciesServiceMock {
     this.#defaultDependenciesData = response;
   };
 
-  handleGetDependencies = (data: { q?: string }) => {
+  handleGetDependencies = (data: { pageParam: number; q?: string }) => {
+    const { pageSize } = this.#defaultDependenciesData.page;
+    const totalDependencies = this.#defaultDependenciesData.dependencies.length;
+
+    if (pageSize < totalDependencies) {
+      const startIndex = (data.pageParam - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+
+      return Promise.resolve({
+        ...this.#defaultDependenciesData,
+        dependencies: this.#defaultDependenciesData.dependencies.slice(startIndex, endIndex),
+      });
+    }
+
     return Promise.resolve({
       ...this.#defaultDependenciesData,
       dependencies: this.#defaultDependenciesData.dependencies.filter(
