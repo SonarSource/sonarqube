@@ -22,27 +22,32 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byLabelText, byRole, byTestId } from '~sonar-aligned/helpers/testSelector';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { dismissNotice } from '../../../../api/users';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { RenderContext, renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { renderAppRoutes, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../types/features';
+import { SettingsKey } from '../../../../types/settings';
 import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';
 import routes from '../../routes';
 
 let qualityGateHandler: QualityGatesServiceMock;
 let usersHandler: UsersServiceMock;
+let settingsHandler: SettingsServiceMock;
 
 beforeAll(() => {
   qualityGateHandler = new QualityGatesServiceMock();
   usersHandler = new UsersServiceMock();
+  settingsHandler = new SettingsServiceMock();
 });
 
 afterEach(() => {
   qualityGateHandler.reset();
   usersHandler.reset();
+  settingsHandler.reset();
 });
 
 it('should open the default quality gates', async () => {
@@ -70,6 +75,25 @@ it('should list all quality gates', async () => {
     screen.getByRole('button', {
       name: `${qualityGateHandler.getBuiltInQualityGate().name} quality_gates.built_in`,
     }),
+  ).toBeInTheDocument();
+});
+
+it('should show MQR mode update icon if standard mode conditions are present', async () => {
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  expect(
+    await screen.findByTestId('quality-gates-mqr-standard-mode-update-indicator'),
+  ).toBeInTheDocument();
+});
+
+it('should show Standard mode update icon if MQR mode conditions are present', async () => {
+  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  expect(
+    await screen.findByTestId('quality-gates-mqr-standard-mode-update-indicator'),
   ).toBeInTheDocument();
 });
 
@@ -869,7 +893,7 @@ describe('The Permissions section', () => {
   });
 
   it('should handle searchUser service failure', async () => {
-    (searchUsers as jest.Mock).mockRejectedValue('error');
+    jest.mocked(searchUsers).mockRejectedValue('error');
 
     const user = userEvent.setup();
     qualityGateHandler.setIsAdmin(true);

@@ -183,6 +183,8 @@ export class QualityGatesServiceMock {
         isDefault: false,
         isBuiltIn: true,
         caycStatus: CaycStatus.Compliant,
+        hasStandardConditions: true,
+        hasMQRConditions: false,
       }),
       mockQualityGate({
         name: 'Non Cayc QG',
@@ -194,6 +196,8 @@ export class QualityGatesServiceMock {
         isDefault: false,
         isBuiltIn: false,
         caycStatus: CaycStatus.NonCompliant,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
       }),
       mockQualityGate({
         name: 'Non Cayc Compliant QG',

@@ -482,6 +482,8 @@ export interface QualityGate extends QualityGatePreview {
   };
   caycStatus?: CaycStatus;
   conditions?: Condition[];
+  hasMQRConditions?: boolean;
+  hasStandardConditions?: boolean;
   isBuiltIn?: boolean;
 }
 

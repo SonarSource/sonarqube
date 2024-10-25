@@ -18,12 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from '@emotion/styled';
 import { IconSparkle } from '@sonarsource/echoes-react';
-import { themeColor } from '~design-system';
 
-const AIGeneratedIcon = styled(IconSparkle)`
-  color: ${themeColor('primary')};
-`;
+interface Props {
+  className?: string;
+  isDisabled?: boolean;
+}
 
-export default AIGeneratedIcon;
+export default function AIGeneratedIcon({ isDisabled = false, className }: Readonly<Props>) {
+  return (
+    <IconSparkle
+      color={isDisabled ? `echoes-color-icon-disabled` : `echoes-color-icon-accent`}
+      className={className}
+    />
+  );
+}
