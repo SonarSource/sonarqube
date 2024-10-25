@@ -138,6 +138,11 @@ public class EsConnectorImpl implements EsConnector {
   private HttpHost toHttpHost(HostAndPort host) {
     try {
       String scheme = keyStorePath != null ? "https" : HttpHost.DEFAULT_SCHEME_NAME;
+      if ("true".equalsIgnoreCase(System.getProperty("java.net.preferIPv6Addresses"))) {
+        // host.getHost() returns IP address. This is required for HttpHost to work as we need to use IP address in the RestClient to
+        // correctly resolve the host. Otherwise, RestClient will try to find the ip using hostname, and it might fail in case of IPv6.
+        return new HttpHost(InetAddress.getByName(host.getHost()), host.getHost(), host.getPortOrDefault(9001), scheme);
+      }
       return new HttpHost(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001), scheme);
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + host + "]", e);

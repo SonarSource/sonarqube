@@ -95,6 +95,9 @@ public class EsClientProvider {
   private static HttpHost toHttpHost(HostAndPort host, Configuration config) {
     try {
       String scheme = config.get(CLUSTER_ES_HTTP_KEYSTORE.getKey()).isPresent() ? "https" : HttpHost.DEFAULT_SCHEME_NAME;
+      if ("true".equalsIgnoreCase(System.getProperty("java.net.preferIPv6Addresses"))) {
+        return new HttpHost(InetAddress.getByName(host.getHost()), host.getHost(), host.getPortOrDefault(9001), scheme);
+      }
       return new HttpHost(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001), scheme);
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + host + "]", e);
