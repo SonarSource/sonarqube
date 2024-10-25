@@ -138,7 +138,7 @@ public class CreateActionIT {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {""},
       {"  "}

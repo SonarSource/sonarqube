@@ -21,16 +21,22 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualitygate.QualityGateModeChecker;
 import org.sonarqube.ws.Qualitygates.ListWsResponse;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
@@ -42,12 +48,15 @@ public class ListAction implements QualityGatesWsAction {
   private final QualityGatesWsSupport wsSupport;
   private final QualityGateFinder finder;
   private final QualityGateCaycChecker qualityGateCaycChecker;
+  private final QualityGateModeChecker qualityGateModeChecker;
 
-  public ListAction(DbClient dbClient, QualityGatesWsSupport wsSupport, QualityGateFinder finder, QualityGateCaycChecker qualityGateCaycChecker) {
+  public ListAction(DbClient dbClient, QualityGatesWsSupport wsSupport, QualityGateFinder finder, QualityGateCaycChecker qualityGateCaycChecker,
+    QualityGateModeChecker qualityGateModeChecker) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.finder = finder;
     this.qualityGateCaycChecker = qualityGateCaycChecker;
+    this.qualityGateModeChecker = qualityGateModeChecker;
   }
 
   @Override
@@ -57,6 +66,7 @@ public class ListAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
       .setChangelog(
+        new Change("10.8", "'hasMQRConditions' and 'hasStandardConditions' fields are added on quality gate"),
         new Change("10.0", "Field 'default' in the response has been removed"),
         new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("9.9", "'caycStatus' field is added on quality gate"),
@@ -83,15 +93,30 @@ public class ListAction implements QualityGatesWsAction {
     ListWsResponse.Builder builder = ListWsResponse.newBuilder()
       .setActions(ListWsResponse.RootActions.newBuilder().setCreate(wsSupport.isQualityGateAdmin()))
       .addAllQualitygates(qualityGates.stream()
-        .map(qualityGate -> QualityGate.newBuilder()
-          .setName(qualityGate.getName())
-          .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
-          .setIsBuiltIn(qualityGate.isBuiltIn())
-          .setCaycStatus(qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid()).toString())
-          .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
-          .build())
+        .map(qualityGate -> {
+          Collection<QualityGateConditionDto> conditions = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getUuid());
+          List<MetricDto> metrics = getMetricsFromConditions(dbSession, conditions);
+          QualityGateModeChecker.QualityModeResult qualityModeResult = qualityGateModeChecker.getUsageOfModeMetrics(metrics);
+          return QualityGate.newBuilder()
+            .setName(qualityGate.getName())
+            .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
+            .setIsBuiltIn(qualityGate.isBuiltIn())
+            .setCaycStatus(qualityGateCaycChecker.checkCaycCompliant(conditions, metrics).toString())
+            .setHasMQRConditions(qualityModeResult.hasMQRConditions())
+            .setHasStandardConditions(qualityModeResult.hasStandardConditions())
+            .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
+            .build();
+        })
         .toList());
     return builder.build();
+  }
+
+  @NotNull
+  private List<MetricDto> getMetricsFromConditions(DbSession dbSession, Collection<QualityGateConditionDto> conditions) {
+    return dbClient.metricDao().selectByUuids(dbSession, conditions.stream().map(QualityGateConditionDto::getMetricUuid).collect(Collectors.toSet()))
+      .stream()
+      .filter(MetricDto::isEnabled)
+      .toList();
   }
 
 }

@@ -19,13 +19,14 @@
  */
 package org.sonar.server.qualitygate;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -51,16 +52,15 @@ import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 
-@RunWith(DataProviderRunner.class)
-public class QualityGateConditionsUpdaterIT {
+class QualityGateConditionsUpdaterIT {
 
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
 
   private final QualityGateConditionsUpdater underTest = new QualityGateConditionsUpdater(db.getDbClient());
 
   @Test
-  public void create_error_condition() {
+  void create_error_condition() {
     MetricDto metric = insertMetric(INT, "new_coverage");
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -69,9 +69,9 @@ public class QualityGateConditionsUpdaterIT {
     verifyCondition(result, qualityGate, metric, "LT", "80");
   }
 
-  @Test
-  @UseDataProvider("valid_operators_and_direction")
-  public void create_condition_with_valid_operators_and_direction(String operator, int direction) {
+  @ParameterizedTest
+  @MethodSource("valid_operators_and_direction")
+  void create_condition_with_valid_operators_and_direction(String operator, int direction) {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey("key").setValueType(INT.name()).setHidden(false).setDirection(direction));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -81,7 +81,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void create_condition_throws_NPE_if_errorThreshold_is_null() {
+  void create_condition_throws_NPE_if_errorThreshold_is_null() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -91,7 +91,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void fail_to_create_condition_when_condition_on_same_metric_already_exist() {
+  void fail_to_create_condition_when_condition_on_same_metric_already_exist() {
     MetricDto metric = insertMetric(PERCENT);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().addCondition(qualityGate, metric);
@@ -102,7 +102,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void fail_to_create_condition_on_missing_metric() {
+  void fail_to_create_condition_on_missing_metric() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, "new_coverage", "LT", "80"))
@@ -110,9 +110,9 @@ public class QualityGateConditionsUpdaterIT {
       .hasMessageContaining("There is no metric with key=new_coverage");
   }
 
-  @Test
-  @UseDataProvider("invalid_metrics")
-  public void fail_to_create_condition_on_invalid_metric(String metricKey, Metric.ValueType valueType, boolean hidden) {
+  @ParameterizedTest
+  @MethodSource("invalid_metrics")
+  void fail_to_create_condition_on_invalid_metric(String metricKey, Metric.ValueType valueType, boolean hidden) {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(metricKey).setValueType(valueType.name()).setHidden(hidden).setDirection(0));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -121,9 +121,9 @@ public class QualityGateConditionsUpdaterIT {
       .hasMessageContaining(format("Metric '%s' cannot be used to define a condition", metric.getKey()));
   }
 
-  @Test
-  @UseDataProvider("invalid_operators_and_direction")
-  public void fail_to_create_condition_on_not_allowed_operator_for_metric_direction(String operator, int direction) {
+  @ParameterizedTest
+  @MethodSource("invalid_operators_and_direction")
+  void fail_to_create_condition_on_not_allowed_operator_for_metric_direction(String operator, int direction) {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey("key").setValueType(INT.name()).setHidden(false).setDirection(direction));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -133,7 +133,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void create_condition_on_rating_metric() {
+  void create_condition_on_rating_metric() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -143,7 +143,31 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void fail_to_create_error_condition_on_invalid_rating_metric() {
+  void create_whenMetricIsBasedOnSoftwareQuality_shouldWork() {
+    MetricDto metric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+
+    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
+
+    verifyCondition(result, qualityGate, metric, "GT", "3");
+  }
+
+  @Test
+  void create_whenEquivalentConditionAlreadyExists_shouldFail() {
+    MetricDto equivalentMetric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
+    MetricDto newMetric = insertMetric(RATING, SQALE_RATING_KEY);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    DbSession session = db.getSession();
+    underTest.createCondition(session, qualityGate, equivalentMetric.getKey(), "GT", "3");
+
+    String newMetricKey = newMetric.getKey();
+    assertThatThrownBy(() -> underTest.createCondition(session, qualityGate, newMetricKey, "GT", "3"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Condition for metric '%s' already exists on equivalent metric '%s''.", newMetricKey, equivalentMetric.getKey()));
+  }
+
+  @Test
+  void fail_to_create_error_condition_on_invalid_rating_metric() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -153,7 +177,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void fail_to_create_condition_on_rating_greater_than_E() {
+  void fail_to_create_condition_on_rating_greater_than_E() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -162,9 +186,9 @@ public class QualityGateConditionsUpdaterIT {
       .hasMessageContaining("There's no worse rating than E (5)");
   }
 
-  @Test
-  @UseDataProvider("valid_values")
-  public void create_error_condition(Metric.ValueType valueType, String value) {
+  @ParameterizedTest
+  @MethodSource("valid_values")
+  void create_error_condition(Metric.ValueType valueType, String value) {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false).setDirection(0));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -173,9 +197,9 @@ public class QualityGateConditionsUpdaterIT {
     verifyCondition(result, qualityGate, metric, "LT", value);
   }
 
-  @Test
-  @UseDataProvider("invalid_values")
-  public void fail_to_create_error_INT_condition_when_value_is_not_an_integer(Metric.ValueType valueType, String value) {
+  @ParameterizedTest
+  @MethodSource("invalid_values")
+  void fail_to_create_error_INT_condition_when_value_is_not_an_integer(Metric.ValueType valueType, String value) {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false).setDirection(0));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
@@ -185,7 +209,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void update_condition() {
+  void update_condition() {
     MetricDto metric = insertMetric(PERCENT);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -197,7 +221,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void update_condition_throws_NPE_if_errorThreshold_is_null() {
+  void update_condition_throws_NPE_if_errorThreshold_is_null() {
     MetricDto metric = insertMetric(PERCENT);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -209,7 +233,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void update_condition_on_rating_metric() {
+  void update_condition_on_rating_metric() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -221,8 +245,38 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  @UseDataProvider("update_invalid_operators_and_direction")
-  public void fail_to_update_condition_on_not_allowed_operator_for_metric_direction(String validOperator, String updatedOperator, int direction) {
+  void update_whenReplaceWithEquivalentCondition_shouldChangeCondition() {
+    MetricDto metric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
+    MetricDto metric2 = insertMetric(RATING, SQALE_RATING_KEY);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    QualityGateConditionDto gt = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
+
+    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), gt, metric2.getKey(), "GT", "4");
+
+    verifyCondition(result, qualityGate, metric2, "GT", "4");
+  }
+
+  @Test
+  void update_whenEquivalentMetricExistsInAnotherCondition_shouldFail() {
+    MetricDto baseMetric = insertMetric(RATING, CoreMetrics.RELIABILITY_RATING_KEY);
+    MetricDto equivalentMetric = insertMetric(RATING, SQALE_RATING_KEY);
+    MetricDto updatedMetric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
+
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    DbSession session = db.getSession();
+    QualityGateConditionDto condition1 = underTest.createCondition(session, qualityGate, baseMetric.getKey(), "GT", "3");
+    underTest.createCondition(session, qualityGate, equivalentMetric.getKey(), "GT", "3");
+
+    String updatedMetricKey = updatedMetric.getKey();
+    assertThatThrownBy(() -> underTest.updateCondition(session, condition1, updatedMetricKey, "GT", "4"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Condition for metric '%s' already exists on equivalent metric '%s''.", updatedMetricKey, equivalentMetric.getKey()));
+
+  }
+
+  @ParameterizedTest
+  @MethodSource("update_invalid_operators_and_direction")
+  void fail_to_update_condition_on_not_allowed_operator_for_metric_direction(String validOperator, String updatedOperator, int direction) {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(PERCENT.name()).setHidden(false).setDirection(direction));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -234,7 +288,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void fail_to_update_condition_on_rating_metric_on_new_code_period() {
+  void fail_to_update_condition_on_rating_metric_on_new_code_period() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -246,7 +300,7 @@ public class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  public void fail_to_update_condition_on_rating_metric_on_not_core_rating_metric() {
+  void fail_to_update_condition_on_rating_metric_on_not_core_rating_metric() {
     MetricDto metric = insertMetric(RATING, "not_core_rating_metric");
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -257,9 +311,9 @@ public class QualityGateConditionsUpdaterIT {
       .hasMessageContaining(format("The metric '%s' cannot be used", metric.getShortName()));
   }
 
-  @Test
-  @UseDataProvider("invalid_metrics")
-  public void fail_to_update_condition_on_invalid_metric(String metricKey, Metric.ValueType valueType, boolean hidden) {
+  @ParameterizedTest
+  @MethodSource("invalid_metrics")
+  void fail_to_update_condition_on_invalid_metric(String metricKey, Metric.ValueType valueType, boolean hidden) {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(metricKey).setValueType(valueType.name()).setHidden(hidden));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -270,9 +324,9 @@ public class QualityGateConditionsUpdaterIT {
       .hasMessageContaining(format("Metric '%s' cannot be used to define a condition", metric.getKey()));
   }
 
-  @Test
-  @UseDataProvider("valid_values")
-  public void update_error_condition(Metric.ValueType valueType, String value) {
+  @ParameterizedTest
+  @MethodSource("valid_values")
+  void update_error_condition(Metric.ValueType valueType, String value) {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false).setDirection(0));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -283,9 +337,9 @@ public class QualityGateConditionsUpdaterIT {
     verifyCondition(result, qualityGate, metric, "LT", value);
   }
 
-  @Test
-  @UseDataProvider("invalid_values")
-  public void fail_to_update_error_INT_condition_when_value_is_not_an_integer(Metric.ValueType valueType, String value) {
+  @ParameterizedTest
+  @MethodSource("invalid_values")
+  void fail_to_update_error_INT_condition_when_value_is_not_an_integer(Metric.ValueType valueType, String value) {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false).setDirection(0));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -296,7 +350,6 @@ public class QualityGateConditionsUpdaterIT {
       .hasMessageContaining(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
   }
 
-  @DataProvider
   public static Object[][] invalid_metrics() {
     return new Object[][] {
       {ALERT_STATUS_KEY, INT, false},
@@ -310,7 +363,6 @@ public class QualityGateConditionsUpdaterIT {
     };
   }
 
-  @DataProvider
   public static Object[][] valid_values() {
     return new Object[][] {
       {INT, "10"},
@@ -321,7 +373,6 @@ public class QualityGateConditionsUpdaterIT {
     };
   }
 
-  @DataProvider
   public static Object[][] invalid_values() {
     return new Object[][] {
       {INT, "ABCD"},
@@ -332,7 +383,6 @@ public class QualityGateConditionsUpdaterIT {
     };
   }
 
-  @DataProvider
   public static Object[][] invalid_operators_and_direction() {
     return new Object[][] {
       {"EQ", 0},
@@ -342,7 +392,6 @@ public class QualityGateConditionsUpdaterIT {
     };
   }
 
-  @DataProvider
   public static Object[][] update_invalid_operators_and_direction() {
     return new Object[][] {
       {"LT", "EQ", 0},
@@ -352,7 +401,6 @@ public class QualityGateConditionsUpdaterIT {
     };
   }
 
-  @DataProvider
   public static Object[][] valid_operators_and_direction() {
     return new Object[][] {
       {"LT", 0},

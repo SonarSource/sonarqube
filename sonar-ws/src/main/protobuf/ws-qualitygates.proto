@@ -49,11 +49,11 @@ message ProjectStatusResponse {
     optional string actualValue = 7;
   }
 
-    message NewCodePeriod {
-      optional string mode = 1;
-      optional string date = 2;
-      optional string parameter = 3;
-    }
+  message NewCodePeriod {
+    optional string mode = 1;
+    optional string date = 2;
+    optional string parameter = 3;
+  }
 
   enum Status {
     OK = 1;
@@ -163,6 +163,8 @@ message ListWsResponse {
     optional bool isBuiltIn = 4;
     optional Actions actions = 5;
     optional string caycStatus = 6;
+    optional bool hasStandardConditions = 7;
+    optional bool hasMQRConditions = 8;
   }
 
   message RootActions {

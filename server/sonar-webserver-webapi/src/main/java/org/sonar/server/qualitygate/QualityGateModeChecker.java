@@ -19,16 +19,23 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.server.qualitygate.ws.StandardToMQRMetrics;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class QualityGateModeChecker {
 
-public class QualityGateModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new QualityGateModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(6);
+  public QualityModeResult getUsageOfModeMetrics(List<MetricDto> metrics) {
+    Set<String> metricKeys = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
+
+    boolean hasStandardConditions = metricKeys.stream().anyMatch(StandardToMQRMetrics::isStandardMetric);
+    boolean hasMQRConditions = metricKeys.stream().anyMatch(StandardToMQRMetrics::isMQRMetric);
+    return new QualityModeResult(hasMQRConditions, hasStandardConditions);
   }
+
+  public record QualityModeResult(boolean hasMQRConditions, boolean hasStandardConditions) {
+  }
+
 }

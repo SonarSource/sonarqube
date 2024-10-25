@@ -162,8 +162,8 @@ public class UpdateConditionActionIT {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "10")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
 
   @Test
@@ -179,8 +179,8 @@ public class UpdateConditionActionIT {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("No quality gate condition with uuid '123'");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("No quality gate condition with uuid '123'");
   }
 
   @Test
@@ -199,8 +199,8 @@ public class UpdateConditionActionIT {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), 123L));
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), 123L));
   }
 
   @Test
@@ -217,8 +217,8 @@ public class UpdateConditionActionIT {
       .setParam(PARAM_OPERATOR, "ABC")
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
   }
 
   @Test
@@ -236,8 +236,8 @@ public class UpdateConditionActionIT {
       .setParam(PARAM_OPERATOR, updateOperator)
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(BadRequestException.class)
-      .hasMessageContaining(format("Operator %s is not allowed for this metric.", updateOperator));
+        .isInstanceOf(BadRequestException.class)
+        .hasMessageContaining(format("Operator %s is not allowed for this metric.", updateOperator));
   }
 
   @Test
@@ -253,8 +253,8 @@ public class UpdateConditionActionIT {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+        .isInstanceOf(ForbiddenException.class)
+        .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
@@ -275,7 +275,7 @@ public class UpdateConditionActionIT {
 
   @DataProvider
   public static Object[][] update_invalid_operators_and_direction() {
-    return new Object[][]{
+    return new Object[][] {
       {"GT", "LT", -1},
       {"LT", "GT", 1},
     };

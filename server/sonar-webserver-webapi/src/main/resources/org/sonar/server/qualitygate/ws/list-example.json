@@ -13,7 +13,9 @@
         "manageConditions": false,
         "delegate": false
       },
-      "caycStatus": "compliant"
+      "caycStatus": "compliant",
+      "hasStandardConditions": false,
+      "hasMQRConditions": false
     },
     {
       "name": "Sonar way - Without Coverage",
@@ -28,7 +30,9 @@
         "manageConditions": true,
         "delegate": true
       },
-      "caycStatus": "non-compliant"
+      "caycStatus": "non-compliant",
+      "hasStandardConditions": false,
+      "hasMQRConditions": false
     }
   ],
   "actions": {

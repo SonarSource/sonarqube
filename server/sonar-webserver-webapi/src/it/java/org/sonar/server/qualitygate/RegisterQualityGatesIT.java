@@ -128,7 +128,7 @@ public class RegisterQualityGatesIT {
     insertMetrics();
     QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
     createBuiltInConditions(builtInQualityGate);
-    //Conditions added twice as found in some DB instances
+    // Conditions added twice as found in some DB instances
     createBuiltInConditionsWithoutCheckingDuplicates(builtInQualityGate);
     dbSession.commit();
 
@@ -260,10 +260,10 @@ public class RegisterQualityGatesIT {
     insertMetrics();
     QualityGateDto builtin = new QualityGateDto().setName(BUILTIN_QUALITY_GATE_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
-    if(!isNewInstance) {
+    if (!isNewInstance) {
       createBuiltInConditions(builtin);
     }
-    if(hasSonarWayLegacyQG) {
+    if (hasSonarWayLegacyQG) {
       QualityGateDto sonarWayLegacy = new QualityGateDto().setName(SONAR_WAY_LEGACY_QUALITY_GATE_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
       qualityGateDao.insert(dbSession, sonarWayLegacy);
     }
@@ -272,8 +272,8 @@ public class RegisterQualityGatesIT {
     underTest.start();
 
     var qualityGateDto = qualityGateDao.selectByName(dbSession, SONAR_WAY_LEGACY_QUALITY_GATE_NAME);
-    if(hasSonarWayLegacyQG) {
-     assertThat(qualityGateDto).isNotNull();
+    if (hasSonarWayLegacyQG) {
+      assertThat(qualityGateDto).isNotNull();
     } else {
       assertThat(qualityGateDto).isNull();
     }

@@ -130,10 +130,12 @@ class TelemetryDataLoaderImplIT {
   private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider, aiCodeAssuranceVerifier,
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider,
+    aiCodeAssuranceVerifier,
     projectLocDistributionDataProvider);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider, aiCodeAssuranceVerifier,
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider,
+    aiCodeAssuranceVerifier,
     projectLocDistributionDataProvider);
 
   private QualityGateDto builtInDefaultQualityGate;
@@ -147,7 +149,7 @@ class TelemetryDataLoaderImplIT {
   void setUpBuiltInQualityGate() {
     String builtInQgName = "Sonar way";
     builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
-    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(NON_COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any(String.class))).thenReturn(NON_COMPLIANT);
     db.qualityGates().setDefaultQualityGate(builtInDefaultQualityGate);
 
     bugsDto = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
@@ -538,7 +540,8 @@ class TelemetryDataLoaderImplIT {
   @ParameterizedTest
   @MethodSource("values")
   void load_shouldContainCorrectAiCodeAssuranceField(boolean expected) {
-    ProjectDto project1 = db.components().insertPublicProject(componentDto -> {},
+    ProjectDto project1 = db.components().insertPublicProject(componentDto -> {
+    },
       projectDto -> projectDto.setAiCodeAssurance(expected)).getProjectDto();
 
     when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getAiCodeAssurance())).thenReturn(expected);
@@ -752,14 +755,12 @@ class TelemetryDataLoaderImplIT {
       Arguments.of(true, "scim"),
       Arguments.of(true, "github"),
       Arguments.of(true, "gitlab"),
-      Arguments.of(false, null)
-    );
+      Arguments.of(false, null));
   }
 
   private static Stream<Arguments> values() {
     return Stream.of(
       Arguments.of(false),
-      Arguments.of(true)
-    );
+      Arguments.of(true));
   }
 }

@@ -71,7 +71,7 @@ public class ShowActionIT {
 
   @Before
   public void setUp() {
-    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any(String.class))).thenReturn(COMPLIANT);
   }
 
   @Test
@@ -300,8 +300,8 @@ public class ShowActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", qualityGate.getName())
       .execute())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining(format("Could not find metric with id %s", metric.getUuid()));
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining(format("Could not find metric with id %s", metric.getUuid()));
   }
 
   @Test
@@ -311,8 +311,8 @@ public class ShowActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", "UNKNOWN")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("No quality gate has been found for name UNKNOWN");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("No quality gate has been found for name UNKNOWN");
   }
 
   @Test
@@ -325,7 +325,7 @@ public class ShowActionIT {
     MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("tests"));
     db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setErrorThreshold("0"));
     db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setErrorThreshold("10"));
-    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(NON_COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any(String.class))).thenReturn(NON_COMPLIANT);
 
     String response = ws.newRequest()
       .setParam("name", qualityGate.getName())
