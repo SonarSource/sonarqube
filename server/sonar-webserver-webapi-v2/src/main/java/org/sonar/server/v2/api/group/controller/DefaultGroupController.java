@@ -57,7 +57,10 @@ public class DefaultGroupController implements GroupController {
   public GroupsSearchRestResponse search(GroupsSearchRestRequest groupsSearchRestRequest, RestPage restPage) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(null /* TODO */, groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, groupsSearchRestRequest.organization())
+              .orElseThrow(() -> new IllegalArgumentException("No organization found: " + groupsSearchRestRequest.organization()));
+
+      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(organization, groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
       SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
       List<GroupRestResponse> groupRestResponses = toGroupRestResponses(searchResults);
       return new GroupsSearchRestResponse(groupRestResponses, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));
@@ -96,9 +99,11 @@ public class DefaultGroupController implements GroupController {
     throwIfNotAllowedToModifyGroups();
     try (DbSession session = dbClient.openSession(false)) {
       GroupInformation group = findGroupInformationOrThrow(id, session);
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(session, updateRequest.getOrganization())
+              .orElseThrow(() -> new IllegalArgumentException("No organization found: " + updateRequest.getOrganization()));
       GroupInformation updatedGroup = groupService.updateGroup(
         session,
-        null /* TODO */,
+        organization,
         group.groupDto(),
         updateRequest.getName().orElse(group.groupDto().getName()),
         updateRequest.getDescription().orElse(group.groupDto().getDescription()));
