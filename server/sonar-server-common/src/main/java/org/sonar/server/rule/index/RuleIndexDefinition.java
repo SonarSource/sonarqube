@@ -74,14 +74,6 @@ public class RuleIndexDefinition implements IndexDefinition {
     FIELD_RULE_CREATED_AT,
     FIELD_RULE_KEY);
 
-  // Rule extension fields
-  public static final IndexRelationType TYPE_RULE_EXTENSION = IndexType.relation(TYPE_RULE, "ruleExtension");
-  /**
-   * The uuid of a {@link RuleExtensionScope}
-   */
-  public static final String FIELD_RULE_EXTENSION_SCOPE = "ruleExt_scope";
-  public static final String FIELD_RULE_EXTENSION_TAGS = "ruleExt_tags";
-
   // Active rule fields
   public static final IndexRelationType TYPE_ACTIVE_RULE = IndexType.relation(TYPE_RULE, "activeRule");
   public static final String FIELD_ACTIVE_RULE_UUID = "activeRule_uuid";
@@ -138,7 +130,6 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_TAGS).build();
 
     ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
     ruleMapping.textFieldBuilder(FIELD_RULE_HTML_DESCRIPTION)
@@ -149,6 +140,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_TAGS).build();
 
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
     ruleMapping.createBooleanField(FIELD_RULE_IS_EXTERNAL);
@@ -179,11 +171,5 @@ public class RuleIndexDefinition implements IndexDefinition {
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build()
       .createBooleanField(FIELD_PRIORITIZED_RULE);
-
-
-    // Rule extension
-    index.createTypeMapping(TYPE_RULE_EXTENSION)
-            .keywordFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build()
-            .keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
   }
 }

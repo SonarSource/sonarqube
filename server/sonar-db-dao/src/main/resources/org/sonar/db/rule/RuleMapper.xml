@@ -228,45 +228,6 @@
       and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
-  <select id="selectIndexingRuleExtensionsByIds" parameterType="map" resultType="org.sonar.db.rule.RuleExtensionForIndexingDto">
-    <include refid="sqlSelectIndexingRuleExtensions"/>
-    and
-    <foreach collection="ruleExtensionIds" index="index" item="ruleExtId" open="" separator=" or " close="">
-      ( r.uuid = #{ruleExtId.ruleUuid, jdbcType=VARCHAR} and
-      rm.organization_uuid = #{ruleExtId.organizationUuid, jdbcType=VARCHAR} )
-    </foreach>
-  </select>
-
-  <select id="selectIndexingRuleExtensions" resultType="org.sonar.db.rule.RuleExtensionForIndexingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    <include refid="sqlSelectIndexingRuleExtensions" />
-  </select>
-
-  <sql id="sqlSelectIndexingRuleExtensions">
-    select
-      r.uuid as "ruleUuid",
-      r.plugin_name as "pluginName",
-      r.plugin_rule_key as "pluginRuleKey",
-      rm.organization_uuid as "organizationUuid",
-      rm.tags as "tags"
-    from rules r
-    inner join rules_metadata rm on rm.rule_uuid = r.uuid
-    where
-      rm.tags is not null and
-      rm.tags != ''
-  </sql>
-
-  <sql id="sqlSelectIndexingRuleExtensions" databaseId="oracle">
-    select
-      r.uuid as "ruleUuid",
-      r.plugin_name as "pluginName",
-      r.plugin_rule_key as "pluginRuleKey",
-      rm.organization_uuid as "organizationUuid",
-      rm.tags as "tags"
-    from rules r
-    where
-      rm.tags is not null
-  </sql>
-
   <select id="selectByKeys" parameterType="map" resultMap="ruleResultMap">
     select
       <include refid="selectJoinedTablesColumns"/>

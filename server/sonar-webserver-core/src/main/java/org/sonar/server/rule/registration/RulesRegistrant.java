@@ -109,7 +109,7 @@ public class RulesRegistrant implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(true)) {
       var anyPluginChanged = detectPluginChange.anyPluginChanged();
-      RulesRegistrationContext rulesRegistrationContext = RulesRegistrationContext.create(dbClient, dbSession, !anyPluginChanged);
+      RulesRegistrationContext rulesRegistrationContext = RulesRegistrationContext.create(dbClient, dbSession);
 
       List<RulesDefinition.Repository> rulesRepositories = new ArrayList<>(defLoader.loadBuiltIn().repositories());
       if (anyPluginChanged) {

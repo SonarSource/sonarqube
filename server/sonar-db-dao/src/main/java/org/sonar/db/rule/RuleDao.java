@@ -38,7 +38,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.es.RuleExtensionId;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.issue.ImpactDto;
 
@@ -209,22 +208,6 @@ public class RuleDao implements Dao {
     for (String tag : tags) {
       mapper(dbSession).insertRuleTag(ruleUuid, tag, isSystemTag);
     }
-  }
-
-  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<RuleExtensionId> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
-    RuleMapper mapper = mapper(dbSession);
-
-    executeLargeInputsWithoutOutput(ruleExtensionIds,
-        pageOfRuleExtensionIds -> mapper
-            .selectIndexingRuleExtensionsByIds(pageOfRuleExtensionIds)
-            .forEach(consumer));
-  }
-
-  public void scrollIndexingRuleExtensions(DbSession dbSession, Consumer<RuleExtensionForIndexingDto> consumer) {
-    mapper(dbSession).selectIndexingRuleExtensions(context -> {
-      RuleExtensionForIndexingDto dto = context.getResultObject();
-      consumer.accept(dto);
-    });
   }
 
   public void selectIndexingRulesByKeys(DbSession dbSession, Collection<String> ruleUuids, Consumer<RuleForIndexingDto> consumer) {

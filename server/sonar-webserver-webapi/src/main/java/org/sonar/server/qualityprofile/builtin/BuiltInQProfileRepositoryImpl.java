@@ -203,9 +203,12 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     builtInProfile.rules().forEach(builtInActiveRule -> {
       RuleKey ruleKey = RuleKey.of(builtInActiveRule.repoKey(), builtInActiveRule.ruleKey());
       RuleDto ruleDto = rulesByRuleKey.get(ruleKey);
-      checkState(ruleDto != null, "Rule with key '%s' not found", ruleKey);
-      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDto.getUuid(), ruleDto.getKey(),
-        builtInActiveRule.overriddenSeverity(), builtInActiveRule.overriddenParams()));
+      if (ruleDto != null) {
+        builder.addRule(new BuiltInQProfile.ActiveRule(ruleDto.getUuid(), ruleDto.getKey(),
+            builtInActiveRule.overriddenSeverity(), builtInActiveRule.overriddenParams()));
+      } else {
+        LOGGER.error("Rule with key '{}' not found", ruleKey);
+      }
     });
     return builder;
   }
