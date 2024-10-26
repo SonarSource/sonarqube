@@ -68,19 +68,19 @@ export function useQualityGateQuery(organization: string, name: string) {
   return useQualityGateQueryInner(organization, name);
 }
 
-export function useQualityGateForProjectQuery(project: string) {
+export function useQualityGateForProjectQuery(organization: string, project: string) {
   return useQuery({
     queryKey: qualityQuery.projectAssoc(project),
     queryFn: async ({ queryKey: [, , project] }) => {
-      const qualityGatePreview = await getGateForProject({ project });
+      const qualityGatePreview = await getGateForProject({ organization, project });
       return qualityGatePreview.name;
     },
   });
 }
 
-export function useComponentQualityGateQuery(project: string) {
-  const { data: name } = useQualityGateForProjectQuery(project);
-  return useQualityGateQueryInner(name);
+export function useComponentQualityGateQuery(organization: string, project: string) {
+  const { data: name } = useQualityGateForProjectQuery(organization, project);
+  return useQualityGateQueryInner(organization, name);
 }
 
 export function useQualityGatesQuery(organization: string) {

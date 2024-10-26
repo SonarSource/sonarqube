@@ -52,6 +52,7 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
   } = useBranchStatusQuery(component);
 
   const { data: qualityGate, isLoading: isLoadingQualityGate } = useComponentQualityGateQuery(
+    component.organization,
     component.key,
   );
 

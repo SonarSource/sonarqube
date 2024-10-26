@@ -96,6 +96,8 @@
       rules r
     <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 

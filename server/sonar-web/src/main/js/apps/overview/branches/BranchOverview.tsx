@@ -258,8 +258,8 @@ export default function BranchOverview(props: Readonly<Props>) {
   }, [branch, component, measuresAndLeak, projectQualityGateStatus]);
 
   const loadProjectQualityGate = React.useCallback(async () => {
-    const qualityGate = await getGateForProject({ project: component.key });
-    const qgDetails = await fetchQualityGate({ name: qualityGate.name });
+    const qualityGate = await getGateForProject({ organization: component.organization, project: component.key });
+    const qgDetails = await fetchQualityGate({ organization: component.organization, name: qualityGate.name });
     setQualityGate(qgDetails);
   }, [component.key]);
 

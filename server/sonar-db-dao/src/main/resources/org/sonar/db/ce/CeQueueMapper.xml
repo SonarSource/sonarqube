@@ -247,6 +247,7 @@
     <include refid="columns"/>
     from
     ce_queue cq
+    inner join projects pj on pj.uuid = cq.entity_uuid
     where
     cq.status &lt;&gt; 'PENDING'
     and worker_uuid = #{workerUuid,jdbcType=VARCHAR}

@@ -38,7 +38,7 @@ class CodeScanBranch implements Branch {
     private final String targetBranchName;
 
     CodeScanBranch(final String branchName, final BranchType branchType, final boolean isMain,
-            @Nullable final String referenceBranchUuid, final String pullRequestKey, final String targetBranchName) {
+            @Nullable final String referenceBranchUuid, @Nullable final String pullRequestKey, final String targetBranchName) {
         this.branchName = branchName;
         this.branchType = branchType;
         this.isMain = isMain;

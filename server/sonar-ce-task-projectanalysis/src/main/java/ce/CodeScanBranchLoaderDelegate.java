@@ -169,7 +169,7 @@ public class CodeScanBranchLoaderDelegate implements BranchLoaderDelegate {
 
     private Optional<BranchDto> findBranchByProjectUuid(final String projectUuid) {
         try (DbSession openSession = this.dbClient.openSession(false)) {
-            return this.dbClient.branchDao().selectByUuid(openSession, projectUuid);
+            return this.dbClient.branchDao().selectMainBranchByProjectUuid(openSession, projectUuid);
         }
     }
 }
