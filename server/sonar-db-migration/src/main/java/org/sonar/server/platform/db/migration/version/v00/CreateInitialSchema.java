@@ -519,7 +519,6 @@ public class CreateInitialSchema extends DdlChange {
       .build());
 
     addIndex(context, tableName, "components_organization", false, organizationUuidCol);
-    addIndex(context, tableName, "projects_kee", true, keeCol);
     addIndex(context, tableName, "projects_module_uuid", false, moduleUuidCol);
     addIndex(context, tableName, "projects_qualifier", false, qualifierCol);
     addIndex(context, tableName, "projects_root_uuid", false, rootUuidCol);
