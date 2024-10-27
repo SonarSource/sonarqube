@@ -22,9 +22,7 @@ package org.sonarqube.ws.client;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.Proxy;
-import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -33,7 +31,6 @@ import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.net.ssl.KeyManager;
@@ -45,7 +42,6 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import okhttp3.ConnectionSpec;
 import okhttp3.Credentials;
-import okhttp3.Dns;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -53,7 +49,6 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xbill.DNS.Address;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
@@ -245,13 +240,6 @@ public class OkHttpClientBuilder {
     X509TrustManager trustManager = sslTrustManager != null ? sslTrustManager : systemDefaultTrustManager();
     SSLSocketFactory sslFactory = sslSocketFactory != null ? sslSocketFactory : systemDefaultSslSocketFactory(trustManager);
     builder.sslSocketFactory(sslFactory, trustManager);
-    builder.dns(new Dns() {
-      @Override
-      public List<InetAddress> lookup(String hostname) throws UnknownHostException {
-        return Arrays.asList(Address.getAllByName(hostname));
-      }
-    });
-
     builder.addInterceptor(buildLoggingInterceptor());
 
     return builder.build();
