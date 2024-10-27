@@ -1,5 +1,3 @@
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import org.sonar.build.LicenseReader
 
 plugins {
@@ -20,13 +18,7 @@ configurations {
   scanner
   web
   shutdowner
-  jdbc_mssql {
-    transitive = false
-  }
   jdbc_postgresql {
-    transitive = false
-  }
-  jdbc_h2 {
     transitive = false
   }
   bundledPlugin {
@@ -36,7 +28,7 @@ configurations {
     extendsFrom bundledPlugin
     transitive = true
   }
-  appLicenses.extendsFrom(api, web, scanner, jdbc_mssql, jdbc_postgresql, jdbc_h2, bundledPlugin_deps)
+  appLicenses.extendsFrom(api, web, scanner, jdbc_postgresql, bundledPlugin_deps)
   cyclonedx
 }
 
@@ -71,8 +63,6 @@ dependencies {
     web project(':server:sonar-web')
     shutdowner project(':sonar-shutdowner')
 
-    jdbc_h2 'com.h2database:h2'
-    jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
     jdbc_postgresql 'org.postgresql:postgresql'
 }
 
@@ -122,14 +112,8 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
       from project(':private:branding').file('src')
     }
   }
-  into("${archiveDir}/lib/jdbc/mssql/") {
-    from configurations.jdbc_mssql
-  }
   into("${archiveDir}/lib/jdbc/postgresql/") {
     from configurations.jdbc_postgresql
-  }
-  into("${archiveDir}/lib/jdbc/h2/") {
-    from configurations.jdbc_h2
   }
   into("${archiveDir}/lib/") {
     from configurations.shutdowner
@@ -178,13 +162,13 @@ artifactoryPublish.skip = false
 
 def bomFile = layout.buildDirectory.file('reports/bom.json')
 cyclonedxBom {
-  includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
+  includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_postgresql", "bundledPlugin_deps",
                      "cyclonedx"]
   outputs.file bomFile
 }
 tasks.cyclonedxBom {
-  inputs.files(configurations.runtimeClasspath, configurations.shutdowner, configurations.jdbc_mssql,
-          configurations.jdbc_postgresql, configurations.jdbc_h2, configurations.bundledPlugin_deps, configurations.cyclonedx)
+  inputs.files(configurations.runtimeClasspath, configurations.shutdowner,
+          configurations.jdbc_postgresql, configurations.bundledPlugin_deps, configurations.cyclonedx)
 }
 def bomArtifact = artifacts.add('archives', bomFile.get().asFile) {
   type 'json'
