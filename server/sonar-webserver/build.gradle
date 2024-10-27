@@ -16,7 +16,9 @@ dependencies {
   api project(':server:sonar-auth-github')
   api project(':server:sonar-auth-gitlab')
   api project(':server:sonar-auth-ldap')
-  api project(':server:sonar-auth-saml')
+  api (project(':server:sonar-auth-saml')) {
+    exclude group:'org.apache.santuario'
+  }
   api project(':server:sonar-ce-task-projectanalysis')
   api project(':server:sonar-process')
   api project(':server:sonar-telemetry')
