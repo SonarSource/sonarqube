@@ -79,6 +79,19 @@ build_cache_template: &BUILD_CACHE_TEMPLATE
       - '**/build/**/*'
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
+webui_build_output_cache_template: &WEBUI_BUILD_OUTPUT_CACHE_TEMPLATE
+  webui_build_output_cache:
+    folders:
+      - "server/sonar-web/build/**"
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
+webui_node_modules_cache_template: &WEBUI_NODE_MODULES_CACHE_TEMPLATE
+  webui_node_modules_cache:
+    folders:
+      - "server/sonar-web/node_modules"
+      - "server/sonar-web/.yarn"
+    fingerprint_script: cat server/sonar-web/yarn.lock
+
 cache_dependencies_task:
   container:
     dockerfile: .cirrus/Dockerfile
@@ -91,8 +104,40 @@ cache_dependencies_task:
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
+install_webui_dependencies_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  <<: *WEBUI_NODE_MODULES_CACHE_TEMPLATE
+  timeout_in: 30m
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 8Gb
+  script:
+    - . .cirrus/cirrus-env DEPENDENCIES
+    - cd server/sonar-web
+    - yarn install --immutable
+
+build_webui_task:
+  depends_on:
+    - install_webui_dependencies
+  <<: *DEFAULT_TEMPLATE
+  <<: *WEBUI_NODE_MODULES_CACHE_TEMPLATE
+  <<: *WEBUI_BUILD_OUTPUT_CACHE_TEMPLATE
+  timeout_in: 30m
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 8Gb
+  script:
+    - . .cirrus/cirrus-env BUILD
+    - cd server/sonar-web
+    - yarn build
+
 build_task:
-  depends_on: cache_dependencies
+  depends_on:
+    - cache_dependencies
+    - build_webui
   container:
     dockerfile: .cirrus/Dockerfile
     cpu: 8
@@ -102,6 +147,7 @@ build_task:
   <<: *BUILD_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
+  <<: *WEBUI_BUILD_OUTPUT_CACHE_TEMPLATE
   script: .cirrus/cirrus-build.sh
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
