@@ -152,14 +152,20 @@ public class EvaluatedQualityGate {
       Set<Condition> conditions = qualityGate.getConditions();
 
       Set<Condition> conditionsNotEvaluated = conditions.stream()
-        .filter(c -> !evaluatedConditions.containsKey(c))
+        .filter(c -> !evaluatedConditions.containsKey(c) && !hasOriginalCondition(evaluatedConditions.values(), c))
         .collect(Collectors.toSet());
       checkArgument(conditionsNotEvaluated.isEmpty(), "Evaluation missing for the following conditions: %s", conditionsNotEvaluated);
 
-      Set<Condition> unknownConditions = evaluatedConditions.keySet().stream()
-        .filter(c -> !conditions.contains(c))
+      Set<Condition> unknownConditions = evaluatedConditions.entrySet().stream()
+        .filter(c -> !conditions.contains(c.getValue().getCondition()) && !conditions.contains(c.getValue().getOriginalCondition()))
+        .map(Map.Entry::getKey)
         .collect(Collectors.toSet());
+
       checkArgument(unknownConditions.isEmpty(), "Evaluation provided for unknown conditions: %s", unknownConditions);
+    }
+
+    private static boolean hasOriginalCondition(Collection<EvaluatedCondition> evaluatedConditions, Condition c) {
+      return evaluatedConditions.stream().anyMatch(ec -> ec.getOriginalCondition().equals(c));
     }
   }
 }

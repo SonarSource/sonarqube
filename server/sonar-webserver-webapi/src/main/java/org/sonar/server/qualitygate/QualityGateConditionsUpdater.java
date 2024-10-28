@@ -39,7 +39,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.Rating;
-import org.sonar.server.qualitygate.ws.StandardToMQRMetrics;
+import org.sonar.server.metric.StandardToMQRMetrics;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.Double.parseDouble;

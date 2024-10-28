@@ -64,17 +64,20 @@ public class EvaluatedConditionTest {
 
   @Test
   public void override_toString() {
-    assertThat(underTest).hasToString("EvaluatedCondition{condition=" +
-      "Condition{metricKey='metricKey', operator=GREATER_THAN, errorThreshold='2'}, " +
-      "status=ERROR, value='value'}");
+    assertThat(underTest).hasToString("EvaluatedCondition{condition=Condition{metricKey='metricKey', " +
+      "operator=GREATER_THAN, errorThreshold='2'}, " +
+      "originalCondition=Condition{metricKey='metricKey', " +
+      "operator=GREATER_THAN, errorThreshold='2'}, status=ERROR, value='value'}");
   }
 
   @Test
   public void toString_does_not_quote_null_value() {
     EvaluatedCondition underTest = new EvaluatedCondition(CONDITION_1, ERROR, null);
 
-    assertThat(underTest).hasToString("EvaluatedCondition{condition=" +
-      "Condition{metricKey='metricKey', operator=GREATER_THAN, errorThreshold='2'}, " +
+    assertThat(underTest).hasToString("EvaluatedCondition{condition=Condition{metricKey='metricKey', " +
+      "operator=GREATER_THAN, errorThreshold='2'}, " +
+      "originalCondition=Condition{metricKey='metricKey', " +
+      "operator=GREATER_THAN, errorThreshold='2'}, " +
       "status=ERROR, value=null}");
   }
 

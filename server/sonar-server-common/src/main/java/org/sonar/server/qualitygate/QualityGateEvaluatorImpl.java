@@ -45,6 +45,12 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
     CoreMetrics.NEW_DUPLICATED_LINES_KEY,
     CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY);
 
+  private final QualityGateFallbackManager qualityGateFallbackManager;
+
+  public QualityGateEvaluatorImpl(QualityGateFallbackManager qualityGateFallbackManager) {
+    this.qualityGateFallbackManager = qualityGateFallbackManager;
+  }
+
   @Override
   public EvaluatedQualityGate evaluate(QualityGate gate, Measures measures, Configuration configuration) {
     EvaluatedQualityGate.Builder result = EvaluatedQualityGate.newBuilder()
@@ -57,8 +63,15 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
       String metricKey = condition.getMetricKey();
       EvaluatedCondition evaluation = ConditionEvaluator.evaluate(condition, measures);
 
+      if (evaluation.isMissingMeasure()) {
+        evaluation = qualityGateFallbackManager.getFallbackCondition(evaluation.getCondition())
+          .map(c -> ConditionEvaluator.evaluate(c, measures).setOriginalCondition(condition))
+          .orElse(evaluation);
+      }
+
       if (isSmallChangeset && evaluation.getStatus() != EvaluationStatus.OK && METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
-        result.addEvaluatedCondition(new EvaluatedCondition(evaluation.getCondition(), EvaluationStatus.OK, evaluation.getValue().orElse(null)));
+        result.addEvaluatedCondition(new EvaluatedCondition(evaluation.getCondition(), evaluation.getOriginalCondition(),
+          EvaluationStatus.OK, evaluation.getValue().orElse(null), evaluation.isMissingMeasure()));
         result.setIgnoredConditionsOnSmallChangeset(true);
       } else {
         result.addEvaluatedCondition(evaluation);
@@ -76,6 +89,8 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
     metricKeys.add(CoreMetrics.NEW_LINES_KEY);
     for (Condition condition : gate.getConditions()) {
       metricKeys.add(condition.getMetricKey());
+      qualityGateFallbackManager.getFallbackCondition(condition)
+        .ifPresent(c -> metricKeys.add(c.getMetricKey()));
     }
     return metricKeys;
   }

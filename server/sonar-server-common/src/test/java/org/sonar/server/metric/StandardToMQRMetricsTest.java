@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualitygate.ws;
+package org.sonar.server.metric;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 
 class StandardToMQRMetricsTest {
-
   @Test
   void isStandardMetric_shouldReturnExpectedResult() {
     Assertions.assertThat(StandardToMQRMetrics.isStandardMetric(CoreMetrics.RELIABILITY_RATING_KEY)).isTrue();
@@ -41,5 +40,4 @@ class StandardToMQRMetricsTest {
     Assertions.assertThat(StandardToMQRMetrics.getEquivalentMetric(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY)).hasValue(CoreMetrics.RELIABILITY_RATING_KEY);
     Assertions.assertThat(StandardToMQRMetrics.getEquivalentMetric(CoreMetrics.RELIABILITY_RATING_KEY)).hasValue(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY);
   }
-
 }

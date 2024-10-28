@@ -50,7 +50,7 @@ class ConditionEvaluator {
   static EvaluatedCondition evaluate(Condition condition, QualityGateEvaluator.Measures measures) {
     Optional<QualityGateEvaluator.Measure> measure = measures.get(condition.getMetricKey());
     if (measure.isEmpty()) {
-      return new EvaluatedCondition(condition, EvaluationStatus.OK, null);
+      return new EvaluatedCondition(condition, EvaluationStatus.OK, null, true);
     }
 
     Optional<Comparable> value = getMeasureValue(condition, measure.get());
@@ -105,7 +105,7 @@ class ConditionEvaluator {
       return measure.getValue().isPresent() ? getNumericValue(measure.getType(), measure.getValue().getAsDouble()) : null;
     }
 
-    checkArgument(ValueType.LEVEL.equals(measure.getType()), "Condition is not allowed for type %s" , measure.getType());
+    checkArgument(ValueType.LEVEL.equals(measure.getType()), "Condition is not allowed for type %s", measure.getType());
     return measure.getStringValue().orElse(null);
 
   }

@@ -19,23 +19,22 @@
  */
 package org.sonar.server.qualitygate;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.sonar.db.metric.MetricDto;
+import java.util.Optional;
 import org.sonar.server.metric.StandardToMQRMetrics;
 
-public class QualityGateModeChecker {
+/**
+ * This class is used to manage the fallback of the quality gate conditions, in case one of the measure has not been computed yet.
+ * This is to ensure continuity of the quality gate evaluation in the scenario of introduction of new measures, but the project has not been reanalyzed yet.
+ * The live quality gate evaluation will fallback to an equivalent metric until the project is reanalyzed
+ */
+public class QualityGateFallbackManager {
 
-  public QualityModeResult getUsageOfModeMetrics(List<MetricDto> metrics) {
-    Set<String> metricKeys = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
-
-    boolean hasStandardConditions = metricKeys.stream().anyMatch(StandardToMQRMetrics::isStandardMetric);
-    boolean hasMQRConditions = metricKeys.stream().anyMatch(StandardToMQRMetrics::isMQRMetric);
-    return new QualityModeResult(hasMQRConditions, hasStandardConditions);
+  public Optional<Condition> getFallbackCondition(Condition condition) {
+    Optional<String> equivalentMetric = StandardToMQRMetrics.getEquivalentMetric(condition.getMetricKey());
+    if (StandardToMQRMetrics.isMQRMetric(condition.getMetricKey()) && equivalentMetric.isPresent()) {
+      return Optional.of(new Condition(equivalentMetric.get(), condition.getOperator(), condition.getErrorThreshold()));
+    } else {
+      return Optional.empty();
+    }
   }
-
-  public record QualityModeResult(boolean hasMQRConditions, boolean hasStandardConditions) {
-  }
-
 }

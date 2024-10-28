@@ -30,6 +30,7 @@ public class QualityGateModule extends Module {
       QualityGateModeChecker.class,
       QualityGateConditionsUpdater.class,
       QualityGateFinder.class,
-      QualityGateEvaluatorImpl.class);
+      QualityGateEvaluatorImpl.class,
+      QualityGateFallbackManager.class);
   }
 }
