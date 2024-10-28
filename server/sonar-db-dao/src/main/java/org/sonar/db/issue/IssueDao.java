@@ -94,6 +94,11 @@ public class IssueDao implements Dao {
     return mapper(dbSession).selectIssueImpactGroupsByComponent(component, leakPeriodBeginningDate);
   }
 
+  public Collection<IssueImpactSeverityGroupDto> selectIssueImpactSeverityGroupsByComponent(DbSession dbSession, ComponentDto component,
+    long leakPeriodBeginningDate) {
+    return mapper(dbSession).selectIssueImpactSeverityGroupsByComponent(component, leakPeriodBeginningDate);
+  }
+
   public Cursor<IndexedIssueDto> scrollIssuesForIndexation(DbSession dbSession, @Nullable @Param("branchUuid") String branchUuid,
     @Nullable @Param("issueKeys") Collection<String> issueKeys) {
     return mapper(dbSession).scrollIssuesForIndexation(branchUuid, issueKeys);

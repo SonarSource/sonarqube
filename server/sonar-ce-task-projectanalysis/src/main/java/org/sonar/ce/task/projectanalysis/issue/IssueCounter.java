@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
@@ -90,6 +91,7 @@ import static org.sonar.api.rules.RuleType.VULNERABILITY;
  * <li>issues per status (open, reopen, confirmed)</li>
  * <li>issues per resolution (unresolved, false-positives, won't fix)</li>
  * <li>issues per severity (from info to blocker)</li>
+ * <li>issues per impact severity (from info to blocker)</li>
  * <li>issues per type (code smell, bug, vulnerability, security hotspots)</li>
  * <li>issues per impact</li>
  * </ul>
@@ -111,15 +113,39 @@ public class IssueCounter extends IssueVisitor {
     MINOR, NEW_MINOR_VIOLATIONS_KEY,
     INFO, NEW_INFO_VIOLATIONS_KEY);
 
-  static final Map<String, String> IMPACT_TO_METRIC_KEY = Map.of(
+  private static final Map<Severity, String> IMPACT_SEVERITY_TO_METRIC_KEY = ImmutableMap.of(
+    Severity.BLOCKER, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY,
+    Severity.HIGH, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES_KEY,
+    Severity.MEDIUM, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY,
+    Severity.LOW, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES_KEY,
+    Severity.INFO, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES_KEY);
+
+  private static final Map<Severity, String> IMPACT_SEVERITY_TO_NEW_METRIC_KEY = ImmutableMap.of(
+    Severity.BLOCKER, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY,
+    Severity.HIGH, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES_KEY,
+    Severity.MEDIUM, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY,
+    Severity.LOW, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES_KEY,
+    Severity.INFO, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES_KEY);
+
+  static final Map<String, String> IMPACT_TO_JSON_METRIC_KEY = Map.of(
     SoftwareQuality.SECURITY.name(), SECURITY_ISSUES_KEY,
     SoftwareQuality.RELIABILITY.name(), RELIABILITY_ISSUES_KEY,
     SoftwareQuality.MAINTAINABILITY.name(), MAINTAINABILITY_ISSUES_KEY);
 
-  static final Map<String, String> IMPACT_TO_NEW_METRIC_KEY = Map.of(
+  static final Map<String, String> IMPACT_TO_NEW_JSON_METRIC_KEY = Map.of(
     SoftwareQuality.SECURITY.name(), NEW_SECURITY_ISSUES_KEY,
     SoftwareQuality.RELIABILITY.name(), NEW_RELIABILITY_ISSUES_KEY,
     SoftwareQuality.MAINTAINABILITY.name(), NEW_MAINTAINABILITY_ISSUES_KEY);
+
+  static final Map<String, String> IMPACT_TO_METRIC_KEY = Map.of(
+    SoftwareQuality.SECURITY.name(), SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY,
+    SoftwareQuality.RELIABILITY.name(), SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY,
+    SoftwareQuality.MAINTAINABILITY.name(), SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY);
+
+  static final Map<String, String> IMPACT_TO_NEW_METRIC_KEY = Map.of(
+    SoftwareQuality.SECURITY.name(), SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY,
+    SoftwareQuality.RELIABILITY.name(), SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY,
+    SoftwareQuality.MAINTAINABILITY.name(), SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY);
 
   private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
     .put(CODE_SMELL, CODE_SMELLS_KEY)
@@ -170,6 +196,7 @@ public class IssueCounter extends IssueVisitor {
   @Override
   public void afterComponent(Component component) {
     addMeasuresBySeverity(component);
+    addMeasuresByImpactSeverity(component);
     addMeasuresByStatus(component);
     addMeasuresByType(component);
     addMeasuresByImpact(component);
@@ -178,11 +205,11 @@ public class IssueCounter extends IssueVisitor {
   }
 
   private void addMeasuresBySeverity(Component component) {
-    for (Map.Entry<String, String> entry : SEVERITY_TO_METRIC_KEY.entrySet()) {
-      String severity = entry.getKey();
-      String metricKey = entry.getValue();
-      addMeasure(component, metricKey, currentCounters.counter().severityBag.count(severity));
-    }
+    addMeasures(component, SEVERITY_TO_METRIC_KEY, currentCounters.counter().severityBag);
+  }
+
+  private void addMeasuresByImpactSeverity(Component component) {
+    addMeasures(component, IMPACT_SEVERITY_TO_METRIC_KEY, currentCounters.counter().impactSeverityBag);
   }
 
   private void addMeasuresByStatus(Component component) {
@@ -198,7 +225,9 @@ public class IssueCounter extends IssueVisitor {
   private void addMeasuresByImpact(Component component) {
     for (Map.Entry<String, Map<String, Long>> impactEntry : currentCounters.counter().impactsBag.entrySet()) {
       String json = ImpactMeasureBuilder.fromMap(impactEntry.getValue()).buildAsString();
-      addMeasure(component, IMPACT_TO_METRIC_KEY.get(impactEntry.getKey()), json);
+      addMeasure(component, IMPACT_TO_JSON_METRIC_KEY.get(impactEntry.getKey()), json);
+      addMeasure(component, IMPACT_TO_METRIC_KEY.get(impactEntry.getKey()),
+        impactEntry.getValue().get(ImpactMeasureBuilder.TOTAL_KEY).intValue());
     }
   }
 
@@ -218,6 +247,15 @@ public class IssueCounter extends IssueVisitor {
     measureRepository.add(component, metric, Measure.newMeasureBuilder().create(data));
   }
 
+  private <M> void addMeasures(Component component, Map<M, String> metrics, Multiset<M> countPerMetric) {
+    for (Map.Entry<M, String> entry : metrics.entrySet()) {
+      M entryKey = entry.getKey();
+      String metricKey = entry.getValue();
+      addMeasure(component, metricKey, countPerMetric.count(entryKey));
+    }
+  }
+
+
   private void addNewMeasures(Component component) {
     if (!newIssueClassifier.isEnabled()) {
       return;
@@ -226,25 +264,17 @@ public class IssueCounter extends IssueVisitor {
     measureRepository.add(component, metricRepository.getByKey(NEW_VIOLATIONS_KEY), Measure.newMeasureBuilder()
       .create(unresolved));
 
-    for (Map.Entry<String, String> entry : SEVERITY_TO_NEW_METRIC_KEY.entrySet()) {
-      String severity = entry.getKey();
-      String metricKey = entry.getValue();
-      Multiset<String> bag = currentCounters.counterForPeriod().severityBag;
-      addMeasure(component, metricKey, bag.count(severity));
-    }
+    addMeasures(component, SEVERITY_TO_NEW_METRIC_KEY, currentCounters.counterForPeriod().severityBag);
 
-    // waiting for Java 8 lambda in order to factor this loop with the previous one
-    // (see call currentCounters.counterForPeriod(period.getIndex()).xxx with xxx as severityBag or typeBag)
-    for (Map.Entry<RuleType, String> entry : TYPE_TO_NEW_METRIC_KEY.entrySet()) {
-      RuleType type = entry.getKey();
-      String metricKey = entry.getValue();
-      Multiset<RuleType> bag = currentCounters.counterForPeriod().typeBag;
-      addMeasure(component, metricKey, bag.count(type));
-    }
+    addMeasures(component, IMPACT_SEVERITY_TO_NEW_METRIC_KEY, currentCounters.counterForPeriod().impactSeverityBag);
+
+    addMeasures(component, TYPE_TO_NEW_METRIC_KEY, currentCounters.counterForPeriod().typeBag);
 
     for (Map.Entry<String, Map<String, Long>> impactEntry : currentCounters.counterForPeriod().impactsBag.entrySet()) {
       String json = ImpactMeasureBuilder.fromMap(impactEntry.getValue()).buildAsString();
-      addMeasure(component, IMPACT_TO_NEW_METRIC_KEY.get(impactEntry.getKey()), json);
+      addMeasure(component, IMPACT_TO_NEW_JSON_METRIC_KEY.get(impactEntry.getKey()), json);
+      addMeasure(component, IMPACT_TO_NEW_METRIC_KEY.get(impactEntry.getKey()),
+        impactEntry.getValue().get(ImpactMeasureBuilder.TOTAL_KEY).intValue());
     }
 
     addMeasure(component, NEW_ACCEPTED_ISSUES_KEY, currentCounters.counterForPeriod().accepted);
@@ -262,6 +292,7 @@ public class IssueCounter extends IssueVisitor {
     private int accepted = 0;
     private int highImpactAccepted = 0;
     private final Multiset<String> severityBag = HashMultiset.create();
+    private final Multiset<Severity> impactSeverityBag = HashMultiset.create();
     /**
      * This map contains the number of issues per software quality along with their distribution based on (new) severity.
      */
@@ -287,6 +318,7 @@ public class IssueCounter extends IssueVisitor {
       accepted += counter.accepted;
       highImpactAccepted += counter.highImpactAccepted;
       severityBag.addAll(counter.severityBag);
+      impactSeverityBag.addAll(counter.impactSeverityBag);
       typeBag.addAll(counter.typeBag);
 
       // Add impacts
@@ -330,10 +362,10 @@ public class IssueCounter extends IssueVisitor {
         default:
           // Other statuses are ignored
       }
-      addIssueToImpactsBag(issue);
+      countIssueImpacts(issue);
     }
 
-    private void addIssueToImpactsBag(DefaultIssue issue) {
+    private void countIssueImpacts(DefaultIssue issue) {
       if (IssueStatus.OPEN == issue.issueStatus() || IssueStatus.CONFIRMED == issue.issueStatus()) {
         for (Map.Entry<SoftwareQuality, Severity> impact : issue.impacts().entrySet()) {
           impactsBag.compute(impact.getKey().name(), (key, value) -> {
@@ -342,6 +374,7 @@ public class IssueCounter extends IssueVisitor {
             return value;
           });
         }
+        issue.impacts().values().stream().distinct().forEach(impactSeverityBag::add);
       }
     }
   }

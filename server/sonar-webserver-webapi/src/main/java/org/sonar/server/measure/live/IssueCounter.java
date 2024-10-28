@@ -32,6 +32,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.issue.IssueGroupDto;
 import org.sonar.db.issue.IssueImpactGroupDto;
+import org.sonar.db.issue.IssueImpactSeverityGroupDto;
 import org.sonar.db.rule.SeverityUtil;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 
@@ -43,6 +44,7 @@ class IssueCounter {
   private final Map<RuleType, HighestSeverity> highestSeverityOfUnresolved = new EnumMap<>(RuleType.class);
   private final Map<RuleType, Effort> effortOfUnresolved = new EnumMap<>(RuleType.class);
   private final Map<String, Count> unresolvedBySeverity = new HashMap<>();
+  private final Map<Severity, Count> unresolvedByImpactSeverity = new EnumMap<>(Severity.class);
   private final Map<RuleType, Count> unresolvedByType = new EnumMap<>(RuleType.class);
   private final Map<String, Count> byResolution = new HashMap<>();
   private final Map<String, Count> byStatus = new HashMap<>();
@@ -54,7 +56,8 @@ class IssueCounter {
   private final Map<SoftwareQuality, Effort> effortOfUnresolvedBySoftwareQuality = new EnumMap<>(SoftwareQuality.class);
   private final Map<SoftwareQuality, HighestImpactSeverity> highestSeverityOfUnresolvedBySoftwareQuality = new EnumMap<>(SoftwareQuality.class);
 
-  IssueCounter(Collection<IssueGroupDto> groups, Collection<IssueImpactGroupDto> impactGroups) {
+  IssueCounter(Collection<IssueGroupDto> groups, Collection<IssueImpactGroupDto> impactGroups,
+    Collection<IssueImpactSeverityGroupDto> impactSeverityGroups) {
     for (IssueGroupDto group : groups) {
       if (RuleType.valueOf(group.getRuleType()).equals(SECURITY_HOTSPOT)) {
         processHotspotGroup(group);
@@ -64,6 +67,10 @@ class IssueCounter {
     }
     for (IssueImpactGroupDto group : impactGroups) {
       processImpactGroup(group);
+    }
+
+    for (IssueImpactSeverityGroupDto group : impactSeverityGroups) {
+      processImpactSeverityGroup(group);
     }
   }
 
@@ -135,7 +142,12 @@ class IssueCounter {
     }
   }
 
-  public Optional<String> getHighestSeverityOfUnresolved(RuleType ruleType, boolean onlyInLeak) {
+  private void processImpactSeverityGroup(IssueImpactSeverityGroupDto group) {
+    if (group.getResolution() == null) {
+      unresolvedByImpactSeverity.computeIfAbsent(group.getSeverity(), k -> new Count()).add(group);
+    }
+  }
+    public Optional<String> getHighestSeverityOfUnresolved(RuleType ruleType, boolean onlyInLeak) {
     return Optional.ofNullable(highestSeverityOfUnresolved.get(ruleType))
       .map(hs -> hs.severity(onlyInLeak));
   }
@@ -163,6 +175,10 @@ class IssueCounter {
 
   public long countUnresolvedBySeverity(String severity, boolean onlyInLeak) {
     return value(unresolvedBySeverity.get(severity), onlyInLeak);
+  }
+
+  public long countUnresolvedByImpactSeverity(Severity severity, boolean onlyInLeak) {
+    return value(unresolvedByImpactSeverity.get(severity), onlyInLeak);
   }
 
   public long countByResolution(String resolution, boolean onlyInLeak) {
@@ -200,7 +216,15 @@ class IssueCounter {
     return onlyInLeak ? count.leak : count.absolute;
   }
 
-  public String getBySoftwareQuality(SoftwareQuality softwareQuality, boolean onlyInLeak) {
+  public long countBySoftwareQuality(SoftwareQuality softwareQuality, boolean onlyInLeak) {
+    Map<Severity, Count> severityToCount = bySoftwareQualityAndSeverity.get(softwareQuality);
+    if (severityToCount == null) {
+      return 0;
+    }
+    return severityToCount.values().stream().mapToLong(count -> value(count, onlyInLeak)).sum();
+  }
+
+  public String getImpactJsonBySoftwareQuality(SoftwareQuality softwareQuality, boolean onlyInLeak) {
     Map<Severity, Count> severityToCount = bySoftwareQualityAndSeverity.get(softwareQuality);
 
     ImpactMeasureBuilder impactMeasureBuilder;
@@ -229,6 +253,13 @@ class IssueCounter {
     }
 
     public void add(IssueImpactGroupDto group) {
+      absolute += group.getCount();
+      if (group.isInLeak()) {
+        leak += group.getCount();
+      }
+    }
+
+    public void add(IssueImpactSeverityGroupDto group) {
       absolute += group.getCount();
       if (group.isInLeak()) {
         leak += group.getCount();

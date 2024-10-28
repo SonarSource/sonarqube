@@ -58,10 +58,14 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
 import static org.sonar.api.issue.impact.Severity.HIGH;
 import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.api.issue.impact.Severity.LOW;
 import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS;
@@ -123,10 +127,42 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
-import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_METRIC_KEY;
-import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_NEW_METRIC_KEY;
+import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_JSON_METRIC_KEY;
+import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_NEW_JSON_METRIC_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
 
 class IssueCounterTest {
@@ -176,7 +212,23 @@ class IssueCounterTest {
     .add(SECURITY_ISSUES)
     .add(NEW_RELIABILITY_ISSUES)
     .add(NEW_MAINTAINABILITY_ISSUES)
-    .add(NEW_SECURITY_ISSUES);
+    .add(NEW_SECURITY_ISSUES)
+    .add(SOFTWARE_QUALITY_BLOCKER_ISSUES)
+    .add(SOFTWARE_QUALITY_HIGH_ISSUES)
+    .add(SOFTWARE_QUALITY_MEDIUM_ISSUES)
+    .add(SOFTWARE_QUALITY_LOW_ISSUES)
+    .add(SOFTWARE_QUALITY_INFO_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_HIGH_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_LOW_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_INFO_ISSUES)
+    .add(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES)
+    .add(SOFTWARE_QUALITY_RELIABILITY_ISSUES)
+    .add(SOFTWARE_QUALITY_SECURITY_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES)
+    .add(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES);
 
   @RegisterExtension
   private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -354,12 +406,12 @@ class IssueCounterTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, MEDIUM));
 
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, MEDIUM));
 
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
@@ -372,9 +424,110 @@ class IssueCounterTest {
 
     Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
 
-    assertOverallSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0, 0, 0), entries);
     assertOverallSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(2, 1, 1, 0, 0, 0), entries);
-    assertOverallSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(0, 0, 0, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(RELIABILITY, getImpactMeasure(0, 0, 0, 0, 0, 0), entries);
+  }
+
+  @Test
+  void onIssue_shouldCountByImpactSeverity() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(MAINTAINABILITY, BLOCKER, SECURITY, BLOCKER)));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(MAINTAINABILITY, HIGH, SECURITY, BLOCKER)));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(SECURITY, MEDIUM, MAINTAINABILITY, LOW)));
+    // Should not count because it is resolved
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, Map.of(SECURITY, BLOCKER, MAINTAINABILITY, INFO)));
+
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(SECURITY, MEDIUM, MAINTAINABILITY, LOW)));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(MAINTAINABILITY, INFO, SECURITY, INFO)));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(MAINTAINABILITY, INFO, SECURITY, INFO)));
+
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.onIssue(PROJECT, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(SECURITY, MEDIUM, MAINTAINABILITY, LOW)));
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1,
+      entry(SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY, 2),
+      entry(SOFTWARE_QUALITY_HIGH_ISSUES_KEY, 3),
+      entry(SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY, 2),
+      entry(SOFTWARE_QUALITY_LOW_ISSUES_KEY, 2),
+      entry(SOFTWARE_QUALITY_INFO_ISSUES_KEY, 2)
+    );
+
+    assertIntValue(FILE1,
+      entry(NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY, 0),
+      entry(NEW_SOFTWARE_QUALITY_HIGH_ISSUES_KEY, 1),
+      entry(NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY, 1),
+      entry(NEW_SOFTWARE_QUALITY_LOW_ISSUES_KEY, 1),
+      entry(NEW_SOFTWARE_QUALITY_INFO_ISSUES_KEY, 2)
+    );
+
+    assertIntValue(PROJECT,
+      entry(SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY, 2),
+      entry(SOFTWARE_QUALITY_HIGH_ISSUES_KEY, 3),
+      entry(SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY, 3),
+      entry(SOFTWARE_QUALITY_LOW_ISSUES_KEY, 3),
+      entry(SOFTWARE_QUALITY_INFO_ISSUES_KEY, 2)
+    );
+
+    assertIntValue(PROJECT,
+      entry(NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES_KEY, 0),
+      entry(NEW_SOFTWARE_QUALITY_HIGH_ISSUES_KEY, 1),
+      entry(NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES_KEY, 2),
+      entry(NEW_SOFTWARE_QUALITY_LOW_ISSUES_KEY, 2),
+      entry(NEW_SOFTWARE_QUALITY_INFO_ISSUES_KEY, 2)
+    );
+  }
+
+  @Test
+  void onIssue_shouldCountBySoftwareQuality() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(MAINTAINABILITY, HIGH, SECURITY, BLOCKER)));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(SECURITY, MEDIUM, MAINTAINABILITY, LOW)));
+    // Should not count because it is resolved
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, Map.of(SECURITY, BLOCKER, MAINTAINABILITY, INFO)));
+
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(SECURITY, MEDIUM, MAINTAINABILITY, LOW)));
+
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.onIssue(PROJECT, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, Map.of(SECURITY, MEDIUM, MAINTAINABILITY, LOW)));
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1,
+      entry(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, 4),
+      entry(SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, 1),
+      entry(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, 3)
+    );
+
+    assertIntValue(FILE1,
+      entry(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, 2),
+      entry(NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, 0),
+      entry(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, 1)
+    );
+
+    assertIntValue(PROJECT,
+      entry(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, 5),
+      entry(SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, 1),
+      entry(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, 4)
+    );
+
+    assertIntValue(PROJECT,
+      entry(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, 3),
+      entry(NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, 0),
+      entry(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, 2)
+    );
   }
 
   @Test
@@ -382,15 +535,15 @@ class IssueCounterTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, MAINTAINABILITY, MEDIUM));
 
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, LOW));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.RELIABILITY, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, MEDIUM));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, RELIABILITY, LOW));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, RELIABILITY, MEDIUM));
 
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, LOW));
@@ -406,8 +559,8 @@ class IssueCounterTest {
 
     Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
 
-    assertNewSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(2, 1, 1, 0, 0, 0), entries);
-    assertNewSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(2, 0, 1, 1, 0, 0), entries);
+    assertNewSoftwareQualityMeasures(MAINTAINABILITY, getImpactMeasure(2, 1, 1, 0, 0, 0), entries);
+    assertNewSoftwareQualityMeasures(RELIABILITY, getImpactMeasure(2, 0, 1, 1, 0, 0), entries);
     assertNewSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(4, 2, 1, 1, 0, 0), entries);
   }
 
@@ -423,18 +576,18 @@ class IssueCounterTest {
   private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low, long info, long blocker) {
     Map<String, Long> map = getImpactMeasure(total, high, medium, low);
     map.put(INFO.name(), info);
-    map.put(Severity.BLOCKER.name(), blocker);
+    map.put(BLOCKER.name(), blocker);
     return map;
   }
 
   private void assertOverallSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
     Set<Map.Entry<String, Measure>> actualRaw) {
-    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_METRIC_KEY);
+    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_JSON_METRIC_KEY);
   }
 
   private void assertNewSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
     Set<Map.Entry<String, Measure>> actualRaw) {
-    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_NEW_METRIC_KEY);
+    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_NEW_JSON_METRIC_KEY);
   }
 
   private void assertSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
@@ -456,14 +609,14 @@ class IssueCounterTest {
     // created before -> existing issues with 2 high impact accepted (High and Blocker)
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, HIGH));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, HIGH));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, Severity.BLOCKER));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, Map.of(MAINTAINABILITY, BLOCKER, RELIABILITY, HIGH)));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MEDIUM));
 
     // created after -> 2 high impact accepted
     underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, HIGH));
-    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MEDIUM));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, Map.of(MAINTAINABILITY, MEDIUM, RELIABILITY, HIGH)));
     underTest.onIssue(FILE1, createNewSecurityHotspot());
     underTest.afterComponent(FILE1);
 
@@ -471,9 +624,9 @@ class IssueCounterTest {
     underTest.afterComponent(PROJECT);
 
     assertIntValue(FILE1, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
-      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 4));
+      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 5));
     assertIntValue(PROJECT, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
-      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 4));
+      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 5));
   }
 
   @Test
@@ -557,13 +710,19 @@ class IssueCounterTest {
   }
 
   private DefaultIssue createNewIssue(@Nullable String resolution, String status, Severity impactSeverity) {
-    return createNewIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
+    return createNewIssue(resolution, status, MAINTAINABILITY, impactSeverity);
   }
 
   private DefaultIssue createNewIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality,
     Severity impactSeverity) {
     DefaultIssue issue = createNewIssue(resolution, status, MAJOR, CODE_SMELL);
     issue.addImpact(softwareQuality, impactSeverity);
+    return issue;
+  }
+
+  private DefaultIssue createNewIssue(@Nullable String resolution, String status, Map<SoftwareQuality, Severity> impaxts) {
+    DefaultIssue issue = createNewIssue(resolution, status, MAJOR, CODE_SMELL);
+    issue.replaceImpacts(impaxts);
     return issue;
   }
 
@@ -578,13 +737,19 @@ class IssueCounterTest {
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, Severity impactSeverity) {
-    return createIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
+    return createIssue(resolution, status, MAINTAINABILITY, impactSeverity);
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality,
     Severity impactSeverity) {
     DefaultIssue issue = createIssue(resolution, status, MAJOR, CODE_SMELL);
     issue.addImpact(softwareQuality, impactSeverity);
+    return issue;
+  }
+
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, Map<SoftwareQuality, Severity> impacts) {
+    DefaultIssue issue = createIssue(resolution, status, MAJOR, CODE_SMELL);
+    issue.replaceImpacts(impacts);
     return issue;
   }
 

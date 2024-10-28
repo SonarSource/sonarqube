@@ -75,7 +75,9 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
 import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.api.issue.impact.Severity.LOW;
 import static org.sonar.api.issue.impact.Severity.MEDIUM;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
@@ -627,6 +629,58 @@ class IssueDaoIT {
     assertThat(result.stream().noneMatch(g -> STATUS_CLOSED.equals(g.getResolution()))).isTrue();
     assertThat(result.stream().noneMatch(g -> RESOLUTION_FALSE_POSITIVE.equals(g.getResolution()))).isTrue();
     assertThat(result.stream().noneMatch(g -> RELIABILITY == g.getSoftwareQuality())).isTrue();
+    assertThat(result.stream().noneMatch(g -> MEDIUM == g.getSeverity())).isTrue();
+
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void selectIssueImpactSeverityGroupsByComponent_shouldReturnImpactSeverityGroups(boolean inLeak) {
+
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert();
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN).setEffort(60L).replaceAllImpacts(List.of(createImpact(RELIABILITY, BLOCKER), createImpact(SECURITY,
+        BLOCKER))));
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN).setEffort(60L).replaceAllImpacts(List.of(createImpact(RELIABILITY, BLOCKER))));
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_REOPENED).setEffort(60L).replaceAllImpacts(List.of(createImpact(RELIABILITY, INFO))));
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_REOPENED).setEffort(60L).replaceAllImpacts(List.of(createImpact(RELIABILITY, INFO), createImpact(SECURITY,
+        BLOCKER))));
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(MAINTAINABILITY, HIGH), createImpact(RELIABILITY, INFO), createImpact(SECURITY, BLOCKER))));
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY
+        , HIGH))));
+    // issues in ignored status
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(Issue.STATUS_CLOSED).setEffort(60L).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_FALSE_POSITIVE).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+
+    Collection<IssueImpactSeverityGroupDto> result = underTest.selectIssueImpactSeverityGroupsByComponent(db.getSession(), file, inLeak ?
+      1L : Long.MAX_VALUE);
+
+    assertThat(result).hasSize(6);
+    assertThat(result.stream().filter(IssueImpactSeverityGroupDto::isInLeak)).hasSize(inLeak ? 6 : 0);
+    // 6 issues, but 1 has 2 different severity impact, and 1 has 3 different severity impact
+    // The total count should then be 6 + 1 (1 additional severity for 1 issue) + 2 (2 additional severities from 1 issue)
+    assertThat(result.stream().mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(6 + 1 + 2);
+
+    assertThat(result.stream().filter(g -> g.getSeverity() == BLOCKER).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(4);
+    assertThat(result.stream().filter(g -> g.getSeverity() == HIGH).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> g.getSeverity() == MEDIUM).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isZero();
+    assertThat(result.stream().filter(g -> g.getSeverity() == LOW).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isZero();
+    assertThat(result.stream().filter(g -> g.getSeverity() == INFO).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(3);
+
+    assertThat(result.stream().filter(g -> RESOLUTION_WONT_FIX.equals(g.getResolution())).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(4);
+    assertThat(result.stream().filter(g -> g.getResolution() == null).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(5);
+
+    assertThat(result.stream().noneMatch(g -> STATUS_CLOSED.equals(g.getResolution()))).isTrue();
+    assertThat(result.stream().noneMatch(g -> RESOLUTION_FALSE_POSITIVE.equals(g.getResolution()))).isTrue();
     assertThat(result.stream().noneMatch(g -> MEDIUM == g.getSeverity())).isTrue();
 
   }

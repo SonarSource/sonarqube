@@ -46,6 +46,7 @@ import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueGroupDto;
 import org.sonar.db.issue.IssueImpactGroupDto;
+import org.sonar.db.issue.IssueImpactSeverityGroupDto;
 import org.sonar.server.measure.DebtRatingGrid;
 import org.sonar.server.measure.Rating;
 
@@ -1201,6 +1202,122 @@ class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
+  void compute_shouldComputeCountPerImpactSeverityOnOverallCode() {
+    withNoIssues()
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES, 0);
+
+    with(
+      newImpactSeverityGroup(HIGH, 3),
+      newImpactSeverityGroup(MEDIUM, 4),
+      newImpactSeverityGroup(LOW, 1),
+      newImpactSeverityGroup(LOW, 1),
+      newImpactSeverityGroup(BLOCKER, 7),
+      newImpactSeverityGroup(INFO, 12),
+      newImpactSeverityGroup(INFO, 3),
+
+      // Should not be counted due to status
+      newImpactSeverityGroup(HIGH, Issue.STATUS_RESOLVED, 4),
+      newImpactSeverityGroup(BLOCKER, Issue.STATUS_RESOLVED, 4),
+      newImpactSeverityGroup(BLOCKER, Issue.STATUS_RESOLVED, 4))
+
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES, 7)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES, 3)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES, 4)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES, 1 + 1)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES, 12 + 3)
+    ;
+  }
+
+  @Test
+  void compute_shouldComputeCountPerImpactSeverityOnNewCode() {
+    withNoIssues()
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES, 0)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES, 0)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES, 0)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES, 0)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES, 0);
+
+    with(
+      newImpactSeverityGroup(HIGH, 3, true),
+      newImpactSeverityGroup(MEDIUM, 4, true),
+      newImpactSeverityGroup(LOW, 1, true),
+      newImpactSeverityGroup(LOW, 1, true),
+      newImpactSeverityGroup(BLOCKER, 7, true),
+      newImpactSeverityGroup(INFO, 12, true),
+      newImpactSeverityGroup(INFO, 3, true),
+
+      // Should not be counted due to status
+      newImpactSeverityGroup(HIGH, Issue.RESOLUTION_WONT_FIX, 4, true),
+      newImpactSeverityGroup(BLOCKER, Issue.RESOLUTION_WONT_FIX, 4, true),
+      newImpactSeverityGroup(BLOCKER, Issue.RESOLUTION_FALSE_POSITIVE, 4, true),
+
+      //Should not be counted because on overall code
+      newImpactSeverityGroup(BLOCKER, 7, false))
+
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES, 7)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES, 3)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES, 4)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES, 1 + 1)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES, 12 + 3)
+    ;
+  }
+
+  @Test
+  void compute_shouldComputeCountPerSoftwareQualityOnOverallCode() {
+    withNoIssues()
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, 0)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, 0);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 3),
+      newImpactGroup(RELIABILITY, MEDIUM, 1, true),
+      newImpactGroup(SECURITY, MEDIUM, 1),
+      newImpactGroup(MAINTAINABILITY, MEDIUM, 1),
+      newImpactGroup(MAINTAINABILITY, HIGH, 1, true),
+      // Should not count due to status
+      newImpactGroup(SECURITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 4, 1d, false),
+      newImpactGroup(RELIABILITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false),
+      newImpactGroup(MAINTAINABILITY, MEDIUM, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false))
+
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 1 + 1)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, 3 + 1)
+      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, 1)
+    ;
+  }
+
+  @Test
+  void compute_shouldComputeCountPerSoftwareQualityOnNewCode() {
+    withNoIssues()
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 0)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, 0)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, 0);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 3, true),
+      newImpactGroup(RELIABILITY, MEDIUM, 1, true),
+      newImpactGroup(SECURITY, MEDIUM, 1, true),
+      newImpactGroup(SECURITY, MEDIUM, 12, true),
+      newImpactGroup(MAINTAINABILITY, MEDIUM, 1, true),
+      newImpactGroup(MAINTAINABILITY, HIGH, 1, true),
+      // Should not count due to status
+      newImpactGroup(SECURITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 4, 1d, false),
+      newImpactGroup(RELIABILITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false),
+      newImpactGroup(MAINTAINABILITY, MEDIUM, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false),
+      // Should not be counted because on overall code
+      newImpactGroup(MAINTAINABILITY, MEDIUM, 1, false))
+
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 1 + 1)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, 3 + 1)
+      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, 1 + 12)
+    ;
+  }
+
+  @Test
   void compute_shouldComputeRemediationEffortBasedOnSoftwareQuality() {
     withNoIssues()
       .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, 0)
@@ -1276,6 +1393,10 @@ class MeasureUpdateFormulaFactoryImplTest {
     return new Verifier(groups);
   }
 
+  private Verifier with(IssueImpactSeverityGroupDto... groups) {
+    return new Verifier(groups);
+  }
+
   private Verifier withNoIssues() {
     return new Verifier(new IssueGroupDto[0]);
   }
@@ -1291,6 +1412,7 @@ class MeasureUpdateFormulaFactoryImplTest {
   private class Verifier {
     private IssueGroupDto[] groups = {};
     private IssueImpactGroupDto[] impactGroups = {};
+    private IssueImpactSeverityGroupDto[] impactSeverityGroups = {};
     private final InitialValues initialValues = new InitialValues();
 
     private Verifier(IssueGroupDto[] groups) {
@@ -1299,6 +1421,10 @@ class MeasureUpdateFormulaFactoryImplTest {
 
     private Verifier(IssueImpactGroupDto[] impactGroups) {
       this.impactGroups = impactGroups;
+    }
+
+    private Verifier(IssueImpactSeverityGroupDto[] impactSeverityGroups) {
+      this.impactSeverityGroups = impactSeverityGroups;
     }
 
     Verifier and(Metric metric, double value) {
@@ -1366,13 +1492,14 @@ class MeasureUpdateFormulaFactoryImplTest {
         .get();
       assertThat(formula.isOnLeak()).isEqualTo(expectLeakFormula);
       TestContext context = new TestContext(formula.getDependentMetrics(), initialValues);
-      formula.compute(context, newIssueCounter(groups, impactGroups));
+      formula.compute(context, newIssueCounter(groups, impactGroups, impactSeverityGroups));
       return context;
     }
   }
 
-  private static IssueCounter newIssueCounter(IssueGroupDto[] groups, IssueImpactGroupDto[] impactGroups) {
-    return new IssueCounter(asList(groups), asList(impactGroups));
+  private static IssueCounter newIssueCounter(IssueGroupDto[] groups, IssueImpactGroupDto[] impactGroups,
+    IssueImpactSeverityGroupDto[] impactSeverityGroups) {
+    return new IssueCounter(asList(groups), asList(impactGroups), asList(impactSeverityGroups));
   }
 
   private static IssueGroupDto newGroup() {
@@ -1404,6 +1531,16 @@ class MeasureUpdateFormulaFactoryImplTest {
     return dto;
   }
 
+  private static IssueImpactSeverityGroupDto newImpactSeverityGroup(org.sonar.api.issue.impact.Severity severity,
+    @Nullable String resolution, long count, boolean inLeak) {
+    IssueImpactSeverityGroupDto dto = new IssueImpactSeverityGroupDto();
+    dto.setSeverity(severity);
+    dto.setResolution(resolution);
+    dto.setCount(count);
+    dto.setInLeak(inLeak);
+    return dto;
+  }
+
   private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
     String status, @Nullable String resolution, long count) {
     return newImpactGroup(softwareQuality, severity, status, resolution, count, 0, false);
@@ -1427,6 +1564,20 @@ class MeasureUpdateFormulaFactoryImplTest {
   private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
     long count, double effort, boolean inLeak) {
     return newImpactGroup(softwareQuality, severity, Issue.STATUS_OPEN, null, count, effort, inLeak);
+  }
+
+  private static IssueImpactSeverityGroupDto newImpactSeverityGroup(org.sonar.api.issue.impact.Severity severity, long count) {
+    return newImpactSeverityGroup(severity, null, count, false);
+  }
+
+  private static IssueImpactSeverityGroupDto newImpactSeverityGroup(org.sonar.api.issue.impact.Severity severity, long count,
+    boolean inLeak) {
+    return newImpactSeverityGroup(severity, null, count, inLeak);
+  }
+
+  private static IssueImpactSeverityGroupDto newImpactSeverityGroup(org.sonar.api.issue.impact.Severity severity,
+    @Nullable String resolution, long count) {
+    return newImpactSeverityGroup(severity, resolution, count, false);
   }
 
   private static IssueGroupDto newResolvedGroup(RuleType ruleType) {
