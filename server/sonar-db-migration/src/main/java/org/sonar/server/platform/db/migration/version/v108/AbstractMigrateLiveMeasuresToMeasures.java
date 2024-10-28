@@ -206,9 +206,14 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     byte[] data = row.getBytes(6);
 
     Object metricValue = getMetricValue(data, textValue, valueType, numericValue);
-    if (metricValue != null) {
+    if (metricValue != null
+      && !measuresPlannedForDeletion(metricName)) {
       measureValues.put(metricName, metricValue);
     }
+  }
+
+  private static boolean measuresPlannedForDeletion(String metricName) {
+    return DeleteSoftwareQualityRatingFromProjectMeasures.SOFTWARE_QUALITY_METRICS_TO_DELETE.contains(metricName);
   }
 
   private static Object getMetricValue(@Nullable byte[] data, @Nullable String textValue, String valueType, Double numericValue) {

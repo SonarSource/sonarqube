@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
@@ -160,6 +162,30 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
       .containsOnly(tuple(component2, portfolio1, "{\"metric_with_data\":\"some data\"}", -4524184678167636687L));
   }
 
+  @Test
+  void should_not_migrate_measures_planned_for_deletion() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+    Set<String> deletedMetricUuid = DeleteSoftwareQualityRatingFromProjectMeasures.SOFTWARE_QUALITY_METRICS_TO_DELETE.stream().map(e -> insertMetric(e, "INT"))
+      .collect(Collectors.toSet());
+
+    String portfolio1 = "portfolio_4";
+    insertNotMigratedPortfolio(portfolio1);
+    String component1 = uuidFactory.create();
+    String component2 = uuidFactory.create();
+    insertMeasure(portfolio1, component1, nclocMetricUuid, Map.of("value", 120));
+    deletedMetricUuid.forEach(metricUuid -> insertMeasure(portfolio1, component1, metricUuid, Map.of("value", 120)));
+    deletedMetricUuid.forEach(metricUuid -> insertMeasure(portfolio1, component2, metricUuid, Map.of("value", 120)));
+
+    underTest.execute();
+
+    assertPortfolioMigrated(portfolio1);
+
+    assertThat(db.select(format(SELECT_MEASURE, component1)))
+      .hasSize(1)
+      .extracting(t -> t.get("component_uuid"), t -> t.get("branch_uuid"), t -> t.get("json_value"), t -> t.get("json_value_hash"))
+      .containsOnly(tuple(component1, portfolio1, "{\"ncloc\":120.0}", -1557106439558598045L));
+  }
+
   private void assertPortfolioMigrated(String portfolio) {
     List<Map<String, Object>> result = db.select(format("select %s as \"MIGRATED\" from portfolios where uuid = '%s'", MEASURES_MIGRATED_COLUMN, portfolio));
     assertThat(result)
@@ -211,7 +237,6 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
       "selection_mode", "MANUAL",
       MEASURES_MIGRATED_COLUMN, migrated,
       "created_at", 12L,
-      "updated_at", 12L
-    );
+      "updated_at", 12L);
   }
 }
