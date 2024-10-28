@@ -126,6 +126,8 @@ message ShowWsResponse {
   optional Actions actions = 5;
   required string caycStatus = 6;
   required bool isDefault = 7;
+  optional bool hasStandardConditions = 8;
+  optional bool hasMQRConditions = 9;
 
   message Condition {
     required string id = 1;

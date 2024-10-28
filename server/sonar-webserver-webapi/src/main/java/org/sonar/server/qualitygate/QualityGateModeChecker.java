@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.db.metric.MetricDto;
@@ -27,7 +27,7 @@ import org.sonar.server.metric.StandardToMQRMetrics;
 
 public class QualityGateModeChecker {
 
-  public QualityModeResult getUsageOfModeMetrics(List<MetricDto> metrics) {
+  public QualityModeResult getUsageOfModeMetrics(Collection<MetricDto> metrics) {
     Set<String> metricKeys = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
 
     boolean hasStandardConditions = metricKeys.stream().anyMatch(StandardToMQRMetrics::isStandardMetric);

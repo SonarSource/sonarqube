@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Collection;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +36,7 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualitygate.QualityGateModeChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ShowWsResponse;
@@ -64,14 +67,16 @@ public class ShowActionIT {
   @Rule
   public DbTester db = DbTester.create();
   private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
-
+  private final QualityGateModeChecker qualityGateModeChecker = mock(QualityGateModeChecker.class);
   private final WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
-      new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db)), qualityGateCaycChecker));
+      new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db)), qualityGateCaycChecker, qualityGateModeChecker));
 
   @Before
   public void setUp() {
     when(qualityGateCaycChecker.checkCaycCompliant(any(), any(String.class))).thenReturn(COMPLIANT);
+    when(qualityGateModeChecker.getUsageOfModeMetrics(any()))
+      .thenReturn(new QualityGateModeChecker.QualityModeResult(false, false));
   }
 
   @Test
@@ -120,6 +125,21 @@ public class ShowActionIT {
       .executeProtobuf(ShowWsResponse.class);
 
     assertEquals(COMPLIANT.toString(), response.getCaycStatus());
+  }
+
+  @Test
+  public void execute_shouldShowModeFlags() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    when(qualityGateModeChecker.getUsageOfModeMetrics(any(Collection.class)))
+      .thenReturn(new QualityGateModeChecker.QualityModeResult(true, true));
+    db.qualityGates().setDefaultQualityGate(qualityGate);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    Assertions.assertThat(response.getHasStandardConditions()).isTrue();
+    Assertions.assertThat(response.getHasMQRConditions()).isTrue();
   }
 
   @Test

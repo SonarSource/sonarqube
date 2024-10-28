@@ -37,6 +37,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateCaycStatus;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualitygate.QualityGateModeChecker;
 import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -50,12 +51,15 @@ public class ShowAction implements QualityGatesWsAction {
   private final QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
   private final QualityGateCaycChecker qualityGateCaycChecker;
+  private final QualityGateModeChecker qualityGateModeChecker;
 
-  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport, QualityGateCaycChecker qualityGateCaycChecker) {
+  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport, QualityGateCaycChecker qualityGateCaycChecker,
+    QualityGateModeChecker qualityGateModeChecker) {
     this.dbClient = dbClient;
     this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
     this.qualityGateCaycChecker = qualityGateCaycChecker;
+    this.qualityGateModeChecker = qualityGateModeChecker;
   }
 
   @Override
@@ -66,6 +70,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
+        new Change("10.8", "'hasMQRConditions' and 'hasStandardConditions' fields are added on quality gate"),
         new Change("10.3", "'isDefault' field is added to the response"),
         new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
@@ -93,7 +98,8 @@ public class ShowAction implements QualityGatesWsAction {
       Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, conditions);
       QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession);
       QualityGateCaycStatus caycStatus = qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid());
-      writeProtobuf(buildResponse(dbSession, qualityGate, defaultQualityGate, conditions, metricsByUuid, caycStatus), request, response);
+      QualityGateModeChecker.QualityModeResult qualityModeResult = qualityGateModeChecker.getUsageOfModeMetrics(metricsByUuid.values());
+      writeProtobuf(buildResponse(dbSession, qualityGate, defaultQualityGate, conditions, metricsByUuid, caycStatus, qualityModeResult), request, response);
     }
   }
 
@@ -107,12 +113,15 @@ public class ShowAction implements QualityGatesWsAction {
   }
 
   private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
-    Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus) {
+    Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus,
+    QualityGateModeChecker.QualityModeResult qualityModeResult) {
     return ShowWsResponse.newBuilder()
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
       .setIsDefault(qualityGate.getUuid().equals(defaultQualityGate.getUuid()))
       .setCaycStatus(caycStatus.toString())
+      .setHasMQRConditions(qualityModeResult.hasMQRConditions())
+      .setHasStandardConditions(qualityModeResult.hasStandardConditions())
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
         .toList())
