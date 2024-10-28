@@ -57,6 +57,7 @@ export default function List({ qualityGates, currentQualityGate }: Readonly<Prop
           const isBuiltInTitle = isBuiltIn ? ` ${translate('quality_gates.built_in')}` : '';
           const isAICodeAssuranceQualityGate =
             hasFeature(Feature.AiCodeAssurance) && isBuiltIn && name === 'Sonar way';
+
           const shouldShowQualityGateUpdateIcon =
             actions?.manageConditions === true &&
             ((isStandard && hasMQRConditions === true) ||

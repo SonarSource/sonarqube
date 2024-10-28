@@ -50,13 +50,11 @@ import ConditionValue from './ConditionValue';
 type Props = React.PropsWithChildren & { qualityGateName: string } & (
     | {
         condition?: never;
-        isSingleMetric?: false;
         newCodeConditions: Condition[];
         overallCodeConditions: Condition[];
       }
     | {
         condition: Condition;
-        isSingleMetric: true;
         newCodeConditions?: never;
         overallCodeConditions?: never;
       }
@@ -66,7 +64,6 @@ export default function UpdateConditionsFromOtherModeModal({
   newCodeConditions,
   overallCodeConditions,
   qualityGateName,
-  isSingleMetric,
   condition,
   children,
 }: Readonly<Props>) {
@@ -75,6 +72,7 @@ export default function UpdateConditionsFromOtherModeModal({
   const [error, setError] = React.useState(false);
   const intl = useIntl();
   const mapper = isStandard ? MQR_CONDITIONS_MAP : STANDARD_CONDITIONS_MAP;
+  const isSingleMetric = !!condition;
   const { mutate: updateConditions, isPending } = useUpdateOrDeleteConditionsMutation(
     qualityGateName,
     isSingleMetric,
@@ -174,6 +172,7 @@ export default function UpdateConditionsFromOtherModeModal({
                     {intl.formatMessage({ id: 'overview.new_code' })}
                   </Heading>
                   <Table
+                    data-testid="quality-gates__conditions-new"
                     columnCount={3}
                     columnWidths={['35%', '35%', 'auto']}
                     className="sw-my-2"
@@ -191,6 +190,7 @@ export default function UpdateConditionsFromOtherModeModal({
                     {intl.formatMessage({ id: 'overview.overall_code' })}
                   </Heading>
                   <Table
+                    data-testid="quality-gates__conditions-overall"
                     columnCount={3}
                     columnWidths={['35%', '35%', 'auto']}
                     className="sw-my-2"
@@ -225,7 +225,7 @@ function SingleMetric({ condition }: Readonly<{ condition: Condition }>) {
       <div>
         <Text as="div" size={TextSize.Small}>
           {intl.formatMessage({
-            id: `quality_gates.update_conditions.${isStandard ? 'mqr' : 'standard'}_mode_header`,
+            id: `quality_gates.metric.${isStandard ? 'mqr' : 'standard'}_mode_long`,
           })}
         </Text>
         <Text as="div" size={TextSize.Small} isHighlighted>
@@ -238,7 +238,7 @@ function SingleMetric({ condition }: Readonly<{ condition: Condition }>) {
           <>
             <Text as="div" size={TextSize.Small}>
               {intl.formatMessage({
-                id: `quality_gates.update_conditions.${isStandard ? 'standard' : 'mqr'}_mode_header`,
+                id: `quality_gates.metric.${isStandard ? 'standard' : 'mqr'}_mode_long`,
               })}
             </Text>
             <Text as="div" size={TextSize.Small} isHighlighted>
@@ -246,7 +246,7 @@ function SingleMetric({ condition }: Readonly<{ condition: Condition }>) {
             </Text>
           </>
         ) : (
-          <Text size={TextSize.Small}>
+          <Text size={TextSize.Small} colorOverride="echoes-color-text-danger">
             {intl.formatMessage({ id: 'quality_gates.update_conditions.removed' })}
           </Text>
         )}
@@ -264,7 +264,7 @@ function Header() {
       <ContentCell className="sw-justify-between sw-pr-4">
         <Heading as="h4" className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
           {intl.formatMessage({
-            id: `quality_gates.update_conditions.${isStandard ? 'mqr' : 'standard'}_mode_header`,
+            id: `quality_gates.metric.${isStandard ? 'mqr' : 'standard'}_mode_long`,
           })}
         </Heading>
         <IconArrowRight />
@@ -272,7 +272,7 @@ function Header() {
       <ContentCell>
         <Heading as="h4" className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
           {intl.formatMessage({
-            id: `quality_gates.update_conditions.${isStandard ? 'standard' : 'mqr'}_mode_header`,
+            id: `quality_gates.metric.${isStandard ? 'standard' : 'mqr'}_mode_long`,
           })}
         </Heading>
       </ContentCell>

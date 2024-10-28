@@ -41,7 +41,7 @@ it('renders project links app and can do CRUD operations', async () => {
   renderProjectLinksApp();
   await ui.appIsLoaded();
 
-  expect(ui.noResultsTable.get()).toBeInTheDocument();
+  expect(await ui.noResultsTable.find()).toBeInTheDocument();
 
   // Create link
   await ui.createLink(newLinkName1, 'https://link.com');

@@ -21,6 +21,7 @@
 import { cloneDeep, flatten, omit, remove } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Project } from '../../apps/quality-gates/components/Projects';
+import { MQR_CONDITIONS_MAP, STANDARD_CONDITIONS_MAP } from '../../apps/quality-gates/utils';
 import {
   mockQualityGate,
   mockQualityGateApplicationStatus,
@@ -119,6 +120,8 @@ export class QualityGatesServiceMock {
             error: '3',
           },
         ],
+        hasStandardConditions: true,
+        hasMQRConditions: false,
         isDefault: true,
         isBuiltIn: false,
         caycStatus: CaycStatus.Compliant,
@@ -140,19 +143,31 @@ export class QualityGatesServiceMock {
             error: '0',
             isCaycCondition: true,
           },
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eNy', metric: 'new_security_rating', op: 'GT', error: '0' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOl',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOd',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'GT',
+            error: '0',
+          },
           { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' },
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
         caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
         name: 'Sonar way',
         conditions: [
           {
-            id: 'AXJMbIUHPAOIsUIE3eNs',
+            id: 'AXJMbIUHPAOIsUIE3eQQ',
             metric: 'new_violations',
             op: 'GT',
             error: '0',
@@ -182,16 +197,26 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: true,
-        caycStatus: CaycStatus.Compliant,
-        hasStandardConditions: true,
+        hasStandardConditions: false,
         hasMQRConditions: false,
+        caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
         name: 'Non Cayc QG',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eCC',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'LT',
+            error: '80',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOD',
+            metric: MetricKey.new_software_quality_reliability_rating,
+            op: 'LT',
+            error: '80',
+          },
+          { id: 'AXJMbIUHPAOIsUIE3eOA', metric: MetricKey.new_coverage, op: 'LT', error: '80' },
         ],
         isDefault: false,
         isBuiltIn: false,
@@ -202,12 +227,24 @@ export class QualityGatesServiceMock {
       mockQualityGate({
         name: 'Non Cayc Compliant QG',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eDD',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eDA',
+            metric: MetricKey.new_software_quality_reliability_rating,
+            op: 'GT',
+            error: '1',
+          },
+          { id: 'AXJMbIUHPAOIsUIE3eDK', metric: MetricKey.new_coverage, op: 'LT', error: '80' },
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
@@ -239,6 +276,8 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: true,
+        hasMQRConditions: false,
         caycStatus: CaycStatus.OverCompliant,
       }),
       mockQualityGate({
@@ -246,15 +285,53 @@ export class QualityGatesServiceMock {
         conditions: [],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: false,
         caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
         name: 'QG without new code conditions',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eAA', metric: 'security_rating', op: 'GT', error: '1' },
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: true,
+        hasMQRConditions: false,
+        caycStatus: CaycStatus.NonCompliant,
+      }),
+      mockQualityGate({
+        name: 'QG with MQR conditions',
+        conditions: [
+          {
+            id: 'AXJMbIUHPAOIsUIE3eWW',
+            metric: MetricKey.software_quality_security_rating,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eW1',
+            metric: MetricKey.new_software_quality_blocker_issues,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eW2',
+            metric: MetricKey.new_software_quality_high_issues,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eW3',
+            metric: MetricKey.high_impact_accepted_issues,
+            op: 'GT',
+            error: '1',
+          },
+        ],
+        isDefault: false,
+        isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
         caycStatus: CaycStatus.NonCompliant,
       }),
     ];
@@ -469,6 +546,10 @@ export class QualityGatesServiceMock {
 
     conditions.push(newCondition);
     qg.conditions = conditions;
+    qg.hasMQRConditions =
+      qg.hasMQRConditions || MQR_CONDITIONS_MAP[metric as MetricKey] !== undefined;
+    qg.hasStandardConditions =
+      qg.hasStandardConditions || STANDARD_CONDITIONS_MAP[metric as MetricKey] !== undefined;
     return this.reply(newCondition);
   };
 
@@ -483,6 +564,17 @@ export class QualityGatesServiceMock {
     condition.error = error;
     condition.isCaycCondition = isCaycCondition;
 
+    const qg = this.list.find((qg) => qg.conditions?.find((c) => c.id === id));
+
+    if (qg) {
+      qg.hasMQRConditions =
+        qg.conditions?.some((c) => MQR_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+      qg.hasStandardConditions =
+        qg.conditions?.some((c) => STANDARD_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+    }
+
     return this.reply(condition);
   };
 
@@ -490,6 +582,18 @@ export class QualityGatesServiceMock {
     this.list.forEach((q) => {
       remove(q.conditions || [], (c) => c.id === id);
     });
+
+    const qg = this.list.find((qg) => qg.conditions?.find((c) => c.id === id));
+
+    if (qg) {
+      qg.hasMQRConditions =
+        qg.conditions?.some((c) => MQR_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+      qg.hasStandardConditions =
+        qg.conditions?.some((c) => STANDARD_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+    }
+
     return Promise.resolve();
   };
 

@@ -68,7 +68,7 @@ export default function ConditionsTable({
   return (
     <Table
       columnCount={4}
-      columnWidths={['300px', 'auto', 'auto', 'auto']}
+      columnWidths={['auto', '150px', '150px', '200px']}
       className="sw-my-2"
       header={<Header />}
       data-test={`quality-gates__conditions-${scope}`}

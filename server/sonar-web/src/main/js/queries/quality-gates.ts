@@ -239,7 +239,7 @@ export function useUpdateConditionMutation(gateName: string) {
   });
 }
 
-export function useUpdateOrDeleteConditionsMutation(gateName: string, isSingleMetric?: boolean) {
+export function useUpdateOrDeleteConditionsMutation(gateName: string, isSingleMetric = false) {
   const queryClient = useQueryClient();
   const intl = useIntl();
 

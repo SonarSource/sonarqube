@@ -29,7 +29,9 @@ module.exports = {
           <>
             {id}
             {Object.entries(values).map(([key, value]) => (
-              <React.Fragment key={key}>{value}</React.Fragment>
+              <React.Fragment key={key}>
+                {typeof value === 'function' ? value() : value}
+              </React.Fragment>
             ))}
           </>
         );
@@ -38,13 +40,21 @@ module.exports = {
     },
     formatDate: jest.fn().mockReturnValue(''),
   }),
-  FormattedMessage: ({ id, values }: { id: string; values?: { [x: string]: React.ReactNode } }) => {
+  FormattedMessage: ({
+    id,
+    values,
+  }: {
+    id: string;
+    values?: { [x: string]: React.ReactNode | (() => React.ReactNode) };
+  }) => {
     return (
       <>
         {id}
         {values !== undefined &&
           Object.entries(values).map(([key, value]) => (
-            <React.Fragment key={key}>{value}</React.Fragment>
+            <React.Fragment key={key}>
+              {typeof value === 'function' ? value() : value}
+            </React.Fragment>
           ))}
       </>
     );
