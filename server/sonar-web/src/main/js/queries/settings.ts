@@ -143,7 +143,10 @@ export function useSaveValueMutation() {
   });
 }
 
-export function useSaveSimpleValueMutation(updateCache = false) {
+export function useSaveSimpleValueMutation(
+  updateCache = false,
+  successMessage = SETTINGS_SAVE_SUCCESS_MESSAGE,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ key, value }: { key: string; value: string }) => {
@@ -163,7 +166,7 @@ export function useSaveSimpleValueMutation(updateCache = false) {
         queryClient.invalidateQueries({ queryKey: ['settings', 'details', key] });
       }
       queryClient.invalidateQueries({ queryKey: ['settings', 'values', [key]] });
-      addGlobalSuccessMessage(SETTINGS_SAVE_SUCCESS_MESSAGE);
+      addGlobalSuccessMessage(successMessage);
     },
   });
 }

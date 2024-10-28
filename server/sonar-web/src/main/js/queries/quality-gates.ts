@@ -40,7 +40,7 @@ import {
 import { getCorrectCaycCondition } from '../apps/quality-gates/utils';
 import { translate } from '../helpers/l10n';
 import { Condition, QualityGate } from '../types/types';
-import { createQueryHook } from './common';
+import { createQueryHook, StaleTime } from './common';
 
 const QUERY_STALE_TIME = 5 * 60 * 1000;
 
@@ -84,15 +84,15 @@ export function useComponentQualityGateQuery(project: string) {
   return useQualityGateQueryInner(name);
 }
 
-export function useQualityGatesQuery() {
-  return useQuery({
+export const useQualityGatesQuery = createQueryHook(() => {
+  return queryOptions({
     queryKey: qualityQuery.list(),
     queryFn: () => {
       return fetchQualityGates();
     },
-    staleTime: QUERY_STALE_TIME,
+    staleTime: StaleTime.LONG,
   });
-}
+});
 
 export function useCreateQualityGateMutation() {
   const queryClient = useQueryClient();
