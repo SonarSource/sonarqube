@@ -64,7 +64,7 @@ public class PersistCveStep implements ComputationStep {
   public void execute(Context context) {
     int count = 0;
     try (DbSession dbSession = dbClient.openSession(false);
-         CloseableIterator<ScannerReport.Cve> batchCves = batchReportReader.readCves()) {
+      CloseableIterator<ScannerReport.Cve> batchCves = batchReportReader.readCves()) {
       while (batchCves.hasNext()) {
         updateOrInsertCve(dbSession, batchCves.next());
         count++;
@@ -91,18 +91,7 @@ public class PersistCveStep implements ComputationStep {
   }
 
   private CveDto toDtoForUpdate(ScannerReport.Cve cve, CveDto cveInDb) {
-    return new CveDto(
-      cveInDb.uuid(),
-      cve.getCveId(),
-      cve.getDescription(),
-      cve.getCvssScore(),
-      cve.getEpssScore(),
-      cve.getEpssPercentile(),
-      cve.getPublishedDate(),
-      cve.getLastModifiedDate(),
-      cveInDb.createdAt(),
-      system2.now()
-    );
+    return toDto(cve, cveInDb.uuid(), cveInDb.createdAt(), system2.now());
   }
 
   private void deleteThenInsertCwesIfUpdated(DbSession dbSession, ScannerReport.Cve scannerCve, String cveUuid) {
@@ -122,18 +111,21 @@ public class PersistCveStep implements ComputationStep {
 
   private CveDto toDtoForInsert(ScannerReport.Cve cve) {
     long now = system2.now();
+    return toDto(cve, uuidFactory.create(), now, now);
+  }
+
+  private static CveDto toDto(ScannerReport.Cve cve, String uuid, Long createdAt, Long updatedAt) {
     return new CveDto(
-      uuidFactory.create(),
+      uuid,
       cve.getCveId(),
       cve.getDescription(),
-      cve.getCvssScore(),
-      cve.getEpssScore(),
-      cve.getEpssPercentile(),
-      cve.getPublishedDate(),
-      cve.getLastModifiedDate(),
-      now,
-      now
-    );
+      cve.hasCvssScore() ? cve.getCvssScore() : null,
+      cve.hasEpssScore() ? cve.getEpssScore() : null,
+      cve.hasEpssPercentile() ? cve.getEpssPercentile() : null,
+      cve.hasPublishedDate() ? cve.getPublishedDate() : null,
+      cve.hasLastModifiedDate() ? cve.getLastModifiedDate() : null,
+      createdAt,
+      updatedAt);
   }
 
 }

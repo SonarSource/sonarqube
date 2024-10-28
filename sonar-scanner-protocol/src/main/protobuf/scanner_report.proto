@@ -238,11 +238,11 @@ message AdHocRule {
 message Cve {
   string cve_id = 1;
   string description = 2;
-  optional float cvss_score = 3;
-  optional float epss_score = 4;
-  optional float epss_percentile = 5;
-  int64 published_date = 6;
-  int64 last_modified_date = 7;
+  optional double cvss_score = 3;
+  optional double epss_score = 4;
+  optional double epss_percentile = 5;
+  optional int64 published_date = 6;
+  optional int64 last_modified_date = 7;
   repeated string cwe = 8;
 }
 

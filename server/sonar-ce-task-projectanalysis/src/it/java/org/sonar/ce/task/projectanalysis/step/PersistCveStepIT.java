@@ -67,12 +67,14 @@ class PersistCveStepIT {
   void execute_shouldInsertNewCVEs() {
     Cve cve1 = buildCve("1").build();
     Cve cve2 = buildCve("2").build();
-    batchReportReader.putCves(List.of(cve1, cve2));
+    Cve cveAllOptionalEmpty = Cve.newBuilder().setCveId("CVE-empty").setDescription("Empty CVE").build();
+    batchReportReader.putCves(List.of(cve1, cve2, cveAllOptionalEmpty));
 
     persistCveStep.execute(new TestComputationStepContext());
 
     assertCvePersistedInDatabase(cve1);
     assertCvePersistedInDatabase(cve2);
+    assertCvePersistedInDatabase(cveAllOptionalEmpty);
   }
 
   private void assertCvePersistedInDatabase(Cve cve) {
@@ -80,11 +82,31 @@ class PersistCveStepIT {
       .orElseGet(() -> fail(String.format("CVE with id %s not found", cve.getCveId())));
     assertThat(cveDto.id()).isEqualTo(cve.getCveId());
     assertThat(cveDto.description()).isEqualTo(cve.getDescription());
-    assertThat(cveDto.cvssScore()).isEqualTo(cve.getCvssScore());
-    assertThat(cveDto.epssScore()).isEqualTo(cve.getEpssScore());
-    assertThat(cveDto.epssPercentile()).isEqualTo(cve.getEpssPercentile());
-    assertThat(cveDto.publishedAt()).isEqualTo(cve.getPublishedDate());
-    assertThat(cveDto.lastModifiedAt()).isEqualTo(cve.getLastModifiedDate());
+    if (cve.hasCvssScore()) {
+      assertThat(cveDto.cvssScore()).isEqualTo(cve.getCvssScore());
+    } else {
+      assertThat(cveDto.cvssScore()).isNull();
+    }
+    if (cve.hasEpssScore()) {
+      assertThat(cveDto.epssScore()).isEqualTo(cve.getEpssScore());
+    } else {
+      assertThat(cveDto.epssScore()).isNull();
+    }
+    if (cve.hasEpssPercentile()) {
+      assertThat(cveDto.epssPercentile()).isEqualTo(cve.getEpssPercentile());
+    } else {
+      assertThat(cveDto.epssPercentile()).isNull();
+    }
+    if (cve.hasPublishedDate()) {
+      assertThat(cveDto.publishedAt()).isEqualTo(cve.getPublishedDate());
+    } else {
+      assertThat(cveDto.publishedAt()).isNull();
+    }
+    if (cve.hasLastModifiedDate()) {
+      assertThat(cveDto.lastModifiedAt()).isEqualTo(cve.getLastModifiedDate());
+    } else {
+      assertThat(cveDto.lastModifiedAt()).isNull();
+    }
     assertThat(cveDto.uuid()).isNotBlank();
     assertThat(cveDto.createdAt()).isNotNull();
     assertThat(cveDto.updatedAt()).isNotNull();
@@ -92,8 +114,8 @@ class PersistCveStepIT {
 
   @Test
   void execute_shoudUpdateExistingCves() {
-    dbClient.cveDao().insert(dbSession, new CveDto("cve-uuid-1", "CVE-1", "Old description 1", 0.0F, 0.0F, 0.0F, 0L, 0L, 0L, 0L));
-    dbClient.cveDao().insert(dbSession, new CveDto("cve-uuid-2", "CVE-2", "Old description 2", 0.0F, 0.0F, 0.0F, 0L, 0L, 0L, 0L));
+    dbClient.cveDao().insert(dbSession, new CveDto("cve-uuid-1", "CVE-1", "Old description 1", 10.0, 20.0, 30.0, 0L, 0L, 0L, 0L));
+    dbClient.cveDao().insert(dbSession, new CveDto("cve-uuid-2", "CVE-2", "Old description 2", null, null, null, null, null, 0L, 0L));
     db.commit();
     Cve cve1 = buildCve("1").build();
     Cve cve2 = buildCve("2").build();
@@ -120,7 +142,7 @@ class PersistCveStepIT {
 
   @Test
   void execute_shouldUpdateExistingCwesAndInsertNewOnes_whenUpdatingCVEs() {
-    dbClient.cveDao().insert(dbSession, new CveDto("cve-uuid-1", "CVE-1", "Old description 1", 0.0F, 0.0F, 0.0F, 0L, 0L, 0L, 0L));
+    dbClient.cveDao().insert(dbSession, new CveDto("cve-uuid-1", "CVE-1", "Old description 1", 0.0, 0.0, 0.0, 0L, 0L, 0L, 0L));
     dbClient.cveCweDao().insert(dbSession, new CveCweDto("cve-uuid-1", "CWE-1"));
     dbClient.cveCweDao().insert(dbSession, new CveCweDto("cve-uuid-1", "CWE-2"));
     db.commit();
