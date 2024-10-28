@@ -130,6 +130,39 @@ allprojects {
 
           metadataSources { artifact() }
     }
+    ivy {
+      if (artifactoryUsername && artifactoryPassword) {
+        url "${artifactoryUrl}/sonarsource-private-qa/com/sonarsource"
+
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
+
+        patternLayout {
+          artifact '[organisation]/[module]/[revision]/[module](-[revision]).[ext]'
+        }
+      } else {
+        url "${artifactoryUrl}/sonarsource-public-qa/com/sonarsource"
+
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
+
+        patternLayout {
+          artifact '[organisation]/[module]/[revision]/[module](-[revision]).[ext]'
+        }
+      }
+
+      metadataSources { artifact() }
+    }
   }
 
   task allDependencies {

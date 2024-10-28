@@ -137,24 +137,23 @@
     "whatwg-fetch": "3.6.20"
   },
   "scripts": {
-    "start": "vite",
     "build": "vite build",
-    "build-release": "yarn install --immutable && yarn build",
+    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test-eslint-local-rules && yarn dep-check",
     "chunks-analyze": "BUNDLE_ANALYSIS=true yarn build",
-    "test": "jest --workerIdleMemoryLimit=1G",
+    "dep-check": "node scripts/validate-package-json.js",
+    "format-check": "prettier --check \"src/main/js/**/*.{js,ts,tsx,css}\"",
+    "format": "prettier --write --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
+    "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx --config .eslintrc-ci -f json -o eslint-report/eslint-report.json src/main/js  || yarn lint",
+    "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js",
+    "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
+    "start": "vite",
     "test-ci": "NODE_OPTIONS=\"-r dd-trace/ci/init\" jest --coverage --maxWorkers=5 --workerIdleMemoryLimit=2G --ci",
     "test-eslint-local-rules": "jest eslint-local-rules",
-    "format": "prettier --write --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
-    "format-check": "prettier --check \"src/main/js/**/*.{js,ts,tsx,css}\"",
-    "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
-    "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js",
-    "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx --config .eslintrc-ci -f json -o eslint-report/eslint-report.json src/main/js  || yarn lint",
+    "test": "jest --workerIdleMemoryLimit=1G",
     "ts-check": "tsc --noEmit",
-    "validate": "yarn dep-check && yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn install --immutable && yarn dep-check && yarn test-ci",
-    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test-eslint-local-rules",
     "update-cwes": "node scripts/update-cwes.js",
-    "dep-check": "node scripts/validate-package-json.js"
+    "validate-ci": "yarn install --immutable && yarn test-ci",
+    "validate": "yarn dep-check && yarn lint && yarn ts-check && yarn format-check && yarn test"
   },
   "engines": {
     "node": ">=18.20"

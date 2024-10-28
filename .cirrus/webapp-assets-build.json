@@ -1,0 +1,19 @@
+{
+  "version": "1.0.1",
+  "number" : "BUILD_NUMBER",
+  "name" : "sonarqube-webapp-assets",
+  "started" : TIME_CREATED,
+  "modules": [{
+    "id": "com.sonarsource.sonarqube:webapp-assets:VERSION.BUILD_NUMBER",
+    "repository": "ARTIFACTORY_DEPLOY_REPO",
+    "artifacts": [{
+      "type": "zip",
+      "md5": ZIP_MD5,
+      "sha1": ZIP_SHA1,
+      "name": "webapp-assets-VERSION.BUILD_NUMBER.zip",
+      "path": "com/sonarsource/sonarqube/webapp-assets/VERSION.BUILD_NUMBER/webapp-assets-VERSION.BUILD_NUMBER.zip"
+    }],
+    "excludedArtifacts": [],
+    "dependencies": []
+  }]
+}

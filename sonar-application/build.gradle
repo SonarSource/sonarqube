@@ -84,7 +84,6 @@ dependencies {
     } else {
       zipDist "elasticsearch:elasticsearch:${elasticSearchServerVersion}-linux-x86_64@tar.gz"
     }
-
 }
 
 // declare dependencies in configuration bundledPlugin to be packaged in lib/extensions
@@ -307,16 +306,9 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
   }
   into("${archiveDir}/web/") {
     duplicatesStrategy DuplicatesStrategy.FAIL
-    // FIXME use configurations.web with correct artifacts
-    from(tasks.getByPath(':server:sonar-web:yarn_run').outputs) { a ->
-      if (official) {
-         project(':private:branding').fileTree('src').visit { b ->
-           if (!b.isDirectory()) {
-             a.exclude b.relativePath.toString()
-           }
-         }
-      }
-    }
+    
+    from(rootProject.fileTree("server/sonar-web/build/webapp/"))
+
     if (official) {
       from project(':private:branding').file('src')
     }
