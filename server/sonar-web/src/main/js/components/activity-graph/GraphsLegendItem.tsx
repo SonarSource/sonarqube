@@ -19,15 +19,11 @@
  */
 
 import styled from '@emotion/styled';
+import { ButtonIcon, ButtonSize, IconWarning, IconX } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { Badge, CloseIcon, FlagWarningIcon, InteractiveIcon, themeBorder } from '~design-system';
-import { MetricKey } from '~sonar-aligned/types/metrics';
-import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
+import { themeBorder } from '~design-system';
 import { translateWithParameters } from '../../helpers/l10n';
-import Tooltip from '../controls/Tooltip';
 import { ChartLegend } from './ChartLegend';
-import { getDeprecatedTranslationKeyForTooltip } from './utils';
 
 interface Props {
   className?: string;
@@ -45,11 +41,8 @@ export function GraphsLegendItem({
   name,
   removeMetric,
   showWarning,
-}: Props) {
-  const intl = useIntl();
-
+}: Readonly<Props>) {
   const isActionable = removeMetric !== undefined;
-  const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(metric as MetricKey);
 
   return (
     <StyledLegendItem
@@ -57,33 +50,19 @@ export function GraphsLegendItem({
       isActionable={isActionable}
     >
       {showWarning ? (
-        <FlagWarningIcon className="sw-mr-2" />
+        <IconWarning className="sw-mr-2" />
       ) : (
         <ChartLegend className="sw-mr-2" index={index} />
       )}
       <span className="sw-typo-default" style={{ color: 'var(--echoes-color-text-subdued)' }}>
         {name}
       </span>
-      {isDeprecated && (
-        <Tooltip
-          content={
-            <FormattedMessage
-              id={getDeprecatedTranslationKeyForTooltip(metric as MetricKey)}
-              tagName="div"
-            />
-          }
-        >
-          <div>
-            <Badge className="sw-ml-1">{intl.formatMessage({ id: 'deprecated' })}</Badge>
-          </div>
-        </Tooltip>
-      )}
       {isActionable && (
-        <InteractiveIcon
-          Icon={CloseIcon}
-          aria-label={translateWithParameters('project_activity.graphs.custom.remove_metric', name)}
-          className="sw-ml-2"
-          size="small"
+        <ButtonIcon
+          size={ButtonSize.Medium}
+          Icon={IconX}
+          ariaLabel={translateWithParameters('project_activity.graphs.custom.remove_metric', name)}
+          className="sw-ml-2 sw-border-0"
           onClick={() => removeMetric(metric)}
         />
       )}

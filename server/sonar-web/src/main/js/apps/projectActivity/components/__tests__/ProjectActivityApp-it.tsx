@@ -521,7 +521,11 @@ describe('graph interactions', () => {
     expect(ui.issuesPopupCell.get()).toBeInTheDocument();
   });
 
-  it('should correctly handle customizing the graph', async () => {
+  it.each([
+    ['MQR', 'true', MetricKey.maintainability_issues],
+    ['Standard', 'false', MetricKey.code_smells],
+  ])('should correctly handle customizing the graph in %s mode', async (_, mode, metric) => {
+    settingsHandler.set(SettingsKey.MQRMode, mode);
     const { ui } = getPageObject();
     renderProjectActivityAppContainer();
     await ui.appLoaded();
@@ -532,7 +536,7 @@ describe('graph interactions', () => {
 
     // Add metrics.
     await ui.openMetricsDropdown();
-    await ui.toggleMetric(MetricKey.bugs);
+    await ui.toggleMetric(metric);
     await ui.toggleMetric(MetricKey.security_hotspots_reviewed);
     await ui.closeMetricsDropdown();
 
@@ -540,7 +544,7 @@ describe('graph interactions', () => {
 
     // Remove metrics.
     await ui.openMetricsDropdown();
-    await ui.toggleMetric(MetricKey.bugs);
+    await ui.toggleMetric(metric);
     await ui.toggleMetric(MetricKey.security_hotspots_reviewed);
     await ui.closeMetricsDropdown();
 

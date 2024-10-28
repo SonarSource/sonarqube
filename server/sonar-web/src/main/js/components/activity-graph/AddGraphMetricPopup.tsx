@@ -18,13 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { Badge, FlagMessage, MultiSelectMenu } from '~design-system';
+import { ReactNode, useCallback } from 'react';
+import { FlagMessage, MultiSelectMenu } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../helpers/l10n';
-import { getDeprecatedTranslationKeyForTooltip } from './utils';
 
 export interface AddGraphMetricPopupProps {
   elements: string[];
@@ -42,8 +39,7 @@ export default function AddGraphMetricPopup({
   metricsTypeFilter,
   ...props
 }: Readonly<AddGraphMetricPopupProps>) {
-  const intl = useIntl();
-  let footerNode: React.ReactNode = '';
+  let footerNode: ReactNode = '';
 
   if (props.selectedElements.length >= 6) {
     footerNode = (
@@ -65,37 +61,9 @@ export default function AddGraphMetricPopup({
     );
   }
 
-  const renderAriaLabel = (key: MetricKey) => {
-    const metricName = getLocalizedMetricName({ key });
-    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
-
-    return isDeprecated
-      ? `${metricName} (${intl.formatMessage({ id: 'deprecated' })})`
-      : metricName;
-  };
-
-  const renderLabel = (key: MetricKey) => {
-    const metricName = getLocalizedMetricName({ key });
-    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
-
-    return (
-      <>
-        {metricName}
-        {isDeprecated && (
-          <Badge className="sw-ml-1">{intl.formatMessage({ id: 'deprecated' })}</Badge>
-        )}
-      </>
-    );
-  };
-
-  const renderTooltip = (key: MetricKey) => {
-    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
-    if (isDeprecated) {
-      return <FormattedMessage id={getDeprecatedTranslationKeyForTooltip(key)} tagName="div" />;
-    }
-
-    return null;
-  };
+  const renderLabel = useCallback((key: MetricKey) => {
+    return getLocalizedMetricName({ key });
+  }, []);
 
   return (
     <MultiSelectMenu
@@ -111,9 +79,8 @@ export default function AddGraphMetricPopup({
       onSelect={(item: string) => elements.includes(item) && props.onSelect(item)}
       onUnselect={props.onUnselect}
       placeholder={translate('search.search_for_metrics')}
-      renderAriaLabel={renderAriaLabel}
+      renderAriaLabel={renderLabel}
       renderLabel={renderLabel}
-      renderTooltip={renderTooltip}
       selectedElements={props.selectedElements}
       listSize={0}
     />

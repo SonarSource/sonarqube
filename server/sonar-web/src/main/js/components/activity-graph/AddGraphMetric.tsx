@@ -25,7 +25,13 @@ import { Dropdown } from '~design-system';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,
+  DEPRECATED_ACTIVITY_METRICS,
   HIDDEN_METRICS,
+  LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+  LEAK_OLD_TAXONOMY_METRICS,
+  LEAK_OLD_TAXONOMY_RATINGS,
+  OLD_TAXONOMY_METRICS,
+  SOFTWARE_QUALITY_RATING_METRICS,
   SOFTWARE_QUALITY_RATING_METRICS_MAP,
 } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
@@ -34,6 +40,7 @@ import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
 interface Props {
+  isStandardMode?: boolean;
   metrics: Metric[];
   metricsTypeFilter?: string[];
   onAddMetric: (metric: string) => void;
@@ -60,10 +67,8 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
     );
   };
 
-  filterMetricsElements = (
-    { metricsTypeFilter, metrics, selectedMetrics }: Props,
-    query: string,
-  ) => {
+  filterMetricsElements = (query: string) => {
+    const { metrics, selectedMetrics, metricsTypeFilter, isStandardMode } = this.props;
     return metrics
       .filter((metric) => {
         if (metric.hidden) {
@@ -79,6 +84,27 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
           return false;
         }
         if (HIDDEN_METRICS.includes(metric.key as MetricKey)) {
+          return false;
+        }
+        if (
+          isStandardMode &&
+          [
+            ...LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+            ...CCT_SOFTWARE_QUALITY_METRICS,
+            ...SOFTWARE_QUALITY_RATING_METRICS,
+          ].includes(metric.key as MetricKey)
+        ) {
+          return false;
+        }
+        if (
+          !isStandardMode &&
+          [
+            ...LEAK_OLD_TAXONOMY_METRICS,
+            ...OLD_TAXONOMY_METRICS,
+            ...LEAK_OLD_TAXONOMY_RATINGS,
+            ...DEPRECATED_ACTIVITY_METRICS,
+          ].includes(metric.key as MetricKey)
+        ) {
           return false;
         }
         if (Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric.key as MetricKey)) {
@@ -123,7 +149,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
     this.setState((state) => {
       return {
         selectedMetrics: sortBy([...state.selectedMetrics, metric]),
-        metrics: this.filterMetricsElements(this.props, state.query),
+        metrics: this.filterMetricsElements(state.query),
       };
     });
   };
@@ -140,7 +166,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
 
   render() {
     const { query } = this.state;
-    const filteredMetrics = this.filterMetricsElements(this.props, query);
+    const filteredMetrics = this.filterMetricsElements(query);
     const selectedMetrics = this.getSelectedMetricsElements(
       this.props.metrics,
       this.props.selectedMetrics,

@@ -200,7 +200,6 @@ export const HIDDEN_METRICS = [
 ];
 
 export const DEPRECATED_ACTIVITY_METRICS = [
-  ...OLD_TAXONOMY_METRICS,
   MetricKey.blocker_violations,
   MetricKey.critical_violations,
   MetricKey.major_violations,
@@ -268,6 +267,11 @@ export const SOFTWARE_QUALITY_RATING_METRICS = [
   MetricKey.new_software_quality_reliability_remediation_effort,
   MetricKey.new_software_quality_security_remediation_effort,
   MetricKey.new_software_quality_maintainability_debt_ratio,
+  MetricKey.software_quality_blocker_issues,
+  MetricKey.software_quality_high_issues,
+  MetricKey.software_quality_medium_issues,
+  MetricKey.software_quality_low_issues,
+  MetricKey.software_quality_info_issues,
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;

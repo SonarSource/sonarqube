@@ -21,6 +21,7 @@
 import { ButtonGroup, InputSize, Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import { useStandardExperienceMode } from '../../queries/settings';
 import { GraphType } from '../../types/project-activity';
 import { Metric } from '../../types/types';
 import AddGraphMetric from './AddGraphMetric';
@@ -46,6 +47,8 @@ export default function GraphsHeader(props: Readonly<Props>) {
     onUpdateGraph,
     selectedMetrics = [],
   } = props;
+
+  const { data: isStandardMode } = useStandardExperienceMode();
 
   const handleGraphChange = React.useCallback(
     (value: GraphType) => {
@@ -87,6 +90,7 @@ export default function GraphsHeader(props: Readonly<Props>) {
               metricsTypeFilter={metricsTypeFilter}
               onRemoveMetric={props.onRemoveCustomMetric}
               selectedMetrics={selectedMetrics}
+              isStandardMode={isStandardMode}
             />
           )}
       </ButtonGroup>

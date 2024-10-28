@@ -103,7 +103,7 @@ export default function List({ qualityGates, currentQualityGate }: Readonly<Prop
 
                   {isAICodeAssuranceQualityGate && (
                     <Tooltip
-                      content={translate('quality_gates.ai_generated.tootltip.message')}
+                      content={translate('quality_gates.ai_generated.tooltip.message')}
                       isOpen={shouldShowQualityGateUpdateIcon ? false : undefined}
                     >
                       <span className="sw-mr-1">
