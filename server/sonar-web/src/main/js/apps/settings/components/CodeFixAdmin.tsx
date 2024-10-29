@@ -23,33 +23,25 @@ import {
   Button,
   ButtonVariety,
   Checkbox,
+  Heading,
   IconCheckCircle,
   IconError,
   LinkStandalone,
   Spinner,
-  Text,
+  Text
 } from '@sonarsource/echoes-react';
 import { MutationStatus } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  BasicSeparator,
-  HighlightedSection,
-  themeColor,
-  Title,
-  UnorderedList,
-} from '~design-system';
+import { BasicSeparator, HighlightedSection, themeColor, UnorderedList } from '~design-system';
 import { SuggestionServiceStatusCheckResponse } from '../../../api/fix-suggestions';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps,
+  WithAvailableFeaturesProps
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getAiCodeFixTermsOfServiceUrl } from '../../../helpers/urls';
-import {
-  useCheckServiceMutation,
-  useRemoveCodeSuggestionsCache,
-} from '../../../queries/fix-suggestions';
+import { useCheckServiceMutation, useRemoveCodeSuggestionsCache } from '../../../queries/fix-suggestions';
 import { useGetValueQuery, useSaveSimpleValueMutation } from '../../../queries/settings';
 import { Feature } from '../../../types/features';
 import { SettingsKey } from '../../../types/settings';
@@ -107,7 +99,9 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
   return (
     <div className="sw-flex">
       <div className="sw-flex-grow sw-p-6">
-        <Title className="sw-heading-md sw-mb-6">{translate('property.codefix.admin.title')}</Title>
+        <Heading as="h2" hasMarginBottom>
+          {translate('property.codefix.admin.title')}
+        </Heading>
         <PromotedSection
           content={
             <>
@@ -168,9 +162,9 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
       </div>
       <div className="sw-flex-col sw-w-abs-600 sw-p-6">
         <HighlightedSection className="sw-items-start">
-          <Title className="sw-heading-sm sw-mb-6">
+          <Heading as="h3" hasMarginBottom>
             {translate('property.codefix.admin.serviceCheck.title')}
-          </Title>
+          </Heading>
           <p>{translate('property.codefix.admin.serviceCheck.description1')}</p>
           <p className="sw-mt-4">{translate('property.codefix.admin.serviceCheck.description2')}</p>
           <Button
