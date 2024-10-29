@@ -32,11 +32,11 @@ import {
   getHistoryMetrics,
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
-import { mergeRatingMeasureHistory } from '../../../helpers/activity-graph';
-import { SOFTWARE_QUALITY_RATING_METRICS } from '../../../helpers/constants';
+import { mergeMeasureHistory } from '../../../helpers/activity-graph';
 import { parseDate } from '../../../helpers/dates';
-import useApplicationLeakQuery from '../../../queries/applications';
+import { useApplicationLeakQuery } from '../../../queries/applications';
 import { useCurrentBranchQuery } from '../../../queries/branch';
+import { StaleTime } from '../../../queries/common';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
 import { useStandardExperienceMode } from '../../../queries/settings';
@@ -59,22 +59,27 @@ export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 
 export function ProjectActivityApp() {
   const { query, pathname } = useLocation();
-  const parsedQuery = parseQuery(query);
+  const { data: isStandardMode, isLoading: isLoadingStandardMode } = useStandardExperienceMode();
+  const parsedQuery = parseQuery(query, isStandardMode);
   const router = useRouter();
   const { component } = useComponent();
   const metrics = useMetrics();
-  const { data: branchLike, isFetching: isFetchingBranch } = useCurrentBranchQuery(component);
+  const { data: branchLike, isFetching: isFetchingBranch } = useCurrentBranchQuery(
+    component,
+    StaleTime.LONG,
+  );
   const enabled =
     component?.key !== undefined &&
     (isPortfolioLike(component?.qualifier) || (Boolean(branchLike) && !isFetchingBranch));
 
-  const { data: appLeaks } = useApplicationLeakQuery(
-    component?.key ?? '',
-    isApplication(component?.qualifier),
-  );
+  const { data: appLeaks } = useApplicationLeakQuery(component?.key ?? '', {
+    enabled: isApplication(component?.qualifier),
+  });
 
-  const { data: analysesData, isLoading: isLoadingAnalyses } = useAllProjectAnalysesQuery(enabled);
-  const { data: isStandardMode, isLoading: isLoadingStandardMode } = useStandardExperienceMode();
+  const { data: analysesData, isLoading: isLoadingAnalyses } = useAllProjectAnalysesQuery({
+    enabled,
+    staleTime: StaleTime.LONG,
+  });
 
   const { data: historyData, isLoading: isLoadingHistory } = useAllMeasuresHistoryQuery(
     {
@@ -82,16 +87,14 @@ export function ProjectActivityApp() {
       branchParams: getBranchLikeQuery(branchLike),
       metrics: getHistoryMetrics(query.graph || DEFAULT_GRAPH, parsedQuery.customMetrics).join(','),
     },
-    { enabled },
+    { enabled, staleTime: StaleTime.LONG },
   );
 
   const analyses = React.useMemo(() => analysesData ?? [], [analysesData]);
 
   const measuresHistory = React.useMemo(
     () =>
-      isLoadingStandardMode
-        ? []
-        : mergeRatingMeasureHistory(historyData, parseDate, isStandardMode),
+      isLoadingStandardMode ? [] : mergeMeasureHistory(historyData, parseDate, isStandardMode),
     [historyData, isStandardMode, isLoadingStandardMode],
   );
 
@@ -122,10 +125,13 @@ export function ProjectActivityApp() {
   }, [component?.qualifier, metrics]);
 
   const handleUpdateQuery = (newQuery: Query) => {
-    const q = serializeUrlQuery({
-      ...parsedQuery,
-      ...newQuery,
-    });
+    const q = serializeUrlQuery(
+      {
+        ...parsedQuery,
+        ...newQuery,
+      },
+      isStandardMode,
+    );
 
     router.push({
       pathname,
@@ -137,20 +143,12 @@ export function ProjectActivityApp() {
     });
   };
 
-  const firstSoftwareQualityRatingMetric = historyData?.measures.find((m) =>
-    SOFTWARE_QUALITY_RATING_METRICS.includes(m.metric),
-  );
-
   return (
     component && (
       <Spinner isLoading={isLoadingStandardMode}>
         <ProjectActivityAppRenderer
           analyses={analyses}
-          isStandardMode={
-            isStandardMode ||
-            !firstSoftwareQualityRatingMetric ||
-            firstSoftwareQualityRatingMetric.history.every((h) => h.value === undefined)
-          }
+          isStandardMode={isStandardMode}
           analysesLoading={isLoadingAnalyses}
           graphLoading={isLoadingHistory}
           leakPeriodDate={leakPeriodDate}

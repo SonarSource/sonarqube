@@ -23,7 +23,6 @@ import { isEqual, uniq } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
-import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../helpers/constants';
 import { parseDate } from '../../helpers/dates';
 import { MEASURES_REDIRECTION } from '../../helpers/measures';
 import {
@@ -37,6 +36,7 @@ import {
 } from '../../helpers/query';
 import { GraphType, ParsedAnalysis } from '../../types/project-activity';
 import { Dict } from '../../types/types';
+import { MQR_CONDITIONS_MAP, STANDARD_CONDITIONS_MAP } from '../quality-gates/utils';
 
 export interface Query {
   category: string;
@@ -113,21 +113,17 @@ export function getAnalysesByVersionByDay(
   }, []);
 }
 
-export function parseQuery(urlQuery: RawQuery): Query {
+export function parseQuery(urlQuery: RawQuery, isStandardMode = false): Query {
   const parsedMetrics = parseAsArray(urlQuery['custom_metrics'], parseAsString<MetricKey>);
   let customMetrics = uniq(parsedMetrics.map((metric) => MEASURES_REDIRECTION[metric] ?? metric));
 
-  const reversedMetricMap = Object.fromEntries(
-    Object.entries(SOFTWARE_QUALITY_RATING_METRICS_MAP).map(
-      ([k, v]) => [v, k] as [MetricKey, MetricKey],
+  customMetrics = uniq(
+    customMetrics.map((metric) =>
+      !isStandardMode ? (STANDARD_CONDITIONS_MAP[metric] ?? metric) : metric,
     ),
-  );
-
-  customMetrics = uniq(customMetrics.map((metric) => reversedMetricMap[metric] ?? metric))
+  )
     .map((metric) =>
-      SOFTWARE_QUALITY_RATING_METRICS_MAP[metric]
-        ? [metric, SOFTWARE_QUALITY_RATING_METRICS_MAP[metric]]
-        : metric,
+      !isStandardMode && MQR_CONDITIONS_MAP[metric] ? [metric, MQR_CONDITIONS_MAP[metric]] : metric,
     )
     .flat();
 
@@ -149,13 +145,12 @@ export function serializeQuery(query: Query): RawQuery {
   });
 }
 
-export function serializeUrlQuery(query: Query): RawQuery {
+export function serializeUrlQuery(query: Query, isStandardMode = false): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
     custom_metrics: serializeStringArray(
       query.customMetrics.filter(
-        (metric) =>
-          !Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric as MetricKey),
+        (metric) => isStandardMode || !STANDARD_CONDITIONS_MAP[metric as MetricKey],
       ),
     ),
     from: serializeDate(query.from),

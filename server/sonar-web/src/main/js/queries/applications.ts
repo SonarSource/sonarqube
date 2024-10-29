@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteApplication, getApplicationLeak } from '../api/application';
+import { createQueryHook } from './common';
 import { invalidateMeasuresByComponentKey } from './measures';
 
-export default function useApplicationLeakQuery(application: string, enabled = true) {
-  return useQuery({
+export const useApplicationLeakQuery = createQueryHook((application: string) => {
+  return queryOptions({
     queryKey: ['application', 'leak', application],
     queryFn: () => getApplicationLeak(application),
-    enabled,
   });
-}
+});
 
 export function useDeleteApplicationMutation() {
   const queryClient = useQueryClient();

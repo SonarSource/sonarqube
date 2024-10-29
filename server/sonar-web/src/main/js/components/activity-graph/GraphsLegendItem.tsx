@@ -50,7 +50,7 @@ export function GraphsLegendItem({
       isActionable={isActionable}
     >
       {showWarning ? (
-        <IconWarning className="sw-mr-2" />
+        <IconWarning color="echoes-color-icon-warning" className="sw-mr-2" />
       ) : (
         <ChartLegend className="sw-mr-2" index={index} />
       )}

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import {
@@ -38,6 +38,7 @@ import { parseDate } from '../helpers/dates';
 import { serializeStringArray } from '../helpers/query';
 import { ParsedAnalysis } from '../types/project-activity';
 import { useCurrentBranchQuery } from './branch';
+import { createQueryHook } from './common';
 
 const ACTIVITY_PAGE_SIZE = 500;
 
@@ -55,9 +56,10 @@ function useProjectActivityQueryKey() {
   ];
 }
 
-export function useAllProjectAnalysesQuery(enabled = true) {
+export const useAllProjectAnalysesQuery = createQueryHook(() => {
   const queryKey = useProjectActivityQueryKey();
-  return useQuery({
+
+  return queryOptions({
     queryKey,
     queryFn: ({ queryKey: [_0, _1, project, branchParams] }) =>
       getAllTimeProjectActivity({
@@ -75,9 +77,8 @@ export function useAllProjectAnalysesQuery(enabled = true) {
           date: parseDate(analysis.date),
         })),
       ),
-    enabled,
   });
-}
+});
 
 export function useDeleteAnalysisMutation(successCb?: () => void) {
   const queryClient = useQueryClient();

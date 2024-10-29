@@ -253,7 +253,17 @@ describe('rendering', () => {
   it('should render graph gap info message', async () => {
     timeMachineHandler.setMeasureHistory([
       mockMeasureHistory({
-        metric: MetricKey.maintainability_issues,
+        metric: MetricKey.code_smells,
+        history: projectActivityHandler.getAnalysesList().map(({ date }) =>
+          mockHistoryItem({
+            // eslint-disable-next-line jest/no-conditional-in-test
+            value: '2',
+            date: parseDate(date),
+          }),
+        ),
+      }),
+      mockMeasureHistory({
+        metric: MetricKey.software_quality_maintainability_issues,
         history: projectActivityHandler.getAnalysesList().map(({ date }, index) =>
           mockHistoryItem({
             // eslint-disable-next-line jest/no-conditional-in-test
@@ -274,7 +284,7 @@ describe('rendering', () => {
 
     await ui.changeGraphType(GraphType.custom);
     await ui.openMetricsDropdown();
-    await ui.toggleMetric(MetricKey.maintainability_issues);
+    await ui.toggleMetric(MetricKey.software_quality_maintainability_issues);
     expect(ui.gapInfoMessage.get()).toBeInTheDocument();
   });
 
@@ -290,7 +300,7 @@ describe('rendering', () => {
 
     await ui.changeGraphType(GraphType.custom);
     await ui.openMetricsDropdown();
-    await ui.toggleMetric(MetricKey.maintainability_issues);
+    await ui.toggleMetric(MetricKey.software_quality_maintainability_issues);
     expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
   });
 });
@@ -522,7 +532,7 @@ describe('graph interactions', () => {
   });
 
   it.each([
-    ['MQR', 'true', MetricKey.maintainability_issues],
+    ['MQR', 'true', MetricKey.software_quality_maintainability_issues],
     ['Standard', 'false', MetricKey.code_smells],
   ])('should correctly handle customizing the graph in %s mode', async (_, mode, metric) => {
     settingsHandler.set(SettingsKey.MQRMode, mode);
@@ -607,7 +617,7 @@ describe('ratings', () => {
 
     await ui.changeGraphType(GraphType.custom);
     await ui.openMetricsDropdown();
-    await ui.toggleMetric(MetricKey.reliability_rating);
+    await ui.toggleMetric(MetricKey.software_quality_reliability_rating);
     await ui.closeMetricsDropdown();
 
     expect(await ui.graphs.findAll()).toHaveLength(1);
@@ -649,7 +659,7 @@ describe('ratings', () => {
 
     await ui.changeGraphType(GraphType.custom);
     await ui.openMetricsDropdown();
-    await ui.toggleMetric(MetricKey.reliability_rating);
+    await ui.toggleMetric(MetricKey.software_quality_reliability_rating);
     await ui.closeMetricsDropdown();
 
     expect(await ui.graphs.findAll()).toHaveLength(1);
@@ -682,7 +692,7 @@ describe('ratings', () => {
 
     await ui.changeGraphType(GraphType.custom);
     await ui.openMetricsDropdown();
-    await ui.toggleMetric(MetricKey.reliability_rating);
+    await ui.toggleMetric(MetricKey.software_quality_reliability_rating);
     await ui.closeMetricsDropdown();
 
     expect(await ui.graphs.findAll()).toHaveLength(1);
@@ -956,12 +966,19 @@ function renderProjectActivityAppContainer(
     {
       metrics: keyBy(
         [
-          mockMetric({ key: MetricKey.maintainability_issues, type: MetricType.Data }),
+          mockMetric({
+            key: MetricKey.software_quality_maintainability_issues,
+            type: MetricType.Integer,
+          }),
           mockMetric({ key: MetricKey.bugs, type: MetricType.Integer }),
           mockMetric({ key: MetricKey.code_smells, type: MetricType.Integer }),
           mockMetric({ key: MetricKey.security_hotspots_reviewed }),
           mockMetric({ key: MetricKey.security_review_rating, type: MetricType.Rating }),
           mockMetric({ key: MetricKey.reliability_rating, type: MetricType.Rating }),
+          mockMetric({
+            key: MetricKey.software_quality_reliability_rating,
+            type: MetricType.Rating,
+          }),
         ],
         'key',
       ),

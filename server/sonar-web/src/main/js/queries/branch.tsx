@@ -168,7 +168,10 @@ export function useBranchesQuery(component: LightComponent | undefined) {
   });
 }
 
-export function useCurrentBranchQuery(component: LightComponent | undefined) {
+export function useCurrentBranchQuery(
+  component: LightComponent | undefined,
+  staleTime = StaleTime.LIVE,
+) {
   const features = useContext(AvailableFeaturesContext);
   const { search } = useLocation();
 
@@ -196,7 +199,7 @@ export function useCurrentBranchQuery(component: LightComponent | undefined) {
   return useQuery({
     ...branchesQuery(component, features.includes(Feature.BranchSupport)),
     select,
-    staleTime: StaleTime.LIVE,
+    staleTime,
   });
 }
 
