@@ -130,6 +130,8 @@ public class HazelcastMemberBuilder {
       .setProperty("hazelcast.phone.home.enabled", "false")
       // Use slf4j for logging
       .setProperty("hazelcast.logging.type", "slf4j")
+      //support ip v6
+      .setProperty("hazelcast.prefer.ipv4.stack", "false")
       .setProperty("hazelcast.partial.member.disconnection.resolution.heartbeat.count", "5")
     ;
 
