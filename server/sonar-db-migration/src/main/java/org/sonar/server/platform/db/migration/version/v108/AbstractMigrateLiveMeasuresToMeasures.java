@@ -207,13 +207,24 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
 
     Object metricValue = getMetricValue(data, textValue, valueType, numericValue);
     if (metricValue != null
-      && !measuresPlannedForDeletion(metricName)) {
+      && !MeasureMigration.isMetricPlannedForDeletion(metricName)) {
       measureValues.put(metricName, metricValue);
+      migrateMeasureIfNeeded(measureValues, metricName, metricValue);
     }
   }
 
-  private static boolean measuresPlannedForDeletion(String metricName) {
-    return DeleteSoftwareQualityRatingFromProjectMeasures.SOFTWARE_QUALITY_METRICS_TO_DELETE.contains(metricName);
+  private static void migrateMeasureIfNeeded(Map<String, Object> measureValues, String metricName, Object metricValue) {
+    String migratedMetricKey = MeasureMigration.getMigrationMetricKey(metricName);
+    if (migratedMetricKey != null) {
+      try {
+        Object migratedValue = MeasureMigration.migrate(metricValue);
+        if (migratedValue != null) {
+          measureValues.put(migratedMetricKey, migratedValue);
+        }
+      } catch (Exception e) {
+        LOGGER.debug("Failed to migrate metric {} with value {}", metricName, metricValue);
+      }
+    }
   }
 
   private static Object getMetricValue(@Nullable byte[] data, @Nullable String textValue, String valueType, Double numericValue) {

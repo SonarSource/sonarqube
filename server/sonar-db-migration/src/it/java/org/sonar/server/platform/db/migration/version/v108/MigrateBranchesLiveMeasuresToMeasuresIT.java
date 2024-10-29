@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.version.v108;
 
+import com.google.gson.Gson;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -29,8 +30,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -188,6 +191,82 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
 
     assertThat(db.select(format(SELECT_MEASURE, component2)))
       .isEmpty();
+  }
+
+  @Test
+  void should_include_new_measures_based_on_previous_available_measures() throws SQLException {
+    Set<String> metricsToMigrate = MeasureMigration.MIGRATION_MAP.keySet().stream().map(e -> insertMetric(e, "DATA"))
+      .collect(Collectors.toSet());
+
+    String branch = "branch_4";
+    insertNotMigratedBranch(branch);
+    String component1 = uuidFactory.create();
+    metricsToMigrate.forEach(metricUuid -> insertMeasure(branch, component1, metricUuid,
+      Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":7}")));
+
+    underTest.execute();
+
+    assertBranchMigrated(branch);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    List<Map<String, Object>> measuresFromDB = db.select(format(SELECT_MEASURE, component1));
+    assertThat(measuresFromDB).hasSize(1);
+
+    Gson gson = new Gson();
+    Map<String, Object> jsonValue = gson.fromJson((String) measuresFromDB.get(0).get("json_value"), Map.class);
+
+    Map<String, Object> expectedExistingMetrics = MeasureMigration.MIGRATION_MAP.keySet().stream().collect(
+      Collectors.toMap(s -> s, s -> "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":7}"));
+
+    Map<String, Object> expectedNewMetrics = MeasureMigration.MIGRATION_MAP.values().stream().collect(
+      Collectors.toMap(s -> s, s -> 7.0));
+
+    assertThat(jsonValue).containsAllEntriesOf(expectedExistingMetrics).containsAllEntriesOf(expectedNewMetrics);
+  }
+
+  @Test
+  void should_migrate_other_measures_when_there_is_an_error_converting_previous_measures() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+    String maintainabilityMetricUuid = insertMetric(CoreMetrics.MAINTAINABILITY_ISSUES_KEY, "DATA");
+    String reliabilityMetricUuid = insertMetric(CoreMetrics.RELIABILITY_ISSUES_KEY, "DATA");
+    String securityMetricUuid = insertMetric(CoreMetrics.SECURITY_ISSUES_KEY, "DATA");
+
+    String branch = "branch_4";
+    insertNotMigratedBranch(branch);
+    String component1 = uuidFactory.create();
+    insertMeasure(branch, component1, nclocMetricUuid, Map.of("value", 120));
+    // total is not a number
+    insertMeasure(branch, component1, maintainabilityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4," +
+      "\"total\":\"ABC\"}"));
+    // total cannot fit in a long
+    insertMeasure(branch, component1, reliabilityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4," +
+      "\"total\":98723987498723987429874928748748}"));
+    insertMeasure(branch, component1, securityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":37}"));
+
+    logTester.setLevel(Level.DEBUG);
+    underTest.execute();
+
+    assertBranchMigrated(branch);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    List<Map<String, Object>> measuresFromDB = db.select(format(SELECT_MEASURE, component1));
+    assertThat(measuresFromDB).hasSize(1);
+
+    Gson gson = new Gson();
+    Map<String, Object> jsonValue = gson.fromJson((String) measuresFromDB.get(0).get("json_value"), Map.class);
+
+    Map<String, Object> expectedExistingMetrics = Map.of(
+      "ncloc", 120.0,
+      CoreMetrics.MAINTAINABILITY_ISSUES_KEY, "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":\"ABC\"}",
+      CoreMetrics.RELIABILITY_ISSUES_KEY, "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":98723987498723987429874928748748}",
+      CoreMetrics.SECURITY_ISSUES_KEY, "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":37}"
+    );
+
+    Map<String, Object> expectedNewMetrics = Map.of(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, 37.0);
+
+    assertThat(jsonValue).hasSize(5).containsAllEntriesOf(expectedExistingMetrics).containsAllEntriesOf(expectedNewMetrics);
+    assertThat(logTester.logs(Level.DEBUG)).contains("Failed to migrate metric reliability_issues with value {\"LOW\":3,\"MEDIUM\":0," +
+      "\"HIGH\":4,\"total\":98723987498723987429874928748748}");
   }
 
   private void assertBranchMigrated(String branch) {
