@@ -56,7 +56,8 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_013, "Drop index on 'project_branches.measures_migrated'", DropIndexOnProjectBranchesMeasuresMigrated.class)
       .add(10_8_014, "Drop 'measures_migrated' column on 'project_branches' table", DropMeasuresMigratedColumnInProjectBranchesTable.class)
       .add(10_8_015, "Add column 'impacts' in 'active_rules' table", AddImpactsColumnInActiveRulesTable.class)
-      .add(10_8_016, "Create 'project_dependencies' table", CreateProjectDependenciesTable.class);
+      .add(10_8_016, "Create 'project_dependencies' table", CreateProjectDependenciesTable.class)
+      .add(10_8_017, "Enable specific MQR mode", EnableSpecificMqrMode.class);
   }
 
 }

@@ -73,6 +73,18 @@ class MigrationHistoryImplIT {
     assertThat(underTest.getLastMigrationNumber()).contains(12L);
   }
 
+  @Test
+  void getInitialDbVersion_shouldReturnVersionAtStartUp() throws SQLException {
+    underTest.start();
+    assertThat(underTest.getInitialDbVersion()).isEqualTo(-1);
+
+    insert(12, 5, 30, 8);
+    underTest.start();
+    insert(35,37,42);
+    
+    assertThat(underTest.getInitialDbVersion()).isEqualTo(30);
+  }
+
   private void insert(int... versions) throws SQLException {
     try (Connection connection = dbTester.database().getDataSource().getConnection()) {
       Arrays.stream(versions).forEach(version -> insert(connection, version));

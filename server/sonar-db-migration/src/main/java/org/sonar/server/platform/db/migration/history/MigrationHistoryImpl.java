@@ -41,6 +41,8 @@ public class MigrationHistoryImpl implements MigrationHistory {
   private final Database database;
   private final MigrationHistoryMeddler migrationHistoryMeddler;
 
+  private long initialDbVersion;
+
   public MigrationHistoryImpl(Database database, MigrationHistoryMeddler migrationHistoryMeddler) {
     this.database = database;
     this.migrationHistoryMeddler = migrationHistoryMeddler;
@@ -50,6 +52,7 @@ public class MigrationHistoryImpl implements MigrationHistory {
   public void start() {
     try (Connection connection = database.getDataSource().getConnection()) {
       checkState(DatabaseUtils.tableExists(MigrationHistoryTable.NAME, connection), "Migration history table is missing");
+      this.initialDbVersion = getLastMigrationNumber().orElse(-1L);
       migrationHistoryMeddler.meddle(this);
     } catch (SQLException e) {
       Throwables.propagate(e);
@@ -89,6 +92,11 @@ public class MigrationHistoryImpl implements MigrationHistory {
     } catch (SQLException e) {
       throw new IllegalStateException(String.format("Failed to insert row with value %s in table %s", migrationNumber, SCHEMA_MIGRATIONS_TABLE), e);
     }
+  }
+
+  @Override
+  public long getInitialDbVersion() {
+    return initialDbVersion;
   }
 
   private static List<Long> selectVersions(Connection connection) throws SQLException {

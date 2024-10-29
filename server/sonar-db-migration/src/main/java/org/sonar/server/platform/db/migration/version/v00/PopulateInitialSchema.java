@@ -256,7 +256,7 @@ public class PopulateInitialSchema extends DataChange {
     context.prepareUpsert("truncate table " + table).execute().commit();
   }
 
-  private static String createInsertStatement(String tableName, String firstColumn, String... otherColumns) {
+  public static String createInsertStatement(String tableName, String firstColumn, String... otherColumns) {
     return "insert into " + tableName + " " +
       "(" + concat(of(firstColumn), stream(otherColumns)).collect(joining(",")) + ")" +
       " values" +
