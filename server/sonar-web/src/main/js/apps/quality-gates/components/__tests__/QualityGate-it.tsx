@@ -45,6 +45,7 @@ const ui = {
   qualityGateListItem: (qualityGateName: string) => byRole('link', { name: qualityGateName }),
   newConditionRow: byTestId('quality-gates__conditions-new').byRole('row'),
   overallConditionRow: byTestId('quality-gates__conditions-overall').byRole('row'),
+  addConditionButton: byRole('button', { name: 'quality_gates.add_condition' }),
   batchDialog: byRole('dialog', { name: /quality_gates.update_conditions.header/ }),
   singleDialog: byRole('dialog', { name: /quality_gates.update_conditions.header.single_metric/ }),
   updateMetricsBtn: byRole('button', { name: 'quality_gates.update_conditions.update_metrics' }),
@@ -1007,6 +1008,34 @@ describe('Mode transition', () => {
       expect(ui.singleUpdate.query()).not.toBeInTheDocument();
       expect(ui.standardBadge.query()).not.toBeInTheDocument();
     });
+
+    it('should not let adding condition if a similar one from another mode already added', async () => {
+      const user = userEvent.setup();
+      qualityGateHandler.setIsAdmin(true);
+      renderQualityGateApp();
+
+      expect(await ui.listItem.findAll()).toHaveLength(9);
+      await user.click(ui.qualityGateListItem('QG without new code conditions').get());
+      await user.click(await ui.addConditionButton.find());
+
+      const dialog = byRole('dialog');
+
+      await user.click(
+        dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get(),
+      );
+
+      // try adding Security Rating from MQR Mode
+      await user.click(
+        dialog.byRole('combobox', { name: 'quality_gates.conditions.fails_when' }).get(),
+      );
+      await user.click(dialog.byRole('option', { name: 'Security Rating' }).get());
+      expect(
+        byText(
+          'quality_gates.add_condition.metric_from_other_mode.true.metric.security_rating.name',
+        ).get(),
+      ).toBeInTheDocument();
+      expect(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get()).toBeDisabled();
+    });
   });
 
   describe('Standard mode', () => {
@@ -1090,6 +1119,30 @@ describe('Mode transition', () => {
       expect(ui.batchUpdate.query()).not.toBeInTheDocument();
       expect(ui.singleUpdate.query()).not.toBeInTheDocument();
       expect(ui.mqrBadge.query()).not.toBeInTheDocument();
+    });
+
+    it('should not let adding condition if a similar one from another mode already added', async () => {
+      const user = userEvent.setup();
+      qualityGateHandler.setIsAdmin(true);
+      renderQualityGateApp();
+
+      expect(await ui.listItem.findAll()).toHaveLength(9);
+      await user.click(ui.qualityGateListItem('QG with MQR conditions').get());
+      await user.click(await ui.addConditionButton.find());
+
+      const dialog = byRole('dialog');
+
+      // try adding blocker issues metric
+      await user.click(
+        dialog.byRole('combobox', { name: 'quality_gates.conditions.fails_when' }).get(),
+      );
+      await user.click(dialog.byRole('option', { name: 'Blocker Issues' }).get());
+      expect(
+        byText(
+          'quality_gates.add_condition.metric_from_other_mode.false.metric.new_software_quality_blocker_issues.name',
+        ).get(),
+      ).toBeInTheDocument();
+      expect(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get()).toBeDisabled();
     });
   });
 });

@@ -27,10 +27,16 @@ import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useCreateConditionMutation } from '../../../queries/quality-gates';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { MetricKey, MetricType } from '../../../sonar-aligned/types/metrics';
 import { Feature } from '../../../types/features';
 import { Condition, Metric, QualityGate } from '../../../types/types';
-import { getPossibleOperators, isNonEditableMetric } from '../utils';
+import {
+  getPossibleOperators,
+  isNonEditableMetric,
+  MQR_CONDITIONS_MAP,
+  STANDARD_CONDITIONS_MAP,
+} from '../utils';
 import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
@@ -45,29 +51,14 @@ const FORBIDDEN_METRICS: string[] = [
   MetricKey.releasability_rating,
   MetricKey.security_hotspots,
   MetricKey.new_security_hotspots,
-  MetricKey.software_quality_maintainability_rating,
-  MetricKey.new_software_quality_maintainability_rating,
-  MetricKey.software_quality_reliability_rating,
-  MetricKey.new_software_quality_reliability_rating,
-  MetricKey.software_quality_security_rating,
-  MetricKey.new_software_quality_security_rating,
-  MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
-  MetricKey.software_quality_maintainability_remediation_effort,
-  MetricKey.new_software_quality_maintainability_remediation_effort,
-  MetricKey.software_quality_security_remediation_effort,
-  MetricKey.new_software_quality_security_remediation_effort,
-  MetricKey.software_quality_reliability_remediation_effort,
-  MetricKey.new_software_quality_reliability_remediation_effort,
-  MetricKey.software_quality_maintainability_debt_ratio,
-  MetricKey.new_software_quality_maintainability_debt_ratio,
 ];
 
 const ADD_CONDITION_MODAL_ID = 'add-condition-modal';
 
 export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
+  const { data: isStandardMode } = useStandardExperienceMode();
   const [open, setOpen] = React.useState(false);
   const closeModal = React.useCallback(() => setOpen(false), []);
-
   const [errorThreshold, setErrorThreshold] = React.useState('');
   const [scope, setScope] = React.useState<'new' | 'overall'>('new');
   const [selectedMetric, setSelectedMetric] = React.useState<Metric | undefined>();
@@ -83,6 +74,11 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
 
   const { conditions = [] } = qualityGate;
 
+  const similarMetricFromAnotherMode = findSimilarConditionMetricFromAnotherMode(
+    qualityGate.conditions,
+    selectedMetric,
+  );
+
   const availableMetrics = React.useMemo(() => {
     return differenceWith(
       map(metrics, (metric) => metric).filter(
@@ -91,6 +87,11 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
           !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
           !FORBIDDEN_METRICS.includes(metric.key) &&
           !(
+            isStandardMode
+              ? Object.values(STANDARD_CONDITIONS_MAP)
+              : Object.values(MQR_CONDITIONS_MAP)
+          ).includes(metric.key as MetricKey) &&
+          !(
             metric.key === MetricKey.prioritized_rule_issues &&
             !hasFeature(Feature.PrioritizedRules)
           ),
@@ -98,7 +99,7 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
       conditions,
       (metric, condition) => metric.key === condition.metric,
     );
-  }, [conditions, hasFeature, metrics]);
+  }, [conditions, hasFeature, metrics, isStandardMode]);
 
   const handleFormSubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -167,6 +168,7 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
           label={translate('quality_gates.conditions.fails_when')}
         >
           <MetricSelect
+            similarMetricFromAnotherMode={similarMetricFromAnotherMode}
             selectedMetric={selectedMetric}
             metricsArray={availableMetrics.filter((m) =>
               scope === 'new' ? isDiffMetric(m.key) : !isDiffMetric(m.key),
@@ -183,6 +185,7 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
               label={translate('quality_gates.conditions.operator')}
             >
               <ConditionOperator
+                isDisabled={Boolean(similarMetricFromAnotherMode)}
                 metric={selectedMetric}
                 onOperatorChange={handleOperatorChange}
                 op={selectedOperator}
@@ -194,7 +197,10 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
             >
               <ThresholdInput
                 metric={selectedMetric}
-                disabled={isNonEditableMetric(selectedMetric.key as MetricKey)}
+                disabled={
+                  isNonEditableMetric(selectedMetric.key as MetricKey) ||
+                  Boolean(similarMetricFromAnotherMode)
+                }
                 name="error"
                 onChange={handleErrorChange}
                 value={errorThreshold}
@@ -214,7 +220,7 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
       onOpenChange={setOpen}
       primaryButton={
         <Button
-          isDisabled={selectedMetric === undefined}
+          isDisabled={selectedMetric === undefined || Boolean(similarMetricFromAnotherMode)}
           id="add-condition-button"
           form={ADD_CONDITION_MODAL_ID}
           type="submit"
@@ -230,4 +236,24 @@ export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
       </Button>
     </Modal>
   );
+}
+
+function findSimilarConditionMetricFromAnotherMode(
+  conditions: Condition[] = [],
+  selectedMetric?: Metric,
+) {
+  if (!selectedMetric) {
+    return undefined;
+  }
+
+  const selectedMetricFromAnotherMode =
+    STANDARD_CONDITIONS_MAP[selectedMetric.key as MetricKey] ??
+    MQR_CONDITIONS_MAP[selectedMetric.key as MetricKey];
+
+  if (!selectedMetricFromAnotherMode) {
+    return undefined;
+  }
+
+  const qgMetrics = conditions.map((condition) => condition.metric);
+  return qgMetrics.find((metric) => metric === selectedMetricFromAnotherMode);
 }

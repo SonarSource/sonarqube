@@ -45,7 +45,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
   };
 
   renderRatingInput() {
-    const { name, value } = this.props;
+    const { name, value, disabled } = this.props;
 
     const options = [
       { label: 'A', value: '1' },
@@ -56,6 +56,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
 
     return (
       <InputSelect
+        isDisabled={disabled}
         className="sw-w-abs-150"
         inputId="condition-threshold"
         name={name}

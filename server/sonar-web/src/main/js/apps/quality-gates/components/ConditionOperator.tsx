@@ -18,47 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
-import { InputSelect, Note } from '~design-system';
+import { InputSize, Select } from '@sonarsource/echoes-react';
+import { Note } from '~design-system';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { Metric } from '../../../types/types';
 import { getPossibleOperators } from '../utils';
 
 interface Props {
+  isDisabled?: boolean;
   metric: Metric;
   onOperatorChange: (op: string) => void;
   op?: string;
 }
 
-export default class ConditionOperator extends React.PureComponent<Props> {
-  handleChange = ({ value }: { label: string; value: string }) => {
-    this.props.onOperatorChange(value);
-  };
+export default function ConditionOperator(props: Readonly<Props>) {
+  const operators = getPossibleOperators(props.metric);
 
-  render() {
-    const operators = getPossibleOperators(this.props.metric);
-
-    if (Array.isArray(operators)) {
-      const operatorOptions = operators.map((op) => {
-        const label = getOperatorLabel(op, this.props.metric);
-        return { label, value: op };
-      });
-
-      return (
-        <InputSelect
-          autoFocus
-          size="small"
-          isClearable={false}
-          inputId="condition-operator"
-          name="operator"
-          onChange={this.handleChange}
-          options={operatorOptions}
-          isSearchable={false}
-          value={operatorOptions.filter((o) => o.value === this.props.op)}
-        />
-      );
-    }
-
-    return <Note className="sw-w-abs-150">{getOperatorLabel(operators, this.props.metric)}</Note>;
+  if (!Array.isArray(operators)) {
+    return <Note className="sw-w-abs-150">{getOperatorLabel(operators, props.metric)}</Note>;
   }
+  const operatorOptions = operators.map((op) => {
+    const label = getOperatorLabel(op, props.metric);
+    return { label, value: op };
+  });
+
+  return (
+    <Select
+      isDisabled={props.isDisabled}
+      size={InputSize.Small}
+      id="condition-operator"
+      isNotClearable
+      onChange={props.onOperatorChange}
+      data={operatorOptions}
+      value={operatorOptions.find((o) => o.value === props.op)?.value}
+    />
+  );
 }
