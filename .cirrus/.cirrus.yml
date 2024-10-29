@@ -1,4 +1,4 @@
-only_if: $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BUILD_SOURCE == 'api' )
+only_if: $CIRRUS_TAG == "" && ($CIRRUS_PR == "3370" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BUILD_SOURCE == 'api' )
 skip: $CIRRUS_BRANCH == "public_master" || $CIRRUS_BRANCH =~ "dogfood/.*"
 
 env:
