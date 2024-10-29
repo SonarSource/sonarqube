@@ -26,6 +26,7 @@ export enum DocLink {
   AccountTokens = '/user-guide/managing-tokens/',
   ActiveVersions = '/server-upgrade-and-maintenance/upgrade/upgrade-the-server/active-versions/',
   AiCodeAssurance = '/user-guide/ai-features/',
+  AiCodeFixEnabling = 'instance-administration/system-functions/enabling-ai-generated-fix-suggestions/',
   AlmAzureIntegration = '/devops-platform-integration/azure-devops-integration/',
   AlmBitBucketCloudAuth = '/instance-administration/authentication/bitbucket-cloud/',
   AlmBitBucketCloudIntegration = '/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/',

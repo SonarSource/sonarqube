@@ -28,7 +28,7 @@ import {
   IconError,
   LinkStandalone,
   Spinner,
-  Text
+  Text,
 } from '@sonarsource/echoes-react';
 import { MutationStatus } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -37,11 +37,16 @@ import { FormattedMessage } from 'react-intl';
 import { BasicSeparator, HighlightedSection, themeColor, UnorderedList } from '~design-system';
 import { SuggestionServiceStatusCheckResponse } from '../../../api/fix-suggestions';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { getAiCodeFixTermsOfServiceUrl } from '../../../helpers/urls';
-import { useCheckServiceMutation, useRemoveCodeSuggestionsCache } from '../../../queries/fix-suggestions';
+import {
+  useCheckServiceMutation,
+  useRemoveCodeSuggestionsCache,
+} from '../../../queries/fix-suggestions';
 import { useGetValueQuery, useSaveSimpleValueMutation } from '../../../queries/settings';
 import { Feature } from '../../../types/features';
 import { SettingsKey } from '../../../types/settings';
@@ -166,7 +171,10 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
             {translate('property.codefix.admin.serviceCheck.title')}
           </Heading>
           <p>{translate('property.codefix.admin.serviceCheck.description1')}</p>
-          <p className="sw-mt-4">{translate('property.codefix.admin.serviceCheck.description2')}</p>
+          <DocumentationLink to={DocLink.AiCodeFixEnabling}>
+            {translate('property.codefix.admin.serviceCheck.learnMore')}
+          </DocumentationLink>
+          <p>{translate('property.codefix.admin.serviceCheck.description2')}</p>
           <Button
             className="sw-mt-4"
             variety={ButtonVariety.Default}
