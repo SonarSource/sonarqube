@@ -43,9 +43,6 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
-import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -58,6 +55,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.component.SnapshotDto;
@@ -66,6 +65,7 @@ import org.sonar.db.measure.MeasureTreeQuery;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Measures;
@@ -182,6 +182,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
+          MeasuresWsModule.getNewMetricsInSonarQube108())),
+        new Change("10.8", String.format("The metrics %s are now deprecated. Use 'software_quality_maintainability_issues', " +
+          "'software_quality_reliability_issues', 'software_quality_security_issues', 'new_software_quality_maintainability_issues', " +
+          "'new_software_quality_reliability_issues', 'new_software_quality_security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube108())),
         new Change("10.7", format("Number of metric keys is limited to %s", 25)),
         new Change("10.7",
           "Added new accepted values for the 'metricKeys' param: %s".formatted(MeasuresWsModule.getNewMetricsInSonarQube107())),
