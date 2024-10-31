@@ -20,6 +20,7 @@
 
 import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import QGMetricsMismatchHelp from './QGMetricsMismatchHelp';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
@@ -35,6 +36,7 @@ export function SoftwareQualityFacet(props: Props) {
       itemNamePrefix="software_quality"
       listItems={SOFTWARE_QUALITIES}
       selectedItems={qualities}
+      help={Boolean(props.secondLine) && <QGMetricsMismatchHelp />}
       {...rest}
     />
   );

@@ -28,6 +28,7 @@ import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
 import { FacetItemsList } from './FacetItemsList';
 import { MultipleSelectionHint } from './MultipleSelectionHint';
+import QGMetricsMismatchHelp from './QGMetricsMismatchHelp';
 
 interface Props {
   fetching: boolean;
@@ -128,6 +129,7 @@ export class TypeFacet extends React.PureComponent<Props> {
         onClear={this.handleClear}
         onClick={this.handleHeaderClick}
         open={open}
+        help={Boolean(secondLine) && <QGMetricsMismatchHelp />}
         secondLine={secondLine}
       >
         <FacetItemsList labelledby={typeFacetHeaderId}>

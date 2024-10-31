@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import QGMetricsMismatchHelp from '../../apps/issues/sidebar/QGMetricsMismatchHelp';
 import { SEVERITIES } from '../../helpers/constants';
 import { translate } from '../../helpers/l10n';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
@@ -45,6 +46,7 @@ export default function StandardSeverityFacet(
   return (
     <Facet
       {...props}
+      help={Boolean(props.secondLine) && <QGMetricsMismatchHelp />}
       options={SEVERITIES}
       property="severities"
       renderName={renderName}

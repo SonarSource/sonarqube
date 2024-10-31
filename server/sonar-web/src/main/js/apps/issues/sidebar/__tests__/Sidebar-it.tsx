@@ -19,6 +19,7 @@
  */
 
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -78,7 +79,8 @@ describe('MQR mode', () => {
     ]);
   });
 
-  it('should show show mqr filters if they exist in query', async () => {
+  it('should show standard filters if they exist in query', async () => {
+    const user = userEvent.setup();
     let component = renderSidebar({
       query: mockQuery({ types: [IssueType.CodeSmell] }),
     });
@@ -93,6 +95,11 @@ describe('MQR mode', () => {
         .byText('issues.facet.second_line.mode.standard')
         .get(),
     ).toBeInTheDocument();
+    // help icon
+    expect(byRole('button', { name: 'help' }).get()).toBeInTheDocument();
+    await user.click(byRole('button', { name: 'help' }).get());
+    expect(screen.getByText('issues.qg_mismatch.title')).toBeInTheDocument();
+
     expect(
       screen.queryByRole('button', { name: 'issues.facet.severities' }),
     ).not.toBeInTheDocument();
@@ -237,6 +244,7 @@ describe('Standard mode', () => {
   });
 
   it('should show show mqr filters if they exist in query', async () => {
+    const user = userEvent.setup();
     let component = renderSidebar({
       query: mockQuery({ impactSeverities: [SoftwareImpactSeverity.Blocker] }),
     });
@@ -251,6 +259,12 @@ describe('Standard mode', () => {
         .byText('issues.facet.second_line.mode.mqr')
         .get(),
     ).toBeInTheDocument();
+
+    // help icon
+    expect(byRole('button', { name: 'help' }).get()).toBeInTheDocument();
+    await user.click(byRole('button', { name: 'help' }).get());
+    expect(screen.getByText('issues.qg_mismatch.title')).toBeInTheDocument();
+
     expect(
       screen.queryByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
     ).not.toBeInTheDocument();

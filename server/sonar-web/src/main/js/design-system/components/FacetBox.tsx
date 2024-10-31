@@ -94,45 +94,47 @@ export function FacetBox(props: FacetBoxProps) {
       inner={inner}
     >
       <Header>
-        <TitleWithHelp>
-          <ChevronAndTitle
-            aria-controls={`${id}-panel`}
-            aria-disabled={!expandable}
-            aria-expanded={open}
-            aria-label={ariaLabel ?? name}
-            expandable={expandable}
-            id={`${id}-header`}
-            onClick={() => {
-              if (!disabled) {
-                onClick?.(!open);
-              }
-            }}
-          >
-            {expandable && <OpenCloseIndicator aria-hidden open={open} />}
+        <div className="sw-flex sw-items-center">
+          <TitleWithHelp>
+            <ChevronAndTitle
+              aria-controls={`${id}-panel`}
+              aria-disabled={!expandable}
+              aria-expanded={open}
+              aria-label={ariaLabel ?? name}
+              expandable={expandable}
+              id={`${id}-header`}
+              onClick={() => {
+                if (!disabled) {
+                  onClick?.(!open);
+                }
+              }}
+            >
+              {expandable && <OpenCloseIndicator aria-hidden open={open} />}
 
-            {disabled ? (
-              <Tooltip content={disabledHelper}>
-                <HeaderTitle
-                  aria-disabled
-                  aria-label={`${name}, ${disabledHelper ?? ''}`}
-                  disabled={disabled}
-                >
-                  {name}
-                </HeaderTitle>
-              </Tooltip>
-            ) : (
-              <div>
-                <HeaderTitle>{name}</HeaderTitle>
-                {secondLine !== undefined && (
-                  <Text as="div" isSubdued>
-                    {secondLine}
-                  </Text>
-                )}
-              </div>
-            )}
-          </ChevronAndTitle>
+              {disabled ? (
+                <Tooltip content={disabledHelper}>
+                  <HeaderTitle
+                    aria-disabled
+                    aria-label={`${name}, ${disabledHelper ?? ''}`}
+                    disabled={disabled}
+                  >
+                    {name}
+                  </HeaderTitle>
+                </Tooltip>
+              ) : (
+                <div>
+                  <HeaderTitle>{name}</HeaderTitle>
+                  {secondLine !== undefined && (
+                    <Text as="div" isSubdued>
+                      {secondLine}
+                    </Text>
+                  )}
+                </div>
+              )}
+            </ChevronAndTitle>
+          </TitleWithHelp>
           {help && <span className="sw-ml-1">{help}</span>}
-        </TitleWithHelp>
+        </div>
 
         {<Spinner loading={loading} />}
 
