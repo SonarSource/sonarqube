@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
@@ -44,7 +45,23 @@ public class DeleteSoftwareQualityRatingFromProjectMeasures extends DataChange {
     SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY,
     SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY,
     SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY,
-    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY);
+    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY,
+
+    // Portfolios
+    "software_quality_reliability_rating_distribution",
+    "software_quality_security_rating_distribution",
+    "software_quality_maintainability_rating_distribution",
+    "new_software_quality_maintainability_rating_distribution",
+    "new_software_quality_reliability_rating_distribution",
+    "new_software_quality_security_rating_distribution",
+
+    // Views
+    "last_change_on_software_quality_security_rating",
+    "last_change_on_software_quality_reliability_rating",
+    "last_change_on_software_quality_maintainability_rating",
+    "software_quality_security_rating_effort",
+    "software_quality_reliability_rating_effort",
+    "software_quality_maintainability_rating_effort");
 
   private static final String SELECT_QUERY = """
     select pm.uuid from project_measures pm
@@ -52,8 +69,11 @@ public class DeleteSoftwareQualityRatingFromProjectMeasures extends DataChange {
      where m.name in (%s)
     """.formatted(SOFTWARE_QUALITY_METRICS_TO_DELETE.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")));
 
-  public DeleteSoftwareQualityRatingFromProjectMeasures(Database db) {
+  private final MigrationEsClient migrationEsClient;
+
+  public DeleteSoftwareQualityRatingFromProjectMeasures(Database db, MigrationEsClient migrationEsClient) {
     super(db);
+    this.migrationEsClient = migrationEsClient;
   }
 
   @Override
@@ -66,5 +86,8 @@ public class DeleteSoftwareQualityRatingFromProjectMeasures extends DataChange {
       update.setString(1, row.getString(1));
       return true;
     });
+
+    // Reindexation of project measures is required to align with removed values
+    migrationEsClient.deleteIndexes("projectmeasures");
   }
 }

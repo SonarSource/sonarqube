@@ -23,8 +23,10 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mockito;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.MigrationDbTester;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +35,9 @@ class DeleteSoftwareQualityRatingFromProjectMeasuresIT {
   @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DeleteSoftwareQualityRatingFromProjectMeasures.class);
 
-  private final DeleteSoftwareQualityRatingFromProjectMeasures underTest = new DeleteSoftwareQualityRatingFromProjectMeasures(db.database());
+  private final MigrationEsClient migrationEsClient = Mockito.mock(MigrationEsClient.class);
+
+  private final DeleteSoftwareQualityRatingFromProjectMeasures underTest = new DeleteSoftwareQualityRatingFromProjectMeasures(db.database(), migrationEsClient);
 
   @Test
   void execute_whenMeasuresExists_shouldDeleteMeasures() throws SQLException {
@@ -48,6 +52,7 @@ class DeleteSoftwareQualityRatingFromProjectMeasuresIT {
     underTest.execute();
 
     assertThat(db.countSql("select count(1) from project_measures;")).isZero();
+    Mockito.verify(migrationEsClient, Mockito.times(1)).deleteIndexes("projectmeasures");
   }
 
   @Test

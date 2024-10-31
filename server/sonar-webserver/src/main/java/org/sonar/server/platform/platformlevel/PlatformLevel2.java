@@ -24,6 +24,7 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.server.es.MigrationEsClientImpl;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
@@ -36,10 +37,6 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 import org.sonar.server.platform.web.WebPagesCache;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginJarLoader;
@@ -47,6 +44,10 @@ import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginManager;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.WebServerExtensionInstaller;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
@@ -60,6 +61,7 @@ public class PlatformLevel2 extends PlatformLevel {
   protected void configureLevel() {
     add(
       new MigrationConfigurationModule(),
+      MigrationEsClientImpl.class,
       DatabaseVersion.class,
       DatabaseServerCompatibility.class,
 
