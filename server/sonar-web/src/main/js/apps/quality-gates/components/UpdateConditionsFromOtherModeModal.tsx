@@ -105,6 +105,7 @@ export default function UpdateConditionsFromOtherModeModal({
       size={isSingleMetric ? ModalSize.Default : ModalSize.Wide}
       primaryButton={
         <Button
+          type="submit"
           isDisabled={isPending}
           isLoading={isPending}
           onClick={onSubmit}
