@@ -217,7 +217,7 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     String migratedMetricKey = MeasureMigration.getMigrationMetricKey(metricName);
     if (migratedMetricKey != null) {
       try {
-        Object migratedValue = MeasureMigration.migrate(metricValue);
+        Long migratedValue = MeasureMigration.migrate(metricValue);
         if (migratedValue != null) {
           measureValues.put(migratedMetricKey, migratedValue);
         }

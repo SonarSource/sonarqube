@@ -48,7 +48,7 @@ public class MeasureMigration {
   }
 
   @CheckForNull
-  public static Object migrate(Object value) {
+  public static Long migrate(Object value) {
     Matcher matcher = VALUE_EXTRACTION_PATTERN.matcher(value.toString());
     if (matcher.find()) {
       return Long.valueOf(matcher.group(1));

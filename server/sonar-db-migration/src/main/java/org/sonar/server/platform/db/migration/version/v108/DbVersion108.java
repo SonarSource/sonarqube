@@ -59,7 +59,9 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_016, "Create 'project_dependencies' table", CreateProjectDependenciesTable.class)
       .add(10_8_017, "Enable specific MQR mode", EnableSpecificMqrMode.class)
       .add(10_8_018, "Make columns 'published_at' and 'last_modified_at' nullable on the 'cves' table", AlterCveColumnsToNullable.class)
-      .add(10_8_019, "Delete Software Quality ratings from project_measures", DeleteSoftwareQualityRatingFromProjectMeasures.class);
+      .add(10_8_019, "Delete Software Quality ratings from project_measures", DeleteSoftwareQualityRatingFromProjectMeasures.class)
+      .add(10_8_020, "Create new software quality metrics", CreateNewSoftwareQualityMetrics.class)
+      .add(10_8_021, "Migrate deprecated project_measures to replacement metrics", MigrateProjectMeasuresDeprecatedMetrics.class);
   }
 
 }
