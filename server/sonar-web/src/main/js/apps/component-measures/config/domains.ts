@@ -33,7 +33,7 @@ export const domains: Domains = {
     categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
       NEW_CODE_CATEGORY,
-      MetricKey.new_reliability_issues,
+      MetricKey.new_software_quality_reliability_issues,
       MetricKey.new_bugs,
       MetricKey.new_reliability_rating,
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.new_reliability_rating],
@@ -41,7 +41,7 @@ export const domains: Domains = {
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.new_reliability_remediation_effort],
 
       OVERALL_CATEGORY,
-      MetricKey.reliability_issues,
+      MetricKey.software_quality_reliability_issues,
       MetricKey.bugs,
       MetricKey.reliability_rating,
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.reliability_rating],
@@ -54,7 +54,7 @@ export const domains: Domains = {
     categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
       NEW_CODE_CATEGORY,
-      MetricKey.new_security_issues,
+      MetricKey.new_software_quality_security_issues,
       MetricKey.new_vulnerabilities,
       MetricKey.new_security_rating,
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.new_security_rating],
@@ -62,7 +62,7 @@ export const domains: Domains = {
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.new_security_remediation_effort],
 
       OVERALL_CATEGORY,
-      MetricKey.security_issues,
+      MetricKey.software_quality_security_issues,
       MetricKey.vulnerabilities,
       MetricKey.security_rating,
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.security_rating],
@@ -92,7 +92,7 @@ export const domains: Domains = {
     categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
       NEW_CODE_CATEGORY,
-      MetricKey.new_maintainability_issues,
+      MetricKey.new_software_quality_maintainability_issues,
       MetricKey.new_code_smells,
       MetricKey.new_technical_debt,
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.new_technical_debt],
@@ -102,7 +102,7 @@ export const domains: Domains = {
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.new_maintainability_rating],
 
       OVERALL_CATEGORY,
-      MetricKey.maintainability_issues,
+      MetricKey.software_quality_maintainability_issues,
       MetricKey.code_smells,
       MetricKey.sqale_index,
       SOFTWARE_QUALITY_RATING_METRICS_MAP[MetricKey.sqale_index],
@@ -177,11 +177,16 @@ export const domains: Domains = {
   },
 
   Complexity: {
-    order: ['complexity', 'function_complexity', 'file_complexity', 'class_complexity'],
+    order: [
+      MetricKey.complexity,
+      MetricKey.function_complexity,
+      MetricKey.file_complexity,
+      MetricKey.class_complexity,
+    ],
   },
 
   Releasability: {
-    order: ['releasability_rating', 'releasability_effort', 'alert_status'],
+    order: [MetricKey.releasability_rating, MetricKey.releasability_effort, MetricKey.alert_status],
   },
 
   Issues: {

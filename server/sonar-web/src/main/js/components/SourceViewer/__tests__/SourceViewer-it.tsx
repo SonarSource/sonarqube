@@ -345,14 +345,18 @@ it('should show software quality measures in header', async () => {
   renderSourceViewer({ componentMeasures: generateMeasures(), showMeasures: true });
 
   expect(
-    await byLabelText('source_viewer.issue_link_x.3.metric.security_issues.short_name').find(),
-  ).toBeInTheDocument();
-  expect(
-    await byLabelText('source_viewer.issue_link_x.3.metric.reliability_issues.short_name').find(),
+    await byLabelText(
+      'source_viewer.issue_link_x.3.metric.software_quality_security_issues.short_name',
+    ).find(),
   ).toBeInTheDocument();
   expect(
     await byLabelText(
-      'source_viewer.issue_link_x.3.metric.maintainability_issues.short_name',
+      'source_viewer.issue_link_x.3.metric.software_quality_reliability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.3.metric.software_quality_maintainability_issues.short_name',
     ).find(),
   ).toBeInTheDocument();
 });
@@ -366,14 +370,18 @@ it('should show old issue measures in header', async () => {
   });
 
   expect(
-    await byLabelText('source_viewer.issue_link_x.1.metric.security_issues.short_name').find(),
-  ).toBeInTheDocument();
-  expect(
-    await byLabelText('source_viewer.issue_link_x.1.metric.reliability_issues.short_name').find(),
+    await byLabelText(
+      'source_viewer.issue_link_x.1.metric.software_quality_security_issues.short_name',
+    ).find(),
   ).toBeInTheDocument();
   expect(
     await byLabelText(
-      'source_viewer.issue_link_x.1.metric.maintainability_issues.short_name',
+      'source_viewer.issue_link_x.1.metric.software_quality_reliability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.1.metric.software_quality_maintainability_issues.short_name',
     ).find(),
   ).toBeInTheDocument();
 });
@@ -396,12 +404,10 @@ it('should show correct message when component does not exist', async () => {
 function generateMeasures(qualitiesValue = '3.0', overallValue = '1.0', newValue = '2.0') {
   return [
     ...[
-      MetricKey.security_issues,
-      MetricKey.reliability_issues,
-      MetricKey.maintainability_issues,
-    ].map((metric) =>
-      mockMeasure({ metric, value: JSON.stringify({ total: qualitiesValue }), period: undefined }),
-    ),
+      MetricKey.software_quality_security_issues,
+      MetricKey.software_quality_reliability_issues,
+      MetricKey.software_quality_maintainability_issues,
+    ].map((metric) => mockMeasure({ metric, value: qualitiesValue, period: undefined })),
     ...[
       MetricKey.ncloc,
       MetricKey.new_lines,

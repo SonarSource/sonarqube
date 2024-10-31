@@ -25,10 +25,7 @@ import { Status } from '~sonar-aligned/types/common';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import { getLeakValue } from '../../../components/measure/utils';
-import {
-  CCT_SOFTWARE_QUALITY_METRICS,
-  OLD_TO_NEW_TAXONOMY_METRICS_MAP,
-} from '../../../helpers/constants';
+import { OLD_TO_NEW_TAXONOMY_METRICS_MAP } from '../../../helpers/constants';
 import {
   areCCTMeasuresComputed as areCCTMeasuresComputedFn,
   isDiffMetric,
@@ -44,7 +41,7 @@ interface Props {
   metric: Metric;
 }
 
-export default function ComponentMeasure(props: Props) {
+export default function ComponentMeasure(props: Readonly<Props>) {
   const { component, metric, branchLike } = props;
   const isProjectLike = isProject(component.qualifier) || isApplication(component.qualifier);
   const { data: isStandardMode } = useStandardExperienceMode();
@@ -62,15 +59,7 @@ export default function ComponentMeasure(props: Props) {
     ? component.measures.find((measure) => measure.metric === finalMetricKey)
     : undefined;
 
-  let value;
-  if (
-    measure?.value !== undefined &&
-    CCT_SOFTWARE_QUALITY_METRICS.includes(measure.metric as MetricKey)
-  ) {
-    value = JSON.parse(measure.value).total;
-  } else {
-    value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure?.value;
-  }
+  const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure?.value;
 
   switch (finalMetricType) {
     case MetricType.Level: {

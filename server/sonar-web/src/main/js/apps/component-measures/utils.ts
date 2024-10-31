@@ -39,7 +39,6 @@ import {
   areCCTMeasuresComputed,
   areLeakCCTMeasuresComputed,
   areSoftwareQualityRatingsComputed,
-  getCCTMeasureValue,
   getDisplayMetrics,
   isDiffMetric,
   MEASURES_REDIRECTION,
@@ -64,9 +63,9 @@ import { BubblesByDomain } from './config/bubbles';
 import { domains } from './config/domains';
 
 export const BUBBLES_FETCH_LIMIT = 500;
-export const PROJECT_OVERVEW = 'project_overview';
+export const PROJECT_OVERVIEW = 'project_overview';
 export const DEFAULT_VIEW = MeasurePageView.tree;
-export const DEFAULT_METRIC = PROJECT_OVERVEW;
+export const DEFAULT_METRIC = PROJECT_OVERVIEW;
 export const KNOWN_DOMAINS = [
   'Releasability',
   'Security',
@@ -108,10 +107,7 @@ export const populateDomainsFromMeasures = memoize(
       .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
       .map((measure) => {
         const isDiff = isDiffMetric(measure.metric.key);
-        const calculatedValue = getCCTMeasureValue(
-          measure.metric.key,
-          isDiff ? measure.leak : measure.value,
-        );
+        const calculatedValue = isDiff ? measure.leak : measure.value;
 
         return {
           ...measure,
@@ -328,7 +324,7 @@ export function getBubbleYDomain(bubblesByDomain: BubblesByDomain, domain: strin
 }
 
 export function isProjectOverview(metric: string) {
-  return metric === PROJECT_OVERVEW;
+  return metric === PROJECT_OVERVIEW;
 }
 
 function parseView(metric: MetricKey, rawView?: string): MeasurePageView {

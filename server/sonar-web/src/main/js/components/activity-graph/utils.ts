@@ -167,11 +167,8 @@ export function generateSeries(
         );
         return {
           data: measure.history.map((analysis) => {
-            let { value } = analysis;
+            const { value } = analysis;
 
-            if (value !== undefined && isSoftwareQualityMetric) {
-              value = JSON.parse(value).total;
-            }
             return {
               x: analysis.date,
               y: metric?.type === MetricType.Level ? value : Number(value),

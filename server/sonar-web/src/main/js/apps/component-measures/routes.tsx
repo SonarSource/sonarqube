@@ -21,7 +21,9 @@
 import { Navigate, Route, useParams, useSearchParams } from 'react-router-dom';
 import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import NavigateWithParams from '../../app/utils/NavigateWithParams';
+import { SOFTWARE_QUALITIES_ISSUES_KEYS_MAP } from '../../helpers/constants';
 import { omitNil } from '../../helpers/request';
 
 const ComponentMeasuresApp = lazyLoadComponent(() => import('./components/ComponentMeasuresApp'));
@@ -36,7 +38,9 @@ const routes = () => (
           pathname="/component_measures"
           transformParams={(params) =>
             omitNil({
-              metric: params['domainName'],
+              metric:
+                SOFTWARE_QUALITIES_ISSUES_KEYS_MAP[params['domainName'] as MetricKey] ??
+                params['domainName'],
             })
           }
         />
@@ -70,7 +74,8 @@ function MetricRedirect() {
     search: new URLSearchParams(
       omitNil({
         ...searchParamsToQuery(searchParams),
-        metric: params.metricKey,
+        metric:
+          SOFTWARE_QUALITIES_ISSUES_KEYS_MAP[params.metricKey as MetricKey] ?? params.metricKey,
         view: params.view,
       }),
     ).toString(),

@@ -33,7 +33,7 @@ import {
 import { isDefined } from '../../../helpers/types';
 import { useStandardExperienceMode } from '../../../queries/settings';
 import { Branch } from '../../../types/branch-like';
-import { SoftwareImpactMeasureData, SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import { Status, softwareQualityToMeasure } from '../utils';
@@ -56,15 +56,11 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
 
   // Find measure for this software quality
   const metricKey = softwareQualityToMeasure(softwareQuality);
-  const measureRaw = measures.find((m) => m.metric.key === metricKey);
-  const measure = isStandardMode
-    ? undefined
-    : (JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData);
+  const measure = isStandardMode ? undefined : measures.find((m) => m.metric.key === metricKey);
   const alternativeMeasure = measures.find(
     (m) => m.metric.key === SOFTWARE_QUALITIES_METRIC_KEYS_MAP[softwareQuality].deprecatedMetric,
   );
-
-  const count = formatMeasure(measure?.total ?? alternativeMeasure?.value, MetricType.ShortInteger);
+  const count = formatMeasure(measure?.value ?? alternativeMeasure?.value, MetricType.ShortInteger);
 
   const totalLinkHref = getComponentIssuesUrl(component.key, {
     ...DEFAULT_ISSUES_QUERY,

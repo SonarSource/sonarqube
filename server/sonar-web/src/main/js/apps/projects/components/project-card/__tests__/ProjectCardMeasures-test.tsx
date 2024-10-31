@@ -42,9 +42,15 @@ beforeEach(() => {
 describe('Overall measures', () => {
   it('should be rendered properly', async () => {
     renderProjectCardMeasures();
-    expect(await screen.findByTitle('metric.security_issues.short_name')).toBeInTheDocument();
-    expect(screen.getByTitle('metric.reliability_issues.short_name')).toBeInTheDocument();
-    expect(screen.getByTitle('metric.maintainability_issues.short_name')).toBeInTheDocument();
+    expect(
+      await screen.findByTitle('metric.software_quality_security_issues.short_name'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTitle('metric.software_quality_reliability_issues.short_name'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTitle('metric.software_quality_maintainability_issues.short_name'),
+    ).toBeInTheDocument();
     expect(screen.queryByTitle('metric.vulnerabilities.short_name')).not.toBeInTheDocument();
     expect(screen.queryByTitle('metric.bugs.short_name')).not.toBeInTheDocument();
     expect(screen.queryByTitle('metric.code_smells.short_name')).not.toBeInTheDocument();
@@ -56,9 +62,15 @@ describe('Overall measures', () => {
     expect(await screen.findByTitle('metric.vulnerabilities.short_name')).toBeInTheDocument();
     expect(screen.getByTitle('metric.bugs.short_name')).toBeInTheDocument();
     expect(screen.getByTitle('metric.code_smells.short_name')).toBeInTheDocument();
-    expect(screen.queryByTitle('metric.security_issues.short_name')).not.toBeInTheDocument();
-    expect(screen.queryByTitle('metric.reliability_issues.short_name')).not.toBeInTheDocument();
-    expect(screen.queryByTitle('metric.maintainability_issues.short_name')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTitle('metric.software_quality_security_issues.short_name'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTitle('metric.software_quality_software_quality_reliability_issues.short_name'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTitle('metric.software_quality_maintainability_issues.short_name'),
+    ).not.toBeInTheDocument();
   });
 
   it("should be not be rendered if there's no line of code", () => {
@@ -92,9 +104,9 @@ function renderProjectCardMeasures(
     [MetricKey.code_smells]: '132',
     [MetricKey.coverage]: '88.3',
     [MetricKey.duplicated_lines_density]: '9.8',
-    [MetricKey.maintainability_issues]: JSON.stringify({ total: 10 }),
-    [MetricKey.reliability_issues]: JSON.stringify({ total: 10 }),
-    [MetricKey.security_issues]: JSON.stringify({ total: 10 }),
+    [MetricKey.software_quality_maintainability_issues]: '10',
+    [MetricKey.software_quality_reliability_issues]: '10',
+    [MetricKey.software_quality_security_issues]: '10',
     [MetricKey.ncloc]: '2053',
     [MetricKey.reliability_rating]: '1.0',
     [MetricKey.security_rating]: '1.0',

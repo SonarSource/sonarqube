@@ -90,7 +90,7 @@ beforeEach(() => {
       MetricKey.sqale_rating,
       MetricKey.security_hotspots_reviewed,
       MetricKey.security_review_rating,
-      MetricKey.maintainability_issues,
+      MetricKey.software_quality_maintainability_issues,
     ].map((metric) =>
       mockMeasureHistory({
         metric,

@@ -125,35 +125,36 @@ function renderRatings(props: ProjectCardMeasuresProps, isStandardMode: boolean)
     : [
         {
           iconLabel: translate(
-            `metric.${isStandardMode ? MetricKey.vulnerabilities : MetricKey.security_issues}.short_name`,
+            `metric.${isStandardMode ? MetricKey.vulnerabilities : MetricKey.software_quality_security_issues}.short_name`,
           ),
           noShrink: true,
           metricKey:
-            isStandardMode || measures[MetricKey.security_issues] === undefined
+            isStandardMode || measures[MetricKey.software_quality_security_issues] === undefined
               ? MetricKey.vulnerabilities
-              : MetricKey.security_issues,
+              : MetricKey.software_quality_security_issues,
           metricRatingKey: MetricKey.security_rating,
           metricType: MetricType.ShortInteger,
         },
         {
           iconLabel: translate(
-            `metric.${isStandardMode ? MetricKey.bugs : MetricKey.reliability_issues}.short_name`,
+            `metric.${isStandardMode ? MetricKey.bugs : MetricKey.software_quality_reliability_issues}.short_name`,
           ),
           metricKey:
-            isStandardMode || measures[MetricKey.reliability_issues] === undefined
+            isStandardMode || measures[MetricKey.software_quality_reliability_issues] === undefined
               ? MetricKey.bugs
-              : MetricKey.reliability_issues,
+              : MetricKey.software_quality_reliability_issues,
           metricRatingKey: MetricKey.reliability_rating,
           metricType: MetricType.ShortInteger,
         },
         {
           iconLabel: translate(
-            `metric.${isStandardMode ? MetricKey.code_smells : MetricKey.maintainability_issues}.short_name`,
+            `metric.${isStandardMode ? MetricKey.code_smells : MetricKey.software_quality_maintainability_issues}.short_name`,
           ),
           metricKey:
-            isStandardMode || measures[MetricKey.maintainability_issues] === undefined
+            isStandardMode ||
+            measures[MetricKey.software_quality_maintainability_issues] === undefined
               ? MetricKey.code_smells
-              : MetricKey.maintainability_issues,
+              : MetricKey.software_quality_maintainability_issues,
           metricRatingKey: MetricKey.sqale_rating,
           metricType: MetricType.ShortInteger,
         },
@@ -162,7 +163,7 @@ function renderRatings(props: ProjectCardMeasuresProps, isStandardMode: boolean)
   const measureList = [
     ...measuresByCodeLeak,
     {
-      iconKey: 'security_hotspots',
+      iconKey: MetricKey.security_hotspots,
       iconLabel: translate('projects.security_hotspots_reviewed'),
       metricKey: isNewCode
         ? MetricKey.new_security_hotspots_reviewed
@@ -177,15 +178,6 @@ function renderRatings(props: ProjectCardMeasuresProps, isStandardMode: boolean)
   return measureList.map((measure) => {
     const { iconLabel, metricKey, metricRatingKey, metricType } = measure;
 
-    const measureValue =
-      [
-        MetricKey.security_issues,
-        MetricKey.reliability_issues,
-        MetricKey.maintainability_issues,
-      ].includes(metricKey) && measures[metricKey]
-        ? JSON.parse(measures[metricKey] as string)?.total
-        : measures[metricKey];
-
     return (
       <ProjectCardMeasure key={metricKey} metricKey={metricKey} label={iconLabel}>
         <RatingComponent ratingMetric={metricRatingKey} componentKey={componentKey} />
@@ -193,7 +185,7 @@ function renderRatings(props: ProjectCardMeasuresProps, isStandardMode: boolean)
           componentKey={componentKey}
           metricKey={metricKey}
           metricType={metricType}
-          value={measureValue}
+          value={measures[metricKey]}
           className="sw-ml-2 sw-typo-lg-semibold"
         />
       </ProjectCardMeasure>

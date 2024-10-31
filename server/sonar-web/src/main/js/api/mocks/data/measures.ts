@@ -22,7 +22,6 @@ import { keyBy } from 'lodash';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockMeasure } from '../../../helpers/testMocks';
-import { SoftwareImpactSeverity } from '../../../types/clean-code-taxonomy';
 import { IssueDeprecatedStatus, IssueType, RawIssue } from '../../../types/issues';
 import { Measure } from '../../../types/types';
 import { ComponentTree } from './components';
@@ -59,80 +58,50 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
         value: 'java=10000;javascript=5000;css=1000',
       });
 
-    case MetricKey.security_issues:
+    case MetricKey.software_quality_security_issues:
       return mockMeasure({
         metric: metricKey,
-        value: JSON.stringify({
-          total: 1,
-          [SoftwareImpactSeverity.High]: 0,
-          [SoftwareImpactSeverity.Medium]: 1,
-          [SoftwareImpactSeverity.Low]: 0,
-        }),
+        value: '1',
       });
 
-    case MetricKey.new_security_issues:
+    case MetricKey.new_software_quality_security_issues:
       return mockMeasure({
         metric: metricKey,
         period: {
           index: 1,
-          value: JSON.stringify({
-            total: 3,
-            [SoftwareImpactSeverity.High]: 2,
-            [SoftwareImpactSeverity.Medium]: 0,
-            [SoftwareImpactSeverity.Low]: 1,
-          }),
+          value: '3',
         },
         value: undefined,
       });
 
-    case MetricKey.reliability_issues:
+    case MetricKey.software_quality_reliability_issues:
       return mockMeasure({
         metric: metricKey,
-        value: JSON.stringify({
-          total: 3,
-          [SoftwareImpactSeverity.High]: 0,
-          [SoftwareImpactSeverity.Medium]: 2,
-          [SoftwareImpactSeverity.Low]: 1,
-        }),
+        value: '3',
       });
 
-    case MetricKey.new_reliability_issues:
+    case MetricKey.new_software_quality_reliability_issues:
       return mockMeasure({
         metric: metricKey,
         period: {
           index: 1,
-          value: JSON.stringify({
-            total: 2,
-            [SoftwareImpactSeverity.High]: 0,
-            [SoftwareImpactSeverity.Medium]: 1,
-            [SoftwareImpactSeverity.Low]: 1,
-          }),
+          value: '2',
         },
         value: undefined,
       });
 
-    case MetricKey.maintainability_issues:
+    case MetricKey.software_quality_maintainability_issues:
       return mockMeasure({
         metric: metricKey,
-        value: JSON.stringify({
-          total: 2,
-          [SoftwareImpactSeverity.High]: 0,
-          [SoftwareImpactSeverity.Medium]: 0,
-          [SoftwareImpactSeverity.Low]: 1,
-        }),
+        value: '2',
       });
 
-    case MetricKey.new_maintainability_issues:
+    case MetricKey.new_software_quality_maintainability_issues:
       return mockMeasure({
         metric: metricKey,
         period: {
           index: 1,
-          value: JSON.stringify({
-            total: 5,
-            [SoftwareImpactSeverity.High]: 2,
-            [SoftwareImpactSeverity.Medium]: 2,
-            [SoftwareImpactSeverity.Low]: 1,
-          }),
+          value: '5',
         },
         value: undefined,
       });
@@ -364,17 +333,6 @@ export function getMetricTypeFromKey(metricKey: string) {
     return MetricType.Percent;
   } else if (metricKey.includes('_rating')) {
     return MetricType.Rating;
-  } else if (
-    [
-      MetricKey.reliability_issues,
-      MetricKey.new_reliability_issues,
-      MetricKey.security_issues,
-      MetricKey.new_security_issues,
-      MetricKey.maintainability_issues,
-      MetricKey.new_maintainability_issues,
-    ].includes(metricKey as MetricKey)
-  ) {
-    return MetricType.Data;
   }
   return MetricType.Integer;
 }

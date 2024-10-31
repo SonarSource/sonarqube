@@ -42,9 +42,9 @@ export const BRANCH_OVERVIEW_METRICS: string[] = [
   MetricKey.accepted_issues,
   MetricKey.new_accepted_issues,
   MetricKey.high_impact_accepted_issues,
-  MetricKey.maintainability_issues,
-  MetricKey.reliability_issues,
-  MetricKey.security_issues,
+  MetricKey.software_quality_maintainability_issues,
+  MetricKey.software_quality_reliability_issues,
+  MetricKey.software_quality_security_issues,
 
   // bugs
   MetricKey.bugs,
@@ -190,7 +190,7 @@ export const METRICS_REPORTED_IN_OVERVIEW_CARDS = [
 ];
 
 export function softwareQualityToMeasure(softwareQuality: SoftwareQuality): MetricKey {
-  return (softwareQuality.toLowerCase() + '_issues') as MetricKey;
+  return `software_quality_${softwareQuality.toLowerCase()}_issues` as MetricKey;
 }
 
 export function getIssueRatingName(type: IssueType) {

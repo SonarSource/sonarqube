@@ -87,15 +87,15 @@ export const ISSUE_TYPES: IssueType[] = [
 ];
 
 export const CCT_SOFTWARE_QUALITY_METRICS = [
-  MetricKey.security_issues,
-  MetricKey.reliability_issues,
-  MetricKey.maintainability_issues,
+  MetricKey.software_quality_security_issues,
+  MetricKey.software_quality_reliability_issues,
+  MetricKey.software_quality_maintainability_issues,
 ];
 
 export const LEAK_CCT_SOFTWARE_QUALITY_METRICS = [
-  MetricKey.new_security_issues,
-  MetricKey.new_reliability_issues,
-  MetricKey.new_maintainability_issues,
+  MetricKey.new_software_quality_security_issues,
+  MetricKey.new_software_quality_reliability_issues,
+  MetricKey.new_software_quality_maintainability_issues,
 ];
 
 export const OLD_TAXONOMY_METRICS = [
@@ -132,9 +132,18 @@ export const LEAK_OLD_TAXONOMY_RATINGS = [
 ];
 
 export const OLD_TO_NEW_TAXONOMY_METRICS_MAP: { [key in MetricKey]?: MetricKey } = {
-  [MetricKey.vulnerabilities]: MetricKey.security_issues,
-  [MetricKey.bugs]: MetricKey.reliability_issues,
-  [MetricKey.code_smells]: MetricKey.maintainability_issues,
+  [MetricKey.vulnerabilities]: MetricKey.software_quality_security_issues,
+  [MetricKey.bugs]: MetricKey.software_quality_reliability_issues,
+  [MetricKey.code_smells]: MetricKey.software_quality_maintainability_issues,
+};
+
+export const SOFTWARE_QUALITIES_ISSUES_KEYS_MAP: Record<string, MetricKey> = {
+  [MetricKey.maintainability_issues]: MetricKey.software_quality_maintainability_issues,
+  [MetricKey.new_maintainability_issues]: MetricKey.new_software_quality_maintainability_issues,
+  [MetricKey.reliability_issues]: MetricKey.software_quality_reliability_issues,
+  [MetricKey.new_reliability_issues]: MetricKey.new_software_quality_reliability_issues,
+  [MetricKey.security_issues]: MetricKey.software_quality_security_issues,
+  [MetricKey.new_security_issues]: MetricKey.new_software_quality_security_issues,
 };
 
 export const RESOLUTIONS = [

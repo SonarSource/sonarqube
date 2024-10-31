@@ -55,7 +55,7 @@ describe('rendering', () => {
   });
 
   it.each([
-    ['MQR', 'true', MetricKey.maintainability_issues],
+    ['MQR', 'true', MetricKey.software_quality_maintainability_issues],
     ['Standard', 'false', MetricKey.code_smells],
   ])('should show the correct legend items in %s mode', async (_, mode, metric) => {
     settingsHandler.set(SettingsKey.MQRMode, mode);
@@ -125,9 +125,9 @@ it.each([
   [
     'MQR',
     'true',
-    MetricKey.reliability_issues,
-    MetricKey.maintainability_issues,
-    MetricKey.security_issues,
+    MetricKey.software_quality_reliability_issues,
+    MetricKey.software_quality_maintainability_issues,
+    MetricKey.software_quality_security_issues,
   ],
   ['Standard', 'false', MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
 ])(
@@ -204,7 +204,9 @@ function getPageObject() {
 
     // Add/remove metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
-    maintainabilityIssuesCheckbox: byRole('checkbox', { name: MetricKey.maintainability_issues }),
+    maintainabilityIssuesCheckbox: byRole('checkbox', {
+      name: MetricKey.software_quality_maintainability_issues,
+    }),
     newBugsCheckbox: byRole('checkbox', { name: MetricKey.new_bugs }),
     burnedBudgetCheckbox: byRole('checkbox', { name: MetricKey.burned_budget }),
     hiddenOptionsAlert: byText('project_activity.graphs.custom.type_x_message', {
@@ -284,9 +286,9 @@ function renderActivityGraph(
       MetricKey.bugs,
       MetricKey.code_smells,
       MetricKey.vulnerabilities,
-      MetricKey.maintainability_issues,
-      MetricKey.reliability_issues,
-      MetricKey.security_issues,
+      MetricKey.software_quality_maintainability_issues,
+      MetricKey.software_quality_reliability_issues,
+      MetricKey.software_quality_security_issues,
       MetricKey.blocker_violations,
       MetricKey.lines_to_cover,
       MetricKey.uncovered_lines,

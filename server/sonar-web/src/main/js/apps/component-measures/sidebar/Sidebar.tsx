@@ -36,7 +36,7 @@ import useFollowScroll from '../../../hooks/useFollowScroll';
 import { useStandardExperienceMode } from '../../../queries/settings';
 import { Domain } from '../../../types/measures';
 import { MeasureEnhanced } from '../../../types/types';
-import { PROJECT_OVERVEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
+import { PROJECT_OVERVIEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
 import DomainSubnavigation from './DomainSubnavigation';
 
 interface Props {
@@ -61,7 +61,7 @@ export default function Sidebar(props: Readonly<Props>) {
   );
 
   const handleProjectOverviewClick = () => {
-    handleChangeMetric(PROJECT_OVERVEW);
+    handleChangeMetric(PROJECT_OVERVIEW);
   };
 
   const distanceFromBottom = topScroll + window.innerHeight - document.body.scrollHeight;
@@ -97,7 +97,7 @@ export default function Sidebar(props: Readonly<Props>) {
             ariaCurrent={isProjectOverview(selectedMetric)}
             onClick={handleProjectOverviewClick}
           >
-            {translate('component_measures.overview', PROJECT_OVERVEW, 'subnavigation')}
+            {translate('component_measures.overview', PROJECT_OVERVIEW, 'subnavigation')}
           </SubnavigationItem>
         </SubnavigationGroup>
 

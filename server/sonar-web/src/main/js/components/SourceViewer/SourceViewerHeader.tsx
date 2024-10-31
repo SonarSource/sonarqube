@@ -100,9 +100,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
               const measure = componentMeasures.find(
                 (m) => m.metric === (areCCTMeasuresComputed ? metric : deprecatedMetric),
               );
-              const measureValue = areCCTMeasuresComputed
-                ? JSON.parse(measure?.value ?? 'null').total
-                : (measure?.value ?? 0);
+              const measureValue = measure?.value ?? 0;
 
               const linkUrl = getComponentIssuesUrl(project, {
                 ...getBranchLikeQuery(branchLike),

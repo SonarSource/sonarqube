@@ -296,9 +296,9 @@ it('should correctly show measures for a project', async () => {
   const folderRow = ui.measureRow(/folderA/);
   [
     [MetricKey.ncloc, '2'],
-    [MetricKey.security_issues, '4'],
-    [MetricKey.reliability_issues, '4'],
-    [MetricKey.maintainability_issues, '4'],
+    [MetricKey.software_quality_security_issues, '4'],
+    [MetricKey.software_quality_reliability_issues, '4'],
+    [MetricKey.software_quality_maintainability_issues, '4'],
     [MetricKey.security_hotspots, '2'],
     [MetricKey.coverage, '2.0%'],
     [MetricKey.duplicated_lines_density, '2.0%'],
@@ -310,9 +310,9 @@ it('should correctly show measures for a project', async () => {
   const fileRow = ui.measureRow(/index\.tsx/);
   [
     [MetricKey.ncloc, '—'],
-    [MetricKey.security_issues, '—'],
-    [MetricKey.reliability_issues, '—'],
-    [MetricKey.maintainability_issues, '—'],
+    [MetricKey.software_quality_security_issues, '—'],
+    [MetricKey.software_quality_reliability_issues, '—'],
+    [MetricKey.software_quality_maintainability_issues, '—'],
     [MetricKey.security_hotspots, '—'],
     [MetricKey.coverage, '—'],
     [MetricKey.duplicated_lines_density, '—'],
@@ -360,9 +360,9 @@ it('should correctly show measures for a project when relying on old taxonomy', 
   const folderRow = ui.measureRow(/folderA/);
   [
     [MetricKey.ncloc, '2'],
-    [MetricKey.security_issues, '2'],
-    [MetricKey.reliability_issues, '2'],
-    [MetricKey.maintainability_issues, '2'],
+    [MetricKey.software_quality_security_issues, '2'],
+    [MetricKey.software_quality_reliability_issues, '2'],
+    [MetricKey.software_quality_maintainability_issues, '2'],
     [MetricKey.security_hotspots, '2'],
     [MetricKey.coverage, '2.0%'],
     [MetricKey.duplicated_lines_density, '2.0%'],
@@ -374,9 +374,9 @@ it('should correctly show measures for a project when relying on old taxonomy', 
   const fileRow = ui.measureRow(/index\.tsx/);
   [
     [MetricKey.ncloc, '—'],
-    [MetricKey.security_issues, '—'],
-    [MetricKey.reliability_issues, '—'],
-    [MetricKey.maintainability_issues, '—'],
+    [MetricKey.software_quality_security_issues, '—'],
+    [MetricKey.software_quality_reliability_issues, '—'],
+    [MetricKey.software_quality_maintainability_issues, '—'],
     [MetricKey.security_hotspots, '—'],
     [MetricKey.coverage, '—'],
     [MetricKey.duplicated_lines_density, '—'],
@@ -649,12 +649,10 @@ function generateMeasures(overallValue = '1.0', newValue = '2.0') {
   return keyBy(
     [
       ...[
-        MetricKey.security_issues,
-        MetricKey.reliability_issues,
-        MetricKey.maintainability_issues,
-      ].map((metric) =>
-        mockMeasure({ metric, value: JSON.stringify({ total: 4 }), period: undefined }),
-      ),
+        MetricKey.software_quality_security_issues,
+        MetricKey.software_quality_reliability_issues,
+        MetricKey.software_quality_maintainability_issues,
+      ].map((metric) => mockMeasure({ metric, value: '4', period: undefined })),
       ...[
         MetricKey.ncloc,
         MetricKey.new_lines,

@@ -351,14 +351,17 @@ describe('project overview', () => {
 
   it('should render old measures if software impact are missing', async () => {
     // Make as if new analysis after upgrade is missing
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_issues,
+    );
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,
     );
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
 
     const { user, ui } = getPageObjects();
@@ -390,18 +393,21 @@ describe('project overview', () => {
 
   it('should render missing software impact measure cards if both software qualities and old measures are missing', async () => {
     // Make as if no measures at all
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_issues,
+    );
     measuresHandler.deleteComponentMeasure('foo', MetricKey.code_smells);
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,
     );
 
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.vulnerabilities);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
 
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.bugs);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
 
@@ -431,13 +437,13 @@ describe('project overview', () => {
   });
 
   it.each([
-    ['security_issues', MetricKey.security_issues],
-    ['reliability_issues', MetricKey.reliability_issues],
-    ['maintainability_issues', MetricKey.maintainability_issues],
+    [MetricKey.software_quality_security_issues],
+    [MetricKey.software_quality_reliability_issues],
+    [MetricKey.software_quality_maintainability_issues],
   ])(
     'should display info about missing analysis if a project is not computed for %s',
     async (missingMetricKey) => {
-      measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
+      measuresHandler.deleteComponentMeasure('foo', missingMetricKey);
       const { user, ui } = getPageObjects();
       renderBranchOverview();
 
@@ -723,9 +729,9 @@ describe('application overview', () => {
   });
 
   it.each([
-    ['security_issues', MetricKey.security_issues],
-    ['reliability_issues', MetricKey.reliability_issues],
-    ['maintainability_issues', MetricKey.maintainability_issues],
+    [MetricKey.software_quality_security_issues],
+    [MetricKey.software_quality_reliability_issues],
+    [MetricKey.software_quality_maintainability_issues],
   ])(
     'should ask to reanalyze all projects if a project is not computed for %s',
     async (missingMetricKey) => {

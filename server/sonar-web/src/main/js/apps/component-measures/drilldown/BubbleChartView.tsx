@@ -39,7 +39,7 @@ import {
   translate,
   translateWithParameters,
 } from '../../../helpers/l10n';
-import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
@@ -257,9 +257,7 @@ const getMeasureVal = (component: ComponentMeasureEnhanced, metric: Metric) => {
   if (!measure) {
     return undefined;
   }
-  return Number(
-    getCCTMeasureValue(metric.key, isDiffMetric(metric.key) ? measure.leak : measure.value),
-  );
+  return Number(isDiffMetric(metric.key) ? measure.leak : measure.value);
 };
 
 const getTooltip = (

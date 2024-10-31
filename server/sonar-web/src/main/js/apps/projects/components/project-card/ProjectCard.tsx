@@ -68,9 +68,9 @@ function renderFirstLine(
 ) {
   const { analysisDate, isFavorite, key, measures, name, qualifier, tags, visibility } = project;
   const noSoftwareQualityMetrics = [
-    MetricKey.reliability_issues,
-    MetricKey.maintainability_issues,
-    MetricKey.security_issues,
+    MetricKey.software_quality_reliability_issues,
+    MetricKey.software_quality_maintainability_issues,
+    MetricKey.software_quality_security_issues,
   ].every((key) => measures[key] === undefined);
   const noRatingMetrics = [
     MetricKey.software_quality_reliability_rating,
