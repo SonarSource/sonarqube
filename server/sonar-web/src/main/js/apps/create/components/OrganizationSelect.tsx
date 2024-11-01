@@ -54,7 +54,7 @@ export default function OrganizationSelect({ onChange, organization, organizatio
       isNotClearable
       placeholder={translate('onboarding.import_organization.choose_organization')}
       value={organization?.kee}
-      className="organization-selectbox"
+      className="organization-selectbox sw-pt-2"
     />
   );
 }

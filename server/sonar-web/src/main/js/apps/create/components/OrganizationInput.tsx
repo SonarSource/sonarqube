@@ -60,7 +60,10 @@ function OrganizationInput(props: Props) {
       </div>
 
       {canCreateOrganizations && (
-        <NavLink className="big-spacer-left sw-pl-4 sw-pt-2 " to="/organizations/create">
+        <NavLink
+          className="big-spacer-left sw-pl-4 sw-pt-4 navlink-text"
+          to="/organizations/create"
+        >
           {translate('onboarding.create_project.create_new_org')}
         </NavLink>
       )}

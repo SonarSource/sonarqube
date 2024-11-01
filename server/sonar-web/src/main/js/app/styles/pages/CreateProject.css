@@ -16,3 +16,7 @@
   display: flex;
   align-items: center;
 }
+
+.navlink-text {
+  color: rgb(93, 108, 208);
+}
