@@ -26,7 +26,7 @@ import { RawQuery } from '~sonar-aligned/types/router';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
 import { translate } from '../../helpers/l10n';
 import { parseAsString } from '../../helpers/query';
-import { SoftwareQuality } from '../../types/clean-code-taxonomy';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
 import { IssueType } from '../../types/issues';
 import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
 import { QualityGateStatusConditionEnhanced } from '../../types/quality-gates';
@@ -165,6 +165,13 @@ export const RATING_TO_SEVERITIES_MAPPING = [
   'BLOCKER,CRITICAL,MAJOR',
   'BLOCKER,CRITICAL',
   'BLOCKER',
+];
+
+export const MQR_RATING_TO_SEVERITIES_MAPPING = [
+  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High},${SoftwareImpactSeverity.Medium},${SoftwareImpactSeverity.Info}`,
+  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High},${SoftwareImpactSeverity.Medium}`,
+  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High}`,
+  `${SoftwareImpactSeverity.Blocker}`,
 ];
 
 export const RATING_METRICS_MAPPING: Dict<IssueType> = {

@@ -19,6 +19,7 @@
  */
 
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { propsToIssueParams } from '../utils';
 
 describe('propsToIssueParams', () => {
@@ -30,6 +31,56 @@ describe('propsToIssueParams', () => {
     expect(propsToIssueParams(MetricKey.false_positive_issues, true)).toEqual({
       inNewCodePeriod: true,
       issueStatuses: 'FALSE_POSITIVE',
+    });
+  });
+  it.each([
+    [MetricKey.software_quality_info_issues, { impactSeverities: SoftwareImpactSeverity.Info }],
+    [MetricKey.software_quality_low_issues, { impactSeverities: SoftwareImpactSeverity.Low }],
+    [MetricKey.software_quality_medium_issues, { impactSeverities: SoftwareImpactSeverity.Medium }],
+    [MetricKey.software_quality_high_issues, { impactSeverities: SoftwareImpactSeverity.High }],
+    [
+      MetricKey.software_quality_blocker_issues,
+      { impactSeverities: SoftwareImpactSeverity.Blocker },
+    ],
+    [MetricKey.new_software_quality_info_issues, { impactSeverities: SoftwareImpactSeverity.Info }],
+    [MetricKey.new_software_quality_low_issues, { impactSeverities: SoftwareImpactSeverity.Low }],
+    [
+      MetricKey.new_software_quality_medium_issues,
+      { impactSeverities: SoftwareImpactSeverity.Medium },
+    ],
+    [MetricKey.new_software_quality_high_issues, { impactSeverities: SoftwareImpactSeverity.High }],
+    [
+      MetricKey.new_software_quality_blocker_issues,
+      { impactSeverities: SoftwareImpactSeverity.Blocker },
+    ],
+    [
+      MetricKey.software_quality_reliability_issues,
+      { impactSoftwareQualities: SoftwareQuality.Reliability },
+    ],
+    [
+      MetricKey.software_quality_maintainability_issues,
+      { impactSoftwareQualities: SoftwareQuality.Maintainability },
+    ],
+    [
+      MetricKey.software_quality_security_issues,
+      { impactSoftwareQualities: SoftwareQuality.Security },
+    ],
+    [
+      MetricKey.new_software_quality_reliability_issues,
+      { impactSoftwareQualities: SoftwareQuality.Reliability },
+    ],
+    [
+      MetricKey.new_software_quality_maintainability_issues,
+      { impactSoftwareQualities: SoftwareQuality.Maintainability },
+    ],
+    [
+      MetricKey.new_software_quality_security_issues,
+      { impactSoftwareQualities: SoftwareQuality.Security },
+    ],
+  ])(`should render correct params for %s`, (metricKey, result) => {
+    expect(propsToIssueParams(metricKey)).toEqual({
+      issueStatuses: 'OPEN,CONFIRMED',
+      ...result,
     });
   });
 });

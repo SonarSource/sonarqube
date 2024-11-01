@@ -19,6 +19,7 @@
  */
 
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
 import { IssueStatus } from '../../types/issues';
 import { Dict } from '../../types/types';
 
@@ -46,6 +47,25 @@ const ISSUE_MEASURES = [
   MetricKey.vulnerabilities,
   MetricKey.new_vulnerabilities,
   MetricKey.prioritized_rule_issues,
+  // MQR
+  MetricKey.new_software_quality_info_issues,
+  MetricKey.new_software_quality_low_issues,
+  MetricKey.new_software_quality_medium_issues,
+  MetricKey.new_software_quality_high_issues,
+  MetricKey.new_software_quality_blocker_issues,
+  MetricKey.software_quality_info_issues,
+  MetricKey.software_quality_low_issues,
+  MetricKey.software_quality_medium_issues,
+  MetricKey.software_quality_high_issues,
+  MetricKey.software_quality_blocker_issues,
+  MetricKey.new_software_quality_maintainability_issues,
+  MetricKey.new_software_quality_reliability_issues,
+  MetricKey.new_software_quality_security_issues,
+  MetricKey.software_quality_maintainability_issues,
+  MetricKey.software_quality_reliability_issues,
+  MetricKey.software_quality_security_issues,
+  MetricKey.new_software_quality_maintainability_rating,
+  MetricKey.software_quality_maintainability_rating,
 ];
 
 export const DEFAULT_ISSUES_QUERY = {
@@ -74,6 +94,39 @@ const issueParamsPerMetric: Dict<Dict<string>> = {
   [MetricKey.vulnerabilities]: { types: 'VULNERABILITY' },
   [MetricKey.new_vulnerabilities]: { types: 'VULNERABILITY' },
   [MetricKey.prioritized_rule_issues]: { prioritizedRule: 'true' },
+  // MQR
+  [MetricKey.new_software_quality_info_issues]: { impactSeverities: SoftwareImpactSeverity.Info },
+  [MetricKey.new_software_quality_low_issues]: { impactSeverities: SoftwareImpactSeverity.Low },
+  [MetricKey.new_software_quality_medium_issues]: {
+    impactSeverities: SoftwareImpactSeverity.Medium,
+  },
+  [MetricKey.new_software_quality_high_issues]: { impactSeverities: SoftwareImpactSeverity.High },
+  [MetricKey.new_software_quality_blocker_issues]: {
+    impactSeverities: SoftwareImpactSeverity.Blocker,
+  },
+  [MetricKey.software_quality_info_issues]: { impactSeverities: SoftwareImpactSeverity.Info },
+  [MetricKey.software_quality_low_issues]: { impactSeverities: SoftwareImpactSeverity.Low },
+  [MetricKey.software_quality_medium_issues]: { impactSeverities: SoftwareImpactSeverity.Medium },
+  [MetricKey.software_quality_high_issues]: { impactSeverities: SoftwareImpactSeverity.High },
+  [MetricKey.software_quality_blocker_issues]: { impactSeverities: SoftwareImpactSeverity.Blocker },
+  [MetricKey.new_software_quality_maintainability_issues]: {
+    impactSoftwareQualities: SoftwareQuality.Maintainability,
+  },
+  [MetricKey.new_software_quality_reliability_issues]: {
+    impactSoftwareQualities: SoftwareQuality.Reliability,
+  },
+  [MetricKey.new_software_quality_security_issues]: {
+    impactSoftwareQualities: SoftwareQuality.Security,
+  },
+  [MetricKey.software_quality_maintainability_issues]: {
+    impactSoftwareQualities: SoftwareQuality.Maintainability,
+  },
+  [MetricKey.software_quality_reliability_issues]: {
+    impactSoftwareQualities: SoftwareQuality.Reliability,
+  },
+  [MetricKey.software_quality_security_issues]: {
+    impactSoftwareQualities: SoftwareQuality.Security,
+  },
 };
 
 export function isIssueMeasure(metric: string) {

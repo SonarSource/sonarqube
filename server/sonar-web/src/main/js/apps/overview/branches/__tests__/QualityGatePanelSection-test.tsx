@@ -21,55 +21,32 @@
 import { screen } from '@testing-library/react';
 import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { Status } from '~sonar-aligned/types/common';
-import { MetricKey } from '~sonar-aligned/types/metrics';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
-import { mockQualityGate, mockQualityGateStatus } from '../../../../helpers/mocks/quality-gates';
+import {
+  mockQualityGate,
+  mockQualityGateStatus,
+  mockQualityGateStatusConditionEnhanced,
+} from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { CaycStatus } from '../../../../types/types';
 import { CurrentUser, NoticeType } from '../../../../types/users';
 import QualityGatePanelSection, { QualityGatePanelSectionProps } from '../QualityGatePanelSection';
 
+const mockCondition = (metric: MetricKey, type = MetricType.Rating) =>
+  mockQualityGateStatusConditionEnhanced({
+    level: 'ERROR',
+    metric,
+    measure: {
+      metric: { id: metric, key: metric, name: metric, type },
+    },
+  });
+
 const failedConditions = [
-  {
-    level: 'ERROR' as Status,
-    measure: {
-      metric: {
-        id: 'metricId1',
-        key: MetricKey.new_coverage,
-        name: 'metricName1',
-        type: 'metricType1',
-      },
-    },
-    metric: MetricKey.new_coverage,
-    op: 'op1',
-  },
-  {
-    level: 'ERROR' as Status,
-    measure: {
-      metric: {
-        id: 'metricId2',
-        key: MetricKey.security_hotspots,
-        name: 'metricName2',
-        type: 'metricType2',
-      },
-    },
-    metric: MetricKey.security_hotspots,
-    op: 'op2',
-  },
-  {
-    level: 'ERROR' as Status,
-    measure: {
-      metric: {
-        id: 'metricId2',
-        key: MetricKey.new_violations,
-        name: 'metricName2',
-        type: 'metricType2',
-      },
-    },
-    metric: MetricKey.new_violations,
-    op: 'op2',
-  },
+  mockCondition(MetricKey.new_coverage),
+  mockCondition(MetricKey.security_hotspots),
+  mockCondition(MetricKey.new_violations),
 ];
 
 const qgStatus = mockQualityGateStatus({
@@ -114,6 +91,105 @@ it('should not render 0 New issues onboarding for user who dismissed it', async 
 
   expect(screen.queryByText('quality_gates.conditions.new_code_1')).not.toBeInTheDocument();
   expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
+});
+
+it('should render correct links for ratings with "overall code" failed conditions', () => {
+  renderQualityGatePanelSection(
+    {
+      isApplication: false,
+      isNewCode: false,
+      qgStatus: {
+        ...qgStatus,
+        failedConditions: [
+          mockCondition(MetricKey.sqale_rating),
+          mockCondition(MetricKey.reliability_rating),
+          mockCondition(MetricKey.security_rating),
+          mockCondition(MetricKey.software_quality_security_rating),
+          mockCondition(MetricKey.software_quality_reliability_rating),
+          mockCondition(MetricKey.software_quality_maintainability_rating),
+        ],
+      },
+      qualityGate: mockQualityGate({ isBuiltIn: true }),
+    },
+    mockLoggedInUser({
+      dismissedNotices: { [NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION]: true },
+    }),
+  );
+
+  expect(byRole('link', { name: /sqale_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=CODE_SMELL&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /reliability_rating/ }).getAt(0)).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=BUG&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /security_rating/ }).getAt(0)).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=VULNERABILITY&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /software_quality_security_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=SECURITY&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /software_quality_reliability_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=RELIABILITY&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /software_quality_maintainability_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=MAINTAINABILITY&id=qgStatusKey',
+  );
+});
+
+it('should render correct links for ratings with "new code" failed conditions', () => {
+  renderQualityGatePanelSection(
+    {
+      isApplication: false,
+      qgStatus: {
+        ...qgStatus,
+        failedConditions: [
+          mockCondition(MetricKey.new_maintainability_rating),
+          mockCondition(MetricKey.new_security_rating),
+          mockCondition(MetricKey.new_reliability_rating),
+          mockCondition(MetricKey.new_software_quality_security_rating),
+          mockCondition(MetricKey.new_software_quality_reliability_rating),
+          mockCondition(MetricKey.new_software_quality_maintainability_rating),
+        ],
+      },
+      qualityGate: mockQualityGate({ isBuiltIn: true }),
+    },
+    mockLoggedInUser({
+      dismissedNotices: { [NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION]: true },
+    }),
+  );
+
+  expect(byRole('link', { name: /new_maintainability_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=CODE_SMELL&inNewCodePeriod=true&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /new_security_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=VULNERABILITY&inNewCodePeriod=true&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /new_reliability_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=BUG&inNewCodePeriod=true&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /new_software_quality_security_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=SECURITY&inNewCodePeriod=true&id=qgStatusKey',
+  );
+  expect(byRole('link', { name: /new_software_quality_reliability_rating/ }).get()).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=RELIABILITY&inNewCodePeriod=true&id=qgStatusKey',
+  );
+  expect(
+    byRole('link', { name: /new_software_quality_maintainability_rating/ }).get(),
+  ).toHaveAttribute(
+    'href',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=MAINTAINABILITY&inNewCodePeriod=true&id=qgStatusKey',
+  );
 });
 
 function renderQualityGatePanelSection(
