@@ -39,6 +39,7 @@ public class CreateRulesDefaultImpactsTable extends CreateTableChange {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(VarcharColumnDef.UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_uuid").setIsNullable(false).setLimit(VarcharColumnDef.UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setIsNullable(false).setLimit(VarcharColumnDef.UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("software_quality").setIsNullable(false).setLimit(40).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("severity").setIsNullable(false).setLimit(40).build())
       .build());

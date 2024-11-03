@@ -42,7 +42,14 @@ public class PopulateDefaultImpactsInRules extends DataChange {
   private static final String SELECT_QUERY = """
     SELECT r.uuid, r.rule_type, r.priority, rm.ad_hoc_type, rm.ad_hoc_severity, r.is_ad_hoc
     FROM rules r
-    LEFT JOIN rules_metadata rm ON rm.rule_uuid = r.uuid
+    LEFT JOIN rules_metadata rm ON rm.rule_uuid = r.uuid AND rm.organization_uuid IS NULL
+    LEFT JOIN rules_default_impacts rdi ON rdi.rule_uuid = r.uuid
+    WHERE rdi.uuid IS NULL
+    """;
+  /* TODO */
+  private static final String SELECT_QUERY_CS = """
+    SELECT r.uuid, r.rule_type, r.priority, NULL, NULL, false
+    FROM rules r
     LEFT JOIN rules_default_impacts rdi ON rdi.rule_uuid = r.uuid
     WHERE rdi.uuid IS NULL
     """;
@@ -62,7 +69,7 @@ public class PopulateDefaultImpactsInRules extends DataChange {
       return;
     }
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select(SELECT_QUERY);
+    massUpdate.select(SELECT_QUERY_CS);
     massUpdate.update(INSERT_QUERY);
 
     massUpdate.execute((row, update, index) -> {
