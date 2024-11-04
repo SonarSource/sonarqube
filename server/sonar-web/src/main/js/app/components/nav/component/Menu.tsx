@@ -272,7 +272,7 @@ export function Menu(props: Readonly<Props>) {
               : translate('layout.settings')
           }
           withChevron
-          to={{ search: new URLSearchParams(query).toString() }}
+          to={window.location}
         />
       </DropdownMenu.Root>
     );
@@ -549,7 +549,7 @@ export function Menu(props: Readonly<Props>) {
         id="component-navigation-more"
         items={withoutSecurityExtension.map((e) => renderExtension(e, false, query))}
       >
-        <NavBarTabLink preventDefault text={translate('more')} withChevron to={{}} />
+        <NavBarTabLink preventDefault text={translate('more')} withChevron to={window.location} />
       </DropdownMenu.Root>
     );
   };
