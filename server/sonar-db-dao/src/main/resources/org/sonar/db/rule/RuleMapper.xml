@@ -432,11 +432,12 @@
   </insert>
 
   <insert id="insertRuleDefaultImpact" parameterType="Map" useGeneratedKeys="false">
-    INSERT INTO rules_default_impacts (rule_uuid, software_quality, severity)
+    INSERT INTO rules_default_impacts (rule_uuid, software_quality, severity, organization_uuid)
     VALUES (
     #{ruleUuid,jdbcType=VARCHAR},
     #{dto.softwareQuality,jdbcType=VARCHAR},
-    #{dto.severity,jdbcType=VARCHAR})
+    #{dto.severity,jdbcType=VARCHAR},
+    #{organizationUuid,jdbcType=VARCHAR})
   </insert>
 
   <insert id="insertRuleTag" parameterType="Map" useGeneratedKeys="false">
