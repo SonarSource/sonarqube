@@ -50,7 +50,7 @@ export default function SystemUpgradeButton(props: Readonly<Props>) {
       <Link
         className="sw-ml-2"
         to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
-        target="_blank"
+        shouldOpenInNewTab
       >
         {translate('learn_more')}
       </Link>

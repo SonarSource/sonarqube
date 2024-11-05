@@ -52,10 +52,17 @@ async function initApplication() {
     },
   );
 
-  const [l10nBundle, currentUser, appState, availableFeatures] = await Promise.all([
-    loadL10nBundle(),
+  const appState = isMainApp()
+    ? await getGlobalNavigation().catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        return undefined;
+      })
+    : undefined;
+
+  const [l10nBundle, currentUser, availableFeatures] = await Promise.all([
+    loadL10nBundle(appState),
     isMainApp() ? getCurrentUser() : undefined,
-    isMainApp() ? getGlobalNavigation() : undefined,
     isMainApp() ? getAvailableFeatures() : undefined,
   ]).catch((error) => {
     // eslint-disable-next-line no-console

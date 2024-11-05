@@ -20,13 +20,11 @@
 
 import { FormattedMessage } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
-import { translate } from '../../../helpers/l10n';
 
 export default function TotalEffort({ effort }: { effort: number }) {
   return (
     <div className="sw-inline-block">
       <FormattedMessage
-        defaultMessage={translate('issue.x_effort')}
         id="issue.x_effort"
         values={{ 0: <strong>{formatMeasure(effort, 'WORK_DUR')}</strong> }}
       />

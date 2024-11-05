@@ -18,17 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import failOnConsole from 'jest-fail-on-console';
-const IGNORED_ERROR_MESSAGES: string[] = [
-  // react-virtualized & react-draggable use `findDOMNode` which is deprecated
-  'findDOMNode is deprecated and will be removed in the next major release',
+import { LogoSonarQubeCommunity, LogoSonarQubeServer } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { useAppState } from '../../app/components/app-state/withAppStateContext';
+import { EditionKey } from '../../types/editions';
 
-  // react-intl warning
-  '[@formatjs/intl] "defaultRichTextElements" was specified but "message" was not pre-compiled.',
-];
+type Props = React.ComponentProps<typeof LogoSonarQubeServer>;
 
-failOnConsole({
-  silenceMessage: (message) => {
-    return IGNORED_ERROR_MESSAGES.some((ignore_message) => message.includes(ignore_message));
-  },
-});
+/**
+ * This component switches between the Community and Server product versions' logo
+ */
+export function SonarQubeProductLogo(props: Props) {
+  const { edition } = useAppState();
+
+  const OfficialLogo =
+    edition === EditionKey.community ? LogoSonarQubeCommunity : LogoSonarQubeServer;
+
+  return <OfficialLogo {...props} />;
+}

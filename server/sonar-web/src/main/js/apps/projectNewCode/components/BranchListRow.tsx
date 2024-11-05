@@ -26,6 +26,7 @@ import {
   IconMoreVertical,
   Tooltip,
 } from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
 import {
   ActionCell,
   Badge,
@@ -97,6 +98,8 @@ function referenceBranchDoesNotExist(
 export default function BranchListRow(props: BranchListRowProps) {
   const { branch, existingBranches, inheritedSetting } = props;
 
+  const intl = useIntl();
+
   let settingWarning: string | undefined;
   if (branchInheritsItselfAsReference(branch, inheritedSetting)) {
     settingWarning = translateWithParameters(
@@ -104,9 +107,11 @@ export default function BranchListRow(props: BranchListRowProps) {
       branch.name,
     );
   } else if (referenceBranchDoesNotExist(branch, existingBranches)) {
-    settingWarning = translateWithParameters(
-      'baseline.reference_branch.does_not_exist',
-      branch.newCodePeriod?.value ?? '',
+    settingWarning = intl.formatMessage(
+      {
+        id: 'baseline.reference_branch.does_not_exist',
+      },
+      { branch: branch.newCodePeriod?.value ?? '' },
     );
   }
 

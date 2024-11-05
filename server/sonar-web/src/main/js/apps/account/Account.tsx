@@ -21,17 +21,20 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
+import { useIntl } from 'react-intl';
 import { Outlet } from 'react-router-dom';
 import { LargeCenteredLayout, PageContentFontWrapper, TopBar } from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useCurrentLoginUser } from '../../app/components/current-user/CurrentUserContext';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import Nav from './components/Nav';
 import UserCard from './components/UserCard';
 
 export default function Account() {
   const currentUser = useCurrentLoginUser();
   const [portalAnchor, setPortalAnchor] = React.useState<Element | null>(null);
+
+  const intl = useIntl();
 
   // Set portal anchor on mount
   React.useEffect(() => {
@@ -61,9 +64,9 @@ export default function Account() {
           <Helmet
             defaultTitle={title}
             defer={false}
-            titleTemplate={translateWithParameters(
-              'page_title.template.with_category',
-              translate('my_account.page'),
+            titleTemplate={intl.formatMessage(
+              { id: 'page_title.template.with_category' },
+              { page: translate('my_account.page') },
             )}
           />
 

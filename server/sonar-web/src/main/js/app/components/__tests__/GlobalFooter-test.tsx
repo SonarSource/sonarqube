@@ -35,15 +35,15 @@ afterEach(() => {
 });
 
 it('should render the logged-in information', async () => {
-  renderGlobalFooter();
+  renderGlobalFooter({}, { edition: EditionKey.community });
 
   expect(ui.databaseWarningMessage.query()).not.toBeInTheDocument();
 
   expect(ui.footerListItems.getAll()).toHaveLength(7);
 
   expect(byText('Community Edition').get()).toBeInTheDocument();
-  expect(ui.versionLabel('4.2').get()).toBeInTheDocument();
-  expect(await ui.ltaDocumentationLinkActive.find()).toBeInTheDocument();
+  expect(await ui.versionLabel('4.2').find()).toBeInTheDocument();
+  expect(ui.ltaDocumentationLinkActive.query()).not.toBeInTheDocument();
   expect(ui.apiLink.get()).toBeInTheDocument();
 });
 
@@ -85,7 +85,7 @@ it('should not render missing logged-in information', () => {
 });
 
 it('should not render the logged-in information', () => {
-  renderGlobalFooter({ hideLoggedInInfo: true });
+  renderGlobalFooter({ hideLoggedInInfo: true }, { edition: EditionKey.community });
 
   expect(ui.databaseWarningMessage.query()).not.toBeInTheDocument();
 
@@ -109,7 +109,7 @@ function renderGlobalFooter(
   return renderComponent(<GlobalFooter {...props} />, '/', {
     appState: mockAppState({
       productionDatabase: true,
-      edition: EditionKey.community,
+      edition: EditionKey.developer,
       version: '4.2',
       ...appStateOverride,
     }),

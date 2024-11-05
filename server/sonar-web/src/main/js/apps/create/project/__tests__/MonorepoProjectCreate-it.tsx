@@ -77,10 +77,6 @@ const ui = {
 };
 
 beforeAll(() => {
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    value: { replace: jest.fn() },
-  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
   componentsHandler = new ComponentsServiceMock();

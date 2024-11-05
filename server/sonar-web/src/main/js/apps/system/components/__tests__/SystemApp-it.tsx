@@ -23,8 +23,10 @@ import userEvent from '@testing-library/user-event';
 import { first } from 'lodash';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../../api/mocks/SystemServiceMock';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../../types/appstate';
+import { EditionKey } from '../../../../types/editions';
 import routes from '../../routes';
 import { LogsLevels } from '../../utils';
 
@@ -125,7 +127,9 @@ describe('System Info Cluster', () => {
 });
 
 function renderSystemApp(appState?: AppState) {
-  return renderAppRoutes('system', routes, { appState });
+  return renderAppRoutes('system', routes, {
+    appState: mockAppState({ edition: EditionKey.developer, ...appState }),
+  });
 }
 
 function getPageObjects() {

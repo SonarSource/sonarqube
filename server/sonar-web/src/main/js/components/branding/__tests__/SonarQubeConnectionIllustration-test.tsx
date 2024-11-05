@@ -18,17 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import failOnConsole from 'jest-fail-on-console';
-const IGNORED_ERROR_MESSAGES: string[] = [
-  // react-virtualized & react-draggable use `findDOMNode` which is deprecated
-  'findDOMNode is deprecated and will be removed in the next major release',
+import { mockAppState } from '../../../helpers/testMocks';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { EditionKey } from '../../../types/editions';
+import { SonarQubeConnectionIllustration } from '../SonarQubeConnectionIllustration';
 
-  // react-intl warning
-  '[@formatjs/intl] "defaultRichTextElements" was specified but "message" was not pre-compiled.',
-];
+it.each([
+  [EditionKey.community, true],
+  [EditionKey.community, false],
+  [EditionKey.enterprise, true],
+  [EditionKey.enterprise, false],
+])('should render %s edition (variant connected %s) correctly', (edition, connected) => {
+  const { container } = renderComponent(
+    <SonarQubeConnectionIllustration connected={connected} />,
+    '',
+    { appState: mockAppState({ edition }) },
+  );
 
-failOnConsole({
-  silenceMessage: (message) => {
-    return IGNORED_ERROR_MESSAGES.some((ignore_message) => message.includes(ignore_message));
-  },
+  expect(container).toMatchSnapshot();
 });

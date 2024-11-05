@@ -53,6 +53,14 @@ jest.mock('../../../../helpers/dates', () => {
   };
 });
 
+jest.mock('../../../../helpers/l10nBundle', () => {
+  const bundle = jest.requireActual('../../../../helpers/l10nBundle');
+  return {
+    ...bundle,
+    getIntl: () => ({ formatMessage: jest.fn(({ id }) => `${id}`) }),
+  };
+});
+
 const ui = {
   pageTitle: byRole('heading', { name: 'audit_logs.page' }),
   downloadButton: byRole('link', { name: 'download_verb' }),

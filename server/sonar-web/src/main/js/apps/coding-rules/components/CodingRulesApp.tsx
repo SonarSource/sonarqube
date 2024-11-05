@@ -45,6 +45,7 @@ import { DocLink } from '../../../helpers/doc-links';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getIntl } from '../../../helpers/l10nBundle';
 import { SecurityStandard } from '../../../types/security';
 import { SettingsKey } from '../../../types/settings';
 import { Dict, Paging, Rule, RuleActivation } from '../../../types/types';
@@ -103,6 +104,7 @@ interface State {
 const RULE_LIST_HEADER_HEIGHT = 68;
 
 export class CodingRulesApp extends React.PureComponent<Props, State> {
+  intl = getIntl();
   mounted = false;
 
   constructor(props: Props) {
@@ -574,9 +576,9 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
           <Helmet
             defer={false}
             title={translateWithParameters('coding_rule.page', openRule.langName, openRule.name)}
-            titleTemplate={translateWithParameters(
-              'page_title.template.with_category',
-              translate('coding_rules.page'),
+            titleTemplate={this.intl.formatMessage(
+              { id: 'page_title.template.with_category' },
+              { page: translate('coding_rules.page') },
             )}
           />
         ) : (

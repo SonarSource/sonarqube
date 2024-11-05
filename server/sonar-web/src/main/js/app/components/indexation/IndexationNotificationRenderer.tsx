@@ -156,7 +156,6 @@ function renderInProgressBanner(completedCount: number, total: number) {
       <span>
         <FormattedMessage
           id="indexation.admin_link"
-          defaultMessage={translate('indexation.admin_link')}
           values={{
             link: renderBackgroundTasksPageLink(false, translate('background_tasks.page')),
           }}

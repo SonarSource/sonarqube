@@ -19,8 +19,8 @@
  */
 
 import { DropdownMenu, DropdownMenuAlign } from '@sonarsource/echoes-react';
+import { FormattedMessage } from 'react-intl';
 import { MainMenuItem } from '~design-system';
-import { translate } from '../../../../helpers/l10n';
 import { AppState } from '../../../../types/appstate';
 import { Extension } from '../../../../types/types';
 import withAppStateContext from '../../app-state/withAppStateContext';
@@ -48,7 +48,7 @@ function GlobalNavMore({ appState: { globalPages = [] } }: Readonly<{ appState: 
     >
       <MainMenuItem>
         <a aria-haspopup="menu" href="#" id="global-navigation-more" role="button">
-          {translate('more')}
+          <FormattedMessage id="more" />
         </a>
       </MainMenuItem>
     </DropdownMenu.Root>

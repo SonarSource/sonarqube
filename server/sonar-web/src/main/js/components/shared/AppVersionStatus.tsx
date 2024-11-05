@@ -27,10 +27,11 @@ import { useDocUrl } from '../../helpers/docs';
 import { getInstanceVersionNumber } from '../../helpers/strings';
 import { isCurrentVersionEOLActive } from '../../helpers/system';
 import { useSystemUpgrades } from '../../queries/system';
+import { EditionKey } from '../../types/editions';
 
 export default function AppVersionStatus() {
   const { data } = useSystemUpgrades();
-  const { version, versionEOL } = useAppState();
+  const { edition, version, versionEOL } = useAppState();
 
   const isActiveVersion = useMemo(() => {
     if (data?.installedVersionActive !== undefined) {
@@ -47,7 +48,7 @@ export default function AppVersionStatus() {
     { id: `footer.version` },
     {
       version: getInstanceVersionNumber(version),
-      status: (
+      status: edition && edition !== EditionKey.community && (
         <LinkStandalone className="sw-ml-1" highlight={LinkHighlight.CurrentColor} to={docUrl}>
           <FormattedMessage
             id={`footer.version.status.${isActiveVersion ? 'active' : 'inactive'}`}

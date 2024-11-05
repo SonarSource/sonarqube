@@ -65,7 +65,7 @@ export default function GithubCFamilyExampleRepositories(
           height={20}
           src="/images/alm/github.svg"
         />
-        <LinkStandalone target="_blank" to={link}>
+        <LinkStandalone shouldOpenInNewTab to={link}>
           sonarsource-cfamily-examples
         </LinkStandalone>
       </div>

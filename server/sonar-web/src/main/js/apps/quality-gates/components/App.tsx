@@ -22,6 +22,7 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useIntl } from 'react-intl';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Card,
@@ -36,7 +37,7 @@ import {
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
 import { DocLink } from '../../../helpers/doc-links';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { useQualityGatesQuery } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
@@ -47,6 +48,7 @@ import ListHeader from './ListHeader';
 
 export default function App() {
   const { data, isLoading } = useQualityGatesQuery();
+  const intl = useIntl();
   const { name } = useParams();
   const navigate = useNavigate();
   const {
@@ -79,9 +81,9 @@ export default function App() {
       <PageContentFontWrapper className="sw-typo-default">
         <Helmet
           defer={false}
-          titleTemplate={translateWithParameters(
-            'page_title.template.with_category',
-            translate('quality_gates.page'),
+          titleTemplate={intl.formatMessage(
+            { id: 'page_title.template.with_category' },
+            { page: translate('quality_gates.page') },
           )}
         />
         <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">

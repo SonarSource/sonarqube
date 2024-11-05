@@ -130,7 +130,7 @@ describe('issues app', () => {
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Fix that' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^advancedRuleId/ })).toBeInTheDocument();
 
       // Select the "why is this an issue" tab and check its content
       await user.click(
@@ -182,7 +182,7 @@ describe('issues app', () => {
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Fix this' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^simpleRuleId/ })).toBeInTheDocument();
 
       // Select the "why is this an issue tab" and check its content
       await user.click(
@@ -195,7 +195,7 @@ describe('issues app', () => {
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Issue on file' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^simpleRuleId/ })).toBeInTheDocument();
 
       // The "Where is the issue" tab should be selected by default. Check its content
       expect(screen.getAllByRole('button', { name: 'Issue on file' })).toHaveLength(2); // there will be 2 buttons one in concise issue and other in code viewer

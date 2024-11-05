@@ -394,6 +394,7 @@ function getPageObjects() {
     branchNCDsBanner: byText(/new_code_definition.auto_update.branch.message/),
     dismissButton: byLabelText('dismiss'),
     baselineSpecificAnalysisDate: byText(/January 10, 2018/),
+    missingReferenceBranchWarning: byText('baseline.reference_branch.does_not_exist'),
   };
 
   async function appIsLoaded() {

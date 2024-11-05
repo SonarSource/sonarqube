@@ -22,6 +22,7 @@ import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
+import { useIntl } from 'react-intl';
 import { Outlet } from 'react-router-dom';
 import { CenteredLayout, Spinner } from '~design-system';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -31,7 +32,6 @@ import { validateProjectAlmBinding } from '../../api/alm-settings';
 import { getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/navigation';
-import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers/urls';
 import { useCurrentBranchQuery } from '../../queries/branch';
@@ -62,6 +62,8 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     pathname,
   } = useLocation();
   const router = useRouter();
+
+  const intl = useIntl();
 
   const [component, setComponent] = React.useState<Component>();
   const [currentTask, setCurrentTask] = React.useState<Task>();
@@ -285,9 +287,9 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     <div>
       <Helmet
         defer={false}
-        titleTemplate={translateWithParameters(
-          'page_title.template.with_instance',
-          component?.name ?? '',
+        titleTemplate={intl.formatMessage(
+          { id: 'page_title.template.with_instance' },
+          { project: component?.name ?? '' },
         )}
       />
       {component &&

@@ -38,6 +38,14 @@ import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 const rulesHandler = new CodingRulesServiceMock();
 const settingsHandler = new SettingsServiceMock();
 
+jest.mock('../../../helpers/l10nBundle', () => {
+  const bundle = jest.requireActual('../../../helpers/l10nBundle');
+  return {
+    ...bundle,
+    getIntl: () => ({ formatMessage: jest.fn() }),
+  };
+});
+
 afterEach(() => {
   rulesHandler.reset();
   settingsHandler.reset();

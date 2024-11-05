@@ -55,13 +55,8 @@ const ui = {
   }),
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
 };
-const original = window.location;
 
 beforeAll(() => {
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    value: { replace: jest.fn() },
-  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
@@ -72,10 +67,6 @@ beforeEach(() => {
   almIntegrationHandler.reset();
   dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
-});
-
-afterAll(() => {
-  Object.defineProperty(window, 'location', { configurable: true, value: original });
 });
 
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {

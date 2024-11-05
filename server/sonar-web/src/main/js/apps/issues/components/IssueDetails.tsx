@@ -21,6 +21,7 @@
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
 import { Helmet } from 'react-helmet-async';
+import { useIntl } from 'react-intl';
 import {
   FlagMessage,
   LargeCenteredLayout,
@@ -33,7 +34,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import { IssueSuggestionCodeTab } from '../../../components/rules/IssueSuggestionCodeTab';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import { fillBranchLike } from '../../../helpers/branch-like';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { useRuleDetailsQuery } from '../../../queries/rules';
 import A11ySkipTarget from '../../../sonar-aligned/components/a11y/A11ySkipTarget';
 import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
@@ -82,6 +83,8 @@ export default function IssueDetails({
   const { data: ruleData, isLoading: isLoadingRule } = useRuleDetailsQuery({ key: openIssue.rule });
   const openRuleDetails = ruleData?.rule;
 
+  const intl = useIntl();
+
   const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
     <FlagMessage
       className="it__portfolio_warning sw-flex"
@@ -100,9 +103,9 @@ export default function IssueDetails({
             <Helmet
               defer={false}
               title={openIssue.message}
-              titleTemplate={translateWithParameters(
-                'page_title.template.with_category',
-                translate('issues.page'),
+              titleTemplate={intl.formatMessage(
+                { id: 'page_title.template.with_category' },
+                { page: translate('issues.page') },
               )}
             />
             <h1 className="sw-sr-only">{translate('issues.page')}</h1>

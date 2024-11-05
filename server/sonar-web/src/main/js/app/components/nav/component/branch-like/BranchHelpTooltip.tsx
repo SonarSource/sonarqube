@@ -19,11 +19,12 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
 import { HelperHintIcon } from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { DocLink } from '../../../../../helpers/doc-links';
-import { translate, translateWithParameters } from '../../../../../helpers/l10n';
+import { translate } from '../../../../../helpers/l10n';
 import { getApplicationAdminUrl } from '../../../../../helpers/urls';
 import { useProjectBindingQuery } from '../../../../../queries/devops-integration';
 import { AlmKeys } from '../../../../../types/alm-settings';
@@ -47,6 +48,8 @@ export default function BranchHelpTooltip({
   const helpIcon = <HelperHintIcon aria-label="help-tooltip" />;
   const { data: projectBinding } = useProjectBindingQuery(component.key);
   const isGitLab = projectBinding != null && projectBinding.alm === AlmKeys.GitLab;
+
+  const intl = useIntl();
 
   if (isApplication) {
     if (!hasManyBranches && canAdminComponent) {
@@ -72,9 +75,11 @@ export default function BranchHelpTooltip({
         <DocHelpTooltip
           content={
             projectBinding != null
-              ? translateWithParameters(
-                  `branch_like_navigation.no_branch_support.content_x.${isGitLab ? 'mr' : 'pr'}`,
-                  translate('alm', projectBinding.alm),
+              ? intl.formatMessage(
+                  {
+                    id: `branch_like_navigation.no_branch_support.content_x.${isGitLab ? 'mr' : 'pr'}`,
+                  },
+                  { alm: translate('alm', projectBinding.alm) },
                 )
               : translate('branch_like_navigation.no_branch_support.content')
           }

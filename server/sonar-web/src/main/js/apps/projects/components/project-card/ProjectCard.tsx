@@ -164,7 +164,6 @@ function renderFirstLine(
               <span className="sw-typo-semibold" title={formattedAnalysisDate}>
                 <FormattedMessage
                   id="projects.last_analysis_on_x"
-                  defaultMessage={translate('projects.last_analysis_on_x')}
                   values={{
                     date: <DateFromNow className="sw-typo-default" date={analysisDate} />,
                   }}

@@ -71,9 +71,11 @@ export function getCommonNodes(ci: TutorialModes) {
     expiresInSelect: byRole('combobox', { name: '' }),
     tokenValue: byText('generatedtoken2'),
     linkToRepo: byRole('link', {
-      name: `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.${
-        ci === TutorialModes.GitHubActions ? 'secret' : 'variables'
-      }.intro.link`,
+      name: new RegExp(
+        `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.${
+          ci === TutorialModes.GitHubActions ? 'secret' : 'variables'
+        }.intro.link`,
+      ),
     }),
     allSetSentence: byText('onboarding.tutorial.ci_outro.done'),
   };

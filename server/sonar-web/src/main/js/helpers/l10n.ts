@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getMessages } from './l10nBundle';
+import { getIntl, getMessages } from './l10nBundle';
 
 export function hasMessage(...keys: string[]): boolean {
   const messageKey = keys.join('.');
@@ -35,9 +35,14 @@ export function translate(...keys: string[]): string {
     console.error(`No message for: ${messageKey}`);
   }
 
-  return l10nMessages[messageKey] || messageKey;
+  const intl = getIntl();
+  // fallback to old if in extension
+  return intl ? intl.formatMessage({ id: messageKey }) : l10nMessages[messageKey];
 }
 
+/**
+ * @param messageKey @deprecated Use react-intl instead
+ */
 export function translateWithParameters(
   messageKey: string,
   ...parameters: Array<string | number>

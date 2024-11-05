@@ -165,7 +165,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
         {isExternal ? (
           <span>({key})</span>
         ) : (
-          <Link to={getRuleUrl(key)} target="_blank">
+          <Link to={getRuleUrl(key)} shouldOpenInNewTab>
             {key}
           </Link>
         )}

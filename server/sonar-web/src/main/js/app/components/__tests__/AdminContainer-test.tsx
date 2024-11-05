@@ -29,6 +29,14 @@ import { AdminPagesContext } from '../../../types/admin';
 import { AdminContainer, AdminContainerProps } from '../AdminContainer';
 import AdminContext from '../AdminContext';
 
+jest.mock('../../../helpers/l10nBundle', () => {
+  const bundle = jest.requireActual('../../../helpers/l10nBundle');
+  return {
+    ...bundle,
+    getIntl: () => ({ formatMessage: jest.fn() }),
+  };
+});
+
 jest.mock('../../../api/navigation', () => ({
   getSettingsNavigation: jest
     .fn()

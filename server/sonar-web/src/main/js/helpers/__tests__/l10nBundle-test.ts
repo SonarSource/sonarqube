@@ -20,6 +20,7 @@
 
 import { fetchL10nBundle } from '../../api/l10n';
 import { loadL10nBundle } from '../l10nBundle';
+import { mockAppState } from '../testMocks';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -33,9 +34,11 @@ jest.mock('../../api/l10n', () => ({
   }),
 }));
 
+const APP_STATE = mockAppState({});
+
 describe('#loadL10nBundle', () => {
   it('should fetch bundle without any timestamp', async () => {
-    await loadL10nBundle();
+    await loadL10nBundle(APP_STATE);
 
     expect(fetchL10nBundle).toHaveBeenCalledWith({ locale: 'de', ts: undefined });
   });
@@ -44,7 +47,7 @@ describe('#loadL10nBundle', () => {
     const cachedBundle = { timestamp: 'timestamp', locale: 'fr', messages: { cache: 'cache' } };
     (window as unknown as any).sonarQubeL10nBundle = cachedBundle;
 
-    await loadL10nBundle();
+    await loadL10nBundle(APP_STATE);
 
     expect(fetchL10nBundle).toHaveBeenCalledWith({ locale: 'de', ts: undefined });
   });
@@ -53,7 +56,7 @@ describe('#loadL10nBundle', () => {
     const cachedBundle = { timestamp: 'timestamp', locale: 'de', messages: { cache: 'cache' } };
     (window as unknown as any).sonarQubeL10nBundle = cachedBundle;
 
-    await loadL10nBundle();
+    await loadL10nBundle(APP_STATE);
 
     expect(fetchL10nBundle).toHaveBeenCalledWith({ locale: 'de', ts: cachedBundle.timestamp });
   });
@@ -63,7 +66,7 @@ describe('#loadL10nBundle', () => {
     (fetchL10nBundle as jest.Mock).mockRejectedValueOnce({ status: 304 });
     (window as unknown as any).sonarQubeL10nBundle = cachedBundle;
 
-    const bundle = await loadL10nBundle();
+    const bundle = await loadL10nBundle(APP_STATE);
 
     expect(bundle).toEqual(
       expect.objectContaining({ locale: cachedBundle.locale, messages: cachedBundle.messages }),

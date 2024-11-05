@@ -18,17 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import failOnConsole from 'jest-fail-on-console';
-const IGNORED_ERROR_MESSAGES: string[] = [
-  // react-virtualized & react-draggable use `findDOMNode` which is deprecated
-  'findDOMNode is deprecated and will be removed in the next major release',
+import { ComponentProps } from 'react';
+import { FormattedMessage } from 'react-intl';
 
-  // react-intl warning
-  '[@formatjs/intl] "defaultRichTextElements" was specified but "message" was not pre-compiled.',
-];
+type Props = ComponentProps<typeof FormattedMessage>;
 
-failOnConsole({
-  silenceMessage: (message) => {
-    return IGNORED_ERROR_MESSAGES.some((ignore_message) => message.includes(ignore_message));
-  },
-});
+export function TranslatedMessage(props: Props) {
+  return <FormattedMessage {...props} />;
+}

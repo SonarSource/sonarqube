@@ -59,7 +59,7 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
                   almBinding,
                   projectBinding,
                 )}/admin/addon/admin/pipelines/repository-variables`}
-                target="_blank"
+                shouldOpenInNewTab
               >
                 {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
               </LinkStandalone>

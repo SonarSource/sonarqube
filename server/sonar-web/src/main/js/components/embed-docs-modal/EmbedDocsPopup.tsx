@@ -20,40 +20,11 @@
 
 import { DropdownMenu } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { Image } from '~sonar-aligned/components/common/Image';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { SuggestionLink } from '../../types/types';
 import { DocItemLink } from './DocItemLink';
 import { SuggestionsContext } from './SuggestionsContext';
-
-function IconLink({
-  icon = 'embed-doc/sq-icon.svg',
-  link,
-  text,
-}: {
-  icon?: string;
-  link: string;
-  text: string;
-}) {
-  return (
-    <DropdownMenu.ItemLink
-      prefix={
-        <Image
-          alt={text}
-          aria-hidden
-          className="sw-mr-2"
-          height="18"
-          src={`/images/${icon}`}
-          width="18"
-        />
-      }
-      to={link}
-    >
-      {text}
-    </DropdownMenu.ItemLink>
-  );
-}
 
 function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }>) {
   return (
@@ -103,21 +74,15 @@ export function EmbedDocsPopup() {
 
       <DropdownMenu.GroupLabel>{translate('docs.stay_connected')}</DropdownMenu.GroupLabel>
 
-      <IconLink
-        link="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
-        text={translate('docs.news')}
-      />
+      <DropdownMenu.ItemLink to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube">
+        {translate('docs.news')}
+      </DropdownMenu.ItemLink>
 
-      <IconLink
-        link="https://www.sonarsource.com/products/sonarqube/roadmap/?referrer=sonarqube"
-        text={translate('docs.roadmap')}
-      />
+      <DropdownMenu.ItemLink to="https://www.sonarsource.com/products/sonarqube/roadmap/?referrer=sonarqube">
+        {translate('docs.roadmap')}
+      </DropdownMenu.ItemLink>
 
-      <IconLink
-        icon="embed-doc/x-icon-black.svg"
-        link="https://twitter.com/SonarQube"
-        text="X @SonarQube"
-      />
+      <DropdownMenu.ItemLink to="https://twitter.com/SonarQube">X @SonarQube</DropdownMenu.ItemLink>
     </>
   );
 }
