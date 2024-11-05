@@ -22,11 +22,13 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { mockRestUser } from '../../../helpers/testMocks';
+import { SettingsKey } from '../../../types/settings';
 import {
   branchHandler,
   componentsHandler,
   issuesHandler,
   renderIssueApp,
+  settingsHandler,
   ui,
   usersHandler,
 } from '../test-utils';
@@ -62,6 +64,7 @@ beforeEach(() => {
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
+  settingsHandler.reset();
   usersHandler.users = [
     mockRestUser({
       login: 'bob.marley',
@@ -114,7 +117,15 @@ it('should be able to add or update comment', async () => {
   expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
 });
 
-it('should be able to show changelog', async () => {
+it.each([
+  ['MQR mode', 'true', 'issue.changelog.impactSeverity.MAINTAINABILITY.BLOCKER.HIGH'],
+  [
+    'Standard mode',
+    'false',
+    'issue.changelog.changed_to.issue.changelog.field.severity.BLOCKER (issue.changelog.was.MAJOR)',
+  ],
+])('should be able to show changelog in %s', async (_, mode, message) => {
+  settingsHandler.set(SettingsKey.MQRMode, mode);
   const user = userEvent.setup();
   issuesHandler.setIsAdmin(true);
   renderIssueApp();
@@ -139,6 +150,8 @@ it('should be able to show changelog', async () => {
       'issue.changelog.changed_to.issue.changelog.field.issueStatus.ACCEPTED (issue.changelog.was.OPEN)',
     ),
   ).toBeInTheDocument();
+  // Severities and Software Quality Severities
+  expect(screen.getByText(message)).toBeInTheDocument();
   expect(
     screen.queryByText(
       'issue.changelog.changed_to.issue.changelog.field.status.RESOLVED (issue.changelog.was.REOPENED)',

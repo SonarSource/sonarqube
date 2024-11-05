@@ -36,6 +36,7 @@ import {
   ASSIGNEE_ME,
   IssueDeprecatedStatus,
   IssueResolution,
+  IssueSeverity,
   IssueStatus,
   IssueTransition,
   IssueType,
@@ -686,6 +687,26 @@ export default class IssuesServiceMock {
               key: 'issueStatus',
               newValue: IssueStatus.Accepted,
               oldValue: IssueStatus.Open,
+            },
+          ],
+        }),
+        mockIssueChangelog({
+          creationDate: '2018-12-01',
+          diffs: [
+            {
+              key: 'severity',
+              newValue: IssueSeverity.Blocker,
+              oldValue: IssueSeverity.Major,
+            },
+          ],
+        }),
+        mockIssueChangelog({
+          creationDate: '2018-12-02',
+          diffs: [
+            {
+              key: 'impactSeverity',
+              newValue: `${SoftwareQuality.Maintainability}:${SoftwareImpactSeverity.Blocker}`,
+              oldValue: `${SoftwareQuality.Maintainability}:${SoftwareImpactSeverity.High}`,
             },
           ],
         }),

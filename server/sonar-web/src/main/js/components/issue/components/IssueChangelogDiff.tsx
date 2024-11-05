@@ -26,9 +26,7 @@ export interface IssueChangelogDiffProps {
   diff: TypeIssueChangelogDiff;
 }
 
-export default function IssueChangelogDiff(props: Readonly<IssueChangelogDiffProps>) {
-  const { diff } = props;
-
+export default function IssueChangelogDiff({ diff }: Readonly<IssueChangelogDiffProps>) {
   const diffComputedValues = {
     newValue: diff.newValue ?? '',
     oldValue: diff.oldValue ?? '',
@@ -75,6 +73,21 @@ export default function IssueChangelogDiff(props: Readonly<IssueChangelogDiffPro
     return (
       <p>
         {translateWithParameters('issue.changelog.line_removed_X', diffComputedValues.oldValue)}
+      </p>
+    );
+  }
+
+  if (diff.key === 'impactSeverity') {
+    const [softwareQuality, newSeverity] = diffComputedValues.newValue.split(':');
+    const [_, oldSeverity] = diffComputedValues.oldValue.split(':');
+    return (
+      <p>
+        {translateWithParameters(
+          'issue.changelog.impactSeverity',
+          softwareQuality,
+          newSeverity,
+          oldSeverity,
+        )}
       </p>
     );
   }

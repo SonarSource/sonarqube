@@ -28,9 +28,9 @@ import {
   PopupZLevel,
   SearchSelectDropdownControl,
 } from '~design-system';
-import { addIssueComment, setIssueTransition } from '../../../api/issues';
 import { SESSION_STORAGE_TRANSITION_GUIDE_KEY } from '../../../apps/issues/components/IssueNewStatusAndTransitionGuide';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useIssueCommentMutation, useIssueTransitionMutation } from '../../../queries/issues';
 import { Issue } from '../../../types/types';
 import StatusHelper from '../../shared/StatusHelper';
 import { updateIssue } from '../actions';
@@ -49,6 +49,8 @@ export default function IssueTransition(props: Readonly<Props>) {
   const guideStepIndex = +(sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) ?? 0);
   const guideIsRunning = sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) !== null;
   const [transitioning, setTransitioning] = React.useState(false);
+  const { mutateAsync: setIssueTransition } = useIssueTransitionMutation();
+  const { mutateAsync: addIssueComment } = useIssueCommentMutation();
 
   async function handleSetTransition(transition: string, comment?: string) {
     setTransitioning(true);
