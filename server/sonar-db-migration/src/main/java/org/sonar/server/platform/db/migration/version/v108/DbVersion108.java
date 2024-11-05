@@ -61,7 +61,8 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_018, "Make columns 'published_at' and 'last_modified_at' nullable on the 'cves' table", AlterCveColumnsToNullable.class)
       .add(10_8_019, "Delete Software Quality ratings from project_measures", DeleteSoftwareQualityRatingFromProjectMeasures.class)
       .add(10_8_020, "Create new software quality metrics", CreateNewSoftwareQualityMetrics.class)
-      .add(10_8_021, "Migrate deprecated project_measures to replacement metrics", MigrateProjectMeasuresDeprecatedMetrics.class);
+      .add(10_8_021, "Migrate deprecated project_measures to replacement metrics", MigrateProjectMeasuresDeprecatedMetrics.class)
+      .add(10_8_022, "Add 'manual_severity' column in 'issues_impacts' table", AddManualSeverityColumnInIssuesImpactsTable.class);
   }
 
 }

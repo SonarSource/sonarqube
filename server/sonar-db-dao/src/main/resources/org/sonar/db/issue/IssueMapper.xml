@@ -119,6 +119,7 @@
   <sql id="issueImpactsColumns">
     ii.software_quality as "ii_softwareQuality",
     ii.severity as "ii_severity",
+    ii.manual_severity as "ii_manualSeverity",
   </sql>
 
   <sql id="ruleDefaultImpactsColumns">
@@ -137,6 +138,7 @@
                 javaType="java.util.Set" ofType="Impact">
       <result property="softwareQuality" column="ii_softwareQuality"/>
       <result property="severity" column="ii_severity"/>
+      <result property="manualSeverity" column="ii_manualSeverity"/>
     </collection>
     <collection property="ruleDefaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality"
                 javaType="java.util.Set" ofType="Impact">
@@ -185,11 +187,12 @@
   </insert>
 
   <insert id="insertIssueImpact" parameterType="map" useGeneratedKeys="false">
-    INSERT INTO issues_impacts (issue_key, software_quality, severity)
+    INSERT INTO issues_impacts (issue_key, software_quality, severity, manual_severity)
     VALUES (
     #{issueKey,jdbcType=VARCHAR},
     #{dto.softwareQuality,jdbcType=VARCHAR},
-    #{dto.severity,jdbcType=VARCHAR})
+    #{dto.severity,jdbcType=VARCHAR},
+    #{dto.manualSeverity,jdbcType=BOOLEAN})
   </insert>
 
   <delete id="deleteAsNewCodeOnReferenceBranch" parameterType="String">
@@ -343,6 +346,7 @@
                 javaType="java.util.Set" ofType="Impact">
       <result property="softwareQuality" column="ii_softwareQuality"/>
       <result property="severity" column="ii_severity"/>
+      <result property="manualSeverity" column="ii_manualSeverity"/>
     </collection>
     <collection property="ruleDefaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality"
                 javaType="java.util.Set" ofType="Impact">
