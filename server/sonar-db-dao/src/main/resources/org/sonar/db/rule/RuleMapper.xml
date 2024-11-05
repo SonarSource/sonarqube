@@ -434,18 +434,21 @@
   <insert id="insertRuleDefaultImpact" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO rules_default_impacts (rule_uuid, software_quality, severity, organization_uuid)
     VALUES (
-    #{ruleUuid,jdbcType=VARCHAR},
-    #{dto.softwareQuality,jdbcType=VARCHAR},
-    #{dto.severity,jdbcType=VARCHAR},
-    #{organizationUuid,jdbcType=VARCHAR})
+    #{ruleDto.uuid,jdbcType=VARCHAR},
+    #{ruleDefaultImpactDto.softwareQuality,jdbcType=VARCHAR},
+    #{ruleDefaultImpactDto.severity,jdbcType=VARCHAR},
+    #{ruleDto.organizationUuid,jdbcType=VARCHAR}
+    )
   </insert>
 
   <insert id="insertRuleTag" parameterType="Map" useGeneratedKeys="false">
-    INSERT INTO rule_tags (rule_uuid, value, is_system_tag)
+    INSERT INTO rule_tags (rule_uuid, value, is_system_tag, organization_uuid)
     VALUES (
-    #{ruleUuid,jdbcType=VARCHAR},
+    #{ruleDto.uuid,jdbcType=VARCHAR},
     #{value,jdbcType=VARCHAR},
-    #{isSystemTag,jdbcType=BOOLEAN})
+    #{isSystemTag,jdbcType=BOOLEAN},
+    #{ruleDto.organizationUuid,jdbcType=VARCHAR}
+    )
   </insert>
 
   <update id="updateRule" parameterType="org.sonar.db.rule.RuleDto">

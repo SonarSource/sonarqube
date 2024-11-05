@@ -342,6 +342,7 @@ public class CreateInitialSchema extends DdlChange {
     context.execute(newTableBuilder(tableName)
       .addPkColumn(UUID_COL)
       .addColumn(newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setIsNullable(false).setLimit(USER_UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder(ORGANIZATION_UUID_COL_NAME).setIsNullable(true).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder("user_login").setIsNullable(false).setLimit(USER_UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder("category").setIsNullable(false).setLimit(25).build())
       .addColumn(newVarcharColumnDefBuilder("operation").setIsNullable(false).setLimit(50).build())
