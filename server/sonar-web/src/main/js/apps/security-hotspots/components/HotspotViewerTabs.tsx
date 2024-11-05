@@ -167,8 +167,7 @@ export default function HotspotViewerTabs(props: Props) {
     document.addEventListener('keydown', handleKeyboardNavigation);
 
     return () => document.removeEventListener('keydown', handleKeyboardNavigation);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleKeyboardNavigation]);
 
   React.useEffect(() => {
     setCurrentTab(tabs[0]);
