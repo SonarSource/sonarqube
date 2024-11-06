@@ -39,6 +39,7 @@ import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.ImpactSeverityMapper;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserIdDto;
@@ -46,6 +47,7 @@ import org.sonar.db.user.UserIdDto;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.server.rule.internal.ImpactMapper.convertToSoftwareQuality;
 
 /**
  * Updates issue fields and chooses if changes must be kept in history.
@@ -464,6 +466,17 @@ public class IssueFieldsSetter {
     previousImpacts
       .stream().filter(DefaultImpact::manualSeverity)
       .forEach(i -> issue.addImpact(i.softwareQuality(), i.severity(), true));
+
+    // If the severity of the issue is manually set but not the impact, we need to update the impacts with the same severity.
+    // This happens for user migrating from lower than 10.8 and having already customized the rule severity
+    if (issue.manualSeverity()
+      && issue.severity() != null
+      && issue.getImpacts().stream().noneMatch(DefaultImpact::manualSeverity)) {
+      issue.getImpacts()
+        .stream()
+        .filter(i -> convertToSoftwareQuality(issue.type()).equals(i.softwareQuality()))
+        .forEach(i -> issue.addImpact(i.softwareQuality(), ImpactSeverityMapper.mapImpactSeverity(issue.severity()), true));
+    }
 
     if (!previousImpacts.equals(issue.getImpacts())) {
       issue.setUpdateDate(context.date());

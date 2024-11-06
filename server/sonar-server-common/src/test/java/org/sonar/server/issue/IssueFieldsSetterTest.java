@@ -626,6 +626,49 @@ class IssueFieldsSetterTest {
   }
 
   @Test
+  void setImpacts_whenIssueHasManualSeverityAndHasEquivalentImpact_ImpactShouldBeSetToManualSeverity() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    issue.setManualSeverity(true);
+    issue.setSeverity(org.sonar.api.rule.Severity.BLOCKER);
+    issue.setType(RuleType.CODE_SMELL);
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.getImpacts()).isEqualTo(Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, true)));
+  }
+
+  @Test
+  void setImpacts_whenIssueHasManualSeverityAndHasNoEquivalentImpact_ImpactShouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    issue.setManualSeverity(true);
+    issue.setSeverity(org.sonar.api.rule.Severity.BLOCKER);
+    issue.setType(RuleType.BUG);
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+  }
+
+  @Test
+  void setImpacts_whenIssueHasManualSeverityAndImpactHasManualSeverity_ImpactShouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    issue.setManualSeverity(true);
+    issue.setSeverity(org.sonar.api.rule.Severity.BLOCKER);
+    issue.setType(RuleType.BUG);
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+  }
+
+  @Test
   void setCodeVariants_whenCodeVariantsUnchanged_shouldNotBeUpdated() {
     Set<String> currentCodeVariants = new HashSet<>(Arrays.asList("linux", "windows"));
     Set<String> newCodeVariants = new HashSet<>(Arrays.asList("windows", "linux"));

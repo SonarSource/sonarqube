@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
 import java.util.EnumMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -29,20 +27,13 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.internal.ImpactMapper;
+import org.sonar.core.rule.ImpactSeverityMapper;
 
 /**
  * Class to map impact severity and rule severity during the override of severity of quality profile.
  * We want to keep the severities synchronized, if the rule type or the impacts severities are customized
  */
 public class QProfileImpactSeverityMapper {
-
-  private static final BiMap<Severity, String> SEVERITY_MAPPING = new ImmutableBiMap.Builder<Severity, String>()
-    .put(Severity.INFO, org.sonar.api.rule.Severity.INFO)
-    .put(Severity.LOW, org.sonar.api.rule.Severity.MINOR)
-    .put(Severity.MEDIUM, org.sonar.api.rule.Severity.MAJOR)
-    .put(Severity.HIGH, org.sonar.api.rule.Severity.CRITICAL)
-    .put(Severity.BLOCKER, org.sonar.api.rule.Severity.BLOCKER)
-    .build();
 
   private QProfileImpactSeverityMapper() {
   }
@@ -54,9 +45,9 @@ public class QProfileImpactSeverityMapper {
     }
     SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
     if (ruleImpacts.containsKey(softwareQuality)) {
-      result.put(softwareQuality, SEVERITY_MAPPING.inverse().get(severity));
+      result.put(softwareQuality, ImpactSeverityMapper.mapImpactSeverity(severity));
     } else if (ruleImpacts.size() == 1) {
-      result.replaceAll((sq, sev) -> SEVERITY_MAPPING.inverse().get(severity));
+      result.replaceAll((sq, sev) -> ImpactSeverityMapper.mapImpactSeverity(severity));
     }
     return result;
   }
@@ -65,9 +56,9 @@ public class QProfileImpactSeverityMapper {
   public static String mapSeverity(Map<SoftwareQuality, Severity> impacts, RuleType ruleType, @Nullable String ruleSeverity) {
     SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
     if (impacts.containsKey(softwareQuality)) {
-      return SEVERITY_MAPPING.get(impacts.get(softwareQuality));
+      return ImpactSeverityMapper.mapRuleSeverity(impacts.get(softwareQuality));
     } else if (impacts.size() == 1) {
-      return SEVERITY_MAPPING.get(impacts.entrySet().iterator().next().getValue());
+      return ImpactSeverityMapper.mapRuleSeverity(impacts.entrySet().iterator().next().getValue());
     }
     return ruleSeverity;
   }
