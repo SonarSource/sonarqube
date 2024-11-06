@@ -62,7 +62,8 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_019, "Delete Software Quality ratings from project_measures", DeleteSoftwareQualityRatingFromProjectMeasures.class)
       .add(10_8_020, "Create new software quality metrics", CreateNewSoftwareQualityMetrics.class)
       .add(10_8_021, "Migrate deprecated project_measures to replacement metrics", MigrateProjectMeasuresDeprecatedMetrics.class)
-      .add(10_8_022, "Add 'manual_severity' column in 'issues_impacts' table", AddManualSeverityColumnInIssuesImpactsTable.class);
+      .add(10_8_022, "Add 'manual_severity' column in 'issues_impacts' table", AddManualSeverityColumnInIssuesImpactsTable.class)
+      .add(10_8_023, "Add 'ai_code_fix_enabled' column to 'projects' table", AddAICodeFixEnabledColumnToProjectsTable.class);
   }
 
 }
