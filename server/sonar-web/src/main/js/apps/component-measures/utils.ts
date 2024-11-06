@@ -78,7 +78,10 @@ export const KNOWN_DOMAINS = [
   'Complexity',
 ];
 
-const DEPRECATED_METRICS = [
+const DEPRECATED_DOMAINS_METRICS = [MetricKey.high_impact_accepted_issues];
+
+const HIDDEN_DOMAIN_METRICS = [
+  ...DEPRECATED_DOMAINS_METRICS,
   MetricKey.blocker_violations,
   MetricKey.new_blocker_violations,
   MetricKey.critical_violations,
@@ -89,7 +92,16 @@ const DEPRECATED_METRICS = [
   MetricKey.new_info_violations,
   MetricKey.minor_violations,
   MetricKey.new_minor_violations,
-  MetricKey.high_impact_accepted_issues,
+  MetricKey.software_quality_blocker_issues,
+  MetricKey.new_software_quality_blocker_issues,
+  MetricKey.software_quality_high_issues,
+  MetricKey.new_software_quality_high_issues,
+  MetricKey.software_quality_medium_issues,
+  MetricKey.new_software_quality_medium_issues,
+  MetricKey.software_quality_low_issues,
+  MetricKey.new_software_quality_low_issues,
+  MetricKey.software_quality_info_issues,
+  MetricKey.new_software_quality_info_issues,
 ];
 
 const ISSUES_METRICS = [
@@ -104,7 +116,7 @@ const ISSUES_METRICS = [
 export const populateDomainsFromMeasures = memoize(
   (measures: MeasureEnhanced[], isStandardMode = false): Domain[] => {
     let populatedMeasures = measures
-      .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
+      .filter((measure) => !HIDDEN_DOMAIN_METRICS.includes(measure.metric.key as MetricKey))
       .map((measure) => {
         const isDiff = isDiffMetric(measure.metric.key);
         const calculatedValue = isDiff ? measure.leak : measure.value;
