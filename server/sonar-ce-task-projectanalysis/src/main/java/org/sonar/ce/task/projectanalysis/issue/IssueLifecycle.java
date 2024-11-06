@@ -29,6 +29,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -136,6 +137,10 @@ public class IssueLifecycle {
       to.setManualSeverity(true);
       to.setSeverity(from.severity());
     }
+
+    from.getImpacts()
+      .stream().filter(DefaultImpact::manualSeverity)
+      .forEach(i -> to.addImpact(i.softwareQuality(), i.severity(), true));
     to.setCleanCodeAttribute(from.getCleanCodeAttribute());
     copyChangesOfIssueFromOtherBranch(to, from);
   }
@@ -212,7 +217,7 @@ public class IssueLifecycle {
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
     updater.setCodeVariants(raw, requireNonNull(base.codeVariants()), changeContext);
-    updater.setImpacts(raw, base.impacts(), changeContext);
+    updater.setImpacts(raw, base.getImpacts(), changeContext);
     updater.setCleanCodeAttribute(raw, base.getCleanCodeAttribute(), changeContext);
     updater.setPrioritizedRule(raw, base.isPrioritizedRule(), changeContext);
   }

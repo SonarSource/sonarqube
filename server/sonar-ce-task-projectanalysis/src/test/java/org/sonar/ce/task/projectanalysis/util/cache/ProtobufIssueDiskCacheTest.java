@@ -20,13 +20,13 @@
 package org.sonar.ce.task.projectanalysis.util.cache;
 
 import java.util.Date;
-import java.util.Map;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
+import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,13 +59,16 @@ public class ProtobufIssueDiskCacheTest {
   @Test
   public void toDefaultIssue_whenImpactIsSet_shouldSetItInDefaultIssue() {
     IssueCache.Issue issue = prepareIssueWithCompulsoryFields()
-      .addImpacts(toImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))
-      .addImpacts(toImpact(SoftwareQuality.RELIABILITY, Severity.LOW))
+      .addImpacts(toImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true))
+      .addImpacts(toImpact(SoftwareQuality.RELIABILITY, Severity.LOW, false))
       .build();
 
     DefaultIssue defaultIssue = ProtobufIssueDiskCache.toDefaultIssue(issue);
 
-    assertThat(defaultIssue.impacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, SoftwareQuality.RELIABILITY, Severity.LOW));
+    assertThat(defaultIssue.getImpacts())
+      .containsExactly(
+        new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true),
+        new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.LOW, false));
   }
 
   @Test
@@ -103,15 +106,14 @@ public class ProtobufIssueDiskCacheTest {
   @Test
   public void toProto_whenRuleDescriptionContextKeyIsSet_shouldCopyToIssueProto() {
     DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
-    defaultIssue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
-    defaultIssue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+    defaultIssue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true);
+    defaultIssue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW, false);
 
     IssueCache.Issue issue = ProtobufIssueDiskCache.toProto(IssueCache.Issue.newBuilder(), defaultIssue);
 
     assertThat(issue.getImpactsList()).containsExactly(
-      toImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
-      toImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
-    );
+      toImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true),
+      toImpact(SoftwareQuality.RELIABILITY, Severity.LOW, false));
   }
 
   @Test
@@ -124,8 +126,8 @@ public class ProtobufIssueDiskCacheTest {
     assertThat(issue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.FOCUSED.name());
   }
 
-  private IssueCache.Impact toImpact(SoftwareQuality softwareQuality, Severity severity) {
-    return IssueCache.Impact.newBuilder().setSoftwareQuality(softwareQuality.name()).setSeverity(severity.name()).build();
+  private IssueCache.Impact toImpact(SoftwareQuality softwareQuality, Severity severity, boolean manualSeverity) {
+    return IssueCache.Impact.newBuilder().setSoftwareQuality(softwareQuality.name()).setSeverity(severity.name()).setManualSeverity(manualSeverity).build();
   }
 
   private static DefaultIssue createDefaultIssueWithMandatoryFields() {

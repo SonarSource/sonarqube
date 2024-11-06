@@ -30,6 +30,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -397,7 +398,8 @@ public class IssueLifecycleTest {
       .setRuleDescriptionContextKey("spring")
       .setCleanCodeAttribute(CleanCodeAttribute.IDENTIFIABLE)
       .setCodeVariants(Set.of("foo", "bar"))
-      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW)
+      .addImpact(SoftwareQuality.RELIABILITY, Severity.HIGH)
       .setCreationDate(parseDate("2015-10-01"))
       .setUpdateDate(parseDate("2015-10-02"))
       .setCloseDate(parseDate("2015-10-03"));
@@ -438,7 +440,7 @@ public class IssueLifecycleTest {
       .setGap(15d)
       .setRuleDescriptionContextKey("hibernate")
       .setCodeVariants(Set.of("donut"))
-      .addImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
+      .addImpact(SoftwareQuality.RELIABILITY, Severity.LOW, true)
       .setEffort(Duration.create(15L))
       .setManualSeverity(false)
       .setLocations(issueLocations)
@@ -469,8 +471,10 @@ public class IssueLifecycleTest {
       .containsOnly(entry("foo", new FieldDiffs.Diff<>("bar", "donut")));
     assertThat(raw.changes().get(1).diffs())
       .containsOnly(entry("file", new FieldDiffs.Diff<>("A", "B")));
-    assertThat(raw.impacts())
-      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    verifyUpdater(raw, messageFormattings, issueLocations);
+  }
+
+  private void verifyUpdater(DefaultIssue raw, DbIssues.MessageFormattings messageFormattings, DbIssues.Locations issueLocations) {
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
     verify(updater).setRuleDescriptionContextKey(raw, "hibernate");
@@ -479,6 +483,7 @@ public class IssueLifecycleTest {
     verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
     verify(updater).setPastLocations(raw, issueLocations);
     verify(updater).setCleanCodeAttribute(raw, CleanCodeAttribute.FOCUSED, issueChangeContext);
+    verify(updater).setImpacts(raw, Set.of(new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.LOW, true)), issueChangeContext);
   }
 
   @Test

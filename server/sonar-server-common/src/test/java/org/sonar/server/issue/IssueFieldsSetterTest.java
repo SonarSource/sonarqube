@@ -24,7 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import org.apache.commons.lang3.time.DateUtils;
@@ -36,6 +35,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
@@ -577,13 +577,52 @@ class IssueFieldsSetterTest {
 
   @Test
   void setImpacts_whenImpactAdded_shouldBeUpdated() {
-    Map<SoftwareQuality, Severity> currentImpacts = Map.of(SoftwareQuality.RELIABILITY, Severity.LOW);
-    Map<SoftwareQuality, Severity> newImpacts = Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.LOW, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, false));
 
-    issue.replaceImpacts(newImpacts);
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
     boolean updated = underTest.setImpacts(issue, currentImpacts, context);
     assertThat(updated).isTrue();
-    assertThat(issue.impacts()).isEqualTo(newImpacts);
+    assertThat(issue.getImpacts()).isEqualTo(newImpacts);
+  }
+
+  @Test
+  void setImpacts_whenImpactExists_shouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.getImpacts()).isEqualTo(newImpacts);
+  }
+
+  @Test
+  void setImpacts_whenImpactExistsWithManualSeverity_shouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.getImpacts()).isEqualTo(currentImpacts);
+  }
+
+  @Test
+  void setImpacts_whenImpactExistsWithManualSeverityAndNewImpact_shouldBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false),
+      new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.HIGH, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.getImpacts()).isEqualTo(Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true),
+      new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.HIGH, false)));
   }
 
   @Test

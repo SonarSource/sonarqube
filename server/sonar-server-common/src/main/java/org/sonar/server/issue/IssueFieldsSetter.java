@@ -23,22 +23,19 @@ import com.google.common.base.Joiner;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.IssueStatus;
-import org.sonar.api.issue.impact.Severity;
-import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
@@ -262,7 +259,7 @@ public class IssueFieldsSetter {
 
   public boolean setIssueStatus(DefaultIssue issue, @Nullable IssueStatus previousIssueStatus, @Nullable IssueStatus newIssueStatus, IssueChangeContext context) {
     if (!Objects.equals(newIssueStatus, previousIssueStatus)) {
-      //Currently, issue status is not persisted in database, but is considered as an issue change
+      // Currently, issue status is not persisted in database, but is considered as an issue change
       issue.setFieldChange(context, ISSUE_STATUS, previousIssueStatus, issue.issueStatus());
       return true;
     }
@@ -346,8 +343,8 @@ public class IssueFieldsSetter {
 
     for (int i = 0; i < l1c.getMessageFormattingCount(); i++) {
       if (l1c.getMessageFormatting(i).getStart() != l2.getMessageFormatting(i).getStart()
-          || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
-          || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
+        || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
+        || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
         return false;
       }
     }
@@ -372,7 +369,7 @@ public class IssueFieldsSetter {
   public void setPrioritizedRule(DefaultIssue issue, boolean prioritizedRule, IssueChangeContext context) {
     if (!Objects.equals(prioritizedRule, issue.isPrioritizedRule())) {
       issue.setPrioritizedRule(prioritizedRule);
-      if (!issue.isNew()){
+      if (!issue.isNew()) {
         issue.setUpdateDate(context.date());
         issue.setChanged(true);
       }
@@ -463,14 +460,17 @@ public class IssueFieldsSetter {
     return false;
   }
 
-  public boolean setImpacts(DefaultIssue issue, Map<SoftwareQuality, Severity> previousImpacts, IssueChangeContext context) {
-    Map<SoftwareQuality, Severity> currentImpacts = new EnumMap<>(issue.impacts());
-    if (!previousImpacts.equals(currentImpacts)) {
-      issue.replaceImpacts(currentImpacts);
+  public boolean setImpacts(DefaultIssue issue, Set<DefaultImpact> previousImpacts, IssueChangeContext context) {
+    previousImpacts
+      .stream().filter(DefaultImpact::manualSeverity)
+      .forEach(i -> issue.addImpact(i.softwareQuality(), i.severity(), true));
+
+    if (!previousImpacts.equals(issue.getImpacts())) {
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       return true;
     }
+
     return false;
   }
 

@@ -115,4 +115,5 @@ message Diff {
 message Impact {
   required string software_quality = 1;
   required string severity = 2;
+  required bool manual_severity = 3;
 }

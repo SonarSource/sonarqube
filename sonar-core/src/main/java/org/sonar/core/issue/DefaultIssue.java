@@ -28,14 +28,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -137,7 +138,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   private String anticipatedTransitionUuid = null;
 
-  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+  private final Map<SoftwareQuality, DefaultImpact> impacts = new LinkedHashMap<>();
   private CleanCodeAttribute cleanCodeAttribute = null;
 
   private String cveId = null;
@@ -159,17 +160,26 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   @Override
   public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
-    return impacts;
+    return impacts.values().stream().collect(Collectors.toMap(DefaultImpact::softwareQuality, DefaultImpact::severity));
+  }
+
+  public Set<DefaultImpact> getImpacts() {
+    return new LinkedHashSet<>(this.impacts.values());
   }
 
   public DefaultIssue replaceImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
     this.impacts.clear();
-    this.impacts.putAll(impacts);
+    this.impacts.putAll(impacts.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new DefaultImpact(e.getKey(), e.getValue(), false))));
     return this;
   }
 
   public DefaultIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
-    impacts.put(softwareQuality, severity);
+    impacts.put(softwareQuality, new DefaultImpact(softwareQuality, severity, false));
+    return this;
+  }
+
+  public DefaultIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity, boolean manualSeverity) {
+    impacts.put(softwareQuality, new DefaultImpact(softwareQuality, severity, manualSeverity));
     return this;
   }
 
