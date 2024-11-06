@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws.pull;
 
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.rule.ImpactFormatter;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -70,6 +71,12 @@ public class PullActionProtobufObjectGenerator implements ProtobufObjectGenerato
     issueBuilder.setType(Common.RuleType.forNumber(issueDto.getType()));
     issueBuilder.setClosed(false);
     issueBuilder.setMainLocation(location);
+    issueBuilder.addAllImpacts(issueDto.getEffectiveImpacts().entrySet()
+      .stream().map(entry -> Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.valueOf(entry.getKey().name()))
+        .setSeverity(ImpactFormatter.mapImpactSeverity(entry.getValue()))
+        .build())
+      .toList());
 
     return issueBuilder.build();
   }

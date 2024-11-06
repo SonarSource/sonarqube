@@ -12,6 +12,7 @@ message IssueLite {
   optional string type = 6;
   optional Location mainLocation = 7;
   optional bool closed = 8;
+  repeated sonarqube.ws.commons.Impact impacts = 9;
 }
 
 message Location {
