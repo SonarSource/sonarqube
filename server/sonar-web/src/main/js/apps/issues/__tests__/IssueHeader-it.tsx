@@ -18,19 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import userEvent from '@testing-library/user-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { WorkspaceContext } from '../../../components/workspace/context';
-import { mockIssue, mockRuleDetails } from '../../../helpers/testMocks';
+import { mockIssue, mockRawIssue, mockRuleDetails } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { IssueActions, RawIssue } from '../../../types/issues';
 import { SettingsKey } from '../../../types/settings';
 import { Dict } from '../../../types/types';
 import IssueHeader from '../components/IssueHeader';
 
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
+  addGlobalSuccessMessage: jest.fn(),
+}));
+
 const settingsHandler = new SettingsServiceMock();
+const issuesHandler = new IssuesServiceMock();
 
 beforeEach(() => {
   settingsHandler.reset();
+  issuesHandler.reset();
 });
 
 it('renders correctly', async () => {
@@ -130,10 +140,51 @@ it('renders correctly when some data is not provided', () => {
   expect(byText('eslint').query()).not.toBeInTheDocument();
 });
 
+it('can update the severity in MQR mode', async () => {
+  const user = userEvent.setup();
+  const onIssueChange = jest.fn();
+  const issue = mockIssue(false, { actions: [IssueActions.SetSeverity], prioritizedRule: false });
+  renderIssueHeader({
+    onIssueChange,
+    issue,
+  });
+
+  expect(await byText(`software_quality.MAINTAINABILITY`).find()).toBeInTheDocument();
+  await user.click(byText('software_quality.MAINTAINABILITY').get());
+  await user.click(byText('severity_impact.BLOCKER').get());
+  expect(onIssueChange).toHaveBeenCalledWith({
+    ...issue,
+    impacts: [{ softwareQuality: 'MAINTAINABILITY', severity: 'BLOCKER' }],
+  });
+});
+
+it('can update the severity in Standard mode', async () => {
+  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  const user = userEvent.setup();
+  const onIssueChange = jest.fn();
+  const issue = mockIssue(false, { actions: [IssueActions.SetSeverity], prioritizedRule: false });
+  renderIssueHeader({
+    onIssueChange,
+    issue,
+  });
+
+  expect(await byLabelText(`severity.${issue.severity}`).find()).toBeInTheDocument();
+  await user.click(byLabelText(`severity.${issue.severity}`).get());
+  await user.click(byLabelText('severity.BLOCKER').get());
+
+  expect(onIssueChange).toHaveBeenCalledWith({
+    ...issue,
+    severity: 'BLOCKER',
+  });
+});
+
 function renderIssueHeader(
   props: Partial<IssueHeader['props']> = {},
   externalRules: Dict<string> = {},
 ) {
+  issuesHandler.setIssueList([
+    { issue: mockRawIssue(false, props.issue as RawIssue), snippets: {} },
+  ]);
   return renderComponent(
     <WorkspaceContext.Provider
       value={{ openComponent: jest.fn(), externalRulesRepoNames: externalRules }}

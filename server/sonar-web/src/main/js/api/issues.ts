@@ -22,7 +22,13 @@ import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
 import { get, HttpStatus, parseJSON, post, postJSON, RequestData } from '../helpers/request';
-import { FacetName, IssueResponse, ListIssuesResponse, RawIssuesResponse } from '../types/issues';
+import {
+  FacetName,
+  IssueResponse,
+  IssueSeverity,
+  ListIssuesResponse,
+  RawIssuesResponse,
+} from '../types/issues';
 import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
 
 export function searchIssues(query: RequestData): Promise<RawIssuesResponse> {
@@ -99,7 +105,11 @@ export function setIssueAssignee(data: {
   return postJSON('/api/issues/assign', data);
 }
 
-export function setIssueSeverity(data: { issue: string; severity: string }): Promise<any> {
+export function setIssueSeverity(data: {
+  impacts?: string;
+  issue: string;
+  severity?: IssueSeverity;
+}): Promise<IssueResponse> {
   return postJSON('/api/issues/set_severity', data);
 }
 

@@ -18,26 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Popover } from '@sonarsource/echoes-react';
+import {
+  DropdownMenu,
+  DropdownMenuAlign,
+  Popover,
+  Spinner,
+  Tooltip,
+} from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { noop } from 'lodash';
-import { FormattedMessage } from 'react-intl';
+import { useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Pill, PillVariant } from '~design-system';
+import { IMPACT_SEVERITIES } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
 import DocumentationLink from '../common/DocumentationLink';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
 
 export interface Props {
   className?: string;
-  quality: string;
+  onSetSeverity?: (severity: SoftwareImpactSeverity, quality: SoftwareQuality) => Promise<void>;
   severity: SoftwareImpactSeverity;
+  softwareQuality: SoftwareQuality;
   type?: 'issue' | 'rule';
 }
 
 export default function SoftwareImpactPill(props: Props) {
-  const { className, severity, quality, type = 'issue' } = props;
+  const { className, severity, softwareQuality, type = 'issue', onSetSeverity } = props;
+  const intl = useIntl();
+  const quality = getQualityLabel(softwareQuality);
+  const [updatingSeverity, setUpdatingSeverity] = useState(false);
 
   const variant = {
     [SoftwareImpactSeverity.Blocker]: PillVariant.Critical,
@@ -46,6 +58,64 @@ export default function SoftwareImpactPill(props: Props) {
     [SoftwareImpactSeverity.Low]: PillVariant.Caution,
     [SoftwareImpactSeverity.Info]: PillVariant.Info,
   }[severity];
+
+  const pill = (
+    <Pill
+      className={classNames('sw-flex sw-gap-1 sw-items-center', className)}
+      onClick={noop}
+      variant={variant}
+    >
+      {quality}
+      <Spinner isLoading={updatingSeverity} className="sw-ml-1/2">
+        <SoftwareImpactSeverityIcon
+          width={14}
+          height={14}
+          severity={severity}
+          data-guiding-id="issue-3"
+        />
+      </Spinner>
+    </Pill>
+  );
+
+  const handleSetSeverity = async (severity: SoftwareImpactSeverity, quality: SoftwareQuality) => {
+    setUpdatingSeverity(true);
+    await onSetSeverity?.(severity, quality);
+    setUpdatingSeverity(false);
+  };
+
+  if (onSetSeverity && type === 'issue') {
+    return (
+      <DropdownMenu.Root
+        align={DropdownMenuAlign.Start}
+        items={IMPACT_SEVERITIES.map((impactSeverity) => (
+          <DropdownMenu.ItemButtonCheckable
+            key={impactSeverity}
+            isDisabled={impactSeverity === severity}
+            isChecked={impactSeverity === severity}
+            onClick={() => handleSetSeverity(impactSeverity, softwareQuality)}
+          >
+            <div className="sw-flex sw-items-center sw-gap-2">
+              <SoftwareImpactSeverityIcon width={14} height={14} severity={impactSeverity} />
+              {translate('severity_impact', impactSeverity)}
+            </div>
+          </DropdownMenu.ItemButtonCheckable>
+        ))}
+      >
+        <Tooltip
+          content={intl.formatMessage(
+            {
+              id: `issue.type.tooltip_with_change`,
+            },
+            {
+              severity: intl.formatMessage({ id: `severity_impact.${severity}` }),
+            },
+          )}
+        >
+          {pill}
+        </Tooltip>
+      </DropdownMenu.Root>
+    );
+  }
 
   return (
     <Popover
@@ -61,7 +131,7 @@ export default function SoftwareImpactPill(props: Props) {
           />
           <p className="sw-mt-2">
             <span className="sw-mr-1">{translate('severity_impact.help.line1')}</span>
-            {translate('severity_impact.help.line2')}
+            {type === 'issue' && translate('severity_impact.help.line2')}
           </p>
         </>
       }
@@ -71,19 +141,20 @@ export default function SoftwareImpactPill(props: Props) {
         </DocumentationLink>
       }
     >
-      <Pill
-        className={classNames('sw-flex sw-gap-1 sw-items-center', className)}
-        onClick={noop}
-        variant={variant}
+      <Tooltip
+        content={intl.formatMessage(
+          {
+            id: `issue.type.tooltip`,
+          },
+          {
+            severity: intl.formatMessage({ id: `severity_impact.${severity}` }),
+          },
+        )}
       >
-        {quality}
-        <SoftwareImpactSeverityIcon
-          width={14}
-          height={14}
-          severity={severity}
-          data-guiding-id="issue-3"
-        />
-      </Pill>
+        {pill}
+      </Tooltip>
     </Popover>
   );
 }
+
+const getQualityLabel = (quality: SoftwareQuality) => translate('software_quality', quality);

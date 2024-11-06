@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Tooltip } from '@sonarsource/echoes-react';
+import { DropdownMenu, DropdownMenuAlign, Spinner, Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Pill, PillVariant } from '~design-system';
 import { IssueSeverity, IssueType } from '../../types/issues';
@@ -29,13 +30,14 @@ import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIc
 export interface Props {
   className?: string;
   issueType: string;
+  onSetSeverity?: (severity: IssueSeverity) => Promise<void>;
   severity: IssueSeverity;
 }
 
 export default function IssueTypePill(props: Readonly<Props>) {
-  const { className, severity, issueType } = props;
+  const { className, severity, issueType, onSetSeverity } = props;
   const intl = useIntl();
-
+  const [updatingSeverity, setUpdatingSeverity] = useState(false);
   const variant = {
     [IssueSeverity.Blocker]: PillVariant.Critical,
     [IssueSeverity.Critical]: PillVariant.Danger,
@@ -43,6 +45,67 @@ export default function IssueTypePill(props: Readonly<Props>) {
     [IssueSeverity.Minor]: PillVariant.Caution,
     [IssueSeverity.Info]: PillVariant.Info,
   }[severity];
+
+  const renderPill = (notClickable = false) => (
+    <Pill
+      notClickable={notClickable}
+      className={classNames('sw-flex sw-gap-1 sw-items-center', className)}
+      variant={issueType !== IssueType.SecurityHotspot ? variant : PillVariant.Accent}
+    >
+      <IssueTypeIcon type={issueType} />
+      {intl.formatMessage({ id: `issue.type.${issueType}` })}
+      <Spinner isLoading={updatingSeverity} className="sw-ml-1/2">
+        {issueType !== IssueType.SecurityHotspot && (
+          <SoftwareImpactSeverityIcon
+            width={14}
+            height={14}
+            severity={severity}
+            data-guiding-id="issue-3"
+          />
+        )}
+      </Spinner>
+    </Pill>
+  );
+
+  const handleSetSeverity = async (severity: IssueSeverity) => {
+    setUpdatingSeverity(true);
+    await onSetSeverity?.(severity);
+    setUpdatingSeverity(false);
+  };
+
+  if (onSetSeverity) {
+    return (
+      <DropdownMenu.Root
+        align={DropdownMenuAlign.Start}
+        items={Object.values(IssueSeverity).map((severityItem) => (
+          <DropdownMenu.ItemButtonCheckable
+            key={severityItem}
+            isDisabled={severityItem === severity}
+            isChecked={severityItem === severity}
+            onClick={() => handleSetSeverity(severityItem)}
+          >
+            <div className="sw-flex sw-items-center sw-gap-2">
+              <SoftwareImpactSeverityIcon width={14} height={14} severity={severityItem} />
+              {intl.formatMessage({ id: `severity.${severityItem}` })}
+            </div>
+          </DropdownMenu.ItemButtonCheckable>
+        ))}
+      >
+        <Tooltip
+          content={intl.formatMessage(
+            {
+              id: `issue.type.tooltip_with_change`,
+            },
+            {
+              severity: intl.formatMessage({ id: `severity.${severity}` }),
+            },
+          )}
+        >
+          {renderPill()}
+        </Tooltip>
+      </DropdownMenu.Root>
+    );
+  }
 
   return (
     <Tooltip
@@ -55,31 +118,11 @@ export default function IssueTypePill(props: Readonly<Props>) {
               },
               {
                 severity: intl.formatMessage({ id: `severity.${severity}` }),
-                type: (
-                  <span className="sw-lowercase">
-                    {intl.formatMessage({ id: `issue.type.${issueType}` })}
-                  </span>
-                ),
               },
             )
       }
     >
-      <Pill
-        notClickable
-        className={classNames('sw-flex sw-gap-1 sw-items-center', className)}
-        variant={issueType !== IssueType.SecurityHotspot ? variant : PillVariant.Accent}
-      >
-        <IssueTypeIcon type={issueType} />
-        {intl.formatMessage({ id: `issue.type.${issueType}` })}
-        {issueType !== IssueType.SecurityHotspot && (
-          <SoftwareImpactSeverityIcon
-            width={14}
-            height={14}
-            severity={severity}
-            data-guiding-id="issue-3"
-          />
-        )}
-      </Pill>
+      {renderPill(true)}
     </Tooltip>
   );
 }

@@ -26,6 +26,7 @@ import { createRoot } from 'react-dom/client';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { IntlShape, RawIntlProvider } from 'react-intl';
 import {
+  Outlet,
   Route,
   RouterProvider,
   createBrowserRouter,
@@ -190,7 +191,16 @@ const PluginRiskConsent = lazyLoadComponent(() => import('../components/PluginRi
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <>
+    // Wrapper to pass toaster container under router context
+    // this way we can use router context in toast message, for example render links
+    <Route
+      element={
+        <>
+          <ToastMessageContainer />
+          <Outlet />
+        </>
+      }
+    >
       {renderRedirects()}
 
       <Route path="formatting/help" element={<FormattingHelp />} />
@@ -255,7 +265,7 @@ const router = createBrowserRouter(
           </Route>
         </Route>
       </Route>
-    </>,
+    </Route>,
   ),
   { basename: getBaseUrl() },
 );
@@ -280,7 +290,6 @@ export default function startReactApp(
               <ThemeProvider theme={lightTheme}>
                 <QueryClientProvider client={queryClient}>
                   <GlobalStyles />
-                  <ToastMessageContainer />
                   <Helmet titleTemplate={translate('page_title.template.default')} />
                   <StackContext>
                     <EchoesProvider>

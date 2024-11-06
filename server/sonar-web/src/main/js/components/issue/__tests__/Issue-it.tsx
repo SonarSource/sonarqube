@@ -181,6 +181,77 @@ describe('updating', () => {
     await ui.addTag('android', ['accessibility']);
     expect(ui.updateTagsBtn(['accessibility', 'android']).get()).toBeInTheDocument();
   });
+
+  it('should allow updating the severity in MQR mode', async () => {
+    const { ui, user } = getPageObject();
+    const issue = mockRawIssue(false, {
+      impacts: [
+        { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Low },
+      ],
+      actions: [IssueActions.SetSeverity],
+    });
+    issuesHandler.setIssueList([{ issue, snippets: {} }]);
+    renderIssue({
+      issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'impacts') }),
+    });
+    expect(ui.softwareQuality(SoftwareQuality.Maintainability).get()).toBeInTheDocument();
+
+    await user.click(ui.softwareQuality(SoftwareQuality.Maintainability).get());
+    await user.click(ui.softwareQualitySeverity(SoftwareImpactSeverity.Medium).get());
+    expect(ui.softwareQualitySeverity(SoftwareImpactSeverity.Medium).get()).toBeInTheDocument();
+    expect(byText(/issue.severity.updated_notification.link.mqr/).get()).toBeInTheDocument();
+  });
+
+  it('cannot update the severity in MQR mode without permission', async () => {
+    const { ui, user } = getPageObject();
+    const issue = mockRawIssue(false, {
+      impacts: [
+        { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Low },
+      ],
+    });
+    issuesHandler.setIssueList([{ issue, snippets: {} }]);
+    renderIssue({
+      issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'impacts') }),
+    });
+    expect(ui.softwareQuality(SoftwareQuality.Maintainability).get()).toBeInTheDocument();
+    await user.click(ui.softwareQuality(SoftwareQuality.Maintainability).get());
+    expect(
+      ui.softwareQualitySeverity(SoftwareImpactSeverity.Medium).query(),
+    ).not.toBeInTheDocument();
+    // popover visible
+    expect(byRole('heading', { name: 'severity_impact.title' }).get()).toBeInTheDocument();
+  });
+
+  it('should allow updating the severity in Standard experience', async () => {
+    const { ui, user } = getPageObject();
+    const issue = mockRawIssue(false, {
+      actions: [IssueActions.SetSeverity],
+    });
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    issuesHandler.setIssueList([{ issue, snippets: {} }]);
+    renderIssue({
+      issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'severity') }),
+    });
+    expect(await ui.standardSeverity(IssueSeverity.Major).find()).toBeInTheDocument();
+
+    await user.click(ui.standardSeverity(IssueSeverity.Major).get());
+    await user.click(ui.standardSeverity(IssueSeverity.Info).get());
+    expect(ui.standardSeverity(IssueSeverity.Info).get()).toBeInTheDocument();
+    expect(byText(/issue.severity.updated_notification.link.standard/).get()).toBeInTheDocument();
+  });
+
+  it('cannot update the severity in Standard mode without permission', async () => {
+    const { ui, user } = getPageObject();
+    const issue = mockRawIssue(false);
+    issuesHandler.setIssueList([{ issue, snippets: {} }]);
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    renderIssue({
+      issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'impacts') }),
+    });
+    expect(await ui.standardSeverity(IssueSeverity.Major).find()).toBeInTheDocument();
+    await user.click(ui.standardSeverity(IssueSeverity.Major).get());
+    expect(ui.standardSeverity(IssueSeverity.Info).query()).not.toBeInTheDocument();
+  });
 });
 
 it('should correctly handle keyboard shortcuts', async () => {
@@ -280,16 +351,6 @@ function getPageObject() {
     commentDeleteBtn: byRole('button', { name: 'issue.comment.delete' }),
     commentConfirmDeleteBtn: byRole('button', { name: 'delete' }),
 
-    // Type
-    updateTypeBtn: (currentType: IssueType) =>
-      byLabelText(`issue.type.type_x_click_to_change.issue.type.${currentType}`),
-    setTypeBtn: (type: IssueType) => byText(`issue.type.${type}`),
-
-    // Severity
-    updateSeverityBtn: (currentSeverity: IssueSeverity) =>
-      byLabelText(`issue.severity.severity_x_click_to_change.severity.${currentSeverity}`),
-    setSeverityBtn: (severity: IssueSeverity) => byText(`severity.${severity}`),
-
     // Status
     updateStatusBtn: (currentStatus: IssueStatus) =>
       byLabelText(`issue.transition.status_x_click_to_change.issue.issue_status.${currentStatus}`),
@@ -325,14 +386,6 @@ function getPageObject() {
     async deleteComment() {
       await user.click(selectors.commentDeleteBtn.get());
       await user.click(selectors.commentConfirmDeleteBtn.get());
-    },
-    async updateType(currentType: IssueType, newType: IssueType) {
-      await user.click(selectors.updateTypeBtn(currentType).get());
-      await user.click(selectors.setTypeBtn(newType).get());
-    },
-    async updateSeverity(currentSeverity: IssueSeverity, newSeverity: IssueSeverity) {
-      await user.click(selectors.updateSeverityBtn(currentSeverity).get());
-      await user.click(selectors.setSeverityBtn(newSeverity).get());
     },
     async updateStatus(currentStatus: IssueStatus, transition: IssueTransition) {
       await user.click(selectors.updateStatusBtn(currentStatus).get());

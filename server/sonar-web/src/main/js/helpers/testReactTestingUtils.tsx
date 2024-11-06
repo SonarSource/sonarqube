@@ -221,10 +221,17 @@ function renderRoutedApp(
 
   const router = createMemoryRouter(
     createRoutesFromElements(
-      <>
+      <Route
+        element={
+          <>
+            <Outlet />
+            <ToastMessageContainer />
+          </>
+        }
+      >
         {children}
         <Route path="*" element={<CatchAll />} />
-      </>,
+      </Route>,
     ),
     { initialEntries: [path] },
   );
@@ -239,7 +246,6 @@ function renderRoutedApp(
                 <AppStateContextProvider appState={appState}>
                   <IndexationContextProvider>
                     <QueryClientProvider client={queryClient}>
-                      <ToastMessageContainer />
                       <EchoesProvider tooltipsDelayDuration={0}>
                         <RouterProvider router={router} />
                       </EchoesProvider>

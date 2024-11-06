@@ -520,8 +520,27 @@ export default class IssuesServiceMock {
     return this.getActionsResponse({ type: data.type }, data.issue);
   };
 
-  handleSetIssueSeverity = (data: { issue: string; severity: string }) => {
-    return this.getActionsResponse({ severity: data.severity }, data.issue);
+  handleSetIssueSeverity = (data: { impacts?: string; issue: string; severity?: string }) => {
+    const issueDataSelected = this.list.find((l) => l.issue.key === data.issue);
+
+    if (!issueDataSelected) {
+      throw new Error(`Coulnd't find issue for key ${data.issue}`);
+    }
+
+    const parsedImpact = data.impacts?.split('=');
+
+    return this.getActionsResponse(
+      data.impacts
+        ? {
+            impacts: issueDataSelected.issue.impacts.map((impact) =>
+              impact.softwareQuality === parsedImpact?.[0]
+                ? { ...impact, severity: parsedImpact?.[1] as SoftwareImpactSeverity }
+                : impact,
+            ),
+          }
+        : { severity: data.severity },
+      data.issue,
+    );
   };
 
   handleSetIssueAssignee = (data: { assignee?: string; issue: string }) => {

@@ -35,6 +35,8 @@ interface SoftwareImpactPillListProps extends React.HTMLAttributes<HTMLUListElem
   className?: string;
   issueSeverity?: IssueSeverity;
   issueType?: string;
+  onSetSeverity?: ((severity: IssueSeverity) => Promise<void>) &
+    ((severity: SoftwareImpactSeverity, quality: SoftwareQuality) => Promise<void>);
   softwareImpacts: SoftwareImpact[];
   type?: Parameters<typeof SoftwareImpactPill>[0]['type'];
 }
@@ -49,6 +51,7 @@ const severityMap = {
 
 export default function SoftwareImpactPillList({
   softwareImpacts,
+  onSetSeverity,
   issueSeverity,
   issueType,
   type,
@@ -73,8 +76,9 @@ export default function SoftwareImpactPillList({
           .map(({ severity, softwareQuality }) => (
             <li key={softwareQuality}>
               <SoftwareImpactPill
+                onSetSeverity={onSetSeverity}
                 severity={severity}
-                quality={getQualityLabel(softwareQuality)}
+                softwareQuality={softwareQuality}
                 type={type}
               />
             </li>
@@ -83,7 +87,11 @@ export default function SoftwareImpactPillList({
         <IssueTypePill severity={issueSeverity ?? IssueSeverity.Info} issueType={issueType} />
       )}
       {isStandardMode && issueType && issueSeverity && (
-        <IssueTypePill severity={issueSeverity} issueType={issueType} />
+        <IssueTypePill
+          onSetSeverity={onSetSeverity}
+          severity={issueSeverity}
+          issueType={issueType}
+        />
       )}
     </ul>
   );

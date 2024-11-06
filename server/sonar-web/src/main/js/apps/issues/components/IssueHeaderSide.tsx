@@ -26,14 +26,17 @@ import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttr
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { translate } from '../../../helpers/l10n';
 import { useStandardExperienceMode } from '../../../queries/settings';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { IssueSeverity } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 
 interface Props {
   issue: Issue;
+  onSetSeverity?: ((severity: IssueSeverity) => Promise<void>) &
+    ((severity: SoftwareImpactSeverity, quality: SoftwareQuality) => Promise<void>);
 }
 
-export default function IssueHeaderSide({ issue }: Readonly<Props>) {
+export default function IssueHeaderSide({ issue, onSetSeverity }: Readonly<Props>) {
   const { data: isStandardMode, isLoading } = useStandardExperienceMode();
   return (
     <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-max-w-[250px]">
@@ -44,6 +47,7 @@ export default function IssueHeaderSide({ issue }: Readonly<Props>) {
           title={isStandardMode ? translate('type') : translate('issue.software_qualities.label')}
         >
           <SoftwareImpactPillList
+            onSetSeverity={onSetSeverity}
             className="sw-flex-wrap"
             softwareImpacts={issue.impacts}
             issueSeverity={issue.severity as IssueSeverity}
