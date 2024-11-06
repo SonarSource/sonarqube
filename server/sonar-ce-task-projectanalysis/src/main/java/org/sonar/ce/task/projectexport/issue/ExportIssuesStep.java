@@ -128,6 +128,7 @@ public class ExportIssuesStep implements ComputationStep {
       .map(impactDto -> ProjectDump.Impact.newBuilder()
         .setSoftwareQuality(ProjectDump.SoftwareQuality.valueOf(impactDto.getSoftwareQuality().name()))
         .setSeverity(ProjectDump.Severity.valueOf(impactDto.getSeverity().name()))
+        .setManualSeverity(impactDto.isManualSeverity())
         .build())
       .forEach(builder::addImpacts);
   }

@@ -131,6 +131,7 @@ message Issue {
 message Impact {
   SoftwareQuality software_quality = 1;
   Severity severity = 2;
+  bool manual_severity = 3;
 }
 
 // Stream of issues changelog stored in file issues_changelog.pb
