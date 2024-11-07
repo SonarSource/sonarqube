@@ -60,9 +60,9 @@ public interface RuleMapper {
 
   void insertRuleDescriptionSection(@Param("ruleUuid") String ruleUuid, @Param("dto") RuleDescriptionSectionDto ruleDescriptionSectionDto);
 
-  void insertRuleDefaultImpact(@Param("ruleUuid") String ruleUuid, @Param("dto") ImpactDto ruleDefaultImpactDto);
+  void insertRuleDefaultImpact(@Param("ruleDto") RuleDto ruleDefinitionDto, @Param("ruleDefaultImpactDto") ImpactDto ruleDefaultImpactDto);
 
-  void insertRuleTag(@Param("ruleUuid") String ruleUuid, @Param("value") String value, @Param("isSystemTag") boolean isSystemTag);
+  void insertRuleTag(@Param("ruleDto") RuleDto ruleDefinitionDto, @Param("value") String value, @Param("isSystemTag") boolean isSystemTag);
 
   void updateRule(RuleDto ruleDefinitionDto);
 

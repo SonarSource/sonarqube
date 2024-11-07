@@ -101,7 +101,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       if (entityDto != null && entityDto.isProject() && groupDto != null) {
         managedInstanceChecker.throwIfGroupAndProjectAreManaged(dbSession, groupDto.getUuid(), entityDto.getUuid());
       }
-      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto, groupDto.getOrganizationUuid());
 
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entityDto, permission, GroupUuidOrAnyone.from(groupDto));

@@ -99,18 +99,20 @@ public class AddUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
       EntityDto entityDto = wsSupport.findEntity(dbSession, request);
-      checkProjectAdmin(userSession, configuration, entityDto);
+
+      String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+              .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
+      checkArgument(org.getUuid().equals(entityDto.getOrganizationUuid()), "Organization key is incorrect.");
+
+      checkProjectAdmin(userSession, configuration, entityDto, org.getUuid());
       if (!userSession.isSystemAdministrator() && entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
       }
 
-      String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
-      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, organizationKey)
-          .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
-      checkArgument(org.getUuid().equals(entityDto.getOrganizationUuid()), "Organization key is incorrect.");
 
       UserId user = wsSupport.findUser(dbSession, userLogin);
-      checkProjectAdmin(userSession, configuration, entityDto);
+      checkProjectAdmin(userSession, configuration, entityDto, org.getUuid());
       wsSupport.checkMembership(dbSession, org, user);
 
       UserPermissionChange change = new UserPermissionChange(

@@ -208,28 +208,28 @@ public class RulesRegistrant implements Startable {
   }
 
   private void persistRules(RulesRegistrationContext context, DbSession session, Map<RulesDefinition.Rule, RuleDto> dtos) {
-    Map<String, Set<String>> systemTags = new HashMap<>();
-    Map<String, Set<String>> tags = new HashMap<>();
     Map<String, Set<RuleDescriptionSectionDto>> sections = new HashMap<>();
-    Map<String, Set<ImpactDto>> impacts = new HashMap<>();
+    Map<RuleDto, Set<String>> tags = new HashMap<>();
+    Map<RuleDto, Set<String>> systemTags = new HashMap<>();
+    Map<RuleDto, Set<ImpactDto>> impacts = new HashMap<>();
 
     for (Map.Entry<RulesDefinition.Rule, RuleDto> entry : dtos.entrySet()) {
       RulesDefinition.Rule ruleDef = entry.getKey();
       if (context.getDbRuleFor(ruleDef).isEmpty()) {
         RuleDto ruleDto = entry.getValue();
         dbClient.ruleDao().insertShallow(session, ruleDto);
-        systemTags.put(ruleDto.getUuid(), ruleDto.getSystemTags());
-        tags.put(ruleDto.getUuid(), ruleDto.getTags());
+        systemTags.put(ruleDto, ruleDto.getSystemTags());
+        tags.put(ruleDto, ruleDto.getTags());
         sections.put(ruleDto.getUuid(), ruleDto.getRuleDescriptionSectionDtos());
-        impacts.put(ruleDto.getUuid(), ruleDto.getDefaultImpacts());
+        impacts.put(ruleDto, ruleDto.getDefaultImpacts());
       }
     }
 
-    for (Map.Entry<String, Set<String>> entry : systemTags.entrySet()) {
+    for (Map.Entry<RuleDto, Set<String>> entry : systemTags.entrySet()) {
       dbClient.ruleDao().insertRuleTag(session, entry.getKey(), entry.getValue(), true);
     }
 
-    for (Map.Entry<String, Set<String>> entry : tags.entrySet()) {
+    for (Map.Entry<RuleDto, Set<String>> entry : tags.entrySet()) {
       dbClient.ruleDao().insertRuleTag(session, entry.getKey(), entry.getValue(), false);
     }
 
@@ -237,7 +237,7 @@ public class RulesRegistrant implements Startable {
       dbClient.ruleDao().insertRuleDescriptionSections(session, entry.getKey(), entry.getValue());
     }
 
-    for (Map.Entry<String, Set<ImpactDto>> entry : impacts.entrySet()) {
+    for (Map.Entry<RuleDto, Set<ImpactDto>> entry : impacts.entrySet()) {
       dbClient.ruleDao().insertRuleDefaultImpacts(session, entry.getKey(), entry.getValue());
     }
 

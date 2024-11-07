@@ -100,7 +100,7 @@ public class RemoveUserAction implements PermissionsWsAction {
           .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
       EntityDto entityDto = wsSupport.findEntity(dbSession, request);
       wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(userSession, entityDto, permission, userIdDto);
-      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto, org.getUuid());
       if (entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfUserAndProjectAreManaged(dbSession, userIdDto.getUuid(), entityDto.getUuid());
       }
