@@ -44,7 +44,7 @@ export enum DocLink {
   AuthOverview = 'https://knowledgebase.autorabit.com/codescan/docs',
   BackgroundTasks = 'https://knowledgebase.autorabit.com/codescan/docs/background-tasks',
   BranchAnalysis = 'https://knowledgebase.autorabit.com/codescan/docs',
-  CaYC = 'https://knowledgebase.autorabit.com/codescan/docs/',
+  CaYC = '/codescan/docs/',
   CFamilyBuildWrapper = 'https://knowledgebase.autorabit.com/codescan/docs',
   CFamilyCompilationDatabase = 'https://knowledgebase.autorabit.com/codescan/docs',
   CIAnalysisSetup = '/analyzing-source-code/ci-integration/overview/',
@@ -57,7 +57,7 @@ export enum DocLink {
   InstanceAdminLoC = '/server-upgrade-and-maintenance/monitoring/lines-of-code/',
   InstanceAdminMarketplace = 'https://knowledgebase.autorabit.com/codescan/docs',
   InstanceAdminPluginVersionMatrix = '/setup-and-upgrade/plugins/plugin-version-matrix/',
-  InstanceAdminQualityProfiles = 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles',
+  InstanceAdminQualityProfiles = '/codescan/docs/customising-quality-profiles',
   InstanceAdminQualityProfilesPrioritizingRules = '/instance-administration/analysis-functions/quality-profiles/#prioritizing-rules',
   InstanceAdminReindexation = '/server-upgrade-and-maintenance/maintenance/reindexing/',
   InstanceAdminSecurity = 'https://knowledgebase.autorabit.com/codescan/docs',
@@ -71,8 +71,8 @@ export enum DocLink {
   NewCodeDefinition = '/project-administration/clean-as-you-code-settings/defining-new-code/',
   NewCodeDefinitionOptions = '/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options',
   Portfolios = '/user-guide/viewing-reports/portfolios/',
-  PullRequestAnalysis = 'https://knowledgebase.autorabit.com/codescan/docs',
-  QualityGates = 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-gates',
+  PullRequestAnalysis = '/codescan/docs',
+  QualityGates = '/codescan/docs/customising-quality-gates',
   Root = '/',
   RulesOverview = '/user-guide/rules/overview',
   SecurityHotspots = 'https://knowledgebase.autorabit.com/codescan/docs',
@@ -85,7 +85,7 @@ export enum DocLink {
   SonarScannerGradle = 'https://knowledgebase.autorabit.com/codescan/docs',
   SonarScannerMaven = 'https://knowledgebase.autorabit.com/codescan/docs',
   SonarWayQualityGate = '/user-guide/quality-gates/#using-sonar-way-the-recommended-quality-gate', // to be confirmed
-  Webhooks = 'https://knowledgebase.autorabit.com/codescan/docs/webhooks/',
+  Webhooks = '/codescan/docs/webhooks/',
   Documentation='/product-guides/codescan/codescan-overview/',
 }
 
