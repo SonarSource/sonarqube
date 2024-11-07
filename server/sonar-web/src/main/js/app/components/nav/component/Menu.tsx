@@ -266,13 +266,14 @@ export function Menu(props: Readonly<Props>) {
       >
         <NavBarTabLink
           active={isSettingsActive}
+          preventDefault // not really a link, we just use the same style to be consistent
           text={
             hasMessage('layout.settings', component.qualifier)
               ? translate('layout.settings', component.qualifier)
               : translate('layout.settings')
           }
+          to={{}} // not really a link, we just use the same style to be consistent
           withChevron
-          to={window.location}
         />
       </DropdownMenu.Root>
     );
@@ -549,7 +550,7 @@ export function Menu(props: Readonly<Props>) {
         id="component-navigation-more"
         items={withoutSecurityExtension.map((e) => renderExtension(e, false, query))}
       >
-        <NavBarTabLink preventDefault text={translate('more')} withChevron to={window.location} />
+        <NavBarTabLink preventDefault text={translate('more')} withChevron to={{}} />
       </DropdownMenu.Root>
     );
   };
