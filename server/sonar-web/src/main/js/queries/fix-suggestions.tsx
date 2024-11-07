@@ -31,10 +31,9 @@ import {
 import { useAvailableFeatures } from '../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContext } from '../app/components/current-user/CurrentUserContext';
 import { Feature } from '../types/features';
-import { SettingsKey } from '../types/settings';
 import { Issue } from '../types/types';
 import { isLoggedIn } from '../types/users';
-import { useGetValueQuery } from './settings';
+import { useComponentDataQuery } from './component';
 import { useRawSourceQuery } from './sources';
 
 const UNKNOWN = -1;
@@ -151,14 +150,9 @@ export function useGetFixSuggestionsIssuesQuery(issue: Issue) {
   const { currentUser } = useContext(CurrentUserContext);
   const { hasFeature } = useAvailableFeatures();
 
-  const { data: codeFixSetting } = useGetValueQuery(
-    {
-      key: SettingsKey.CodeSuggestion,
-    },
-    { staleTime: Infinity },
-  );
-
-  const isCodeFixEnabled = codeFixSetting?.value === 'true';
+  const isCodeFixEnabled =
+    useComponentDataQuery({ component: issue.project }).data?.component?.isAiCodeFixEnabled ||
+    false;
 
   return useQuery({
     queryKey: ['code-suggestions', 'issues', 'details', issue.key],

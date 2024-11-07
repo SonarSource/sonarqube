@@ -55,6 +55,7 @@ export interface ProjectBase {
 export interface ComponentRaw {
   analysisDate?: string;
   isAiCodeAssured?: boolean;
+  isAiCodeFixEnabled?: boolean;
   isFavorite?: boolean;
   key: string;
   leakPeriodDate?: string;

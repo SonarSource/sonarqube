@@ -23,10 +23,12 @@ import userEvent from '@testing-library/user-event';
 import { range } from 'lodash';
 import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
-import { ISSUE_101, ISSUE_1101 } from '../../../api/mocks/data/ids';
+import { ISSUE_101, ISSUE_1101, ISSUE_2 } from '../../../api/mocks/data/ids';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { mockCurrentUser, mockCve, mockLoggedInUser } from '../../../helpers/testMocks';
 import { Feature } from '../../../types/features';
+import { Component } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
 import {
   branchHandler,
@@ -94,7 +96,10 @@ describe('issue app', () => {
   });
 
   it('should be able to trigger a fix when feature is available', async () => {
-    settingsHandler.set('sonar.ai.suggestions.enabled', 'true');
+    componentsHandler.registerComponent({
+      ...mockComponent({ key: 'myproject' }),
+      isAiCodeFixEnabled: true,
+    } as Component);
     sourcesHandler.setSource(
       range(0, 1)
         .map((n) => `line: ${n}`)
@@ -102,7 +107,7 @@ describe('issue app', () => {
     );
     const user = userEvent.setup();
     renderProjectIssuesApp(
-      'project/issues?issueStatuses=CONFIRMED&open=issue2&id=myproject',
+      `project/issues?issueStatuses=CONFIRMED&open=${ISSUE_2}&id=myproject`,
       {},
       mockLoggedInUser(),
       [Feature.BranchSupport, Feature.FixSuggestions],
@@ -130,6 +135,28 @@ describe('issue app', () => {
     expect(ui.issueCodeFixTab.query()).not.toBeInTheDocument();
   });
 
+  it('should not be able to trigger a fix when the feature is disabled', async () => {
+    componentsHandler.registerComponent({
+      ...mockComponent({ key: 'myproject' }),
+      isAiCodeFixEnabled: false,
+    } as Component);
+    sourcesHandler.setSource(
+      range(0, 1)
+        .map((n) => `line: ${n}`)
+        .join('\n'),
+    );
+    renderProjectIssuesApp(
+      `project/issues?issueStatuses=CONFIRMED&open=${ISSUE_2}&id=myproject`,
+      {},
+      mockLoggedInUser(),
+      [Feature.BranchSupport, Feature.FixSuggestions],
+    );
+
+    expect(await ui.issueCodeTab.find(undefined, { timeout: 10_000 })).toBeInTheDocument();
+    expect(ui.getFixSuggestion.query()).not.toBeInTheDocument();
+    expect(ui.issueCodeFixTab.query()).not.toBeInTheDocument();
+  });
+
   it('should not be able to trigger a fix when issue is not eligible', async () => {
     renderProjectIssuesApp(
       `project/issues?issueStatuses=CONFIRMED&open=${ISSUE_1101}&id=myproject`,
@@ -143,7 +170,10 @@ describe('issue app', () => {
   });
 
   it('should show error when no fix is available', async () => {
-    settingsHandler.set('sonar.ai.suggestions.enabled', 'true');
+    componentsHandler.registerComponent({
+      ...mockComponent({ key: 'myproject' }),
+      isAiCodeFixEnabled: true,
+    } as Component);
     const user = userEvent.setup();
     renderProjectIssuesApp(
       `project/issues?issueStatuses=CONFIRMED&open=${ISSUE_101}&id=myproject`,
