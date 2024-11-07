@@ -202,7 +202,7 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
     insertNotMigratedBranch(branch);
     String component1 = uuidFactory.create();
     metricsToMigrate.forEach(metricUuid -> insertMeasure(branch, component1, metricUuid,
-      Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":7}")));
+      Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":7}".getBytes(StandardCharsets.UTF_8))));
 
     underTest.execute();
 
@@ -236,12 +236,12 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
     String component1 = uuidFactory.create();
     insertMeasure(branch, component1, nclocMetricUuid, Map.of("value", 120));
     // total is not a number
-    insertMeasure(branch, component1, maintainabilityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4," +
-      "\"total\":\"ABC\"}"));
+    insertMeasure(branch, component1, maintainabilityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":\"ABC\"}"
+      .getBytes(StandardCharsets.UTF_8)));
     // total cannot fit in a long
-    insertMeasure(branch, component1, reliabilityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4," +
-      "\"total\":98723987498723987429874928748748}"));
-    insertMeasure(branch, component1, securityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":37}"));
+    insertMeasure(branch, component1, reliabilityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":98723987498723987429874928748748}"
+      .getBytes(StandardCharsets.UTF_8)));
+    insertMeasure(branch, component1, securityMetricUuid, Map.of("measure_data", "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":37}".getBytes(StandardCharsets.UTF_8)));
 
     logTester.setLevel(Level.DEBUG);
     underTest.execute();
@@ -259,8 +259,7 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
       "ncloc", 120.0,
       CoreMetrics.MAINTAINABILITY_ISSUES_KEY, "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":\"ABC\"}",
       CoreMetrics.RELIABILITY_ISSUES_KEY, "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":98723987498723987429874928748748}",
-      CoreMetrics.SECURITY_ISSUES_KEY, "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":37}"
-    );
+      CoreMetrics.SECURITY_ISSUES_KEY, "{\"LOW\":3,\"MEDIUM\":0,\"HIGH\":4,\"total\":37}");
 
     Map<String, Object> expectedNewMetrics = Map.of(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, 37.0);
 
