@@ -111,7 +111,7 @@ public class GroupsAction implements PermissionsWsAction {
           .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
 
       EntityDto project = wsSupport.findEntity(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, project);
+      wsSupport.checkPermissionManagementAccess(userSession, project, org.getUuid());
 
       PermissionQuery query = buildPermissionQuery(request, org, project);
       List<GroupDto> groups = findGroups(dbSession, org, query);

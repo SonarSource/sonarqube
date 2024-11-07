@@ -117,7 +117,7 @@ public class UsersAction implements PermissionsWsAction {
       OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
           .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
       EntityDto entity = wsSupport.findEntity(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, entity);
+      wsSupport.checkPermissionManagementAccess(userSession, entity, org.getUuid());
 
       PermissionQuery query = buildPermissionQuery(request, org, entity);
       List<UserDto> users = findUsers(dbSession, query);

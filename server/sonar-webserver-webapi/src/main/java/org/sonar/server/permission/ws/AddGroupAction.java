@@ -100,7 +100,7 @@ public class AddGroupAction implements PermissionsWsAction {
       if (entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
       }
-      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto, groupDto.getOrganizationUuid());
 
       Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, groupDto.getOrganizationUuid());
       logger.info("Grant Permission to a group: {} :: permission type: {}, organization: {}, orgId: {}, groupId: {}, user: {}",

@@ -68,8 +68,8 @@ public class PermissionWsSupport {
     this.groupWsSupport = groupWsSupport;
   }
 
-  public void checkPermissionManagementAccess(UserSession userSession, @Nullable EntityDto entity) {
-    checkProjectAdmin(userSession, configuration, entity);
+  public void checkPermissionManagementAccess(UserSession userSession, @Nullable EntityDto entity, String organizationUuid) {
+    checkProjectAdmin(userSession, configuration, entity, organizationUuid);
   }
 
   @CheckForNull

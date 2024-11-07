@@ -47,11 +47,11 @@ public class PermissionPrivilegeChecker {
    * Checks that user is administrator of the specified project
    * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
    */
-  public static void checkProjectAdmin(UserSession userSession, Configuration config, @Nullable EntityDto entity) {
+  public static void checkProjectAdmin(UserSession userSession, Configuration config, @Nullable EntityDto entity, String organizationUuid) {
     userSession.checkLoggedIn();
-    Objects.requireNonNull(entity.getOrganizationUuid());
+    Objects.requireNonNull(organizationUuid);
 
-    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, entity.getOrganizationUuid())) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organizationUuid)) {
       return;
     }
 
