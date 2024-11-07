@@ -39,7 +39,7 @@ import org.sonar.api.utils.PathUtils;
 @Immutable
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
   // should match limit in org.sonar.core.component.ComponentKeys
-  private static final Integer MAX_KEY_LENGTH = 999;
+  private static final Integer MAX_KEY_LENGTH = 400;
   private static final AtomicInteger intGenerator = new AtomicInteger(0);
 
   private final String projectRelativePath;
