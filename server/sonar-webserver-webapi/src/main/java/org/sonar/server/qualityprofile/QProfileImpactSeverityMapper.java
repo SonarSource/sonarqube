@@ -46,8 +46,6 @@ public class QProfileImpactSeverityMapper {
     SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
     if (ruleImpacts.containsKey(softwareQuality)) {
       result.put(softwareQuality, ImpactSeverityMapper.mapImpactSeverity(severity));
-    } else if (ruleImpacts.size() == 1) {
-      result.replaceAll((sq, sev) -> ImpactSeverityMapper.mapImpactSeverity(severity));
     }
     return result;
   }
@@ -57,8 +55,6 @@ public class QProfileImpactSeverityMapper {
     SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
     if (impacts.containsKey(softwareQuality)) {
       return ImpactSeverityMapper.mapRuleSeverity(impacts.get(softwareQuality));
-    } else if (impacts.size() == 1) {
-      return ImpactSeverityMapper.mapRuleSeverity(impacts.entrySet().iterator().next().getValue());
     }
     return ruleSeverity;
   }

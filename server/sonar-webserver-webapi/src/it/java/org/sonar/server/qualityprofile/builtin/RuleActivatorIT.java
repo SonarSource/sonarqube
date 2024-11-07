@@ -174,7 +174,7 @@ class RuleActivatorIT {
   }
 
   @Test
-  void activate_whenOnlyOneImpactAndImpactDoesntMatchRuleType_shouldOverrideSeverity() {
+  void activate_whenOnlyOneImpactAndImpactDoesntMatchRuleType_shouldNotOverrideSeverity() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER)
       .replaceAllDefaultImpacts(List.of(newImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
@@ -206,7 +206,7 @@ class RuleActivatorIT {
 
     assertThat(result).hasSize(1);
     ActiveRuleChange activeRuleResult = result.get(0);
-    assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.MINOR);
+    assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(activeRuleResult.getNewImpacts()).containsExactlyEntriesOf(Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW));
     assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
   }

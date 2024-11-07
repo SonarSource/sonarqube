@@ -64,13 +64,13 @@ class QProfileImpactSeverityMapperTest {
   }
 
   @Test
-  void mapImpactSeverities_whenOneDifferentImpact_shouldReturnOverriddenImpact() {
+  void mapImpactSeverities_whenOneDifferentImpact_shouldNotOverrideImpact() {
     Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> result = QProfileImpactSeverityMapper.mapImpactSeverities(Severity.INFO,
       Map.of(SoftwareQuality.RELIABILITY,
         org.sonar.api.issue.impact.Severity.HIGH),
       RuleType.CODE_SMELL);
 
-    assertThat(result).hasSize(1).containsEntry(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.INFO);
+    assertThat(result).hasSize(1).containsEntry(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH);
   }
 
   @Test
@@ -111,12 +111,12 @@ class QProfileImpactSeverityMapperTest {
   }
 
   @Test
-  void mapSeverity_whenOneImpact_ShouldReturnMappedImpactSeverity() {
+  void mapSeverity_whenOneImpactNotMatchingRuleType_ShouldReturnSameSeverity() {
     String severity = QProfileImpactSeverityMapper.mapSeverity(
       Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH),
       RuleType.BUG, Severity.BLOCKER);
 
-    assertThat(severity).isEqualTo(Severity.CRITICAL);
+    assertThat(severity).isEqualTo(Severity.BLOCKER);
   }
 
   @Test
