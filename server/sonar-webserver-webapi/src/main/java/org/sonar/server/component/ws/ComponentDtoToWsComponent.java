@@ -48,7 +48,8 @@ class ComponentDtoToWsComponent {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setKey(project.getKey())
       .setName(project.getName())
-      .setQualifier(project.getQualifier());
+      .setQualifier(project.getQualifier())
+      .setIsAiCodeFixEnabled(project.getAiCodeFixEnabled());
 
     ofNullable(emptyToNull(project.getDescription())).ifPresent(wsComponent::setDescription);
     ofNullable(lastAnalysis).ifPresent(

@@ -115,6 +115,7 @@ message Component {
   optional string pullRequest = 20;
   optional bool needIssueSync = 21;
   optional bool isAiCodeAssured = 22;
+  optional bool isAiCodeFixEnabled = 23;
 
   message Tags {
     repeated string tags = 1;

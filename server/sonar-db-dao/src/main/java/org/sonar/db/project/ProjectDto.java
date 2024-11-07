@@ -33,6 +33,7 @@ public class ProjectDto extends EntityDto {
   private String tags;
   private CreationMethod creationMethod;
   private boolean aiCodeAssurance;
+  private boolean aiCodeFixEnabled = false;
   private long createdAt;
   private long updatedAt;
 
@@ -131,6 +132,15 @@ public class ProjectDto extends EntityDto {
 
   public ProjectDto setAiCodeAssurance(boolean aiCodeAssurance) {
     this.aiCodeAssurance = aiCodeAssurance;
+    return this;
+  }
+
+  public boolean getAiCodeFixEnabled() {
+    return aiCodeFixEnabled;
+  }
+
+  public ProjectDto setAiCodeFixEnabled(boolean aiCodeFixEnabled) {
+    this.aiCodeFixEnabled = aiCodeFixEnabled;
     return this;
   }
 }

@@ -35,7 +35,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -44,6 +43,7 @@ import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 
 import static java.util.Collections.emptySet;
@@ -147,6 +147,23 @@ class ProjectDaoIT {
       .hasSize(2)
       .containsEntry("projectName_p1", true)
       .containsEntry("projectName_p2", false);
+  }
+
+  @Test
+  void selectProjects_returnsAiCodeFixEnabled() {
+    var dbSession = db.getSession();
+
+    var dto1 = createProject("o1", "p1").setAiCodeFixEnabled(true);
+    var dto2 = createProject("o1", "p2");
+
+    projectDao.insert(dbSession, dto1);
+    projectDao.insert(dbSession, dto2);
+
+    assertThat(projectDao.selectProjects(dbSession))
+      .extracting(EntityDto::getName, ProjectDto::getAiCodeFixEnabled)
+      .containsExactlyInAnyOrder(
+        tuple("projectName_p1", true),
+        tuple("projectName_p2", false));
   }
 
   @Test

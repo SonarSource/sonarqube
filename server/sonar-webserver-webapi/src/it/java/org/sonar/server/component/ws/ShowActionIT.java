@@ -24,13 +24,16 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -461,6 +464,19 @@ public class ShowActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void return_isAiCodeFixEnabled(boolean isAiCodeFixEnabled) {
+    var projectData = db.components().insertPrivateProject(ComponentDbTester.defaults(),
+      p -> p.setAiCodeFixEnabled(isAiCodeFixEnabled));
+    userSession.addProjectPermission(USER, projectData.getProjectDto())
+      .registerBranches(projectData.getMainBranchDto());
+
+    var response = newRequest(projectData.projectKey());
+
+    assertThat(response.getComponent().getIsAiCodeFixEnabled()).isEqualTo(isAiCodeFixEnabled);
   }
 
   private ShowWsResponse newRequest(@Nullable String key) {

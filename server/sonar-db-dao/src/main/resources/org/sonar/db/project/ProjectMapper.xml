@@ -12,6 +12,7 @@
       p.private as isPrivate,
       p.creation_method as creationMethod,
       p.ai_code_assurance as aiCodeAssurance,
+      p.ai_code_fix_enabled as aiCodeFixEnabled,
       p.created_at as createdAt,
       p.updated_at as updatedAt
     </sql>
@@ -138,6 +139,7 @@
       tags,
       creation_method,
       ai_code_assurance,
+      ai_code_fix_enabled,
       created_at,
       updated_at
     )
@@ -151,6 +153,7 @@
     #{tagsString, jdbcType=VARCHAR},
     #{creationMethod, jdbcType=VARCHAR},
     #{aiCodeAssurance, jdbcType=BOOLEAN},
+    #{aiCodeFixEnabled, jdbcType=BOOLEAN},
     #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}
     )
