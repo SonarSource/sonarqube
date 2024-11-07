@@ -72,13 +72,14 @@ class MigrateProjectMeasuresDeprecatedMetricsTest {
 
     assertThat(db.select("select metric_uuid, value from project_measures where metric_uuid in (%s)"
       .formatted(replacementMetrics.values().stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")))))
-      .hasSize(6)
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 1.0)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY), "value", 3.0)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 5.0)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 11.0)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY), "value", 13.0)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 15.0)));
+        .hasSize(6)
+        .map(m -> Map.of("metric_uuid", m.get("metric_uuid"), "value", ((Number) m.get("value")).longValue()))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 1L)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY), "value", 3L)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 5L)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 11L)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY), "value", 13L)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 15L)));
   }
 
   @Test
@@ -104,9 +105,10 @@ class MigrateProjectMeasuresDeprecatedMetricsTest {
 
     assertThat(db.select("select metric_uuid, value from project_measures where metric_uuid in (%s)"
       .formatted(replacementMetrics.values().stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")))))
-      .hasSize(2)
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 1.0)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 5.0)));
+        .hasSize(2)
+        .map(m -> Map.of("metric_uuid", m.get("metric_uuid"), "value", ((Number) m.get("value")).longValue()))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 1L)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 5L)));
   }
 
   @Test
@@ -121,13 +123,12 @@ class MigrateProjectMeasuresDeprecatedMetricsTest {
 
     assertThat(db.select("select metric_uuid, value, analysis_uuid from project_measures where metric_uuid in (%s)"
       .formatted(replacementMetrics.values().stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")))))
-      .hasSize(3)
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 1.0, "analysis_uuid"
-        , ANALYSIS_UUID_1)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 4.0, "analysis_uuid"
-        , ANALYSIS_UUID_2)))
-      .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 5.0, "analysis_uuid",
-        ANALYSIS_UUID_2)));
+        .hasSize(3)
+        .map(m -> Map.of("metric_uuid", m.get("metric_uuid"), "value", ((Number) m.get("value")).longValue(), "analysis_uuid", m.get("analysis_uuid")))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 1L, "analysis_uuid", ANALYSIS_UUID_1)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY), "value", 4L, "analysis_uuid", ANALYSIS_UUID_2)))
+        .contains((Map.of("metric_uuid", replacementMetrics.get(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY), "value", 5L, "analysis_uuid",
+          ANALYSIS_UUID_2)));
   }
 
   private void createProjectMeasureForDeprecatedMetric(String metricUuid, String analysisUuid, String totalIssues) {
