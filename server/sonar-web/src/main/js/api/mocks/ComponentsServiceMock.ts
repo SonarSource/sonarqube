@@ -120,6 +120,7 @@ export default class ComponentsServiceMock {
           const query = data.filter.split('query=')[1];
           return c.key.includes(query) || c.name.includes(query);
         }
+        return true;
       })
       .map((c) => c);
 
@@ -164,6 +165,10 @@ export default class ComponentsServiceMock {
       return sourceFile;
     }
     throw new Error(`Couldn't find source file for key ${key}`);
+  };
+
+  registerProject = (project: ComponentRaw) => {
+    this.projects.push(project);
   };
 
   registerComponent = (component: Component, ancestors: Component[] = []) => {

@@ -48,6 +48,7 @@ interface Props {
   issue: Issue;
   language?: string;
 }
+
 const EXPAND_SIZE = 10;
 const BUFFER_CODE = 3;
 

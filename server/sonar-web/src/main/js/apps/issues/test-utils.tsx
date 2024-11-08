@@ -24,7 +24,7 @@ import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/help
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import CveServiceMock from '../../api/mocks/CveServiceMock';
-import FixIssueServiceMock from '../../api/mocks/FixIssueServiceMock';
+import FixSuggestionsServiceMock from '../../api/mocks/FixSuggestionsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
 import SettingsServiceMock from '../../api/mocks/SettingsServiceMock';
 import SourcesServiceMock from '../../api/mocks/SourcesServiceMock';
@@ -50,7 +50,7 @@ export const cveHandler = new CveServiceMock();
 export const componentsHandler = new ComponentsServiceMock();
 export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
-export const fixIssueHandler = new FixIssueServiceMock();
+export const fixIssueHandler = new FixSuggestionsServiceMock();
 export const settingsHandler = new SettingsServiceMock();
 
 export const ui = {

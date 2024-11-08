@@ -23,18 +23,18 @@ import { translate } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import {
+  AI_CODE_FIX_CATEGORY,
   ALM_INTEGRATION_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
   AUTHENTICATION_CATEGORY,
-  CODE_FIX_CATEGORY,
   EMAIL_NOTIFICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   MODE_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY,
 } from '../constants';
+import AiCodeFixAdmin from './AiCodeFixAdmin';
 import { AnalysisScope } from './AnalysisScope';
-import CodeFixAdmin from './CodeFixAdmin';
 import Languages from './Languages';
 import { Mode } from './Mode';
 import NewCodeDefinition from './NewCodeDefinition';
@@ -94,9 +94,9 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: true,
   },
   {
-    key: CODE_FIX_CATEGORY,
-    name: translate('property.category.codefix'),
-    renderComponent: getCodeFixComponent,
+    key: AI_CODE_FIX_CATEGORY,
+    name: translate('property.category.aicodefix'),
+    renderComponent: getAiCodeFixComponent,
     availableGlobally: true,
     availableForProject: false,
     displayTab: true,
@@ -152,8 +152,8 @@ function getAlmIntegrationComponent(props: AdditionalCategoryComponentProps) {
   return <AlmIntegration {...props} />;
 }
 
-function getCodeFixComponent(props: AdditionalCategoryComponentProps) {
-  return <CodeFixAdmin {...props} />;
+function getAiCodeFixComponent(props: AdditionalCategoryComponentProps) {
+  return <AiCodeFixAdmin {...props} />;
 }
 
 function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {

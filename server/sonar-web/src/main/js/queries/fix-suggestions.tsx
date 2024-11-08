@@ -27,6 +27,7 @@ import {
   getFixSuggestionsIssues,
   getSuggestions,
   SuggestionServiceStatusCheckResponse,
+  updateFeatureEnablement,
 } from '../api/fix-suggestions';
 import { useAvailableFeatures } from '../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContext } from '../app/components/current-user/CurrentUserContext';
@@ -181,6 +182,12 @@ export function withUseGetFixSuggestionsIssues<P extends { issue: Issue }>(
     const { data } = useGetFixSuggestionsIssuesQuery(props.issue);
     return <Component aiSuggestionAvailable={data?.aiSuggestion === 'AVAILABLE'} {...props} />;
   };
+}
+
+export function useUpdateFeatureEnablementMutation() {
+  return useMutation({
+    mutationFn: updateFeatureEnablement,
+  });
 }
 
 export function useCheckServiceMutation() {

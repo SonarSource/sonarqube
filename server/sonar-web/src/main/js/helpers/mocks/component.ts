@@ -20,6 +20,7 @@
 
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { ComponentRaw } from '../../api/components';
 import { TreeComponent } from '../../types/component';
 import { Component, ComponentMeasure, ComponentMeasureEnhanced } from '../../types/types';
 import { mockMeasureEnhanced } from '../testMocks';
@@ -41,6 +42,17 @@ export function mockComponent(overrides: Partial<Component> = {}): Component {
     ],
     tags: [],
     ...overrides,
+  };
+}
+
+export function mockComponentRaw(overrides: Partial<ComponentRaw> = {}): ComponentRaw {
+  return {
+    key: 'my-project',
+    name: 'MyProject',
+    qualifier: ComponentQualifier.Project,
+    tags: [],
+    ...overrides,
+    visibility: Visibility.Public,
   };
 }
 

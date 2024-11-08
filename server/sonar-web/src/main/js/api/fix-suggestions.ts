@@ -19,7 +19,7 @@
  */
 
 import { axiosToCatch } from '../helpers/request';
-import { SuggestedFix } from '../types/fix-suggestions';
+import { AiCodeFixFeatureEnablement, SuggestedFix } from '../types/fix-suggestions';
 
 export interface FixParam {
   issueId: string;
@@ -41,6 +41,14 @@ export interface SuggestionServiceStatusCheckResponse {
   status: SuggestionServiceStatus;
 }
 
+export interface UpdateFeatureEnablementParams {
+  changes: {
+    disabledProjectKeys: string[];
+    enabledProjectKeys: string[];
+  };
+  enablement: AiCodeFixFeatureEnablement;
+}
+
 export function getSuggestions(data: FixParam): Promise<SuggestedFix> {
   return axiosToCatch.post<SuggestedFix>('/api/v2/fix-suggestions/ai-suggestions', data);
 }
@@ -51,4 +59,10 @@ export function getFixSuggestionsIssues(data: FixParam): Promise<AiIssue> {
 
 export function checkSuggestionServiceStatus(): Promise<SuggestionServiceStatusCheckResponse> {
   return axiosToCatch.post(`/api/v2/fix-suggestions/service-status-checks`);
+}
+
+export function updateFeatureEnablement(
+  featureEnablementParams: UpdateFeatureEnablementParams,
+): Promise<void> {
+  return axiosToCatch.patch(`/api/v2/fix-suggestions/feature-enablements`, featureEnablementParams);
 }

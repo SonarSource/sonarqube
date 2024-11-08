@@ -26,6 +26,8 @@ import {
   getSuggestions,
   SuggestionServiceStatus,
   SuggestionServiceStatusCheckResponse,
+  updateFeatureEnablement,
+  UpdateFeatureEnablementParams,
 } from '../fix-suggestions';
 import { ISSUE_101, ISSUE_1101 } from './data/ids';
 
@@ -33,7 +35,7 @@ jest.mock('../fix-suggestions');
 
 export type MockSuggestionServiceStatus = SuggestionServiceStatus | 'WTF' | undefined;
 
-export default class FixIssueServiceMock {
+export default class FixSuggestionsServiceMock {
   fixSuggestion = {
     id: '70b14d4c-d302-4979-9121-06ac7d563c5c',
     issueId: 'AYsVhClEbjXItrbcN71J',
@@ -54,6 +56,7 @@ export default class FixIssueServiceMock {
     jest.mocked(getSuggestions).mockImplementation(this.handleGetFixSuggestion);
     jest.mocked(getFixSuggestionsIssues).mockImplementation(this.handleGetFixSuggestionsIssues);
     jest.mocked(checkSuggestionServiceStatus).mockImplementation(this.handleCheckService);
+    jest.mocked(updateFeatureEnablement).mockImplementation(this.handleUpdateFeatureEnablement);
   }
 
   handleGetFixSuggestionsIssues = (data: FixParam) => {
@@ -75,6 +78,10 @@ export default class FixIssueServiceMock {
       return this.reply({ status: this.serviceStatus } as SuggestionServiceStatusCheckResponse);
     }
     return Promise.reject({ error: { msg: 'Error' } });
+  };
+
+  handleUpdateFeatureEnablement = (_: UpdateFeatureEnablementParams) => {
+    return Promise.resolve();
   };
 
   reply<T>(response: T): Promise<T> {

@@ -133,6 +133,7 @@ export function mockProjects(): ComponentRaw[] {
       tags: ['sonarqube'],
       visibility: Visibility.Public,
       leakPeriodDate: '2023-08-10T12:28:45+0000',
+      isAiCodeFixEnabled: true,
     },
     {
       key: 'org.sonarsource.javascript:javascript',
