@@ -1,0 +1,19 @@
+name: Release
+# This workflow is triggered when publishing a GitHub release
+# yamllint disable-line rule:truthy
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release:
+    permissions:
+      id-token: write
+      contents: write
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@v5
+    with:
+      slackChannel: squad-sq-platform-build-notification
+      publishToBinaries: true
+      mavenCentralSync: true
+      dryRun: true
