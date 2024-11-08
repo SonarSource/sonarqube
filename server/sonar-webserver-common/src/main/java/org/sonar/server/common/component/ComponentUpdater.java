@@ -40,6 +40,7 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.common.permission.PermissionTemplateService;
@@ -61,6 +62,8 @@ import static org.sonar.server.exceptions.BadRequestException.throwBadRequestExc
 
 public class ComponentUpdater {
 
+  static final String SUGGESTION_FEATURE_ENABLED_PROPERTY = "sonar.ai.suggestions.enabled";
+  static final String ENABLED_FOR_ALL_PROJECTS = "ENABLED_FOR_ALL_PROJECTS";
   private static final Set<String> PROJ_APP_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.APP);
   private static final String KEY_ALREADY_EXISTS_ERROR = "Could not create %s with key: \"%s\". A similar key already exists: \"%s\"";
   private static final String MALFORMED_KEY_ERROR = "Malformed key for %s: '%s'. %s.";
@@ -128,7 +131,8 @@ public class ComponentUpdater {
     PortfolioDto portfolioDto = null;
 
     if (isProjectOrApp(componentDto)) {
-      projectDto = toProjectDto(componentDto, now, componentCreationParameters.creationMethod());
+      var isAiCodeFixEnabled = isAiCodeFixEnabledForAllProjects();
+      projectDto = toProjectDto(componentDto, now, componentCreationParameters.creationMethod(), isAiCodeFixEnabled);
       dbClient.projectDao().insert(dbSession, projectDto);
       addToFavourites(dbSession, projectDto, componentCreationParameters.userUuid(), componentCreationParameters.userLogin());
       mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), componentCreationParameters.mainBranchName());
@@ -146,6 +150,12 @@ public class ComponentUpdater {
     }
 
     return new ComponentCreationData(componentDto, portfolioDto, mainBranch, projectDto);
+  }
+
+  private boolean isAiCodeFixEnabledForAllProjects() {
+    return Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(SUGGESTION_FEATURE_ENABLED_PROPERTY))
+      .map(PropertyDto::getValue)
+      .stream().anyMatch(ENABLED_FOR_ALL_PROJECTS::equals);
   }
 
   private void applyPublicPermissionsForCreator(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid) {
@@ -205,7 +215,7 @@ public class ComponentUpdater {
     return component;
   }
 
-  private ProjectDto toProjectDto(ComponentDto component, long now, CreationMethod creationMethod) {
+  private ProjectDto toProjectDto(ComponentDto component, long now, CreationMethod creationMethod, boolean isAiCodeFixEnabled) {
     return new ProjectDto()
       .setUuid(uuidFactory.create())
       .setKey(component.getKey())
@@ -214,6 +224,7 @@ public class ComponentUpdater {
       .setPrivate(component.isPrivate())
       .setDescription(component.description())
       .setCreationMethod(creationMethod)
+      .setAiCodeFixEnabled(isAiCodeFixEnabled)
       .setUpdatedAt(now)
       .setCreatedAt(now);
   }
