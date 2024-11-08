@@ -26,9 +26,9 @@ import {
   Heading,
   IconCheckCircle,
   IconError,
-  LinkStandalone,
+  Link,
   Spinner,
-  Text,
+  Text
 } from '@sonarsource/echoes-react';
 import { MutationStatus } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -37,16 +37,13 @@ import { FormattedMessage } from 'react-intl';
 import { BasicSeparator, HighlightedSection, themeColor, UnorderedList } from '~design-system';
 import { SuggestionServiceStatusCheckResponse } from '../../../api/fix-suggestions';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps,
+  WithAvailableFeaturesProps
 } from '../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { getAiCodeFixTermsOfServiceUrl } from '../../../helpers/urls';
-import {
-  useCheckServiceMutation,
-  useRemoveCodeSuggestionsCache,
-} from '../../../queries/fix-suggestions';
+import { useCheckServiceMutation, useRemoveCodeSuggestionsCache } from '../../../queries/fix-suggestions';
 import { useGetValueQuery, useSaveSimpleValueMutation } from '../../../queries/settings';
 import { Feature } from '../../../types/features';
 import { SettingsKey } from '../../../types/settings';
@@ -68,7 +65,6 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
   const isCodeFixEnabled = codeFixSetting?.value === 'true';
 
   const [enableCodeFix, setEnableCodeFix] = React.useState(isCodeFixEnabled);
-  const [acceptedTerms, setAcceptedTerms] = React.useState(false);
   const {
     mutate: checkService,
     isIdle,
@@ -94,7 +90,6 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
 
   const handleCancel = () => {
     setEnableCodeFix(isCodeFixEnabled);
-    setAcceptedTerms(false);
   };
 
   if (!hasFeature(Feature.FixSuggestions)) {
@@ -124,46 +119,37 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
           label={translate('property.codefix.admin.checkbox.label')}
           checked={Boolean(enableCodeFix)}
           onCheck={() => setEnableCodeFix(!enableCodeFix)}
+          helpText={
+            <FormattedMessage
+              id="property.codefix.admin.terms"
+              defaultMessage={translate('property.codefix.admin.acceptTerm.label')}
+              values={{
+                terms: (
+                  <Link shouldOpenInNewTab to={getAiCodeFixTermsOfServiceUrl()}>
+                    {translate('property.codefix.admin.acceptTerm.terms')}
+                  </Link>
+                ),
+              }}
+            />
+          }
         />
-        {isValueChanged && (
-          <div>
-            <BasicSeparator className="sw-mt-6" />
-            {enableCodeFix && (
-              <Checkbox
-                className="sw-mt-6"
-                label={
-                  <FormattedMessage
-                    id="property.codefix.admin.terms"
-                    defaultMessage={translate('property.codefix.admin.acceptTerm.label')}
-                    values={{
-                      terms: (
-                        <LinkStandalone to={getAiCodeFixTermsOfServiceUrl()}>
-                          {translate('property.codefix.admin.acceptTerm.terms')}
-                        </LinkStandalone>
-                      ),
-                    }}
-                  />
-                }
-                checked={acceptedTerms}
-                onCheck={() => setAcceptedTerms(!acceptedTerms)}
-              />
-            )}
-            <div className="sw-mt-6">
-              <Button
-                variety={ButtonVariety.Primary}
-                isDisabled={!acceptedTerms && enableCodeFix}
-                onClick={() => {
-                  handleSave();
-                }}
-              >
-                {translate('save')}
-              </Button>
-              <Button className="sw-ml-3" variety={ButtonVariety.Default} onClick={handleCancel}>
-                {translate('cancel')}
-              </Button>
-            </div>
+        <div>
+          <BasicSeparator className="sw-mt-6" />
+          <div className="sw-mt-6">
+            <Button
+              variety={ButtonVariety.Primary}
+              isDisabled={!isValueChanged}
+              onClick={() => {
+                handleSave();
+              }}
+            >
+              {translate('save')}
+            </Button>
+            <Button className="sw-ml-3" variety={ButtonVariety.Default} onClick={handleCancel}>
+              {translate('cancel')}
+            </Button>
           </div>
-        )}
+        </div>
       </div>
       <div className="sw-flex-col sw-w-abs-600 sw-p-6">
         <HighlightedSection className="sw-items-start">
