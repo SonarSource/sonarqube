@@ -75,10 +75,9 @@ class EnableSpecificMqrModeIT {
     db.executeInsert("properties",
       "prop_key", MULTI_QUALITY_MODE_ENABLED,
       "text_value", "false",
-      "is_empty", "false",
+      "is_empty", false,
       "created_at", 1_000_000_000L,
-      "uuid", uuid
-    );
+      "uuid", uuid);
     underTest.execute();
 
     assertThat(getPropertyFromDB()).hasSize(1);
