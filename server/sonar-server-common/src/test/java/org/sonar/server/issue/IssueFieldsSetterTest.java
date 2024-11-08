@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import org.apache.commons.lang3.time.DateUtils;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
@@ -630,6 +631,7 @@ class IssueFieldsSetterTest {
     boolean updated = underTest.setImpacts(issue, currentImpacts, context);
     assertThat(updated).isTrue();
     assertThat(issue.getImpacts()).isEqualTo(newImpacts);
+    assertThat(issue.changes()).isEmpty();
   }
 
   @Test
@@ -668,6 +670,7 @@ class IssueFieldsSetterTest {
     assertThat(updated).isTrue();
     assertThat(issue.getImpacts()).isEqualTo(Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true),
       new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.HIGH, false)));
+    assertThat(issue.changes()).isEmpty();
   }
 
   @Test
@@ -683,6 +686,8 @@ class IssueFieldsSetterTest {
     boolean updated = underTest.setImpacts(issue, currentImpacts, context);
     assertThat(updated).isTrue();
     assertThat(issue.getImpacts()).isEqualTo(Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, true)));
+    assertThat(issue.changes()).hasSize(1).extracting(f -> f.diffs().get("impactSeverity").oldValue(), f -> f.diffs().get("impactSeverity").newValue())
+      .containsExactly(Tuple.tuple("MAINTAINABILITY:LOW", "MAINTAINABILITY:BLOCKER"));
   }
 
   @Test
@@ -697,6 +702,7 @@ class IssueFieldsSetterTest {
     issue.setType(RuleType.BUG);
     boolean updated = underTest.setImpacts(issue, currentImpacts, context);
     assertThat(updated).isFalse();
+    assertThat(issue.changes()).isEmpty();
   }
 
   @Test
@@ -711,6 +717,7 @@ class IssueFieldsSetterTest {
     issue.setType(RuleType.BUG);
     boolean updated = underTest.setImpacts(issue, currentImpacts, context);
     assertThat(updated).isFalse();
+    assertThat(issue.changes()).isEmpty();
   }
 
   @Test

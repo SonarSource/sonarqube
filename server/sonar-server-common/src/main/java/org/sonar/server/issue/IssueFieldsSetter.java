@@ -506,7 +506,13 @@ public class IssueFieldsSetter {
       issue.getImpacts()
         .stream()
         .filter(i -> convertToSoftwareQuality(issue.type()).equals(i.softwareQuality()))
-        .forEach(i -> issue.addImpact(i.softwareQuality(), ImpactSeverityMapper.mapImpactSeverity(issue.severity()), true));
+        .forEach(i -> {
+          Severity newSeverity = ImpactSeverityMapper.mapImpactSeverity(issue.severity());
+          issue.addImpact(i.softwareQuality(), newSeverity, true);
+          issue.setFieldChange(context, IMPACT_SEVERITY,
+            i.softwareQuality() + ":" + i.severity(),
+            i.softwareQuality() + ":" + newSeverity);
+        });
     }
 
     if (!previousImpacts.equals(issue.getImpacts())) {
