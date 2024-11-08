@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import org.apache.commons.lang3.time.DateUtils;
@@ -51,6 +52,7 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
+import static org.sonar.server.issue.IssueFieldsSetter.IMPACT_SEVERITY;
 import static org.sonar.server.issue.IssueFieldsSetter.SEVERITY;
 import static org.sonar.server.issue.IssueFieldsSetter.STATUS;
 import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
@@ -238,6 +240,49 @@ class IssueFieldsSetterTest {
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  void set_manual_impact_severity_whenExistingImpactMatchesRequested_shouldUpdateManualImpactSeverity() {
+    issue.replaceImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, context);
+
+    assertThat(updated).isTrue();
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+      assertThat(impact.severity()).isEqualTo(Severity.BLOCKER);
+      assertThat(impact.manualSeverity()).isTrue();
+    });
+    FieldDiffs.Diff diff = issue.currentChange().get(IMPACT_SEVERITY);
+    assertThat(diff.oldValue()).isEqualTo("MAINTAINABILITY:LOW");
+    assertThat(diff.newValue()).isEqualTo("MAINTAINABILITY:BLOCKER");
+  }
+
+  @Test
+  void set_manual_impact_severity_whenExistingImpactHasSameSeverityButNoManualFlag_shouldUpdateManualImpactSeverity() {
+    issue.replaceImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.LOW, context);
+
+    assertThat(updated).isTrue();
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+      assertThat(impact.severity()).isEqualTo(Severity.LOW);
+      assertThat(impact.manualSeverity()).isTrue();
+    });
+    assertThat(issue.currentChange()).isNull();
+  }
+
+  @Test
+  void set_manual_impact_severity_whenExistingImpactHasDifferentSeverity_shouldUpdateManualImpactSeverity() {
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true);
+    boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, context);
+
+    assertThat(updated).isTrue();
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+      assertThat(impact.severity()).isEqualTo(Severity.BLOCKER);
+      assertThat(impact.manualSeverity()).isTrue();
+    });
+    FieldDiffs.Diff diff = issue.currentChange().get(IMPACT_SEVERITY);
+    assertThat(diff.oldValue()).isEqualTo("MAINTAINABILITY:LOW");
+    assertThat(diff.newValue()).isEqualTo("MAINTAINABILITY:BLOCKER");
   }
 
   @Test

@@ -24,12 +24,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.IssueStatus;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -84,6 +87,7 @@ public class IssueFieldsSetter {
   public static final String LINE = "line";
   public static final String TAGS = "tags";
   public static final String CODE_VARIANTS = "code_variants";
+  public static final String IMPACT_SEVERITY = "impactSeverity";
 
   private static final Joiner CHANGELOG_LIST_JOINER = Joiner.on(" ").skipNulls();
 
@@ -116,6 +120,9 @@ public class IssueFieldsSetter {
     return setSeverity(issue, currentSeverity, context);
   }
 
+  /**
+   * @return true if the 'severity' or 'manualSeverity' flag has been changed, else return false
+   */
   public boolean setManualSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (!issue.manualSeverity() || !Objects.equals(severity, issue.severity())) {
       issue.setFieldChange(context, SEVERITY, issue.severity(), severity);
@@ -127,6 +134,30 @@ public class IssueFieldsSetter {
       return true;
     }
     return false;
+  }
+
+  /**
+   * @return true if the 'severity' or 'manualSeverity' flag of the Impact has been changed, else return false
+   */
+  public boolean setImpactManualSeverity(DefaultIssue issue, SoftwareQuality softwareQuality, Severity severity,
+    IssueChangeContext context) {
+    Map<SoftwareQuality, Severity> oldImpacts = issue.impacts();
+    if ((oldImpacts.containsKey(softwareQuality)
+      && (!Objects.equals(oldImpacts.get(softwareQuality), severity) || !hasManualSeverity(issue, softwareQuality)))) {
+      issue.addImpact(softwareQuality, severity, true);
+      issue.setFieldChange(context, IMPACT_SEVERITY,
+        softwareQuality + ":" + oldImpacts.get(softwareQuality),
+        softwareQuality + ":" + severity);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      issue.setSendNotifications(true);
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean hasManualSeverity(DefaultIssue issue, SoftwareQuality softwareQuality) {
+    return issue.getImpacts().stream().filter(i -> i.softwareQuality().equals(softwareQuality)).anyMatch(DefaultImpact::manualSeverity);
   }
 
   public boolean assign(DefaultIssue issue, @Nullable UserDto user, IssueChangeContext context) {
