@@ -29,6 +29,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.workflow.Condition;
 import org.sonar.server.user.UserSession;
 
@@ -79,6 +80,8 @@ public abstract class Action {
 
   public interface Context {
     DefaultIssue issue();
+
+    IssueDto issueDto();
 
     IssueChangeContext issueChangeContext();
 

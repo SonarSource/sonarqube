@@ -22,12 +22,15 @@ package org.sonar.server.pushapi.issues;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -36,6 +39,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
@@ -70,7 +74,18 @@ public class IssueChangeEventServiceImplTest {
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), null, null, null, 1);
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), Map.of(), null, null, null, 1);
+  }
+
+  @Test
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldChangeImpacts() {
+    ProjectData projectData = db.components().insertPublicProject();
+    RuleDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(),
+      i -> i.replaceAllImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH),
+        new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
+
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, null, Map.of(SoftwareQuality.SECURITY, Severity.HIGH), null, null, null, 1);
   }
 
   @Test
@@ -79,7 +94,7 @@ public class IssueChangeEventServiceImplTest {
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, null, Common.RuleType.BUG.name(), null, null, 1);
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, null, Map.of(), Common.RuleType.BUG.name(), null, null, 1);
   }
 
   @Test
@@ -90,15 +105,15 @@ public class IssueChangeEventServiceImplTest {
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, mainBranch, projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, ACCEPT, true, 1);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, WONT_FIX, true, 2);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 3);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, FALSE_POSITIVE, true, 4);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 5);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, RESOLVE, false, 6);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 7);
-    assertNoIssueDistribution(project, mainBranch, issue, null, null, CONFIRM, 8);
-    assertNoIssueDistribution(project, mainBranch, issue, null, null, UNCONFIRM, 9);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, ACCEPT, true, 1);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, WONT_FIX, true, 2);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, REOPEN, false, 3);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, FALSE_POSITIVE, true, 4);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, REOPEN, false, 5);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, RESOLVE, false, 6);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, REOPEN, false, 7);
+    assertNoIssueDistribution(project, mainBranch, issue, null, Map.of(), null, CONFIRM, 8);
+    assertNoIssueDistribution(project, mainBranch, issue, null, Map.of(), null, UNCONFIRM, 9);
   }
 
   @Test
@@ -108,7 +123,7 @@ public class IssueChangeEventServiceImplTest {
     ComponentDto branchComponent = db.components().insertFile(featureBranch);
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, featureBranch, branchComponent, i -> i.setSeverity(MAJOR.name()));
-    assertPushEventIsPersisted(projectData.getProjectDto(), featureBranch, issue, BLOCKER.name(), null, null, null, 1);
+    assertPushEventIsPersisted(projectData.getProjectDto(), featureBranch, issue, BLOCKER.name(), Map.of(), null, null, null, 1);
   }
 
   @Test
@@ -117,7 +132,7 @@ public class IssueChangeEventServiceImplTest {
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), Common.RuleType.BUG.name(), ACCEPT, true, 1);
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), Map.of(), Common.RuleType.BUG.name(), ACCEPT, true, 1);
   }
 
   @Test
@@ -145,10 +160,12 @@ public class IssueChangeEventServiceImplTest {
     DefaultIssue defaultIssue1 = issue1.toDefaultIssue().setCurrentChangeWithoutAddChange(new FieldDiffs()
       .setDiff("resolution", null, null)
       .setDiff("severity", MAJOR.name(), CRITICAL.name())
+      .setDiff("impactSeverity", "RELIABILITY:HIGH", "RELIABILITY:MEDIUM")
       .setDiff("type", RuleType.BUG.name(), CODE_SMELL.name()));
     DefaultIssue defaultIssue2 = issue2.toDefaultIssue().setCurrentChangeWithoutAddChange(new FieldDiffs()
       .setDiff("resolution", "OPEN", "FALSE-POSITIVE")
       .setDiff("severity", MAJOR.name(), CRITICAL.name())
+      .setDiff("impactSeverity", "MAINTAINABILITY:HIGH", "MAINTAINABILITY:LOW")
       .setDiff("type", RuleType.BUG.name(), CODE_SMELL.name()));
 
     Set<DefaultIssue> issues = Set.of(defaultIssue1, defaultIssue2, issue3.toDefaultIssue());
@@ -185,13 +202,16 @@ public class IssueChangeEventServiceImplTest {
     assertThat(firstPayload)
       .contains("\"userSeverity\":\"" + CRITICAL.name() + "\"",
         "\"userType\":\"" + CODE_SMELL.name() + "\"",
-        "\"resolved\":" + false);
+        "\"resolved\":" + false)
+      .contains("\"issues\":[{\"issueKey\":\"%s\",\"branchName\":\"main\",\"impacts\":{\"RELIABILITY\":\"MEDIUM\"}}]".formatted(issue1.getKee()));
 
     String secondPayload = new String(project2Event.get().getPayload(), StandardCharsets.UTF_8);
     assertThat(secondPayload)
       .contains("\"userSeverity\":\"" + CRITICAL.name() + "\"",
         "\"userType\":\"" + CODE_SMELL.name() + "\"",
-        "\"resolved\":" + true);
+        "\"resolved\":" + true)
+      .contains("\"issues\":[{\"issueKey\":\"%s\",\"branchName\":\"main\",\"impacts\":{\"MAINTAINABILITY\":\"LOW\"}}]".formatted(issue2.getKee()));
+
   }
 
   @Test
@@ -225,8 +245,8 @@ public class IssueChangeEventServiceImplTest {
   }
 
   private void assertNoIssueDistribution(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
-    @Nullable String type, @Nullable String transition, int page) {
-    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, type, transition, branch, project.getKey());
+    Map<SoftwareQuality, Severity> impacts, @Nullable String type, @Nullable String transition, int page) {
+    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, impacts, type, transition, branch, project.getKey());
 
     Deque<PushEventDto> events = db.getDbClient().pushEventDao()
       .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, page);
@@ -234,8 +254,9 @@ public class IssueChangeEventServiceImplTest {
   }
 
   private void assertPushEventIsPersisted(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
+    Map<SoftwareQuality, Severity> impacts,
     @Nullable String type, @Nullable String transition, Boolean resolved, int page) {
-    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, type, transition, branch, project.getKey());
+    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, impacts, type, transition, branch, project.getKey());
 
     Deque<PushEventDto> events = db.getDbClient().pushEventDao()
       .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, page);
@@ -254,6 +275,11 @@ public class IssueChangeEventServiceImplTest {
 
     if (resolved != null) {
       assertThat(payload).contains("\"resolved\":" + resolved);
+    }
+
+    for (Map.Entry<SoftwareQuality, Severity> impact : impacts.entrySet()) {
+      assertThat(payload).contains("\"impacts\":{\"");
+      assertThat(payload).contains(impact.getKey().name() + "\":\"" + impact.getValue().name() + "\"}");
     }
   }
 

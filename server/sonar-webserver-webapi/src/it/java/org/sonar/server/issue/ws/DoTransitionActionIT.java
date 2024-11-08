@@ -127,7 +127,7 @@ public class DoTransitionActionIT {
 
     verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issue);
-    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
     assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(file);

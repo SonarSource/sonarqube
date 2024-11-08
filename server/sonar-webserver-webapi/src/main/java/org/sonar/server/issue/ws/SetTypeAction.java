@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.io.Resources;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.Map;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -128,7 +129,7 @@ public class SetTypeAction implements IssuesWsAction {
       BranchDto branch = issueUpdater.getBranch(session, issue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
-        issueChangeEventService.distributeIssueChangeEvent(issue, null, ruleType.name(), null, branch,
+        issueChangeEventService.distributeIssueChangeEvent(issue, null, Map.of(), ruleType.name(), null, branch,
           response.getComponentByUuid(issue.projectUuid()).getKey());
       }
       return response;

@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.Map;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.server.ws.Change;
@@ -134,7 +135,7 @@ public class DoTransitionAction implements IssuesWsAction {
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context, branch);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
-        issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, null, transitionKey, branch,
+        issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, Map.of(), null, transitionKey, branch,
           response.getComponentByUuid(defaultIssue.projectUuid()).getKey());
       }
       return response;

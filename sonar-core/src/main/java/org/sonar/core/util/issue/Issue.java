@@ -20,10 +20,15 @@
 package org.sonar.core.util.issue;
 
 import java.io.Serializable;
+import java.util.EnumMap;
+import java.util.Map;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 
 public class Issue implements Serializable {
-  private String issueKey;
-  private String branchName;
+  private final String issueKey;
+  private final String branchName;
+  private final Map<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
 
   public Issue(String issueKey, String branchName) {
     this.issueKey = issueKey;
@@ -36,5 +41,13 @@ public class Issue implements Serializable {
 
   public String getBranchName() {
     return branchName;
+  }
+
+  public void addImpact(SoftwareQuality quality, Severity severity) {
+    impacts.put(quality, severity);
+  }
+
+  public Map<SoftwareQuality, Severity> getImpacts() {
+    return impacts;
   }
 }

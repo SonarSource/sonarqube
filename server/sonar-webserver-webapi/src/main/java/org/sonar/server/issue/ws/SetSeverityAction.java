@@ -81,12 +81,12 @@ public class SetSeverityAction implements IssuesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_SET_SEVERITY)
       .setDescription("Change severity.<br/>" +
-                      "Requires the following permissions:" +
-                      "<ul>" +
-                      "  <li>'Authentication'</li>" +
-                      "  <li>'Browse' rights on project of the specified issue</li>" +
-                      "  <li>'Administer Issues' rights on project of the specified issue</li>" +
-                      "</ul>")
+        "Requires the following permissions:" +
+        "<ul>" +
+        "  <li>'Authentication'</li>" +
+        "  <li>'Browse' rights on project of the specified issue</li>" +
+        "  <li>'Administer Issues' rights on project of the specified issue</li>" +
+        "</ul>")
       .setSince("3.6")
       .setChangelog(
         new Change("10.8", "Add 'impact' parameter to the request."),
@@ -161,15 +161,15 @@ public class SetSeverityAction implements IssuesWsAction {
     createImpactsIfMissing(issue, effectiveImpacts);
     if (issueFieldsSetter.setImpactManualSeverity(issue, softwareQuality, manualImpactSeverity, context)) {
       String manualSeverity = null;
-      boolean severityUpdated = false;
+      boolean severityHasChanged = false;
       if (convertToRuleType(softwareQuality).equals(issue.type())) {
         manualSeverity = convertToDeprecatedSeverity(manualImpactSeverity);
-        severityUpdated = issueFieldsSetter.setManualSeverity(issue, manualSeverity, context);
+        severityHasChanged = issueFieldsSetter.setManualSeverity(issue, manualSeverity, context);
       }
       BranchDto branch = issueUpdater.getBranch(session, issue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
-        issueChangeEventService.distributeIssueChangeEvent(issue, severityUpdated ? manualSeverity : null, null, null,
+        issueChangeEventService.distributeIssueChangeEvent(issue, severityHasChanged ? manualSeverity : null, Map.of(softwareQuality, manualImpactSeverity), null, null,
           branch, getProjectKey(issue, response));
       }
       return response;
@@ -181,14 +181,15 @@ public class SetSeverityAction implements IssuesWsAction {
     IssueChangeContext context) {
     if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
       SoftwareQuality softwareQuality = convertToSoftwareQuality(issue.type());
+      boolean impactHasChanged = false;
       if (issueDto.getEffectiveImpacts().containsKey(softwareQuality)) {
         createImpactsIfMissing(issue, issueDto.getEffectiveImpacts());
-        issueFieldsSetter.setImpactManualSeverity(issue, softwareQuality, mapImpactSeverity(severity), context);
+        impactHasChanged = issueFieldsSetter.setImpactManualSeverity(issue, softwareQuality, mapImpactSeverity(severity), context);
       }
       BranchDto branch = issueUpdater.getBranch(session, issue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
-        issueChangeEventService.distributeIssueChangeEvent(issue, severity, null, null,
+        issueChangeEventService.distributeIssueChangeEvent(issue, severity, impactHasChanged ? Map.of(softwareQuality, mapImpactSeverity(severity)) : Map.of(), null, null,
           branch, getProjectKey(issue, response));
       }
       return response;
@@ -205,7 +206,7 @@ public class SetSeverityAction implements IssuesWsAction {
   }
 
   private static void createImpactsIfMissing(DefaultIssue issue, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> effectiveImpacts) {
-    if(issue.impacts().isEmpty()){
+    if (issue.impacts().isEmpty()) {
       issue.replaceImpacts(effectiveImpacts);
       issue.setChanged(true);
     }

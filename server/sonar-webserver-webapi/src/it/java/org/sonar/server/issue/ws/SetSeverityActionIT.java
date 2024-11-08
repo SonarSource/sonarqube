@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
@@ -112,14 +113,15 @@ class SetSeverityActionIT {
 
   @Test
   void set_severity_whenSetSeverity_shouldAlsoUpdateImpactSeverity() {
-    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL));
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL)
+      .replaceAllImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM, false))));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     call(issueDto.getKey(), MINOR, null);
 
     verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
-    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), eq(MINOR), eq(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)), any(), any(), any(), any());
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
@@ -145,7 +147,7 @@ class SetSeverityActionIT {
     verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
       any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
-    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
@@ -169,7 +171,7 @@ class SetSeverityActionIT {
     verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
       any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
-    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
@@ -184,6 +186,7 @@ class SetSeverityActionIT {
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(issueDto.getComponentUuid());
   }
+
   @Test
   void set_severity_whenSetImpactSeverity_shouldAlsoUpdateSeverity() {
     IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL));
@@ -194,7 +197,7 @@ class SetSeverityActionIT {
     verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
       any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
-    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), eq(MINOR), eq(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)), any(), any(), any(), any());
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
@@ -220,7 +223,7 @@ class SetSeverityActionIT {
     verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
       any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
-    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(MAJOR);
@@ -247,7 +250,7 @@ class SetSeverityActionIT {
     verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
       any(Response.class), eq(true));
 
-    verify(issueChangeEventService, times(0)).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService, times(0)).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
   }
 
   @Test

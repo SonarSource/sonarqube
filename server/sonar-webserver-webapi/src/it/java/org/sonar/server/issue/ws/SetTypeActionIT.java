@@ -136,7 +136,7 @@ public class SetTypeActionIT {
       assertThat(issueChangePostProcessor.calledComponents())
         .extracting(ComponentDto::uuid)
         .containsExactlyInAnyOrder(issueDto.getComponentUuid());
-      verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+      verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
     } else {
       assertThat(issueChangePostProcessor.wasCalled())
         .isFalse();
@@ -304,7 +304,7 @@ public class SetTypeActionIT {
     return EnumSet.allOf(RuleType.class)
       .stream()
       .filter(ruleType -> SECURITY_HOTSPOT != ruleType)
-      .map(t -> new Object[]{t})
+      .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
 
@@ -316,7 +316,7 @@ public class SetTypeActionIT {
       .collect(Collectors.toSet());
     return Sets.cartesianProduct(set, set)
       .stream()
-      .map(ruleTypes -> new Object[]{ruleTypes.get(0), ruleTypes.get(1)})
+      .map(ruleTypes -> new Object[] {ruleTypes.get(0), ruleTypes.get(1)})
       .toArray(Object[][]::new);
   }
 }

@@ -19,7 +19,10 @@
  */
 package org.sonar.core.util.issue;
 
+import java.util.Arrays;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,8 +34,10 @@ public class IssueChangedEventTest {
 
   @Test
   public void issueChangedEvent_instantiation_accepts_nulls() {
-    Issue[] issues = new Issue[]{new Issue(ISSUE_KEY, BRANCH_NAME)};
-    IssueChangedEvent event = new IssueChangedEvent(PROJECT_KEY, issues, null, null, null);
+    Issue issue = new Issue(ISSUE_KEY, BRANCH_NAME);
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+
+    IssueChangedEvent event = new IssueChangedEvent(PROJECT_KEY, new Issue[] {issue}, null, null, null);
 
     assertThat(event.getEvent()).isEqualTo("IssueChanged");
     assertThat(event.getProjectKey()).isEqualTo(PROJECT_KEY);
@@ -40,11 +45,14 @@ public class IssueChangedEventTest {
     assertThat(event.getUserSeverity()).isNull();
     assertThat(event.getUserType()).isNull();
     assertThat(event.getIssues()).hasSize(1);
+    assertThat(Arrays.stream(event.getIssues()).iterator().next().getImpacts())
+      .hasSize(1)
+      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
   }
 
   @Test
   public void issueChangedEvent_instantiation_accepts_actual_values() {
-    Issue[] issues = new Issue[]{new Issue(ISSUE_KEY, BRANCH_NAME)};
+    Issue[] issues = new Issue[] {new Issue(ISSUE_KEY, BRANCH_NAME)};
     IssueChangedEvent event = new IssueChangedEvent(PROJECT_KEY, issues, true, "BLOCKER", "BUG");
 
     assertThat(event.getEvent()).isEqualTo("IssueChanged");

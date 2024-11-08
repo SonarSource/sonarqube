@@ -22,16 +22,21 @@ package org.sonar.server.issue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.project.ProjectDto;
@@ -54,7 +59,6 @@ public class SetSeverityActionIT {
   private static final Date NOW = new Date(10_000_000_000L);
   private static final String USER_LOGIN = "john";
 
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -70,7 +74,7 @@ public class SetSeverityActionIT {
     IssueDto issueDto = newIssue().setSeverity(MAJOR);
     DefaultIssue issue = issueDto.toDefaultIssue();
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
-    Action.Context context = new ActionContext(issue, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null);
+    Action.Context context = new ActionContext(issue, issueDto, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null);
 
     action.execute(ImmutableMap.of("severity", MINOR), context);
 
@@ -82,6 +86,34 @@ public class SetSeverityActionIT {
     Map<String, FieldDiffs.Diff> change = issue.currentChange().diffs();
     assertThat(change.get("severity").newValue()).isEqualTo(MINOR);
     assertThat(change.get("severity").oldValue()).isEqualTo(MAJOR);
+  }
+
+  @Test
+  public void set_severity_whenImpactsIsMissing_shouldCreateImpactsAndImpactSeverityAreUpdated() {
+    IssueDto issueDto = newIssue().setSeverity(MAJOR).replaceAllImpacts(List.of())
+      .setRuleDefaultImpacts(Set.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH)));
+    DefaultIssue issue = issueDto.toDefaultIssue();
+    assertThat(issue.impacts()).isEmpty();
+
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+    Action.Context context = new ActionContext(issue, issueDto, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null);
+
+    action.execute(ImmutableMap.of("severity", MINOR), context);
+
+    assertThat(issue.impacts()).containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.LOW);
+  }
+
+  @Test
+  public void set_severity_whenSeverityHasChanged_shouldUpdateMatchingImpactSeverity() {
+    IssueDto issueDto = newIssue().setSeverity(MAJOR).replaceAllImpacts(Set.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH)));
+    DefaultIssue issue = issueDto.toDefaultIssue();
+
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+    Action.Context context = new ActionContext(issue, issueDto, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null);
+
+    action.execute(ImmutableMap.of("severity", MINOR), context);
+
+    assertThat(issue.impacts()).containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.LOW);
   }
 
   @Test

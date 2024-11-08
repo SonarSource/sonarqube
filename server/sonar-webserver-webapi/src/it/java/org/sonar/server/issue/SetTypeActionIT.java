@@ -52,7 +52,6 @@ public class SetTypeActionIT {
   private static final Date NOW = new Date(10_000_000_000L);
   private static final String USER_LOGIN = "john";
 
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -70,7 +69,7 @@ public class SetTypeActionIT {
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     action.execute(ImmutableMap.of("type", VULNERABILITY.name()),
-      new ActionContext(issue, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null));
+      new ActionContext(issue, issueDto, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null));
 
     assertThat(issue.type()).isEqualTo(VULNERABILITY);
     assertThat(issue.isChanged()).isTrue();

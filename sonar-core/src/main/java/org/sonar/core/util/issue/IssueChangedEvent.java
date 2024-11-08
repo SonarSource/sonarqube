@@ -73,5 +73,4 @@ public class IssueChangedEvent implements Serializable {
   public String getUserType() {
     return userType;
   }
-
 }

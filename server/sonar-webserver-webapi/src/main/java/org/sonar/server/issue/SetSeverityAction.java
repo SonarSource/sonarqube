@@ -22,10 +22,13 @@ package org.sonar.server.issue;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
-import org.sonar.server.issue.workflow.IsUnResolved;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.rule.ImpactSeverityMapper;
+import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -61,7 +64,23 @@ public class SetSeverityAction extends Action {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return issueUpdater.setManualSeverity(context.issue(), verifySeverityParameter(properties), context.issueChangeContext());
+    String severity = verifySeverityParameter(properties);
+    boolean updated = issueUpdater.setManualSeverity(context.issue(), severity, context.issueChangeContext());
+
+    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(context.issue().type());
+    if (updated
+      && context.issueDto().getEffectiveImpacts().containsKey(softwareQuality)) {
+      createImpactsIfMissing(context.issue(), context.issueDto().getEffectiveImpacts());
+      issueUpdater.setImpactManualSeverity(context.issue(), softwareQuality, ImpactSeverityMapper.mapImpactSeverity(severity), context.issueChangeContext());
+    }
+    return updated;
+  }
+
+  private static void createImpactsIfMissing(DefaultIssue issue, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> effectiveImpacts) {
+    if (issue.impacts().isEmpty()) {
+      issue.replaceImpacts(effectiveImpacts);
+      issue.setChanged(true);
+    }
   }
 
   @Override

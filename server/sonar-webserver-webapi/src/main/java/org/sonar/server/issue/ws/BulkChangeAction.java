@@ -151,7 +151,7 @@ public class BulkChangeAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_CHANGE)
       .setDescription("Bulk change on issues. Up to 500 issues can be updated. <br/>" +
-                      "Requires authentication.")
+        "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
         new Change("10.4", ("Transitions '%s' and '%s' are now deprecated. Use transition '%s' instead. " +
@@ -195,7 +195,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .setExampleValue("security,java8");
     action.createParam(PARAM_COMMENT)
       .setDescription("Add a comment. "
-                      + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
+        + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
       .setExampleValue("Here is my comment");
     action.createParam(PARAM_SEND_NOTIFICATIONS)
       .setSince("4.0")
@@ -252,7 +252,8 @@ public class BulkChangeAction implements IssuesWsAction {
 
   private static Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
     return issue -> {
-      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.branchComponentByUuid.get(issue.projectUuid()));
+      ActionContext actionContext = new ActionContext(issue, bulkChangeData.originalIssueByKey.get(issue.key()), issueChangeContext,
+        bulkChangeData.branchComponentByUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
       return result.success.contains(issue);
@@ -405,9 +406,9 @@ public class BulkChangeAction implements IssuesWsAction {
       this.issues = toDefaultIssues(authorizedIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
-        .collect(toMap(ComponentDto::uuid, identity()));
+          .collect(toMap(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
-          issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
+        issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
         .collect(toMap(RuleDto::getKey, identity()));
 
       this.availableActions = actions.stream()
