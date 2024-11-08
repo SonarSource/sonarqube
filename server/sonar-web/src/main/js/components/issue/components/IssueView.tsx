@@ -94,7 +94,7 @@ export default function IssueView(props: Readonly<Props>) {
     const { issue } = props;
 
     const data = quality
-      ? { issue: issue.key, impacts: `${quality}=${severity}` }
+      ? { issue: issue.key, impact: `${quality}=${severity}` }
       : { issue: issue.key, severity: severity as IssueSeverity };
 
     const severityBefore = quality

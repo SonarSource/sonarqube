@@ -108,7 +108,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     const { issue } = this.props;
 
     const data = quality
-      ? { issue: issue.key, impacts: `${quality}=${severity}` }
+      ? { issue: issue.key, impact: `${quality}=${severity}` }
       : { issue: issue.key, severity: severity as IssueSeverity };
 
     const severityBefore = quality

@@ -520,17 +520,17 @@ export default class IssuesServiceMock {
     return this.getActionsResponse({ type: data.type }, data.issue);
   };
 
-  handleSetIssueSeverity = (data: { impacts?: string; issue: string; severity?: string }) => {
+  handleSetIssueSeverity = (data: { impact?: string; issue: string; severity?: string }) => {
     const issueDataSelected = this.list.find((l) => l.issue.key === data.issue);
 
     if (!issueDataSelected) {
       throw new Error(`Coulnd't find issue for key ${data.issue}`);
     }
 
-    const parsedImpact = data.impacts?.split('=');
+    const parsedImpact = data.impact?.split('=');
 
     return this.getActionsResponse(
-      data.impacts
+      data.impact
         ? {
             impacts: issueDataSelected.issue.impacts.map((impact) =>
               impact.softwareQuality === parsedImpact?.[0]

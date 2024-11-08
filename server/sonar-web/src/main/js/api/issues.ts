@@ -106,7 +106,7 @@ export function setIssueAssignee(data: {
 }
 
 export function setIssueSeverity(data: {
-  impacts?: string;
+  impact?: string;
   issue: string;
   severity?: IssueSeverity;
 }): Promise<IssueResponse> {
