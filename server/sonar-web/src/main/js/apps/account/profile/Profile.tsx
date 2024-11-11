@@ -21,7 +21,6 @@ import { ContentCell, GreySeparator, HelperHintIcon, SubHeading, TableRow, Title
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
-import '../../../../js/app/styles/pages/MyAccount.css';
 import Link from "../../../components/common/Link";
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
