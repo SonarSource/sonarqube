@@ -41,15 +41,17 @@ class CreateNewSoftwareQualityMetricsIT {
     underTest.execute();
     assertThat(db.select("select name,direction,qualitative,enabled,best_value,optimized_best_value,delete_historical_data  from metrics"))
       .hasSize(6)
-      .extracting(s -> s.get("name"), s -> s.get("direction"), s -> s.get("qualitative"), s -> s.get("enabled"), s -> s.get("best_value"), s -> s.get("optimized_best_value"),
+      .extracting(s -> s.get("name"), s -> s.get("direction"), s -> s.get("qualitative"), s -> s.get("enabled"), s -> ((Number) s.get("best_value")).longValue(),
+        s -> s.get("optimized_best_value"),
         s -> s.get("delete_historical_data"))
+
       .containsExactlyInAnyOrder(
-        tuple("software_quality_reliability_issues", -1L, false, true, 0.0, true, false),
-        tuple("software_quality_security_issues", -1L, false, true, 0.0, true, false),
-        tuple("new_software_quality_reliability_issues", -1L, true, true, 0.0, true, true),
-        tuple("new_software_quality_security_issues", -1L, true, true, 0.0, true, true),
-        tuple("new_software_quality_maintainability_issues", -1L, true, true, 0.0, true, true),
-        tuple("software_quality_maintainability_issues", -1L, false, true, 0.0, true, false));
+        tuple("software_quality_reliability_issues", -1L, false, true, 0L, true, false),
+        tuple("software_quality_security_issues", -1L, false, true, 0L, true, false),
+        tuple("new_software_quality_reliability_issues", -1L, true, true, 0L, true, true),
+        tuple("new_software_quality_security_issues", -1L, true, true, 0L, true, true),
+        tuple("new_software_quality_maintainability_issues", -1L, true, true, 0L, true, true),
+        tuple("software_quality_maintainability_issues", -1L, false, true, 0L, true, false));
   }
 
   @Test

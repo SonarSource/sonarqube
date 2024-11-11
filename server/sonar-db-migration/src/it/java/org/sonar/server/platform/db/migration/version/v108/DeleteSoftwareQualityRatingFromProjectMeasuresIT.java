@@ -46,12 +46,12 @@ class DeleteSoftwareQualityRatingFromProjectMeasuresIT {
       insertProjectMeasure(metricUUid);
     });
 
-    assertThat(db.countSql("select count(1) from project_measures;"))
+    assertThat(db.countSql("select count(1) from project_measures"))
       .isEqualTo(DeleteSoftwareQualityRatingFromProjectMeasures.SOFTWARE_QUALITY_METRICS_TO_DELETE.size());
 
     underTest.execute();
 
-    assertThat(db.countSql("select count(1) from project_measures;")).isZero();
+    assertThat(db.countSql("select count(1) from project_measures")).isZero();
     Mockito.verify(migrationEsClient, Mockito.times(1)).deleteIndexes("projectmeasures");
   }
 
@@ -60,11 +60,11 @@ class DeleteSoftwareQualityRatingFromProjectMeasuresIT {
     String metricUUid = insertMetric("other_metric");
     insertProjectMeasure(metricUUid);
 
-    assertThat(db.countSql("select count(1) from project_measures;")).isEqualTo(1);
+    assertThat(db.countSql("select count(1) from project_measures")).isEqualTo(1);
 
     underTest.execute();
 
-    assertThat(db.countSql("select count(1) from project_measures;")).isEqualTo(1);
+    assertThat(db.countSql("select count(1) from project_measures")).isEqualTo(1);
   }
 
   @Test
@@ -77,13 +77,13 @@ class DeleteSoftwareQualityRatingFromProjectMeasuresIT {
     String metricUUid = insertMetric("other_metric");
     insertProjectMeasure(metricUUid);
 
-    assertThat(db.countSql("select count(1) from project_measures;"))
+    assertThat(db.countSql("select count(1) from project_measures"))
       .isEqualTo(DeleteSoftwareQualityRatingFromProjectMeasures.SOFTWARE_QUALITY_METRICS_TO_DELETE.size() + 1);
 
     underTest.execute();
     underTest.execute();
 
-    assertThat(db.countSql("select count(1) from project_measures;")).isOne();
+    assertThat(db.countSql("select count(1) from project_measures")).isOne();
   }
 
   private String insertMetric(String key) {
