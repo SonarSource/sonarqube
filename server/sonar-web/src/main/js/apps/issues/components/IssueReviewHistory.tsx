@@ -53,21 +53,27 @@ const getUpdatedChangelog = (
   { changelog }: { changelog: IssueChangelog[] },
   isStandardMode = false,
 ): IssueChangelog[] =>
-  changelog.map((changelogItem) => {
-    const diffHasIssueStatusChange = changelogItem.diffs.some((diff) => diff.key === 'issueStatus');
+  changelog
+    .map((changelogItem) => {
+      const diffHasIssueStatusChange = changelogItem.diffs.some(
+        (diff) => diff.key === 'issueStatus',
+      );
 
-    const filteredDiffs = changelogItem.diffs.filter((diff) => {
-      if (diffHasIssueStatusChange && ['resolution', 'status'].includes(diff.key)) {
-        return false;
-      }
-      return isStandardMode ? diff.key !== 'impactSeverity' : diff.key !== 'severity';
-    });
+      const filteredDiffs = changelogItem.diffs.filter((diff) => {
+        if (diffHasIssueStatusChange && ['resolution', 'status'].includes(diff.key)) {
+          return false;
+        }
+        return isStandardMode
+          ? !['impactSeverity', 'cleanCodeAttribute'].includes(diff.key)
+          : !['severity', 'type'].includes(diff.key);
+      });
 
-    return {
-      ...changelogItem,
-      diffs: filteredDiffs,
-    };
-  });
+      return {
+        ...changelogItem,
+        diffs: filteredDiffs,
+      };
+    })
+    .filter((changelogItem) => changelogItem.diffs.length > 0);
 
 export default function IssueReviewHistory(props: Readonly<HotspotReviewHistoryProps>) {
   const { issue } = props;

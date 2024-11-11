@@ -51,6 +51,7 @@ const FORBIDDEN_METRICS: string[] = [
   MetricKey.releasability_rating,
   MetricKey.security_hotspots,
   MetricKey.new_security_hotspots,
+  MetricKey.high_impact_accepted_issues,
 ];
 
 const ADD_CONDITION_MODAL_ID = 'add-condition-modal';
