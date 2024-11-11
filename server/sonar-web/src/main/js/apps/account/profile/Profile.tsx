@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { GreySeparator, HelperHintIcon, SubHeading, Title } from 'design-system';
+import { ContentCell, GreySeparator, HelperHintIcon, SubHeading, TableRow, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import '../../../../js/app/styles/pages/MyAccount.css';
+import Link from "../../../components/common/Link";
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
 import { LoggedInUser } from '../../../types/users';
 import { Preferences } from './Preferences';
 import UserExternalIdentity from './UserExternalIdentity';
-import Link from "../../../components/common/Link";
 
 export interface ProfileProps {
   currentUser: LoggedInUser;
@@ -40,9 +41,11 @@ export function Profile({ currentUser }: ProfileProps) {
       <Helmet defer={false} title={translate('my_account.profile')} />
       <Title className="sw-mb-6">{translate('my_account.profile')}</Title>
       {renderLogin()}
+      <GreySeparator className="sw-my-4" />
       {renderEmail()}
       <GreySeparator className="sw-my-4" />
       {renderOrganizationGroups()}
+      <GreySeparator className="sw-my-4" />
       {renderScmAccounts()}
       <GreySeparator className="sw-my-4" />
       <Preferences />
@@ -76,25 +79,38 @@ export function Profile({ currentUser }: ProfileProps) {
     );
   }
 
-  function renderOrganizationGroups() {
-    if (!currentUser.orgGroups || currentUser.orgGroups.length === 0) {
-      return null;
-    }
-
-    return (
-      <>
-        <SubHeading as="h2">{translate('my_profile.groups')}</SubHeading>
-        <ul id="groups">
-          {currentUser.groups.map((group) => (
-            <li className="sw-mb-2" key={group} title={group}>
-              {group}
-            </li>
-          ))}
-        </ul>
-        <GreySeparator className="sw-my-4" />
-      </>
-    );
+function renderOrganizationGroups() {
+  if (!currentUser.orgGroups || currentUser.orgGroups.length === 0) {
+    return null;
   }
+
+  return (
+    <>
+      <SubHeading as="h2">{translate('my_profile.groups')}</SubHeading>
+
+      <div className="boxed-group-inner">
+        <TableRow>
+          <ContentCell><strong>{translate('my_account.organizations')}</strong></ContentCell>
+          <ContentCell><strong>{translate('my_profile.groups')}</strong></ContentCell>
+        </TableRow>
+
+        {currentUser.orgGroups.map((orgGroup) => (
+          <TableRow key={orgGroup.organizationKey}>
+            <ContentCell>
+              <Link to={`/organizations/${orgGroup.organizationKey}/groups`}>
+                <strong>{orgGroup.organizationName}</strong>
+              </Link>
+            </ContentCell>
+            <ContentCell>
+              <span>{orgGroup.organizationGroups}</span>
+            </ContentCell>
+          </TableRow>
+        ))}
+      </div>
+    </>
+  );
+}
+
 
   function renderScmAccounts() {
     if (
