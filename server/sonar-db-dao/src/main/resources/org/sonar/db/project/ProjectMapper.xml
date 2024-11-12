@@ -171,6 +171,7 @@
     update projects set
     name = #{name,jdbcType=VARCHAR},
     description = #{description,jdbcType=VARCHAR},
+    ai_code_fix_enabled = #{aiCodeFixEnabled, jdbcType=BOOLEAN},
     updated_at = #{updatedAt,jdbcType=BIGINT}
     where
     uuid = #{uuid,jdbcType=VARCHAR}
@@ -190,6 +191,12 @@
     updated_at = #{updatedAt,jdbcType=BIGINT}
     where
     uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateAiCodeFixEnablementForAllProjects">
+    update projects set
+    ai_code_fix_enabled = #{aiCodeFixEnabled,jdbcType=BOOLEAN},
+    updated_at = #{updatedAt,jdbcType=BIGINT}
   </update>
 
   <update id="updateNcloc">
