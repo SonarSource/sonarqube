@@ -209,8 +209,10 @@ export function Menu(props: Readonly<Props>) {
   };
 
   const renderDependenciesLink = () => {
+    const isEnabled = false; // SONAR-23577 Temporarily hide dependencies page
     const isPortfolio = isPortfolioLike(qualifier);
     return (
+      isEnabled &&
       !isPortfolio &&
       renderMenuLink({
         label: translate('layout.dependencies'),
