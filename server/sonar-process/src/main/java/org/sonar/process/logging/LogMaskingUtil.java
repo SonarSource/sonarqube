@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class LogMaskingUtil {
 
-    public static final Pattern MASK_EMAIL_PATTERN = Pattern.compile("([\\w.\\-+_]+)@[\\w.\\-+_]+\\.\\w+",
+    private static final Pattern MASK_EMAIL_PATTERN = Pattern.compile("([\\w.\\-+_]+)@[\\w.\\-+_]+\\.\\w+",
             Pattern.MULTILINE);
 
     public static String maskMessage(String message, Pattern pattern) {

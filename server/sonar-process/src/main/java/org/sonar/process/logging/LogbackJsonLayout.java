@@ -37,9 +37,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -53,7 +51,6 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
     .withLocale(Locale.US)
     .withZone(ZoneId.systemDefault());
   private static final Pattern NEWLINE_REGEXP = Pattern.compile("\n");
-  private static final Pattern MASK_EMAIL_PATTERN =  Pattern.compile("([\\w.\\-+_]+)@[\\w.\\-+_]+\\.\\w+", Pattern.MULTILINE);
 
   private final String processKey;
   private final String nodeName;
