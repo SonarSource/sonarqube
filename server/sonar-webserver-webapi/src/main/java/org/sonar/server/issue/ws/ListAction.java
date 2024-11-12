@@ -92,16 +92,17 @@ public class ListAction implements IssuesWsAction {
       .setHandler(this)
       .setInternal(true)
       .setDescription("List issues. This endpoint is used in degraded mode, when issue indexing is running." +
-                      "<br>Either 'project' or 'component' parameter is required." +
-                      "<br>Total number of issues will be always equal to a page size, as this counting all issues is not supported. " +
-                      "<br>Requires the 'Browse' permission on the specified project. ")
+        "<br>Either 'project' or 'component' parameter is required." +
+        "<br>Total number of issues will be always equal to a page size, as this counting all issues is not supported. " +
+        "<br>Requires the 'Browse' permission on the specified project. ")
       .setSince("10.2")
       .setChangelog(
+        new Change("10.8", format("The parameter '%s' are not deprecated anymore.", PARAM_TYPES)),
+        new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore."),
         new Change("10.4", format("Parameter '%s' is deprecated.", PARAM_TYPES)),
         new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
-        new Change("10.4", "Add 'issueStatus' field to the response.")
-      )
+        new Change("10.4", "Add 'issueStatus' field to the response."))
       .setResponseExample(getClass().getResource("list-example.json"));
 
     action.addPagingParams(100, MAX_PAGE_SIZE);
@@ -125,7 +126,6 @@ public class ListAction implements IssuesWsAction {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of issue types")
       .setExampleValue("BUG, VULNERABILITY")
-      .setDeprecatedSince("10.4")
       .setPossibleValues(RuleType.BUG.name(), RuleType.VULNERABILITY.name(), RuleType.CODE_SMELL.name());
 
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)

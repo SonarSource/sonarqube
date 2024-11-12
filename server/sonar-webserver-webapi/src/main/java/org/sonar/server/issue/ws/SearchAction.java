@@ -222,6 +222,9 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore.."),
+        new Change("10.8", "The fields 'severity' and 'type' are not deprecated anymore."),
+        new Change("10.8", format("The parameters '%s' and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES)),
         new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added.", INFO.name(), BLOCKER.name())),
         new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", INFO.name(), BLOCKER.name())),
         new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'.", PARAM_SEVERITIES, INFO.name(), BLOCKER.name())),
@@ -318,8 +321,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_SEVERITIES)
       .setDescription("Comma-separated list of severities")
       .setExampleValue(Severity.BLOCKER + "," + Severity.CRITICAL)
-      .setPossibleValues(Severity.ALL)
-      .setDeprecatedSince("10.4");
+      .setPossibleValues(Severity.ALL);
     action.createParam(PARAM_IMPACT_SOFTWARE_QUALITIES)
       .setSince("10.2")
       .setDescription("Comma-separated list of Software Qualities")
@@ -343,8 +345,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_RESOLUTIONS)
       .setDescription("Comma-separated list of resolutions")
       .setExampleValue(RESOLUTION_FIXED + "," + RESOLUTION_REMOVED)
-      .setPossibleValues(RESOLUTIONS)
-      .setDeprecatedSince("10.4");
+      .setPossibleValues(RESOLUTIONS);
     action.createParam(PARAM_RESOLVED)
       .setDescription("To match resolved or unresolved issues")
       .setBooleanPossibleValues();
@@ -360,7 +361,6 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
-      .setDeprecatedSince("10.4")
       .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_ASVS_LEVEL)

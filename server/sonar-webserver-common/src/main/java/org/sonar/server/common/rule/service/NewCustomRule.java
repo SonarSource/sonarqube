@@ -84,7 +84,6 @@ public class NewCustomRule {
     return severity;
   }
 
-  @Deprecated(since = "10.4")
   public NewCustomRule setSeverity(@Nullable String severity) {
     this.severity = severity;
     return this;
@@ -105,7 +104,6 @@ public class NewCustomRule {
     return type;
   }
 
-  @Deprecated(since = "10.4")
   public NewCustomRule setType(@Nullable RuleType type) {
     this.type = type;
     return this;

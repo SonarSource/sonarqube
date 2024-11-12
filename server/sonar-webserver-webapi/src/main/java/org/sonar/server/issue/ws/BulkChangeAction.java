@@ -154,6 +154,7 @@ public class BulkChangeAction implements IssuesWsAction {
         "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
+        new Change("10.8", format("The parameters '%s' and '%s' are not deprecated anymore.", PARAM_SET_SEVERITY, PARAM_SET_TYPE)),
         new Change("10.4", ("Transitions '%s' and '%s' are now deprecated. Use transition '%s' instead. " +
           "The transition '%s' is deprecated too.").formatted(WONT_FIX, CONFIRM, ACCEPT, UNCONFIRM)),
         new Change("10.4", "Transition '%s' is now supported.".formatted(ACCEPT)),
@@ -174,12 +175,10 @@ public class BulkChangeAction implements IssuesWsAction {
       .setExampleValue("john.smith");
     action.createParam(PARAM_SET_SEVERITY)
       .setDescription("To change the severity of the list of issues")
-      .setDeprecatedSince("10.2")
       .setExampleValue(BLOCKER)
       .setPossibleValues(Severity.ALL);
     action.createParam(PARAM_SET_TYPE)
       .setDescription("To change the type of the list of issues")
-      .setDeprecatedSince("10.2")
       .setExampleValue(BUG)
       .setPossibleValues(RuleType.names())
       .setSince("5.5");

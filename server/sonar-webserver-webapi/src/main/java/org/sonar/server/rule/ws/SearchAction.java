@@ -144,10 +144,6 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this)
       .setChangelog(
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added", INFO.name(), BLOCKER.name())),
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())),
-        new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'", IssuesWsParameters.PARAM_SEVERITIES, INFO.name(), BLOCKER.name())),
-        new Change("10.6", format("Parameter '%s has been added", PARAM_PRIORITIZED_RULE)),
         new Change("5.5", "The field 'effortToFixDescription' has been deprecated, use 'gapDescription' instead"),
         new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated, use 'remFnGapMultiplier' instead"),
         new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated, use 'defaultRemFnGapMultiplier' instead"),
@@ -190,7 +186,15 @@ public class SearchAction implements RulesWsAction {
         new Change("10.2",
           format("Parameters '%s', '%s', and '%s' are now deprecated. Use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES,
             PARAM_IMPACT_SOFTWARE_QUALITIES, PARAM_IMPACT_SEVERITIES)),
-        new Change("10.8", "The field 'impacts' has been added to the response"));
+        new Change("10.6", format("Parameter '%s has been added", PARAM_PRIORITIZED_RULE)),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added", INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'", IssuesWsParameters.PARAM_SEVERITIES, INFO.name(), BLOCKER.name())),
+        new Change("10.8", "The field 'impacts' has been added to the response"),
+        new Change("10.8", format("The parameters '%s','%s and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)),
+        new Change("10.8", "The values 'severity' and 'types' for the 'facets' parameter are not deprecated anymore."),
+        new Change("10.8", "The fields 'type' and 'severity' in the response are not deprecated anymore."),
+        new Change("10.8", "The value 'severity' for the 'f' parameter is not deprecated anymore."));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")

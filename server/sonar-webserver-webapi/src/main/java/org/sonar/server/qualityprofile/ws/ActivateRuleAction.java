@@ -77,6 +77,7 @@ public class ActivateRuleAction implements QProfileWsAction {
         "  <li>Edit right on the specified quality profile</li>" +
         "</ul>")
       .setChangelog(
+        new Change("10.8", format("The parameter '%s' is not deprecated anymore.", PARAM_SEVERITY)),
         new Change("10.8", format("Add new parameter '%s'", PARAM_IMPACTS)),
         new Change("10.6", format("Add parameter '%s'.", PARAM_PRIORITIZED_RULE)),
         new Change("10.2", format("Parameter '%s' is now deprecated.", PARAM_SEVERITY)))
@@ -96,7 +97,6 @@ public class ActivateRuleAction implements QProfileWsAction {
 
     activate.createParam(PARAM_SEVERITY)
       .setDescription(format("Severity. Cannot be used as the same time as '%s'.Ignored if parameter %s is true.", PARAM_IMPACTS, PARAM_RESET))
-      .setDeprecatedSince("10.2")
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAM_IMPACTS)

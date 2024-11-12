@@ -70,6 +70,7 @@ public class DeactivateRulesAction implements QProfileWsAction {
       .setPost(true)
       .setSince("4.4")
       .setChangelog(
+        new Change("10.8", format("Parameters '%s', '%s', and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_ACTIVE_SEVERITIES, PARAM_TYPES)),
         new Change("10.3", "Inherited rules can be deactivated (if the global admin setting is enabled)"),
         new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_ACTIVE_SEVERITIES, PARAM_TYPES)),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"))
