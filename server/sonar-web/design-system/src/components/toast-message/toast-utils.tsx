@@ -19,7 +19,7 @@
  */
 import { ReactNode } from 'react';
 import { ToastOptions, toast } from 'react-toastify';
-import { FlagErrorIcon, FlagSuccessIcon } from '../icons';
+import { IconCheckCircle, IconError, IconWarning } from "@sonarsource/echoes-react";
 
 export interface Message {
   level: MessageLevel;
@@ -28,11 +28,16 @@ export interface Message {
 
 export enum MessageLevel {
   Error = 'ERROR',
+  Warning = '̇WARNING',
   Success = 'SUCCESS',
 }
 
 export function addGlobalErrorMessage(message: ReactNode, overrides?: ToastOptions) {
   return createToast(message, MessageLevel.Error, overrides);
+}
+
+export function addGlobalWarningMessage(message: ReactNode, overrides?: ToastOptions) {
+  return createToast(message, MessageLevel.Warning, overrides);
 }
 
 export function addGlobalSuccessMessage(message: ReactNode, overrides?: ToastOptions) {
@@ -52,8 +57,8 @@ function createToast(message: ReactNode, level: MessageLevel, overrides?: ToastO
       {message}
     </div>,
     {
-      icon: level === MessageLevel.Error ? <FlagErrorIcon /> : <FlagSuccessIcon />,
-      type: level === MessageLevel.Error ? 'error' : 'success',
+      icon: level === MessageLevel.Error ? <IconError /> : (level === MessageLevel.Warning ? <IconWarning /> : <IconCheckCircle />),
+      type: level === MessageLevel.Error ? 'error' : (level === MessageLevel.Warning ? 'warning' : 'success'),
       ...overrides,
     },
   );

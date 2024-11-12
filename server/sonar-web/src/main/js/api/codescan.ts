@@ -22,7 +22,7 @@ import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { Notification } from "../types/types";
 import axios from "axios";
 
-export function getRawNotificationsForOrganization(key: string): Promise<Notification> {
+export function getRawNotificationsForOrganization(key: string): Promise<Notification[]> {
   const params = { organizationId: key };
   return axios.get('/_codescan/notifications', { params })
     .catch(throwGlobalError);
