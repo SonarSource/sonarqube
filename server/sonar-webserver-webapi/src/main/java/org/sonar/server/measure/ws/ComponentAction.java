@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -88,10 +88,12 @@ public class ComponentAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT)
       .setDescription("Return component with specified measures.<br>" +
-                      "Requires the following permission: 'Browse' on the project of specified component.")
+        "Requires the following permission: 'Browse' on the project of specified component.")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("10.8", format("The following metrics are not deprecated anymore: %s",
+          MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),
         new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
           MeasuresWsModule.getNewMetricsInSonarQube108())),
         new Change("10.8", String.format("The metrics %s are now deprecated. Use 'software_quality_maintainability_issues', " +
@@ -100,7 +102,7 @@ public class ComponentAction implements MeasuresWsAction {
           MeasuresWsModule.getDeprecatedMetricsInSonarQube108())),
         new Change("10.7", "Added new accepted values for the 'metricKeys' param: %s".formatted(MeasuresWsModule.getNewMetricsInSonarQube107())),
         new Change("10.5", String.format("The metrics %s are now deprecated " +
-                                         "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues', 'new_security_issues'"),
         new Change("10.4", String.format("The metrics %s are now deprecated " +

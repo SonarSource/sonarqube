@@ -95,6 +95,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("10.8", String.format("The following metrics are not deprecated anymore: %s",
+          MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),
         new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
           MeasuresWsModule.getNewMetricsInSonarQube108())),
         new Change("10.8", String.format("The metrics %s are now deprecated. Use 'software_quality_maintainability_issues', " +
@@ -103,11 +105,11 @@ public class SearchHistoryAction implements MeasuresWsAction {
           MeasuresWsModule.getDeprecatedMetricsInSonarQube108())),
         new Change("10.7", "Added new accepted values for the 'metricKeys' param: %s".formatted(MeasuresWsModule.getNewMetricsInSonarQube107())),
         new Change("10.5", String.format("The metrics %s are now deprecated " +
-                                         "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues', 'new_security_issues'"),
         new Change("10.4", String.format("The metrics %s are now deprecated " +
-            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
         new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now deprecated. Use 'violations' instead."),

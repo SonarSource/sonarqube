@@ -110,8 +110,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -182,6 +182,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.8", String.format("The following metrics are not deprecated anymore: %s",
+          MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),
         new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
           MeasuresWsModule.getNewMetricsInSonarQube108())),
         new Change("10.8", String.format("The metrics %s are now deprecated. Use 'software_quality_maintainability_issues', " +
@@ -194,12 +196,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues'," +
           " 'new_security_issues'"),
         new Change("10.5", format("The metrics %s are now deprecated " +
-            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', " +
           "'security_issues'"),
         new Change("10.4", format("The metrics %s are now deprecated " +
-            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. " +
           "Consume 'violations' instead."),
@@ -316,7 +318,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       request,
       data,
       Paging.forPageIndex(
-          request.getPage())
+        request.getPage())
         .withPageSize(request.getPageSize())
         .andTotal(data.getComponentCount()),
       request.getMetricKeys());
@@ -478,8 +480,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
       List<MetricDto> metrics = searchMetrics(dbSession,
         new HashSet<>(withRemovedMetricAlias(ofNullable(wsRequest.getMetricKeys()).orElse(List.of()))));
-      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric =
-        searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
+      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
         components, metrics);
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);

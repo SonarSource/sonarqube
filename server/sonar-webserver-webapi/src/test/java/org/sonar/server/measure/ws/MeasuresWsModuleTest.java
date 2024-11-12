@@ -76,4 +76,12 @@ class MeasuresWsModuleTest {
       "'new_software_quality_medium_issues', 'new_software_quality_low_issues', 'new_software_quality_maintainability_issues', " +
       "'new_software_quality_reliability_issues', 'new_software_quality_security_issues'");
   }
+
+  @Test
+  void getUndeprecatedMetricsinSonarQube108_shouldReturnExactString() {
+    String actual = MeasuresWsModule.getUndeprecatedMetricsinSonarQube108();
+    assertThat(actual).isEqualTo("'bugs', 'new_bugs', 'vulnerabilities', 'new_vulnerabilities', 'code_smells', 'new_code_smells', 'high_impact_accepted_issues', " +
+      "'new_blocker_violations', 'new_critical_violations', 'new_major_violations', 'new_minor_violations', 'new_info_violations', 'blocker_violations', " +
+      "'critical_violations', 'major_violations', 'minor_violations', 'info_violations'");
+  }
 }
