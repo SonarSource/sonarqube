@@ -106,6 +106,19 @@ async function run() {
                 },
                 e => console.error('req error', e)
             );
+          } else if (
+                req.url.includes('static/') &&
+                (req.url.includes('.png') || req.url.includes('.svg') || req.url.includes('.jpg'))
+            ) {
+              proxy.web(
+                  req,
+                  res,
+                  {
+                    target: proxyTarget,
+                    changeOrigin: true,
+                  },
+                  (e) => console.error('req error', e),
+              );
           } else if (req.url.includes('static/developer/')) {
             proxy.web(
               req,
