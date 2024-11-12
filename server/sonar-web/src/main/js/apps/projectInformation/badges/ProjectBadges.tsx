@@ -20,15 +20,11 @@
 
 import { Spinner } from '@sonarsource/echoes-react';
 import {
-  BasicSeparator,
-  ButtonSecondary,
-  CodeSnippet,
   FlagMessage,
   FormField,
   IllustratedSelectionCard,
   InputSelect,
-  SubTitle,
-  ToggleButton,
+  SubTitle
 } from 'design-system';
 import { isEmpty } from 'lodash';
 import * as React from 'react';
@@ -49,7 +45,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import { BadgeFormats, BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from './utils';
+import { BadgeFormats, BadgeOptions, BadgeType, getBadgeUrl } from './utils';
 
 export interface ProjectBadgesProps {
   branchLike?: BranchLike;
@@ -183,54 +179,6 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
           )}
         </>
       )}
-
-      <BasicSeparator className="sw-mb-4" />
-
-      <FormField label={translate('overview.badges.format')}>
-        <div className="sw-flex ">
-          <ToggleButton
-            label={translate('overview.badges.format')}
-            options={formatOptions}
-            onChange={(value: BadgeFormats) => {
-              if (value) {
-                setSelectedFormat(value);
-              }
-            }}
-            value={selectedFormat}
-          />
-        </div>
-      </FormField>
-
-      <Spinner className="sw-my-2" isLoading={isFetchingToken || isRenewing}>
-        {!isLoading && (
-          <CodeSnippet
-            language="plaintext"
-            className="sw-p-6 it__code-snippet"
-            snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)}
-            wrap
-          />
-        )}
-      </Spinner>
-
-      <FlagMessage className="sw-w-full" variant="warning">
-        <p>
-          {translate('overview.badges.leak_warning')}
-          {canRenew && (
-            <span className="sw-flex sw-flex-col">
-              {translate('overview.badges.renew.description')}{' '}
-              <ButtonSecondary
-                disabled={isLoading}
-                className="sw-mt-2 it__project-info-renew-badge sw-mr-auto"
-                onClick={() => {
-                  renewToken(project);
-                }}
-              >
-                {translate('overview.badges.renew')}
-              </ButtonSecondary>
-            </span>
-          )}
-        </p>
-      </FlagMessage>
-    </div>
+ </div>
   );
 }
