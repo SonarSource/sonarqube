@@ -38,6 +38,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
@@ -314,7 +315,7 @@ class ProjectDaoIT {
   }
 
   @ParameterizedTest
-  @ValueSource(booleans = { true, false })
+  @ValueSource(booleans = {true, false})
   void update_aiCodeFixEnabledForAllProjects(boolean aiCodeFixEnablement) {
     ProjectDto dto1 = createProject("o1", "p1").setAiCodeFixEnabled(true);
     ProjectDto dto2 = createProject("o1", "p2");
@@ -482,6 +483,23 @@ class ProjectDaoIT {
     IntStream.range(0, 10).forEach(x -> db.components().insertPrivateProject());
 
     assertThat(projectDao.countProjects(db.getSession())).isEqualTo(10);
+  }
+
+  @Test
+  void countProjects_by_ai_codefix_enablement() {
+    var dto1 = createProject("o1", "p1").setAiCodeFixEnabled(true);
+    var dto2 = createProject("o1", "p2");
+    var dto3 = createProject("o1", "p3");
+
+    DbSession dbSession = db.getSession();
+
+    projectDao.insert(dbSession, dto1);
+    projectDao.insert(dbSession, dto2);
+    projectDao.insert(dbSession, dto3);
+
+    assertThat(projectDao.countProjects(db.getSession())).isEqualTo(3);
+    assertThat(projectDao.countAiCodeFixEnabledProjects(db.getSession())).isEqualTo(1);
+    assertThat(projectDao.countAiCodeFixDisabledProjects(db.getSession())).isEqualTo(2);
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

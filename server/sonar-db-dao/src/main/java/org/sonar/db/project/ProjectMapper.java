@@ -77,4 +77,6 @@ public interface ProjectMapper {
   int countIndexedProjects();
 
   int countProjects();
+
+  int countProjectsByAiCodeFixEnablement(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
 }
