@@ -33,7 +33,7 @@ class TomcatAccessLog {
 
   private static final String PROPERTY_ENABLE = "sonar.web.accessLogs.enable";
   private static final String PROPERTY_PATTERN = "sonar.web.accessLogs.pattern";
-  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{ID}\" %D";
+  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{LOGIN}\" %D";
 
   void configure(Tomcat tomcat, Props props) {
     tomcat.setSilent(true);
@@ -47,7 +47,7 @@ class TomcatAccessLog {
       LogbackHelper helper = new LogbackHelper();
       LogbackHelper.RollingPolicy policy = helper.createRollingPolicy(valve, props, "access");
       FileAppender appender = policy.createAppender("ACCESS_LOG");
-      PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
+      PatternAccessLayoutEncoder fileEncoder = new PatternAccessLayoutEncoder();
       fileEncoder.setContext(valve);
       fileEncoder.setPattern(props.value(PROPERTY_PATTERN, DEFAULT_SQ_ACCESS_LOG_PATTERN));
       fileEncoder.start();

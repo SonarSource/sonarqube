@@ -17,32 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.logging;
+package org.sonar.server.app;
 
-import ch.qos.logback.classic.PatternLayout;
-import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.access.PatternLayout;
+import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.core.pattern.PatternLayoutEncoderBase;
-import java.util.Map;
 
-public class PatternLayoutEncoder extends PatternLayoutEncoderBase<ILoggingEvent> {
+public class PatternAccessLayoutEncoder extends PatternLayoutEncoderBase<IAccessEvent> {
 
   @Override
   public void start() {
-    PatternLayout patternLayout = new DataMaskingPatternClassicLayout();
-    patternLayout.getDefaultConverterMap().putAll(getEscapedMessageConverterConfig());
+    PatternLayout patternLayout = new DataMaskingPatternAccessLayout();
     patternLayout.setContext(context);
     patternLayout.setPattern(getPattern());
-    patternLayout.setOutputPatternAsHeader(outputPatternAsHeader);
     patternLayout.start();
     this.layout = patternLayout;
     super.start();
   }
-
-  private static Map<String, String> getEscapedMessageConverterConfig() {
-    return Map.of(
-      "m", EscapedMessageConverter.class.getName(),
-      "msg", EscapedMessageConverter.class.getName(),
-      "message", EscapedMessageConverter.class.getName());
-  }
-
 }

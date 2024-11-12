@@ -19,6 +19,10 @@
  */
 package org.sonar.process.logging;
 
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.process.logging.LogMaskingUtil.maskEmail;
+
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.StackTraceElementProxy;
@@ -33,11 +37,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
-
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
+import java.util.stream.IntStream;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Formats logs in JSON.
@@ -50,6 +53,7 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
     .withLocale(Locale.US)
     .withZone(ZoneId.systemDefault());
   private static final Pattern NEWLINE_REGEXP = Pattern.compile("\n");
+  private static final Pattern MASK_EMAIL_PATTERN =  Pattern.compile("([\\w.\\-+_]+)@[\\w.\\-+_]+\\.\\w+", Pattern.MULTILINE);
 
   private final String processKey;
   private final String nodeName;
@@ -83,11 +87,14 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
           json.name(entry.getKey()).value(entry.getValue());
         }
       }
+
+      String formattedMsg = NEWLINE_REGEXP.matcher(event.getFormattedMessage()).replaceAll("\r");
+
       json
         .name("timestamp").value(DATE_FORMATTER.format(Instant.ofEpochMilli(event.getTimeStamp())))
         .name("severity").value(event.getLevel().toString())
         .name("logger").value(event.getLoggerName())
-        .name("message").value(NEWLINE_REGEXP.matcher(event.getFormattedMessage()).replaceAll("\r"));
+        .name("message").value(maskEmail(formattedMsg));
       IThrowableProxy tp = event.getThrowableProxy();
       if (tp != null) {
         json.name("stacktrace").beginArray();
