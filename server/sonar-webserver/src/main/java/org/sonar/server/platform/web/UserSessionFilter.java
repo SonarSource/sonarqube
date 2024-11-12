@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform.web;
 
+import static org.sonar.process.logging.LogMaskingUtil.maskEmail;
+
 import ch.qos.logback.classic.ClassicConstants;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -116,7 +118,7 @@ public class UserSessionFilter implements Filter {
         MDC.put(ClassicConstants.REQUEST_REQUEST_URL, requestURL.toString());
       }
       MDC.put(ClassicConstants.REQUEST_METHOD, httpServletRequest.getMethod());
-      MDC.put(ClassicConstants.REQUEST_QUERY_STRING, httpServletRequest.getQueryString());
+      MDC.put(ClassicConstants.REQUEST_QUERY_STRING, maskEmail(httpServletRequest.getQueryString()));
       MDC.put(ClassicConstants.REQUEST_USER_AGENT_MDC_KEY, httpServletRequest.getHeader("User-Agent"));
       MDC.put(ClassicConstants.REQUEST_X_FORWARDED_FOR, httpServletRequest.getHeader("X-Forwarded-For"));
 
