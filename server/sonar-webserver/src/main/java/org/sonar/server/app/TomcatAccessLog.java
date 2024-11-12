@@ -19,21 +19,20 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.access.PatternLayoutEncoder;
 import ch.qos.logback.core.FileAppender;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.Props;
+import org.sonar.process.logging.LogbackHelper;
 
 class TomcatAccessLog {
 
   private static final String PROPERTY_ENABLE = "sonar.web.accessLogs.enable";
   private static final String PROPERTY_PATTERN = "sonar.web.accessLogs.pattern";
-  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{LOGIN}\" %D";
+  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{ID}\" %D";
 
   void configure(Tomcat tomcat, Props props) {
     tomcat.setSilent(true);
