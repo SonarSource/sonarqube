@@ -23,6 +23,7 @@ import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupInformation;
 import org.sonar.server.common.group.service.GroupSearchRequest;
@@ -55,10 +56,10 @@ public class DefaultGroupController implements GroupController {
 
   @Override
   public GroupsSearchRestResponse search(GroupsSearchRestRequest groupsSearchRestRequest, RestPage restPage) {
-    userSession.checkLoggedIn().checkIsSystemAdministrator();
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, groupsSearchRestRequest.organization())
               .orElseThrow(() -> new IllegalArgumentException("No organization found: " + groupsSearchRestRequest.organization()));
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
       GroupSearchRequest groupSearchRequest = new GroupSearchRequest(organization, groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
       SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
