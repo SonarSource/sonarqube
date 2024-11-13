@@ -11,6 +11,7 @@
     p.branch_key as branchKey,
     p.root_uuid as rootUuid,
     p.parent_uuid as parentUuid,
+    p.organization_uuid as organizationUuid,
     p.selection_mode as selectionMode,
     p.selection_expression as selectionExpression,
     p.created_at as createdAt,
@@ -21,12 +22,15 @@
 
   <sql id="projectColumns">
     p.uuid as uuid,
+    p.organization_uuid as organizationUuid,
     p.kee as kee,
     p.qualifier as qualifier,
     p.name as name,
     p.description as description,
     p.tags as tagsString,
     p.private as isPrivate,
+    p.creation_method as creationMethod,
+    p.ai_code_assurance as aiCodeAssurance,
     p.created_at as createdAt,
     p.updated_at as updatedAt
   </sql>
@@ -313,6 +317,7 @@
       private,
       root_uuid,
       parent_uuid,
+      organization_uuid,
       branch_key,
       selection_mode,
       selection_expression,
@@ -327,6 +332,7 @@
     #{isPrivate,jdbcType=BOOLEAN},
     #{rootUuid,jdbcType=VARCHAR},
     #{parentUuid,jdbcType=VARCHAR},
+    #{organizationUuid,jdbcType=VARCHAR},
     #{branchKey,jdbcType=VARCHAR},
     #{selectionMode,jdbcType=VARCHAR},
     #{selectionExpression,jdbcType=VARCHAR},
