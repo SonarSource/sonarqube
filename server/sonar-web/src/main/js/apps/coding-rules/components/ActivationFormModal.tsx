@@ -113,7 +113,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = {
-      organization: this.props.organization,
+      organization: props.organization,
       key: profile?.key ?? '',
       params: getParamsFromMap(params),
       rule: rule.key,
@@ -155,6 +155,25 @@ export default function ActivationFormModal(props: Readonly<Props>) {
     params[paramKey].splice(index, 1);
     setChangedParams({ ...params });
   };
+
+  function getParamsFromMap(stateParams) {
+    const { params = [] } = props.rule;
+    params.map(param => {
+      if (param.type == 'KEY_VALUE_MAP') {
+        stateParams[param.key].pop();
+        let res = '';
+        let row = stateParams[param.key].length;
+        stateParams[param.key].map((param: string[], index: number) => {
+          res = res + param[0] + this.keyValueDelimiter + param[1];
+          if (index + 1 != row) {
+            res = res + this.paramsDelimiter;
+          }
+        })
+        stateParams[param.key] = res;
+      }
+    })
+    return stateParams;
+  }
 
   return (
     <Modal
@@ -411,25 +430,6 @@ function getRuleParams({
     }
   }
   return params;
-}
-
-function getParamsFromMap(stateParams) {
-  const { params = [] } = this.props.rule;
-  params.map(param => {
-    if (param.type == 'KEY_VALUE_MAP') {
-      stateParams[param.key].pop();
-      let res = '';
-      let row = stateParams[param.key].length;
-      stateParams[param.key].map((param: string[], index: number) => {
-        res = res + param[0] + this.keyValueDelimiter + param[1];
-        if (index + 1 != row) {
-          res = res + this.paramsDelimiter;
-        }
-      })
-      stateParams[param.key] = res;
-    }
-  })
-  return stateParams;
 }
 
 // Unlike other param types, SINGLE_SELECT_LIST has predefined list of values from which user can choose from.

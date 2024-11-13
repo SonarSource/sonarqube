@@ -79,7 +79,7 @@ export default function RuleListItem(props: Readonly<Props>) {
   } = props;
   const [ruleIsChanged, setRuleIsChanged] = React.useState(false);
   const { data } = useRuleDetailsQuery(
-    { key: rule.key, actives: true },
+    { key: rule.key, actives: true, organization },
     { enabled: ruleIsChanged },
   );
   const { mutate: activateRule } = useActivateRuleMutation(() => {
