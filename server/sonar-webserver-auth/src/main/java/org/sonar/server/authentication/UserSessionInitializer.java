@@ -24,7 +24,6 @@ import org.slf4j.MDC;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import org.slf4j.MDC;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.ws.StaticResources;
 import org.sonar.api.server.ServerSide;
@@ -42,10 +41,10 @@ import org.sonar.server.user.UserSession;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.process.logging.LogMaskingUtil.maskEmail;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
@@ -153,7 +152,7 @@ public class UserSessionInitializer {
         .build();
     }
     threadLocalSession.set(session);
-    MDC.put("userId", session.getLogin());
+    MDC.put("userId", maskEmail(session.getLogin()));
     checkTokenUserSession(response, session);
     request.setAttribute(ACCESS_LOG_LOGIN, Objects.toString(session.getLogin(), "-"));
     MDC.put(USER_LOGIN_MDC_KEY, Objects.toString(session.getLogin(), "-"));
