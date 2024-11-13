@@ -182,6 +182,7 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .grantPermissionToGroup({
+        organization: this.props.organization.kee,
         groupName: group,
         permission,
       })
@@ -199,6 +200,7 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .grantPermissionToUser({
+        organization: this.props.organization.kee,
         login: user,
         permission,
       })
@@ -216,6 +218,7 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .revokePermissionFromGroup({
+        organization: this.props.organization.kee,
         groupName: group,
         permission,
       })
@@ -233,6 +236,7 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     return api
       .revokePermissionFromUser({
+        organization: this.props.organization.kee,
         login: user,
         permission,
       })

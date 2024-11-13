@@ -103,6 +103,7 @@ export default function Conditions({ organization, qualityGate, isFetching }: Re
     ({ onClose }: ModalProps) => {
       return (
         <CaycReviewUpdateConditionsModal
+          organization={organization}
           qualityGate={qualityGate}
           metrics={metrics}
           canEdit={canEdit}

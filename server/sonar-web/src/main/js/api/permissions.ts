@@ -33,7 +33,7 @@ import { BaseSearchProjectsParameters } from './components';
 const PAGE_SIZE = 100;
 
 export function grantPermissionToUser(data: {
-  organization?: string;
+  organization: string;
   login: string;
   permission: string;
   projectKey?: string;
@@ -42,7 +42,7 @@ export function grantPermissionToUser(data: {
 }
 
 export function revokePermissionFromUser(data: {
-  organization?: string;
+  organization: string;
   login: string;
   permission: string;
   projectKey?: string;
@@ -51,7 +51,7 @@ export function revokePermissionFromUser(data: {
 }
 
 export function grantPermissionToGroup(data: {
-  organization?: string;
+  organization: string;
   groupName: string;
   permission: string;
   projectKey?: string;
@@ -60,7 +60,7 @@ export function grantPermissionToGroup(data: {
 }
 
 export function revokePermissionFromGroup(data: {
-  organization?: string;
+  organization: string;
   groupName: string;
   permission: string;
   projectKey?: string;

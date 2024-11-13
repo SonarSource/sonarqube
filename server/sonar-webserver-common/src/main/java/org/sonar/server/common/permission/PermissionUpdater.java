@@ -63,7 +63,7 @@ public class PermissionUpdater<T extends PermissionChange> {
     EntityDto entity = anyPermissionChange.getEntity();
     String entityUuid = Optional.ofNullable(entity).map(EntityDto::getUuid).orElse(null);
     GranteeTypeSpecificPermissionUpdater<T> granteeTypeSpecificPermissionUpdater = getSpecificProjectUpdater(anyPermissionChange);
-    Set<String> existingPermissions = granteeTypeSpecificPermissionUpdater.loadExistingEntityPermissions(dbSession, entity.getOrganizationUuid(), anyPermissionChange.getUuidOfGrantee(), entityUuid);
+    Set<String> existingPermissions = granteeTypeSpecificPermissionUpdater.loadExistingEntityPermissions(dbSession, anyPermissionChange.getOrganizationUuid(), anyPermissionChange.getUuidOfGrantee(), entityUuid);
     for (T permissionChange : permissionChanges) {
       if (granteeTypeSpecificPermissionUpdater.apply(dbSession, existingPermissions, permissionChange) && permissionChange.getProjectUuid() != null) {
         projectOrViewUuids.add(permissionChange.getProjectUuid());

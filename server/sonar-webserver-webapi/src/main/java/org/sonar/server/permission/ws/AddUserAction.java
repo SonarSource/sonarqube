@@ -103,7 +103,9 @@ public class AddUserAction implements PermissionsWsAction {
       String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
       OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, organizationKey)
               .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
-      checkArgument(org.getUuid().equals(entityDto.getOrganizationUuid()), "Organization key is incorrect.");
+      if (entityDto != null) {
+        checkArgument(org.getUuid().equals(entityDto.getOrganizationUuid()), "Organization key is incorrect.");
+      }
 
       checkProjectAdmin(userSession, configuration, entityDto, org.getUuid());
       if (!userSession.isSystemAdministrator() && entityDto != null && entityDto.isProject()) {
