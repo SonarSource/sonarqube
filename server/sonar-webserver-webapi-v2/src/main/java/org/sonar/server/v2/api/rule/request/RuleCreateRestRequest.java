@@ -23,9 +23,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.sonar.api.rules.RuleType;
 import org.sonar.server.v2.api.rule.enums.CleanCodeAttributeRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
 import org.sonar.server.v2.api.rule.resource.Impact;
@@ -60,13 +60,21 @@ public record RuleCreateRestRequest(
   @Schema(description = "Custom rule parameters")
   List<Parameter> parameters,
 
-  @NotNull
+  @Nullable
   @Schema(description = "Clean code attribute")
   CleanCodeAttributeRestEnum cleanCodeAttribute,
 
   @Valid
-  @NotEmpty
+  @NotNull
   @Schema(description = "Impacts")
-  List<Impact> impacts
+  List<Impact> impacts,
+
+  @Nullable
+  @Schema(description = "Severity")
+  String severity,
+
+  @Nullable
+  @Schema(description = "Rule type")
+  RuleType type
 ) {
 }
