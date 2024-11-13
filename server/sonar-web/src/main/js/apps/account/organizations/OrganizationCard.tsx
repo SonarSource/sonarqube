@@ -22,6 +22,7 @@ import { Organization } from "../../../types/types";
 import { translate } from "../../../helpers/l10n";
 import OrganizationAvatar from "../../organizations/components/OrganizationAvatar";
 import OrganizationLink from "../../organizations/components/OrganizationLink";
+import "../projects/account.css";
 
 interface Props {
   organization: Organization;
@@ -35,12 +36,12 @@ export default function OrganizationCard({ organization }: Props) {
           <strong>{translate('organization.key')}:</strong> {organization.kee}
         </aside>
 
-        <h3 className="account-project-name">
+        <h3 className="account-project-name organization-name-label">
           <OrganizationAvatar organization={organization}/>
           <OrganizationLink className="spacer-left text-middle" organization={organization}>
             {organization.name}
           </OrganizationLink>
-          {actions.admin && <span className="badge spacer-left">{translate('admin')}</span>}
+          {actions.admin && <span className="badge org-badge spacer-left">{translate('admin')}</span>}
         </h3>
 
         {!!organization.description && (

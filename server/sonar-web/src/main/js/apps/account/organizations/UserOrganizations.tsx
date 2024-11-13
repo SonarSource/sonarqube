@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ButtonPrimary } from 'design-system/lib';
 import { Helmet } from 'react-helmet-async';
 import OrganizationsList from './OrganizationsList';
 import { Organization } from "../../../types/types";
@@ -27,6 +28,7 @@ import { AppState } from "../../../types/appstate";
 import withAppStateContext from "../../../app/components/app-state/withAppStateContext";
 import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";
 import { GlobalSettingKeys } from "../../../types/settings";
+import "../projects/account.css";
 
 interface Props {
   appState: AppState;
@@ -40,16 +42,16 @@ function UserOrganizations(props: Props) {
   const canCreateOrganizations = (anyoneCanCreate || canAdmin || canCustomerAdmin);
 
   return (
-      <div className="account-body account-container">
+      <div className="account-body account-container organization-card-ctnr">
         <Helmet title={translate('my_account.organizations')}/>
 
         <div className="boxed-group">
           {canCreateOrganizations && (
               <div className="clearfix">
-                <div className="boxed-group-actions">
-                  <Link className="button" to="/organizations/create">
+                <div className="boxed-group-actions sw-flex sw-justify-end sw-mb-4">
+                  <ButtonPrimary className="button " to="/organizations/create">
                     {translate('create')}
-                  </Link>
+                  </ButtonPrimary>
                 </div>
               </div>
           )}
