@@ -51,9 +51,16 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.measures.Metric.Level;
+import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.ValueType;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 import static org.sonar.server.badge.ws.SvgFormatter.formatDuration;
 import static org.sonar.server.badge.ws.SvgFormatter.formatNumeric;
 import static org.sonar.server.badge.ws.SvgFormatter.formatPercent;
@@ -68,21 +75,32 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
   private static final String PARAM_METRIC = "metric";
 
   private static final Map<String, String> METRIC_NAME_BY_KEY = ImmutableMap.<String, String>builder()
-    .put(BUGS_KEY, "bugs")
-    .put(CODE_SMELLS_KEY, "code smells")
     .put(COVERAGE_KEY, "coverage")
     .put(DUPLICATED_LINES_DENSITY_KEY, "duplicated lines")
     .put(NCLOC_KEY, "lines of code")
-    .put(SQALE_RATING_KEY, "maintainability")
     .put(ALERT_STATUS_KEY, "quality gate")
-    .put(RELIABILITY_RATING_KEY, "reliability")
     .put(SECURITY_HOTSPOTS_KEY, "security hotspots")
+
+    // Standard mode
+    .put(BUGS_KEY, "bugs")
+    .put(CODE_SMELLS_KEY, "code smells")
+    .put(VULNERABILITIES_KEY, "vulnerabilities")
+    .put(SQALE_RATING_KEY, "maintainability")
+    .put(RELIABILITY_RATING_KEY, "reliability")
     .put(SECURITY_RATING_KEY, "security")
     .put(TECHNICAL_DEBT_KEY, "technical debt")
-    .put(VULNERABILITIES_KEY, "vulnerabilities")
+
+    // MQR mode
+    .put(SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, "reliability issues")
+    .put(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, "maintainability issues")
+    .put(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, "security issues")
+    .put(SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY, "maintainability")
+    .put(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, "reliability")
+    .put(SOFTWARE_QUALITY_SECURITY_RATING_KEY, "security")
+    .put(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY, "technical debt")
     .build();
 
-  private static final String[] DEPRECATED_METRIC_KEYS = {BUGS_KEY, CODE_SMELLS_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY};
+  private static final String[] UNDEPRECATED_METRIC_KEYS = {BUGS_KEY, CODE_SMELLS_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY};
 
   private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(Map.of(
     OK, "passed",
@@ -113,8 +131,10 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
       .setDescription("Generate badge for project's measure as an SVG.<br/>" +
         "Requires 'Browse' permission on the specified project.")
       .setSince("7.1")
+      .setChangelog(new Change("10.8", format("The following metric keys are not deprecated anymore: %s", String.join(", ",
+        UNDEPRECATED_METRIC_KEYS))))
       .setChangelog(new Change("10.4", format("The following metric keys are now deprecated: %s", String.join(", ",
-        DEPRECATED_METRIC_KEYS))))
+        UNDEPRECATED_METRIC_KEYS))))
       .setResponseExample(Resources.getResource(getClass(), "measure-example.svg"));
     support.addProjectAndBranchParams(action);
     action.createParam(PARAM_METRIC)
