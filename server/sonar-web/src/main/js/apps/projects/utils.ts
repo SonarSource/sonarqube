@@ -207,15 +207,18 @@ export function fetchProjects({
   query,
   pageIndex = 1,
   isLegacy,
+  organization,
 }: {
   isFavorite: boolean;
   isLegacy: boolean;
   pageIndex?: number;
   query: Query;
+  organization: string;
 }) {
   const ps = PAGE_SIZE;
 
   const data = convertToQueryData(query, isFavorite, isLegacy, {
+    organization,
     p: pageIndex > 1 ? pageIndex : undefined,
     ps,
     facets: defineFacets(query, isLegacy).join(),

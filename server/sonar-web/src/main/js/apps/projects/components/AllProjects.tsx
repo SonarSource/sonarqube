@@ -107,13 +107,13 @@ export class AllProjects extends React.PureComponent<Props, State> {
   }
 
   fetchMoreProjects = () => {
-    const { isFavorite, isLegacy } = this.props;
+    const { isFavorite, isLegacy, organization } = this.props;
     const { pageIndex, projects, query } = this.state;
 
     if (isDefined(pageIndex) && pageIndex !== 0 && projects && Object.keys(query).length !== 0) {
       this.setState({ loading: true });
 
-      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isLegacy }).then((response) => {
+      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isLegacy, organization }).then((response) => {
         if (this.mounted) {
           this.setState({
             loading: false,
@@ -175,8 +175,8 @@ export class AllProjects extends React.PureComponent<Props, State> {
     save(LS_PROJECTS_VIEW, query.view);
   };
 
-  handleQueryChange(initialMount: boolean, organization: string) {
-    const { isFavorite, isLegacy } = this.props;
+  handleQueryChange(initialMount: boolean) {
+    const { isFavorite, isLegacy, organization } = this.props;
 
     const queryRaw = this.props.location.query;
     const query = parseUrlQuery(queryRaw);
@@ -191,7 +191,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
       //this.setState({ loading: false });
     }
 
-    fetchProjects({ isFavorite, query, isLegacy }).then((response) => {
+    fetchProjects({ isFavorite, query, isLegacy, organization }).then((response) => {
       // We ignore the request if the query changed since the time it was initiated
       // If that happened, another query will be initiated anyway
       if (this.mounted && queryRaw === this.props.location.query) {
