@@ -1096,6 +1096,7 @@ public class CreateInitialSchema extends DdlChange {
       .addColumn(newVarcharColumnDefBuilder().setColumnName(DESCRIPTION_COL_NAME).setIsNullable(true).setLimit(2000).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("root_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("parent_uuid").setIsNullable(true).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder(ORGANIZATION_UUID_COL_NAME).setIsNullable(true).setLimit(UUID_SIZE).build())
       .addColumn(newBooleanColumnDefBuilder(PRIVATE_COL_NAME).setIsNullable(false).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("selection_mode").setIsNullable(false).setLimit(50).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("selection_expression").setIsNullable(true).setLimit(4000).build())

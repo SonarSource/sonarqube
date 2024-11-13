@@ -62,6 +62,14 @@ public class PortfolioDto extends EntityDto {
     return this;
   }
 
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public void setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+  }
+
   @CheckForNull
   public String getBranchKey() {
     return branchKey;
