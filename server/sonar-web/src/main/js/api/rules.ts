@@ -75,7 +75,7 @@ export function getRuleDetails(parameters: {
   return getJSON('/api/rules/show', parameters).catch(throwGlobalError);
 }
 
-export function getRuleTags(parameters: { organization?: string; ps?: number; q: string }): Promise<string[]> {
+export function getRuleTags(parameters: { organization: string; ps?: number; q: string }): Promise<string[]> {
   return getJSON('/api/rules/tags', parameters).then((r) => r.tags, throwGlobalError);
 }
 

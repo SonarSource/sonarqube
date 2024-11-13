@@ -63,6 +63,7 @@ export default function RuleDetailsHeader(props: Readonly<Props>) {
           )}
 
           <RuleDetailsHeaderActions
+            organization={props.organization}
             canWrite={canWrite}
             onTagsChange={onTagsChange}
             referencedRepositories={referencedRepositories}

@@ -31,6 +31,7 @@ import { Dict, RuleDetails } from '../../../types/types';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 
 interface Props {
+  organization: string;
   canWrite: boolean | undefined;
   onTagsChange: (tags: string[]) => void;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
@@ -38,7 +39,7 @@ interface Props {
 }
 
 export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
-  const { canWrite, ruleDetails, onTagsChange } = props;
+  const { canWrite, ruleDetails, onTagsChange, organization } = props;
   const { sysTags = [], tags = [] } = ruleDetails;
   const allTags = [...sysTags, ...tags];
   const TAGS_TO_DISPLAY = 1;
@@ -117,7 +118,7 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
           tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
           overlay={
             canWrite ? (
-              <RuleDetailsTagsPopup setTags={onTagsChange} sysTags={sysTags} tags={tags} />
+              <RuleDetailsTagsPopup setTags={onTagsChange} sysTags={sysTags} tags={tags} organization={organization} />
             ) : undefined
           }
         />

@@ -732,7 +732,7 @@
 
   <select id="selectTags" resultType="string">
     SELECT DISTINCT value FROM
-    rule_tags rt
+    rules r
     <include refid="leftOuterJoinRulesTags"/>
     WHERE lower(value) like #{query}
       AND r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
