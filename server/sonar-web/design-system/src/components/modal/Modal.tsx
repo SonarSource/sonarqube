@@ -41,8 +41,8 @@ interface CommonProps {
   isOpen?: boolean;
   isOverflowVisible?: boolean;
   isScrollable?: boolean;
-  onClose: VoidFunction;
   noBackground?: boolean;
+  onClose: VoidFunction;
 }
 
 interface ChildrenProp {
@@ -178,16 +178,16 @@ const globalStyles = ({ theme }: { theme: Theme }) => css`
       max-width: 1280px;
       min-width: 1040px;
     }
-    &.nobg{
-        background-color: transparent;
+    &.nobg {
+      background-color: transparent;
     }
   }
 
-  .nobg{
-          background-color: transparent;
-          border: none;
-          outline: none;
-      }
+  .nobg {
+    background-color: transparent;
+    border: none;
+    outline: none;
+  }
 
   .design-system-modal-overlay {
     ${tw`sw-fixed sw-inset-0`}
