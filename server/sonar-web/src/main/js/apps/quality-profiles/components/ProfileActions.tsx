@@ -182,8 +182,8 @@ class ProfileActions extends React.PureComponent<Props, State> {
     }
   };
 
-  getQualityProfileBackupUrl = ({ language, name: qualityProfile }: Profile) => {
-    const queryParams = Object.entries({ language, qualityProfile })
+  getQualityProfileBackupUrl = ({ language, name: qualityProfile, organization }: Profile) => {
+    const queryParams = Object.entries({ language, qualityProfile, organization })
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join('&');
     return `/api/qualityprofiles/backup?${queryParams}`;
