@@ -28,9 +28,9 @@
   padding: 0;
 }
 
-*:focus-visible {
+/* *:focus-visible {
   outline: 2px dotted #297bae;
-}
+} */
 
 html,
 body {

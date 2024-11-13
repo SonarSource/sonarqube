@@ -24,11 +24,12 @@ import {
   DropdownMenuAlign,
   IconQuestionMark,
 } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import { getBaseUrl } from '../../helpers/system';
 import { EmbedDocsPopup } from './EmbedDocsPopup';
-import { getBaseUrl } from "../../helpers/system";
-import { Modal } from "design-system";
+import "./EmbedDocsPopupHelper.css";
 
 const ClearButton = ({ onClick }: { onClick: () => void }) => (
   <button onClick={onClick} aria-label={translate('close')}>
@@ -42,16 +43,20 @@ export default function EmbedDocsPopupHelper() {
   const renderAboutCodescan = (link: string, icon: string, text: string) => {
     return (
       <Modal
+        noBackground={true}
         onRequestClose={() => setAboutCodescanOpen(false)}
         contentLabel={translate('embed_docs.codescan_version')}
         isOpen={aboutCodescanOpen}
       >
+      <div>
+        <span className="cross-button cross-btn-icon">
+            <ClearButton onClick={() => setAboutCodescanOpen(false)} />
+        </span>
         <a href={link} rel="noopener noreferrer" target="_blank">
           <img alt={text} src={`${getBaseUrl()}/images/${icon}`} />
         </a>
-        <span className="cross-button">
-          <ClearButton onClick={() => setAboutCodescanOpen(false)} />
-        </span>
+       </div>
+
       </Modal>
     );
   };
@@ -72,11 +77,12 @@ export default function EmbedDocsPopupHelper() {
         />
       </DropdownMenu.Root>
 
-      {aboutCodescanOpen && renderAboutCodescan(
-       'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
-       'embed-doc/codescan-version-24_0_11.png',
-        translate('embed_docs.codescan_version')
-      )}
+      {aboutCodescanOpen &&
+        renderAboutCodescan(
+          'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
+          'embed-doc/codescan-version-24_0_11.png',
+          translate('embed_docs.codescan_version'),
+        )}
     </div>
   );
 }

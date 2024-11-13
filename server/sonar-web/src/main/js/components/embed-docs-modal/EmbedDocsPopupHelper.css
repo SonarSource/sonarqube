@@ -1,0 +1,23 @@
+.cross-btn-icon {
+  position: relative;
+  display: block;
+  top: 35px;
+  left: 560px;
+}
+
+.cross-btn-icon button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 19px;
+  padding-left: 7px;
+  padding-right: 8px;
+  padding-top: 3px;
+  padding-bottom: 4px;
+}
+
+.cross-btn-icon button:hover {
+  background-color: rgba(14, 30, 37, 0.3);
+  border-radius: 50%;
+  color: #fff;
+}

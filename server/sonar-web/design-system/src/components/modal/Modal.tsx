@@ -42,6 +42,7 @@ interface CommonProps {
   isOverflowVisible?: boolean;
   isScrollable?: boolean;
   onClose: VoidFunction;
+  noBackground?: boolean;
 }
 
 interface ChildrenProp {
@@ -104,6 +105,7 @@ export function Modal({
   isOpen = true,
   isOverflowVisible = false,
   isScrollable = true,
+  noBackground = false,
   onClose,
   ...props
 }: Props) {
@@ -115,7 +117,11 @@ export function Modal({
 
       <ReactModal
         aria={{ labelledby: 'modal_header_title' }}
-        className={classNames('design-system-modal-contents', { large: isLarge })}
+        className={classNames(
+          'design-system-modal-contents',
+          { large: isLarge },
+          { nobg: noBackground },
+        )}
         isOpen={isOpen}
         onRequestClose={onClose}
         overlayClassName="design-system-modal-overlay"
@@ -172,7 +178,16 @@ const globalStyles = ({ theme }: { theme: Theme }) => css`
       max-width: 1280px;
       min-width: 1040px;
     }
+    &.nobg{
+        background-color: transparent;
+    }
   }
+
+  .nobg{
+          background-color: transparent;
+          border: none;
+          outline: none;
+      }
 
   .design-system-modal-overlay {
     ${tw`sw-fixed sw-inset-0`}
