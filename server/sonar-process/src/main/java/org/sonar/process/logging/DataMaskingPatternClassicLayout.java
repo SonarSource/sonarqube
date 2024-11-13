@@ -19,30 +19,15 @@
  */
 package org.sonar.process.logging;
 
+import static org.sonar.process.logging.LogMaskingUtil.maskEmail;
+
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.pattern.PatternLayoutEncoderBase;
-import java.util.Map;
 
-public class PatternLayoutEncoder extends PatternLayoutEncoderBase<ILoggingEvent> {
+public class DataMaskingPatternClassicLayout extends PatternLayout {
 
-  @Override
-  public void start() {
-    PatternLayout patternLayout = new DataMaskingPatternClassicLayout();
-    patternLayout.getDefaultConverterMap().putAll(getEscapedMessageConverterConfig());
-    patternLayout.setContext(context);
-    patternLayout.setPattern(getPattern());
-    patternLayout.setOutputPatternAsHeader(outputPatternAsHeader);
-    patternLayout.start();
-    this.layout = patternLayout;
-    super.start();
-  }
-
-  private static Map<String, String> getEscapedMessageConverterConfig() {
-    return Map.of(
-      "m", EscapedMessageConverter.class.getName(),
-      "msg", EscapedMessageConverter.class.getName(),
-      "message", EscapedMessageConverter.class.getName());
-  }
-
+    @Override
+    public String doLayout(ILoggingEvent event) {
+        return maskEmail(super.doLayout(event));
+    }
 }

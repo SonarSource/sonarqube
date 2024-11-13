@@ -19,15 +19,14 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.access.PatternLayoutEncoder;
 import ch.qos.logback.core.FileAppender;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.Props;
+import org.sonar.process.logging.LogbackHelper;
 
 class TomcatAccessLog {
 
@@ -47,7 +46,7 @@ class TomcatAccessLog {
       LogbackHelper helper = new LogbackHelper();
       LogbackHelper.RollingPolicy policy = helper.createRollingPolicy(valve, props, "access");
       FileAppender appender = policy.createAppender("ACCESS_LOG");
-      PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
+      PatternAccessLayoutEncoder fileEncoder = new PatternAccessLayoutEncoder();
       fileEncoder.setContext(valve);
       fileEncoder.setPattern(props.value(PROPERTY_PATTERN, DEFAULT_SQ_ACCESS_LOG_PATTERN));
       fileEncoder.start();
