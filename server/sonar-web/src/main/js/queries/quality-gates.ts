@@ -45,7 +45,7 @@ const QUERY_STALE_TIME = 5 * 60 * 1000;
 
 const qualityQuery = {
   all: () => ['quality-gate'] as const,
-  list: () => ['quality-gate', 'list'] as const,
+  list: (organization) => ['quality-gate', 'list', organization] as const,
   details: () => ['quality-gate', 'details'] as const,
   detail: (name?: string) => [...qualityQuery.details(), name ?? ''] as const,
   projectsAssoc: () => ['quality-gate', 'project-assoc'] as const,
@@ -85,7 +85,7 @@ export function useComponentQualityGateQuery(organization: string, project: stri
 
 export function useQualityGatesQuery(organization: string) {
   return useQuery({
-    queryKey: qualityQuery.list(),
+    queryKey: qualityQuery.list(organization),
     queryFn: () => {
       return fetchQualityGates({ organization });
     },
@@ -101,7 +101,7 @@ export function useCreateQualityGateMutation(organization: string) {
       return createQualityGate({ organization, name });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
     },
   });
 }
@@ -114,7 +114,7 @@ export function useSetQualityGateAsDefaultMutation(organization: string) {
       return setQualityGateAsDefault({ name: qualityGate.name, organization });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       queryClient.invalidateQueries({ queryKey: qualityQuery.details() });
     },
   });
@@ -128,7 +128,7 @@ export function useRenameQualityGateMutation(organization: string, currentName: 
       return renameQualityGate({ organization, currentName, name: newName });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
       queryClient.removeQueries({ queryKey: qualityQuery.detail(currentName) });
     },
@@ -143,7 +143,7 @@ export function useCopyQualityGateMutation(organization: string, sourceName: str
       return copyQualityGate({ organization, sourceName, name: newName });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
     },
   });
 }
@@ -156,7 +156,7 @@ export function useDeleteQualityGateMutation(organization: string, name: string)
       return deleteQualityGate({ organization, name });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
       queryClient.removeQueries({ queryKey: qualityQuery.detail(name) });
     },
@@ -196,7 +196,7 @@ export function useFixQualityGateMutation(organization: string, gateName: string
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       addGlobalSuccessMessage(translate('quality_gates.conditions_updated'));
     },
   });
@@ -219,7 +219,7 @@ export function useCreateConditionMutation(organization: string, gateName: strin
           : undefined;
       });
       queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       addGlobalSuccessMessage(translate('quality_gates.condition_added'));
     },
   });
@@ -233,7 +233,7 @@ export function useUpdateConditionMutation(organization: string, gateName: strin
       return updateCondition({ organization, ...condition });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
       addGlobalSuccessMessage(translate('quality_gates.condition_updated'));
     },
@@ -251,7 +251,7 @@ export function useDeleteConditionMutation(organization: string, gateName: strin
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
       addGlobalSuccessMessage(translate('quality_gates.condition_deleted'));
     },
