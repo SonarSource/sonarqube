@@ -107,6 +107,7 @@ import { GlobalStyles } from '../styles/GlobalStyles';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
 import organizationsRoutes from '../../apps/organizations/routes';
 import { Organization } from "../../types/types";
+import Home from "../components/Home";
 
 function renderComponentRoutes() {
   return (
@@ -244,6 +245,7 @@ const router = createBrowserRouter(
           />
 
           <Route element={<SimpleContainer />}>
+            <Route path="home" element={<Home />} />
             <Route path="not_found" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Route>

@@ -28,6 +28,7 @@ import static java.util.Optional.ofNullable;
 
 public class IssueListQuery {
 
+  private final String organization;
   private final String project;
   private final String branch;
   private final String pullRequest;
@@ -40,7 +41,8 @@ public class IssueListQuery {
   private final Collection<String> resolutions;
   private final Collection<String> softwareQualities;
 
-  private IssueListQuery(IssueListQueryBuilder issueListQueryBuilder) {
+  private IssueListQuery(IssueListQueryBuilder issueListQueryBuilder, String organization) {
+    this.organization = issueListQueryBuilder.organization;
     this.project = issueListQueryBuilder.project;
     this.branch = issueListQueryBuilder.branch;
     this.pullRequest = issueListQueryBuilder.pullRequest;
@@ -62,6 +64,9 @@ public class IssueListQuery {
       .orElse(emptyList());
   }
 
+  public String getOrganization() {
+    return organization;
+  }
   public String getProject() {
     return project;
   }
@@ -188,7 +193,7 @@ public class IssueListQuery {
     }
 
     public IssueListQuery build() {
-      return new IssueListQuery(this);
+      return new IssueListQuery(this, organization);
     }
   }
 }

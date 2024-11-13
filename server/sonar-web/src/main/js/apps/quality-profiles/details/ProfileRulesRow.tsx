@@ -27,6 +27,7 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { RulesFacetName } from '../../../types/rules';
 
 interface Props {
+  organization: string;
   className?: string;
   count: number | null;
   propertyName:
@@ -43,12 +44,12 @@ export default function ProfileRulesRow(props: Readonly<Props>) {
     qprofile: props.qprofile,
     activation: 'true',
     [props.propertyName]: props.propertyValue,
-  });
+  }, props.organization);
   const inactiveRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'false',
     [props.propertyName]: props.propertyValue,
-  });
+  }, props.organization);
   let inactiveCount = null;
   if (props.count != null && props.total != null) {
     inactiveCount = props.total - props.count;

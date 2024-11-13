@@ -27,7 +27,6 @@
     r.description_format as "descriptionFormat",
     r.rule_type as "type",
     rm.note_data as "extendedDescription",
-    rm.tags,
     rt.plugin_rule_key as "template",
     rds.content as "description"
   </sql>

@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import { Select } from '@sonarsource/echoes-react';
 import { find, sortBy } from 'lodash';
-import { translate } from "../../../helpers/l10n";
-import { Organization } from "../../../types/types";
-import { Select } from "@sonarsource/echoes-react";
+import * as React from 'react';
+import '../../../../js/app/styles/pages/CreateProject.css';
+import { translate } from '../../../helpers/l10n';
+import { Organization } from '../../../types/types';
 
 interface Props {
   onChange: (organization: Organization) => void;
@@ -30,10 +31,12 @@ interface Props {
 }
 
 export default function OrganizationSelect({ onChange, organization, organizations }: Props) {
-
   const options = React.useMemo(
-    () => sortBy(organizations, (org) => org.name.toLowerCase())
-      .map((org) => ({ label: org.name, value: org.kee })),
+    () =>
+      sortBy(organizations, (org) => org.name.toLowerCase()).map((org) => ({
+        label: org.name,
+        value: org.kee,
+      })),
     [organizations],
   );
 
@@ -51,6 +54,7 @@ export default function OrganizationSelect({ onChange, organization, organizatio
       isNotClearable
       placeholder={translate('onboarding.import_organization.choose_organization')}
       value={organization?.kee}
+      className="organization-selectbox sw-pt-2"
     />
   );
 }

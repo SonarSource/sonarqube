@@ -22,10 +22,9 @@ import OrganizationNavigationHeader from './OrganizationNavigationHeader';
 import OrganizationNavigationMenu from './OrganizationNavigationMenu';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import { rawSizes } from '../../../app/theme';
-import { Organization, Notification } from "../../../types/types";
+import { Organization } from "../../../types/types";
 import { getRawNotificationsForOrganization } from '../../../api/codescan';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
-import { TopBar } from "design-system";
+import { addGlobalErrorMessage, addGlobalWarningMessage, TopBar } from "design-system";
 
 interface Props {
   location: { pathname: string };
@@ -34,26 +33,19 @@ interface Props {
 }
 
 export function OrganizationNavigation({ location, organization, userOrganizations }: Props) {
-  const [notifications, setNotifications] = React.useState<Notification[]>([]);
-  const { contextNavHeightRaw, contextNavHeightWithError } = rawSizes;
-  const [height, setHeight] = React.useState(contextNavHeightRaw);
-  const orgAlertHeight = 30; // refer .org-alert-warning height in NavBarTabs
+  const { contextNavHeightRaw } = rawSizes;
 
   React.useEffect(() => {
     const fetchNotifications = async () => {
       const notifications = await getRawNotificationsForOrganization(organization.kee);
-      if (notifications.length > 0) {
-        const errorNotifications = notifications.filter(notification => notification.type == 'ERROR');
-        if (errorNotifications.length > 0) {
-          setNotifications(errorNotifications);
-          setHeight(contextNavHeightWithError + orgAlertHeight * (errorNotifications.length - 1));
-        } else {
-          setNotifications(notifications);
-          setHeight(contextNavHeightWithError + orgAlertHeight * (notifications.length - 1));
-        }
-      } else {
-        setNotifications([]);
-        setHeight(contextNavHeightRaw);
+      if (notifications.length) {
+        notifications.forEach((notification) => {
+          if (notification.type == 'ERROR') {
+            addGlobalErrorMessage(notification.message);
+          } else {
+            addGlobalWarningMessage(notification.message);
+          }
+        });
       }
     };
     fetchNotifications();
@@ -61,7 +53,7 @@ export function OrganizationNavigation({ location, organization, userOrganizatio
 
   return (
     <TopBar id="context-navigation">
-      <div style={{ height: height + "px" }} className="sw-flex sw-justify-between">
+      <div className="sw-flex sw-justify-between">
         <OrganizationNavigationHeader
           organization={organization}
           organizations={userOrganizations}
@@ -74,16 +66,6 @@ export function OrganizationNavigation({ location, organization, userOrganizatio
         location={location}
         organization={organization}
       />
-      {notifications.map((notification, key) => (
-        <div className={"org-alert-" + notification.type.toLowerCase()} key={key}>
-          <div className='org-alert-inner'>
-            <div className='icon'>
-              {notification.type === 'ERROR' ? 'x' : '!'}
-            </div>
-            <div className='msg' dangerouslySetInnerHTML={{ __html: sanitizeUserInput(notification.message) }}/>
-          </div>
-        </div>
-      ))}
     </TopBar>
   );
 }

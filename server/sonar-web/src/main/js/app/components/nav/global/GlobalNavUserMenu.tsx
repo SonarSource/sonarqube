@@ -43,7 +43,7 @@ export function GlobalNavUserMenu({ userOrganizations }: GlobalNavUserMenuProps)
       </DropdownMenu.ItemLink>
 
       {sortBy(userOrganizations, org => org.name.toLowerCase()).map(organization => (
-        <DropdownMenu.ItemButton>
+        <DropdownMenu.ItemButton key={organization.kee}>
           <OrganizationListItem organization={organization} />
         </DropdownMenu.ItemButton>
       ))}

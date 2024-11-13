@@ -35,6 +35,7 @@ public class CreateRuleTagsTable extends CreateTableChange {
   static final String VALUE_COLUMN_NAME = "value";
   static final String IS_SYSTEM_TAG_COLUMN_NAME = "is_system_tag";
   static final String RULE_UUID_COLUMN_NAME = "rule_uuid";
+  static final String ORGANIZATION_UUID_COLUMN_NAME = "organization_uuid";
   static final int VALUE_COLUMN_SIZE = 400;
 
   public CreateRuleTagsTable(Database db) {
@@ -45,6 +46,7 @@ public class CreateRuleTagsTable extends CreateTableChange {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName(VALUE_COLUMN_NAME).setIsNullable(false).setLimit(VALUE_COLUMN_SIZE).build())
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName(RULE_UUID_COLUMN_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(ORGANIZATION_UUID_COLUMN_NAME).setIsNullable(true).setLimit(UUID_SIZE).build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName(IS_SYSTEM_TAG_COLUMN_NAME).setIsNullable(false).build())
       .build());
   }

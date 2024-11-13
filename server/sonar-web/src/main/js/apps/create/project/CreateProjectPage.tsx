@@ -23,6 +23,7 @@ import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
+import '../../../../js/app/styles/pages/CreateProject.css';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
@@ -30,8 +31,8 @@ import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import { DopSetting } from '../../../types/dop-translation';
 import { Feature } from '../../../types/features';
+import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
 import { CreateProjectModes } from './types';
-import CreateProjectPageSonarCloud from "./CreateProjectPageSonarCloud";
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   location: Location;
@@ -128,8 +129,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     this.cleanQueryParameters();
   }
 
-  componentDidUpdate(prevProps: CreateProjectPageProps) {
-  }
+  componentDidUpdate(prevProps: CreateProjectPageProps) {}
 
   componentWillUnmount() {
     this.mounted = false;
@@ -167,10 +167,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
       : translate('onboarding.create_project.select_method');
 
     return (
-      <LargeCenteredLayout
-        id="create-project"
-        className="sw-pt-8 sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12"
-      >
+      <LargeCenteredLayout id="create-project" className="analyza-project-ctnr">
         <div className={gridLayoutStyle}>
           <Helmet title={pageTitle} titleTemplate="%s" />
           <A11ySkipTarget anchor="create_project_main" />

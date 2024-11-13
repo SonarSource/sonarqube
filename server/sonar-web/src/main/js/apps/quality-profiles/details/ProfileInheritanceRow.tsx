@@ -40,13 +40,13 @@ interface Props {
 
 export default function ProfileInheritanceRow(props: Readonly<Props>) {
   const { organization, className, depth, language, profile, displayLink = true, type = 'current' } = props;
-  const activeRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'true' });
-  const inactiveRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
+  const activeRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'true' }, organization);
+  const inactiveRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' }, organization);
   const overridingRulesUrl = getRulesUrl({
     activation: 'true',
     qprofile: profile.key,
     inheritance: 'OVERRIDES',
-  });
+  }, organization);
   const offset = INDENT_PIXELS * depth;
 
   return (
