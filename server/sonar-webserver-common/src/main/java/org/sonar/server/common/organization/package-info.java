@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.cross-btn-icon {
-  position: relative;
-  display: block;
-  top: 35px;
-  left: 560px;
-}
+@ParametersAreNonnullByDefault
+package org.sonar.server.common.organization;
 
-.cross-btn-icon button {
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  font-size: 19px;
-  padding-left: 7px;
-  padding-right: 8px;
-  padding-top: 3px;
-  padding-bottom: 4px;
-}
-
-.cross-btn-icon button:hover {
-  background-color: rgba(14, 30, 37, 0.3);
-  border-radius: 50%;
-  color: #fff;
-}
+import javax.annotation.ParametersAreNonnullByDefault;

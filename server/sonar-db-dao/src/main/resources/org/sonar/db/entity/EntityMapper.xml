@@ -3,11 +3,11 @@
 <mapper namespace="org.sonar.db.entity.EntityMapper">
   <sql id="entityProjectColumns">
     p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate, p.description as description, p.qualifier as qualifier,
-    null as authUuid
+    p.organization_uuid as organization_uuid, null as authUuid
   </sql>
 
   <sql id="entityPortfolioColumns">
-    p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate, p.description as description,
+    p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate, p.description as description, p.organization_uuid as organization_uuid,
     case when p.parent_uuid is null then 'VW' else 'SVW' end as qualifier,
     case when p.root_uuid != p.uuid then p.root_uuid else null end as authUuid
   </sql>
