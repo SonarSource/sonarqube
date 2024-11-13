@@ -19,12 +19,15 @@
  */
 package org.sonar.server.rule;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -43,6 +46,7 @@ public class RuleUpdate {
   private boolean changeName = false;
   private boolean changeDescription = false;
   private boolean changeSeverity = false;
+  private boolean changeImpacts = false;
   private boolean changeStatus = false;
   private boolean changeParameters = false;
   private final RuleUpdateUseCase useCase;
@@ -53,6 +57,7 @@ public class RuleUpdate {
   private String name;
   private String markdownDescription;
   private String severity;
+  private final Map<SoftwareQuality, Severity> impactSeverities = new EnumMap<>(SoftwareQuality.class);
   private RuleStatus status;
   private final Map<String, String> parameters = new HashMap<>();
 
@@ -140,6 +145,21 @@ public class RuleUpdate {
     return this;
   }
 
+  public Map<SoftwareQuality, Severity> getImpactSeverities() {
+    return impactSeverities;
+  }
+
+  /**
+   * Impacts to be updated (only for custom rules)
+   */
+  public RuleUpdate setImpactSeverities(Map<SoftwareQuality, Severity> impactSeverities) {
+    checkCustomRule();
+    this.impactSeverities.clear();
+    this.impactSeverities.putAll(impactSeverities);
+    changeImpacts = true;
+    return this;
+  }
+
   @CheckForNull
   public RuleStatus getStatus() {
     return status;
@@ -200,6 +220,10 @@ public class RuleUpdate {
     return changeSeverity;
   }
 
+  public boolean isChangeImpacts() {
+    return changeImpacts;
+  }
+
   public boolean isChangeStatus() {
     return changeStatus;
   }
@@ -213,7 +237,7 @@ public class RuleUpdate {
   }
 
   private boolean isCustomRuleFieldsEmpty() {
-    return !changeName && !changeDescription && !changeSeverity && !changeStatus && !changeParameters;
+    return !changeName && !changeDescription && !changeSeverity && !changeStatus && !changeParameters && !changeImpacts;
   }
 
   private void checkCustomRule() {

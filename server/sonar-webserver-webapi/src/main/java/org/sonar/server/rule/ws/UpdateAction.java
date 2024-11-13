@@ -23,8 +23,12 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -50,6 +54,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static org.sonar.server.common.ParamParsingUtils.parseImpact;
 import static org.sonar.server.rule.ws.CreateAction.KEY_MAXIMUM_LENGTH;
 import static org.sonar.server.rule.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -65,6 +70,7 @@ public class UpdateAction implements RulesWsAction {
   public static final String PARAM_NAME = "name";
   public static final String PARAM_DESCRIPTION = "markdownDescription";
   public static final String PARAM_SEVERITY = "severity";
+  public static final String PARAM_IMPACTS = "impacts";
   public static final String PARAM_STATUS = "status";
   public static final String PARAMS = "params";
 
@@ -91,13 +97,14 @@ public class UpdateAction implements RulesWsAction {
       .setDescription("Update an existing rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
       .setChangelog(
-        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."),
+        new Change("10.8", String.format("Parameter %s was added.", PARAM_IMPACTS)),
+        new Change("10.8", String.format("The parameter '%s' is not deprecated anymore.", PARAM_SEVERITY)),
+        new Change("10.8", "The field 'severity' and 'type' in the response are not deprecated anymore."),
         new Change("10.4", String.format("The parameter '%s' is deprecated.", PARAM_SEVERITY)),
         new Change("10.4", "Updating a removed rule is now possible."),
-        new Change("10.8", String.format("The parameter '%s' is not deprecated anymore.", PARAM_SEVERITY)))
-      .setSince("4.4")
-      .setChangelog(
+        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"))
+      .setSince("4.4")
       .setHandler(this);
 
     action.createParam(PARAM_KEY)
@@ -149,6 +156,11 @@ public class UpdateAction implements RulesWsAction {
       .setPossibleValues(Severity.ALL);
 
     action
+      .createParam(PARAM_IMPACTS)
+      .setDescription("Rule impacts, semicolon-separated (Only when updating a custom rule impact severity)")
+      .setExampleValue("MAINTAINABILITY=HIGH;SECURITY=LOW");
+
+    action
       .createParam(PARAM_STATUS)
       .setPossibleValues(RuleStatus.values())
       .setDescription("Rule status (Only when updating a custom rule)");
@@ -186,6 +198,14 @@ public class UpdateAction implements RulesWsAction {
       update.setMarkdownDescription(description);
     }
     String severity = request.param(PARAM_SEVERITY);
+    String impacts = request.param(PARAM_IMPACTS);
+    if (impacts != null && severity != null) {
+      throw new IllegalArgumentException("Both 'severity' and 'impacts' parameters cannot be set at the same time");
+    }
+    if (impacts != null) {
+      Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> parsedImpact = parseImpacts(impacts);
+      update.setImpactSeverities(parsedImpact);
+    }
     if (severity != null) {
       update.setSeverity(severity);
     }
@@ -262,5 +282,14 @@ public class UpdateAction implements RulesWsAction {
         ruleWsSupport.getUsersByUuid(dbSession, singletonList(rule)), emptyMap()));
 
     return responseBuilder.build();
+  }
+
+  private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> parseImpacts(String impacts) {
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> parsedImpacts = new EnumMap<>(SoftwareQuality.class);
+    for (String impact : impacts.split(";")) {
+      Pair<SoftwareQuality, org.sonar.api.issue.impact.Severity> pair = parseImpact(impact);
+      parsedImpacts.put(pair.getKey(), pair.getValue());
+    }
+    return parsedImpacts;
   }
 }
