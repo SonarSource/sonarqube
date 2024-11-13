@@ -19,54 +19,53 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import ManualOrganizationCreate from './ManualOrganizationCreate';
-import { translate } from "../../../helpers/l10n";
-import { Organization } from "../../../types/types";
-import { Router } from '~sonar-aligned/types/router';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
-import { getOrganizationUrl } from "../../../helpers/urls";
-import { getUserOrganizations } from "../../../api/organizations";
-import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";
-import { CurrentUserContextInterface } from "../../../app/components/current-user/CurrentUserContext";
+import { Router } from '~sonar-aligned/types/router';
+import { getUserOrganizations } from '../../../api/organizations';
+import { CurrentUserContextInterface } from '../../../app/components/current-user/CurrentUserContext';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { translate } from '../../../helpers/l10n';
+import { getOrganizationUrl } from '../../../helpers/urls';
+import { Organization } from '../../../types/types';
+import ManualOrganizationCreate from './ManualOrganizationCreate';
 
 interface Props {
   router: Router;
 }
 
-export class CreateOrganizationPage extends React.PureComponent<Props & CurrentUserContextInterface> {
-
+export class CreateOrganizationPage extends React.PureComponent<
+  Props & CurrentUserContextInterface
+> {
   handleOrgCreated = (organization: Organization) => {
-    getUserOrganizations().then((organizations) => {
-      this.props.updateUserOrganizations(organizations);
-    }).catch(() => {
-      /* noop */
-    });
+    getUserOrganizations()
+      .then((organizations) => {
+        this.props.updateUserOrganizations(organizations);
+      })
+      .catch(() => {
+        /* noop */
+      });
     this.props.router.push(getOrganizationUrl(organization.kee));
   };
 
   renderContent = () => {
-    return (
-        <ManualOrganizationCreate
-            onOrganizationCreate={this.handleOrgCreated}
-        />
-    );
+    return <ManualOrganizationCreate onOrganizationCreate={this.handleOrgCreated} />;
   };
 
   render() {
     const header = translate('onboarding.create_organization.page.header');
 
     return (
-        <>
-          <Helmet title={header} titleTemplate="%s"/>
-          <div className="page page-limited huge-spacer-top huge-spacer-bottom">
-            <header className="page-header huge-spacer-bottom">
-              <h1 className="page-title huge big-spacer-bottom">
-                <strong>{header}</strong>
-              </h1>
-            </header>
-            {this.renderContent()}
-          </div>
-        </>
+      <>
+        <Helmet title={header} titleTemplate="%s" />
+        <div className="page page-limited huge-spacer-top huge-spacer-bottom sw-mt-16 sw-ml-16">
+          <header className="page-header huge-spacer-bottom">
+            <h2 className="page-title huge big-spacer-bottom">
+              <strong>{header}</strong>
+            </h2>
+          </header>
+          {this.renderContent()}
+        </div>
+      </>
     );
   }
 }

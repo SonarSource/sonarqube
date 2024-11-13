@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import { ButtonIcon, ButtonVariety, IconQuestionMark } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { FormField, InputField } from 'design-system';
 import { debounce } from 'lodash';
-import { translate } from "../../../helpers/l10n";
-import { getHostUrl } from "../../../helpers/urls";
-import { checkOrganizationKeyExistence } from "../../../api/organizations";
-import { FormField } from "design-system";
-import HelpTooltip from "~sonar-aligned/components/controls/HelpTooltip";
-import { ButtonIcon, ButtonVariety, IconQuestionMark } from "@sonarsource/echoes-react";
+import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { checkOrganizationKeyExistence } from '../../../api/organizations';
+import { translate } from '../../../helpers/l10n';
+import { getHostUrl } from '../../../helpers/urls';
 
 interface Props {
   initialValue?: string;
@@ -63,13 +63,13 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
   checkFreeKey = (key: string) => {
     this.setState({ validating: true });
     return checkOrganizationKeyExistence(key)
-      .then(exists => {
+      .then((exists) => {
         if (this.mounted && this.state.value === key) {
           if (exists) {
             this.setState({
               error: translate('onboarding.create_organization.organization_name.taken'),
               touched: true,
-              validating: false
+              validating: false,
             });
             this.props.onChange(undefined);
           } else {
@@ -96,7 +96,7 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
     if (key.length > 255 || !/^[a-z0-9][a-z0-9-]*[a-z0-9]?$/.test(key)) {
       this.setState({
         error: translate('onboarding.create_organization.organization_name.error'),
-        touched: true
+        touched: true,
       });
       this.props.onChange(undefined);
     } else {
@@ -114,16 +114,17 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
         isValid={isValid}
         label={translate('onboarding.create_organization.organization_name')}
         required
+        className="sw-mt-2"
       >
         <div className="display-inline-flex-center">
           <span className="little-spacer-right nowrap">
             {getHostUrl().replace(/https*:\/\//, '') + '/organizations/'}
           </span>
-          <input
+          <InputField
             autoFocus={true}
             className={classNames('input-super-large', {
               'is-invalid': isInvalid,
-              'is-valid': isValid
+              'is-valid': isValid,
             })}
             id="organization-key"
             maxLength={50}
@@ -133,11 +134,7 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
           />
           <HelpTooltip
             className="sw-ml-2"
-            overlay={
-              <div className="sw-py-4">
-                {translate('organization.key.description')}
-              </div>
-            }
+            overlay={<div className="sw-py-4">{translate('organization.key.description')}</div>}
           >
             <ButtonIcon
               Icon={IconQuestionMark}

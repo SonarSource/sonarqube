@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import { IconQuestionMark } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { FormField, InputTextArea } from 'design-system';
 import { debounce } from 'lodash';
-import { translate } from "../../../helpers/l10n";
-import { FormField } from "design-system";
-import { IconQuestionMark } from "@sonarsource/echoes-react";
-import HelpTooltip from "~sonar-aligned/components/controls/HelpTooltip";
+import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   initialValue?: string;
@@ -36,7 +36,6 @@ interface State {
   touched: boolean;
   validating: boolean;
   value: string;
-
 }
 
 export default class OrganizationDescriptionInput extends React.PureComponent<Props, State> {
@@ -63,7 +62,7 @@ export default class OrganizationDescriptionInput extends React.PureComponent<Pr
   checkFreeKey = (key: string) => {
     this.setState({ validating: false });
     this.setState({ error: undefined });
-    this.props.onChange(key)
+    this.props.onChange(key);
   };
 
   handleChange = (event: React.ChangeEvent<any>) => {
@@ -74,11 +73,11 @@ export default class OrganizationDescriptionInput extends React.PureComponent<Pr
 
   validateDescription(desc: string) {
     if (desc.length == 0) {
-      this.checkFreeKey("");
+      this.checkFreeKey('');
     } else if (desc.length > 256 || !/^[A-Za-z0-9][A-Za-z0-9- ]*[A-Za-z0-9]?$/.test(desc)) {
       this.setState({
         error: translate('onboarding.create_organization.organization_name.error'),
-        touched: true
+        touched: true,
       });
       this.props.onChange(undefined);
     } else {
@@ -98,10 +97,10 @@ export default class OrganizationDescriptionInput extends React.PureComponent<Pr
         label={translate('onboarding.create_organization.organization_name')}
       >
         <div className="display-inline-flex-center">
-          <textarea
+          <InputTextArea
             className={classNames('input-super-large', {
               'is-invalid': isInvalid,
-              'is-valid': isValid
+              'is-valid': isValid,
             })}
             id="organization-description"
             maxLength={256}
@@ -109,17 +108,13 @@ export default class OrganizationDescriptionInput extends React.PureComponent<Pr
             value={this.state.value}
             rows={3}
           />
-          {
-            showHelpIcon && (
-              <HelpTooltip overlay={
-                <div className="sw-py-4">
-                  {translate('organization.name.description')}
-                </div>
-              }>
-                <IconQuestionMark />
-              </HelpTooltip>
-            )
-          }
+          {showHelpIcon && (
+            <HelpTooltip
+              overlay={<div className="sw-py-4">{translate('organization.name.description')}</div>}
+            >
+              <IconQuestionMark />
+            </HelpTooltip>
+          )}
         </div>
       </FormField>
     );

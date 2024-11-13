@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
+import { FormField, InputField } from 'design-system';
+import * as React from 'react';
 import { isWebUri } from 'valid-url';
-import { translate } from "../../../helpers/l10n";
-import { getWhiteListDomains } from '../../../api/organizations';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
-import { AppState } from '../../../types/appstate';
+import { getWhiteListDomains } from '../../../api/organizations';
+import { translate } from '../../../helpers/l10n';
 import { allowSpecificDomains } from '../../../helpers/urls';
-import { FormField } from "design-system";
+import { AppState } from '../../../types/appstate';
 
 interface Props {
   initialValue?: string;
@@ -59,9 +59,8 @@ class OrganizationUrlInput extends React.PureComponent<Props, State> {
 
   async fetchWhiteListDomains() {
     await getWhiteListDomains().then((data: string[]) => {
-        this.whiteListDomains = data;
-      },
-      throwGlobalError)
+      this.whiteListDomains = data;
+    }, throwGlobalError);
   }
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,14 +81,14 @@ class OrganizationUrlInput extends React.PureComponent<Props, State> {
   domainFromUrl = (url: string) => {
     let result;
     let match;
-    if (match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im)) {
-      result = match[1]
-      if (match = result.match(/^[^\.]+\.(.+\..+)$/)) {
-        result = match[1]
+    if ((match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im))) {
+      result = match[1];
+      if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
+        result = match[1];
       }
     }
-    return result
-  }
+    return result;
+  };
 
   isValidDomain = (url: string) => {
     const validDomainUrls = this.whiteListDomains;
@@ -103,11 +102,10 @@ class OrganizationUrlInput extends React.PureComponent<Props, State> {
       }
     }
     return isUrlValid;
-  }
-
+  };
 
   validateUrl = (url: string) => {
-    const { whiteLabel } = this.props.appState
+    const { whiteLabel } = this.props.appState;
     if (url.length > 0 && !isWebUri(url)) {
       return translate('onboarding.create_organization.url.error');
     }
@@ -116,7 +114,7 @@ class OrganizationUrlInput extends React.PureComponent<Props, State> {
       return translate('onboarding.create_organization.url.domain.error');
     }
     return undefined;
-  }
+  };
 
   render() {
     const isInvalid = this.state.touched && !this.state.editing && this.state.error !== undefined;
@@ -129,10 +127,10 @@ class OrganizationUrlInput extends React.PureComponent<Props, State> {
         htmlFor="organization-url"
         label={translate('onboarding.create_organization.url')}
       >
-        <input
+        <InputField
           className={classNames('input-super-large', 'text-middle', {
             'is-invalid': isInvalid,
-            'is-valid': isValid
+            'is-valid': isValid,
           })}
           id="organization-url"
           onBlur={this.handleBlur}

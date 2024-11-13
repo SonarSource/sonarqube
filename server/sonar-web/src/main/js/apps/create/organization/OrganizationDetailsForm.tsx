@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety, IconChevronDown, Spinner } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
+import { Organization, OrganizationBase } from '../../../types/types';
 import OrganizationAvatarInput from '../components/OrganizationAvatarInput';
+import OrganizationDescriptionInput from '../components/OrganizationDescriptionInput';
 import OrganizationKeyInput from '../components/OrganizationKeyInput';
 import OrganizationNameInput from '../components/OrganizationNameInput';
 import OrganizationUrlInput from '../components/OrganizationUrlInput';
-import { translate } from "../../../helpers/l10n";
-import { Organization, OrganizationBase } from "../../../types/types";
-import OrganizationDescriptionInput from '../components/OrganizationDescriptionInput';
-import { Button, ButtonVariety, IconChevronDown, Spinner } from "@sonarsource/echoes-react";
 
 type RequiredOrganization = Required<OrganizationBase>;
 
@@ -62,7 +62,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
       kee: (organization && organization.kee) || undefined,
       name: (organization && organization.name) || '',
       submitting: false,
-      url: (organization && organization.url) || ''
+      url: (organization && organization.url) || '',
     };
   }
 
@@ -80,19 +80,19 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
         state.name !== undefined &&
         state.description !== undefined &&
         state.avatar !== undefined &&
-        state.url !== undefined
+        state.url !== undefined,
     );
   }
 
   handleAdditionalClick = () => {
-    this.setState(state => ({ additional: !state.additional }));
+    this.setState((state) => ({ additional: !state.additional }));
   };
 
   handleAvatarUpdate = (avatar: string | undefined) => {
     this.setState({ avatar });
   };
 
-  handleDescriptionUpdate = (value:string|undefined) => {
+  handleDescriptionUpdate = (value: string | undefined) => {
     this.setState({ description: value });
   };
 
@@ -119,7 +119,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
           description: state.description,
           kee: state.kee,
           name: state.name,
-          url: state.url
+          url: state.url,
         })
         .then(this.stopSubmitting, this.stopSubmitting);
     }
@@ -140,11 +140,11 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
           <OrganizationKeyInput initialValue={this.state.kee} onChange={this.handleKeyUpdate} />
         )}
         <div className="big-spacer-top">
-          <Button onClick={this.handleAdditionalClick}>
+          <Button onClick={this.handleAdditionalClick} className="sw-mb-4">
             {translate(
               this.state.additional
                 ? 'onboarding.create_organization.hide_additional_info'
-                : 'onboarding.create_organization.add_additional_info'
+                : 'onboarding.create_organization.add_additional_info',
             )}
 
             <IconChevronDown />
@@ -156,7 +156,12 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
               <strong>{translate('onboarding.create_organization.display_name')}</strong>
             </label>
             <div className="little-spacer-top">
-              <OrganizationNameInput isEditMode={false} showHelpIcon={true} initialValue={this.state.name} onChange={this.handleNameUpdate} />
+              <OrganizationNameInput
+                isEditMode={false}
+                showHelpIcon={true}
+                initialValue={this.state.name}
+                onChange={this.handleNameUpdate}
+              />
             </div>
             <div className="note abs-width-400">
               {translate('onboarding.create_organization.display_name.description')}
@@ -174,20 +179,18 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
               <strong>{translate('onboarding.create_organization.description')}</strong>
             </label>
             <div className="little-spacer-top">
-              <OrganizationDescriptionInput 
+              <OrganizationDescriptionInput
                 onChange={this.handleDescriptionUpdate}
-                value={this.state.description}>
-                </OrganizationDescriptionInput>
-                <div className="note abs-width-400">
-                  {translate('organization.description.description')}
-                </div>
+                value={this.state.description}
+              ></OrganizationDescriptionInput>
+              <div className="note abs-width-400">
+                {translate('organization.description.description')}
+              </div>
             </div>
           </div>
           <div className="big-spacer-top">
             <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />
-            <div className="note abs-width-400">
-                {translate('organization.url.description')}
-              </div>
+            <div className="note abs-width-400">{translate('organization.url.description')}</div>
           </div>
         </div>
 
@@ -195,6 +198,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
 
         <div className="display-flex-center big-spacer-top">
           <Button
+            className="sw-my-4"
             variety={ButtonVariety.Primary}
             disabled={submitting || !this.canSubmit(this.state)}
             type="submit"

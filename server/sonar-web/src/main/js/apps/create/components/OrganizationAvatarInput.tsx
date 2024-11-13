@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
+import { FormField, InputField } from 'design-system';
+import * as React from 'react';
 import { isWebUri } from 'valid-url';
-import { translate } from "../../../helpers/l10n";
-import OrganizationAvatar from "../../organizations/components/OrganizationAvatar";
-import { getWhiteListDomains } from '../../../api/organizations';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
-import { AppState } from '../../../types/appstate';
+import { getWhiteListDomains } from '../../../api/organizations';
+import { translate } from '../../../helpers/l10n';
 import { allowSpecificDomains } from '../../../helpers/urls';
-import { FormField } from "design-system";
+import { AppState } from '../../../types/appstate';
+import OrganizationAvatar from '../../organizations/components/OrganizationAvatar';
 
 interface Props {
   initialValue?: string;
@@ -49,11 +49,9 @@ class OrganizationAvatarInput extends React.PureComponent<Props, State> {
 
   async fetchWhiteListDomains() {
     await getWhiteListDomains().then((data: string[]) => {
-        this.whiteListDomains = data;
-      },
-      throwGlobalError)
+      this.whiteListDomains = data;
+    }, throwGlobalError);
   }
-
 
   async componentDidMount() {
     await this.fetchWhiteListDomains();
@@ -84,14 +82,14 @@ class OrganizationAvatarInput extends React.PureComponent<Props, State> {
   domainFromUrl = (url: string) => {
     let result;
     let match;
-    if (match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im)) {
-      result = match[1]
-      if (match = result.match(/^[^\.]+\.(.+\..+)$/)) {
-        result = match[1]
+    if ((match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im))) {
+      result = match[1];
+      if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
+        result = match[1];
       }
     }
-    return result
-  }
+    return result;
+  };
 
   isValidDomain = (url: string) => {
     const validDomainUrls = this.whiteListDomains;
@@ -105,12 +103,10 @@ class OrganizationAvatarInput extends React.PureComponent<Props, State> {
       }
     }
     return isUrlValid;
-  }
-
+  };
 
   validateUrl = (url: string) => {
-
-    const { whiteLabel } = this.props.appState
+    const { whiteLabel } = this.props.appState;
     if (url.length > 0 && !isWebUri(url)) {
       return translate('onboarding.create_organization.url.error');
     }
@@ -119,7 +115,7 @@ class OrganizationAvatarInput extends React.PureComponent<Props, State> {
       return translate('onboarding.create_organization.url.domain.error');
     }
     return undefined;
-  }
+  };
 
   render() {
     const isInvalid = this.state.touched && !this.state.editing && this.state.error !== undefined;
@@ -132,21 +128,22 @@ class OrganizationAvatarInput extends React.PureComponent<Props, State> {
         isInvalid={isInvalid}
         isValid={isValid}
         htmlFor="organization-avatar"
-        label={translate('onboarding.create_organization.avatar')}>
+        label={translate('onboarding.create_organization.avatar')}
+      >
         <>
           {(isValidUrl || this.props.name) && (
             <OrganizationAvatar
               className="display-block spacer-bottom"
               organization={{
                 avatar: isValidUrl ? this.state.value : undefined,
-                name: this.props.name || ''
+                name: this.props.name || '',
               }}
             />
           )}
-          <input
+          <InputField
             className={classNames('input-super-large', 'text-middle', {
               'is-invalid': isInvalid,
-              'is-valid': isValid
+              'is-valid': isValid,
             })}
             id="organization-avatar"
             onBlur={this.handleBlur}
