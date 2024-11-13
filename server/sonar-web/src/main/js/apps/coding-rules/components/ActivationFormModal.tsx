@@ -288,17 +288,17 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                   <Select
                     clearable={false}
                     onChange={handleSingleSelectListChange}
-                    options={this.state.allParams[param.key].map((item: string) => ({
+                    options={allParams[param.key].map((item: string) => ({
                       labelKey: param.key,
                       label: item,
                       value: item
                     }))}
-                    value={{labelKey: param.key, label: this.state.params[param.key], value: this.state.params[param.key]}}
+                    value={{labelKey: param.key, label: params[param.key], value: params[param.key]}}
                   />
                 )}
                 {param.type === 'KEY_VALUE_MAP' && (
                   <ul>
-                    {this.state.params[param.key].map((value: any, index: number) =>
+                    {params[param.key].map((value: any, index: number) =>
                       <li className="spacer-bottom display-flex-row " key={index}>
                         <input
                           disabled={submitting}
@@ -316,7 +316,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                           type="text"
                           value={value[1]} />
 
-                        {!(index === this.state.params[param.key].length - 1) && (
+                        {!(index === params[param.key].length - 1) && (
                           <div className="display-inline-block spacer-left">
                             <Button
                               variety={ButtonVariety.Danger}
