@@ -19,20 +19,20 @@
  */
 
 import styled from '@emotion/styled';
-import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import {
-  ButtonSecondary,
-  HelperHintIcon,
+  Button,
+  ButtonVariety,
+  Heading,
+  IconQuestionMark,
+  ModalAlert,
   Spinner,
-  SubHeadingHighlight,
-  themeBorder,
-  themeColor,
-} from '~design-system';
+} from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
+import { themeBorder, themeColor } from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Profile } from '../../../api/quality-profiles';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import {
   useDeleteRuleMutation,
   useRuleDetailsQuery,
@@ -70,6 +70,7 @@ export default function RuleDetails(props: Readonly<Props>) {
     selectedProfile,
     referencedRepositories,
   } = props;
+  const intl = useIntl();
   const { isLoading: loadingRule, data } = useRuleDetailsQuery({
     actives: true,
     key: ruleKey,
@@ -80,7 +81,7 @@ export default function RuleDetails(props: Readonly<Props>) {
   const { rule: ruleDetails, actives = [] } = data ?? {};
 
   const params = ruleDetails?.params ?? [];
-  const isCustom = !!ruleDetails?.templateKey;
+  const isCustom = ruleDetails?.templateKey !== undefined;
   const isEditable = canWrite && !!allowCustomRules && isCustom;
 
   const handleTagsChange = (tags: string[]) => {
@@ -104,7 +105,7 @@ export default function RuleDetails(props: Readonly<Props>) {
 
   return (
     <StyledRuleDetails className="it__coding-rule-details sw-p-6 sw-mt-6">
-      <Spinner loading={loadingRule}>
+      <Spinner isLoading={loadingRule}>
         {ruleDetails && (
           <>
             <RuleDetailsHeader
@@ -124,48 +125,54 @@ export default function RuleDetails(props: Readonly<Props>) {
                 {/* it's expected to pass the same rule to both parameters */}
                 <CustomRuleButton customRule={ruleDetails} templateRule={ruleDetails}>
                   {({ onClick }) => (
-                    <ButtonSecondary
+                    <Button
+                      variety={ButtonVariety.Default}
                       className="js-edit-custom"
                       id="coding-rules-detail-custom-rule-change"
                       onClick={onClick}
                     >
                       {translate('edit')}
-                    </ButtonSecondary>
+                    </Button>
                   )}
                 </CustomRuleButton>
-                <ConfirmButton
-                  confirmButtonText={translate('delete')}
-                  isDestructive
-                  modalBody={translateWithParameters(
-                    'coding_rules.delete.custom.confirm',
-                    ruleDetails.name,
+                <ModalAlert
+                  title={translate('coding_rules.delete_rule')}
+                  description={intl.formatMessage(
+                    {
+                      id: 'coding_rules.delete.custom.confirm',
+                    },
+                    {
+                      name: ruleDetails.name,
+                    },
                   )}
-                  modalHeader={translate('coding_rules.delete_rule')}
-                  onConfirm={() => deleteRule({ key: ruleKey })}
+                  primaryButton={
+                    <Button
+                      className="sw-ml-2 js-delete"
+                      id="coding-rules-detail-rule-delete"
+                      onClick={() => deleteRule({ key: ruleKey })}
+                      variety={ButtonVariety.DangerOutline}
+                    >
+                      {translate('delete')}
+                    </Button>
+                  }
+                  secondaryButtonLabel={translate('close')}
                 >
-                  {({ onClick }) => (
-                    <>
-                      <Button
-                        className="sw-ml-2 js-delete"
-                        id="coding-rules-detail-rule-delete"
-                        onClick={onClick}
-                        variety={ButtonVariety.DangerOutline}
-                      >
-                        {translate('delete')}
-                      </Button>
-                      <HelpTooltip
-                        className="sw-ml-2"
-                        overlay={
-                          <div className="sw-py-4">
-                            {translate('coding_rules.custom_rule.removal')}
-                          </div>
-                        }
-                      >
-                        <HelperHintIcon />
-                      </HelpTooltip>
-                    </>
-                  )}
-                </ConfirmButton>
+                  <Button
+                    className="sw-ml-2 js-delete"
+                    id="coding-rules-detail-rule-delete"
+                    variety={ButtonVariety.DangerOutline}
+                  >
+                    {translate('delete')}
+                  </Button>
+                </ModalAlert>
+                <HelpTooltip
+                  className="sw-ml-2"
+                  overlay={
+                    <div className="sw-py-4">{translate('coding_rules.custom_rule.removal')}</div>
+                  }
+                >
+                  <IconQuestionMark />
+                </HelpTooltip>
               </div>
             )}
 
@@ -192,9 +199,7 @@ export default function RuleDetails(props: Readonly<Props>) {
             )}
 
             <div className="sw-my-8" data-meta="available-since">
-              <SubHeadingHighlight as="h3">
-                {translate('coding_rules.available_since')}
-              </SubHeadingHighlight>
+              <Heading as="h3">{translate('coding_rules.available_since')}</Heading>
               <DateFormatter date={ruleDetails.createdAt} />
             </div>
           </>

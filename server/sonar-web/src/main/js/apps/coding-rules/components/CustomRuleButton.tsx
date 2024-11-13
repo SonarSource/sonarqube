@@ -40,6 +40,7 @@ export default function CustomRuleButton(props: Props) {
           customRule={customRule}
           onClose={() => setModalOpen(false)}
           templateRule={templateRule}
+          isOpen={modalOpen}
         />
       )}
     </>

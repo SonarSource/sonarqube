@@ -532,6 +532,8 @@ export interface RuleActivation {
 }
 
 export interface RulesUpdateRequest {
+  cleanCodeAttribute?: CleanCodeAttribute;
+  impacts?: SoftwareImpact[];
   key: string;
   markdownDescription?: string;
   markdown_note?: string;
@@ -540,8 +542,10 @@ export interface RulesUpdateRequest {
   remediation_fn_base_effort?: string;
   remediation_fn_type?: string;
   remediation_fy_gap_multiplier?: string;
+  severity?: string;
   status?: string;
   tags?: string;
+  type?: RuleType;
 }
 
 export interface RuleDetails extends Rule {
@@ -611,6 +615,11 @@ export const RuleTypes = [
   'UNKNOWN',
 ] as const;
 export type RuleType = (typeof RuleTypes)[number];
+
+export enum CustomRuleType {
+  ISSUE = 'ISSUE',
+  SECURITY_HOTSPOT = 'SECURITY_HOTSPOT',
+}
 
 export interface Snippet {
   end: number;

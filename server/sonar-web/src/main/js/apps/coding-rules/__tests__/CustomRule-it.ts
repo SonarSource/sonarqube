@@ -22,7 +22,9 @@ import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
-import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import { IssueSeverity, IssueType } from '../../../types/issues';
+import { SettingsKey } from '../../../types/settings';
 import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 
 const rulesHandler = new CodingRulesServiceMock();
@@ -42,7 +44,7 @@ afterEach(() => {
 });
 
 describe('custom rule', () => {
-  it('can create custom rule', async () => {
+  it('can create custom rule in MQR mode', async () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser());
@@ -99,7 +101,9 @@ describe('custom rule', () => {
       byRole('option', { name: 'severity_impact.MEDIUM severity_impact.MEDIUM' }).get(),
     );
 
-    expect(ui.createCustomRuleDialog.byText('severity_impact.MEDIUM').get()).toBeInTheDocument();
+    expect(
+      ui.createCustomRuleDialog.byRole('combobox', { name: 'severity' }).getAll()[1],
+    ).toHaveValue('severity_impact.MEDIUM');
 
     await user.click(ui.statusSelect.get());
     await user.click(byRole('option', { name: 'rules.status.BETA' }).get());
@@ -111,6 +115,97 @@ describe('custom rule', () => {
 
     // Verify the rule is created
     expect(ui.customRuleItemLink('New Custom Rule').get()).toBeInTheDocument();
+  });
+
+  it('hides severities if security hotspot is selected in MQR mode', async () => {
+    const { ui, user } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
+    await ui.detailsloaded();
+
+    // Create custom rule
+    await user.click(ui.createCustomRuleButton.get());
+    // Switch type to Security hotspot
+    await user.click(ui.cctIssueTypeSelect.get());
+    await user.click(
+      byRole('option', { name: 'coding_rules.custom.type.option.SECURITY_HOTSPOT' }).get(),
+    );
+    expect(ui.cleanCodeCategorySelect.query()).not.toBeInTheDocument();
+
+    // Switch type back to Issue
+    await user.click(ui.cctIssueTypeSelect.get());
+    await user.click(byRole('option', { name: 'coding_rules.custom.type.option.ISSUE' }).get());
+    expect(ui.cleanCodeCategorySelect.get()).toBeInTheDocument();
+  });
+
+  it('can create custom rule in Standard mode', async () => {
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    const { ui, user } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser());
+    await ui.facetsLoaded();
+
+    await user.click(await ui.templateFacet.find());
+    await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
+
+    // Shows only one template rule
+    expect(ui.getAllRuleListItems()).toHaveLength(1);
+
+    // Show template rule details
+    await user.click(ui.ruleListItemLink('Template rule').get());
+    expect(ui.ruleTitle('Template rule').get()).toBeInTheDocument();
+    expect(ui.customRuleSectionTitle.get()).toBeInTheDocument();
+
+    // Create custom rule
+    await user.click(ui.createCustomRuleButton.get());
+    await user.type(ui.ruleNameTextbox.get(), 'New Custom Rule');
+    expect(ui.keyTextbox.get()).toHaveValue('New_Custom_Rule');
+    await user.clear(ui.keyTextbox.get());
+    await user.type(ui.keyTextbox.get(), 'new_custom_rule');
+
+    // Select type as bug
+    await user.click(ui.standardIssueTypeSelect.get());
+    await user.click(byRole('option', { name: 'issue.type.BUG' }).get());
+
+    // Select Severity as Major
+    await user.click(ui.standardSeveritySelect.get());
+    await user.click(byRole('option', { name: 'severity.MAJOR' }).get());
+
+    expect(ui.createCustomRuleDialog.byRole('combobox', { name: 'severity' }).get()).toHaveValue(
+      'severity.MAJOR',
+    );
+
+    await user.click(ui.statusSelect.get());
+    await user.click(byRole('option', { name: 'rules.status.BETA' }).get());
+
+    await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
+    await user.type(ui.paramInput('1').get(), 'Default value');
+
+    await user.click(ui.createButton.get());
+
+    // Verify the rule is created
+    expect(ui.customRuleItemLink('New Custom Rule').get()).toBeInTheDocument();
+  });
+
+  it('hides severities if security hotspot is selected in Standard mode', async () => {
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    const { ui, user } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
+    await ui.detailsloaded();
+
+    // Create custom rule
+    await user.click(ui.createCustomRuleButton.get());
+    // Switch type to Security hotspot
+    await user.click(ui.standardIssueTypeSelect.get());
+    await user.click(byRole('option', { name: 'issue.type.SECURITY_HOTSPOT' }).get());
+
+    expect(ui.standardSeveritySelect.query()).not.toBeInTheDocument();
+
+    // Switch type back to Bug
+    await user.click(ui.standardIssueTypeSelect.get());
+    await user.click(byRole('option', { name: 'issue.type.BUG' }).get());
+    expect(ui.standardSeveritySelect.get()).toBeInTheDocument();
   });
 
   it('can reactivate custom rule', async () => {
@@ -136,7 +231,7 @@ describe('custom rule', () => {
     expect(ui.customRuleItemLink('Reactivate custom Rule').get()).toBeInTheDocument();
   });
 
-  it('can edit custom rule', async () => {
+  it('can edit custom rule in MQR mode', async () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
@@ -149,9 +244,57 @@ describe('custom rule', () => {
     await user.type(ui.ruleNameTextbox.get(), 'Updated custom rule name');
     await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
 
+    // Maintainability should not be checked and should be disabled
+    expect(ui.cleanCodeQualityCheckbox(SoftwareQuality.Maintainability).get()).not.toBeChecked();
+    expect(ui.cleanCodeQualityCheckbox(SoftwareQuality.Maintainability).get()).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(ui.cleanCodeQualityCheckbox(SoftwareQuality.Reliability).get()).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(ui.cleanCodeQualityCheckbox(SoftwareQuality.Reliability).get()).toBeChecked();
+
+    // Set severity
+    await user.click(ui.cleanCodeSeveritySelect(SoftwareQuality.Reliability).get());
+    await user.click(byRole('option', { name: 'severity_impact.HIGH severity_impact.HIGH' }).get());
+
     await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
 
     expect(ui.ruleTitle('Updated custom rule name').get()).toBeInTheDocument();
+    expect(
+      ui.ruleSoftwareQualityPill(SoftwareQuality.Reliability, SoftwareImpactSeverity.High).get(),
+    ).toBeInTheDocument();
+  });
+
+  it('can edit custom rule in Standard Mode', async () => {
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    const { ui, user } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
+    await ui.detailsloaded();
+
+    await user.click(ui.editCustomRuleButton.get());
+
+    // Change name and description of custom rule
+    await user.clear(ui.ruleNameTextbox.get());
+    await user.type(ui.ruleNameTextbox.get(), 'Updated custom rule name');
+    await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
+
+    // Type should be Bug and should be disabled
+    expect(ui.standardIssueTypeSelect.get()).toHaveValue('issue.type.BUG');
+    expect(ui.standardIssueTypeSelect.get()).toBeDisabled();
+
+    // Select Severity as INFO
+    await user.click(ui.standardSeveritySelect.get());
+    await user.click(byRole('option', { name: 'severity.INFO' }).get());
+
+    await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
+
+    expect(ui.ruleTitle('Updated custom rule name').get()).toBeInTheDocument();
+    expect(ui.ruleIssueTypePill(IssueType.Bug).get()).toBeInTheDocument();
+    expect(ui.ruleIssueTypePillSeverity(IssueSeverity.Info).get()).toBeInTheDocument();
   });
 
   it('can delete custom rule', async () => {

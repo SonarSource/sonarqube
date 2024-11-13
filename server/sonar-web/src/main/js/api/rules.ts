@@ -31,19 +31,22 @@ import {
   RuleActivation,
   RuleDetails,
   RulesUpdateRequest,
+  RuleType,
 } from '../types/types';
 
 const RULES_ENDPOINT = '/api/v2/clean-code-policy/rules';
 
 export interface CreateRuleData {
-  cleanCodeAttribute: CleanCodeAttribute;
+  cleanCodeAttribute?: CleanCodeAttribute;
   impacts: SoftwareImpact[];
   key: string;
   markdownDescription: string;
   name: string;
   parameters?: Partial<RestRuleParameter>[];
+  severity?: string;
   status?: string;
   templateKey: string;
+  type?: RuleType;
 }
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {
@@ -94,5 +97,11 @@ export function deleteRule(parameters: { key: string }) {
 }
 
 export function updateRule(data: RulesUpdateRequest): Promise<RuleDetails> {
-  return postJSON('/api/rules/update', data).then((r) => r.rule, throwGlobalError);
+  const impacts =
+    data.impacts &&
+    Object.values(data.impacts)
+      .map((impact) => `${impact.softwareQuality}=${impact.severity}`)
+      .join(';');
+
+  return postJSON('/api/rules/update', { ...data, impacts }).then((r) => r.rule, throwGlobalError);
 }

@@ -31,9 +31,11 @@ import { renderAppRoutes } from '../../helpers/testReactTestingUtils';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
 import { Feature } from '../../types/features';
+import { IssueSeverity, IssueType } from '../../types/issues';
 import { CurrentUser } from '../../types/users';
 import routes from './routes';
 
@@ -132,6 +134,11 @@ const selectors = {
   ruleCleanCodeAttribute: (attribute: CleanCodeAttribute) =>
     byText(new RegExp(`rule\\.clean_code_attribute\\.${attribute}$`)),
   ruleSoftwareQuality: (quality: SoftwareQuality) => byText(`software_quality.${quality}`),
+  ruleSoftwareQualityPill: (quality: SoftwareQuality, severity: SoftwareImpactSeverity) =>
+    byRole('button', { name: `software_quality.${quality} severity_impact.${severity}` }),
+  ruleIssueTypePill: (issueType: IssueType) => byRole('banner').byText(`issue.type.${issueType}`),
+  ruleIssueTypePillSeverity: (severity: IssueSeverity) =>
+    byRole('banner').byLabelText(`severity.${severity}`),
 
   // Rule tags
   tagsDropdown: byLabelText(/tags_list_x/).byRole('button'),
@@ -195,6 +202,8 @@ const selectors = {
   deleteCustomRuleDialog: byRole('alertdialog', { name: 'coding_rules.delete_rule' }),
   ruleNameTextbox: byRole('textbox', { name: 'name' }),
   keyTextbox: byRole('textbox', { name: 'key' }),
+  cctIssueTypeSelect: byRole('combobox', { name: 'coding_rules.custom.type.label' }),
+  standardIssueTypeSelect: byRole('combobox', { name: 'type' }),
   cleanCodeCategorySelect: byRole('combobox', { name: 'category' }),
   cleanCodeAttributeSelect: byRole('combobox', { name: 'attribute' }),
   cleanCodeQualityCheckbox: (quality: SoftwareQuality) =>
@@ -206,6 +215,7 @@ const selectors = {
       'combobox',
       { name: 'severity' },
     ),
+  standardSeveritySelect: byRole('combobox', { name: 'severity' }),
   statusSelect: byRole('combobox', { name: 'coding_rules.filters.status' }),
   descriptionTextbox: byRole('textbox', { name: 'description' }),
   createButton: byRole('button', { name: 'create' }),

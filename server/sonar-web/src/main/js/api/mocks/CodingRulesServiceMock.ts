@@ -390,6 +390,12 @@ export default class CodingRulesServiceMock {
     rule.htmlNote = data.markdown_note !== undefined ? data.markdown_note : rule.htmlNote;
     rule.name = data.name !== undefined ? data.name : rule.name;
     rule.status = rule.status === RuleStatus.Removed ? RuleStatus.Ready : rule.status;
+    rule.cleanCodeAttribute =
+      data.cleanCodeAttribute !== undefined ? data.cleanCodeAttribute : rule.cleanCodeAttribute;
+    rule.impacts = data.impacts !== undefined ? data.impacts : rule.impacts;
+    rule.type = data.type !== undefined ? data.type : rule.type;
+    rule.severity = data.severity !== undefined ? data.severity : rule.severity;
+
     if (template && data.params) {
       rule.params = [];
       data.params.split(';').forEach((param) => {

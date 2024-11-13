@@ -21,7 +21,6 @@
 import { HelperText, Select } from '@sonarsource/echoes-react';
 import { isEmpty } from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SeverityIcon from '../../../components/icon-mappers/SeverityIcon';
 import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { SEVERITIES } from '../../../helpers/constants';
 import { SoftwareImpactSeverity } from '../../../types/clean-code-taxonomy';
@@ -38,12 +37,11 @@ export interface SeveritySelectProps {
 export function SeveritySelect(props: SeveritySelectProps) {
   const { isDisabled, severity, recommendedSeverity, impactSeverity, id } = props;
   const intl = useIntl();
-  const Icon = impactSeverity ? SoftwareImpactSeverityIcon : SeverityIcon;
   const getSeverityTranslation = (severity: string) =>
     impactSeverity
       ? intl.formatMessage({ id: `severity_impact.${severity}` })
       : intl.formatMessage({ id: `severity.${severity}` });
-  const serverityOption = (impactSeverity ? Object.values(SoftwareImpactSeverity) : SEVERITIES).map(
+  const severityOption = (impactSeverity ? Object.values(SoftwareImpactSeverity) : SEVERITIES).map(
     (severity) => ({
       label:
         severity === recommendedSeverity
@@ -53,7 +51,7 @@ export function SeveritySelect(props: SeveritySelectProps) {
             )
           : getSeverityTranslation(severity),
       value: severity,
-      prefix: <Icon severity={severity} aria-hidden />,
+      prefix: <SoftwareImpactSeverityIcon severity={severity} aria-hidden />,
     }),
   );
 
@@ -63,14 +61,14 @@ export function SeveritySelect(props: SeveritySelectProps) {
         id={id}
         isDisabled={isDisabled}
         onChange={props.onChange}
-        data={serverityOption}
+        data={severityOption}
         isSearchable={false}
         isNotClearable
         placeholder={
           isDisabled && !isEmpty(severity) ? intl.formatMessage({ id: 'not_impacted' }) : undefined
         }
         value={severity}
-        valueIcon={<Icon severity={severity} aria-hidden />}
+        valueIcon={<SoftwareImpactSeverityIcon severity={severity} aria-hidden />}
       />
       {severity !== recommendedSeverity && (
         <HelperText className="sw-mt-2">
