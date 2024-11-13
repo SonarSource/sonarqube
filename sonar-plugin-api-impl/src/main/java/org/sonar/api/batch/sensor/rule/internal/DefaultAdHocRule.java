@@ -109,13 +109,13 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
 
   @Override
   public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> defaultImpacts() {
-    return impacts.isEmpty() ? Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM) : impacts;
+    return impacts;
   }
 
   @CheckForNull
   @Override
   public CleanCodeAttribute cleanCodeAttribute() {
-    return cleanCodeAttribute == null ? CleanCodeAttribute.defaultCleanCodeAttribute() : cleanCodeAttribute;
+    return cleanCodeAttribute;
   }
 
   @Override

@@ -39,12 +39,12 @@ import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.scanner.externalissue.ExternalIssueReport.Issue;
 import org.sonar.scanner.externalissue.ExternalIssueReport.Location;
 import org.sonar.scanner.externalissue.ExternalIssueReport.Rule;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 
 public class ExternalIssueImporter {
   private static final Logger LOG = LoggerFactory.getLogger(ExternalIssueImporter.class);
@@ -102,23 +102,17 @@ public class ExternalIssueImporter {
     adHocRule.name(rule.name);
     adHocRule.description(rule.description);
     adHocRule.engineId(rule.engineId);
-    adHocRule.cleanCodeAttribute(CleanCodeAttribute.valueOf(rule.cleanCodeAttribute));
-    adHocRule.severity(backmapSeverityFromImpact(rule));
-    adHocRule.type(backmapTypeFromImpact(rule));
-    for (ExternalIssueReport.Impact impact : rule.impacts) {
-      adHocRule.addDefaultImpact(SoftwareQuality.valueOf(impact.softwareQuality),
-        org.sonar.api.issue.impact.Severity.valueOf(impact.severity));
+    ofNullable(rule.cleanCodeAttribute).ifPresent(cca -> adHocRule.cleanCodeAttribute(CleanCodeAttribute.valueOf(cca)));
+    ofNullable(rule.severity).ifPresent(s -> adHocRule.severity(Severity.valueOf(s)));
+    ofNullable(rule.type).ifPresent(t -> adHocRule.type(RuleType.valueOf(t)));
+
+    if (rule.impacts != null) {
+      for (ExternalIssueReport.Impact impact : rule.impacts) {
+        adHocRule.addDefaultImpact(SoftwareQuality.valueOf(impact.softwareQuality),
+          org.sonar.api.issue.impact.Severity.valueOf(impact.severity));
+      }
     }
     return adHocRule;
-  }
-
-  private static RuleType backmapTypeFromImpact(Rule rule) {
-    return ImpactMapper.convertToRuleType(SoftwareQuality.valueOf(rule.impacts[0].softwareQuality));
-  }
-
-  private static Severity backmapSeverityFromImpact(Rule rule) {
-    org.sonar.api.issue.impact.Severity impactSeverity = org.sonar.api.issue.impact.Severity.valueOf(rule.impacts[0].severity);
-    return Severity.valueOf(ImpactMapper.convertToDeprecatedSeverity(impactSeverity));
   }
 
   private boolean populateCommonValues(Issue issue, NewExternalIssue externalIssue) {
@@ -159,9 +153,10 @@ public class ExternalIssueImporter {
   private boolean importIssue(Issue issue, ExternalIssueReport.Rule rule) {
     NewExternalIssue externalIssue = context.newExternalIssue()
       .engineId(rule.engineId)
-      .ruleId(rule.id)
-      .severity(backmapSeverityFromImpact(rule))
-      .type(backmapTypeFromImpact(rule));
+      .ruleId(rule.id);
+
+    ofNullable(rule.severity).ifPresent(s -> externalIssue.severity(Severity.valueOf(s)));
+    ofNullable(rule.type).ifPresent(t -> externalIssue.type(RuleType.valueOf(t)));
 
     return populateCommonValues(issue, externalIssue);
   }

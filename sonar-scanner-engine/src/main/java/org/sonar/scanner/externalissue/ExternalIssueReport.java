@@ -47,6 +47,8 @@ public class ExternalIssueReport {
     String name;
     @Nullable
     String description;
+    String type;
+    String severity;
     String cleanCodeAttribute;
     Impact[] impacts;
   }

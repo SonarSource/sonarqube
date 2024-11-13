@@ -151,8 +151,8 @@ class DefaultSensorStorageTest {
       .on(file)
       .forMetric(CoreMetrics.LINES)
       .withValue(10)))
-      .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("Unknown metric: lines");
+        .isInstanceOf(UnsupportedOperationException.class)
+        .hasMessage("Unknown metric: lines");
   }
 
   @Test
@@ -402,9 +402,8 @@ class DefaultSensorStorageTest {
       ScannerReport.AdHocRule adhocRule = adhocRuleIt.next();
       assertThat(adhocRule).extracting(ScannerReport.AdHocRule::getSeverity, ScannerReport.AdHocRule::getType)
         .containsExactlyInAnyOrder(Constants.Severity.UNSET_SEVERITY, ScannerReport.IssueType.UNSET);
-      assertThat(adhocRule.getDefaultImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
-        .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.MEDIUM.name()));
-      assertThat(adhocRule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL.name());
+      assertThat(adhocRule.getDefaultImpactsList()).isEmpty();
+      assertThat(adhocRule.getCleanCodeAttribute()).isNullOrEmpty();
     }
   }
 }

@@ -87,7 +87,7 @@ public class ExternalIssueImporterTest {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule();
     report.issues = new ExternalIssueReport.Issue[0];
-    report.rules = new ExternalIssueReport.Rule[]{rule};
+    report.rules = new ExternalIssueReport.Rule[] {rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
     underTest.execute();
@@ -110,8 +110,8 @@ public class ExternalIssueImporterTest {
     ExternalIssue output = context.allExternalIssues().iterator().next();
     assertThat(output.engineId()).isEqualTo(RULE_ENGINE_ID);
     assertThat(output.ruleId()).isEqualTo(RULE_ID);
-    assertThat(output.severity()).isEqualTo(Severity.BLOCKER); // backmapped
-    assertThat(output.type()).isEqualTo(RuleType.VULNERABILITY); //backmapped
+    assertThat(output.severity()).isNull();
+    assertThat(output.type()).isNull();
     assertThat(output.remediationEffort()).isNull();
     assertThat(logs.logs(Level.INFO)).contains("Imported 1 issue in 1 file");
     assertThat(context.allAdHocRules()).hasSize(1);
@@ -120,8 +120,8 @@ public class ExternalIssueImporterTest {
     assertThat(output1.ruleId()).isEqualTo(RULE_ID);
     assertThat(output1.name()).isEqualTo(RULE_NAME);
     assertThat(output1.engineId()).isEqualTo(RULE_ENGINE_ID);
-    assertThat(output1.severity()).isEqualTo(Severity.BLOCKER); // backmapped
-    assertThat(output1.type()).isEqualTo(RuleType.VULNERABILITY); //backmapped
+    assertThat(output1.severity()).isNull();
+    assertThat(output1.type()).isNull();
     assertThat(output1.cleanCodeAttribute()).isEqualTo(RULE_ATTRIBUTE);
     assertThat(output1.defaultImpacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SECURITY, BLOCKER, MAINTAINABILITY, LOW));
   }
@@ -193,8 +193,8 @@ public class ExternalIssueImporterTest {
   public void execute_whenNewFormatContainsNonExistentCleanCodeAttribute_shouldThrowException() {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule("not_existent_attribute", MAINTAINABILITY.name(), HIGH.name());
-    report.issues = new ExternalIssueReport.Issue[]{};
-    report.rules = new ExternalIssueReport.Rule[]{rule};
+    report.issues = new ExternalIssueReport.Issue[] {};
+    report.rules = new ExternalIssueReport.Rule[] {rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
 
@@ -204,11 +204,37 @@ public class ExternalIssueImporterTest {
   }
 
   @Test
+  public void execute_whenCleanCodeAttributeIsNotProvided_shouldBeNull() {
+    ExternalIssueReport report = new ExternalIssueReport();
+    ExternalIssueReport.Rule rule = createRule(RuleType.CODE_SMELL, Severity.MAJOR);
+    ExternalIssueReport.TextRange input = new ExternalIssueReport.TextRange();
+    input.startLine = 1;
+    input.startColumn = 4;
+    input.endLine = 2;
+    input.endColumn = 3;
+
+    ExternalIssueReport.Issue issue = newIssue(input);
+    issue.engineId = rule.engineId;
+    issue.ruleId = rule.id;
+
+    report.issues = new ExternalIssueReport.Issue[] {issue};
+    report.rules = new ExternalIssueReport.Rule[] {rule};
+
+    ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
+
+    underTest.execute();
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue externalIssue = context.allExternalIssues().iterator().next();
+    assertThat(externalIssue.type()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(externalIssue.severity()).isEqualTo(Severity.MAJOR);
+  }
+
+  @Test
   public void execute_whenNewFormatContainsNonExistentSoftwareQuality_shouldThrowException() {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule(CleanCodeAttribute.CONVENTIONAL.name(), "not_existent_software_quality", HIGH.name());
-    report.issues = new ExternalIssueReport.Issue[]{};
-    report.rules = new ExternalIssueReport.Rule[]{rule};
+    report.issues = new ExternalIssueReport.Issue[] {};
+    report.rules = new ExternalIssueReport.Rule[] {rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
 
@@ -222,8 +248,8 @@ public class ExternalIssueImporterTest {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule(CleanCodeAttribute.CONVENTIONAL.name(), SoftwareQuality.RELIABILITY.name(),
       "not_existent_impact_severity");
-    report.issues = new ExternalIssueReport.Issue[]{};
-    report.rules = new ExternalIssueReport.Rule[]{rule};
+    report.issues = new ExternalIssueReport.Issue[] {};
+    report.rules = new ExternalIssueReport.Rule[] {rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
 
@@ -255,7 +281,7 @@ public class ExternalIssueImporterTest {
     input.primaryLocation = new ExternalIssueReport.Location();
     input.primaryLocation.filePath = sourceFile.getProjectRelativePath();
     input.primaryLocation.message = secure().nextAlphabetic(5);
-    report.issues = new ExternalIssueReport.Issue[]{input};
+    report.issues = new ExternalIssueReport.Issue[] {input};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
     underTest.execute();
@@ -332,12 +358,11 @@ public class ExternalIssueImporterTest {
       .hasMessage("A 'startColumn' [line=3, lineOffset=0] cannot be provided when the line is empty");
   }
 
-
   private static ExternalIssueReport.Rule createRule() {
     return createRule(RULE_ATTRIBUTE.name(), SECURITY.name(), BLOCKER.name());
   }
 
-  private static ExternalIssueReport.Rule createRule(String cleanCodeAttribute, String softwareQuality, String impactSeverity) {
+  private static ExternalIssueReport.Rule createRule(@Nullable String cleanCodeAttribute, String softwareQuality, String impactSeverity) {
     ExternalIssueReport.Rule rule = new ExternalIssueReport.Rule();
     rule.id = RULE_ID;
     rule.name = RULE_NAME;
@@ -349,7 +374,17 @@ public class ExternalIssueImporterTest {
     ExternalIssueReport.Impact impact2 = new ExternalIssueReport.Impact();
     impact2.severity = LOW.name();
     impact2.softwareQuality = MAINTAINABILITY.name();
-    rule.impacts = new ExternalIssueReport.Impact[]{impact1, impact2};
+    rule.impacts = new ExternalIssueReport.Impact[] {impact1, impact2};
+    return rule;
+  }
+
+  private static ExternalIssueReport.Rule createRule(RuleType ruleType, Severity severity) {
+    ExternalIssueReport.Rule rule = new ExternalIssueReport.Rule();
+    rule.id = RULE_ID;
+    rule.name = RULE_NAME;
+    rule.engineId = RULE_ENGINE_ID;
+    rule.type = ruleType.name();
+    rule.severity = severity.name();
     return rule;
   }
 
@@ -362,7 +397,7 @@ public class ExternalIssueImporterTest {
 
   private void runOnDeprecatedFormat(ExternalIssueReport.Issue input) {
     ExternalIssueReport report = new ExternalIssueReport();
-    report.issues = new ExternalIssueReport.Issue[]{input};
+    report.issues = new ExternalIssueReport.Issue[] {input};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
     underTest.execute();
@@ -372,8 +407,8 @@ public class ExternalIssueImporterTest {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule();
     input.ruleId = rule.id;
-    report.issues = new ExternalIssueReport.Issue[]{input};
-    report.rules = new ExternalIssueReport.Rule[]{rule};
+    report.issues = new ExternalIssueReport.Issue[] {input};
+    report.rules = new ExternalIssueReport.Rule[] {rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
     underTest.execute();
