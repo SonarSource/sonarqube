@@ -37,7 +37,7 @@ it('should allow to browse the api', async () => {
   renderWebApi();
 
   expect(await ui.sidebarHeader.find()).toBeInTheDocument();
-  expect(await ui.domainMenuItems.findAll()).toHaveLength(1);
+  expect(await ui.domainMenuItems.findAll()).toHaveLength(2);
 
   await user.click(ui.domainMenuItemLink('foo/bar').get());
 
@@ -63,7 +63,7 @@ it('should allow to browse the api', async () => {
   // Show internal
   await user.click(ui.showInternalCheckbox.get());
 
-  expect(await ui.domainMenuItems.findAll()).toHaveLength(2);
+  expect(await ui.domainMenuItems.findAll()).toHaveLength(3);
 
   await user.click(ui.domainMenuItemLink('internal/thing1 internal').get());
   expect(await byText('get internal memos').find()).toBeInTheDocument();

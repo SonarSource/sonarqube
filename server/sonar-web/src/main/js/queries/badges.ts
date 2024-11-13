@@ -19,10 +19,12 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { uniq } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getProjectBadgesToken, renewProjectBadgesToken } from '../api/project-badges';
-import { translate } from '../helpers/l10n';
+import { MQR_CONDITIONS_MAP, STANDARD_CONDITIONS_MAP } from '../apps/quality-gates/utils';
 import { localizeMetric } from '../helpers/measures';
+import { useStandardExperienceMode } from './settings';
 import { useWebApiQuery } from './web-api';
 
 export function useRenewBagdeTokenMutation() {
@@ -37,34 +39,29 @@ export function useRenewBagdeTokenMutation() {
   });
 }
 
-// The same list of deprecated metric keys is maintained on the backend at org.sonar.server.badge.ws.MeasureAction.
-export const DEPRECATED_METRIC_KEYS = [
-  MetricKey.bugs,
-  MetricKey.code_smells,
-  MetricKey.security_hotspots,
-  MetricKey.vulnerabilities,
-];
-
-export function useBadgeMetricsQuery() {
-  const { data: webservices = [], ...rest } = useWebApiQuery();
+export function useBadgeMetrics() {
+  const { data: webservices = [], isLoading: isLoadingWebApi } = useWebApiQuery();
+  const { data: isStandardExperience, isLoading: isLoadingMode } = useStandardExperienceMode();
   const domain = webservices.find((d) => d.path === 'api/project_badges');
   const ws = domain?.actions.find((w) => w.key === 'measure');
   const param = ws?.params?.find((p) => p.key === 'metric');
-  if (param?.possibleValues) {
+  if (param?.possibleValues && !isLoadingMode) {
     return {
-      ...rest,
-      data: param.possibleValues.map((key: MetricKey) => {
-        const label = localizeMetric(key);
-        return {
-          value: key,
-          label: DEPRECATED_METRIC_KEYS.includes(key)
-            ? `${label} (${translate('deprecated')})`
-            : label,
-        };
-      }),
+      isLoading: false,
+      data: uniq(
+        param.possibleValues.map((metric: MetricKey) => {
+          return (
+            (isStandardExperience ? MQR_CONDITIONS_MAP[metric] : STANDARD_CONDITIONS_MAP[metric]) ??
+            metric
+          );
+        }),
+      ).map((metric) => ({
+        value: metric,
+        label: localizeMetric(metric),
+      })),
     };
   }
-  return { ...rest, data: [] };
+  return { isLoading: isLoadingWebApi || isLoadingMode, data: [] };
 }
 
 export function useBadgeTokenQuery(componentKey: string) {

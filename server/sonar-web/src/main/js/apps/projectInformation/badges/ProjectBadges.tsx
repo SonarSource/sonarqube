@@ -36,11 +36,9 @@ import { Image } from '~sonar-aligned/components/common/Image';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { localizeMetric } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 import {
-  DEPRECATED_METRIC_KEYS,
-  useBadgeMetricsQuery,
+  useBadgeMetrics,
   useBadgeTokenQuery,
   useRenewBagdeTokenMutation,
 } from '../../../queries/badges';
@@ -68,7 +66,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
     isLoading: isLoadingToken,
     isFetching: isFetchingToken,
   } = useBadgeTokenQuery(project);
-  const { data: metricOptions, isLoading: isLoadingMetrics } = useBadgeMetricsQuery();
+  const { data: metricOptions, isLoading: isLoadingMetrics } = useBadgeMetrics();
   const { mutate: renewToken, isPending: isRenewing } = useRenewBagdeTokenMutation();
   const { hasFeature } = useAvailableFeatures();
   const isLoading = isLoadingMetrics || isLoadingToken || isRenewing;
@@ -156,31 +154,19 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
       </Spinner>
 
       {BadgeType.measure === selectedType && (
-        <>
-          <FormField htmlFor="badge-param-customize" label={translate('overview.badges.metric')}>
-            <InputSelect
-              className="sw-w-abs-300"
-              inputId="badge-param-customize"
-              options={metricOptions}
-              onChange={(option) => {
-                if (option) {
-                  setSelectedMetric(option.value);
-                }
-              }}
-              value={metricOptions.find((m) => m.value === selectedMetric)}
-            />
-          </FormField>
-
-          {DEPRECATED_METRIC_KEYS.includes(selectedMetric) && (
-            <FlagMessage className="sw-mb-4" variant="warning">
-              {translateWithParameters(
-                'overview.badges.deprecated_badge_x_y',
-                localizeMetric(selectedMetric),
-                translate('qualifier', qualifier),
-              )}
-            </FlagMessage>
-          )}
-        </>
+        <FormField htmlFor="badge-param-customize" label={translate('overview.badges.metric')}>
+          <InputSelect
+            className="sw-w-abs-300"
+            inputId="badge-param-customize"
+            options={metricOptions}
+            onChange={(option) => {
+              if (option) {
+                setSelectedMetric(option.value);
+              }
+            }}
+            value={metricOptions.find((m) => m.value === selectedMetric)}
+          />
+        </FormField>
       )}
 
       <BasicSeparator className="sw-mb-4" />
