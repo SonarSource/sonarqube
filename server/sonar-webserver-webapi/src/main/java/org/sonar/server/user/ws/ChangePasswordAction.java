@@ -25,12 +25,12 @@ import com.google.gson.stream.JsonWriter;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.web.FilterChain;
 import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.UrlPattern;
@@ -41,6 +41,7 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
@@ -73,14 +74,16 @@ public class ChangePasswordAction extends HttpFilter implements BaseUsersWsActio
   private final UserSession userSession;
   private final CredentialsLocalAuthentication localAuthentication;
   private final JwtHttpHandler jwtHttpHandler;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
   public ChangePasswordAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, CredentialsLocalAuthentication localAuthentication,
-    JwtHttpHandler jwtHttpHandler) {
+    JwtHttpHandler jwtHttpHandler, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
     this.localAuthentication = localAuthentication;
     this.jwtHttpHandler = jwtHttpHandler;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -125,6 +128,7 @@ public class ChangePasswordAction extends HttpFilter implements BaseUsersWsActio
 
       if (login.equals(userSession.getLogin())) {
         user = getUserOrThrow(dbSession, login);
+        managedInstanceChecker.throwIfInstanceIsManaged();
         String previousPassword = getParamOrThrow(request, PARAM_PREVIOUS_PASSWORD);
         checkPreviousPassword(dbSession, user, previousPassword);
         checkNewPasswordSameAsOld(newPassword, previousPassword);
@@ -132,12 +136,15 @@ public class ChangePasswordAction extends HttpFilter implements BaseUsersWsActio
       } else {
         userSession.checkIsSystemAdministrator();
         user = getUserOrThrow(dbSession, login);
+        managedInstanceChecker.throwIfInstanceIsManaged();
         dbClient.sessionTokensDao().deleteByUser(dbSession, user);
       }
+
       updatePassword(dbSession, user, newPassword);
       setResponseStatus(response, HTTP_NO_CONTENT);
     } catch (BadRequestException badRequestException) {
       setResponseStatus(response, HTTP_BAD_REQUEST);
+      writeJsonResponse(badRequestException.getMessage(), response);
       LOG.debug(badRequestException.getMessage(), badRequestException);
     } catch (PasswordException passwordException) {
       LOG.debug(passwordException.getMessage(), passwordException);
