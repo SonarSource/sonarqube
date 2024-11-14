@@ -15,7 +15,7 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
 }
 
-artifactoryPublish.skip = false
+artifactoryPublish.skip = !deployCommunity
 
 publishing {
   publications {

@@ -40,7 +40,7 @@ dependencies {
 }
 
 // Used by sonar-db-core to run DB Unit Tests
-artifactoryPublish.skip = false
+artifactoryPublish.skip = !deployCommunity
 publishing {
   publications {
     mavenJava(MavenPublication) {

@@ -63,6 +63,7 @@ allprojects {
 
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
+    deployCommunity = project.hasProperty('deployCommunity') && (project.getProperty('deployCommunity') == 'true')
     official = project.hasProperty('official') && project.getProperty('official')
   }
 
@@ -139,7 +140,23 @@ allprojects {
   artifactory {
     clientConfig.setIncludeEnvVars(true)
     clientConfig.setEnvVarsExcludePatterns('*pass*,*psw*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*login*,*key*,*signing*,*auth*,*pwd*')
+    clientConfig.publisher.setFilterExcludedArtifactsFromBuild(true)
     contextUrl = System.getenv('ARTIFACTORY_URL')
+
+    //if property deployCommunity is true set the value to sonar-enterprise-sqcb
+    //otherwise set it to sqs
+    if (deployCommunity) {
+      clientConfig.info.setBuildName('sonar-enterprise-sqcb')
+      clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH',
+        "${project.group}:sonar-application:zip,")
+    } else {
+      clientConfig.info.setBuildName('sonar-enterprise-sqs')
+      clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH',
+        "com.sonarsource.sonarqube:sonarqube-developer:zip," +
+          "com.sonarsource.sonarqube:sonarqube-datacenter:zip," +
+          "com.sonarsource.sonarqube:sonarqube-enterprise:zip")
+    }
+
     publish {
       repository {
         repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO')
@@ -148,27 +165,20 @@ allprojects {
       }
       defaults {
         properties = [
-            'build.name': 'sonar-enterprise',
-            'build.number': System.getenv('BUILD_NUMBER'),
-            'pr.branch.target': System.getenv('GITHUB_BASE_BRANCH'),
-            'pr.number': System.getenv('PULL_REQUEST'),
-            'vcs.branch': ghBranch,
-            'vcs.revision': System.getenv('GIT_SHA1'),
-            'version': version
+          'build.name'      : 'sonar-enterprise-sqcb',
+          'build.number'    : System.getenv('BUILD_NUMBER'),
+          'pr.branch.target': System.getenv('GITHUB_BASE_BRANCH'),
+          'pr.number'       : System.getenv('PULL_REQUEST'),
+          'vcs.branch'      : ghBranch,
+          'vcs.revision'    : System.getenv('GIT_SHA1'),
+          'version'         : version
         ]
         publications('mavenJava')
         publishPom = true
         publishIvy = false
       }
     }
-    clientConfig.info.setBuildName('sonar-enterprise')
     clientConfig.info.setBuildNumber(System.getenv('BUILD_NUMBER'))
-    // Define the artifacts to be deployed to https://binaries.sonarsource.com on releases
-    clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH',
-        "${project.group}:sonar-application:zip," +
-            "com.sonarsource.sonarqube:sonarqube-developer:zip," +
-            "com.sonarsource.sonarqube:sonarqube-datacenter:zip," +
-            "com.sonarsource.sonarqube:sonarqube-enterprise:zip")
     // The name of this variable is important because it's used by the delivery process when extracting version from Artifactory build info.
     clientConfig.info.addEnvironmentProperty('PROJECT_VERSION', "${version}")
   }
