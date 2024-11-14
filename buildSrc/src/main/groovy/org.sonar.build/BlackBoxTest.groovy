@@ -10,6 +10,7 @@ abstract class BlackBoxTest extends Test {
 
     if (!project.version.endsWith("-SNAPSHOT")) {
       systemProperty 'sonar.runtimeVersion', project.version
+      systemProperty 'sonar.communityRuntimeVersion', project.communityVersion
     }
 
     testLogging {
