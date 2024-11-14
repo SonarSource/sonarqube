@@ -86,7 +86,6 @@ public class DefaultGroupController implements GroupController {
   @Override
   public void deleteGroup(String id) {
     try (DbSession session = dbClient.openSession(false)) {
-      throwIfNotAllowedToDeleteGroup(id, session);
       GroupInformation group = findGroupInformationOrThrow(id, session);
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(session, group.groupDto().getOrganizationUuid())
           .orElseThrow(() -> new IllegalArgumentException("No organization found by uuid: " + group.groupDto().getOrganizationUuid()));
@@ -98,7 +97,6 @@ public class DefaultGroupController implements GroupController {
 
   @Override
   public GroupRestResponse updateGroup(String id, GroupUpdateRestRequest updateRequest) {
-    throwIfNotAllowedToModifyGroups();
     try (DbSession session = dbClient.openSession(false)) {
       GroupInformation group = findGroupInformationOrThrow(id, session);
       OrganizationDto organization = dbClient.organizationDao().selectByKey(session, updateRequest.getOrganization())
