@@ -32,8 +32,8 @@ def ghBranch = System.getenv()["GITHUB_BRANCH"]
 def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+'
 
 boolean enableBom = System.getenv('CI') == "true" && (isMainBranch) ||
-        System.getProperty("bom") != null ||
-        gradle.startParameter.taskNames.findAll({ it.matches(".*:($bomTasks)") })
+  System.getProperty("bom") != null ||
+  gradle.startParameter.taskNames.findAll({ it.matches(".*:($bomTasks)") })
 
 allprojects {
   apply plugin: 'com.jfrog.artifactory'
@@ -43,11 +43,11 @@ allprojects {
   ext.buildNumber = System.getProperty("buildNumber")
   // when no buildNumber is provided, then project version must end with '-SNAPSHOT'
   if (ext.buildNumber == null) {
-      version = "${version}-SNAPSHOT".toString()
-      ext.versionWithoutBuildNumber = version
+    version = "${version}-SNAPSHOT".toString()
+    ext.versionWithoutBuildNumber = version
   } else {
-      ext.versionWithoutBuildNumber = version
-      version = (version.toString().count('.') == 1 ? "${version}.0.${ext.buildNumber}" : "${version}.${ext.buildNumber}").toString()
+    ext.versionWithoutBuildNumber = version
+    version = (version.toString().count('.') == 1 ? "${version}.0.${ext.buildNumber}" : "${version}.${ext.buildNumber}").toString()
   }
 
   task cacheDependencies {
@@ -106,29 +106,29 @@ allprojects {
       }
     }
     ivy {
-          if (artifactoryUsername && artifactoryPassword) {
-              url "${artifactoryUrl}/sonarsource-bucket"
-              authentication {
-                header(HttpHeaderAuthentication)
-              }
-              credentials(HttpHeaderCredentials) {
-                name = "Authorization"
-                value = "Bearer $artifactoryPassword"
-              }
+      if (artifactoryUsername && artifactoryPassword) {
+        url "${artifactoryUrl}/sonarsource-bucket"
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
 
-              patternLayout {
-                artifact '/[organisation]/[module]/[module]-[revision].[ext]'
-              }
-          } else {
-              // For public build
-              url "https://artifacts.elastic.co/downloads/"
+        patternLayout {
+          artifact '/[organisation]/[module]/[module]-[revision].[ext]'
+        }
+      } else {
+        // For public build
+        url "https://artifacts.elastic.co/downloads/"
 
-              patternLayout {
-                artifact '/[organisation]/[module]-[revision].[ext]'
-              }
-          }
+        patternLayout {
+          artifact '/[organisation]/[module]-[revision].[ext]'
+        }
+      }
 
-          metadataSources { artifact() }
+      metadataSources { artifact() }
     }
   }
 
@@ -176,15 +176,15 @@ allprojects {
 
 apply plugin: 'org.sonarqube'
 sonar {
-    properties {
-        property 'sonar.projectName', projectTitle
-        property 'sonar.projectVersion', "${versionInSources}-SNAPSHOT"
-        property 'sonar.buildString', version
-    }
+  properties {
+    property 'sonar.projectName', projectTitle
+    property 'sonar.projectVersion', "${versionInSources}-SNAPSHOT"
+    property 'sonar.buildString', version
+  }
 }
 
 tasks.named('wrapper') {
-    distributionType = Wrapper.DistributionType.ALL
+  distributionType = Wrapper.DistributionType.ALL
 }
 
 subprojects {
@@ -384,7 +384,7 @@ subprojects {
       dependency 'org.apache.kerby:kerb-simplekdc:2.1.0'
       dependency 'org.apache.kerby:ldap-backend:2.1.0'
       dependency 'com.zaxxer:HikariCP:6.0.0'
-      dependency ('org.apache.directory.server:apacheds-server-integ:2.0.0.AM27') {
+      dependency('org.apache.directory.server:apacheds-server-integ:2.0.0.AM27') {
         exclude 'log4j:log4j'
       }
       // Be aware that Log4j is used by Elasticsearch client
@@ -441,7 +441,7 @@ subprojects {
       dependency 'org.mindrot:jbcrypt:0.4'
       dependencySet(group: 'org.mockito', version: '5.14.1') {
         entry 'mockito-core'
-        entry ('mockito-junit-jupiter') {
+        entry('mockito-junit-jupiter') {
           exclude 'org.junit.jupiter:junit-jupiter-api'
         }
       }
@@ -468,8 +468,8 @@ subprojects {
       dependency("org.springframework:spring-context:${springVersion}") {
         exclude 'commons-logging:commons-logging'
       }
-      dependency ("org.springframework:spring-webmvc:${springVersion}") {
-          exclude 'commons-logging:commons-logging'
+      dependency("org.springframework:spring-webmvc:${springVersion}") {
+        exclude 'commons-logging:commons-logging'
       }
       dependency 'org.springdoc:springdoc-openapi-webmvc-core:1.8.0'
       dependency 'org.subethamail:subethasmtp:3.1.7'
@@ -481,7 +481,7 @@ subprojects {
       dependency 'org.wiremock:wiremock-standalone:3.9.1'
       dependency 'org.skyscreamer:jsonassert:1.5.3'
       // to be used only in sonar-ws-generator
-      dependency ("org.apache.velocity:velocity:1.7") {
+      dependency("org.apache.velocity:velocity:1.7") {
         dependency 'commons-collections:commons-collections:3.2.2'
       }
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
@@ -536,12 +536,12 @@ subprojects {
 
       allPathsContainingJavaFiles.each {
         String packageInfoPath = it + "/package-info.java"
-        File packageInfoFile = new File (packageInfoPath)
+        File packageInfoFile = new File(packageInfoPath)
         if (!packageInfoFile.exists()) {
-            logger.info("Creating file: " + packageInfoPath)
-            def packageName = packageInfoFile.getParent().replaceAll("[\\\\ /]", ".").takeAfter("src.main.java.");
-            String packageInfoContent = applyPackageInfoTemplate(packageName)
-            packageInfoFile << packageInfoContent
+          logger.info("Creating file: " + packageInfoPath)
+          def packageName = packageInfoFile.getParent().replaceAll("[\\\\ /]", ".").takeAfter("src.main.java.");
+          String packageInfoContent = applyPackageInfoTemplate(packageName)
+          packageInfoFile << packageInfoContent
         }
       }
 
@@ -610,11 +610,11 @@ subprojects {
       maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     }
 
-     afterTest { descriptor, result ->
-        if (result.resultType == TestResult.ResultType.FAILURE) {
-            String failedTest = "  ${descriptor.className} > ${descriptor.name}"
-            failedTests << failedTest
-        }
+    afterTest { descriptor, result ->
+      if (result.resultType == TestResult.ResultType.FAILURE) {
+        String failedTest = "  ${descriptor.className} > ${descriptor.name}"
+        failedTests << failedTest
+      }
     }
   }
 
@@ -783,9 +783,9 @@ subprojects {
 static def applyPackageInfoTemplate(packageName) {
   def engine = new SimpleTemplateEngine()
   def templateText = "@ParametersAreNonnullByDefault\n" +
-          "package $packageName;\n" +
-          "\n" +
-          "import javax.annotation.ParametersAreNonnullByDefault;\n"
+    "package $packageName;\n" +
+    "\n" +
+    "import javax.annotation.ParametersAreNonnullByDefault;\n"
   def templateParams = ["packageName": packageName]
   engine.createTemplate(templateText).make(templateParams).toString()
 }
