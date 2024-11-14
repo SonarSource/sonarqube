@@ -43,7 +43,7 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.api.server.rule.internal.ImpactMapper.convertToDeprecatedSeverity;
+import static org.sonar.api.server.rule.internal.ImpactMapper.convertToRuleSeverity;
 import static org.sonar.api.server.rule.internal.ImpactMapper.convertToRuleType;
 import static org.sonar.api.server.rule.internal.ImpactMapper.convertToSoftwareQuality;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -164,7 +164,7 @@ public class SetSeverityAction implements IssuesWsAction {
       String manualSeverity = null;
       boolean severityHasChanged = false;
       if (convertToRuleType(softwareQuality).equals(issue.type())) {
-        manualSeverity = convertToDeprecatedSeverity(manualImpactSeverity);
+        manualSeverity = convertToRuleSeverity(manualImpactSeverity);
         severityHasChanged = issueFieldsSetter.setManualSeverity(issue, manualSeverity, context);
       }
       BranchDto branch = issueUpdater.getBranch(session, issue);
