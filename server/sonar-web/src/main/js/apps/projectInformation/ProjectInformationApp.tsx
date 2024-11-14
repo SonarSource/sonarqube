@@ -34,7 +34,6 @@ import { Feature } from '../../types/features';
 import { Component, Dict, Measure, Metric } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import AboutProject from './about/AboutProject';
-import ProjectBadges from './badges/ProjectBadges';
 import ProjectNotifications from './notifications/ProjectNotifications';
 import RegulatoryReport from './projectRegulatoryReport/RegulatoryReport';
 import { withOrganizationContext } from "../organizations/OrganizationContext";
@@ -93,11 +92,6 @@ function ProjectInformationApp(props: Props) {
               {canConfigureNotifications && (
                 <Card>
                   <ProjectNotifications component={component} />
-                </Card>
-              )}
-              {canUseBadges && (
-                <Card>
-                  <ProjectBadges branchLike={branchLike} component={component} />
                 </Card>
               )}
               {isProject(component.qualifier) && regulatoryReportFeatureEnabled && (
