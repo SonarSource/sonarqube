@@ -58,7 +58,7 @@ jest.mock('../../../components/SourceViewer/helpers/lines', () => {
   const lines = jest.requireActual('../../../components/SourceViewer/helpers/lines');
   return {
     ...lines,
-    LINES_TO_LOAD: 20,
+    LINES_TO_LOAD: 5,
   };
 });
 
@@ -66,7 +66,7 @@ jest.mock('../../../api/quality-gates', () => ({
   getQualityGateProjectStatus: jest.fn(),
 }));
 
-const DEFAULT_LINES_LOADED = 19;
+const DEFAULT_LINES_LOADED = 5;
 const originalScrollTo = window.scrollTo;
 
 const branchesHandler = new BranchesServiceMock();
