@@ -90,6 +90,7 @@ public class DefaultGroupController implements GroupController {
       GroupInformation group = findGroupInformationOrThrow(id, session);
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(session, group.groupDto().getOrganizationUuid())
           .orElseThrow(() -> new IllegalArgumentException("No organization found by uuid: " + group.groupDto().getOrganizationUuid()));
+      userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER, organization);
       groupService.delete(session, organization, group.groupDto());
       session.commit();
     }
@@ -102,6 +103,7 @@ public class DefaultGroupController implements GroupController {
       GroupInformation group = findGroupInformationOrThrow(id, session);
       OrganizationDto organization = dbClient.organizationDao().selectByKey(session, updateRequest.getOrganization())
               .orElseThrow(() -> new IllegalArgumentException("No organization found: " + updateRequest.getOrganization()));
+      userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER, organization);
       GroupInformation updatedGroup = groupService.updateGroup(
         session,
         organization,
@@ -125,10 +127,10 @@ public class DefaultGroupController implements GroupController {
 
   @Override
   public GroupRestResponse create(GroupCreateRestRequest request) {
-    throwIfNotAllowedToModifyGroups();
     try (DbSession session = dbClient.openSession(false)) {
       OrganizationDto organization = dbClient.organizationDao().selectByKey(session, request.organization())
           .orElseThrow(() -> new IllegalArgumentException("No organization found: " + request.organization()));
+      userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER, organization);
       GroupInformation createdGroup = groupService.createGroup(session, organization, request.name(), request.description());
       session.commit();
       return toRestGroup(createdGroup);
