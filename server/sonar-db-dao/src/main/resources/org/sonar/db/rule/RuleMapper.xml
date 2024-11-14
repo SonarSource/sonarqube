@@ -99,6 +99,7 @@
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
     <include refid="leftOuterJoinRulesTags"/>
     where (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
+      and (rt.organization_uuid IS NULL or rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectAllRules" resultMap="ruleResultMap">
@@ -196,6 +197,7 @@
         r.uuid=#{uuid,jdbcType=VARCHAR}
       </foreach>
     and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
+    and (rt.organization_uuid is null or rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
     order by r.uuid
   </select>
 
@@ -226,6 +228,7 @@
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
       and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
+      and (rt.organization_uuid IS NULL or rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectByKeys" parameterType="map" resultMap="ruleResultMap">
@@ -447,7 +450,7 @@
     #{ruleDto.uuid,jdbcType=VARCHAR},
     #{value,jdbcType=VARCHAR},
     #{isSystemTag,jdbcType=BOOLEAN},
-    #{ruleDto.organizationUuid,jdbcType=VARCHAR}
+    #{organizationUuid,jdbcType=VARCHAR}
     )
   </insert>
 
@@ -507,7 +510,6 @@
       remediation_function,
       remediation_gap_mult,
       remediation_base_effort,
-      tags,
       ad_hoc_name,
       ad_hoc_description,
       ad_hoc_severity,
@@ -525,7 +527,6 @@
       #{remediationFunction,jdbcType=VARCHAR},
       #{remediationGapMultiplier,jdbcType=VARCHAR},
       #{remediationBaseEffort,jdbcType=VARCHAR},
-      #{tagsField,jdbcType=VARCHAR},
       #{adHocName,jdbcType=VARCHAR},
       #{adHocDescription,jdbcType=CLOB},
       #{adHocSeverity,jdbcType=VARCHAR},
@@ -576,6 +577,7 @@
       rule_tags
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
+      and (organization_uuid is null or organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </delete>
 
   <delete id="deleteParams" parameterType="String">
@@ -736,6 +738,7 @@
     <include refid="leftOuterJoinRulesTags"/>
     WHERE lower(value) like #{query}
       AND r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      AND (rt.organization_uuid IS NULL OR rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
     ORDER BY value
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>

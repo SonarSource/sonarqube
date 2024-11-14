@@ -28,6 +28,8 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.Pagination;
 import org.sonar.db.issue.ImpactDto;
 
+import javax.annotation.Nullable;
+
 public interface RuleMapper {
 
   List<RuleDto> selectAll(@Param("organizationUuid") String organizationUuid);
@@ -62,7 +64,7 @@ public interface RuleMapper {
 
   void insertRuleDefaultImpact(@Param("ruleDto") RuleDto ruleDefinitionDto, @Param("ruleDefaultImpactDto") ImpactDto ruleDefaultImpactDto);
 
-  void insertRuleTag(@Param("ruleDto") RuleDto ruleDefinitionDto, @Param("value") String value, @Param("isSystemTag") boolean isSystemTag);
+  void insertRuleTag(@Param("ruleDto") RuleDto ruleDefinitionDto, @Param("value") String value, @Param("isSystemTag") boolean isSystemTag, @Nullable @Param("organizationUuid") String organizationUuid);
 
   void updateRule(RuleDto ruleDefinitionDto);
 
@@ -100,7 +102,7 @@ public interface RuleMapper {
 
   void deleteRuleDefaultImpacts(String ruleUuid);
 
-  void deleteRuleTags(String ruleUuid);
+  void deleteRuleTags(@Param("ruleUuid") String ruleUuid, @Param("organizationUuid") String organizationUuid);
 
   List<String> selectTags(@Param("organizationUuid") String organizationUuid, @Param("query") String query, @Param("pagination") Pagination pagination);
 

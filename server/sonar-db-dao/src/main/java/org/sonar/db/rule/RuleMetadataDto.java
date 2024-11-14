@@ -19,16 +19,10 @@
  */
 package org.sonar.db.rule;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rules.RuleType;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public class RuleMetadataDto {
     private String ruleUuid;
@@ -40,7 +34,6 @@ public class RuleMetadataDto {
     private String remediationFunction;
     private String remediationGapMultiplier;
     private String remediationBaseEffort;
-    private String tags;
 
     /**
      * Name of on ad hoc rule.
@@ -159,29 +152,6 @@ public class RuleMetadataDto {
         return this;
     }
 
-    public Set<String> getTags() {
-        return tags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
-    }
-
-    String getTagsAsString() {
-        return tags;
-    }
-
-    public RuleMetadataDto setTags(Set<String> tags) {
-        String raw = tags.isEmpty() ? null : StringUtils.join(tags, ',');
-        checkArgument(raw == null || raw.length() <= 4000, "Rule tags are too long: %s", raw);
-        this.tags = raw;
-        return this;
-    }
-
-    private String getTagsField() {
-        return tags;
-    }
-
-    void setTagsField(String s) {
-        tags = s;
-    }
-
     @CheckForNull
     public String getAdHocName() {
         return adHocName;
@@ -257,13 +227,12 @@ public class RuleMetadataDto {
                 ", remediationFunction='" + remediationFunction + '\'' +
                 ", remediationGapMultiplier='" + remediationGapMultiplier + '\'' +
                 ", remediationBaseEffort='" + remediationBaseEffort + '\'' +
-                ", tags='" + tags + '\'' +
                 '}';
     }
 
     public boolean isUndefined() {
         return StringUtils.isEmpty(noteData) && StringUtils.isEmpty(noteUserUuid) && noteCreatedAt == null && noteUpdatedAt == null && StringUtils.isEmpty(remediationFunction) &&
-                StringUtils.isEmpty(remediationGapMultiplier) && StringUtils.isEmpty(remediationBaseEffort) && StringUtils.isEmpty(tags)
+                StringUtils.isEmpty(remediationGapMultiplier) && StringUtils.isEmpty(remediationBaseEffort)
                 && StringUtils.isEmpty(adHocName) && StringUtils.isEmpty(adHocDescription) && StringUtils.isEmpty(adHocSeverity) && adHocType == null;
     }
 }

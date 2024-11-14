@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.CreateTableChange;
 
@@ -31,6 +32,8 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 public class CreateRuleTagsTable extends CreateTableChange {
 
   static final String RULE_TAGS_TABLE_NAME = "rule_tags";
+
+  static final String INDEX_NAME = "idx_rule_tags";
 
   static final String VALUE_COLUMN_NAME = "value";
   static final String IS_SYSTEM_TAG_COLUMN_NAME = "is_system_tag";
@@ -44,10 +47,18 @@ public class CreateRuleTagsTable extends CreateTableChange {
 
   public void execute(Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(VALUE_COLUMN_NAME).setIsNullable(false).setLimit(VALUE_COLUMN_SIZE).build())
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(RULE_UUID_COLUMN_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(VALUE_COLUMN_NAME).setIsNullable(false).setLimit(VALUE_COLUMN_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(RULE_UUID_COLUMN_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(ORGANIZATION_UUID_COLUMN_NAME).setIsNullable(true).setLimit(UUID_SIZE).build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName(IS_SYSTEM_TAG_COLUMN_NAME).setIsNullable(false).build())
       .build());
+
+    context.execute(new CreateIndexBuilder(getDialect())
+            .setTable(RULE_TAGS_TABLE_NAME)
+            .setName(INDEX_NAME)
+            .addColumn(VALUE_COLUMN_NAME, false)
+            .addColumn(RULE_UUID_COLUMN_NAME, false)
+            .addColumn(ORGANIZATION_UUID_COLUMN_NAME, true)
+            .build());
   }
 }

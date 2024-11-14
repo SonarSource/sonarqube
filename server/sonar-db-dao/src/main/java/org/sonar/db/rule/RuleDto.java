@@ -572,22 +572,11 @@ public class RuleDto {
   }
 
   public Set<String> getTags() {
-    return metadata.getTags();
-  }
-
-  String getTagsAsString() {
-    return metadata.getTagsAsString();
-  }
-
-  /**
-   * Used in MyBatis mapping.
-   */
-  public void setTagsField(String s) {
-    metadata.setTagsField(s);
+    return tags;
   }
 
   public RuleDto setTags(Set<String> tags) {
-    this.metadata.setTags(tags);
+    this.tags = tags;
     return this;
   }
 
