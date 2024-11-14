@@ -270,9 +270,6 @@ public class TrackerRawInputFactory {
       }
       issue.setIsFromExternalRuleEngine(true);
       issue.setLocations(dbLocationsBuilder.build());
-      if (reportExternalIssue.hasCveId()) {
-        issue.setCveId(reportExternalIssue.getCveId());
-      }
 
       return issue;
     }

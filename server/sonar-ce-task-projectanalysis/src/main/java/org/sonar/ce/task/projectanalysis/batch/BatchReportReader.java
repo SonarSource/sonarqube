@@ -71,8 +71,6 @@ public interface BatchReportReader {
 
   CloseableIterator<ScannerReport.AnalysisWarning> readAnalysisWarnings();
 
-  CloseableIterator<ScannerReport.Cve> readCves();
-
   CloseableIterator<ScannerReport.TelemetryEntry> readTelemetryEntries();
 
   CloseableIterator<ScannerReport.Dependency> readDependencies();

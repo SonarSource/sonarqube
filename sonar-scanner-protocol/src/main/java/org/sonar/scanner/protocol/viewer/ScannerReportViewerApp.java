@@ -101,8 +101,6 @@ public class ScannerReportViewerApp {
   private JEditorPane activeRuleEditor;
   private JScrollPane adHocRuleTab;
   private JEditorPane adHocRuleEditor;
-  private JScrollPane cveTab;
-  private JEditorPane cveEditor;
   private JScrollPane qualityProfileTab;
   private JEditorPane qualityProfileEditor;
   private JScrollPane pluginTab;
@@ -201,7 +199,6 @@ public class ScannerReportViewerApp {
     loadComponents();
     updateActiveRules();
     updateAdHocRules();
-    updateCves();
     updateQualityProfiles();
     updatePlugins();
     updateMetadata();
@@ -405,18 +402,6 @@ public class ScannerReportViewerApp {
     }
   }
 
-  private void updateCves() {
-    cveEditor.setText("");
-
-    StringBuilder builder = new StringBuilder();
-    try (CloseableIterator<ScannerReport.Cve> cveCloseableIterator = reader.readCves()) {
-      while (cveCloseableIterator.hasNext()) {
-        builder.append(cveCloseableIterator.next().toString()).append("\n");
-      }
-      cveEditor.setText(builder.toString());
-    }
-  }
-
   private void updateQualityProfiles() {
     qualityProfileEditor.setText("");
 
@@ -608,12 +593,6 @@ public class ScannerReportViewerApp {
 
     adHocRuleEditor = new JEditorPane();
     adHocRuleTab.setViewportView(adHocRuleEditor);
-
-    cveTab = new JScrollPane();
-    tabbedPane.addTab("CVEs", null, cveTab, null);
-
-    cveEditor = new JEditorPane();
-    cveTab.setViewportView(cveEditor);
 
     qualityProfileTab = new JScrollPane();
     tabbedPane.addTab("Quality Profiles", null, qualityProfileTab, null);

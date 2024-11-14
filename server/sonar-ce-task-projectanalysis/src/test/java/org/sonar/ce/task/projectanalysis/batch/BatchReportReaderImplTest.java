@@ -30,7 +30,6 @@ import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReport.Cve;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -300,29 +299,5 @@ public class BatchReportReaderImplTest {
     CloseableIterator<ScannerReport.AnalysisWarning> res = underTest.readAnalysisWarnings();
     assertThat(res).toIterable().containsExactlyElementsOf(warnings);
     res.close();
-  }
-
-  @Test
-  public void readCves_shouldReturnCves() {
-    Cve cve1 = builCve("1").build();
-    writer.appendCve(cve1);
-    Cve cve2 = builCve("2").build();
-    writer.appendCve(cve2);
-
-    CloseableIterator<Cve> cveCloseableIterator = underTest.readCves();
-
-    assertThat(cveCloseableIterator).toIterable().containsExactlyInAnyOrder(cve1, cve2);
-  }
-
-  private Cve.Builder builCve(String suffix) {
-    return Cve.newBuilder()
-      .setCveId("CVE-" + suffix)
-      .addCwe("CWE-" + suffix)
-      .setDescription("Some CVE description " + suffix)
-      .setCvssScore(7.5F)
-      .setEpssScore(0.1F)
-      .setEpssPercentile(0.1F)
-      .setLastModifiedDate(1L)
-      .setPublishedDate(2L);
   }
 }

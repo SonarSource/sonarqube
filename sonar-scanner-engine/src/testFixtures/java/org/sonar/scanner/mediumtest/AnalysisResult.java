@@ -199,10 +199,6 @@ public class AnalysisResult implements AnalysisObserver {
     return readFromReport(ScannerReportReader::readAdHocRules);
   }
 
-  public List<ScannerReport.Cve> cves() {
-    return readFromReport(ScannerReportReader::readCves);
-  }
-
   public List<ScannerReport.Dependency> dependencies() {
     return readFromReport(ScannerReportReader::readDependencies);
   }

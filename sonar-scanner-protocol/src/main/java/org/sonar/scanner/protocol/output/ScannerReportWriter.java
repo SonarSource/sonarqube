@@ -97,11 +97,6 @@ public class ScannerReportWriter {
     appendDelimitedTo(file, adHocRule, "ad hoc rule");
   }
 
-  public void appendCve(ScannerReport.Cve cve) {
-    File file = fileStructure.cves();
-    appendDelimitedTo(file, cve, "cve");
-  }
-
   public void appendComponentMeasure(int componentRef, ScannerReport.Measure measure) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     appendDelimitedTo(file, measure, "measure");

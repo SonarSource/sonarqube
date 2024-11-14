@@ -39,7 +39,6 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
-import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -184,10 +183,6 @@ public class IssuePublisher {
     TextRange primaryTextRange = issue.primaryLocation().textRange();
 
     // nullable fields
-    var cveId = ((DefaultExternalIssue) issue).cveId();
-    if (cveId != null) {
-      builder.setCveId(cveId);
-    }
     CleanCodeAttribute cleanCodeAttribute = issue.cleanCodeAttribute();
     if (cleanCodeAttribute != null) {
       builder.setCleanCodeAttribute(cleanCodeAttribute.name());

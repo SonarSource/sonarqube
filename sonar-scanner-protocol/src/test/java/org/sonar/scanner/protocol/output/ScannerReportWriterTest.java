@@ -21,7 +21,6 @@ package org.sonar.scanner.protocol.output;
 
 import com.google.common.collect.Iterators;
 import java.io.File;
-import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,28 +140,6 @@ class ScannerReportWriterTest {
     File file = underTest.getFileStructure().adHocRules();
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.AdHocRule> read = Protobuf.readStream(file, ScannerReport.AdHocRule.parser())) {
-      assertThat(Iterators.size(read)).isOne();
-    }
-  }
-
-  @Test
-  void write_cve() {
-    ScannerReport.Cve cve = ScannerReport.Cve.newBuilder()
-      .setCveId("CVE-2023-20863")
-      .setDescription("In spring framework versions prior to 5.2.24 release+ ,5.3.27+ and 6.0.8+ , it is possible for a user to provide a" +
-        " specially crafted SpEL expression that may cause a denial-of-service (DoS) condition.")
-      .setCvssScore(6.5f)
-      .setEpssScore(0.00306f)
-      .setEpssPercentile(0.70277f)
-      .setPublishedDate(Instant.parse("2023-04-13T20:15:00Z").toEpochMilli())
-      .setLastModifiedDate(Instant.parse("2024-02-04T02:22:24.474Z").toEpochMilli())
-      .addCwe("CWE-400")
-      .build();
-    underTest.appendCve(cve);
-
-    File file = underTest.getFileStructure().cves();
-    assertThat(file).exists().isFile();
-    try (CloseableIterator<ScannerReport.Cve> read = Protobuf.readStream(file, ScannerReport.Cve.parser())) {
       assertThat(Iterators.size(read)).isOne();
     }
   }
@@ -374,8 +351,8 @@ class ScannerReportWriterTest {
 
     underTest.writeTelemetry(input);
 
-    try (CloseableIterator<ScannerReport.TelemetryEntry> telemetryIterator =
-           Protobuf.readStream(underTest.getFileStructure().telemetryEntries(), ScannerReport.TelemetryEntry.parser())) {
+    try (CloseableIterator<ScannerReport.TelemetryEntry> telemetryIterator = Protobuf.readStream(underTest.getFileStructure().telemetryEntries(),
+      ScannerReport.TelemetryEntry.parser())) {
 
       assertThat(telemetryIterator).toIterable()
         .containsExactlyElementsOf(input)

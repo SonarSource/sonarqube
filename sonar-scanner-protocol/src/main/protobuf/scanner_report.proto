@@ -96,7 +96,7 @@ message ActiveRule {
   string rule_repository = 1;
   string rule_key = 2;
   Severity severity = 3;
-  map<string,string> params_by_key = 4;
+  map<string, string> params_by_key = 4;
   int64 createdAt = 5;
   int64 updatedAt = 6;
   string q_profile_key = 7;
@@ -143,8 +143,8 @@ message Component {
   enum ComponentType {
     UNSET = 0;
     PROJECT = 1;
-    MODULE = 2 [deprecated=true];
-    DIRECTORY = 3 [deprecated=true];
+    MODULE = 2 [deprecated = true];
+    DIRECTORY = 3 [deprecated = true];
     FILE = 4;
   }
 
@@ -221,29 +221,17 @@ message ExternalIssue {
   repeated MessageFormatting msgFormatting = 9;
   repeated Impact impacts = 10;
   optional string cleanCodeAttribute = 11;
-  optional string cve_id = 12;
 }
 
 message AdHocRule {
-    string engine_id = 1;
-    string rule_id = 2;
-    string name = 3;
-    string description = 4;
+  string engine_id = 1;
+  string rule_id = 2;
+  string name = 3;
+  string description = 4;
   optional Severity severity = 5;
   optional IssueType type = 6;
   optional string cleanCodeAttribute = 7;
   repeated Impact defaultImpacts = 8;
-}
-
-message Cve {
-  string cve_id = 1;
-  string description = 2;
-  optional double cvss_score = 3;
-  optional double epss_score = 4;
-  optional double epss_percentile = 5;
-  optional int64 published_date = 6;
-  optional int64 last_modified_date = 7;
-  repeated string cwe = 8;
 }
 
 enum IssueType {
