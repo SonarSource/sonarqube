@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
@@ -184,7 +183,7 @@ public class RuleDao implements Dao {
   }
 
   private static void updateRuleTags(RuleDto ruleDto, RuleMapper mapper) {
-    mapper.deleteRuleTags(ruleDto.getUuid());
+    mapper.deleteRuleTags(ruleDto.getUuid(), ruleDto.getOrganizationUuid());
     insertRuleTags(ruleDto, mapper);
   }
 
@@ -200,14 +199,14 @@ public class RuleDao implements Dao {
 
   private static void insertRuleTags(RuleDto ruleDto, RuleMapper mapper) {
     ruleDto.getSystemTags()
-      .forEach(tag -> mapper.insertRuleTag(ruleDto, tag, true));
+      .forEach(tag -> mapper.insertRuleTag(ruleDto, tag, true, null));
     ruleDto.getTags()
-      .forEach(tag -> mapper.insertRuleTag(ruleDto, tag, false));
+      .forEach(tag -> mapper.insertRuleTag(ruleDto, tag, false, ruleDto.getOrganizationUuid()));
   }
 
   public void insertRuleTag(DbSession dbSession, RuleDto ruleDto, Set<String> tags, boolean isSystemTag) {
     for (String tag : tags) {
-      mapper(dbSession).insertRuleTag(ruleDto, tag, isSystemTag);
+      mapper(dbSession).insertRuleTag(ruleDto, tag, isSystemTag, !isSystemTag ? ruleDto.getOrganizationUuid() : null);
     }
   }
 
