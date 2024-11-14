@@ -41,6 +41,10 @@ public class ManagedInstanceChecker {
     BadRequestException.checkRequest(!managedInstanceService.isInstanceExternallyManaged(), INSTANCE_EXCEPTION_MESSAGE);
   }
 
+  public void throwIfInstanceIsManaged(String errorMessage) {
+    BadRequestException.checkRequest(!managedInstanceService.isInstanceExternallyManaged(), errorMessage);
+  }
+
   public void throwIfProjectIsManaged(DbSession dbSession, String projectUuid) {
     BadRequestException.checkRequest(!managedProjectService.isProjectManaged(dbSession, projectUuid), PROJECT_EXCEPTION_MESSAGE);
   }

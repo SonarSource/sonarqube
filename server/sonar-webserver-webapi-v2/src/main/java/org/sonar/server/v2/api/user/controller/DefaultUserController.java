@@ -117,6 +117,7 @@ public class DefaultUserController implements UserController {
   @Override
   public UserRestResponse updateUser(String id, UserUpdateRestRequest updateRequest) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
+
     UpdateUser update = toUpdateUser(updateRequest);
     UserInformation updatedUser = userService.updateUser(id, update);
     return usersSearchResponseGenerator.toRestUser(updatedUser);

@@ -222,6 +222,7 @@ public class UserService {
   public UserInformation updateUser(String uuid, UpdateUser updateUser) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       throwIfInvalidChangeOfExternalProvider(updateUser);
+      throwIfManagedInstanceAndNameOrEmailUpdated(updateUser);
       UserDto userDto = findUserOrThrow(uuid, dbSession);
       userUpdater.updateAndCommit(dbSession, userDto, updateUser, u -> {
       });
@@ -245,6 +246,14 @@ public class UserService {
 
   private void throwIfInvalidChangeOfExternalProvider(UpdateUser updateUser) {
     Optional.ofNullable(updateUser.externalIdentityProvider()).ifPresent(this::assertProviderIsSupported);
+  }
+
+  private void throwIfManagedInstanceAndNameOrEmailUpdated(UpdateUser updateUser) {
+    boolean isNameChanged = updateUser.isNameChanged();
+    boolean isEmailDefined = updateUser.isEmailChanged();
+    if (isNameChanged || isEmailDefined) {
+      managedInstanceChecker.throwIfInstanceIsManaged("User name and email cannot be updated when the instance is externally managed");
+    }
   }
 
   private void assertProviderIsSupported(String newExternalProvider) {

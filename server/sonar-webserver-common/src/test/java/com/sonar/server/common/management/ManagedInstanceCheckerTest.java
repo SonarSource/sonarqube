@@ -63,6 +63,26 @@ public class ManagedInstanceCheckerTest {
   }
 
   @Test
+  public void throwIfInstanceIsManaged_whenCustomErrorMessage_shouldThrowWithCustomError() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+
+    String customErrorMessage = "Custom error message";
+
+    assertThatThrownBy(() -> managedInstanceChecker.throwIfInstanceIsManaged(customErrorMessage))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(customErrorMessage);
+  }
+
+  @Test
+  public void throwIfInstanceIsManaged_whenCustomErrorMessageAndInstanceManaged_shouldNotThrow() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(false);
+
+    String customErrorMessage = "Custom error message";
+
+    assertThatNoException().isThrownBy(() -> managedInstanceChecker.throwIfInstanceIsManaged(customErrorMessage));
+  }
+
+  @Test
   public void throwIfInstanceIsManaged_whenInstanceNotExternallyManaged_shouldNotThrow() {
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(false);
 
