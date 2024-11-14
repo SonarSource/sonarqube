@@ -23,7 +23,6 @@ import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.project.ProjectDto;
 
 import static java.util.Objects.requireNonNull;
 
@@ -41,10 +40,6 @@ public class ComponentNewValue extends NewValue {
   private final String qualifier;
   private Boolean isEnabled;
   private String path;
-
-  public ComponentNewValue(ProjectDto project) {
-    this(project.getUuid(), project.getName(), project.getKey(), project.isPrivate(), project.getDescription(), project.getQualifier());
-  }
 
   public ComponentNewValue(ComponentDto component) {
     this(component.uuid(), component.name(), component.getKey(), component.isPrivate(), component.description(), component.qualifier());
@@ -68,7 +63,7 @@ public class ComponentNewValue extends NewValue {
     this(uuid, name, key, isPrivate, description, qualifier);
   }
 
-  private ComponentNewValue(String uuid, String name, String key, @Nullable Boolean isPrivate, @Nullable String description, String qualifier) {
+  ComponentNewValue(String uuid, String name, String key, @Nullable Boolean isPrivate, @Nullable String description, String qualifier) {
     this.componentUuid = requireNonNull(uuid);
     this.componentName = name;
     this.componentKey = key;

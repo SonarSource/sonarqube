@@ -43,6 +43,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
+import org.sonar.db.audit.model.ProjectNewValue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -53,6 +54,7 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -387,20 +389,22 @@ class ProjectDaoIT {
 
   @Test
   void insert_withTrack_shouldCallAuditPersister() {
-    ProjectDto dto1 = createProject("o1", "p1");
+    var dto1 = createProject("o1", "p1").setAiCodeFixEnabled(true);
 
     projectDaoWithAuditPersister.insert(db.getSession(), dto1, true);
 
-    verify(auditPersister, times(1)).addComponent(any(), any());
+    verify(auditPersister, times(1)).addComponent(any(),
+      argThat(componentNewValue -> ((ProjectNewValue) componentNewValue).isAiCodeFixEnabled()));
   }
 
   @Test
   void update_shouldCallAuditPersister() {
-    ProjectDto dto1 = createProject("o1", "p1");
+    var dto1 = createProject("o1", "p1").setAiCodeFixEnabled(true);
 
     projectDaoWithAuditPersister.update(db.getSession(), dto1);
 
-    verify(auditPersister, times(1)).updateComponent(any(), any());
+    verify(auditPersister, times(1)).updateComponent(any(),
+      argThat(componentNewValue -> ((ProjectNewValue) componentNewValue).isAiCodeFixEnabled()));
   }
 
   @Test
