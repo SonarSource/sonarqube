@@ -74,7 +74,6 @@ import static org.sonar.server.measure.Rating.E;
 public class MeasureAction extends AbstractProjectBadgesWsAction {
 
   private static final String PARAM_METRIC = "metric";
-  private final TelemetryBadgeProvider telemetryBadgeProvider;
 
   private static final Map<String, String> METRIC_NAME_BY_KEY = ImmutableMap.<String, String>builder()
     .put(COVERAGE_KEY, "coverage")
@@ -120,6 +119,7 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
     E, Color.RATING_E));
 
   private final DbClient dbClient;
+  private final TelemetryBadgeProvider telemetryBadgeProvider;
 
   public MeasureAction(DbClient dbClient, ProjectBadgesSupport support, SvgGenerator svgGenerator,
     TelemetryBadgeProvider telemetryBadgeProvider) {
