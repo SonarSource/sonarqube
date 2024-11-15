@@ -44,7 +44,8 @@ interface Props {
 function GroupsApp({organization }: Props) {
   const [search, setSearch] = useState<string>('');
   const [managed, setManaged] = useState<boolean | undefined>();
-  const { data: manageProvider } = useIdentityProviderQuery();
+  // const { data: manageProvider } = useIdentityProviderQuery();
+  const manageProvider = null as { provider: Provider };
 
   const { data, isLoading, fetchNextPage } = useGroupsQueries({
     q: search,
