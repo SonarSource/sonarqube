@@ -17,23 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.badge.ws;
+package org.sonar.server.telemetry;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.telemetry.TelemetryBadgeProvider;
+import java.util.HashMap;
+import java.util.Map;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataType;
 
-public class ProjectBadgesWsModule extends Module {
+public class TelemetryBadgeProvider extends AbstractTelemetryDataProvider<Integer> {
+  private final Map<String, Integer> badgesCounters = new HashMap<>();
+
+  public TelemetryBadgeProvider() {
+    super("project_badges_count", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.INTEGER);
+  }
 
   @Override
-  protected void configureModule() {
-    add(
-      ProjectBadgesWs.class,
-      QualityGateAction.class,
-      MeasureAction.class,
-      TokenAction.class,
-      SvgGenerator.class,
-      ProjectBadgesSupport.class,
-      TokenRenewAction.class,
-      TelemetryBadgeProvider.class);
+  public Map<String, Integer> getValues() {
+    return badgesCounters;
+  }
+
+  @Override
+  public void after() {
+    badgesCounters.clear();
+  }
+
+  public void incrementForMetric(String metricKey) {
+    badgesCounters.merge(metricKey, 1, Integer::sum);
   }
 }

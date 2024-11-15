@@ -35,6 +35,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.telemetry.TelemetryBadgeProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -73,6 +74,7 @@ import static org.sonar.server.measure.Rating.E;
 public class MeasureAction extends AbstractProjectBadgesWsAction {
 
   private static final String PARAM_METRIC = "metric";
+  private final TelemetryBadgeProvider telemetryBadgeProvider;
 
   private static final Map<String, String> METRIC_NAME_BY_KEY = ImmutableMap.<String, String>builder()
     .put(COVERAGE_KEY, "coverage")
@@ -119,9 +121,11 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
 
   private final DbClient dbClient;
 
-  public MeasureAction(DbClient dbClient, ProjectBadgesSupport support, SvgGenerator svgGenerator) {
+  public MeasureAction(DbClient dbClient, ProjectBadgesSupport support, SvgGenerator svgGenerator,
+    TelemetryBadgeProvider telemetryBadgeProvider) {
     super(support, svgGenerator);
     this.dbClient = dbClient;
+    this.telemetryBadgeProvider = telemetryBadgeProvider;
   }
 
   @Override
@@ -151,6 +155,7 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
       MeasureDto measure = getMeasure(dbSession, branch);
+      telemetryBadgeProvider.incrementForMetric(metricKey);
       return generateSvg(metric, measure);
     }
   }

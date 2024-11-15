@@ -19,17 +19,15 @@
  */
 package org.sonar.server.badge.ws;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
@@ -48,6 +46,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.telemetry.TelemetryBadgeProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -57,6 +56,9 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
@@ -75,30 +77,47 @@ import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_ERROR;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_OK;
 
-@RunWith(DataProviderRunner.class)
-public class MeasureActionIT {
+class MeasureActionIT {
 
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
 
-  private final MapSettings mapSettings = new MapSettings();
-  private final Configuration config = mapSettings.asConfig();
+  private static final MapSettings mapSettings = new MapSettings();
+  private static final Configuration config = mapSettings.asConfig();
+  private static final TelemetryBadgeProvider telemetryBadgeProvider = mock(TelemetryBadgeProvider.class);
 
   private final WsActionTester ws = new WsActionTester(
     new MeasureAction(
       db.getDbClient(),
       new ProjectBadgesSupport(new ComponentFinder(db.getDbClient(), null), db.getDbClient(), config),
-      new SvgGenerator()));
+      new SvgGenerator(), telemetryBadgeProvider));
 
-  @Before
-  public void before() {
+  @BeforeAll
+  public static void before() {
     mapSettings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
   }
 
   @Test
-  public void int_measure() {
+  void getBadge_shouldUpdateTelemetryBadgeProvider() {
+    clearInvocations(telemetryBadgeProvider);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
+    MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 10_000);
+
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey())
+      .execute();
+
+    verify(telemetryBadgeProvider).incrementForMetric(BUGS_KEY);
+  }
+
+  @Test
+  void int_measure() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -117,7 +136,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void percent_measure() {
+  void percent_measure() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -137,7 +156,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void duration_measure() {
+  void duration_measure() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -156,7 +175,6 @@ public class MeasureActionIT {
     checkWithIfNoneMatchHeader(project, metric, response);
   }
 
-  @DataProvider
   public static Object[][] ratings() {
     return new Object[][] {
       {Rating.A, Color.RATING_A},
@@ -167,9 +185,9 @@ public class MeasureActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("ratings")
-  public void rating_measure(Rating rating, Color color) {
+  @ParameterizedTest
+  @MethodSource("ratings")
+  void rating_measure(Rating rating, Color color) {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -188,7 +206,6 @@ public class MeasureActionIT {
     checkWithIfNoneMatchHeader(project, metric, response);
   }
 
-  @DataProvider
   public static Object[][] qualityGates() {
     return new Object[][] {
       {OK, "passed", QUALITY_GATE_OK},
@@ -196,9 +213,9 @@ public class MeasureActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("qualityGates")
-  public void quality_gate(Level status, String expectedValue, Color expectedColor) {
+  @ParameterizedTest
+  @MethodSource("qualityGates")
+  void quality_gate(Level status, String expectedValue, Color expectedColor) {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -218,7 +235,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void security_hotspots() {
+  void security_hotspots() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -238,7 +255,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void measure_on_non_main_branch() {
+  void measure_on_non_main_branch() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setPrivate(false));
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -269,7 +286,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void measure_on_application() {
+  void measure_on_application() {
     ProjectData projectData = db.components().insertPublicApplication();
     ComponentDto application = projectData.getMainBranchComponent();
 
@@ -288,7 +305,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void return_error_if_project_does_not_exist() throws ParseException {
+  void return_error_if_project_does_not_exist() throws ParseException {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
 
     TestResponse response = ws.newRequest()
@@ -300,7 +317,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void return_error_if_branch_does_not_exist() throws ParseException {
+  void return_error_if_branch_does_not_exist() throws ParseException {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
@@ -317,7 +334,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void return_error_if_measure_not_found() throws ParseException {
+  void return_error_if_measure_not_found() throws ParseException {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -333,7 +350,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void return_error_on_directory() throws ParseException {
+  void return_error_on_directory() throws ParseException {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
@@ -349,7 +366,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void return_error_on_private_project_without_token() throws ParseException {
+  void return_error_on_private_project_without_token() throws ParseException {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
@@ -363,7 +380,6 @@ public class MeasureActionIT {
     checkError(response, "Project has not been found");
   }
 
-  @DataProvider
   public static Object[][] publicProject_forceAuth_accessGranted() {
     return new Object[][] {
       // public project, force auth : works depending on token's validity
@@ -382,9 +398,9 @@ public class MeasureActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("publicProject_forceAuth_accessGranted")
-  public void badge_accessible_on_private_project_with_token(boolean publicProject, boolean forceAuth,
+  @ParameterizedTest
+  @MethodSource("publicProject_forceAuth_accessGranted")
+  void badge_accessible_on_private_project_with_token(boolean publicProject, boolean forceAuth,
     boolean validToken, boolean accessGranted) throws ParseException {
     ProjectData project = publicProject ? db.components().insertPublicProject() : db.components().insertPrivateProject();
     userSession.registerProjects(project.getProjectDto());
@@ -411,7 +427,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void return_error_on_provisioned_project() throws ParseException {
+  void return_error_on_provisioned_project() throws ParseException {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     userSession.registerProjects(project);
@@ -426,7 +442,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void fail_on_invalid_quality_gate() {
+  void fail_on_invalid_quality_gate() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -443,7 +459,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void error_when_measure_not_found() throws ParseException {
+  void error_when_measure_not_found() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -461,7 +477,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void fail_when_metric_not_found() {
+  void fail_when_metric_not_found() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -477,7 +493,7 @@ public class MeasureActionIT {
   }
 
   @Test
-  public void test_definition() {
+  void test_definition() {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("measure");
     assertThat(def.isInternal()).isFalse();
