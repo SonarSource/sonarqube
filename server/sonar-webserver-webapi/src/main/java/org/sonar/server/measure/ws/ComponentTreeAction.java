@@ -588,7 +588,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
       });
     });
 
-    addBestValuesToMeasures(measuresByComponentUuidAndMetric, components, metrics);
+    Set<MetricDto> baseComponentMetricDtos = measuresByComponentUuidAndMetric.row(baseComponent.uuid()).keySet();
+
+    addBestValuesToMeasures(measuresByComponentUuidAndMetric, components, baseComponentMetricDtos, metrics);
 
     return measuresByComponentUuidAndMetric;
   }
@@ -602,8 +604,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
    */
   private static void addBestValuesToMeasures(Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric,
     List<ComponentDto> components,
+    Set<MetricDto> baseComponentMetricDtos,
     List<MetricDto> metrics) {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
+      .filter(baseComponentMetricDtos::contains)
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(new MetricDtoToMetricDtoWithBestValue())
       .toList();
