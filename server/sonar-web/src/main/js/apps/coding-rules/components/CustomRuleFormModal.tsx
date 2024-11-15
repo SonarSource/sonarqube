@@ -340,7 +340,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
           isDisabled={submitting}
           onChange={(value) => setStandardSeverity(value)}
           severity={standardSeverity}
-          recommendedSeverity={templateRule.severity ?? customRule?.severity}
+          recommendedSeverity={customRule?.severity ? undefined : templateRule.severity}
         />
       </FormField>
     ),

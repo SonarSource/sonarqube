@@ -19,7 +19,7 @@
  */
 
 import { HelperText, Select } from '@sonarsource/echoes-react';
-import { isEmpty } from 'lodash';
+import { isEmpty, isUndefined } from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { SEVERITIES } from '../../../helpers/constants';
@@ -30,7 +30,7 @@ export interface SeveritySelectProps {
   impactSeverity?: boolean;
   isDisabled: boolean;
   onChange: (value: string) => void;
-  recommendedSeverity: string;
+  recommendedSeverity?: string;
   severity: string;
 }
 
@@ -70,7 +70,7 @@ export function SeveritySelect(props: SeveritySelectProps) {
         value={severity}
         valueIcon={<SoftwareImpactSeverityIcon severity={severity} aria-hidden />}
       />
-      {severity !== recommendedSeverity && (
+      {severity !== recommendedSeverity && !isUndefined(recommendedSeverity) && (
         <HelperText className="sw-mt-2">
           <FormattedMessage
             id="coding_rules.custom_severity.not_recommended"
