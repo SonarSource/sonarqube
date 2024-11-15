@@ -126,6 +126,7 @@ class OrganizationUrlInput extends React.PureComponent<Props, State> {
         isValid={isValid}
         htmlFor="organization-url"
         label={translate('onboarding.create_organization.url')}
+        description={translate('organization.url.description')}
       >
         <InputField
           className={classNames('input-super-large', 'text-middle', {

@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { addGlobalSuccessMessage, Card, FlagMessage, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import InstanceMessage from '../../../components/common/InstanceMessage';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Router } from '~sonar-aligned/types/router';
-import { translate, translateWithParameters } from "../../../helpers/l10n";
-import { Organization } from "../../../types/types";
-import { whenLoggedIn } from "../../../components/hoc/whenLoggedIn";
-import { deleteOrganization } from "../../../api/organizations";
-import { withOrganizationContext } from "../OrganizationContext";
-import { addGlobalSuccessMessage, FlagMessage } from "design-system";
-import { Button, ButtonVariety, ModalAlert } from "@sonarsource/echoes-react";
+import { deleteOrganization } from '../../../api/organizations';
+import InstanceMessage from '../../../components/common/InstanceMessage';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Organization } from '../../../types/types';
+import { withOrganizationContext } from '../OrganizationContext';
 
 interface Props {
   organization: Organization;
@@ -37,11 +37,12 @@ interface Props {
 interface State {
   hasPaidPlan?: boolean;
   verify: string;
+  isOpen?: boolean;
 }
 
 export class OrganizationDelete extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { verify: '' };
+  state: State = { verify: '', isOpen: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -59,6 +60,14 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
     return this.state.verify.toLowerCase() === this.props.organization.name.toLowerCase();
   };
 
+  openDeletePopup = () => {
+    this.setState({ isOpen: true });
+  };
+
+  closeDeletePopup = () => {
+    this.setState({ isOpen: false });
+  };
+
   onDelete = () => {
     const { organization } = this.props;
     return deleteOrganization(organization.kee).then(() => {
@@ -68,11 +77,11 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
           state: {
             confirmationMessage: translateWithParameters(
               'organization.deleted_x',
-              organization.name
+              organization.name,
             ),
             organization,
-            title: translate('billing.downgrade.reason.title_deleted')
-          }
+            title: translate('billing.downgrade.reason.title_deleted'),
+          },
         });
       } else {
         addGlobalSuccessMessage(translate('organization.deleted'));
@@ -83,52 +92,62 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { hasPaidPlan } = this.state;
+    const { hasPaidPlan, isOpen } = this.state;
     return (
-      <div className="boxed-group boxed-group-inner">
-        <h2 className="boxed-title">{translate('organization.delete')}</h2>
-        <p className="big-spacer-bottom width-50">
-          <InstanceMessage message={translate('organization.delete.description')}/>
-        </p>
-        <ModalAlert
-          title={translateWithParameters('organization.delete_x', this.props.organization.name)}
-          content={
-            <div>
-              {hasPaidPlan && (
-                <FlagMessage variant="warning">
-                  {translate('organization.delete.sonarcloud.paid_plan_info')}
-                </FlagMessage>
-              )}
-              <p>{translate('organization.delete.question')}</p>
-              <div className="spacer-top">
-                <label htmlFor="downgrade-organization-name">
-                  {translate('billing.downgrade.modal.type_to_proceed')}
-                </label>
-                <div className="little-spacer-top">
-                  <input
-                    autoFocus={true}
-                    className="input-super-large"
-                    id="downgrade-organization-name"
-                    onChange={this.handleInput}
-                    type="text"
-                    value={this.state.verify}
-                  />
+      <Card>
+        <div className="boxed-group boxed-group-inner">
+          <h2 className="boxed-title">{translate('organization.delete')}</h2>
+          <p className="big-spacer-bottom width-50 sw-my-8">
+            <InstanceMessage message={translate('organization.delete.description')} />
+          </p>
+          <Button variety={ButtonVariety.Danger} onClick={this.openDeletePopup}>
+            {translate('delete')}
+          </Button>
+          <Modal
+            isOpen={isOpen}
+            onClose={this.closeDeletePopup}
+            body={
+              <div>
+                {hasPaidPlan && (
+                  <FlagMessage variant="warning">
+                    {translate('organization.delete.sonarcloud.paid_plan_info')}
+                  </FlagMessage>
+                )}
+                <p>{translate('organization.delete.question')}</p>
+                <div className="spacer-top">
+                  <label htmlFor="downgrade-organization-name">
+                    {translate('billing.downgrade.modal.type_to_proceed')}
+                  </label>
+                  <div className="little-spacer-top">
+                    <InputField
+                      autoFocus={true}
+                      className="input-super-large"
+                      id="downgrade-organization-name"
+                      onChange={this.handleInput}
+                      type="text"
+                      value={this.state.verify}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          }
-          primaryButton={
-            <Button
-              variety={ButtonVariety.Danger}
-              isDisabled={!this.isVerified()}
-              onClick={this.onDelete}
-            >
-              {translate('delete')}
-            </Button>
-          }
-          secondaryButtonLabel={translate('close')}
-        />
-      </div>
+            }
+            headerTitle={translateWithParameters(
+              'organization.delete_x',
+              this.props.organization.name,
+            )}
+            primaryButton={
+              <Button
+                variety={ButtonVariety.Danger}
+                isDisabled={!this.isVerified()}
+                onClick={this.onDelete}
+              >
+                {translate('delete')}
+              </Button>
+            }
+            secondaryButtonLabel={translate('close')}
+          ></Modal>
+        </div>
+      </Card>
     );
   }
 }

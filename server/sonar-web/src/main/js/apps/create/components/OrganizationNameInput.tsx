@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
+import { FormField, InputField } from 'design-system';
 import { debounce } from 'lodash';
-import {translate} from "../../../helpers/l10n";
-import { FormField, InputField } from "design-system";
+import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   initialValue?: string;
@@ -35,7 +35,6 @@ interface State {
   touched: boolean;
   validating: boolean;
   value: string;
-  
 }
 
 export default class OrganizationNameInput extends React.PureComponent<Props, State> {
@@ -60,8 +59,8 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
 
   checkFreeKey = (key: string | undefined) => {
     this.setState({ validating: false });
-    this.setState({ error: undefined});
-    this.props.onChange(key)
+    this.setState({ error: undefined });
+    this.props.onChange(key);
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,37 +70,35 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
   };
 
   validateKey(key: string) {
-  
-    if(this.props.isEditMode){
-      if(key.length === 0){
+    if (this.props.isEditMode) {
+      if (key.length === 0) {
         this.setState({
           error: translate('onboarding.create_organization.organization_name.required'),
-          touched: true
+          touched: true,
         });
         this.props.onChange(undefined);
-      }else if (key.length > 80 || !/^(?:[a-zA-Z0-9]+(?:[\s-][a-zA-Z0-9]+)*)$/.test(key)) {
+      } else if (key.length > 80 || !/^(?:[a-zA-Z0-9]+(?:[\s-][a-zA-Z0-9]+)*)$/.test(key)) {
         this.setState({
           error: translate('onboarding.create_organization.organization_name.error'),
-          touched: true
+          touched: true,
         });
         this.props.onChange(undefined);
       } else {
         this.checkFreeKey(key);
       }
-    }else{
-      if(key.length == 0){
-        this.checkFreeKey("");
-      }else if (key.length > 80 || !/^(?:[a-zA-Z0-9]+(?:[\s-][a-zA-Z0-9]+)*)$/.test(key)) {
+    } else {
+      if (key.length == 0) {
+        this.checkFreeKey('');
+      } else if (key.length > 80 || !/^(?:[a-zA-Z0-9]+(?:[\s-][a-zA-Z0-9]+)*)$/.test(key)) {
         this.setState({
           error: translate('onboarding.create_organization.organization_name.error'),
-          touched: true
+          touched: true,
         });
         this.props.onChange(undefined);
       } else {
         this.checkFreeKey(key);
       }
     }
-     
   }
 
   render() {
@@ -110,7 +107,7 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
     return (
       <FormField
         htmlFor="organization-name"
-        label={translate('onboarding.create_organization.organization_name')}
+        label={translate('organization.name')}
         description={translate('organization.name.description')}
         required
         error={this.state.error}
@@ -120,7 +117,7 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
         <InputField
           className={classNames('input-super-large', {
             'is-invalid': isInvalid,
-            'is-valid': isValid
+            'is-valid': isValid,
           })}
           id="organization-name"
           maxLength={80}

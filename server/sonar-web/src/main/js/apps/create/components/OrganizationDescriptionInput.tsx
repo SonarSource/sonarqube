@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { IconQuestionMark } from '@sonarsource/echoes-react';
-import classNames from 'classnames';
 import { FormField, InputTextArea } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
@@ -94,14 +93,11 @@ export default class OrganizationDescriptionInput extends React.PureComponent<Pr
         error={this.state.error}
         isInvalid={isInvalid}
         isValid={isValid}
-        label={translate('onboarding.create_organization.organization_name')}
+        label={translate('description')}
+        description={translate('organization.description.description')}
       >
         <div className="display-inline-flex-center">
           <InputTextArea
-            className={classNames('input-super-large', {
-              'is-invalid': isInvalid,
-              'is-valid': isValid,
-            })}
             id="organization-description"
             maxLength={256}
             onChange={this.handleChange}
