@@ -62,11 +62,14 @@ export function useGitHubSyncStatusQuery(options: GithubSyncStatusOptions = {}) 
 }
 
 export function useGithubProvisioningEnabledQuery() {
+  /*
   const res = useGitHubSyncStatusQuery({ noRefetch: true });
 
   return mapReactQueryResult(res, (data) => {
     return data.enabled;
   });
+   */
+  return { data: false };
 }
 
 export function useSyncWithGitHubNow() {

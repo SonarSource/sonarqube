@@ -112,6 +112,7 @@ export function useDeleteGitLabConfigurationMutation() {
 }
 
 export function useGilabProvisioningEnabledQuery() {
+  /*
   const res = useGitLabConfigurationsQuery();
 
   return mapReactQueryResult(res, (data) =>
@@ -120,6 +121,8 @@ export function useGilabProvisioningEnabledQuery() {
         configuration.enabled && configuration.provisioningType === ProvisioningType.auto,
     ),
   );
+   */
+  return { data: false };
 }
 
 export function useGitLabSyncStatusQuery() {

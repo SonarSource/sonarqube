@@ -130,7 +130,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
 
   getIsProjectManaged = () => {
     if (this.props.component.qualifier === ComponentQualifier.Project) {
-      getComponents({ projects: this.props.component.key })
+      getComponents({ organization: this.props.component.organization, projects: this.props.component.key })
         .then((response) => {
           if (this.mounted) {
             const { managed } = response.components[0];

@@ -53,6 +53,7 @@ export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
 }
 
 export function getComponents(parameters: SearchProjectsParameters): Promise<{
+  organization: string;
   components: Project[];
   paging: Paging;
 }> {

@@ -118,7 +118,9 @@ export function countBoundProjects(almSetting: string) {
 }
 
 export function getProjectAlmBinding(project: string): Promise<ProjectAlmBindingResponse> {
-  return getJSON('/api/alm_settings/get_binding', { project });
+  // return getJSON('/api/alm_settings/get_binding', { project });
+  // TODO to be discussed.
+  return Promise.resolve({});
 }
 
 export function deleteProjectAlmBinding(project: string): Promise<void> {
