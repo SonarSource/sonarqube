@@ -35,6 +35,7 @@ const GROUP_SUB_DOMAIN = 'users-of-group';
 const USER_SUB_DOMAIN = 'groups-of-user';
 
 export function useGroupMembersQuery(params: {
+  organization: string;
   filter?: SelectListFilter;
   groupId: string;
   pageIndex?: number;
@@ -43,13 +44,15 @@ export function useGroupMembersQuery(params: {
   return useInfiniteQuery({
     queryKey: [DOMAIN, GROUP_SUB_DOMAIN, 'list', params],
     queryFn: async ({ pageParam }) => {
+      const { organization } = params;
       if (params.filter === SelectListFilter.All) {
         const result = await getUsers<RestUserDetailed>({
+          organization,
           q: params.q ?? '',
           pageIndex: pageParam,
         });
         const isSelected = async (userId: string, groupId: string) => {
-          const memberships = await getGroupMemberships({ userId, groupId, pageSize: 0 });
+          const memberships = await getGroupMemberships({ organization, userId, groupId, pageSize: 0 });
           return memberships.page.total > 0;
         };
         return {
@@ -64,6 +67,7 @@ export function useGroupMembersQuery(params: {
       }
       const isSelected = params.filter === SelectListFilter.Selected || params.filter === undefined;
       return getUsers<RestUserDetailed>({
+        organization,
         q: params.q ?? '',
         [isSelected ? 'groupId' : 'groupId!']: params.groupId,
         pageIndex: pageParam,
@@ -89,6 +93,7 @@ export function useRemoveGroupMembersQueryFromCache() {
 }
 
 export function useUserGroupsQuery(params: {
+  organization: string;
   filter?: SelectListFilter;
   q?: string;
   userId: string;
@@ -108,7 +113,7 @@ export function useUserGroupsQuery(params: {
   } = useInfiniteQuery({
     queryKey: [DOMAIN, USER_SUB_DOMAIN, 'memberships', userId],
     queryFn: ({ pageParam }) =>
-      getGroupMemberships({ userId, pageSize: 100, pageIndex: pageParam }),
+      getGroupMemberships({ organization, userId, pageSize: 100, pageIndex: pageParam }),
     getNextPageParam,
     getPreviousPageParam,
     initialPageParam: 1,
@@ -148,17 +153,17 @@ export function useUserGroupsQuery(params: {
   });
 }
 
-export function useGroupMembersCountQuery(groupId: string) {
+export function useGroupMembersCountQuery(organization: string, groupId: string) {
   return useQuery({
     queryKey: [DOMAIN, GROUP_SUB_DOMAIN, 'count', groupId],
-    queryFn: () => getGroupMemberships({ groupId, pageSize: 0 }).then((r) => r.page.total),
+    queryFn: () => getGroupMemberships({ organization, groupId, pageSize: 0 }).then((r) => r.page.total),
   });
 }
 
-export function useUserGroupsCountQuery(userId: string) {
+export function useUserGroupsCountQuery(organization: string, userId: string) {
   return useQuery({
     queryKey: [DOMAIN, USER_SUB_DOMAIN, 'count', userId],
-    queryFn: () => getGroupMemberships({ userId, pageSize: 0 }).then((r) => r.page.total),
+    queryFn: () => getGroupMemberships({ organization, userId, pageSize: 0 }).then((r) => r.page.total),
   });
 }
 
@@ -187,8 +192,8 @@ export function useRemoveGroupMembershipMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, groupId }: { organization: string; groupId: string; userId: string }) => {
-      const memberships = await getGroupMemberships({ userId, groupId, pageSize: 1 });
+    mutationFn: async ({ organization, userId, groupId }: { organization: string; groupId: string; userId: string }) => {
+      const memberships = await getGroupMemberships({ organization, userId, groupId, pageSize: 1 });
       if (!memberships.page.total) {
         throw new Error(
           translateWithParameters('group_membership.remove_user.error', userId, groupId),

@@ -127,10 +127,11 @@ public class PlatformLevel4WebConfig {
 
   @Bean
   public UserController userController(
+    OrganizationService organizationService,
     UserSession userSession,
     UsersSearchRestResponseGenerator usersSearchResponseGenerator,
     UserService userService) {
-    return new DefaultUserController(userSession, userService, usersSearchResponseGenerator);
+    return new DefaultUserController(organizationService, userSession, userService, usersSearchResponseGenerator);
   }
 
   @Bean
@@ -140,8 +141,8 @@ public class PlatformLevel4WebConfig {
 
   @Bean
   public GroupMembershipController groupMembershipsController(UserSession userSession,
-    GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker) {
-    return new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker);
+    GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker, OrganizationService organizationService) {
+    return new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker, organizationService);
   }
 
   @Bean

@@ -43,7 +43,7 @@ import GroupForm from './GroupForm';
 import Members from './Members';
 
 export interface ListItemProps {
-  organization: string | undefined;
+  organization: string;
   group: Group;
   manageProvider: Provider | undefined;
 }
@@ -55,7 +55,7 @@ export default function ListItem(props: Readonly<ListItemProps>) {
   const [groupToDelete, setGroupToDelete] = useState<Group | undefined>();
   const [groupToEdit, setGroupToEdit] = useState<Group | undefined>();
 
-  const { data: membersCount, isLoading, refetch } = useGroupMembersCountQuery(group.id);
+  const { data: membersCount, isLoading, refetch } = useGroupMembersCountQuery(organization, group.id);
 
   const isManaged = () => {
     return manageProvider !== undefined;

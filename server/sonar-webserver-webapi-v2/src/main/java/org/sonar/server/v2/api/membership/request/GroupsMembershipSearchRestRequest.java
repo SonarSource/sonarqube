@@ -21,8 +21,14 @@ package org.sonar.server.v2.api.membership.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotEmpty;
 
 public record GroupsMembershipSearchRestRequest(
+
+  @NotEmpty
+  @Schema(description = "Organization key.")
+  String organization,
+
   @Nullable
   @Schema(description = "ID of the user for which to search groups. If not set, all groups are returned.")
   String userId,

@@ -29,7 +29,6 @@ import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import { translate } from '../../helpers/l10n';
 import { useGroupsQueries } from '../../queries/groups';
-import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
 import { Organization, Provider } from '../../types/types';
 import { LoggedInUser } from "../../types/users";
 import { withOrganizationContext } from "../organizations/OrganizationContext";
@@ -80,7 +79,7 @@ function GroupsApp({organization }: Props) {
             />
           </div>
 
-          <List groups={groups} manageProvider={manageProvider?.provider} />
+          <List organization={organization.kee} groups={groups} manageProvider={manageProvider?.provider} />
 
           <ListFooter
             count={groups.length}

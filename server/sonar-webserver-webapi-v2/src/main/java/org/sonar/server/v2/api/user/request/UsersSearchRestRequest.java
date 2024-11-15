@@ -23,8 +23,13 @@ import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotEmpty;
 
 public record UsersSearchRestRequest(
+  @NotEmpty
+  @Schema(description = "Organization key")
+  String organization,
+
   @Schema(defaultValue = "true", description = "Return active/inactive users")
   Boolean active,
 

@@ -25,16 +25,18 @@ import { useGroupMembersQuery } from '../../../queries/group-memberships';
 import { Group } from '../../../types/types';
 
 interface Props {
+  organization: string;
   group: Group;
   isManaged: boolean;
   onClose: () => void;
 }
 
 export default function ViewMembersModal(props: Readonly<Props>) {
-  const { isManaged, group } = props;
+  const { organization, isManaged, group } = props;
 
   const [query, setQuery] = React.useState<string>();
   const { data, isLoading, fetchNextPage } = useGroupMembersQuery({
+    organization,
     q: query,
     groupId: group.id,
   });

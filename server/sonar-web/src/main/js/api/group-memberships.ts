@@ -23,6 +23,7 @@ import { GroupMembership, Paging } from '../types/types';
 const GROUPS_MEMBERSHIPS_ENDPOINT = '/api/v2/authorizations/group-memberships';
 
 export function getGroupMemberships(data: {
+  organization: string;
   groupId?: string;
   pageIndex?: number;
   pageSize?: number;

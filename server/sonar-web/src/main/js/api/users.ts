@@ -80,7 +80,7 @@ export function getIdentityProviders(): Promise<{ identityProviders: IdentityPro
 }
 
 export function getUsers<T extends RestUserBase>(data: {
-  organization?: string;
+  organization: string;
   active?: boolean;
   groupId?: string;
   'groupId!'?: string;

@@ -35,7 +35,7 @@ import { Group } from '../../../types/types';
 import { RestUserBase } from '../../../types/users';
 
 interface Props {
-  organization: string | undefined;
+  organization: string;
   group: Group;
   onClose: () => void;
 }
@@ -49,6 +49,7 @@ export default function EditMembersModal(props: Readonly<Props>) {
   const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
   const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
   const { data, isLoading, fetchNextPage } = useGroupMembersQuery({
+    organization,
     q: query,
     groupId: group.id,
     filter,

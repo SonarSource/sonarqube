@@ -21,8 +21,12 @@ package org.sonar.server.v2.api.user.controller;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.common.user.service.UserCreateRequest;
 import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.common.user.service.UserService;
@@ -42,14 +46,17 @@ import static org.sonar.server.common.PaginationInformation.forPageIndex;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class DefaultUserController implements UserController {
+  private final OrganizationService organizationService;
   private final UsersSearchRestResponseGenerator usersSearchResponseGenerator;
   private final UserService userService;
   private final UserSession userSession;
 
   public DefaultUserController(
+    OrganizationService organizationService,
     UserSession userSession,
     UserService userService,
     UsersSearchRestResponseGenerator usersSearchResponseGenerator) {
+    this.organizationService = organizationService;
     this.userSession = userSession;
     this.usersSearchResponseGenerator = usersSearchResponseGenerator;
     this.userService = userService;
@@ -66,7 +73,8 @@ public class DefaultUserController implements UserController {
   }
 
   private void throwIfAdminOnlyParametersAreUsed(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId) {
-    if (!userSession.isSystemAdministrator()) {
+    OrganizationDto organization = organizationService.getOrganizationByKey(usersSearchRestRequest.organization());
+    if (!userSession.hasPermission(OrganizationPermission.ADMINISTER, organization)) {
       throwIfValuePresent("groupId", usersSearchRestRequest.groupId());
       throwIfValuePresent("groupId!", excludedGroupId);
       throwIfValuePresent("externalIdentity", usersSearchRestRequest.externalIdentity());

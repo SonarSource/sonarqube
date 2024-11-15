@@ -20,11 +20,15 @@
 package org.sonar.server.v2.api.membership.controller;
 
 import java.util.List;
+
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupMembershipSearchRequest;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.membership.request.GroupMembershipCreateRestRequest;
 import org.sonar.server.v2.api.membership.request.GroupsMembershipSearchRestRequest;
@@ -38,16 +42,20 @@ public class DefaultGroupMembershipController implements GroupMembershipControll
   private final GroupMembershipService groupMembershipService;
   private final UserSession userSession;
   private final ManagedInstanceChecker managedInstanceChecker;
+  private final OrganizationService organizationService;
 
-  public DefaultGroupMembershipController(UserSession userSession, GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker) {
+  public DefaultGroupMembershipController(UserSession userSession, GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker, OrganizationService organizationService) {
     this.groupMembershipService = groupMembershipService;
     this.userSession = userSession;
     this.managedInstanceChecker = managedInstanceChecker;
+    this.organizationService = organizationService;
   }
 
   @Override
   public GroupsMembershipSearchRestResponse search(GroupsMembershipSearchRestRequest groupsSearchRestRequest, RestPage restPage) {
-    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    OrganizationDto organization = organizationService.getOrganizationByKey(groupsSearchRestRequest.organization());
+    userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+
     SearchResults<UserGroupDto> groupMembershipSearchResults = searchMembership(groupsSearchRestRequest, restPage);
 
     List<GroupMembershipRestResponse> groupMembershipRestRespons = toRestGroupMembershipResponse(groupMembershipSearchResults);
