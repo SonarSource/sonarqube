@@ -31,7 +31,7 @@ interface Props {
   onRestore: () => void;
 }
 
-export default function RestoreProfileForm({ onClose, onRestore }: Readonly<Props>) {
+export default function RestoreProfileForm({ organization, onClose, onRestore }: Readonly<Props>) {
   const intl = useIntl();
 
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,7 @@ export default function RestoreProfileForm({ onClose, onRestore }: Readonly<Prop
       return;
     }
     const data = new FormData(formRef.current);
-    data.append('organization', this.props.organization);
+    data.append('organization', organization);
 
     try {
       setLoading(true);
