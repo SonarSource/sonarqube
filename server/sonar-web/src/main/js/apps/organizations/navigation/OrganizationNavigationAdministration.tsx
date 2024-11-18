@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DropdownMenu } from '@sonarsource/echoes-react';
+import { NavBarTabLink } from 'design-system';
 import * as React from 'react';
-import { translate } from "../../../helpers/l10n";
-import { Organization } from "../../../types/types";
-import { DropdownMenu } from "@sonarsource/echoes-react";
-import { NavBarTabLink } from "design-system";
+import { translate } from '../../../helpers/l10n';
+import { Organization } from '../../../types/types';
 
 interface Props {
   location: { pathname: string };
@@ -34,14 +34,14 @@ const ADMIN_PATHS = [
   'permissions',
   'permission_templates',
   'projects_management',
-  'webhooks'
+  'webhooks',
 ];
 
 export default function OrganizationNavigationAdministration({ location, organization }: Props) {
   const { adminPages = [] } = organization;
-  const adminPathsWithExtensions = adminPages.map(e => `extension/${e.key}`).concat(ADMIN_PATHS);
-  const adminActive = adminPathsWithExtensions.some(path =>
-    location.pathname.endsWith(`organizations/${organization.kee}/${path}`)
+  const adminPathsWithExtensions = adminPages.map((e) => `extension/${e.key}`).concat(ADMIN_PATHS);
+  const adminActive = adminPathsWithExtensions.some((path) =>
+    location.pathname.endsWith(`organizations/${organization.kee}/${path}`),
   );
 
   return (
@@ -49,14 +49,11 @@ export default function OrganizationNavigationAdministration({ location, organiz
       id="organization-nav"
       items={
         <>
-          <DropdownMenu.ItemLink
-            isMatchingFullPath
-            to={`/organizations/${organization.kee}/edit`}
-          >
+          <DropdownMenu.ItemLink isMatchingFullPath to={`/organizations/${organization.kee}/edit`}>
             {translate('organization.settings')}
           </DropdownMenu.ItemLink>
 
-          {adminPages.map(extension => (
+          {adminPages.map((extension) => (
             <DropdownMenu.ItemLink
               isMatchingFullPath
               to={`/organizations/${organization.kee}/extension/${extension.key}`}
@@ -104,6 +101,7 @@ export default function OrganizationNavigationAdministration({ location, organiz
       }
     >
       <NavBarTabLink
+        active={adminActive}
         text={translate('layout.settings')}
         withChevron
         to={{}}

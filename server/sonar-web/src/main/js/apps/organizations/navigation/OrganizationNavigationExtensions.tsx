@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DropdownMenu } from '@sonarsource/echoes-react';
+import { NavBarTabLink } from 'design-system';
 import * as React from 'react';
-import { translate } from "../../../helpers/l10n";
-import { Organization } from "../../../types/types";
-import { DropdownMenu } from "@sonarsource/echoes-react";
-import { NavBarTabLink } from "design-system";
+import { translate } from '../../../helpers/l10n';
+import { Organization } from '../../../types/types';
 
 interface Props {
   location: { pathname: string };
@@ -33,10 +33,22 @@ export default function OrganizationNavigationExtensions({ location, organizatio
   if (extensions.length === 0) {
     return null;
   }
+  const SETTINGS_URLS = [
+    '/csvexport/csvexport',
+    '/extension/developer/projects',
+    '/policy-results',
+  ];
+
+  const isActiveRoute = SETTINGS_URLS.some((url) => {
+    return (
+      window.location.href.includes(url) &&
+      !window.location.href.includes('/developer/projects_admin')
+    );
+  });
 
   // removing request error extenstion link.
   extensions = extensions.filter((e) => {
-    return e.name !== "Request Error"
+    return e.name !== 'Request Error';
   });
 
   return (
@@ -44,7 +56,7 @@ export default function OrganizationNavigationExtensions({ location, organizatio
       id="organization-nav-extensions"
       items={
         <>
-          {extensions.map(extension => (
+          {extensions.map((extension) => (
             <DropdownMenu.ItemLink
               key={extension.key}
               isMatchingFullPath
@@ -64,7 +76,13 @@ export default function OrganizationNavigationExtensions({ location, organizatio
         </>
       }
     >
-      <NavBarTabLink preventDefault text={translate('more')} withChevron to={{}} />
+      <NavBarTabLink
+        active={isActiveRoute}
+        preventDefault
+        text={translate('more')}
+        withChevron
+        to={{}}
+      />
     </DropdownMenu.Root>
   );
 }
