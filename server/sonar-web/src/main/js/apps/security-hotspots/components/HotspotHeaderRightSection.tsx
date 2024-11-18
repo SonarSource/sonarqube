@@ -24,16 +24,18 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import Assignee from './Assignee';
+import { Organization } from '../../../types/types';
+import { withOrganizationContext } from '../../organizations/OrganizationContext';
 
 interface Props {
-  organization: string;
+  organization: Organization;
   categoryStandard?: string;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
 }
 
-export default function HotspotHeaderRightSection(props: Props) {
-  const { hotspot, categoryStandard } = props;
+function HotspotHeaderRightSection(props: Props) {
+  const { hotspot, categoryStandard, organization } = props;
   return (
     <>
       <HotspotHeaderInfo title={translate('hotspots.risk_exposure')}>
@@ -57,7 +59,7 @@ export default function HotspotHeaderRightSection(props: Props) {
         </HotspotHeaderInfo>
       )}
       <HotspotHeaderInfo title={translate('assignee')}>
-        <Assignee organization={organization} hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
+        <Assignee organization={organization.kee} hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
       </HotspotHeaderInfo>
     </>
   );
@@ -77,3 +79,5 @@ function HotspotHeaderInfo({ children, title, className }: HotspotHeaderInfoProp
     </div>
   );
 }
+
+export default withOrganizationContext(HotspotHeaderRightSection);
