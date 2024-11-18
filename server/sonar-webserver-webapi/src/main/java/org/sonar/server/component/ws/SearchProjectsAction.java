@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -52,12 +51,13 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.db.user.TokenType;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchResultsBuilder;
 import org.sonar.server.es.Facets;
@@ -489,7 +489,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
         .setVisibility(Visibility.getLabel(dbProject.isPrivate()))
-        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(dbProject));
+        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(dbProject))
+        .setIsAiCodeFixEnabled(dbProject.getAiCodeFixEnabled());
       wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbProject.getUuid());
@@ -513,7 +514,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
       return wsComponent.build();
     }
 
-
   }
 
   public static class SearchResults {
@@ -525,8 +525,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final ProjectMeasuresQuery query;
     private final int total;
 
-    private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String,
-      SnapshotDto> analysisByProjectUuid,
+    private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
       Map<String, Long> applicationsLeakPeriods, ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;

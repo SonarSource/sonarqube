@@ -37,7 +37,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -48,6 +47,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.measure.MeasureDto;
@@ -1391,6 +1391,24 @@ public class SearchProjectsActionIT {
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getIsAiCodeAssured)
       .containsExactly(
         tuple(project.getKey(), aiCodeAssured));
+  }
+
+  @Test
+  @DataProvider({"true", "false"})
+  public void return_ai_codefix_enabled(Boolean isEnabled) {
+    userSession.logIn();
+    ProjectDto project = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
+      projectDto -> {
+        projectDto.setAiCodeFixEnabled(isEnabled);
+      }).getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(project);
+    index();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getIsAiCodeFixEnabled)
+      .containsExactly(
+        tuple(project.getKey(), isEnabled));
   }
 
   @Test
