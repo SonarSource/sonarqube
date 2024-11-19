@@ -38,7 +38,7 @@ public class GroupPermissionChange extends PermissionChange {
   }
 
   public GroupUuidOrAnyone getGroupUuidOrAnyone() {
-    return GroupUuidOrAnyone.from(groupDto);
+    return groupDto != null ? GroupUuidOrAnyone.from(groupDto) : GroupUuidOrAnyone.forAnyone(getOrganizationUuid());
   }
 
   public Optional<String> getGroupName() {

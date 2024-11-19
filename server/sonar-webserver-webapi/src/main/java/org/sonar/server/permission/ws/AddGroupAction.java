@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +35,14 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.permission.GroupPermissionChange;
 import org.sonar.server.common.permission.Operation;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.*;
 
 public class AddGroupAction implements PermissionsWsAction {
   public static final String ACTION = "add_group";
@@ -95,21 +95,24 @@ public class AddGroupAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
+              .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
       GroupDto groupDto = wsSupport.findGroupDtoOrNullIfAnyone(dbSession, request);
       EntityDto entityDto = wsSupport.findEntity(dbSession, request);
       if (entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
       }
-      wsSupport.checkPermissionManagementAccess(userSession, entityDto, groupDto.getOrganizationUuid());
 
-      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, groupDto.getOrganizationUuid());
+      String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto, org.getUuid());
+
       logger.info("Grant Permission to a group: {} :: permission type: {}, organization: {}, orgId: {}, groupId: {}, user: {}",
-          groupDto.getName(), request.mandatoryParam(PARAM_PERMISSION), organization.get().getKey(), organization.get().getUuid(),
-          groupDto.getUuid(), userSession.getLogin());
+          groupName, request.mandatoryParam(PARAM_PERMISSION), org.getKey(), org.getUuid(),
+          groupDto != null ? groupDto.getUuid() : "", userSession.getLogin());
 
       GroupPermissionChange change = new GroupPermissionChange(
         Operation.ADD,
-        groupDto.getOrganizationUuid(),
+        org.getUuid(),
         request.mandatoryParam(PARAM_PERMISSION),
         entityDto,
         groupDto,

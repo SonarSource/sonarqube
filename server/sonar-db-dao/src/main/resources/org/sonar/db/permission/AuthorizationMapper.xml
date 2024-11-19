@@ -288,7 +288,7 @@
     inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.entity_uuid
     where
       entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
-      entity.organization_uuid = ur.organization_uuid and
+      entity.organizationUuid = ur.organization_uuid and
       ur.user_uuid = #{userUuid, jdbcType=VARCHAR}
 
     union
@@ -299,7 +299,7 @@
     inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = gr.entity_uuid
     where
       entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
-      entity.organization_uuid = gr.organization_uuid and
+      entity.organizationUuid = gr.organization_uuid and
       gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
 
     union
@@ -332,7 +332,7 @@
       entity.uuid = gr.entity_uuid
     where
       entity.uuid = #{entityUuid, jdbcType=VARCHAR}
-      and entity.organization_uuid = gr.organization_uuid
+      and entity.organizationUuid = gr.organization_uuid
       and gr.group_uuid is null
   </sql>
 
@@ -377,7 +377,7 @@
         exists (
           select 1
           from user_roles ur
-          inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.entity_uuid and entity.organization_uuid = ur.organization_uuid
+          inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.entity_uuid and entity.organizationUuid = ur.organization_uuid
           where
             entity.kee =  #{entityKey, jdbcType=VARCHAR}
             and ur.role = #{permission, jdbcType=VARCHAR}
@@ -385,7 +385,7 @@
         ) or exists (
           select 1
           from (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity
-          inner join group_roles gr on gr.entity_uuid = entity.uuid and gr.organization_uuid = entity.organization_uuid
+          inner join group_roles gr on gr.entity_uuid = entity.uuid and gr.organization_uuid = entity.organizationUuid
           inner join groups_users gu on gu.group_uuid = gr.group_uuid
           where
             entity.kee  =  #{entityKey, jdbcType=VARCHAR}
