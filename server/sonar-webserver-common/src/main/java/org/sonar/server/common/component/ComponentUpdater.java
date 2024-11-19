@@ -215,7 +215,7 @@ public class ComponentUpdater {
 
   private ProjectDto toProjectDto(ComponentDto component, long now, CreationMethod creationMethod) {
     return new ProjectDto()
-      .setUuid(uuidFactory.create())
+      .setUuid(component.uuid())
       .setOrganizationUuid(component.getOrganizationUuid())
       .setKey(component.getKey())
       .setQualifier(component.qualifier())
