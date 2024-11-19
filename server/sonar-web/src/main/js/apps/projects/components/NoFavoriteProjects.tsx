@@ -18,26 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Highlight, StandoutLink } from '~design-system';
+import { Link, Text, TextSize } from '@sonarsource/echoes-react';
 import { translate } from '../../../helpers/l10n';
 
 export default function NoFavoriteProjects() {
   return (
-    <div className="sw-py-8 sw-text-center">
-      <Highlight as="h3" className="sw-mb-2 sw-typo-lg-semibold">
+    <div className="sw-flex sw-flex-col sw-items-center sw-py-8">
+      <Text isHighlighted size={TextSize.Large} className="sw-mb-2">
         {translate('projects.no_favorite_projects')}
-      </Highlight>
-
-      <div>
-        <p className="sw-mt-2 sw-typo-default">
-          {translate('projects.no_favorite_projects.engagement')}
-        </p>
-        <p className="sw-mt-6">
-          <StandoutLink className="sw-mt-6 sw-typo-semibold" to="/projects/all">
-            {translate('projects.explore_projects')}
-          </StandoutLink>
-        </p>
-      </div>
+      </Text>
+      <p className="sw-mt-2 sw-typo-default">
+        {translate('projects.no_favorite_projects.engagement')}
+      </p>
+      <p className="sw-mt-6">
+        <Link className="sw-mt-6 sw-typo-semibold" to="/projects/all">
+          {translate('projects.explore_projects')}
+        </Link>
+      </p>
     </div>
   );
 }

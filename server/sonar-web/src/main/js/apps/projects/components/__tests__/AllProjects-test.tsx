@@ -87,6 +87,7 @@ it('changes sort and perspective', async () => {
   await user.click(screen.getByText('projects.sorting.size'));
 
   const projects = await ui.projects.findAll();
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, '"size"');
 
   expect(await within(projects[0]).findByRole('link')).toHaveTextContent(
     'sonarlint-omnisharp-dotnet',
@@ -101,9 +102,9 @@ it('changes sort and perspective', async () => {
     20,
   );
 
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, '"leak"');
   // sort should also be updated
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, MetricKey.new_lines);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, `"${MetricKey.new_lines}"`);
 });
 
 it('handles showing favorite projects on load', async () => {

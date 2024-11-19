@@ -20,6 +20,6 @@
 
 import AllProjects from './AllProjects';
 
-export default function FavoriteProjectsContainer(props: any) {
-  return <AllProjects isFavorite {...props} />;
+export default function FavoriteProjectsContainer() {
+  return <AllProjects isFavorite />;
 }

@@ -22,7 +22,7 @@ import styled from '@emotion/styled';
 import { Link, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   Badge,
   Card,
@@ -42,6 +42,7 @@ import { Status } from '~sonar-aligned/types/common';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import ChangeInCalculation from '../../../../app/components/ChangeInCalculationPill';
+import { useCurrentUser } from '../../../../app/components/current-user/CurrentUserContext';
 import Favorite from '../../../../components/controls/Favorite';
 import Tooltip from '../../../../components/controls/Tooltip';
 import DateFromNow from '../../../../components/intl/DateFromNow';
@@ -49,23 +50,17 @@ import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import { getProjectUrl } from '../../../../helpers/urls';
-import { CurrentUser, isLoggedIn } from '../../../../types/users';
+import { isLoggedIn } from '../../../../types/users';
 import { Project } from '../../types';
 import ProjectCardLanguages from './ProjectCardLanguages';
 import ProjectCardMeasures from './ProjectCardMeasures';
 
 interface Props {
-  currentUser: CurrentUser;
-  handleFavorite: (component: string, isFavorite: boolean) => void;
   project: Project;
   type?: string;
 }
 
-function renderFirstLine(
-  project: Props['project'],
-  handleFavorite: Props['handleFavorite'],
-  isNewCode: boolean,
-) {
+function renderFirstLine(project: Props['project'], isNewCode: boolean) {
   const { analysisDate, isFavorite, key, measures, name, qualifier, tags, visibility } = project;
   const noSoftwareQualityMetrics = [
     MetricKey.software_quality_reliability_issues,
@@ -95,7 +90,6 @@ function renderFirstLine(
               component={key}
               componentName={name}
               favorite={isFavorite}
-              handleFavorite={handleFavorite}
               qualifier={qualifier}
             />
           )}
@@ -236,12 +230,13 @@ function renderFirstLine(
   );
 }
 
-function renderSecondLine(
-  currentUser: Props['currentUser'],
-  project: Props['project'],
-  isNewCode: boolean,
-) {
+function SecondLine({
+  project,
+  isNewCode,
+}: Readonly<{ isNewCode: boolean; project: Props['project'] }>) {
   const { analysisDate, key, leakPeriodDate, measures, qualifier, isScannable } = project;
+  const intl = useIntl();
+  const { currentUser } = useCurrentUser();
 
   if (!isEmpty(analysisDate) && (!isNewCode || !isEmpty(leakPeriodDate))) {
     return (
@@ -266,7 +261,14 @@ function renderSecondLine(
         isEmpty(analysisDate) &&
         isLoggedIn(currentUser) &&
         isScannable && (
-          <Link className="sw-ml-2 sw-typo-semibold" to={getProjectUrl(key)}>
+          <Link
+            aria-label={intl.formatMessage(
+              { id: 'projects.configure_analysis_for_x' },
+              { project: project.name },
+            )}
+            className="sw-ml-2 sw-typo-semibold"
+            to={getProjectUrl(key)}
+          >
             {translate('projects.configure_analysis')}
           </Link>
         )}
@@ -275,7 +277,7 @@ function renderSecondLine(
 }
 
 export default function ProjectCard(props: Readonly<Props>) {
-  const { currentUser, type, project } = props;
+  const { type, project } = props;
   const isNewCode = type === 'leak';
 
   return (
@@ -285,11 +287,11 @@ export default function ProjectCard(props: Readonly<Props>) {
       )}
       data-key={project.key}
     >
-      {renderFirstLine(project, props.handleFavorite, isNewCode)}
+      {renderFirstLine(project, isNewCode)}
 
       <SubnavigationFlowSeparator className="sw-my-3" />
 
-      {renderSecondLine(currentUser, project, isNewCode)}
+      <SecondLine project={project} isNewCode={isNewCode} />
     </ProjectCardWrapper>
   );
 }

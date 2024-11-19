@@ -355,7 +355,5 @@ describe('upgrade scenario (awaiting scan)', () => {
 });
 
 function renderProjectCard(project: Project, user: CurrentUser = USER_LOGGED_OUT, type?: string) {
-  renderComponent(
-    <ProjectCard currentUser={user} handleFavorite={jest.fn()} project={project} type={type} />,
-  );
+  renderComponent(<ProjectCard project={project} type={type} />, '', { currentUser: user });
 }

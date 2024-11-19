@@ -245,7 +245,7 @@ export function defineMetrics(query: Query): string[] {
   return METRICS;
 }
 
-function defineFacets(query: Query, isStandardMode: boolean): string[] {
+export function defineFacets(query: Query, isStandardMode: boolean): string[] {
   if (query.view === 'leak') {
     return isStandardMode ? LEGACY_LEAK_FACETS : LEAK_FACETS;
   }
@@ -322,7 +322,7 @@ export const propertyToMetricMap: Dict<string | undefined> = {
   new_maintainability: 'new_software_quality_maintainability_rating',
 };
 
-function getFacetsMap(facets: Facet[], isStandardMode: boolean) {
+export function getFacetsMap(facets: Facet[], isStandardMode: boolean) {
   const map: Dict<Dict<number>> = {};
 
   facets.forEach((facet) => {

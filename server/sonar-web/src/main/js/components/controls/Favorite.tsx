@@ -20,8 +20,8 @@
 
 import * as React from 'react';
 import { FavoriteButton } from '~design-system';
-import { addFavorite, removeFavorite } from '../../api/favorites';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { useToggleFavoriteMutation } from '../../queries/favorites';
 import Tooltip from './Tooltip';
 
 interface Props {
@@ -33,72 +33,52 @@ interface Props {
   qualifier: string;
 }
 
-interface State {
-  favorite: boolean;
-}
+export default function Favorite(props: Readonly<Props>) {
+  const {
+    className,
+    componentName,
+    qualifier,
+    favorite: favoriteP,
+    component,
+    handleFavorite,
+  } = props;
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  // local state of favorite is only needed in case of portfolios, as they are not migrated to query yet
+  const [favorite, setFavorite] = React.useState(favoriteP);
+  const { mutate } = useToggleFavoriteMutation();
 
-export default class Favorite extends React.PureComponent<Props, State> {
-  mounted = false;
-  buttonNode?: HTMLElement | null;
+  const toggleFavorite = () => {
+    const newFavorite = !favorite;
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      favorite: props.favorite,
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentDidUpdate(_prevProps: Props, prevState: State) {
-    if (prevState.favorite !== this.props.favorite) {
-      this.setState({ favorite: this.props.favorite });
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  toggleFavorite = () => {
-    const newFavorite = !this.state.favorite;
-    const apiMethod = newFavorite ? addFavorite : removeFavorite;
-
-    return apiMethod(this.props.component).then(() => {
-      if (this.mounted) {
-        this.setState({ favorite: newFavorite }, () => {
-          if (this.props.handleFavorite) {
-            this.props.handleFavorite(this.props.component, newFavorite);
-          }
-          if (this.buttonNode) {
-            this.buttonNode.focus();
-          }
-        });
-      }
-    });
+    return mutate(
+      { component, addToFavorites: newFavorite },
+      {
+        onSuccess: () => {
+          setFavorite(newFavorite);
+          handleFavorite?.(component, newFavorite);
+          buttonRef.current?.focus();
+        },
+      },
+    );
   };
 
-  render() {
-    const { className, componentName, qualifier } = this.props;
-    const { favorite } = this.state;
+  const actionName = favorite ? 'remove' : 'add';
+  const overlay = componentName
+    ? translateWithParameters(`favorite.action.${qualifier}.${actionName}_x`, componentName)
+    : translate('favorite.action', qualifier, actionName);
 
-    const actionName = favorite ? 'remove' : 'add';
-    const overlay = componentName
-      ? translateWithParameters(`favorite.action.${qualifier}.${actionName}_x`, componentName)
-      : translate('favorite.action', qualifier, actionName);
+  React.useEffect(() => {
+    setFavorite(favoriteP);
+  }, [favoriteP]);
 
-    return (
-      <FavoriteButton
-        className={className}
-        overlay={overlay}
-        toggleFavorite={this.toggleFavorite}
-        tooltip={Tooltip}
-        favorite={favorite}
-        innerRef={(node: HTMLElement | null) => (this.buttonNode = node)}
-      />
-    );
-  }
+  return (
+    <FavoriteButton
+      className={className}
+      overlay={overlay}
+      toggleFavorite={toggleFavorite}
+      tooltip={Tooltip}
+      favorite={favorite}
+      innerRef={buttonRef}
+    />
+  );
 }

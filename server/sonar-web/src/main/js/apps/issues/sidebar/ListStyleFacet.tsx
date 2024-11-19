@@ -500,7 +500,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
           <span className="it__search-navigator-facet-list">
             {this.renderSearch()}
 
-            <output aria-live="polite">
+            <output aria-live={query ? 'polite' : 'off'}>
               {showList ? this.renderList() : this.renderSearchResults()}
             </output>
 

@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FishVisual, Highlight } from '~design-system';
+import { Text, TextSize } from '@sonarsource/echoes-react';
+import { FishVisual } from '~design-system';
 import { translate } from '../../helpers/l10n';
 
 export default function EmptySearch() {
   return (
-    <div aria-live="assertive" className="sw-text-center sw-py-8">
+    <div className="sw-flex sw-flex-col sw-items-center sw-py-8">
       <FishVisual />
-      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
+      <Text isHighlighted size={TextSize.Large} className="sw-mt-6">
         {translate('no_results_search')}
-      </Highlight>
+      </Text>
       <p className="sw-typo-default sw-mt-2">{translate('no_results_search.2')}</p>
     </div>
   );
