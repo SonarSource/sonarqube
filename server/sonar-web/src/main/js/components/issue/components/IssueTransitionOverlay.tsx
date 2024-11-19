@@ -36,7 +36,6 @@ import { isTransitionDeprecated, isTransitionHidden, transitionRequiresComment }
 import { IssueTransitionItem } from './IssueTransitionItem';
 
 export type Props = {
-  guideStepIndex: number;
   issue: Pick<Issue, 'transitions' | 'actions'>;
   loading?: boolean;
   onClose: () => void;
@@ -44,7 +43,7 @@ export type Props = {
 };
 
 export function IssueTransitionOverlay(props: Readonly<Props>) {
-  const { issue, onClose, onSetTransition, loading, guideStepIndex } = props;
+  const { issue, onClose, onSetTransition, loading } = props;
   const intl = useIntl();
 
   const [comment, setComment] = useState('');
@@ -84,10 +83,7 @@ export function IssueTransitionOverlay(props: Readonly<Props>) {
         >
           <IssueTransitionItem
             transition={transition}
-            selected={
-              selectedTransition === transition ||
-              (guideStepIndex === 1 && transition === IssueTransition.Accept)
-            }
+            selected={selectedTransition === transition}
             onSelectTransition={selectTransition}
           />
         </HighlightRing>
@@ -100,7 +96,7 @@ export function IssueTransitionOverlay(props: Readonly<Props>) {
           <IssueTransitionItem
             key={transition}
             transition={transition}
-            selected={selectedTransition === transition || guideStepIndex === 2}
+            selected={selectedTransition === transition}
             onSelectTransition={selectTransition}
           />
         ))}

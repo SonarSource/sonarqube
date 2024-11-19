@@ -95,8 +95,6 @@ import {
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssueDetails from './IssueDetails';
-import IssueGuide from './IssueGuide';
-import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 import IssuesList from './IssuesList';
 import IssuesListTitle from './IssuesListTitle';
 import NoIssues from './NoIssues';
@@ -1152,8 +1150,7 @@ export class App extends React.PureComponent<Props, State> {
       selected,
       locationsNavigator,
     } = this.state;
-    const { component, location } = this.props;
-    const open = getOpen(location.query);
+    const { component } = this.props;
     const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
       this.props.component ?? {};
     const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
@@ -1194,12 +1191,6 @@ export class App extends React.PureComponent<Props, State> {
           <PageContentFontWrapper className="sw-typo-default">
             <div className="sw-w-full sw-flex" id="issues-page">
               <Helmet defer={false} title={translate('issues.page')} />
-              <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
-              <IssueNewStatusAndTransitionGuide
-                run={!open && !component?.needIssueSync && issues.length > 0}
-                togglePopup={this.handlePopupToggle}
-                issues={issues}
-              />
 
               <h1 className="sw-sr-only">{translate('issues.page')}</h1>
 

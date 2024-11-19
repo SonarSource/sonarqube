@@ -47,7 +47,6 @@ import { IssueActions, IssueSeverity, IssueType } from '../../../types/issues';
 import { Issue, RuleDetails } from '../../../types/types';
 import IssueHeaderMeta from './IssueHeaderMeta';
 import IssueHeaderSide from './IssueHeaderSide';
-import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 
 interface Props {
   branchLike?: BranchLike;
@@ -242,11 +241,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           onSetSeverity={
             issue.actions.includes(IssueActions.SetSeverity) ? this.handleSeverityChange : undefined
           }
-        />
-        <IssueNewStatusAndTransitionGuide
-          run
-          issues={[issue]}
-          togglePopup={(_, popup, show) => this.handleIssuePopupToggle(popup, show)}
         />
       </header>
     );

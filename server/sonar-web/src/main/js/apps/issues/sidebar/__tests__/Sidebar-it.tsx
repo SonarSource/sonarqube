@@ -59,12 +59,15 @@ describe('MQR mode', () => {
 
     expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
       'issues.facet.impactSoftwareQualities',
+      '',
       'coding_rules.facet.impactSeverities',
       // help icon
-      '',
+      '',
       'issues.facet.cleanCodeAttributeCategories',
+      '',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',
@@ -96,8 +99,7 @@ describe('MQR mode', () => {
         .get(),
     ).toBeInTheDocument();
     // help icon
-    expect(byRole('button', { name: 'help' }).get()).toBeInTheDocument();
-    await user.click(byRole('button', { name: 'help' }).get());
+    await user.click(byRole('button', { name: 'help' }).getAt(2));
     expect(screen.getByText('issues.qg_mismatch.title')).toBeInTheDocument();
 
     expect(
@@ -144,12 +146,15 @@ describe('MQR mode', () => {
 
     expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
       'issues.facet.impactSoftwareQualities',
+      '',
       'coding_rules.facet.impactSeverities',
       // help icon
-      '',
+      '',
       'issues.facet.cleanCodeAttributeCategories',
+      '',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',
@@ -167,12 +172,15 @@ describe('MQR mode', () => {
 
     expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
       'issues.facet.impactSoftwareQualities',
+      '',
       'coding_rules.facet.impactSeverities',
       // help icon
-      '',
+      '',
       'issues.facet.cleanCodeAttributeCategories',
+      '',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',
@@ -190,12 +198,15 @@ describe('MQR mode', () => {
 
     expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
       'issues.facet.impactSoftwareQualities',
+      '',
       'coding_rules.facet.impactSeverities',
       // help icon
-      '',
+      '',
       'issues.facet.cleanCodeAttributeCategories',
+      '',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',
@@ -229,6 +240,7 @@ describe('Standard mode', () => {
       'issues.facet.severities',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',
@@ -261,8 +273,7 @@ describe('Standard mode', () => {
     ).toBeInTheDocument();
 
     // help icon
-    expect(byRole('button', { name: 'help' }).get()).toBeInTheDocument();
-    await user.click(byRole('button', { name: 'help' }).get());
+    await user.click(byRole('button', { name: 'help' }).getAt(0));
     expect(screen.getByText('issues.qg_mismatch.title')).toBeInTheDocument();
 
     expect(
@@ -318,6 +329,7 @@ describe('Standard mode', () => {
       'issues.facet.severities',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',
@@ -340,6 +352,7 @@ describe('Standard mode', () => {
       'issues.facet.severities',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',
@@ -362,6 +375,7 @@ describe('Standard mode', () => {
       'issues.facet.severities',
       'issues.facet.scopes',
       'issues.facet.issueStatuses',
+      '',
       'issues.facet.standards',
       'issues.facet.createdAt',
       'issues.facet.languages',

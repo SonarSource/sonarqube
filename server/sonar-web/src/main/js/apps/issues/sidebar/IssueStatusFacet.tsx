@@ -23,8 +23,10 @@ import { useIntl } from 'react-intl';
 import { FacetBox, FacetItem } from '~design-system';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { ISSUE_STATUSES } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { IssueStatus } from '../../../types/issues';
 import { formatFacetStat } from '../utils';
+import { FacetHelp } from './FacetHelp';
 import { FacetItemsList } from './FacetItemsList';
 import { MultipleSelectionHint } from './MultipleSelectionHint';
 import { CommonProps } from './SimpleListStyleFacet';
@@ -65,7 +67,7 @@ export function IssueStatusFacet(props: Readonly<Props>) {
       }
       onClick={() => props.onToggle(property)}
       open={open}
-      help={help}
+      help={help ?? <FacetHelp property="issueStatuses" link={DocLink.IssueStatuses} />}
     >
       <FacetItemsList labelledby={headerId}>
         {ISSUE_STATUSES.map((item) => {

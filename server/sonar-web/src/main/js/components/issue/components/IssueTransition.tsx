@@ -28,7 +28,6 @@ import {
   PopupZLevel,
   SearchSelectDropdownControl,
 } from '~design-system';
-import { SESSION_STORAGE_TRANSITION_GUIDE_KEY } from '../../../apps/issues/components/IssueNewStatusAndTransitionGuide';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useIssueCommentMutation, useIssueTransitionMutation } from '../../../queries/issues';
 import { Issue } from '../../../types/types';
@@ -46,8 +45,6 @@ interface Props {
 export default function IssueTransition(props: Readonly<Props>) {
   const { isOpen, issue, onChange, togglePopup } = props;
 
-  const guideStepIndex = +(sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) ?? 0);
-  const guideIsRunning = sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) !== null;
   const [transitioning, setTransitioning] = React.useState(false);
   const { mutateAsync: setIssueTransition } = useIssueTransitionMutation();
   const { mutateAsync: addIssueComment } = useIssueCommentMutation();
@@ -84,15 +81,12 @@ export default function IssueTransition(props: Readonly<Props>) {
         id="issue-transition"
         onClose={handleClose}
         openDropdown={isOpen}
-        withClickOutHandler={!guideIsRunning}
-        withFocusOutHandler={!guideIsRunning}
         overlay={
           <IssueTransitionOverlay
             issue={issue}
             onClose={handleClose}
             onSetTransition={handleSetTransition}
             loading={transitioning}
-            guideStepIndex={guideStepIndex}
           />
         }
         placement={PopupPlacement.Bottom}
