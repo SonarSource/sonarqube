@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety, IconCheck, LinkStandalone, Select } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, IconCheck, LinkStandalone } from '@sonarsource/echoes-react';
 import {
   Card,
   CardSeparator,
   ClipboardButton,
   InputField,
+  InputSelect,
   ListItem,
   Note,
   OrderedList,
@@ -35,19 +36,20 @@ import { useSearchParams } from 'react-router-dom';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { generateSonarLintUserToken, portIsValid, sendUserToken } from '../../helpers/sonarlint';
 import { portIsValid, sendUserToken } from '../../helpers/sonarlint';
 import {
   computeTokenExpirationDate,
   computeTokenExpirationDateByHours,
   getNextTokenName,
 } from '../../helpers/tokens';
-import { NewUserToken, TokenExpiration } from '../../types/token';
+import {NewUserToken, TokenExpiration, TokenType} from '../../types/token';
 import { LoggedInUser } from '../../types/users';
 import withAppStateContext from './app-state/withAppStateContext';
 import { AppState } from '../../types/appstate';
 import { isDeploymentForAmazon} from '../../helpers/urls';
 import { getScannableProjects } from "../../api/components";
+import {generateToken, getTokens} from "../../api/user-tokens";
+import {LabelValueSelectOption} from "../../helpers/search";
 
 enum Status {
   request,
@@ -73,7 +75,7 @@ async function computeExpirationDate(whiteLabel: string) {
   return isDeploymentForAmazon(whiteLabel) ? computeTokenExpirationDateByHours(8) : computeTokenExpirationDate(TokenExpiration.OneYear);
 }
 
-export function SonarLintConnection({ currentUser }: Readonly<Props>) {
+export function SonarLintConnection({ appState, currentUser }: Readonly<Props>) {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = React.useState(Status.request);
   const [newToken, setNewToken] = React.useState<NewUserToken | undefined>(undefined);
@@ -84,8 +86,8 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
 
   const { login } = currentUser;
 
-  const [projects, setProjects] = React.useState<{ label, value }[]>([]);
-  const [selectedProject, setSelectedProject] = React.useState<string>();
+  const [projects, setProjects] = React.useState<LabelValueSelectOption[]>([]);
+  const [selectedProject, setSelectedProject] = React.useState<LabelValueSelectOption>();
 
   React.useEffect(() => {
     const fetchProjects = async () => {
@@ -93,12 +95,12 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
         const projects = projectArray.map((project) => ({ label: project.name, value: project.key }));
 
         setProjects(projects);
-        setSelectedProject(projects.length === 1 ? projects[0].value : undefined);
+        setSelectedProject(projects.length === 1 ? projects[0] : undefined);
     };
     fetchProjects();
   },[]);
 
-  const handleProjectChange = (value: string) => {
+  const handleProjectChange = (selectedProject: LabelValueSelectOption) => {
     setSelectedProject(selectedProject);
   };
 
@@ -109,8 +111,8 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
   const authorize = React.useCallback(async () => {
     const newTokenName = await getNextAvailableTokenName(login, `${TOKEN_PREFIX}-${ideName}`);
     const expirationDate = await computeExpirationDate(whiteLabel);
-    const token = isDeploymentForAmazon(whiteLabel) ? await generateSonarLintUserToken({ name: newTokenName, login, expirationDate, projectKey: selectedProject.value, type: TokenType.Project }).catch(
-      () => undefined) : await generateSonarLintUserToken({ name: newTokenName, login, expirationDate }).catch(
+    const token = isDeploymentForAmazon(whiteLabel) ? await generateToken({ name: newTokenName, login, expirationDate, projectKey: selectedProject?.value, type: TokenType.Project }).catch(
+      () => undefined) : await generateToken({ name: newTokenName, login, expirationDate }).catch(
       () => undefined
      );
 
@@ -154,7 +156,7 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
               <label htmlFor="token-select-project" className="text-bold text-left">
                 {translate('users.tokens.project')}
               </label>
-              <Select
+              <InputSelect
                 id="token-select-project"
                 className="spacer-top it__project"
                 onChange={handleProjectChange}
@@ -169,7 +171,7 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
             prefix={<IconCheck className="sw-mr-1" />}
             onClick={authorize}
             variety={ButtonVariety.Primary}
-            disabled={isAllowConnectionDisabled()}
+            isDisabled={isAllowConnectionDisabled()}
           >
             {translate('sonarlint-connection.request.action')}
           </Button>
