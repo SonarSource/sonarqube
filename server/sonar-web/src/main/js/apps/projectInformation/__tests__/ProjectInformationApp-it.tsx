@@ -164,6 +164,24 @@ it('should not display ai code assurence', async () => {
   expect(screen.queryByText('project.info.ai_code_assurance.title')).not.toBeInTheDocument();
 });
 
+it('should display ai code fix section if enabled', async () => {
+  renderProjectInformationApp({
+    isAiCodeFixEnabled: true,
+  });
+  expect(await ui.projectPageTitle.find()).toBeInTheDocument();
+  expect(screen.getByText('project.info.ai_code_fix.title')).toBeInTheDocument();
+  expect(screen.getByText('project.info.ai_code_fix.message')).toBeInTheDocument();
+});
+
+it('should not display ai code fix section if disabled', async () => {
+  renderProjectInformationApp({
+    isAiCodeFixEnabled: false,
+  });
+  expect(await ui.projectPageTitle.find()).toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_fix.title')).not.toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_fix.message')).not.toBeInTheDocument();
+});
+
 it('should not show field that is not configured', async () => {
   renderProjectInformationApp({
     qualityGate: undefined,

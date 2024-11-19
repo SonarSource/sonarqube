@@ -78,6 +78,7 @@ export interface Component extends ComponentBase {
   canBrowseAllChildProjects?: boolean;
   configuration?: ComponentConfiguration;
   extensions?: Extension[];
+  isAiCodeFixEnabled?: boolean;
   needIssueSync?: boolean;
 }
 

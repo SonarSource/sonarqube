@@ -95,6 +95,15 @@ export default function AboutProject(props: AboutProjectProps) {
         </ProjectInformationSection>
       )}
 
+      {component.isAiCodeFixEnabled === true && (
+        <ProjectInformationSection>
+          <SubHeading>{translate('project.info.ai_code_fix.title')}</SubHeading>
+          <span>
+            <FormattedMessage id="project.info.ai_code_fix.message" />
+          </span>
+        </ProjectInformationSection>
+      )}
+
       <ProjectInformationSection>
         <MetaKey componentKey={component.key} qualifier={component.qualifier} />
       </ProjectInformationSection>
