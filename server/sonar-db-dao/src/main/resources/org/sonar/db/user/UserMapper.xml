@@ -180,6 +180,13 @@
             <if test="query.excludedGroupUuid != null">
                 AND NOT exists (select 1 from groups_users ug where ug.user_uuid = u.uuid AND ug.group_uuid=#{query.excludedGroupUuid, jdbcType=VARCHAR})
             </if>
+           <if test="query.organizationUuids != null">
+             AND exists (SELECT 1 FROM organization_members om WHERE om.user_uuid = u.uuid AND om.organization_uuid IN
+             <foreach collection="query.organizationUuids" open="(" close=")" item="uuid" separator=",">
+               #{uuid, jdbcType=VARCHAR}
+             </foreach>
+             )
+           </if>
         </where>
     </sql>
 

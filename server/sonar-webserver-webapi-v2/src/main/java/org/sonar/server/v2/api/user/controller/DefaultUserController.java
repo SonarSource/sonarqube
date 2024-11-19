@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.user.controller;
 
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -64,16 +65,16 @@ public class DefaultUserController implements UserController {
 
   @Override
   public UsersSearchRestResponse search(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId, RestPage page) {
-    throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest, excludedGroupId);
+    OrganizationDto organization = organizationService.getOrganizationByKey(usersSearchRestRequest.organization());
+    throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest, organization, excludedGroupId);
 
-    SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, excludedGroupId, page));
+    SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, organization, excludedGroupId, page));
     PaginationInformation paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());
 
     return usersSearchResponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging, false /* TODO */);
   }
 
-  private void throwIfAdminOnlyParametersAreUsed(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId) {
-    OrganizationDto organization = organizationService.getOrganizationByKey(usersSearchRestRequest.organization());
+  private void throwIfAdminOnlyParametersAreUsed(UsersSearchRestRequest usersSearchRestRequest, OrganizationDto organization, @Nullable String excludedGroupId) {
     if (!userSession.hasPermission(OrganizationPermission.ADMINISTER, organization)) {
       throwIfValuePresent("groupId", usersSearchRestRequest.groupId());
       throwIfValuePresent("groupId!", excludedGroupId);
@@ -93,8 +94,9 @@ public class DefaultUserController implements UserController {
     throw new ForbiddenException("Parameter " + parameterName + " requires Administer System permission.");
   }
 
-  private static UsersSearchRequest toUserSearchRequest(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId, RestPage page) {
+  private static UsersSearchRequest toUserSearchRequest(UsersSearchRestRequest usersSearchRestRequest, OrganizationDto organizationDto, @Nullable String excludedGroupId, RestPage page) {
     return UsersSearchRequest.builder()
+      .setOrganizationUuids(List.of(organizationDto.getUuid()))
       .setDeactivated(Optional.ofNullable(usersSearchRestRequest.active()).map(active -> !active).orElse(false))
       .setManaged(usersSearchRestRequest.managed())
       .setQuery(usersSearchRestRequest.q())
