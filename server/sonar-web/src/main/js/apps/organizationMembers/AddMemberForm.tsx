@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import { translate } from "../../helpers/l10n";
-import Link from "../../components/common/Link";
-import { Organization, OrganizationMember } from "../../types/types";
-import withAppStateContext from "../../app/components/app-state/withAppStateContext";
-import { AppState } from "../../types/appstate";
-import UsersSelectSearch from "./UsersSelectSearch";
-import { Button, Modal } from "@sonarsource/echoes-react";
+import { useNavigate } from 'react-router-dom';
+import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import { translate } from '../../helpers/l10n';
+import { AppState } from '../../types/appstate';
+import { Organization, OrganizationMember } from '../../types/types';
+import UsersSelectSearch from './UsersSelectSearch';
 
 interface AddMemberFormProps {
   appState: AppState;
@@ -35,13 +36,17 @@ interface AddMemberFormProps {
 }
 
 function AddMemberForm(props: AddMemberFormProps) {
-
   const { canAdmin, canCustomerAdmin } = props.appState;
   const [open, setOpen] = useState<boolean>();
   const [selectedMember, setSelectedMember] = useState<OrganizationMember>();
 
   const openForm = () => {
     setOpen(true);
+  };
+  const navigate = useNavigate();
+
+  const goToInviteUsers = () => {
+    navigate('/organizations/' + props.organization.kee + '/extension/developer/invite_users');
   };
 
   const closeForm = () => {
@@ -64,35 +69,31 @@ function AddMemberForm(props: AddMemberFormProps) {
   const renderModal = () => {
     const header = translate('users.add');
     return (
-        <Modal
-          title={header}
-          key="add-member-form"
-          onClose={closeForm}
-          content={(
-            <form onSubmit={handleSubmit}>
-              <label>{translate('users.search_description')}</label>
-              <UsersSelectSearch
-                autoFocus={true}
-                excludedUsers={props.memberLogins}
-                handleValueChange={selectedMemberChange}
-                selectedUser={selectedMember}
-                organization={props.organization}
-              />
-            </form>
-          )}
-          primaryButton={(
-            <Button
-              type="submit"
-              form="add-member-form"
-              disabled={!selectedMember}
-            >
-              {translate('organization.members.add_to_members')}
-            </Button>
-          )}
-          secondaryButtonLabel={translate('cancel')}
-        />
+      <Modal
+        headerTitle={header}
+        key="add-member-form"
+        onClose={closeForm}
+        body={
+          <form onSubmit={handleSubmit}>
+            <label>{translate('users.search_description')}</label>
+            <UsersSelectSearch
+              autoFocus={true}
+              excludedUsers={props.memberLogins}
+              handleValueChange={selectedMemberChange}
+              selectedUser={selectedMember}
+              organization={props.organization}
+            />
+          </form>
+        }
+        primaryButton={
+          <Button type="submit" form="add-member-form" isDisabled={!selectedMember}>
+            {translate('organization.members.add_to_members')}
+          </Button>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
-  }
+  };
 
   return (
     <>
@@ -101,10 +102,9 @@ function AddMemberForm(props: AddMemberFormProps) {
           {translate('organization.members.add')}
         </Button>
       )}
-      <Link to={"/organizations/" + props.organization.kee + "/extension/developer/invite_users"}
-            className="button sw-ml-2">
+      <Button onClick={goToInviteUsers} className="button sw-ml-2">
         Invite Member
-      </Link>
+      </Button>
       {open && renderModal()}
     </>
   );

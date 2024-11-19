@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from '../../helpers/l10n';
+import { Organization, OrganizationMember } from '../../types/types';
 import AddMemberForm from './AddMemberForm';
-import { Organization, OrganizationMember } from "../../types/types";
-import { translate } from "../../helpers/l10n";
-import { Link, Spinner } from "@sonarsource/echoes-react";
 
 export interface Props {
   handleAddMember: (member: OrganizationMember) => void;
@@ -33,35 +33,44 @@ export interface Props {
 
 export default function MembersPageHeader(props: Props) {
   const { members, organization } = props;
-  const memberLogins = members ? members.map(member => member.login) : [];
+  const memberLogins = members ? members.map((member) => member.login) : [];
   const isAdmin = organization.actions && organization.actions.admin;
 
   return (
-    <header className="page-header">
-      <h1 className="page-title">{translate('organization.members.page')}</h1>
-      <Spinner isLoading={props.loading}/>
-      {isAdmin && (
-        <div className="page-actions text-right">
-          <div className="display-inline-block spacer-left spacer-bottom">
-            <AddMemberForm
-              addMember={props.handleAddMember}
-              memberLogins={memberLogins}
-              organization={organization}
-            />
-          </div>
+    <header className="page-header sw-mt-16 sw-ml-16 sw-mr-8">
+      <div className="measure-one-line">
+        <div className="sw-flex sw-items-center">
+          <h2 className="page-title">{translate('organization.members.page')}</h2>
+          <Spinner isLoading={props.loading} />
         </div>
-      )}
+        <div>
+          {isAdmin && (
+            <div className="page-actions text-right">
+              <div className="display-inline-block spacer-left spacer-bottom">
+                <AddMemberForm
+                  addMember={props.handleAddMember}
+                  memberLogins={memberLogins}
+                  organization={organization}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="page-description">
         <FormattedMessage
           defaultMessage={translate('organization.members.page.description')}
           id="organization.members.page.description"
           values={{
             link: (
-              <Link target="_blank"
-                    to="https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation">
+              <Link
+                target="_blank"
+                to="https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation"
+              >
                 {translate('organization.members.manage_a_team')}
               </Link>
-            )
+            ),
           }}
         />
       </div>
