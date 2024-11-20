@@ -90,8 +90,6 @@ class RepositoryFacet extends React.PureComponent<Props> {
     return (
       <ListStyleFacet<string>
         facetHeader={translate('coding_rules.facet.repositories')}
-        showMoreAriaLabel={translate('coding_rules.facet.repository.show_more')}
-        showLessAriaLabel={translate('coding_rules.facet.repository.show_less')}
         fetching={false}
         getFacetItemText={this.renderTextName}
         getSearchResultKey={(rep) => rep}

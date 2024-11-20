@@ -50,10 +50,10 @@ class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentPr
     const { open, value } = this.props;
     const headerId = `facet_${this.property}`;
     const count = value ? 1 : undefined;
+
     return (
       <FacetBox
         className="it__search-navigator-facet-box"
-        clearIconLabel={translate('clear')}
         data-property={this.property}
         id={headerId}
         name={translate('coding_rules.facet.available_since')}

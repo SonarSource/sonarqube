@@ -20,6 +20,7 @@
 
 import { without } from 'lodash';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { FacetBox, FacetItem } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
@@ -60,6 +61,7 @@ export function SimpleListStyleFacet(props: Props) {
     help,
     renderIcon,
   } = props;
+  const intl = useIntl();
 
   const nbSelectableItems = listItems.filter((item) => stats[item]).length;
   const nbSelectedItems = selectedItems.length;
@@ -68,13 +70,12 @@ export function SimpleListStyleFacet(props: Props) {
   return (
     <FacetBox
       className="it__search-navigator-facet-box it__search-navigator-facet-header"
-      clearIconLabel={translate('clear')}
       count={nbSelectedItems}
       countLabel={translateWithParameters('x_selected', nbSelectedItems)}
       data-property={property}
       id={headerId}
       loading={fetching}
-      name={translate('issues.facet', property)}
+      name={intl.formatMessage({ id: `issues.facet.${property}` })}
       onClear={() => props.onChange({ [property]: [] })}
       onClick={() => props.onToggle(property)}
       open={open}

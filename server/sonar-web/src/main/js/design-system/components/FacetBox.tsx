@@ -23,6 +23,7 @@ import { Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers';
 import { BareButton } from '../sonar-aligned/components/buttons';
@@ -79,6 +80,7 @@ export function FacetBox(props: FacetBoxProps) {
     open = false,
     tooltipComponent,
   } = props;
+  const intl = useIntl();
 
   const clearable = !disabled && Boolean(onClear) && count !== undefined && count > 0;
   const counter = count ?? 0;
@@ -148,7 +150,9 @@ export function FacetBox(props: FacetBoxProps) {
               <Tooltip content={clearIconLabel}>
                 <ClearIcon
                   Icon={CloseIcon}
-                  aria-label={clearIconLabel ?? ''}
+                  aria-label={
+                    clearIconLabel ?? intl.formatMessage({ id: 'clear_x_filter' }, { '0': name })
+                  }
                   data-testid={`clear-${name}`}
                   onClick={onClear}
                   size="small"

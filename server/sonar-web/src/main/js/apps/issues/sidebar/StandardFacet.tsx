@@ -523,13 +523,11 @@ export class StandardFacet extends React.PureComponent<Props, State> {
 
   render() {
     const { open } = this.props;
-
     const count = this.getValues().length;
 
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={count}
         countLabel={translateWithParameters('x_selected', count)}
         data-property={this.property}

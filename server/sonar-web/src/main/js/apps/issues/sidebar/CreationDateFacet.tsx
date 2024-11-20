@@ -279,7 +279,6 @@ export class CreationDateFacetClass extends React.PureComponent<Props & WrappedC
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={count}
         countLabel={translateWithParameters('x_selected', count)}
         data-property={this.property}

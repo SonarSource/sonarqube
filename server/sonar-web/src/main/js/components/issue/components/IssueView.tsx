@@ -157,11 +157,9 @@ export default function IssueView(props: Readonly<Props>) {
       className={classNames('it__issue-item sw-p-3 sw-mb-4 sw-rounded-1 sw-bg-white', {
         selected,
       })}
-      role="region"
-      aria-label={issue.message}
       ref={nodeRef}
     >
-      <div className="sw-flex sw-gap-3">
+      <section aria-label={issue.message} className="sw-flex sw-gap-3">
         {hasCheckbox && (
           <span className="sw-mt-1/2 sw-ml-1 sw-self-start">
             <Checkbox
@@ -212,7 +210,7 @@ export default function IssueView(props: Readonly<Props>) {
             <IssueMetaBar issue={issue} />
           </div>
         </div>
-      </div>
+      </section>
     </IssueItem>
   );
 }

@@ -51,16 +51,17 @@ export function PeriodFilter(props: PeriodFilterProps) {
   }, [newCodeSelected, onChange]);
 
   return (
-    <FacetItemsList label={translate('issues.facet', PROPERTY)}>
-      <FacetItem
-        active={newCodeSelected}
-        className="it__search-navigator-facet"
-        name={translate('issues.new_code')}
-        onClick={handleClick}
-        value={newCodeSelected ? CodeScope.New : CodeScope.Overall}
-      />
-
+    <>
+      <FacetItemsList label={translate('issues.facet', PROPERTY)}>
+        <FacetItem
+          active={newCodeSelected}
+          className="it__search-navigator-facet"
+          name={translate('issues.new_code')}
+          onClick={handleClick}
+          value={newCodeSelected ? CodeScope.New : CodeScope.Overall}
+        />
+      </FacetItemsList>
       <BasicSeparator className="sw-mb-5 sw-mt-4" />
-    </FacetItemsList>
+    </>
   );
 }

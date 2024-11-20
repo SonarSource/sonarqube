@@ -288,6 +288,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
       showMoreAriaLabel,
       showLessAriaLabel,
       values,
+      facetHeader,
     } = this.props;
 
     if (!stats) {
@@ -360,9 +361,13 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         <ListStyleFacetFooter
           nbShown={limitedList.length + selectedBelowLimit.length}
           showLess={this.state.showFullList ? this.hideFullList : undefined}
-          showLessAriaLabel={showLessAriaLabel}
+          showMoreAriaLabel={
+            showMoreAriaLabel ?? translateWithParameters('show_more_filter_x', facetHeader)
+          }
+          showLessAriaLabel={
+            showLessAriaLabel ?? translateWithParameters('show_less_filter_x', facetHeader)
+          }
           showMore={this.showFullList}
-          showMoreAriaLabel={showMoreAriaLabel}
           total={sortedItems.length}
         />
 
@@ -481,7 +486,6 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={nbSelectedItems}
         countLabel={translateWithParameters('x_selected', nbSelectedItems)}
         data-property={property}

@@ -53,7 +53,6 @@ export function IssueStatusFacet(props: Readonly<Props>) {
   return (
     <FacetBox
       className="it__search-navigator-facet-box it__search-navigator-facet-header"
-      clearIconLabel={intl.formatMessage({ id: 'clear' })}
       count={nbSelectedItems}
       countLabel={intl.formatMessage({ id: 'x_selected' }, { '0': nbSelectedItems })}
       data-property={property}

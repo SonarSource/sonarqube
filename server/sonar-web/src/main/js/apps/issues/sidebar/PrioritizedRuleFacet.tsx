@@ -43,7 +43,6 @@ export function PrioritizedRuleFacet(props: Readonly<PrioritizedRuleFacetProps>)
   return (
     <FacetBox
       className="it__search-navigator-facet-box it__search-navigator-facet-header"
-      clearIconLabel={intl.formatMessage({ id: 'clear' })}
       count={value ? 1 : 0}
       onClear={() => props.onChange({ [property]: undefined })}
       onClick={() => onToggle(property)}

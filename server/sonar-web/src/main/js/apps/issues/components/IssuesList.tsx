@@ -60,13 +60,11 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     }
   }
 
-  renderIssueComponentList = (issues: Issue[], index: number) => {
+  renderIssueComponentList = ([key, issues]: [string, Issue[]]) => {
     const { branchLike, checked, component, openPopup, selectedIssue } = this.props;
     return (
-      <React.Fragment key={index}>
-        <li>
-          <ComponentBreadcrumbs component={component} issue={issues[0]} />
-        </li>
+      <li key={key}>
+        <ComponentBreadcrumbs component={component} issue={issues[0]} />
         <ul>
           {issues.map((issue) => (
             <IssueItem
@@ -83,7 +81,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
             />
           ))}
         </ul>
-      </React.Fragment>
+      </li>
     );
   };
 
@@ -101,6 +99,6 @@ export default class IssuesList extends React.PureComponent<Props, State> {
 
     const issuesByComponent = groupBy(issues, (issue) => `(${issue.component} : ${issue.branch})`);
 
-    return <ul>{Object.values(issuesByComponent).map(this.renderIssueComponentList)}</ul>;
+    return <ul>{Object.entries(issuesByComponent).map(this.renderIssueComponentList)}</ul>;
   }
 }

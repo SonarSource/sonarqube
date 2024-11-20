@@ -162,7 +162,6 @@ export default class ProfileFacet extends React.PureComponent<Props> {
 
     const property = 'profile';
     const headerId = `facet_${property}`;
-
     const count = value ? 1 : undefined;
 
     return (
@@ -174,7 +173,6 @@ export default class ProfileFacet extends React.PureComponent<Props> {
         onClear={this.handleClear}
         onClick={this.handleHeaderClick}
         open={open}
-        clearIconLabel={translate('clear')}
         count={count}
         help={
           <DocHelpTooltip

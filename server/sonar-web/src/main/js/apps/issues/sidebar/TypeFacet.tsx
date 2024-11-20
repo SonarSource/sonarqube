@@ -119,7 +119,6 @@ export class TypeFacet extends React.PureComponent<Props> {
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={nbSelectedItems}
         countLabel={translateWithParameters('x_selected', nbSelectedItems)}
         data-property={this.property}

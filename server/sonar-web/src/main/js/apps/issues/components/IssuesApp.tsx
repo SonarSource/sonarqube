@@ -933,7 +933,7 @@ export class App extends React.PureComponent<Props, State> {
         <Checkbox
           ariaLabel={translate('issues.select_all_issues')}
           checked={thirdState ? 'indeterminate' : isChecked}
-          className="sw-mr-2"
+          className="sw-ml-4 sw-mr-3"
           id="issues-selection"
           isDisabled={issues.length === 0}
           onCheck={this.handleCheckAll}

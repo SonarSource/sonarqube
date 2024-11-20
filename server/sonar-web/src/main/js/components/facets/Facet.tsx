@@ -131,7 +131,6 @@ export default class Facet extends React.PureComponent<Props> {
         })}
         data-property={property}
         loading={fetching}
-        clearIconLabel={translate('clear')}
         count={values.length}
         id={headerId}
         name={headerName ?? translate('coding_rules.facet', property)}
