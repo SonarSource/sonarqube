@@ -33,6 +33,7 @@ import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
 import MetricsContextProvider from './metrics/MetricsContextProvider';
+import ModeTour from './ModeTour';
 import GlobalNav from './nav/global/GlobalNav';
 import PromotionNotification from './promotion-notification/PromotionNotification';
 import StartupModal from './StartupModal';
@@ -98,6 +99,7 @@ export default function GlobalContainer() {
                         <NCDAutoUpdateMessage />
                         <UpdateNotification dismissable />
                         <GlobalNav location={location} />
+                        <ModeTour />
                         <CalculationChangeMessage />
                         {/* The following is the portal anchor point for the component nav
                          * See ComponentContainer.tsx

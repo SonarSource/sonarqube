@@ -18,10 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DropdownMenu } from '@sonarsource/echoes-react';
+import { DropdownMenu, IconSlideshow } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { useCurrentUser } from '../../app/components/current-user/CurrentUserContext';
+import { CustomEvents } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
+import { Permissions } from '../../types/permissions';
 import { SuggestionLink } from '../../types/types';
 import { DocItemLink } from './DocItemLink';
 import { SuggestionsContext } from './SuggestionsContext';
@@ -44,11 +47,20 @@ function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }
 
 export function EmbedDocsPopup() {
   const firstItemRef = React.useRef<HTMLAnchorElement>(null);
+  const { currentUser } = useCurrentUser();
   const { suggestions } = React.useContext(SuggestionsContext);
 
   React.useEffect(() => {
     firstItemRef.current?.focus();
   }, []);
+
+  const runModeTour = () => {
+    document.dispatchEvent(new CustomEvent(CustomEvents.RunTourMode));
+  };
+
+  const isAdminOrQGAdmin =
+    currentUser.permissions?.global.includes(Permissions.Admin) ||
+    currentUser.permissions?.global.includes(Permissions.QualityGateAdmin);
 
   return (
     <>
@@ -83,6 +95,22 @@ export function EmbedDocsPopup() {
       </DropdownMenu.ItemLink>
 
       <DropdownMenu.ItemLink to="https://twitter.com/SonarQube">X @SonarQube</DropdownMenu.ItemLink>
+
+      {isAdminOrQGAdmin && (
+        <>
+          <DropdownMenu.Separator />
+
+          <DropdownMenu.GroupLabel>{translate('tours')}</DropdownMenu.GroupLabel>
+
+          <DropdownMenu.ItemButton
+            prefix={<IconSlideshow />}
+            data-guiding-id="mode-tour-2"
+            onClick={runModeTour}
+          >
+            {translate('mode_tour.name')}
+          </DropdownMenu.ItemButton>
+        </>
+      )}
     </>
   );
 }

@@ -25,15 +25,33 @@ import {
   DropdownMenuAlign,
   IconQuestionMark,
 } from '@sonarsource/echoes-react';
+import { useEffect, useState } from 'react';
+import { CustomEvents } from '../../helpers/constants';
 import { translate } from '../../helpers/l10n';
 import { EmbedDocsPopup } from './EmbedDocsPopup';
 
 export default function EmbedDocsPopupHelper() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const openListener = () => setOpen(true);
+    const closeListener = () => setOpen(false);
+    document.addEventListener(CustomEvents.OpenHelpMenu, openListener);
+    document.addEventListener(CustomEvents.CloseHelpMenu, closeListener);
+    return () => {
+      document.removeEventListener(CustomEvents.OpenHelpMenu, openListener);
+      document.addEventListener(CustomEvents.CloseHelpMenu, closeListener);
+    };
+  }, []);
+
   return (
     <div className="dropdown">
       <DropdownMenu.Root
         align={DropdownMenuAlign.End}
         id="help-menu-dropdown"
+        isOpen={open}
+        onOpen={() => setOpen(true)}
+        onClose={() => setOpen(false)}
         items={<EmbedDocsPopup />}
       >
         <ButtonIcon

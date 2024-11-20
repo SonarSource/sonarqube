@@ -183,33 +183,35 @@ function TooltipComponent({
         </div>
       )}
 
-      <div className="sw-flex sw-justify-between sw-items-center sw-mt-4">
-        {(stepXofYLabel || size > 1) && (
-          <strong>
-            {stepXofYLabel
-              ? stepXofYLabel(index + 1, size)
-              : intl.formatMessage({ id: 'guiding.step_x_of_y' }, { '0': index + 1, '1': size })}
-          </strong>
-        )}
-        <span />
-        <div>
-          {index > 0 && (
-            <Button className="sw-mr-4" variety={ButtonVariety.DefaultGhost} {...backProps}>
-              {backProps.title}
-            </Button>
+      {!step.hideFooter && (
+        <div className="sw-flex sw-justify-between sw-items-center sw-mt-4">
+          {(stepXofYLabel || size > 1) && (
+            <strong>
+              {stepXofYLabel
+                ? stepXofYLabel(index + 1, size)
+                : intl.formatMessage({ id: 'guiding.step_x_of_y' }, { '0': index + 1, '1': size })}
+            </strong>
           )}
-          {continuous && !isLastStep && (
-            <Button variety={ButtonVariety.Primary} {...primaryProps}>
-              {primaryProps.title}
-            </Button>
-          )}
-          {(!continuous || isLastStep) && (
-            <Button variety={ButtonVariety.Primary} {...closeProps}>
-              {closeProps.title}
-            </Button>
-          )}
+          <span />
+          <div>
+            {index > 0 && (
+              <Button className="sw-mr-4" variety={ButtonVariety.DefaultGhost} {...backProps}>
+                {backProps.title}
+              </Button>
+            )}
+            {continuous && !isLastStep && (
+              <Button variety={ButtonVariety.Primary} {...primaryProps}>
+                {primaryProps.title}
+              </Button>
+            )}
+            {(!continuous || isLastStep) && (
+              <Button variety={ButtonVariety.Primary} {...closeProps}>
+                {closeProps.title}
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </StyledPopupWrapper>
   );
 }

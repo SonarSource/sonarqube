@@ -284,3 +284,9 @@ export const IMPORT_COMPATIBLE_ALMS = [
 export const GRADLE_SCANNER_VERSION = '6.0.0.5145';
 
 export const ONE_SECOND = 1000;
+
+export enum CustomEvents {
+  OpenHelpMenu = 'open-help-menu',
+  CloseHelpMenu = 'close-help-menu',
+  RunTourMode = 'runTour-mode',
+}

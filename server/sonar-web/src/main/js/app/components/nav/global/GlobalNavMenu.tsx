@@ -133,6 +133,7 @@ class GlobalNavMenu extends React.PureComponent<Props> {
     return (
       <MainMenuItem>
         <NavLink
+          data-guiding-id="mode-tour-1"
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
           to="/admin/settings"
         >
