@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 
 public class IssueFindingDto {
@@ -42,6 +43,7 @@ public class IssueFindingDto {
   private boolean isNewCodeReferenceIssue;
   private long creationDate;
   private List<String> comments;
+  private Set<ImpactDto> impacts;
 
   public String getStatus() {
     return status;
@@ -110,5 +112,9 @@ public class IssueFindingDto {
 
   public List<String> getComments() {
     return comments;
+  }
+
+  public Set<ImpactDto> getImpacts() {
+    return impacts;
   }
 }

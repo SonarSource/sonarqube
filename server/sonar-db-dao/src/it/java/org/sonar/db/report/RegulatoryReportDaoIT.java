@@ -24,10 +24,13 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 
@@ -63,7 +66,8 @@ class RegulatoryReportDaoIT {
 
   @Test
   void scrollIssues_returns_all_non_closed_issues_for_project() {
-    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.BUG).setStatus("OPEN").setResolution(null));
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.BUG).setStatus("OPEN").setResolution(null)
+      .replaceAllImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM))));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file,
       i -> i.setType(RuleType.VULNERABILITY).setStatus("CONFIRMED").setResolution(null));
     IssueDto issue3 = db.issues().insertHotspot(hotspotRule, project, file,
@@ -105,5 +109,6 @@ class RegulatoryReportDaoIT {
     assertThat(issue.getResolution()).isEqualTo(issue1.getResolution());
     assertThat(issue.getStatus()).isEqualTo(issue1.getStatus());
     assertThat(issue.getComments()).containsExactly("c1", "c2");
+    assertThat(issue.getImpacts()).containsExactly(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
   }
 }
