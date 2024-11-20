@@ -20,15 +20,22 @@
 package org.sonar.scanner.http.ssl;
 
 import java.nio.file.Path;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class CertificateStore {
-  public static final String DEFAULT_PASSWORD = "sonar";
+  public static final String DEFAULT_PASSWORD = "changeit";
+  /**
+   * @deprecated it was a bad decision to use this value as default password, as the keytool utility requires a password to be at least 6 characters long
+   */
+  @Deprecated(since = "11.4")
+  public static final String OLD_DEFAULT_PASSWORD = "sonar";
   public static final String DEFAULT_STORE_TYPE = "PKCS12";
   private final Path path;
   private final String keyStorePassword;
   private final String keyStoreType;
 
-  public CertificateStore(Path path, String keyStorePassword) {
+  public CertificateStore(Path path, @Nullable String keyStorePassword) {
     this.path = path;
     this.keyStorePassword = keyStorePassword;
     this.keyStoreType = DEFAULT_STORE_TYPE;
@@ -38,8 +45,8 @@ public class CertificateStore {
     return path;
   }
 
-  public String getKeyStorePassword() {
-    return keyStorePassword;
+  public Optional<String> getKeyStorePassword() {
+    return Optional.ofNullable(keyStorePassword);
   }
 
   public String getKeyStoreType() {

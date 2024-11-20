@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import javax.annotation.Nullable;
 import nl.altindag.ssl.exception.GenericKeyStoreException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -38,6 +39,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junitpioneer.jupiter.RestoreSystemProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.System2;
@@ -58,6 +61,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -107,6 +112,61 @@ class ScannerWsClientProviderTest {
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
     assertThat(httpConnector.baseUrl()).isEqualTo("https://here/sonarqube/");
     assertThat(httpConnector.okHttpClient().proxy()).isNull();
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "keystore_changeit.p12, wrong,        false",
+    "keystore_changeit.p12, changeit,     true",
+    "keystore_changeit.p12,,              true",
+    "keystore_sonar.p12,    wrong,        false",
+    "keystore_sonar.p12,    sonar,        true",
+    "keystore_sonar.p12,,                 true",
+    "keystore_anotherpwd.p12, wrong,      false",
+    "keystore_anotherpwd.p12, anotherpwd, true",
+    "keystore_anotherpwd.p12,,            false"})
+  void it_should_fail_if_invalid_truststore_password(String keystore, @Nullable String password, boolean shouldSucceed) {
+    scannerProps.put("sonar.scanner.truststorePath", toPath(requireNonNull(ScannerWsClientProviderTest.class.getResource("/ssl/" + keystore))).toString());
+    if (password != null) {
+      scannerProps.put("sonar.scanner.truststorePassword", password);
+    }
+
+    var scannerPropsObj = new ScannerProperties(scannerProps);
+    if (shouldSucceed) {
+      assertThatNoException().isThrownBy(() -> underTest.provide(scannerPropsObj, env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome));
+    } else {
+      assertThatThrownBy(() -> underTest.provide(scannerPropsObj, env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome))
+        .isInstanceOf(GenericKeyStoreException.class)
+        .hasMessageContaining("Unable to read truststore from")
+        .hasStackTraceContaining("wrong password or corrupted file");
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "keystore_changeit.p12, wrong,        false",
+    "keystore_changeit.p12, changeit,     true",
+    "keystore_changeit.p12,,              true",
+    "keystore_sonar.p12,    wrong,        false",
+    "keystore_sonar.p12,    sonar,        true",
+    "keystore_sonar.p12,,                 true",
+    "keystore_anotherpwd.p12, wrong,      false",
+    "keystore_anotherpwd.p12, anotherpwd, true",
+    "keystore_anotherpwd.p12,,            false"})
+  void it_should_fail_if_invalid_keystore_password(String keystore, @Nullable String password, boolean shouldSucceed) {
+    scannerProps.put("sonar.scanner.keystorePath", toPath(requireNonNull(ScannerWsClientProviderTest.class.getResource("/ssl/" + keystore))).toString());
+    if (password != null) {
+      scannerProps.put("sonar.scanner.keystorePassword", password);
+    }
+
+    var scannerPropsObj = new ScannerProperties(scannerProps);
+    if (shouldSucceed) {
+      assertThatNoException().isThrownBy(() -> underTest.provide(scannerPropsObj, env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome));
+    } else {
+      assertThatThrownBy(() -> underTest.provide(scannerPropsObj, env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome))
+        .isInstanceOf(GenericKeyStoreException.class)
+        .hasMessageContaining("keystore password was incorrect");
+    }
   }
 
   @Nested
@@ -319,19 +379,6 @@ class ScannerWsClientProviderTest {
         assertThat(r.code()).isEqualTo(200);
         assertThat(r.content()).isEqualTo("Success");
       }
-    }
-
-    @Test
-    void it_should_fail_if_invalid_truststore_password() {
-      scannerProps.put("sonar.host.url", sonarqubeMock.baseUrl());
-      scannerProps.put("sonar.scanner.truststorePath", toPath(requireNonNull(ScannerWsClientProviderTest.class.getResource("/ssl/client-truststore.p12"))).toString());
-      scannerProps.put("sonar.scanner.truststorePassword", "wrong_password");
-
-      var scannerPropsObj = new ScannerProperties(scannerProps);
-      var thrown = assertThrows(GenericKeyStoreException.class,
-        () -> underTest.provide(scannerPropsObj, env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome));
-
-      assertThat(thrown).hasStackTraceContaining("Unable to read truststore");
     }
   }
 

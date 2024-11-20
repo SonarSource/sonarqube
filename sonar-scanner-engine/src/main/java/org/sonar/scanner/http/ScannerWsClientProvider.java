@@ -32,8 +32,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
+import javax.annotation.Nullable;
 import nl.altindag.ssl.SSLFactory;
 import nl.altindag.ssl.exception.GenericKeyStoreException;
+import nl.altindag.ssl.util.KeyStoreUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,10 +139,10 @@ public class ScannerWsClientProvider {
 
   private static SslConfig parseSslConfig(ScannerProperties scannerProperties, SonarUserHome sonarUserHome) {
     var keyStorePath = defaultIfBlank(scannerProperties.property("sonar.scanner.keystorePath"), sonarUserHome.getPath().resolve("ssl/keystore.p12").toString());
-    var keyStorePassword = defaultIfBlank(scannerProperties.property("sonar.scanner.keystorePassword"), CertificateStore.DEFAULT_PASSWORD);
-    var trustStorePath = defaultIfBlank(scannerProperties.property("sonar.scanner.truststorePath"), sonarUserHome.getPath().resolve("ssl/truststore.p12").toString());
-    var trustStorePassword = defaultIfBlank(scannerProperties.property("sonar.scanner.truststorePassword"), CertificateStore.DEFAULT_PASSWORD);
+    var keyStorePassword = scannerProperties.property("sonar.scanner.keystorePassword");
     var keyStore = new CertificateStore(Path.of(keyStorePath), keyStorePassword);
+    var trustStorePath = defaultIfBlank(scannerProperties.property("sonar.scanner.truststorePath"), sonarUserHome.getPath().resolve("ssl/truststore.p12").toString());
+    var trustStorePassword = scannerProperties.property("sonar.scanner.truststorePassword");
     var trustStore = new CertificateStore(Path.of(trustStorePath), trustStorePassword);
     return new SslConfig(keyStore, trustStore);
   }
@@ -154,15 +156,18 @@ public class ScannerWsClientProvider {
     }
     var keyStoreConfig = sslConfig.getKeyStore();
     if (keyStoreConfig != null && Files.exists(keyStoreConfig.getPath())) {
-      sslFactoryBuilder.withIdentityMaterial(keyStoreConfig.getPath(), keyStoreConfig.getKeyStorePassword().toCharArray(), keyStoreConfig.getKeyStoreType());
+      keyStoreConfig.getKeyStorePassword()
+        .ifPresentOrElse(
+          password -> sslFactoryBuilder.withIdentityMaterial(keyStoreConfig.getPath(), password.toCharArray(), keyStoreConfig.getKeyStoreType()),
+          () -> loadIdentityMaterialWithDefaultPassword(sslFactoryBuilder, keyStoreConfig.getPath()));
     }
     var trustStoreConfig = sslConfig.getTrustStore();
     if (trustStoreConfig != null && Files.exists(trustStoreConfig.getPath())) {
       KeyStore trustStore;
       try {
-        trustStore = loadKeyStoreWithBouncyCastle(
+        trustStore = loadTrustStoreWithBouncyCastle(
           trustStoreConfig.getPath(),
-          trustStoreConfig.getKeyStorePassword().toCharArray(),
+          trustStoreConfig.getKeyStorePassword().orElse(null),
           trustStoreConfig.getKeyStoreType());
         LOG.debug("Loaded truststore from '{}' containing {} certificates", trustStoreConfig.getPath(), trustStore.size());
       } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
@@ -173,12 +178,36 @@ public class ScannerWsClientProvider {
     return sslFactoryBuilder.build();
   }
 
-  static KeyStore loadKeyStoreWithBouncyCastle(Path keystorePath, char[] keystorePassword, String keystoreType) throws IOException,
+  private static void loadIdentityMaterialWithDefaultPassword(SSLFactory.Builder sslFactoryBuilder, Path path) {
+    try {
+      var keystore = KeyStoreUtils.loadKeyStore(path, CertificateStore.DEFAULT_PASSWORD.toCharArray(), CertificateStore.DEFAULT_STORE_TYPE);
+      sslFactoryBuilder.withIdentityMaterial(keystore, CertificateStore.DEFAULT_PASSWORD.toCharArray());
+    } catch (GenericKeyStoreException e) {
+      var keystore = KeyStoreUtils.loadKeyStore(path, CertificateStore.OLD_DEFAULT_PASSWORD.toCharArray(), CertificateStore.DEFAULT_STORE_TYPE);
+      LOG.warn("Using deprecated default password for keystore '{}'.", path);
+      sslFactoryBuilder.withIdentityMaterial(keystore, CertificateStore.OLD_DEFAULT_PASSWORD.toCharArray());
+    }
+  }
+
+  static KeyStore loadTrustStoreWithBouncyCastle(Path keystorePath, @Nullable String keystorePassword, String keystoreType) throws IOException,
     KeyStoreException, CertificateException, NoSuchAlgorithmException {
+    KeyStore keystore = KeyStore.getInstance(keystoreType, new BouncyCastleProvider());
+    if (keystorePassword != null) {
+      loadKeyStoreWithPassword(keystorePath, keystore, keystorePassword);
+    } else {
+      try {
+        loadKeyStoreWithPassword(keystorePath, keystore, CertificateStore.DEFAULT_PASSWORD);
+      } catch (Exception e) {
+        loadKeyStoreWithPassword(keystorePath, keystore, CertificateStore.OLD_DEFAULT_PASSWORD);
+        LOG.warn("Using deprecated default password for truststore '{}'.", keystorePath);
+      }
+    }
+    return keystore;
+  }
+
+  private static void loadKeyStoreWithPassword(Path keystorePath, KeyStore keystore, String oldDefaultPassword) throws IOException, NoSuchAlgorithmException, CertificateException {
     try (InputStream keystoreInputStream = Files.newInputStream(keystorePath, StandardOpenOption.READ)) {
-      KeyStore keystore = KeyStore.getInstance(keystoreType, new BouncyCastleProvider());
-      keystore.load(keystoreInputStream, keystorePassword);
-      return keystore;
+      keystore.load(keystoreInputStream, oldDefaultPassword.toCharArray());
     }
   }
 
