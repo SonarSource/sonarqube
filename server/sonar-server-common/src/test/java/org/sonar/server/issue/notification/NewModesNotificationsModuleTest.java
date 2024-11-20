@@ -30,6 +30,6 @@ class NewModesNotificationsModuleTest {
   void configure_shouldReturnExpectedNumberOfComponents() {
     ListContainer container = new ListContainer();
     new NewModesNotificationsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(7);
+    assertThat(container.getAddedObjects()).hasSize(8);
   }
 }

@@ -33,6 +33,7 @@ public class NewModesNotificationsModule extends Module {
 
       QualityGateMetricsUpdateNotification.class,
       QualityGateMetricsUpdateNotificationHandler.class,
+      QualityGateMetricsUpdateNotificationHandler.newMetadata(),
       QualityGateMetricsUpdateTemplate.class);
   }
 

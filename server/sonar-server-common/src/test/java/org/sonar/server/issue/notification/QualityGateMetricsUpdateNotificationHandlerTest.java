@@ -28,9 +28,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.permission.AuthorizationDao;
+import org.sonar.db.property.PropertiesDao;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +42,7 @@ class QualityGateMetricsUpdateNotificationHandlerTest {
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession dbSession = mock(DbSession.class);
   private final AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+  private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
   private final EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
 
   private final QualityGateMetricsUpdateNotificationHandler underTest = new QualityGateMetricsUpdateNotificationHandler(dbClient,
@@ -47,17 +52,33 @@ class QualityGateMetricsUpdateNotificationHandlerTest {
   public void wire_mocks() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.authorizationDao()).thenReturn(authorizationDao);
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
   }
 
   @Test
   void toEmailDeliveryRequests_whenHasAdmins_shouldSendExpectedNotification() {
     when(authorizationDao.selectQualityGateAdministratorLogins(dbSession))
-      .thenReturn(Set.of(new EmailSubscriberDto().setEmail("email@email.com"), new EmailSubscriberDto().setEmail("email2@email.com")));
+      .thenReturn(Set.of(new EmailSubscriberDto().setLogin("login1").setEmail("email@email.com"), new EmailSubscriberDto().setLogin("login2").setEmail("email2@email.com")));
+
+    when(propertiesDao.findEmailSubscribersForNotification(eq(dbSession), eq(QualityGateMetricsUpdateNotificationHandler.KEY), any(), isNull(), eq(Set.of("login1", "login2"))))
+      .thenReturn(Set.of(new EmailSubscriberDto().setLogin("login1").setEmail("email@email.com"), new EmailSubscriberDto().setLogin("login2").setEmail("email2@email.com")));
 
     Assertions.assertThat(underTest.toEmailDeliveryRequests(List.of(new QualityGateMetricsUpdateNotification(true))))
       .extracting(EmailNotificationChannel.EmailDeliveryRequest::recipientEmail, EmailNotificationChannel.EmailDeliveryRequest::notification)
       .containsExactly(tuple("email@email.com", new QualityGateMetricsUpdateNotification(true)),
         tuple("email2@email.com", new QualityGateMetricsUpdateNotification(true)));
+  }
+
+  @Test
+  void toEmailDeliveryRequests_whenHasAdminsButNotSubscribed_shouldNotSendExpectedNotification() {
+    when(authorizationDao.selectQualityGateAdministratorLogins(dbSession))
+      .thenReturn(Set.of(new EmailSubscriberDto().setLogin("login1").setEmail("email@email.com")));
+
+    when(propertiesDao.findEmailSubscribersForNotification(eq(dbSession), eq(QualityGateMetricsUpdateNotificationHandler.KEY), any(), isNull(), eq(Set.of("login1"))))
+      .thenReturn(Set.of());
+
+    Assertions.assertThat(underTest.toEmailDeliveryRequests(List.of(new QualityGateMetricsUpdateNotification(true))))
+      .isEmpty();
   }
 
   @Test

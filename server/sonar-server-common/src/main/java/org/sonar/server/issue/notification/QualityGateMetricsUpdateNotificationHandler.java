@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.EmailSubscriberDto;
 import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.email.EmailNotificationChannel;
@@ -31,6 +32,11 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 import static java.util.stream.Collectors.toSet;
 
 public class QualityGateMetricsUpdateNotificationHandler extends EmailNotificationHandler<QualityGateMetricsUpdateNotification> {
+  static final String KEY = "QualityGateConditionsMismatch";
+  private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
+    .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+    .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(false));
+
   private final DbClient dbClient;
 
   protected QualityGateMetricsUpdateNotificationHandler(DbClient dbClient, EmailNotificationChannel emailChannel) {
@@ -41,8 +47,20 @@ public class QualityGateMetricsUpdateNotificationHandler extends EmailNotificati
   @Override
   protected Set<EmailNotificationChannel.EmailDeliveryRequest> toEmailDeliveryRequests(Collection<QualityGateMetricsUpdateNotification> notifications) {
     try (DbSession session = dbClient.openSession(false)) {
-      return dbClient.authorizationDao()
-        .selectQualityGateAdministratorLogins(session)
+
+      Set<String> logins = dbClient.authorizationDao()
+        .selectQualityGateAdministratorLogins(session).stream()
+        .map(EmailSubscriberDto::getLogin)
+        .collect(toSet());
+
+      if (logins.isEmpty()) {
+        return Set.of();
+      }
+
+      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEmailSubscribersForNotification(
+        session, KEY, EmailNotificationChannel.class.getSimpleName(), null, logins);
+
+      return emailSubscribers
         .stream()
         .flatMap(t -> notifications.stream().map(notification -> new EmailNotificationChannel.EmailDeliveryRequest(t.getEmail(), notification)))
         .collect(toSet());
@@ -51,7 +69,11 @@ public class QualityGateMetricsUpdateNotificationHandler extends EmailNotificati
 
   @Override
   public Optional<NotificationDispatcherMetadata> getMetadata() {
-    return Optional.empty();
+    return Optional.of(METADATA);
+  }
+
+  public static NotificationDispatcherMetadata newMetadata() {
+    return METADATA;
   }
 
   @Override
