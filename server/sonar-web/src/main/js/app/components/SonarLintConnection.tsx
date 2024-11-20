@@ -141,11 +141,6 @@ export function SonarLintConnection({ appState, currentUser }: Readonly<Props>) 
       {status === Status.request && (
         <>
           <Title>{translate('sonarlint-connection.request.title')}</Title>
-          <Image
-            alt="sonarlint-connection-request"
-            className="sw-my-4"
-            src="/images/SonarLint-connection-request.png"
-          />
           <p className="sw-my-4">
             {translateWithParameters('sonarlint-connection.request.description', ideName)}
           </p>
