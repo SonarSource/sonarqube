@@ -19,9 +19,9 @@
  */
 
 import { useIntl } from 'react-intl';
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { DocLink } from '../../../helpers/doc-links';
 import { useStandardExperienceMode } from '../../../queries/settings';
-import { FacetHelp } from './FacetHelp';
 
 export default function QGMetricsMismatchHelp() {
   const intl = useIntl();

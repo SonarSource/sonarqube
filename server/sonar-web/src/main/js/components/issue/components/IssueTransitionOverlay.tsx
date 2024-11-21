@@ -23,7 +23,6 @@ import { useIntl } from 'react-intl';
 import {
   ButtonPrimary,
   ButtonSecondary,
-  HighlightRing,
   InputTextArea,
   ItemDivider,
   PageContentFontWrapper,
@@ -77,30 +76,24 @@ export function IssueTransitionOverlay(props: Readonly<Props>) {
   return (
     <ul className="sw-flex sw-flex-col">
       {filteredTransitionsRecommended.map((transition) => (
-        <HighlightRing
+        <IssueTransitionItem
           key={transition}
-          data-guiding-id={transition === IssueTransition.Accept ? 'issue-accept-transition' : ''}
-        >
-          <IssueTransitionItem
-            transition={transition}
-            selected={selectedTransition === transition}
-            onSelectTransition={selectTransition}
-          />
-        </HighlightRing>
+          transition={transition}
+          selected={selectedTransition === transition}
+          onSelectTransition={selectTransition}
+        />
       ))}
       {filteredTransitionsRecommended.length > 0 && filteredTransitionsDeprecated.length > 0 && (
         <ItemDivider />
       )}
-      <HighlightRing data-guiding-id="issue-deprecated-transitions">
-        {filteredTransitionsDeprecated.map((transition) => (
-          <IssueTransitionItem
-            key={transition}
-            transition={transition}
-            selected={selectedTransition === transition}
-            onSelectTransition={selectTransition}
-          />
-        ))}
-      </HighlightRing>
+      {filteredTransitionsDeprecated.map((transition) => (
+        <IssueTransitionItem
+          key={transition}
+          transition={transition}
+          selected={selectedTransition === transition}
+          onSelectTransition={selectTransition}
+        />
+      ))}
 
       {selectedTransition && (
         <>

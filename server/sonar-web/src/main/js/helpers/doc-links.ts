@@ -51,6 +51,8 @@ export enum DocLink {
   CIAnalysisSetup = '/analyzing-source-code/ci-integration/overview/',
   CIJenkins = '/analyzing-source-code/ci-integration/jenkins-integration/key-features/',
   CleanCodeIntroduction = '/core-concepts/clean-code/introduction/',
+  CleanCodeSoftwareQualities = '/core-concepts/clean-code/software-qualities/',
+  CleanCodeDefinition = '/core-concepts/clean-code/definition/',
   CodeAnalysis = '/core-concepts/clean-code/code-analysis/',
   InactiveBranches = '/project-administration/maintaining-the-branches-of-your-project/#manage-inactive-branches',
   InstanceAdminEncryption = '/instance-administration/system-functions/security/#settings-encryption',

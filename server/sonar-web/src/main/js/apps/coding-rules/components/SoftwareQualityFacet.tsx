@@ -20,7 +20,9 @@
 
 import * as React from 'react';
 import Facet, { BasicProps } from '../../../components/facets/Facet';
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 export default function SoftwareQualityFacet(props: BasicProps) {
@@ -36,6 +38,9 @@ export default function SoftwareQualityFacet(props: BasicProps) {
       property="impactSoftwareQualities"
       renderName={renderName}
       renderTextName={renderName}
+      help={
+        <FacetHelp property="impactSoftwareQualities" link={DocLink.CleanCodeSoftwareQualities} />
+      }
     />
   );
 }

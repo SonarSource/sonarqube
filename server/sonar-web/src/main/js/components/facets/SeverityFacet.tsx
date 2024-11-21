@@ -20,13 +20,13 @@
 
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { FacetHelp } from '../../apps/issues/sidebar/FacetHelp';
 import QGMetricsMismatchHelp from '../../apps/issues/sidebar/QGMetricsMismatchHelp';
 import { IMPACT_SEVERITIES } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
 import Facet, { BasicProps } from './Facet';
+import { FacetHelp } from './FacetHelp';
 
 export default function SeverityFacet(props: Readonly<BasicProps>) {
   const intl = useIntl();

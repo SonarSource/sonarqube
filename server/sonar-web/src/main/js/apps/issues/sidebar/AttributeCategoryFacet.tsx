@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { CLEAN_CODE_CATEGORIES } from '../../../helpers/constants';
 import { DocLink } from '../../../helpers/doc-links';
 import { CleanCodeAttributeCategory } from '../../../types/clean-code-taxonomy';
-import { FacetHelp } from './FacetHelp';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
@@ -41,7 +41,7 @@ export function AttributeCategoryFacet(props: Props) {
         <FacetHelp
           property="cleanCodeAttributeCategories"
           noDescription
-          link={DocLink.CleanCodeIntroduction}
+          link={DocLink.CleanCodeDefinition}
         />
       }
       {...rest}

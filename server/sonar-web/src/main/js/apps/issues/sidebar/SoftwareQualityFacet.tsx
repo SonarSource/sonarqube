@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { DocLink } from '../../../helpers/doc-links';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
-import { FacetHelp } from './FacetHelp';
 import QGMetricsMismatchHelp from './QGMetricsMismatchHelp';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
@@ -42,7 +42,7 @@ export function SoftwareQualityFacet(props: Props) {
         props.secondLine ? (
           <QGMetricsMismatchHelp />
         ) : (
-          <FacetHelp property="impactSoftwareQualities" link={DocLink.CleanCodeIntroduction} />
+          <FacetHelp property="impactSoftwareQualities" link={DocLink.CleanCodeSoftwareQualities} />
         )
       }
       {...rest}

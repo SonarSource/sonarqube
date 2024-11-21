@@ -20,8 +20,8 @@
 
 import { Button, ButtonVariety, IconQuestionMark, Popover } from '@sonarsource/echoes-react';
 import { useIntl } from 'react-intl';
-import DocumentationLink from '../../../components/common/DocumentationLink';
-import { DocLink } from '../../../helpers/doc-links';
+import { DocLink } from '../../helpers/doc-links';
+import DocumentationLink from '../common/DocumentationLink';
 
 type Props =
   | {
@@ -51,8 +51,9 @@ export function FacetHelp({ property, title, description, noDescription, link, l
           : title
       }
       description={
-        ((property !== undefined && !noDescription) || description) && property
-          ? intl.formatMessage(
+        property
+          ? !noDescription &&
+            intl.formatMessage(
               { id: `issues.facet.${property}.help.description` },
               { p1: (text) => <p>{text}</p>, p: (text) => <p className="sw-mt-4">{text}</p> },
             )
