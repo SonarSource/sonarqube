@@ -20,12 +20,13 @@
 
 import { cloneDeep } from 'lodash';
 import {
-  checkSuggestionServiceStatus,
   FixParam,
+  getFixSuggestionServiceInfo,
   getFixSuggestionsIssues,
   getSuggestions,
+  ServiceInfo,
+  SubscriptionType,
   SuggestionServiceStatus,
-  SuggestionServiceStatusCheckResponse,
   updateFeatureEnablement,
   UpdateFeatureEnablementParams,
 } from '../fix-suggestions';
@@ -33,7 +34,11 @@ import { ISSUE_101, ISSUE_1101 } from './data/ids';
 
 jest.mock('../fix-suggestions');
 
-export type MockSuggestionServiceStatus = SuggestionServiceStatus | 'WTF' | undefined;
+export type MockFixSuggestionServiceInfo = {
+  isEnabled?: boolean;
+  status: SuggestionServiceStatus | 'WTF';
+  subscriptionType?: SubscriptionType | 'WTF';
+};
 
 export default class FixSuggestionsServiceMock {
   fixSuggestion = {
@@ -50,12 +55,15 @@ export default class FixSuggestionsServiceMock {
     ],
   };
 
-  serviceStatus: MockSuggestionServiceStatus = 'SUCCESS';
+  serviceInfo: MockFixSuggestionServiceInfo | undefined = {
+    status: 'SUCCESS',
+    subscriptionType: 'PAID',
+  };
 
   constructor() {
     jest.mocked(getSuggestions).mockImplementation(this.handleGetFixSuggestion);
     jest.mocked(getFixSuggestionsIssues).mockImplementation(this.handleGetFixSuggestionsIssues);
-    jest.mocked(checkSuggestionServiceStatus).mockImplementation(this.handleCheckService);
+    jest.mocked(getFixSuggestionServiceInfo).mockImplementation(this.handleGetServiceInfo);
     jest.mocked(updateFeatureEnablement).mockImplementation(this.handleUpdateFeatureEnablement);
   }
 
@@ -73,9 +81,9 @@ export default class FixSuggestionsServiceMock {
     return this.reply(this.fixSuggestion);
   };
 
-  handleCheckService = () => {
-    if (this.serviceStatus) {
-      return this.reply({ status: this.serviceStatus } as SuggestionServiceStatusCheckResponse);
+  handleGetServiceInfo = () => {
+    if (this.serviceInfo) {
+      return this.reply(this.serviceInfo as ServiceInfo);
     }
     return Promise.reject({ error: { msg: 'Error' } });
   };
@@ -92,7 +100,7 @@ export default class FixSuggestionsServiceMock {
     });
   }
 
-  setServiceStatus(status: MockSuggestionServiceStatus) {
-    this.serviceStatus = status;
+  setServiceInfo(info: MockFixSuggestionServiceInfo | undefined) {
+    this.serviceInfo = info;
   }
 }

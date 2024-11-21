@@ -33,14 +33,14 @@ import {
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY,
 } from '../constants';
-import AiCodeFixAdmin from './AiCodeFixAdmin';
+import AiCodeFixAdmin from './ai-codefix/AiCodeFixAdminCategory';
+import AlmIntegration from './almIntegration/AlmIntegration';
 import { AnalysisScope } from './AnalysisScope';
+import Authentication from './authentication/Authentication';
+import EmailNotification from './email-notification/EmailNotification';
 import Languages from './Languages';
 import { Mode } from './Mode';
 import NewCodeDefinition from './NewCodeDefinition';
-import AlmIntegration from './almIntegration/AlmIntegration';
-import Authentication from './authentication/Authentication';
-import EmailNotification from './email-notification/EmailNotification';
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {

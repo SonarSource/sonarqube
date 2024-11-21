@@ -24,11 +24,20 @@ import { themeBorder, themeColor } from '~design-system';
 
 interface Props {
   content: React.ReactNode;
+  image?: React.ReactNode;
   title: string;
 }
 
-export default function PromotedSection({ content, title }: Readonly<Props>) {
-  return (
+export default function PromotedSection({ content, image, title }: Readonly<Props>) {
+  return image ? (
+    <StyledWrapper className="sw-flex sw-items-center sw-p-4 sw-gap-8 sw-pl-6 sw-my-6 sw-rounded-2">
+      {image}
+      <div className="sw-flex-col sw-mb-2">
+        <StyledTitle className="sw-typo-lg-semibold sw-mb-4">{title}</StyledTitle>
+        <div className="sw-typo-default">{content}</div>
+      </div>
+    </StyledWrapper>
+  ) : (
     <StyledWrapper className="sw-p-4 sw-pl-6 sw-my-6 sw-rounded-2">
       <div className="sw-flex sw-justify-between sw-mb-2">
         <StyledTitle className="sw-typo-lg-semibold">{title}</StyledTitle>

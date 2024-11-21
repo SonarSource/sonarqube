@@ -24,7 +24,7 @@ import { useIntl } from 'react-intl';
 import { FlagMessage, LAYOUT_VIEWPORT_MIN_WIDTH, themeBorder, themeColor } from '~design-system';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import AppVersionStatus from '../../components/shared/AppVersionStatus';
-import { DocLink } from '../../helpers/doc-links';
+import { COMMUNITY_FORUM_URL, DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
@@ -82,10 +82,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             </li>
 
             <li>
-              <LinkStandalone
-                highlight={LinkHighlight.CurrentColor}
-                to="https://community.sonarsource.com/c/help/sq"
-              >
+              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={COMMUNITY_FORUM_URL}>
                 {intl.formatMessage({ id: 'footer.community' })}
               </LinkStandalone>
             </li>

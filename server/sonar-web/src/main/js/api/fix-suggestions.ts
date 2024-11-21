@@ -37,8 +37,12 @@ export type SuggestionServiceStatus =
   | 'CONNECTION_ERROR'
   | 'SERVICE_ERROR';
 
-export interface SuggestionServiceStatusCheckResponse {
+export type SubscriptionType = 'EARLY_ACCESS' | 'PAID' | 'NOT_PAID';
+
+export interface ServiceInfo {
+  isEnabled?: boolean;
   status: SuggestionServiceStatus;
+  subscriptionType?: SubscriptionType;
 }
 
 export interface UpdateFeatureEnablementParams {
@@ -57,8 +61,8 @@ export function getFixSuggestionsIssues(data: FixParam): Promise<AiIssue> {
   return axiosToCatch.get(`/api/v2/fix-suggestions/issues/${data.issueId}`);
 }
 
-export function checkSuggestionServiceStatus(): Promise<SuggestionServiceStatusCheckResponse> {
-  return axiosToCatch.post(`/api/v2/fix-suggestions/service-status-checks`);
+export function getFixSuggestionServiceInfo(): Promise<ServiceInfo> {
+  return axiosToCatch.get(`/api/v2/fix-suggestions/service-info`);
 }
 
 export function updateFeatureEnablement(

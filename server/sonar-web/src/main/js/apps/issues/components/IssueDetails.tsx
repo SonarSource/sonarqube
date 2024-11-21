@@ -31,7 +31,7 @@ import {
   themeColor,
 } from '~design-system';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { IssueSuggestionCodeTab } from '../../../components/rules/IssueSuggestionCodeTab';
+import { AiCodeFixTab } from '../../../components/rules/AiCodeFixTab';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import { fillBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -179,7 +179,7 @@ export default function IssueDetails({
                             />
                           }
                           suggestionTabContent={
-                            <IssueSuggestionCodeTab
+                            <AiCodeFixTab
                               branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
                               issue={openIssue}
                               language={openRuleDetails.lang}

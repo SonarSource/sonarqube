@@ -18,61 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from '@emotion/styled';
 import {
   Button,
   ButtonVariety,
   Checkbox,
   Heading,
-  IconCheckCircle,
-  IconError,
   IconInfo,
   Link,
   RadioButtonGroup,
-  Spinner,
   Text,
 } from '@sonarsource/echoes-react';
-import { MutationStatus } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
 import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  BasicSeparator,
-  HighlightedSection,
-  Note,
-  themeColor,
-  UnorderedList,
-} from '~design-system';
+import { Note } from '~design-system';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
-import { searchProjects } from '../../../api/components';
-import { SuggestionServiceStatusCheckResponse } from '../../../api/fix-suggestions';
-import withAvailableFeatures, {
-  WithAvailableFeaturesProps,
-} from '../../../app/components/available-features/withAvailableFeatures';
-import DocumentationLink from '../../../components/common/DocumentationLink';
+import { searchProjects } from '../../../../api/components';
+import withAvailableFeatures from '../../../../app/components/available-features/withAvailableFeatures';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
-} from '../../../components/controls/SelectList';
-import { DocLink } from '../../../helpers/doc-links';
-import { translate } from '../../../helpers/l10n';
-import { getAiCodeFixTermsOfServiceUrl } from '../../../helpers/urls';
+} from '../../../../components/controls/SelectList';
+import { translate } from '../../../../helpers/l10n';
+import { getAiCodeFixTermsOfServiceUrl } from '../../../../helpers/urls';
 import {
-  useCheckServiceMutation,
   useRemoveCodeSuggestionsCache,
   useUpdateFeatureEnablementMutation,
-} from '../../../queries/fix-suggestions';
-import { useGetValueQuery } from '../../../queries/settings';
-import { Feature } from '../../../types/features';
-import { AiCodeFixFeatureEnablement } from '../../../types/fix-suggestions';
-import { SettingsKey } from '../../../types/settings';
-import PromotedSection from '../../overview/branches/PromotedSection';
-
-interface Props extends WithAvailableFeaturesProps {}
+} from '../../../../queries/fix-suggestions';
+import { useGetValueQuery } from '../../../../queries/settings';
+import { AiCodeFixFeatureEnablement } from '../../../../types/fix-suggestions';
+import { SettingsKey } from '../../../../types/settings';
+import PromotedSection from '../../../overview/branches/PromotedSection';
 
 const AI_CODE_FIX_SETTING_KEY = SettingsKey.CodeSuggestion;
 
-function AiCodeFixAdmin({ hasFeature }: Readonly<Props>) {
+interface AiCodeFixEnablementFormProps {
+  isEarlyAccess?: boolean;
+}
+
+function AiCodeFixEnablementForm({ isEarlyAccess }: Readonly<AiCodeFixEnablementFormProps>) {
   const { data: aiCodeFixSetting } = useGetValueQuery({
     key: AI_CODE_FIX_SETTING_KEY,
   });
@@ -86,14 +69,6 @@ function AiCodeFixAdmin({ hasFeature }: Readonly<Props>) {
   );
   const [currentAiCodeFixEnablement, setCurrentAiCodeFixEnablement] =
     React.useState(savedAiCodeFixEnablement);
-  const {
-    mutate: checkService,
-    isIdle,
-    isPending: isServiceCheckPending,
-    status,
-    error,
-    data,
-  } = useCheckServiceMutation();
 
   const { mutate: updateFeatureEnablement } = useUpdateFeatureEnablementMutation();
   const [changedProjects, setChangedProjects] = React.useState<Map<string, boolean>>(new Map());
@@ -145,10 +120,6 @@ function AiCodeFixAdmin({ hasFeature }: Readonly<Props>) {
       updateItemsWithSearchResult(currentSearchResults, new Map());
     }
   };
-
-  if (!hasFeature(Feature.FixSuggestions)) {
-    return null;
-  }
 
   const renderProjectElement = (projectKey: string): React.ReactNode => {
     const project = currentTabItems.find((project) => project.key === projectKey);
@@ -251,17 +222,19 @@ function AiCodeFixAdmin({ hasFeature }: Readonly<Props>) {
         <Heading as="h2" hasMarginBottom>
           {translate('property.aicodefix.admin.title')}
         </Heading>
-        <PromotedSection
-          content={
-            <>
-              <p>{translate('property.aicodefix.admin.promoted_section.content1')}</p>
-              <p className="sw-mt-2">
-                {translate('property.aicodefix.admin.promoted_section.content2')}
-              </p>
-            </>
-          }
-          title={translate('property.aicodefix.admin.promoted_section.title')}
-        />
+        {isEarlyAccess && (
+          <PromotedSection
+            content={
+              <>
+                <p>{translate('property.aicodefix.admin.early_access.content1')}</p>
+                <p className="sw-mt-2">
+                  {translate('property.aicodefix.admin.early_access.content2')}
+                </p>
+              </>
+            }
+            title={translate('property.aicodefix.admin.early_access.title')}
+          />
+        )}
         <p>{translate('property.aicodefix.admin.description')}</p>
         <Checkbox
           className="sw-my-6"
@@ -357,32 +330,6 @@ function AiCodeFixAdmin({ hasFeature }: Readonly<Props>) {
           </div>
         </div>
       </div>
-      <div className="sw-flex-col sw-w-abs-600 sw-p-6">
-        <HighlightedSection className="sw-items-start">
-          <Heading as="h3" hasMarginBottom>
-            {translate('property.aicodefix.admin.serviceCheck.title')}
-          </Heading>
-          <p>{translate('property.aicodefix.admin.serviceCheck.description1')}</p>
-          <DocumentationLink to={DocLink.AiCodeFixEnabling}>
-            {translate('property.aicodefix.admin.serviceCheck.learnMore')}
-          </DocumentationLink>
-          <p>{translate('property.aicodefix.admin.serviceCheck.description2')}</p>
-          <Button
-            className="sw-mt-4"
-            variety={ButtonVariety.Default}
-            onClick={() => checkService()}
-            isDisabled={isServiceCheckPending}
-          >
-            {translate('property.aicodefix.admin.serviceCheck.action')}
-          </Button>
-          {!isIdle && (
-            <div>
-              <BasicSeparator className="sw-my-4" />
-              <ServiceCheckResultView data={data} error={error} status={status} />
-            </div>
-          )}
-        </HighlightedSection>
-      </div>
     </div>
   );
 }
@@ -405,122 +352,4 @@ interface ProjectItem {
   selected: boolean;
 }
 
-interface ServiceCheckResultViewProps {
-  data: SuggestionServiceStatusCheckResponse | undefined;
-  error: AxiosError | null;
-  status: MutationStatus;
-}
-
-function ServiceCheckResultView({ data, error, status }: Readonly<ServiceCheckResultViewProps>) {
-  switch (status) {
-    case 'pending':
-      return <Spinner label={translate('property.aicodefix.admin.serviceCheck.spinner.label')} />;
-    case 'error':
-      return (
-        <ErrorMessage
-          text={`${translate('property.aicodefix.admin.serviceCheck.result.requestError')} ${error?.status ?? 'No status'}`}
-        />
-      );
-    case 'success':
-      return ServiceCheckValidResponseView(data);
-  }
-  // normally unreachable
-  throw Error(`Unexpected response from the service status check, received ${status}`);
-}
-
-function ServiceCheckValidResponseView(data: SuggestionServiceStatusCheckResponse | undefined) {
-  switch (data?.status) {
-    case 'SUCCESS':
-      return (
-        <SuccessMessage text={translate('property.aicodefix.admin.serviceCheck.result.success')} />
-      );
-    case 'TIMEOUT':
-    case 'CONNECTION_ERROR':
-      return (
-        <div className="sw-flex">
-          <IconError className="sw-mr-1" color="echoes-color-icon-danger" />
-          <div className="sw-flex-col">
-            <ErrorLabel
-              text={translate('property.aicodefix.admin.serviceCheck.result.unresponsive.message')}
-            />
-            <p className="sw-mt-4">
-              <ErrorLabel
-                text={translate(
-                  'property.aicodefix.admin.serviceCheck.result.unresponsive.causes.title',
-                )}
-              />
-            </p>
-            <UnorderedList className="sw-ml-8" ticks>
-              <ErrorListItem className="sw-mb-2">
-                <ErrorLabel
-                  text={translate(
-                    'property.aicodefix.admin.serviceCheck.result.unresponsive.causes.1',
-                  )}
-                />
-              </ErrorListItem>
-              <ErrorListItem>
-                <ErrorLabel
-                  text={translate(
-                    'property.aicodefix.admin.serviceCheck.result.unresponsive.causes.2',
-                  )}
-                />
-              </ErrorListItem>
-            </UnorderedList>
-          </div>
-        </div>
-      );
-    case 'UNAUTHORIZED':
-      return (
-        <ErrorMessage
-          text={translate('property.aicodefix.admin.serviceCheck.result.unauthorized')}
-        />
-      );
-    case 'SERVICE_ERROR':
-      return (
-        <ErrorMessage
-          text={translate('property.aicodefix.admin.serviceCheck.result.serviceError')}
-        />
-      );
-    default:
-      return (
-        <ErrorMessage
-          text={`${translate('property.aicodefix.admin.serviceCheck.result.unknown')} ${data?.status ?? 'no status returned from the service'}`}
-        />
-      );
-  }
-}
-
-function ErrorMessage({ text }: Readonly<TextProps>) {
-  return (
-    <div className="sw-flex">
-      <IconError className="sw-mr-1" color="echoes-color-icon-danger" />
-      <ErrorLabel text={text} />
-    </div>
-  );
-}
-
-function ErrorLabel({ text }: Readonly<TextProps>) {
-  return <Text colorOverride="echoes-color-text-danger">{text}</Text>;
-}
-
-function SuccessMessage({ text }: Readonly<TextProps>) {
-  return (
-    <div className="sw-flex">
-      <IconCheckCircle className="sw-mr-1" color="echoes-color-icon-success" />
-      <Text colorOverride="echoes-color-text-success">{text}</Text>
-    </div>
-  );
-}
-
-const ErrorListItem = styled.li`
-  ::marker {
-    color: ${themeColor('errorText')};
-  }
-`;
-
-interface TextProps {
-  /** The text to display inside the component */
-  text: string;
-}
-
-export default withAvailableFeatures(AiCodeFixAdmin);
+export default withAvailableFeatures(AiCodeFixEnablementForm);

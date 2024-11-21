@@ -20,6 +20,8 @@
 
 import { AlmKeys } from '../types/alm-settings';
 
+export const COMMUNITY_FORUM_URL = 'https://community.sonarsource.com/c/help/sq';
+
 export const DOC_URL = 'https://docs.sonarsource.com/sonarqube/latest';
 
 export enum DocLink {

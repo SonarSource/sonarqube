@@ -23,10 +23,10 @@ import { AxiosError } from 'axios';
 import { some } from 'lodash';
 import React, { useContext } from 'react';
 import {
-  checkSuggestionServiceStatus,
+  getFixSuggestionServiceInfo,
   getFixSuggestionsIssues,
   getSuggestions,
-  SuggestionServiceStatusCheckResponse,
+  ServiceInfo,
   updateFeatureEnablement,
 } from '../api/fix-suggestions';
 import { useAvailableFeatures } from '../app/components/available-features/withAvailableFeatures';
@@ -184,14 +184,15 @@ export function withUseGetFixSuggestionsIssues<P extends { issue: Issue }>(
   };
 }
 
-export function useUpdateFeatureEnablementMutation() {
-  return useMutation({
-    mutationFn: updateFeatureEnablement,
+export function useGetServiceInfoQuery() {
+  return useQuery<ServiceInfo, AxiosError>({
+    queryKey: ['fix-suggestions', 'service-info'],
+    queryFn: getFixSuggestionServiceInfo,
   });
 }
 
-export function useCheckServiceMutation() {
-  return useMutation<SuggestionServiceStatusCheckResponse, AxiosError>({
-    mutationFn: checkSuggestionServiceStatus,
+export function useUpdateFeatureEnablementMutation() {
+  return useMutation({
+    mutationFn: updateFeatureEnablement,
   });
 }

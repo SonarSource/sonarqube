@@ -34,7 +34,7 @@ interface Props {
   language?: string;
 }
 
-export function IssueSuggestionCodeTab({ branchLike, issue, language }: Readonly<Props>) {
+export function AiCodeFixTab({ branchLike, issue, language }: Readonly<Props>) {
   const prefetchSuggestion = usePrefetchSuggestion(issue.key);
   const { isPending, isLoading, isError, refetch } = useUnifiedSuggestionsQuery(issue, false);
   const { isError: isIssueRawError } = useRawSourceQuery({

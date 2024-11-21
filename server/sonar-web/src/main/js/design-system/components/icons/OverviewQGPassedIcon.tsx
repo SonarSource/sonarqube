@@ -19,19 +19,34 @@
  */
 
 import { useTheme } from '@emotion/react';
-import { themeColor } from '../../helpers/theme';
+import { themeColor } from '../../helpers';
 
-export function OverviewQGPassedIcon({ className }: { className?: string }) {
+interface OverviewQGPassedIconProps {
+  className?: string;
+  height?: number;
+  width?: number;
+}
+
+const DEFAULT_WIDTH = 154;
+const DEFAULT_HEIGHT = 136;
+
+export function OverviewQGPassedIcon({
+  className,
+  height,
+  width,
+}: Readonly<OverviewQGPassedIconProps>) {
   const theme = useTheme();
+  const actualWidth = width ?? DEFAULT_WIDTH;
+  const actualHeight = height ?? DEFAULT_HEIGHT;
 
   return (
     <svg
       className={className}
       fill="none"
-      height="136"
+      height={actualHeight}
       role="img"
-      viewBox="0 0 154 136"
-      width="154"
+      viewBox={`0 0 ${DEFAULT_WIDTH} ${DEFAULT_HEIGHT}`}
+      width={actualWidth}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
