@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
   <sql id="gateColumns">
-      qg.uuid, qg.name, qg.is_built_in as isBuiltIn, qg.created_at as createdAt, qg.updated_at as updatedAt
+      qg.uuid, qg.name, qg.is_built_in as isBuiltIn, qg.ai_code_supported as aiCodeSupported, qg.created_at as createdAt, qg.updated_at as updatedAt
   </sql>
 
   <sql id="qualityGateFindingColumns">

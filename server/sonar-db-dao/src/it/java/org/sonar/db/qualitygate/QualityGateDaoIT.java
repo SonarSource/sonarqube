@@ -63,6 +63,7 @@ class QualityGateDaoIT {
     assertThat(reloaded.getName()).isEqualTo("My Quality Gate");
     assertThat(reloaded.getUuid()).isEqualTo(newQgate.getUuid());
     assertThat(reloaded.isBuiltIn()).isFalse();
+    assertThat(reloaded.isAiCodeSupported()).isFalse();
     assertThat(reloaded.getCreatedAt()).isNotNull();
     assertThat(reloaded.getUpdatedAt()).isNotNull();
   }
