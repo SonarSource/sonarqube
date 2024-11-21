@@ -57,7 +57,6 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
         <StyledContentCell>
           <FormattedMessage
             id="quality_gates.conditions.cayc.metric"
-            defaultMessage={translate('quality_gates.conditions.cayc.metric')}
             values={{
               metric: getLocalizedMetricNameNoDiffMetric(metric, metrics),
               operator: renderOperator(),

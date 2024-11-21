@@ -20,6 +20,7 @@
 
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { Spinner } from '@sonarsource/echoes-react';
 import { useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useIntl } from 'react-intl';
@@ -30,7 +31,6 @@ import {
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
-  Spinner,
   themeBorder,
   themeColor,
 } from '~design-system';
@@ -96,7 +96,7 @@ export default function App() {
             }}
           >
             <ListHeader canCreate={canCreate} />
-            <Spinner loading={isLoading}>
+            <Spinner isLoading={isLoading}>
               <List qualityGates={qualityGates} currentQualityGate={name} />
             </Spinner>
           </StyledContentWrapper>

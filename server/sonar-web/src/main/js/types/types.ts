@@ -485,6 +485,7 @@ export interface QualityGate extends QualityGatePreview {
   conditions?: Condition[];
   hasMQRConditions?: boolean;
   hasStandardConditions?: boolean;
+  isAiCodeSupported?: boolean;
   isBuiltIn?: boolean;
 }
 

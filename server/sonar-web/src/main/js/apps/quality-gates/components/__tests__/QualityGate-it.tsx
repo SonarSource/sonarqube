@@ -42,6 +42,7 @@ const ui = {
   removeCondition: byRole('button', { name: /quality_gates.condition.delete/ }),
   listItem: byTestId('js-subnavigation-item'),
   requiresUpdateIndicator: byTestId('quality-gates-mqr-standard-mode-update-indicator'),
+  aiAssuranceIndicator: byTestId('quality-gates-ai-assurance-indicator'),
   qualityGateListItem: (qualityGateName: string) => byRole('link', { name: qualityGateName }),
   newConditionRow: byTestId('quality-gates__conditions-new').byRole('row'),
   overallConditionRow: byTestId('quality-gates__conditions-overall').byRole('row'),
@@ -629,6 +630,28 @@ it('should advertise the Sonar way Quality Gate as AI-ready', async () => {
   ).toBeInTheDocument();
 });
 
+it('should show AI indicator for Sonar AI Way based in DE+ editions', async () => {
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp({
+    currentUser: mockLoggedInUser(),
+    featureList: [Feature.AiCodeAssurance],
+  });
+
+  expect(await ui.aiAssuranceIndicator.find()).toBeInTheDocument();
+});
+
+it('should not show AI indicator for Sonar AI Way based in Community editions', async () => {
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp({
+    currentUser: mockLoggedInUser(),
+    featureList: [],
+  });
+
+  await screen.findByText('Sonar way');
+
+  expect(ui.aiAssuranceIndicator.query()).not.toBeInTheDocument();
+});
+
 it('should not allow to change value of prioritized_rule_issues', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
@@ -936,7 +959,7 @@ describe('Mode transition', () => {
       const user = userEvent.setup();
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       expect(ui.requiresUpdateIndicator.query()).not.toBeInTheDocument();
       await user.click(ui.qualityGateListItem('SonarSource way default').get());
       expect(byText('quality_gates.cayc.banner.title').get()).toBeInTheDocument();
@@ -950,7 +973,7 @@ describe('Mode transition', () => {
       qualityGateHandler.setIsAdmin(true);
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       expect(
         ui.qualityGateListItem('SonarSource way default').by(ui.requiresUpdateIndicator).get(),
       ).toBeInTheDocument();
@@ -966,7 +989,7 @@ describe('Mode transition', () => {
       qualityGateHandler.setIsAdmin(true);
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       await user.click(ui.qualityGateListItem('SonarSource way default').get());
 
       await user.click(ui.batchUpdate.get());
@@ -1014,7 +1037,7 @@ describe('Mode transition', () => {
       qualityGateHandler.setIsAdmin(true);
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       await user.click(ui.qualityGateListItem('QG without new code conditions').get());
       await user.click(await ui.addConditionButton.find());
 
@@ -1047,7 +1070,7 @@ describe('Mode transition', () => {
       const user = userEvent.setup();
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       expect(ui.requiresUpdateIndicator.query()).not.toBeInTheDocument();
       await user.click(ui.qualityGateListItem('QG with MQR conditions').get());
       expect(ui.batchUpdate.query()).not.toBeInTheDocument();
@@ -1060,7 +1083,7 @@ describe('Mode transition', () => {
       qualityGateHandler.setIsAdmin(true);
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       expect(
         ui.qualityGateListItem('QG with MQR conditions').by(ui.requiresUpdateIndicator).get(),
       ).toBeInTheDocument();
@@ -1075,7 +1098,7 @@ describe('Mode transition', () => {
       qualityGateHandler.setIsAdmin(true);
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       await user.click(ui.qualityGateListItem('QG with MQR conditions').get());
 
       await user.click(ui.batchUpdate.get());
@@ -1126,7 +1149,7 @@ describe('Mode transition', () => {
       qualityGateHandler.setIsAdmin(true);
       renderQualityGateApp();
 
-      expect(await ui.listItem.findAll()).toHaveLength(9);
+      expect(await ui.listItem.findAll()).toHaveLength(10);
       await user.click(ui.qualityGateListItem('QG with MQR conditions').get());
       await user.click(await ui.addConditionButton.find());
 

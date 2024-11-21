@@ -202,6 +202,45 @@ export class QualityGatesServiceMock {
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
+        name: 'Sonar AI way',
+        conditions: [
+          {
+            id: 'AXJMbIUHPAOIsUIE3eQQ',
+            metric: 'new_violations',
+            op: 'GT',
+            error: '0',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOF',
+            metric: 'new_coverage',
+            op: 'LT',
+            error: '80',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOG',
+            metric: 'new_duplicated_lines_density',
+            op: 'GT',
+            error: '3',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOk',
+            metric: 'new_security_hotspots_reviewed',
+            op: 'LT',
+            error: '100',
+            isCaycCondition: true,
+          },
+        ],
+        isDefault: false,
+        isBuiltIn: true,
+        hasStandardConditions: false,
+        hasMQRConditions: false,
+        isAiCodeSupported: true,
+        caycStatus: CaycStatus.Compliant,
+      }),
+      mockQualityGate({
         name: 'Non Cayc QG',
         conditions: [
           {

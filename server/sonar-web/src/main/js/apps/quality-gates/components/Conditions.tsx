@@ -53,7 +53,7 @@ import {
   STANDARD_CONDITIONS_MAP,
 } from '../utils';
 import AddConditionModal from './AddConditionModal';
-import AIGeneratedIcon from './AIGeneratedIcon';
+import AIAssuredIcon from './AIAssuredIcon';
 import CaycCompliantBanner from './CaycCompliantBanner';
 import CaycCondition from './CaycCondition';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
@@ -152,7 +152,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
       )}
       {isAICodeAssuranceQualityGate && (
         <div className="sw-flex sw-items-center sw-mt-2">
-          <AIGeneratedIcon className="sw-mr-1" />
+          <AIAssuredIcon className="sw-mr-1" />
           <LightLabel>
             <FormattedMessage
               defaultMessage="quality_gates.ai_generated.description"
