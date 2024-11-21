@@ -20,12 +20,10 @@
 
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { Heading, IconQuestionMark, LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import {
   BubbleColorVal,
-  HelperHintIcon,
-  Highlight,
-  Link,
   BubbleChart as OriginalBubbleChart,
   themeColor,
   themeContrast,
@@ -168,9 +166,11 @@ export default function BubbleChartView(props: Readonly<Props>) {
       <div className="sw-flex sw-justify-between sw-gap-3">
         <div>
           <div className="sw-flex sw-items-center sw-whitespace-nowrap">
-            <Highlight className="it__measure-overview-bubble-chart-title">{title}</Highlight>
+            <Heading as="h3" className="it__measure-overview-bubble-chart-title">
+              {title}
+            </Heading>
             <HelpTooltip className="sw-ml-2" overlay={getDescription(domain)}>
-              <HelperHintIcon />
+              <IconQuestionMark />
             </HelpTooltip>
           </div>
 
@@ -181,7 +181,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
           )}
           {(isView(component?.qualifier) || isProject(component?.qualifier)) && (
             <div className="sw-mt-2">
-              <Link
+              <LinkStandalone
                 to={getComponentDrilldownUrl({
                   componentKey: component.key,
                   branchLike,
@@ -190,7 +190,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
                 })}
               >
                 {translate('component_measures.overview.see_data_as_list')}
-              </Link>
+              </LinkStandalone>
             </div>
           )}
         </div>
