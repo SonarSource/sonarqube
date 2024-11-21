@@ -24,7 +24,6 @@ import javax.validation.constraints.NotNull;
 import org.sonar.server.v2.api.mode.enums.ModeEnum;
 
 public record ModeResource(
-  @NotNull @Schema(accessMode = Schema.AccessMode.READ_WRITE) ModeEnum mode
-
-) {
+  @NotNull @Schema(accessMode = Schema.AccessMode.READ_WRITE) ModeEnum mode,
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY) boolean modified) {
 }

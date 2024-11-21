@@ -33,6 +33,7 @@ import org.sonar.server.v2.api.mode.resources.ModeResource;
 
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_MODIFIED;
 
 public class DefaultModeController implements ModeController {
 
@@ -56,7 +57,15 @@ public class DefaultModeController implements ModeController {
   @Override
   public ModeResource getMode() {
     ModeEnum mode = configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED).orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE) ? ModeEnum.MQR : ModeEnum.STANDARD_EXPERIENCE;
-    return new ModeResource(mode);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return new ModeResource(mode, isModeModified(dbSession));
+    }
+  }
+
+  private boolean isModeModified(DbSession dbSession) {
+    return dbClient.internalPropertiesDao().selectByKey(dbSession, MULTI_QUALITY_MODE_MODIFIED)
+      .map(Boolean::parseBoolean)
+      .orElse(false);
   }
 
   @Override
@@ -65,17 +74,20 @@ public class DefaultModeController implements ModeController {
     Boolean isMQREnabledRequest = modeResource.mode().equals(ModeEnum.MQR);
     Boolean isMqREnabled = configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED).orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE);
 
-    if (!isMQREnabledRequest.equals(isMqREnabled)) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (!isMQREnabledRequest.equals(isMqREnabled)) {
+
         dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(MULTI_QUALITY_MODE_ENABLED).setValue(isMQREnabledRequest.toString()));
+        dbClient.internalPropertiesDao().save(dbSession, MULTI_QUALITY_MODE_MODIFIED, "true");
         dbSession.commit();
-      }
-      settingsChangeNotifier.onGlobalPropertyChange(MULTI_QUALITY_MODE_ENABLED, isMQREnabledRequest.toString());
-      if (qualityGateConditionsValidator.hasConditionsMismatch(isMQREnabledRequest)) {
-        notificationManager.scheduleForSending(new QualityGateMetricsUpdateNotification(isMQREnabledRequest));
+
+        settingsChangeNotifier.onGlobalPropertyChange(MULTI_QUALITY_MODE_ENABLED, isMQREnabledRequest.toString());
+        if (qualityGateConditionsValidator.hasConditionsMismatch(isMQREnabledRequest)) {
+          notificationManager.scheduleForSending(new QualityGateMetricsUpdateNotification(isMQREnabledRequest));
+        }
       }
 
+      return new ModeResource(Boolean.TRUE.equals(isMQREnabledRequest) ? ModeEnum.MQR : ModeEnum.STANDARD_EXPERIENCE, isModeModified(dbSession));
     }
-    return new ModeResource(Boolean.TRUE.equals(isMQREnabledRequest) ? ModeEnum.MQR : ModeEnum.STANDARD_EXPERIENCE);
   }
 }

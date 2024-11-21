@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.issue.notification.QualityGateMetricsUpdateNotification;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_MODIFIED;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
 import static org.sonar.server.v2.WebApiEndpoints.MODE_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -60,6 +62,7 @@ class DefaultModeControllerTest {
   private final NotificationManager notificationManager = mock(NotificationManager.class);
   private final QualityGateConditionsValidator qualityGateConditionsValidator = mock(QualityGateConditionsValidator.class);
   private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
+  private final InternalPropertiesDao internalPropertiesDao = mock(InternalPropertiesDao.class);
   private final MockMvc mockMvc = ControllerTester
     .getMockMvc(new DefaultModeController(userSession, dbClient, configuration, settingsChangeNotifier, notificationManager, qualityGateConditionsValidator));
   private DbSession dbSession;
@@ -67,18 +70,31 @@ class DefaultModeControllerTest {
   @BeforeEach
   void before() {
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(dbClient.internalPropertiesDao()).thenReturn(internalPropertiesDao);
     dbSession = mock(DbSession.class);
     when(dbClient.openSession(false)).thenReturn(dbSession);
   }
 
   @Test
   void getMode_whenMQRMode_shouldReturnExpectedMode() throws Exception {
+    when(internalPropertiesDao.selectByKey(dbSession, MULTI_QUALITY_MODE_MODIFIED)).thenReturn(Optional.empty());
     when(configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED)).thenReturn(Optional.of(true));
     mockMvc.perform(get(MODE_ENDPOINT))
       .andExpectAll(
         status().isOk(),
         content().json("""
-          {"mode":"MQR"}"""));
+          {"mode":"MQR", "modified": false}"""));
+  }
+
+  @Test
+  void getMode_whenMQRModeAndHasBeenModified_shouldReturnExpectedMode() throws Exception {
+    when(configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED)).thenReturn(Optional.of(true));
+    when(internalPropertiesDao.selectByKey(dbSession, MULTI_QUALITY_MODE_MODIFIED)).thenReturn(Optional.of("true"));
+    mockMvc.perform(get(MODE_ENDPOINT + "/"))
+      .andExpectAll(
+        status().isOk(),
+        content().json("""
+          {"mode":"MQR", "modified": true}"""));
   }
 
   @Test
@@ -142,6 +158,7 @@ class DefaultModeControllerTest {
           {"mode":"MQR"}"""));
 
     verify(propertiesDao, times(1)).saveProperty(dbSession, new PropertyDto().setKey(MULTI_QUALITY_MODE_ENABLED).setValue("true"));
+    verify(internalPropertiesDao, times(1)).save(dbSession, MULTI_QUALITY_MODE_MODIFIED, "true");
     verify(settingsChangeNotifier, times(1)).onGlobalPropertyChange(MULTI_QUALITY_MODE_ENABLED, "true");
     verifyNoInteractions(notificationManager);
   }
