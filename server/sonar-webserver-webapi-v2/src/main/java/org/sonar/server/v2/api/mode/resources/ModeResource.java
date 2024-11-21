@@ -17,25 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.notification;
+package org.sonar.server.v2.api.mode.resources;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.qualitygate.QualityGateConditionsValidator;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotNull;
+import org.sonar.server.v2.api.mode.enums.ModeEnum;
 
-public class NewModesNotificationsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      NewModesNotificationsSender.class,
-      QualityGateConditionsValidator.class,
-      MQRAndStandardModesExistNotification.class,
-      MQRAndStandardModesExistNotificationHandler.class,
-      MQRAndStandardModesExistTemplate.class,
+public record ModeResource(
+  @NotNull @Schema(accessMode = Schema.AccessMode.READ_WRITE) ModeEnum mode
 
-      QualityGateMetricsUpdateNotification.class,
-      QualityGateMetricsUpdateNotificationHandler.class,
-      QualityGateMetricsUpdateNotificationHandler.newMetadata(),
-      QualityGateMetricsUpdateTemplate.class);
-  }
-
+) {
 }

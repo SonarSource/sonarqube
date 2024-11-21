@@ -60,6 +60,7 @@ import static java.lang.String.format;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_WEB_URL;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
@@ -72,9 +73,9 @@ public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
   private static final int VALUE_MAXIMUM_LENGTH = 4000;
-  private static final TypeToken<Map<String, String>> MAP_TYPE_TOKEN = new TypeToken<>() {};
-  private static final Set<String> FORBIDDEN_KEYS = Set.of(GITLAB_AUTH_URL, GITHUB_API_URL, GITHUB_WEB_URL);
-
+  private static final TypeToken<Map<String, String>> MAP_TYPE_TOKEN = new TypeToken<>() {
+  };
+  private static final Set<String> FORBIDDEN_KEYS = Set.of(GITLAB_AUTH_URL, GITHUB_API_URL, GITHUB_WEB_URL, MULTI_QUALITY_MODE_ENABLED);
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
@@ -97,13 +98,13 @@ public class SetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setDescription("Update a setting value.<br>" +
-          "Either '%s' or '%s' must be provided.<br> " +
-          "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
-          "Requires one of the following permissions: " +
-          "<ul>" +
-          "<li>'Administer System'</li>" +
-          "<li>'Administer' rights on the specified component</li>" +
-          "</ul>",
+        "Either '%s' or '%s' must be provided.<br> " +
+        "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
+        "Requires one of the following permissions: " +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified component</li>" +
+        "</ul>",
         PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
       .setChangelog(

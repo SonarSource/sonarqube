@@ -42,11 +42,14 @@ import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.HealthChecker;
+import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
+import org.sonar.server.qualitygate.QualityGateConditionsValidator;
 import org.sonar.server.rule.RuleDescriptionFormatter;
+import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
@@ -71,6 +74,8 @@ import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.group.controller.GroupController;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
 import org.sonar.server.v2.api.membership.controller.GroupMembershipController;
+import org.sonar.server.v2.api.mode.controller.DefaultModeController;
+import org.sonar.server.v2.api.mode.controller.ModeController;
 import org.sonar.server.v2.api.projectbindings.controller.DefaultProjectBindingsController;
 import org.sonar.server.v2.api.projectbindings.controller.ProjectBindingsController;
 import org.sonar.server.v2.api.projects.controller.BoundProjectsController;
@@ -214,6 +219,12 @@ public class PlatformLevel4WebConfig {
   @Bean
   public EmailConfigurationController emailConfigurationController(UserSession userSession, EmailConfigurationService emailConfigurationService) {
     return new DefaultEmailConfigurationController(userSession, emailConfigurationService);
+  }
+
+  @Bean
+  public ModeController modeController(UserSession userSession, org.sonar.api.config.Configuration configuration, DbClient dbClient,
+    SettingsChangeNotifier settingsChangeNotifier, NotificationManager notificationManager, QualityGateConditionsValidator qualityGateConditionsValidator) {
+    return new DefaultModeController(userSession, dbClient, configuration, settingsChangeNotifier, notificationManager, qualityGateConditionsValidator);
   }
 
 }

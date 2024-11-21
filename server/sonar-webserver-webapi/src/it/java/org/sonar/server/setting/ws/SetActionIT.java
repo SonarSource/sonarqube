@@ -37,7 +37,6 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -46,6 +45,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.portfolio.PortfolioDto;
@@ -73,6 +73,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_WEB_URL;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -330,8 +331,8 @@ public class SetActionIT {
     logInAsProjectAdministrator(project);
 
     callForComponentPropertySet("my.key", List.of(
-        GSON.toJson(Map.of("firstField", "firstValue", "secondField", "secondValue")),
-        GSON.toJson(Map.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
+      GSON.toJson(Map.of("firstField", "firstValue", "secondField", "secondValue")),
+      GSON.toJson(Map.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
       project.getKey());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
@@ -927,8 +928,8 @@ public class SetActionIT {
       GSON.toJson(Map.of("firstField", "firstValue", "secondField", "secondValue")),
       GSON.toJson(Map.of("firstField", "", "secondField", "")),
       GSON.toJson(Map.of("firstField", "yetFirstValue", "secondField", "yetSecondValue")))))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("A non empty value must be provided");
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("A non empty value must be provided");
   }
 
   @Test
@@ -1138,6 +1139,7 @@ public class SetActionIT {
       {GITLAB_AUTH_URL},
       {GITHUB_API_URL},
       {GITHUB_WEB_URL},
+      {MULTI_QUALITY_MODE_ENABLED},
     };
   }
 

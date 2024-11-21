@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.notification;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api.mode.resources;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.qualitygate.QualityGateConditionsValidator;
-
-public class NewModesNotificationsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      NewModesNotificationsSender.class,
-      QualityGateConditionsValidator.class,
-      MQRAndStandardModesExistNotification.class,
-      MQRAndStandardModesExistNotificationHandler.class,
-      MQRAndStandardModesExistTemplate.class,
-
-      QualityGateMetricsUpdateNotification.class,
-      QualityGateMetricsUpdateNotificationHandler.class,
-      QualityGateMetricsUpdateNotificationHandler.newMetadata(),
-      QualityGateMetricsUpdateTemplate.class);
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

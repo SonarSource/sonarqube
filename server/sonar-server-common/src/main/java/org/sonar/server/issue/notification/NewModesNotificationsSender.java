@@ -19,16 +19,11 @@
  */
 package org.sonar.server.issue.notification;
 
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.server.metric.StandardToMQRMetrics;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.qualitygate.QualityGateConditionsValidator;
 
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
@@ -39,42 +34,25 @@ public class NewModesNotificationsSender implements Startable {
   private final NotificationManager notificationManager;
   private final Configuration configuration;
   private final MigrationHistory migrationHistory;
-  private final DbClient dbClient;
+  private final QualityGateConditionsValidator qualityGateConditionsValidator;
 
-  public NewModesNotificationsSender(NotificationManager notificationManager, Configuration configuration, MigrationHistory migrationHistory, DbClient dbClient) {
+  public NewModesNotificationsSender(NotificationManager notificationManager, Configuration configuration, MigrationHistory migrationHistory,
+    QualityGateConditionsValidator qualityGateConditionsValidator) {
     this.notificationManager = notificationManager;
     this.configuration = configuration;
     this.migrationHistory = migrationHistory;
-    this.dbClient = dbClient;
+    this.qualityGateConditionsValidator = qualityGateConditionsValidator;
   }
 
   @Override
   public void start() {
     if (migrationHistory.getInitialDbVersion() != -1 && migrationHistory.getInitialDbVersion() < NEW_MODES_SQ_VERSION) {
       boolean isMQRModeEnabled = configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED).orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE);
-      sendNewModesNotification(isMQRModeEnabled);
-      sendQualityGateMetricsUpdateNotification(isMQRModeEnabled);
-    }
-  }
-
-  private void sendQualityGateMetricsUpdateNotification(boolean isMQRModeEnabled) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-
-      Map<String, String> metricKeysByUuids = dbClient.metricDao().selectAll(dbSession).stream()
-        .collect(Collectors.toMap(MetricDto::getUuid, MetricDto::getKey));
-
-      boolean hasConditionsFromOtherMode = dbClient.gateConditionDao().selectAll(dbSession).stream()
-        .anyMatch(c -> isMQRModeEnabled ? StandardToMQRMetrics.isStandardMetric(metricKeysByUuids.get(c.getMetricUuid()))
-          : StandardToMQRMetrics.isMQRMetric(metricKeysByUuids.get(c.getMetricUuid())));
-
-      if (hasConditionsFromOtherMode) {
+      notificationManager.scheduleForSending(new MQRAndStandardModesExistNotification(isMQRModeEnabled));
+      if (qualityGateConditionsValidator.hasConditionsMismatch(isMQRModeEnabled)) {
         notificationManager.scheduleForSending(new QualityGateMetricsUpdateNotification(isMQRModeEnabled));
       }
     }
-  }
-
-  private void sendNewModesNotification(boolean isMQRModeEnabled) {
-    notificationManager.scheduleForSending(new MQRAndStandardModesExistNotification(isMQRModeEnabled));
   }
 
   @Override

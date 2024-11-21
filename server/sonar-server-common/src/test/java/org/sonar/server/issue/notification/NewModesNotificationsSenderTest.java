@@ -21,21 +21,13 @@ package org.sonar.server.issue.notification;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.Notification;
-import org.sonar.core.metric.SoftwareQualitiesMetrics;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.metric.MetricDao;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.db.qualitygate.QualityGateConditionDao;
-import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.qualitygate.QualityGateConditionsValidator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,23 +38,12 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 
 class NewModesNotificationsSenderTest {
-  private static final String METRIC_UUID = "metricUuid";
-  private static final String METRIC_UUID_2 = "metricUuid2";
   private final NotificationManager notificationManager = mock(NotificationManager.class);
   private final Configuration configuration = mock(Configuration.class);
   private final MigrationHistory migrationHistory = mock(MigrationHistory.class);
-  private final DbClient dbClient = mock(DbClient.class);
-  private final MetricDao metricDao = mock(MetricDao.class);
-  private final QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
-  private final NewModesNotificationsSender underTest = new NewModesNotificationsSender(notificationManager, configuration, migrationHistory, dbClient);
-  private final DbSession dbSession = mock(DbSession.class);
 
-  @BeforeEach
-  void setUp() {
-    when(dbClient.metricDao()).thenReturn(metricDao);
-    when(dbClient.gateConditionDao()).thenReturn(qualityGateConditionDao);
-    when(dbClient.openSession(false)).thenReturn(dbSession);
-  }
+  private final QualityGateConditionsValidator qualityGateConditionsValidator = mock(QualityGateConditionsValidator.class);
+  private final NewModesNotificationsSender underTest = new NewModesNotificationsSender(notificationManager, configuration, migrationHistory, qualityGateConditionsValidator);
 
   @Test
   void start_whenOldInstanceAndStandardMode_shouldSendNewModesNotification() {
@@ -99,11 +80,10 @@ class NewModesNotificationsSenderTest {
   }
 
   @Test
-  void start_whenOldInstanceInStandardModeWithMQRConditions_shouldSendQualityGateUpdateNotification() {
+  void start_whenOldInstanceAndConditionsMismatch_shouldSendQualityGateUpdateNotification() {
     when(configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED)).thenReturn(Optional.of(false));
     when(migrationHistory.getInitialDbVersion()).thenReturn(9999L); // 9.9
-    when(metricDao.selectAll(dbSession)).thenReturn(List.of(new MetricDto().setKey(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY).setUuid(METRIC_UUID)));
-    when(qualityGateConditionDao.selectAll(dbSession)).thenReturn(List.of(new QualityGateConditionDto().setMetricUuid(METRIC_UUID)));
+    when(qualityGateConditionsValidator.hasConditionsMismatch(false)).thenReturn(true);
 
     underTest.start();
 
@@ -115,37 +95,13 @@ class NewModesNotificationsSenderTest {
       .map(notification -> (QualityGateMetricsUpdateNotification) notification)
       .hasSize(1)
       .extracting(QualityGateMetricsUpdateNotification::isMQRModeEnabled).isEqualTo(List.of(false));
-
   }
 
   @Test
-  void start_whenOldInstanceInMQRModeWithStandardConditions_shouldSendQualityGateUpdateNotification() {
-    when(configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED)).thenReturn(Optional.of(true));
+  void start_whenOldInstanceAndNoConditionsMismatch_shouldNotSendQualityGateUpdateNotification() {
+    when(configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED)).thenReturn(Optional.of(false));
     when(migrationHistory.getInitialDbVersion()).thenReturn(9999L); // 9.9
-    when(metricDao.selectAll(dbSession)).thenReturn(List.of(new MetricDto().setKey(CoreMetrics.CODE_SMELLS_KEY).setUuid(METRIC_UUID)));
-    when(qualityGateConditionDao.selectAll(dbSession)).thenReturn(List.of(new QualityGateConditionDto().setMetricUuid(METRIC_UUID)));
-
-    underTest.start();
-
-    ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-    verify(notificationManager, times(2)).scheduleForSending(captor.capture());
-
-    assertThat(captor.getAllValues())
-      .filteredOn(notification -> notification instanceof QualityGateMetricsUpdateNotification)
-      .map(notification -> (QualityGateMetricsUpdateNotification) notification)
-      .hasSize(1)
-      .extracting(QualityGateMetricsUpdateNotification::isMQRModeEnabled).isEqualTo(List.of(true));
-  }
-
-  @Test
-  void start_whenOldInstanceInMQRModeWithOtherConditions_shouldNotSendNotification() {
-    when(configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED)).thenReturn(Optional.of(true));
-    when(migrationHistory.getInitialDbVersion()).thenReturn(9999L); // 9.9
-    when(metricDao.selectAll(dbSession)).thenReturn(List.of(
-      new MetricDto().setKey(CoreMetrics.COVERAGE_KEY).setUuid(METRIC_UUID),
-      new MetricDto().setKey(CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).setUuid(METRIC_UUID_2)));
-    when(qualityGateConditionDao.selectAll(dbSession)).thenReturn(List.of(new QualityGateConditionDto().setMetricUuid(METRIC_UUID),
-      new QualityGateConditionDto().setMetricUuid(METRIC_UUID_2)));
+    when(qualityGateConditionsValidator.hasConditionsMismatch(false)).thenReturn(false);
 
     underTest.start();
 
