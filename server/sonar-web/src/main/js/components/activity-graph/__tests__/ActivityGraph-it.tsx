@@ -29,15 +29,15 @@ import {
   byText,
 } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import { settingsHandler } from '../../../apps/issues/test-utils';
+import { modeHandler } from '../../../apps/issues/test-utils';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockHistoryItem, mockMeasureHistory } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../helpers/testUtils';
+import { Mode } from '../../../types/mode';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
-import { SettingsKey } from '../../../types/settings';
 import { Metric } from '../../../types/types';
 import GraphsHeader from '../GraphsHeader';
 import GraphsHistory from '../GraphsHistory';
@@ -55,10 +55,10 @@ describe('rendering', () => {
   });
 
   it.each([
-    ['MQR', 'true', MetricKey.software_quality_maintainability_issues],
-    ['Standard', 'false', MetricKey.code_smells],
-  ])('should show the correct legend items in %s mode', async (_, mode, metric) => {
-    settingsHandler.set(SettingsKey.MQRMode, mode);
+    [Mode.MQR, MetricKey.software_quality_maintainability_issues],
+    [Mode.Standard, MetricKey.code_smells],
+  ])('should show the correct legend items in %s mode', async (mode, metric) => {
+    modeHandler.setMode(mode);
     const { ui, user } = getPageObject();
     renderActivityGraph();
 
@@ -123,17 +123,16 @@ describe('data table modal', () => {
 
 it.each([
   [
-    'MQR',
-    'true',
+    Mode.MQR,
     MetricKey.software_quality_reliability_issues,
     MetricKey.software_quality_maintainability_issues,
     MetricKey.software_quality_security_issues,
   ],
-  ['Standard', 'false', MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
+  [Mode.Standard, MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
 ])(
   'should correctly handle adding/removing custom metrics in $s mode',
-  async (_, mode, bugs, codeSmells, vulnerabilities) => {
-    settingsHandler.set(SettingsKey.MQRMode, mode);
+  async (mode, bugs, codeSmells, vulnerabilities) => {
+    modeHandler.setMode(mode);
     const { ui } = getPageObject();
     renderActivityGraph();
 

@@ -25,7 +25,7 @@ import DocumentationLink from '../../../components/common/DocumentationLink';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Dict } from '../../../types/types';
 
 const SHOW_MESSAGE_PATHS: Dict<ComponentQualifier> = {
@@ -37,7 +37,7 @@ const ALERT_KEY = 'sonarqube.dismissed_calculation_change_alert';
 
 export default function CalculationChangeMessage() {
   const location = useLocation();
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   if (isStandardMode || !Object.keys(SHOW_MESSAGE_PATHS).includes(location.pathname)) {
     return null;

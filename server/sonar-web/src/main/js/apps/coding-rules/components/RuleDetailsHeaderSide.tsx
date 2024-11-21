@@ -24,7 +24,7 @@ import { LightLabel, themeBorder } from '~design-system';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { translate } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { IssueSeverity } from '../../../types/issues';
 import { RuleDetails } from '../../../types/types';
 
@@ -36,7 +36,7 @@ export default function RuleDetailsHeaderSide({ ruleDetails }: Readonly<Props>) 
   const hasCleanCodeAttribute =
     ruleDetails.cleanCodeAttributeCategory && ruleDetails.cleanCodeAttribute;
   const hasSoftwareImpact = ruleDetails.impacts.length > 0;
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   if (!hasCleanCodeAttribute && !hasSoftwareImpact) {
     return null;

@@ -41,8 +41,8 @@ import {
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useDeleteConditionMutation } from '../../../queries/quality-gates';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { CaycStatus, Condition as ConditionType, Metric, QualityGate } from '../../../types/types';
 import {
@@ -82,7 +82,7 @@ export default function ConditionComponent({
   const { mutateAsync: deleteCondition } = useDeleteConditionMutation(qualityGate.name);
   const metrics = useMetrics();
   const intl = useIntl();
-  const { data: isStandard } = useStandardExperienceMode();
+  const { data: isStandard } = useStandardExperienceModeQuery();
   const { op = 'GT' } = condition;
 
   const isCaycCompliantAndOverCompliant = qualityGate.caycStatus !== CaycStatus.NonCompliant;

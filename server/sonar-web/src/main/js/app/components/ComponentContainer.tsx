@@ -35,7 +35,7 @@ import { getComponentNavigation } from '../../api/navigation';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers/urls';
 import { useCurrentBranchQuery } from '../../queries/branch';
-import { useStandardExperienceMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
 import { isFile } from '../../types/component';
@@ -77,7 +77,7 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   );
 
   //prefetch isStandardExperienceMode
-  useStandardExperienceMode();
+  useStandardExperienceModeQuery();
 
   const isInTutorials = pathname.includes('tutorials');
 

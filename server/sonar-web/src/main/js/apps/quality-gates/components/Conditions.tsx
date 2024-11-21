@@ -42,7 +42,7 @@ import { ModalProps } from '../../../components/controls/ModalButton';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { Feature } from '../../../types/features';
 import { CaycStatus, Condition as ConditionType, QualityGate } from '../../../types/types';
@@ -74,7 +74,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
   const [editing, setEditing] = React.useState<boolean>(caycStatus === CaycStatus.NonCompliant);
   const metrics = useMetrics();
   const { hasFeature } = useAvailableFeatures();
-  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
 
   const canEdit = Boolean(actions?.manageConditions);
   const existingConditions = conditions.filter((condition) => metrics[condition.metric]);

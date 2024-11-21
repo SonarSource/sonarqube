@@ -52,8 +52,8 @@ jest.mock('../../../api/components', () => ({
     .mockResolvedValue({ component: { name: 'component name', analysisDate: '2018-07-30' } }),
 }));
 
-jest.mock('../../../queries/settings', () => ({
-  useStandardExperienceMode: jest.fn(),
+jest.mock('../../../queries/mode', () => ({
+  useStandardExperienceModeQuery: jest.fn(),
 }));
 
 jest.mock('../../../api/navigation', () => ({

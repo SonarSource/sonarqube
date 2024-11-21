@@ -28,7 +28,7 @@ import {
   SoftwareImpactSeverityMediumIcon,
 } from '~design-system';
 import { translate } from '../../helpers/l10n';
-import { useStandardExperienceMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import { IssueSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
@@ -52,7 +52,7 @@ const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
 };
 
 export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: Readonly<Props>) {
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   if (typeof severity !== 'string' || !severityIcons[severity]) {
     return null;
   }

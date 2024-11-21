@@ -34,8 +34,8 @@ import { Profile } from '../../../api/quality-profiles';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useActivateRuleMutation } from '../../../queries/quality-profiles';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { Feature } from '../../../types/features';
 import { IssueSeverity } from '../../../types/issues';
@@ -82,7 +82,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   const [changedImpactSeveritiesMap, setChangedImpactSeverities] = React.useState<
     Map<SoftwareQuality, SoftwareImpactSeverity>
   >(new Map());
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const profilesWithDepth = React.useMemo(() => {
     return getQualityProfilesWithDepth(profiles, rule.lang);

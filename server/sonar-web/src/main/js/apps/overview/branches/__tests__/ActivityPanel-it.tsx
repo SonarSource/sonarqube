@@ -20,7 +20,6 @@
 
 import { screen } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockAnalysis,
@@ -33,20 +32,21 @@ import { mockMetric } from '../../../../helpers/testMocks';
 import userEvent from '@testing-library/user-event';
 import { Route, useSearchParams } from 'react-router-dom';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { parseDate } from '../../../../helpers/dates';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { Mode } from '../../../../types/mode';
 import {
   ApplicationAnalysisEventCategory,
   DefinitionChangeType,
   ProjectAnalysisEventCategory,
 } from '../../../../types/project-activity';
-import { SettingsKey } from '../../../../types/settings';
 import ActivityPanel, { ActivityPanelProps } from '../ActivityPanel';
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 afterEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 async function expectGraphs(user: UserEvent) {
@@ -109,7 +109,7 @@ it('should render correctly', async () => {
 });
 
 it('should render correctly for legacy mode', async () => {
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   const user = userEvent.setup();
   await expectGraphs(user);
 

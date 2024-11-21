@@ -42,7 +42,7 @@ import {
   areCCTMeasuresComputed,
   areSoftwareQualityRatingsComputed,
 } from '../../../helpers/measures';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
 import { Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
@@ -102,7 +102,8 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
 
   const showComponentList = sourceViewer === undefined && components.length > 0 && !showSearch;
 
-  const { data: isStandardMode, isLoading: isLoadingStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading: isLoadingStandardMode } =
+    useStandardExperienceModeQuery();
 
   const metricKeys = intersection(
     getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),

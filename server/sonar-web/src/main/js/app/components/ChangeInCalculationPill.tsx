@@ -24,7 +24,7 @@ import { Pill, PillVariant } from '~design-system';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
-import { useStandardExperienceMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { ComponentQualifier } from '../../sonar-aligned/types/component';
 
 interface Props {
@@ -33,7 +33,7 @@ interface Props {
 
 export default function ChangeInCalculation({ qualifier }: Readonly<Props>) {
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
-  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
 
   if (isStandardMode || isLoading) {
     return null;

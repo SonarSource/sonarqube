@@ -35,9 +35,9 @@ import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
 import { StaleTime } from '../../../queries/common';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useGetQualityProfile } from '../../../queries/quality-profiles';
 import { useSearchRulesQuery } from '../../../queries/rules';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { CleanCodeAttributeCategory, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../../types/coding-rules';
 import { RulesFacetName } from '../../../types/rules';
@@ -57,7 +57,7 @@ interface ByType {
 }
 
 export default function ProfileRules({ profile }: Readonly<Props>) {
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const activateMoreUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
   const { actions = {} } = profile;
 

@@ -35,9 +35,9 @@ import {
   componentsHandler,
   cveHandler,
   issuesHandler,
+  modeHandler,
   renderIssueApp,
   renderProjectIssuesApp,
-  settingsHandler,
   sourcesHandler,
   ui,
   usersHandler,
@@ -80,7 +80,7 @@ beforeEach(() => {
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
   usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();

@@ -21,10 +21,10 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import routes from '../routes';
 
 jest.mock('../../../api/quality-profiles');
@@ -32,11 +32,11 @@ jest.mock('../../../api/rules');
 
 beforeEach(() => {
   serviceMock.reset();
-  settingsMock.reset();
+  modeHandler.reset();
 });
 
 const serviceMock = new QualityProfilesServiceMock();
-const settingsMock = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 const ui = {
   loading: byRole('status', { name: 'loading' }),
   permissionSection: byRole('region', { name: 'permissions.page' }),
@@ -468,7 +468,7 @@ describe('Every Users', () => {
   });
 
   it('should be able to see active/inactive rules for a Quality Profile in Legacy mode', async () => {
-    settingsMock.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     renderQualityProfile();
     await ui.waitForDataLoaded();
 

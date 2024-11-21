@@ -24,7 +24,7 @@ import userEvent from '@testing-library/user-event';
 import { DEBOUNCE_DELAY } from '~design-system';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import DependenciesServiceMock from '../../../api/mocks/DependenciesServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { DependenciesResponse } from '../../../types/dependencies';
@@ -33,7 +33,7 @@ import routes from '../routes';
 
 const depsHandler = new DependenciesServiceMock();
 const branchesHandler = new BranchesServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 const MOCK_RESPONSE: DependenciesResponse = {
   page: {
     pageIndex: 1,
@@ -177,7 +177,7 @@ const MOCK_RESPONSE_NO_FINDINGS: DependenciesResponse = {
 beforeEach(() => {
   branchesHandler.reset();
   depsHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it('should correctly show an empty state', async () => {

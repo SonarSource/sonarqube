@@ -60,7 +60,7 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
 import {
@@ -1227,7 +1227,7 @@ export class App extends React.PureComponent<Props, State> {
 }
 
 function WrappedApp(props: Readonly<Omit<Props, 'isStandard'>>) {
-  const { data: isStandard, isLoading } = useStandardExperienceMode();
+  const { data: isStandard, isLoading } = useStandardExperienceModeQuery();
 
   return (
     <Spinner ariaLabel={translate('issues.loading_issues')} isLoading={isLoading}>

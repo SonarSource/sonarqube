@@ -21,17 +21,17 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import QualityProfilesServiceMock from '../../../../api/mocks/QualityProfilesServiceMock';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockQualityProfileChangelogEvent } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../../types/settings';
+import { Mode } from '../../../../types/mode';
 import routes from '../../routes';
 
 jest.mock('../../../../api/quality-profiles');
 
 const serviceMock = new QualityProfilesServiceMock();
-const settingsMock = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 const ui = {
   row: byRole('row'),
   cell: byRole('cell'),
@@ -79,7 +79,7 @@ afterEach(() => {
   jest.useRealTimers();
 
   serviceMock.reset();
-  settingsMock.reset();
+  modeHandler.reset();
 });
 
 it('should see the changelog in MQR', async () => {
@@ -109,7 +109,7 @@ it('should see the changelog in MQR', async () => {
 });
 
 it('should return standard mode changelogs only', async () => {
-  settingsMock.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   renderChangeLog();
 
   const rows = await ui.row.findAll();

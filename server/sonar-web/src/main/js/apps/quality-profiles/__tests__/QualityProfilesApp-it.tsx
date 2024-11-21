@@ -21,6 +21,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockCompareResult, mockPaging, mockRule } from '../../../helpers/testMocks';
@@ -31,11 +32,13 @@ jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/rules');
 
 const serviceMock = new QualityProfilesServiceMock();
-const settingsMock = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
+const settingsHandler = new SettingsServiceMock();
 
 beforeEach(() => {
   serviceMock.reset();
-  settingsMock.reset();
+  modeHandler.reset();
+  settingsHandler.reset();
 });
 
 const ui = {

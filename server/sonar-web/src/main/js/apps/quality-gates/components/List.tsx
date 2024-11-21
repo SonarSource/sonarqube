@@ -24,7 +24,7 @@ import { Badge, BareButton, SubnavigationGroup, SubnavigationItem } from '~desig
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Feature } from '../../../types/features';
 import { CaycStatus, QualityGate } from '../../../types/types';
 import AIGeneratedIcon from './AIGeneratedIcon';
@@ -39,7 +39,7 @@ interface Props {
 export default function List({ qualityGates, currentQualityGate }: Readonly<Props>) {
   const navigateTo = useNavigate();
   const { hasFeature } = useAvailableFeatures();
-  const { data: isStandard, isLoading } = useStandardExperienceMode();
+  const { data: isStandard, isLoading } = useStandardExperienceModeQuery();
 
   return (
     <SubnavigationGroup>

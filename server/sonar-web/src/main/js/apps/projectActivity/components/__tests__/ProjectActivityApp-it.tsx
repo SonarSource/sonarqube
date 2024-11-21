@@ -26,8 +26,8 @@ import { byLabelText, byRole, byTestId, byText } from '~sonar-aligned/helpers/te
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import { mockBranchList } from '../../../../api/mocks/data/branches';
 import { DEPRECATED_ACTIVITY_METRICS } from '../../../../helpers/constants';
@@ -42,12 +42,12 @@ import {
 import { get } from '../../../../helpers/storage';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../../helpers/testReactTestingUtils';
+import { Mode } from '../../../../types/mode';
 import {
   ApplicationAnalysisEventCategory,
   GraphType,
   ProjectAnalysisEventCategory,
 } from '../../../../types/project-activity';
-import { SettingsKey } from '../../../../types/settings';
 import ProjectActivityAppContainer from '../ProjectActivityApp';
 
 jest.mock('../../../../api/projectActivity');
@@ -68,7 +68,7 @@ jest.mock('../../../../api/branches', () => ({
 const applicationHandler = new ApplicationServiceMock();
 const projectActivityHandler = new ProjectActivityServiceMock();
 const timeMachineHandler = new TimeMachineServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 let isBranchReady = false;
 
@@ -79,7 +79,7 @@ beforeEach(() => {
   applicationHandler.reset();
   projectActivityHandler.reset();
   timeMachineHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 
   timeMachineHandler.setMeasureHistory(
     [
@@ -532,10 +532,10 @@ describe('graph interactions', () => {
   });
 
   it.each([
-    ['MQR', 'true', MetricKey.software_quality_maintainability_issues],
-    ['Standard', 'false', MetricKey.code_smells],
-  ])('should correctly handle customizing the graph in %s mode', async (_, mode, metric) => {
-    settingsHandler.set(SettingsKey.MQRMode, mode);
+    [Mode.MQR, MetricKey.software_quality_maintainability_issues],
+    [Mode.Standard, MetricKey.code_smells],
+  ])('should correctly handle customizing the graph in %s mode', async (mode, metric) => {
+    modeHandler.setMode(mode);
     const { ui } = getPageObject();
     renderProjectActivityAppContainer();
     await ui.appLoaded();
@@ -701,7 +701,7 @@ describe('ratings', () => {
   });
 
   it('should not show gaps message and metric change button in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     timeMachineHandler.setMeasureHistory([
       mockMeasureHistory({
         metric: MetricKey.reliability_rating,

@@ -26,7 +26,7 @@ import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Facet } from '../types';
 import RangeFacetBase from './RangeFacetBase';
 
@@ -41,7 +41,7 @@ interface Props {
 
 export default function RatingFacet(props: Readonly<Props>) {
   const { facet, maxFacetValue, name, property, value } = props;
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const renderAccessibleLabel = React.useCallback(
     (option: number) => {
@@ -100,7 +100,7 @@ function RatingOption({
   option,
   property,
 }: Readonly<{ option: string | number; property: string }>) {
-  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
   const intl = useIntl();
 
   const ratingFormatted = formatMeasure(option, MetricType.Rating);

@@ -37,8 +37,8 @@ import { RULE_STATUSES, RULE_TYPES } from '../../../helpers/constants';
 import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
 import { latinize } from '../../../helpers/strings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useCreateRuleMutation, useUpdateRuleMutation } from '../../../queries/rules';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
@@ -63,7 +63,7 @@ const FORM_ID = 'custom-rule-form';
 
 export default function CustomRuleFormModal(props: Readonly<Props>) {
   const { customRule, templateRule, isOpen } = props;
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const [description, setDescription] = useState(customRule?.mdDesc ?? '');
   const [key, setKey] = useState(customRule?.key ?? '');
   const [keyModifiedByUser, setKeyModifiedByUser] = useState(false);

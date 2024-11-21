@@ -24,7 +24,7 @@ import * as React from 'react';
 import { Badge, CommentIcon, SeparatorCircleIcon } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useLocation } from '../../../sonar-aligned/components/hoc/withRouter';
 import { Issue } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';
@@ -45,7 +45,7 @@ export default function IssueMetaBar(props: Readonly<Props>) {
   const location = useLocation();
 
   const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const ruleEngine =
     (issue.externalRuleEngine && externalRulesRepoNames[issue.externalRuleEngine]) ||

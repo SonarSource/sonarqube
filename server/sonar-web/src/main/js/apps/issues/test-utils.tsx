@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { waitForElementToBeRemoved } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { Outlet, Route } from 'react-router-dom';
 import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
@@ -26,7 +26,7 @@ import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import CveServiceMock from '../../api/mocks/CveServiceMock';
 import FixSuggestionsServiceMock from '../../api/mocks/FixSuggestionsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
-import SettingsServiceMock from '../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../api/mocks/ModeServiceMock';
 import SourcesServiceMock from '../../api/mocks/SourcesServiceMock';
 import UsersServiceMock from '../../api/mocks/UsersServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
@@ -51,7 +51,7 @@ export const componentsHandler = new ComponentsServiceMock();
 export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
 export const fixIssueHandler = new FixSuggestionsServiceMock();
-export const settingsHandler = new SettingsServiceMock();
+export const modeHandler = new ModeServiceMock();
 
 export const ui = {
   loading: byText('issues.loading_issues'),
@@ -183,8 +183,7 @@ export const ui = {
 };
 
 export async function waitOnDataLoaded() {
-  expect(await ui.loading.find()).toBeInTheDocument();
-  await waitForElementToBeRemoved(ui.loading.query());
+  await waitFor(() => expect(ui.loading.query()).not.toBeInTheDocument());
 }
 
 export function renderIssueApp(

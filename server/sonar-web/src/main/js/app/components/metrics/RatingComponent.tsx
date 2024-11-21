@@ -27,7 +27,7 @@ import { getLeakValue } from '../../../components/measure/utils';
 import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useMeasureQuery } from '../../../queries/measures';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { BranchLike } from '../../../types/branch-like';
 
 type SizeType = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -59,7 +59,7 @@ function isNewRatingMetric(metricKey: MetricKey) {
 }
 
 const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | null => {
-  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
 
   const hasSoftwareQualityRating = !!SOFTWARE_QUALITY_RATING_METRICS_MAP[ratingMetric];
 
@@ -88,7 +88,7 @@ export default function RatingComponent(props: Readonly<Props>) {
   } = props;
 
   const metricKey = useGetMetricKeyForRating(ratingMetric as RatingMetricKeys);
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const { data: targetMeasure, isLoading: isLoadingTargetMeasure } = useMeasureQuery(
     { componentKey, metricKey: metricKey ?? '', branchLike },
     { enabled: !forceMetric && !!metricKey },

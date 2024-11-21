@@ -20,14 +20,16 @@
 
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { IssueSeverity, IssueType } from '../../../types/issues';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 
 const rulesHandler = new CodingRulesServiceMock();
+const modeHandler = new ModeServiceMock();
 const settingsHandler = new SettingsServiceMock();
 
 jest.mock('../../../helpers/l10nBundle', () => {
@@ -40,6 +42,7 @@ jest.mock('../../../helpers/l10nBundle', () => {
 
 afterEach(() => {
   rulesHandler.reset();
+  modeHandler.reset();
   settingsHandler.reset();
 });
 
@@ -139,7 +142,7 @@ describe('custom rule', () => {
   });
 
   it('can create custom rule in Standard mode', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser());
@@ -188,7 +191,7 @@ describe('custom rule', () => {
   });
 
   it('hides severities if security hotspot is selected in Standard mode', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
@@ -269,7 +272,7 @@ describe('custom rule', () => {
   });
 
   it('can edit custom rule in Standard Mode', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');

@@ -30,7 +30,7 @@ import {
   areCCTMeasuresComputed as areCCTMeasuresComputedFn,
   isDiffMetric,
 } from '../../../helpers/measures';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isProject } from '../../../types/component';
 import { Metric, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
@@ -44,7 +44,7 @@ interface Props {
 export default function ComponentMeasure(props: Readonly<Props>) {
   const { component, metric, branchLike } = props;
   const isProjectLike = isProject(component.qualifier) || isApplication(component.qualifier);
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const isReleasability = metric.key === MetricKey.releasability_rating;
 
   let finalMetricKey = isProjectLike && isReleasability ? MetricKey.alert_status : metric.key;

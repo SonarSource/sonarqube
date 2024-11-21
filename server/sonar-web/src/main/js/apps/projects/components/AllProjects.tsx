@@ -46,12 +46,12 @@ import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import useLocalStorage from '../../../hooks/useLocalStorage';
 import { useMeasuresForProjectsQuery } from '../../../queries/measures';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import {
   PROJECTS_PAGE_SIZE,
   useMyScannableProjectsQuery,
   useProjectsQuery,
 } from '../../../queries/projects';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { isLoggedIn } from '../../../types/users';
 import { hasFilterParams, parseUrlQuery } from '../query';
 import '../styles.css';
@@ -83,7 +83,7 @@ function AllProjects({ isFavorite }: Readonly<{ isFavorite: boolean }>) {
   const queryView = parsedQuery.view ?? 'overall';
   const [projectsSort, setProjectsSort] = useLocalStorage(LS_PROJECTS_SORT);
   const [projectsView, setProjectsView] = useLocalStorage(LS_PROJECTS_VIEW);
-  const { data: isStandardMode = false, isLoading: loadingMode } = useStandardExperienceMode();
+  const { data: isStandardMode = false, isLoading: loadingMode } = useStandardExperienceModeQuery();
 
   const {
     data: projectPages,

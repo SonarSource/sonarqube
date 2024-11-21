@@ -21,8 +21,8 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { ProjectBadgesServiceMock } from '../../../../api/mocks/ProjectBadgesServiceMock';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import WebApiServiceMock from '../../../../api/mocks/WebApiServiceMock';
 import { getProjectBadgesToken } from '../../../../api/project-badges';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
@@ -31,7 +31,7 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Location } from '../../../../helpers/urls';
 import { byLabelText, byRole, byText } from '../../../../sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '../../../../sonar-aligned/types/component';
-import { SettingsKey } from '../../../../types/settings';
+import { Mode } from '../../../../types/mode';
 import ProjectBadges, { ProjectBadgesProps } from '../ProjectBadges';
 import { BadgeType } from '../utils';
 
@@ -43,12 +43,12 @@ jest.mock('../../../../helpers/urls', () => ({
 
 const badgesHandler = new ProjectBadgesServiceMock();
 const webApiHandler = new WebApiServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 afterEach(() => {
   badgesHandler.reset();
   webApiHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it('should renew token', async () => {
@@ -85,7 +85,7 @@ it('should renew token', async () => {
 
 it('can select badges in Standard Experience Mode', async () => {
   const { user, ui } = getPageObjects();
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
 
   renderProjectBadges();
   await ui.appLoaded();

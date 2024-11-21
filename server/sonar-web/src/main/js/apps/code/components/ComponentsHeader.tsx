@@ -26,7 +26,7 @@ import {
   OLD_TO_NEW_TAXONOMY_METRICS_MAP,
 } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { ComponentMeasure } from '../../../types/types';
 
 interface ComponentsHeaderProps {
@@ -47,7 +47,7 @@ const SHORT_NAME_METRICS = [
 
 export default function ComponentsHeader(props: ComponentsHeaderProps) {
   const { baseComponent, canBePinned = true, metrics, rootComponent, showAnalysisDate } = props;
-  const { data: isStandardMode = false } = useStandardExperienceMode();
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
   const isPortfolio = isPortfolioLike(rootComponent.qualifier);
   let columns: string[] = [];
   let Cell: typeof NumericalCell;

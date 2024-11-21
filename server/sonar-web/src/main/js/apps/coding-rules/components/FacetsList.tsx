@@ -24,7 +24,7 @@ import { useAvailableFeatures } from '../../../app/components/available-features
 import SeverityFacet from '../../../components/facets/SeverityFacet';
 import StandardSeverityFacet from '../../../components/facets/StandardSeverityFacet';
 import { translate } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Feature } from '../../../types/features';
 import { Dict } from '../../../types/types';
 import { LanguageFacet } from '../../issues/sidebar/LanguageFacet';
@@ -59,7 +59,7 @@ const MAX_INITIAL_LANGUAGES = 5;
 
 export default function FacetsList(props: FacetsListProps) {
   const { hasFeature } = useAvailableFeatures();
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const languageDisabled = !props.hideProfileFacet && props.query.profile !== undefined;
 
   const inheritanceDisabled =

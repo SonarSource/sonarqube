@@ -28,13 +28,13 @@ import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { MeasuresServiceMock } from '../../../api/mocks/MeasuresServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure, mockMetric } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { ComponentContextShape } from '../../../types/component';
 import { Feature } from '../../../types/features';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import routes from '../routes';
 
 jest.mock('lodash', () => ({
@@ -57,14 +57,14 @@ const componentsHandler = new ComponentsServiceMock();
 const measuresHandler = new MeasuresServiceMock();
 const issuesHandler = new IssuesServiceMock();
 const branchHandler = new BranchesServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 afterEach(() => {
   componentsHandler.reset();
   measuresHandler.reset();
   issuesHandler.reset();
   branchHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 describe('rendering', () => {
@@ -108,7 +108,7 @@ describe('rendering', () => {
   });
 
   it('should correctly render the default overview and navigation in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     const { ui, user } = getPageObject();
     renderMeasuresApp();
 
@@ -220,7 +220,7 @@ describe('rendering', () => {
   });
 
   it('should show old measures and no flag message if no rating measures and legacy mode', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,

@@ -23,7 +23,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { CardWithPrimaryBackground, SubHeadingHighlight } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Condition } from '../../../types/types';
 import UpdateConditionsFromOtherModeModal from './UpdateConditionsFromOtherModeModal';
 
@@ -34,7 +34,7 @@ interface Props {
 }
 
 export default function UpdateConditionsFromOtherModeBanner(props: Readonly<Props>) {
-  const { data: isStandard } = useStandardExperienceMode();
+  const { data: isStandard } = useStandardExperienceModeQuery();
   const intl = useIntl();
   return (
     <CardWithPrimaryBackground className="sw-mt-9 sw-p-8">

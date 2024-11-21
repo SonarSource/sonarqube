@@ -27,7 +27,7 @@ import { MQR_CONDITIONS_MAP, STANDARD_CONDITIONS_MAP } from '../../apps/quality-
 import { HIDDEN_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { useStandardExperienceMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
@@ -44,7 +44,7 @@ export default function AddGraphMetric(props: Readonly<Props>) {
   const [query, setQuery] = React.useState<string>('');
   const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([]);
 
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const filterSelected = (query: string, selectedElements: string[]) => {
     return selectedElements.filter((element) =>

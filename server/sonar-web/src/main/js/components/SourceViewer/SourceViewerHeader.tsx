@@ -57,7 +57,7 @@ import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
 import { isDefined } from '../../helpers/types';
 import { getBranchLikeUrl, getCodeUrl } from '../../helpers/urls';
-import { useStandardExperienceMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import type { BranchLike } from '../../types/branch-like';
 import { IssueType } from '../../types/issues';
 import type { Measure, SourceViewerFile } from '../../types/types';
@@ -75,7 +75,7 @@ interface Props {
 
 export default function SourceViewerHeader(props: Readonly<Props>) {
   const intl = useIntl();
-  const { data: isStandardMode = false } = useStandardExperienceMode();
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
 
   const { showMeasures, branchLike, hidePinOption, openComponent, componentMeasures } = props;
   const { key, measures, path, project, projectName, q } = props.sourceViewerFile;

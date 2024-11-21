@@ -21,7 +21,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQuery } from '../../../../helpers/mocks/issues';
 import { mockAppState } from '../../../../helpers/testMocks';
@@ -30,7 +30,8 @@ import { byRole } from '../../../../sonar-aligned/helpers/testSelector';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { Feature } from '../../../../types/features';
 import { IssueSeverity, IssueType } from '../../../../types/issues';
-import { GlobalSettingKeys, SettingsKey } from '../../../../types/settings';
+import { Mode } from '../../../../types/mode';
+import { GlobalSettingKeys } from '../../../../types/settings';
 import { Sidebar } from '../Sidebar';
 
 jest.mock('../../../../helpers/security-standard', () => {
@@ -42,10 +43,10 @@ jest.mock('../../../../helpers/security-standard', () => {
   };
 });
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 beforeEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 describe('MQR mode', () => {
@@ -222,7 +223,7 @@ describe('MQR mode', () => {
 
 describe('Standard mode', () => {
   beforeEach(() => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
   });
 
   it('should render correct facets for Projects with PrioritizedRules feature', async () => {

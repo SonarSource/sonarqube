@@ -26,8 +26,8 @@ import { useAvailableFeatures } from '../../../app/components/available-features
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useCreateConditionMutation } from '../../../queries/quality-gates';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { MetricKey, MetricType } from '../../../sonar-aligned/types/metrics';
 import { Feature } from '../../../types/features';
 import { Condition, Metric, QualityGate } from '../../../types/types';
@@ -57,7 +57,7 @@ const FORBIDDEN_METRICS: string[] = [
 const ADD_CONDITION_MODAL_ID = 'add-condition-modal';
 
 export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const [open, setOpen] = React.useState(false);
   const closeModal = React.useCallback(() => setOpen(false), []);
   const [errorThreshold, setErrorThreshold] = React.useState('');

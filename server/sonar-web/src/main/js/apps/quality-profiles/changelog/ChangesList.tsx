@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { ProfileChangelogEvent } from '../types';
 import CleanCodeAttributeChange from './CleanCodeAttributeChange';
 import ParameterChange from './ParameterChange';
@@ -40,7 +40,7 @@ export default function ChangesList({ changes }: Readonly<Props>) {
     ...rest
   } = changes ?? {};
 
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   return (
     <ul className="sw-w-full sw-flex sw-flex-col sw-gap-1">

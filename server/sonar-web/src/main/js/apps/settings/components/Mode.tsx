@@ -32,23 +32,16 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { FlagMessage, SelectionCard } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
+import { useStandardExperienceModeQuery, useUpdateModeMutation } from '../../../queries/mode';
 import { useQualityGatesQuery } from '../../../queries/quality-gates';
-import { useSaveSimpleValueMutation, useStandardExperienceMode } from '../../../queries/settings';
+import { Mode as ModeE } from '../../../types/mode';
 import { SettingsKey } from '../../../types/settings';
 
 export function Mode() {
   const intl = useIntl();
-  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
   const [changedMode, setChangedMode] = React.useState(false);
-  const { mutate: setMode, isPending } = useSaveSimpleValueMutation(
-    true,
-    intl.formatMessage(
-      {
-        id: 'settings.mode.save.success',
-      },
-      { isStandardMode: !isStandardMode && changedMode },
-    ),
-  );
+  const { mutate: setMode, isPending } = useUpdateModeMutation();
   const { data: { qualitygates } = {}, isLoading: loadingGates } = useQualityGatesQuery({
     enabled: changedMode,
   });
@@ -58,10 +51,9 @@ export function Mode() {
 
   const handleSave = () => {
     // we need to invert because on BE we store isMQRMode
-    setMode(
-      { value: String(!!isStandardMode), key: SettingsKey.MQRMode },
-      { onSuccess: () => setChangedMode(false) },
-    );
+    setMode(isStandardMode ? ModeE.MQR : ModeE.Standard, {
+      onSuccess: () => setChangedMode(false),
+    });
   };
 
   return (

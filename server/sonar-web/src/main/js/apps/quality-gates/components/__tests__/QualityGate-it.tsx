@@ -21,15 +21,15 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byLabelText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { dismissNotice } from '../../../../api/users';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderAppRoutes, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../types/features';
-import { SettingsKey } from '../../../../types/settings';
+import { Mode } from '../../../../types/mode';
 import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';
 import routes from '../../routes';
@@ -57,18 +57,18 @@ const ui = {
 
 let qualityGateHandler: QualityGatesServiceMock;
 let usersHandler: UsersServiceMock;
-let settingsHandler: SettingsServiceMock;
+let modeHandler: ModeServiceMock;
 
 beforeAll(() => {
   qualityGateHandler = new QualityGatesServiceMock();
   usersHandler = new UsersServiceMock();
-  settingsHandler = new SettingsServiceMock();
+  modeHandler = new ModeServiceMock();
 });
 
 afterEach(() => {
   qualityGateHandler.reset();
   usersHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it('should open the default quality gates', async () => {
@@ -107,7 +107,7 @@ it('should show MQR mode update icon if standard mode conditions are present', a
 });
 
 it('should show Standard mode update icon if MQR mode conditions are present', async () => {
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
@@ -1040,7 +1040,7 @@ describe('Mode transition', () => {
 
   describe('Standard mode', () => {
     beforeEach(() => {
-      settingsHandler.set(SettingsKey.MQRMode, 'false');
+      modeHandler.setMode(Mode.Standard);
     });
 
     it('should not see that quality gates require updates if not an admin', async () => {

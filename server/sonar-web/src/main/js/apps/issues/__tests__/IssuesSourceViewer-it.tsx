@@ -30,6 +30,7 @@ import { IssueStatus } from '../../../types/issues';
 import {
   componentsHandler,
   issuesHandler,
+  modeHandler,
   renderProjectIssuesApp,
   sourcesHandler,
   usersHandler,
@@ -41,6 +42,7 @@ beforeEach(() => {
   componentsHandler.reset();
   sourcesHandler.reset();
   usersHandler.reset();
+  modeHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });

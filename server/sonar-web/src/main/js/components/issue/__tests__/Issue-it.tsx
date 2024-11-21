@@ -25,7 +25,7 @@ import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
@@ -43,7 +43,7 @@ import {
   IssueTransition,
   IssueType,
 } from '../../../types/issues';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import { RestUserDetailed } from '../../../types/users';
 import Issue from '../Issue';
 
@@ -53,12 +53,12 @@ jest.mock('../../../helpers/preferences', () => ({
 
 const usersHandler = new UsersServiceMock();
 const issuesHandler = new IssuesServiceMock(usersHandler);
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 beforeEach(() => {
   issuesHandler.reset();
   usersHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
   usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 
@@ -122,7 +122,7 @@ describe('rendering', () => {
 
   it('should correctly render in Standard mode', async () => {
     const { ui } = getPageObject();
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     renderIssue();
     expect(await ui.issueType(IssueType.Bug).find()).toBeInTheDocument();
     expect(ui.standardSeverity(IssueSeverity.Major).get()).toBeInTheDocument();
@@ -227,7 +227,7 @@ describe('updating', () => {
     const issue = mockRawIssue(false, {
       actions: [IssueActions.SetSeverity],
     });
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     issuesHandler.setIssueList([{ issue, snippets: {} }]);
     renderIssue({
       issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'severity') }),
@@ -244,7 +244,7 @@ describe('updating', () => {
     const { ui, user } = getPageObject();
     const issue = mockRawIssue(false);
     issuesHandler.setIssueList([{ issue, snippets: {} }]);
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     renderIssue({
       issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'impacts') }),
     });

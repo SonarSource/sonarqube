@@ -22,6 +22,7 @@ import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route } from 'react-router-dom';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -35,13 +36,16 @@ import { Component } from '../../../../types/types';
 import routes from '../../routes';
 
 let settingsMock: SettingsServiceMock;
+let modeHandler: ModeServiceMock;
 
 beforeAll(() => {
   settingsMock = new SettingsServiceMock();
+  modeHandler = new ModeServiceMock();
 });
 
 afterEach(() => {
   settingsMock.reset();
+  modeHandler.reset();
 });
 
 beforeEach(() => {

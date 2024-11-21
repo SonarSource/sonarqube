@@ -38,8 +38,8 @@ import { useApplicationLeakQuery } from '../../../queries/applications';
 import { useCurrentBranchQuery } from '../../../queries/branch';
 import { StaleTime } from '../../../queries/common';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { isApplication, isProject } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Query, parseQuery, serializeUrlQuery } from '../utils';
@@ -59,7 +59,8 @@ export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 
 export function ProjectActivityApp() {
   const { query, pathname } = useLocation();
-  const { data: isStandardMode, isLoading: isLoadingStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading: isLoadingStandardMode } =
+    useStandardExperienceModeQuery();
   const parsedQuery = parseQuery(query, isStandardMode);
   const router = useRouter();
   const { component } = useComponent();

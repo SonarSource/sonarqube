@@ -28,9 +28,9 @@ import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { MeasuresServiceMock } from '../../../../api/mocks/MeasuresServiceMock';
 import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { PARENT_COMPONENT_KEY } from '../../../../api/mocks/data/ids';
@@ -48,14 +48,14 @@ import { renderComponent, RenderContext } from '../../../../helpers/testReactTes
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { Feature } from '../../../../types/features';
+import { Mode } from '../../../../types/mode';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
-import { SettingsKey } from '../../../../types/settings';
 import { CaycStatus } from '../../../../types/types';
 import BranchOverview, { NO_CI_DETECTED } from '../BranchOverview';
 import { getPageObjects } from '../test-utils';
 
 const almHandler = new AlmSettingsServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 let branchesHandler: BranchesServiceMock;
 let measuresHandler: MeasuresServiceMock;
 let applicationHandler: ApplicationServiceMock;
@@ -139,7 +139,7 @@ afterEach(() => {
   timeMarchineHandler.reset();
   qualityGatesHandler.reset();
   almHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
   aiCodeAssuranceHandler.reset();
   messageshandler.reset();
 });
@@ -493,7 +493,7 @@ describe('project overview', () => {
   });
 
   it('should display old measures if in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     const { user, ui } = getPageObjects();
     renderBranchOverview();
 
@@ -532,7 +532,7 @@ describe('project overview', () => {
       MetricKey.software_quality_maintainability_rating,
     );
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     const { user, ui } = getPageObjects();
     renderBranchOverview();
 

@@ -32,7 +32,7 @@ import RatingComponent from '../../../../app/components/metrics/RatingComponent'
 import { duplicationRatingConverter } from '../../../../components/measure/utils';
 import { translate } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
-import { useStandardExperienceMode } from '../../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../../queries/mode';
 import { Dict } from '../../../../types/types';
 import ProjectCardMeasure from './ProjectCardMeasure';
 
@@ -195,7 +195,7 @@ function renderRatings(props: ProjectCardMeasuresProps, isStandardMode: boolean)
 
 export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
   const { isNewCode, measures, componentQualifier } = props;
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const { ncloc } = measures;
 

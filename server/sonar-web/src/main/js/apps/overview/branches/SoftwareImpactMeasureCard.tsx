@@ -31,7 +31,7 @@ import {
   getIssueTypeBySoftwareQuality,
 } from '../../../helpers/issues';
 import { isDefined } from '../../../helpers/types';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
@@ -52,7 +52,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const { component, conditions, softwareQuality, ratingMetricKey, measures, branch } = props;
 
   const intl = useIntl();
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   // Find measure for this software quality
   const metricKey = softwareQualityToMeasure(softwareQuality);

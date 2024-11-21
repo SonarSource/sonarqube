@@ -20,18 +20,21 @@
 
 import userEvent from '@testing-library/user-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { definitions } from '../../../../helpers/mocks/definitions-list';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../../types/settings';
+import { Mode as ModeE } from '../../../../types/mode';
 import { Mode } from '../Mode';
 
+let modeHandler: ModeServiceMock;
 let settingServiceMock: SettingsServiceMock;
 let qualityGatesServiceMock: QualityGatesServiceMock;
 
 beforeAll(() => {
+  modeHandler = new ModeServiceMock();
   settingServiceMock = new SettingsServiceMock();
   qualityGatesServiceMock = new QualityGatesServiceMock();
   settingServiceMock.setDefinitions(definitions);
@@ -92,7 +95,7 @@ it('should be able to select standard mode', async () => {
 
 it('should be able to select mqr mode', async () => {
   const user = userEvent.setup();
-  settingServiceMock.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(ModeE.Standard);
   renderMode();
 
   expect(await ui.standard.find()).toBeInTheDocument();

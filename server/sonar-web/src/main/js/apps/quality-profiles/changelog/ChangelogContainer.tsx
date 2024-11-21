@@ -23,8 +23,8 @@ import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter
 import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useGetQualityProfileChangelog } from '../../../queries/quality-profiles';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { QualityProfileChangelogFilterMode } from '../../../types/quality-profiles';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Profile } from '../types';
@@ -39,7 +39,7 @@ interface Props {
 
 function ChangelogContainer(props: Readonly<Props>) {
   const { profile } = props;
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const router = useRouter();
   const {
     query: { since, to },

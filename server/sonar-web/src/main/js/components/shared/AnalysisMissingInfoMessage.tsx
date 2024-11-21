@@ -21,7 +21,7 @@
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FlagMessage } from '~design-system';
 import { DocLink } from '../../helpers/doc-links';
-import { useStandardExperienceMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import DocumentationLink from '../common/DocumentationLink';
 
 interface AnalysisMissingInfoMessageProps {
@@ -35,7 +35,7 @@ export default function AnalysisMissingInfoMessage({
   qualifier,
   className,
 }: Readonly<AnalysisMissingInfoMessageProps>) {
-  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
   const intl = useIntl();
 
   if (hide || isLoading || isStandardMode) {

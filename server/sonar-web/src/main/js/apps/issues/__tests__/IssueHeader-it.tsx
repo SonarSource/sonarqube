@@ -21,12 +21,12 @@
 import userEvent from '@testing-library/user-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { mockIssue, mockRawIssue, mockRuleDetails } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { IssueActions, RawIssue } from '../../../types/issues';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import { Dict } from '../../../types/types';
 import IssueHeader from '../components/IssueHeader';
 
@@ -35,11 +35,11 @@ jest.mock('~design-system', () => ({
   addGlobalSuccessMessage: jest.fn(),
 }));
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 const issuesHandler = new IssuesServiceMock();
 
 beforeEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
   issuesHandler.reset();
 });
 
@@ -97,7 +97,7 @@ it('renders correctly', async () => {
 
 it('renders correctly for Standard mode', async () => {
   const issue = mockIssue();
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   renderIssueHeader({
     issue,
   });
@@ -159,7 +159,7 @@ it('can update the severity in MQR mode', async () => {
 });
 
 it('can update the severity in Standard mode', async () => {
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   const user = userEvent.setup();
   const onIssueChange = jest.fn();
   const issue = mockIssue(false, { actions: [IssueActions.SetSeverity], prioritizedRule: false });

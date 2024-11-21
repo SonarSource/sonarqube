@@ -21,7 +21,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
-import { useStandardExperienceMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import {
   SoftwareImpact,
   SoftwareImpactSeverity,
@@ -58,7 +58,7 @@ export default function SoftwareImpactPillList({
   className,
   ...props
 }: Readonly<SoftwareImpactPillListProps>) {
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const getQualityLabel = (quality: SoftwareQuality) => translate('software_quality', quality);
   const sortingFn = (a: SoftwareImpact, b: SoftwareImpact) => {
     if (a.severity !== b.severity) {

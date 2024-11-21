@@ -20,18 +20,18 @@
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { CurrentUserContext } from '../../../../app/components/current-user/CurrentUserContext';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../../types/settings';
+import { Mode } from '../../../../types/mode';
 import { CurrentUser } from '../../../../types/users';
 import PageSidebar, { PageSidebarProps } from '../PageSidebar';
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 beforeEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it('should render the right facets for overview', () => {
@@ -85,7 +85,7 @@ it('should allow to clear all filters', async () => {
 });
 
 it('should show legacy filters', async () => {
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
@@ -98,7 +98,7 @@ it('should show legacy filters', async () => {
 });
 
 it('should show non legacy filters', async () => {
-  settingsHandler.set(SettingsKey.MQRMode, 'true');
+  modeHandler.setMode(Mode.MQR);
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);

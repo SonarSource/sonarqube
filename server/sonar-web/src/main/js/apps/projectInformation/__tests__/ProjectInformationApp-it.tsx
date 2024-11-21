@@ -27,10 +27,10 @@ import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import { MeasuresServiceMock } from '../../../api/mocks/MeasuresServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import { ProjectBadgesServiceMock } from '../../../api/mocks/ProjectBadgesServiceMock';
 import ProjectLinksServiceMock from '../../../api/mocks/ProjectLinksServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import {
@@ -57,7 +57,7 @@ const badgesHandler = new ProjectBadgesServiceMock();
 const notificationsHandler = new NotificationsMock();
 const branchesHandler = new BranchesServiceMock();
 const aiCodeAssurance = new AiCodeAssuredServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 const ui = {
   projectPageTitle: byRole('heading', { name: 'project.info.title' }),
@@ -82,7 +82,7 @@ afterEach(() => {
   notificationsHandler.reset();
   branchesHandler.reset();
   aiCodeAssurance.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it('should show fields for project', async () => {

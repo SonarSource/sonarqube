@@ -33,7 +33,7 @@ import {
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
 import useFollowScroll from '../../../hooks/useFollowScroll';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Domain } from '../../../types/measures';
 import { MeasureEnhanced } from '../../../types/types';
 import { PROJECT_OVERVIEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
@@ -50,7 +50,7 @@ interface Props {
 export default function Sidebar(props: Readonly<Props>) {
   const { showFullMeasures, updateQuery, componentKey, selectedMetric, measures } = props;
   const { top: topScroll, scrolledOnce } = useFollowScroll();
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const domains = populateDomainsFromMeasures(measures, isStandardMode);
 
   const handleChangeMetric = React.useCallback(

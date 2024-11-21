@@ -37,7 +37,7 @@ import IssueChangelogDiff from '../../../components/issue/components/IssueChange
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useIssueChangelogQuery } from '../../../queries/issues';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { ReviewHistoryType } from '../../../types/security-hotspots';
 import { Issue, IssueChangelog } from '../../../types/types';
 import HotspotCommentModal from '../../security-hotspots/components/HotspotCommentModal';
@@ -77,7 +77,7 @@ const getUpdatedChangelog = (
 
 export default function IssueReviewHistory(props: Readonly<HotspotReviewHistoryProps>) {
   const { issue } = props;
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const [editCommentKey, setEditCommentKey] = React.useState('');
   const [deleteCommentKey, setDeleteCommentKey] = React.useState('');
   const { data: changelog = [], isLoading } = useIssueChangelogQuery(issue.key, {

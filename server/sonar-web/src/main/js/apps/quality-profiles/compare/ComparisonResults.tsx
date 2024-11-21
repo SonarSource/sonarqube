@@ -27,7 +27,7 @@ import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIco
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { getRulesUrl } from '../../../helpers/urls';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { SoftwareImpact } from '../../../types/clean-code-taxonomy';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict } from '../../../types/types';
@@ -231,7 +231,7 @@ type RuleCellProps = {
 };
 
 function RuleCell({ rule, severity, impacts }: Readonly<RuleCellProps>) {
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const shouldRenderSeverity =
     isStandardMode &&
     Boolean(severity) &&

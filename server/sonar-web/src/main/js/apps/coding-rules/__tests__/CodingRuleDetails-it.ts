@@ -21,6 +21,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { byRole } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { QP_2, RULE_1, RULE_10 } from '../../../api/mocks/data/ids';
 import { mockCurrentUser, mockLoggedInUser, mockRuleActivation } from '../../../helpers/testMocks';
@@ -31,11 +32,13 @@ import {
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
 import { Feature } from '../../../types/features';
+import { Mode } from '../../../types/mode';
 import { SettingsKey } from '../../../types/settings';
 import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 
 const rulesHandler = new CodingRulesServiceMock();
 const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 jest.mock('../../../helpers/l10nBundle', () => {
   const bundle = jest.requireActual('../../../helpers/l10nBundle');
@@ -47,6 +50,7 @@ jest.mock('../../../helpers/l10nBundle', () => {
 
 afterEach(() => {
   settingsHandler.reset();
+  modeHandler.reset();
   rulesHandler.reset();
 });
 
@@ -276,7 +280,7 @@ it('can activate/change/deactivate rule in quality profile', async () => {
 
 it('can activate/change/deactivate rule in quality profile for legacy mode', async () => {
   const { ui, user } = getPageObjects();
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   rulesHandler.setIsAdmin();
   renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1', [Feature.PrioritizedRules]);
   await ui.detailsloaded();

@@ -28,7 +28,7 @@ import {
   setSimpleSettingValue,
 } from '../api/settings';
 import { translate } from '../helpers/l10n';
-import { ExtendedSettingDefinition, SettingsKey, SettingValue } from '../types/settings';
+import { ExtendedSettingDefinition, SettingValue } from '../types/settings';
 import { createQueryHook } from './common';
 import { invalidateAllMeasures } from './measures';
 
@@ -57,13 +57,6 @@ export const useGetValueQuery = createQueryHook(
     });
   },
 );
-
-export const useStandardExperienceMode = () => {
-  return useGetValueQuery(
-    { key: SettingsKey.MQRMode },
-    { staleTime: Infinity, select: (data) => data?.value === 'false' },
-  );
-};
 
 export function useResetSettingsMutation() {
   const queryClient = useQueryClient();

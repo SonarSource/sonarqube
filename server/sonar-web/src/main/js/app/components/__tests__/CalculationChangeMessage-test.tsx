@@ -21,9 +21,9 @@
 import { Outlet, Route } from 'react-router-dom';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import CalculationChangeMessage from '../calculation-notification/CalculationChangeMessage';
 
 const ui = {
@@ -33,10 +33,10 @@ const ui = {
   alertText: (qualifier: string) => byText(`notification.calculation_change.message.${qualifier}`),
 };
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 beforeEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it.each([
@@ -53,7 +53,7 @@ it.each([
   ['Project', '/projects', ComponentQualifier.Project],
   ['Portfolios', '/portfolios', ComponentQualifier.Portfolio],
 ])('should not render on %s page if isStandardMode', (_, path, qualifier) => {
-  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  modeHandler.setMode(Mode.Standard);
   render(path);
   expect(ui.alert.get()).toBeInTheDocument();
   expect(ui.alertText(qualifier).get()).toBeInTheDocument();

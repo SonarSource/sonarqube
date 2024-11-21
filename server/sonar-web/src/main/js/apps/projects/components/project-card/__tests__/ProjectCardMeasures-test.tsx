@@ -22,9 +22,10 @@ import { screen } from '@testing-library/react';
 
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
+import { MeasuresServiceMock } from '../../../../../api/mocks/MeasuresServiceMock';
+import { ModeServiceMock } from '../../../../../api/mocks/ModeServiceMock';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../../../types/settings';
+import { Mode } from '../../../../../types/mode';
 import { Dict } from '../../../../../types/types';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 
@@ -33,10 +34,12 @@ jest.mock('date-fns', () => ({
   differenceInMilliseconds: () => 1000 * 60 * 60 * 24 * 30 * 8, // ~ 8 months
 }));
 
-const settingsService = new SettingsServiceMock();
+const measuresHandler = new MeasuresServiceMock();
+const modeHandler = new ModeServiceMock();
 
 beforeEach(() => {
-  settingsService.reset();
+  measuresHandler.reset();
+  modeHandler.reset();
 });
 
 describe('Overall measures', () => {
@@ -57,7 +60,7 @@ describe('Overall measures', () => {
   });
 
   it('should be rendered properly in Standard mode', async () => {
-    settingsService.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     renderProjectCardMeasures();
     expect(await screen.findByTitle('metric.vulnerabilities.short_name')).toBeInTheDocument();
     expect(screen.getByTitle('metric.bugs.short_name')).toBeInTheDocument();

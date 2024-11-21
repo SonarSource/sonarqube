@@ -23,16 +23,16 @@ import userEvent from '@testing-library/user-event';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { Feature } from '../../../types/features';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import { NoticeType } from '../../../types/users';
 import IssuesList from '../components/IssuesList';
 import {
   branchHandler,
   componentsHandler,
   issuesHandler,
+  modeHandler,
   renderIssueApp,
   renderProjectIssuesApp,
-  settingsHandler,
   ui,
   usersHandler,
   waitOnDataLoaded,
@@ -61,7 +61,7 @@ beforeEach(() => {
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });
@@ -201,7 +201,7 @@ describe('issues app filtering', () => {
 
   it('should combine sidebar filters properly in standard mode', async () => {
     issuesHandler.setPageSize(50);
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     const user = userEvent.setup();
     renderIssueApp(undefined, [Feature.PrioritizedRules]);
     await waitOnDataLoaded();
@@ -420,7 +420,7 @@ describe('issues app filtering', () => {
 
     component.unmount();
 
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
 
     renderIssueApp(undefined, undefined, 'issues?impactSeverities=BLOCKER');
     await waitOnDataLoaded();
@@ -431,7 +431,7 @@ describe('issues app filtering', () => {
 describe('issues app when reindexing', () => {
   it('should display only some facets while reindexing is in progress', async () => {
     issuesHandler.setIsAdmin(true);
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     renderProjectIssuesApp(undefined, { needIssueSync: true });
 
     // Enabled facets

@@ -23,7 +23,7 @@ import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Issue, SourceLine } from '../../../types/types';
 
 const MOUSE_LEAVE_DELAY = 0.25;
@@ -40,7 +40,7 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   const { issues, issuesOpen, line, as = 'td' } = props;
   const hasIssues = issues.length > 0;
   const intl = useIntl();
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   if (!hasIssues) {
     return <LineMeta />;

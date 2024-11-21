@@ -21,6 +21,7 @@
 import { screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import { byRole } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { QP_2, RULE_10, RULE_7, RULE_9 } from '../../../api/mocks/data/ids';
 import {
@@ -32,10 +33,12 @@ import {
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { Feature } from '../../../types/features';
+import { Mode } from '../../../types/mode';
 import { SettingsKey } from '../../../types/settings';
 import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 
 const rulesHandler = new CodingRulesServiceMock();
+const modeHandler = new ModeServiceMock();
 const settingsHandler = new SettingsServiceMock();
 
 jest.mock('../../../helpers/l10nBundle', () => {
@@ -48,6 +51,7 @@ jest.mock('../../../helpers/l10nBundle', () => {
 
 afterEach(() => {
   rulesHandler.reset();
+  modeHandler.reset();
   settingsHandler.reset();
 });
 
@@ -106,7 +110,7 @@ describe('Rules app list', () => {
 
   it('renders correctly in Standard mode', async () => {
     const { ui } = getPageObjects();
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     renderCodingRulesApp();
 
     await ui.listLoaded();
@@ -258,7 +262,7 @@ describe('Rules app list', () => {
 
     it('filter by type and severity in standard mode', async () => {
       const { ui, user } = getPageObjects();
-      settingsHandler.set(SettingsKey.MQRMode, 'false');
+      modeHandler.setMode(Mode.Standard);
       renderCodingRulesApp(mockCurrentUser());
       await ui.listLoaded();
 
@@ -414,7 +418,7 @@ describe('Rules app list', () => {
 
   describe('old severity', () => {
     beforeEach(() => {
-      settingsHandler.set(SettingsKey.MQRMode, 'false');
+      modeHandler.setMode(Mode.Standard);
     });
 
     it('can activate/change/deactivate specific rule for quality profile', async () => {
@@ -847,7 +851,7 @@ describe('redirects', () => {
   it('should handle hash parameters in STANDARD mode', async () => {
     const { ui } = getPageObjects();
 
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
 
     renderCodingRulesApp(
       mockLoggedInUser(),

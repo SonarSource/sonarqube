@@ -24,7 +24,7 @@ import { RatingEnum } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 
@@ -37,7 +37,7 @@ export interface SoftwareImpactMeasureRatingProps {
 
 export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasureRatingProps>) {
   const { ratingMetricKey, componentKey, softwareQuality, branch } = props;
-  const { data: isStandardMode = false } = useStandardExperienceMode();
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
 
   const intl = useIntl();
 

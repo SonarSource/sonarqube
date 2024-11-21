@@ -24,14 +24,14 @@ import { byLabelText } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import { RestUserDetailed } from '../../../types/users';
 import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
@@ -58,14 +58,14 @@ jest.mock('../helpers/lines', () => {
 const componentsHandler = new ComponentsServiceMock();
 const issuesHandler = new IssuesServiceMock();
 const usersHandler = new UsersServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 const message = 'First Issue';
 
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   usersHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
   usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 
@@ -225,10 +225,10 @@ it('should show SCM information', async () => {
 });
 
 it.each([
-  ['MQR mode', 'true', ''],
-  ['Legacy mode', 'false', '.legacy'],
-])('should show issue indicator in %s', async (_, mode, translationKey) => {
-  settingsHandler.set(SettingsKey.MQRMode, mode);
+  [Mode.MQR, ''],
+  [Mode.Standard, '.legacy'],
+])('should show issue indicator in %s', async (mode, translationKey) => {
+  modeHandler.setMode(mode);
   jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       key: 'first-issue',

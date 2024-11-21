@@ -25,7 +25,7 @@ import { LightLabel, themeBorder } from '~design-system';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { translate } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { IssueSeverity } from '../../../types/issues';
 import { Issue } from '../../../types/types';
@@ -37,7 +37,7 @@ interface Props {
 }
 
 export default function IssueHeaderSide({ issue, onSetSeverity }: Readonly<Props>) {
-  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
   return (
     <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-max-w-[250px]">
       <Spinner isLoading={isLoading}>

@@ -21,11 +21,11 @@
 import { useIntl } from 'react-intl';
 import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { DocLink } from '../../../helpers/doc-links';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 
 export default function QGMetricsMismatchHelp() {
   const intl = useIntl();
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   return (
     <FacetHelp
       title={intl.formatMessage({ id: 'issues.qg_mismatch.title' })}

@@ -28,7 +28,7 @@ import { useAvailableFeatures } from '../../../app/components/available-features
 import SeverityFacet from '../../../components/facets/SeverityFacet';
 import StandardSeverityFacet from '../../../components/facets/StandardSeverityFacet';
 import { translate } from '../../../helpers/l10n';
-import { useStandardExperienceMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isProject, isView } from '../../../types/component';
 import { Feature } from '../../../types/features';
@@ -94,7 +94,7 @@ export function Sidebar(props: Readonly<Props>) {
   } = props;
   const { settings } = useAppState();
   const { hasFeature } = useAvailableFeatures();
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const renderComponentFacets = () => {
     const hasFileOrDirectory =

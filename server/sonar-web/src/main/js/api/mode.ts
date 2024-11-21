@@ -18,25 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { areCCTMeasuresComputed, areSoftwareQualityRatingsComputed } from '../../helpers/measures';
-import { useStandardExperienceModeQuery } from '../../queries/mode';
-import { MeasureEnhanced } from '../../types/types';
-import {
-  legacyBubbles,
-  newTaxonomyBubbles,
-  newTaxonomyWithoutRatingsBubbles,
-} from './config/bubbles';
+import axios from 'axios';
+import { Mode, ModeResponse } from '../types/mode';
 
-export function useBubbleChartMetrics(measures: MeasureEnhanced[]) {
-  const { data: isStandardMode } = useStandardExperienceModeQuery();
+const MODE_PATH = '/api/v2/clean-code-policy/mode';
 
-  if (isStandardMode || !areCCTMeasuresComputed(measures)) {
-    return legacyBubbles;
-  }
+export function getMode() {
+  return axios.get<ModeResponse>(MODE_PATH);
+}
 
-  if (!areSoftwareQualityRatingsComputed(measures)) {
-    return newTaxonomyWithoutRatingsBubbles;
-  }
-
-  return newTaxonomyBubbles;
+export function updateMode(mode: Mode) {
+  return axios.patch<ModeResponse>(MODE_PATH, { mode });
 }

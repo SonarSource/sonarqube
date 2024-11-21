@@ -147,10 +147,6 @@ export default class SettingsServiceMock {
       key: SettingsKey.QPAdminCanDisableInheritedRules,
       value: 'true',
     },
-    {
-      key: SettingsKey.MQRMode,
-      value: 'true',
-    },
   ];
 
   #settingValues: SettingValue[] = cloneDeep(this.#defaultValues);

@@ -39,11 +39,11 @@ import { Profile } from '../../../api/quality-profiles';
 import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import {
   useActivateRuleMutation,
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { SoftwareImpact } from '../../../types/clean-code-taxonomy';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
@@ -71,7 +71,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
   const { activations = [], referencedProfiles, ruleDetails, canDeactivateInherited } = props;
   const { mutate: activateRule } = useActivateRuleMutation(props.onActivate);
   const { mutate: deactivateRule } = useDeactivateRuleMutation(props.onDeactivate);
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const canActivate = Object.values(referencedProfiles).some((profile) =>
     Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),

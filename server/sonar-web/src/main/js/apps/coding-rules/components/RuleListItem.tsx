@@ -37,12 +37,12 @@ import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPil
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import {
   useActivateRuleMutation,
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
 import { useRuleDetailsQuery } from '../../../queries/rules';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { IssueSeverity } from '../../../types/issues';
 import { Rule, RuleActivation } from '../../../types/types';
 import ActivatedRuleActions from './ActivatedRuleActions';
@@ -85,7 +85,7 @@ export default function RuleListItem(props: Readonly<Props>) {
   const { mutate: deactivateRule } = useDeactivateRuleMutation((data) =>
     onDeactivate(data.key, data.rule),
   );
-  const { data: isStandardMode } = useStandardExperienceMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const activation =
     data && ruleIsChanged

@@ -22,13 +22,13 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { mockRestUser } from '../../../helpers/testMocks';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import {
   branchHandler,
   componentsHandler,
   issuesHandler,
+  modeHandler,
   renderIssueApp,
-  settingsHandler,
   ui,
   usersHandler,
 } from '../test-utils';
@@ -64,7 +64,7 @@ beforeEach(() => {
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
   usersHandler.users = [
     mockRestUser({
       login: 'bob.marley',
@@ -118,14 +118,13 @@ it('should be able to add or update comment', async () => {
 });
 
 it.each([
-  ['MQR mode', 'true', 'issue.changelog.impactSeverity.MAINTAINABILITY.BLOCKER.HIGH'],
+  [Mode.MQR, 'issue.changelog.impactSeverity.MAINTAINABILITY.BLOCKER.HIGH'],
   [
-    'Standard mode',
-    'false',
+    Mode.Standard,
     'issue.changelog.changed_to.issue.changelog.field.severity.BLOCKER (issue.changelog.was.MAJOR)',
   ],
-])('should be able to show changelog in %s', async (_, mode, message) => {
-  settingsHandler.set(SettingsKey.MQRMode, mode);
+])('should be able to show changelog in %s', async (mode, message) => {
+  modeHandler.setMode(mode);
   const user = userEvent.setup();
   issuesHandler.setIsAdmin(true);
   renderIssueApp();

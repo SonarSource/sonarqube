@@ -23,11 +23,11 @@ import userEvent from '@testing-library/user-event';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { MeasuresServiceMock } from '../../../../../api/mocks/MeasuresServiceMock';
-import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMeasure } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../../../types/settings';
+import { Mode } from '../../../../../types/mode';
 import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
@@ -69,11 +69,11 @@ const PROJECT_WITH_AI_CODE_DISABLED: Project = {
 const USER_LOGGED_OUT = mockCurrentUser();
 const USER_LOGGED_IN = mockLoggedInUser();
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 const measuresHandler = new MeasuresServiceMock();
 
 beforeEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
   measuresHandler.reset();
 });
 
@@ -300,7 +300,7 @@ describe('upgrade scenario (awaiting scan)', () => {
   });
 
   it('should not display awaiting analysis badge if legacy mode is enabled', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     renderProjectCard({
       ...PROJECT,
       measures: {
@@ -319,7 +319,7 @@ describe('upgrade scenario (awaiting scan)', () => {
   });
 
   it('should not display new values if legacy mode is enabled', async () => {
-    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    modeHandler.setMode(Mode.Standard);
     measuresHandler.registerComponentMeasures({
       [PROJECT.key]: {
         ...newRatings,

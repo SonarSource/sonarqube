@@ -36,8 +36,8 @@ import { ContentCell, FlagMessageV2, Table, TableRow } from '../../../design-sys
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useUpdateOrDeleteConditionsMutation } from '../../../queries/quality-gates';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { Condition } from '../../../types/types';
 import {
@@ -67,7 +67,7 @@ export default function UpdateConditionsFromOtherModeModal({
   condition,
   children,
 }: Readonly<Props>) {
-  const { data: isStandard } = useStandardExperienceMode();
+  const { data: isStandard } = useStandardExperienceModeQuery();
   const [isOpen, setOpen] = React.useState(false);
   const [error, setError] = React.useState(false);
   const intl = useIntl();
@@ -214,7 +214,7 @@ export default function UpdateConditionsFromOtherModeModal({
 }
 
 function SingleMetric({ condition }: Readonly<{ condition: Condition }>) {
-  const { data: isStandard } = useStandardExperienceMode();
+  const { data: isStandard } = useStandardExperienceModeQuery();
   const intl = useIntl();
   const metrics = useMetrics();
   const metric = metrics[condition.metric];
@@ -258,7 +258,7 @@ function SingleMetric({ condition }: Readonly<{ condition: Condition }>) {
 
 function Header() {
   const intl = useIntl();
-  const { data: isStandard } = useStandardExperienceMode();
+  const { data: isStandard } = useStandardExperienceModeQuery();
 
   return (
     <TableRow>
@@ -288,7 +288,7 @@ function Header() {
 }
 
 function ConditionRow({ condition }: Readonly<{ condition: Condition }>) {
-  const { data: isStandard } = useStandardExperienceMode();
+  const { data: isStandard } = useStandardExperienceModeQuery();
   const intl = useIntl();
   const metrics = useMetrics();
   const { op = 'GT' } = condition;

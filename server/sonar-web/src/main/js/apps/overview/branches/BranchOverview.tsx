@@ -42,11 +42,11 @@ import {
 } from '../../../helpers/qualityGates';
 import { isDefined } from '../../../helpers/types';
 import { useMeasuresAndLeakQuery } from '../../../queries/measures';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import {
   useApplicationQualityGateStatus,
   useProjectQualityGateStatus,
 } from '../../../queries/quality-gates';
-import { useStandardExperienceMode } from '../../../queries/settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
@@ -70,7 +70,7 @@ const FROM_DATE = toISO8601WithOffsetString(new Date().setFullYear(new Date().ge
 
 export default function BranchOverview(props: Readonly<Props>) {
   const { component, branch, branchesEnabled } = props;
-  const { data: isStandardMode = false } = useStandardExperienceMode();
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
   const { graph: initialGraph } = getActivityGraph(
     BRANCH_OVERVIEW_ACTIVITY_GRAPH,
     props.component.key,

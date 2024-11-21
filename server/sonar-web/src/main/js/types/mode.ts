@@ -18,25 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { areCCTMeasuresComputed, areSoftwareQualityRatingsComputed } from '../../helpers/measures';
-import { useStandardExperienceModeQuery } from '../../queries/mode';
-import { MeasureEnhanced } from '../../types/types';
-import {
-  legacyBubbles,
-  newTaxonomyBubbles,
-  newTaxonomyWithoutRatingsBubbles,
-} from './config/bubbles';
+export enum Mode {
+  MQR = 'MQR',
+  Standard = 'STANDARD_EXPERIENCE',
+}
 
-export function useBubbleChartMetrics(measures: MeasureEnhanced[]) {
-  const { data: isStandardMode } = useStandardExperienceModeQuery();
-
-  if (isStandardMode || !areCCTMeasuresComputed(measures)) {
-    return legacyBubbles;
-  }
-
-  if (!areSoftwareQualityRatingsComputed(measures)) {
-    return newTaxonomyWithoutRatingsBubbles;
-  }
-
-  return newTaxonomyBubbles;
+export interface ModeResponse {
+  mode: Mode;
+  modified: boolean;
 }
