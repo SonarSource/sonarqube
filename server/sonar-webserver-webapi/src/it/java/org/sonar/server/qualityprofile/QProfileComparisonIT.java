@@ -74,6 +74,8 @@ class QProfileComparisonIT {
   @RegisterExtension
   private final EsTester es = EsTester.create();
 
+  private final Configuration config = mock(Configuration.class);
+
   private DbSession dbSession;
   private QProfileRules qProfileRules;
   private QProfileComparison comparison;
@@ -87,7 +89,7 @@ class QProfileComparisonIT {
   void before() {
     DbClient db = dbTester.getDbClient();
     dbSession = db.openSession(false);
-    RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
+    RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE, config);
     ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db, es.client());
     QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
     SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));

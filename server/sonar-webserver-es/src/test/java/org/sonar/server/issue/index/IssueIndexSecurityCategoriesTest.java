@@ -20,7 +20,10 @@
 package org.sonar.server.issue.index;
 
 import java.util.List;
-import org.junit.jupiter.api.Test;
+import java.util.Map;
+import java.util.Optional;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -29,19 +32,25 @@ import org.sonar.db.component.ComponentDto;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
+import static org.mockito.Mockito.doReturn;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
 class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
 
-  @Test
-  void searchSinglePciDss32Category() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void searchSinglePciDss32Category(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDocForProject("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDocForProject("openvul2", project).setPciDss32(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss32(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 
@@ -50,17 +59,19 @@ class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     assertThatSearchReturnsEmpty(queryPciDss32("1.2"));
   }
 
-  @Test
-  void searchMultiplePciDss32Categories() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void searchMultiplePciDss32Categories(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDocForProject("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDocForProject("openvul2", project).setPciDss32(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss32(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDocForProject("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
-        .setSeverity(Severity.MINOR)
+      newDocForProject("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY,
+        HIGH)).setStatus(Issue.STATUS_REOPENED).setSeverity(Severity.MINOR)
     );
 
     assertThatSearchReturnsOnly(queryPciDss32("1", "4"), "openvul1", "openvul3");
@@ -68,14 +79,16 @@ class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     assertThatSearchReturnsEmpty(queryPciDss32("6", "7", "8", "9", "10", "11", "12"));
   }
 
-  @Test
-  void searchSinglePciDss40Category() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void searchSinglePciDss40Category(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 
@@ -84,17 +97,19 @@ class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     assertThatSearchReturnsEmpty(queryPciDss40("1.2"));
   }
 
-  @Test
-  void searchMultiplePciDss40Categories() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void searchMultiplePciDss40Categories(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDocForProject("openvul3", project).setPciDss40(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
-        .setSeverity(Severity.MINOR)
+      newDocForProject("openvul3", project).setPciDss40(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY,
+        HIGH)).setStatus(Issue.STATUS_REOPENED).setSeverity(Severity.MINOR)
     );
 
     assertThatSearchReturnsOnly(queryPciDss40("1", "4"), "openvul1", "openvul3");
@@ -102,16 +117,19 @@ class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     assertThatSearchReturnsEmpty(queryPciDss40("6", "7", "8", "9", "10", "11", "12"));
   }
 
-  @Test
-  void searchMixedPciDssCategories() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void searchMixedPciDssCategories(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setPciDss32(List.of("2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setPciDss32(List.of("2.1")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDocForProject("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY,
+          HIGH)).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 

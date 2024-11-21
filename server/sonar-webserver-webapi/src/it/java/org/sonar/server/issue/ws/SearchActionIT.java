@@ -34,9 +34,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
@@ -102,6 +105,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -113,13 +118,16 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
-import static org.sonar.db.component.ComponentQualifiers.UNIT_TEST_FILE;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
+import static org.sonar.db.component.ComponentQualifiers.UNIT_TEST_FILE;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
@@ -150,22 +158,24 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUES
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 
-public class SearchActionIT {
+class SearchActionIT {
 
-  public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder()
+  private static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder()
     .setStart(0).setEnd(11).setType(CODE).build();
   private final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
-  @Rule
-  public UserSessionRule userSession = standalone();
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+
+  private final Configuration config = mock(Configuration.class);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession,
-    new WebAuthorizationTypeSupport(userSession));
+    new WebAuthorizationTypeSupport(userSession), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
@@ -182,13 +192,13 @@ public class SearchActionIT {
       searchResponseFormat, System2.INSTANCE, dbClient));
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     issueWorkflow.start();
   }
 
   @Test
-  public void givenPrivateProject_responseContainsAllFieldsExceptAdditionalFields() {
+  void givenPrivateProject_responseContainsAllFieldsExceptAdditionalFields() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ProjectData projectData = db.components().insertPrivateProject();
@@ -236,7 +246,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void response_contains_correct_actions() {
+  void response_contains_correct_actions() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
@@ -274,7 +284,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void issue_on_external_rule() {
+  void issue_on_external_rule() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true).setLanguage("xoo"));
@@ -290,7 +300,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void issue_on_external_adhoc_rule_without_metadata() {
+  void issue_on_external_adhoc_rule_without_metadata() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -316,7 +326,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void issue_on_external_adhoc_rule_with_metadata() {
+  void issue_on_external_adhoc_rule_with_metadata() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -343,7 +353,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void issue_with_cross_file_locations() {
+  void issue_with_cross_file_locations() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -397,7 +407,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void issue_with_comments() {
+  void issue_with_comments() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
@@ -445,7 +455,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void issue_with_comment_hidden() {
+  void issue_with_comment_hidden() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
@@ -487,7 +497,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void load_additional_fields() {
+  void load_additional_fields() {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
@@ -503,7 +513,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void load_additional_fields_with_issue_admin_permission() {
+  void load_additional_fields_with_issue_admin_permission() {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
@@ -530,7 +540,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_by_rule_key() {
+  void search_by_rule_key() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
@@ -552,7 +562,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_adhoc_issue_by_rule_key_returns_correct_rule_name() {
+  void search_adhoc_issue_by_rule_key_returns_correct_rule_name() {
 
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -575,7 +585,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_by_non_existing_rule_key() {
+  void search_by_non_existing_rule_key() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
@@ -597,7 +607,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_by_variants_with_facets() {
+  void search_by_variants_with_facets() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
@@ -616,7 +626,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFilteringByIssueStatuses_shouldReturnIssueStatusesFacet() {
+  void search_whenFilteringByIssueStatuses_shouldReturnIssueStatusesFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
@@ -654,7 +664,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenIssueStatusesFacetRequested_shouldReturnFacet() {
+  void search_whenIssueStatusesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
@@ -690,18 +700,18 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenImpactSoftwareQualitiesFacetRequested_shouldReturnFacet() {
+  void search_whenImpactSoftwareQualitiesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
-      .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+      .addImpact(new ImpactDto(SECURITY, HIGH))
+      .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, HIGH)));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+      .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, HIGH)));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addImpact(new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))
       .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)));
     indexPermissionsAndIssues();
 
@@ -725,19 +735,19 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFilteredByImpactSeverities_shouldReturnImpactSoftwareQualitiesFacet() {
+  void search_whenFilteredByImpactSeverities_shouldReturnImpactSoftwareQualitiesFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
-    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH)));
-    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH)));
+    db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(HIGH))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(HIGH)));
+    db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(HIGH)));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addImpact(new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.INFO)));
     indexPermissionsAndIssues();
     Map<Common.SoftwareQuality, Common.ImpactSeverity> expectedImpacts = Map.of(Common.SoftwareQuality.SECURITY,
@@ -774,23 +784,23 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenImpactSeveritiesFacetRequested_shouldReturnFacet() {
+  void search_whenImpactSeveritiesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
-      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SECURITY, HIGH),
+      new ImpactDto(SoftwareQuality.RELIABILITY, HIGH))));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SoftwareQuality.RELIABILITY, HIGH))));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+      new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
       new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
     IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.INFO),
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
+      new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
@@ -815,30 +825,30 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFilteredByImpactSoftwareQualities_shouldReturnFacet() {
+  void search_whenFilteredByImpactSoftwareQualities_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
-      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SECURITY, HIGH),
+      new ImpactDto(SoftwareQuality.RELIABILITY, HIGH))));
     db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SoftwareQuality.RELIABILITY, HIGH))));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
+      new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
+      new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
     IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.INFO))));
+      new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.INFO))));
     IssueDto issue5 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
-      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+      new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
       new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_IMPACT_SOFTWARE_QUALITIES, SoftwareQuality.SECURITY.name())
+      .setParam(PARAM_IMPACT_SOFTWARE_QUALITIES, SECURITY.name())
       .setParam(FACETS, PARAM_IMPACT_SEVERITIES)
       .executeProtobuf(SearchWsResponse.class);
 
@@ -860,7 +870,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFilteredByCleanCodeAttributeCategory_shouldReturnFacet() {
+  void search_whenFilteredByCleanCodeAttributeCategory_shouldReturnFacet() {
     // INTENTIONAL
     RuleDto rule1 = newIssueRule("clear-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.CLEAR));
     RuleDto rule2 = newIssueRule("complete-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE));
@@ -900,7 +910,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void issue_on_removed_file() {
+  void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
     ComponentDto project =
       db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
@@ -926,7 +936,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void apply_paging_with_one_component() {
+  void apply_paging_with_one_component() {
     RuleDto rule = newIssueRule();
     ComponentDto project =
       db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
@@ -944,7 +954,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_assigned_to_me() {
+  void filter_by_assigned_to_me() {
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY").setBranchUuid(
@@ -991,7 +1001,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_new_code_period() {
+  void filter_by_new_code_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
@@ -1038,7 +1048,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void explicit_false_value_for_new_code_period_parameters_has_no_effect() {
+  void explicit_false_value_for_new_code_period_parameters_has_no_effect() {
     ws.newRequest()
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "false")
       .execute()
@@ -1046,7 +1056,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_leak_period_without_a_period() {
+  void filter_by_leak_period_without_a_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
@@ -1086,7 +1096,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_leak_period_has_no_effect_on_prs() {
+  void filter_by_leak_period_has_no_effect_on_prs() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
@@ -1132,7 +1142,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_empty_when_login_is_unknown() {
+  void return_empty_when_login_is_unknown() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
@@ -1179,7 +1189,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_assigned_to_me_when_not_authenticate() {
+  void filter_by_assigned_to_me_when_not_authenticate() {
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto poy = db.users().insertUser(u -> u.setLogin("poy").setName("poypoy").setEmail("poypoy@email.com"));
@@ -1212,7 +1222,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_by_author() {
+  void search_by_author() {
     userSession.logIn();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -1245,7 +1255,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void hide_author_if_not_logged_in() {
+  void hide_author_if_not_logged_in() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -1266,7 +1276,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_test_scope() {
+  void filter_by_test_scope() {
     ProjectData projectData = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID"));
     ComponentDto project = projectData.getMainBranchComponent();
@@ -1309,7 +1319,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_main_scope() {
+  void filter_by_main_scope() {
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
     indexPermissions();
@@ -1351,7 +1361,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_scope_always_returns_all_scope_facet_values() {
+  void filter_by_scope_always_returns_all_scope_facet_values() {
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
     indexPermissions();
@@ -1384,7 +1394,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void sort_by_updated_at() {
+  void sort_by_updated_at() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
@@ -1415,8 +1425,10 @@ public class SearchActionIT {
         "-7b112bd4eac2");
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_owaspAsvs40() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_owaspAsvs40(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1428,9 +1440,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1451,8 +1463,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_owaspAsvs40_with_level() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_owaspAsvs40_with_level(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
@@ -1461,9 +1475,9 @@ public class SearchActionIT {
     RuleDto issueRule2 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:2.2.5")));
     RuleDto issueRule3 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:2.2.5", "owaspAsvs-4.0:12.1.3")));
     IssueDto issueDto1 = db.issues().insertIssue(issueRule1, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule3, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     indexPermissionsAndIssues();
 
     SearchWsResponse result = ws.newRequest()
@@ -1501,8 +1515,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto3.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_pciDss32() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_pciDss32(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1514,9 +1530,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1537,8 +1553,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void multiple_categories_pciDss32() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void multiple_categories_pciDss32(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
@@ -1552,9 +1570,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
 
     // Rule 2
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1565,9 +1583,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
 
     // Rule 3
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1578,9 +1596,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto5 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto6 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
 
     indexPermissionsAndIssues();
 
@@ -1631,8 +1649,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_pciDss40() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_pciDss40(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1644,9 +1664,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1667,8 +1687,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void multiple_categories_pciDss40() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void multiple_categories_pciDss40(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
@@ -1682,9 +1704,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
 
     // Rule 2
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1695,9 +1717,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
 
     // Rule 3
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1707,8 +1729,10 @@ public class SearchActionIT {
     hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
-    db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
+    db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
 
     indexPermissionsAndIssues();
 
@@ -1749,8 +1773,10 @@ public class SearchActionIT {
     assertThat(result.getIssuesList()).isEmpty();
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_cwe() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_cwe(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1762,9 +1788,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1777,8 +1803,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_owasp() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_owasp(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1790,9 +1818,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1805,8 +1833,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_owasp_2021() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_owasp_2021(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1818,9 +1848,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1833,8 +1863,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_stig_R5V3() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_stig_R5V3(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1847,9 +1879,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1867,8 +1899,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(tuple("V-222402", 2L), tuple("V-222403", 2L), tuple("V-222404", 2L));
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_casa() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_casa(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1879,9 +1913,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1909,8 +1943,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_sansTop25() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_sansTop25(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1921,9 +1957,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1936,8 +1972,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
 
-  @Test
-  public void only_vulnerabilities_are_returned_by_sonarsource_security() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_sonarsource_security(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1948,9 +1986,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1964,7 +2002,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void security_hotspots_are_not_returned_by_default() {
+  void security_hotspots_are_not_returned_by_default() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -1982,7 +2020,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void security_hotspots_are_not_returned_by_issues_param() {
+  void security_hotspots_are_not_returned_by_issues_param() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto issueRule = db.rules().insertIssueRule();
@@ -2003,8 +2041,10 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(BUG, VULNERABILITY, Common.RuleType.CODE_SMELL);
   }
 
-  @Test
-  public void security_hotspots_are_not_returned_by_cwe() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void security_hotspots_are_not_returned_by_cwe(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -2016,9 +2056,9 @@ public class SearchActionIT {
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
     IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
-      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
     indexPermissions();
     indexIssues();
 
@@ -2032,7 +2072,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void security_hotspots_are_not_returned_by_assignees() {
+  void security_hotspots_are_not_returned_by_assignees() {
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -2056,7 +2096,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void security_hotspots_are_not_returned_by_rule() {
+  void security_hotspots_are_not_returned_by_rule() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto hotspotRule = db.rules().insertHotspotRule();
@@ -2071,7 +2111,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void security_hotspots_are_not_returned_by_issues_param_only() {
+  void security_hotspots_are_not_returned_by_issues_param_only() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertHotspotRule();
@@ -2090,7 +2130,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_if_trying_to_filter_issues_by_hotspots() {
+  void fail_if_trying_to_filter_issues_by_hotspots() {
     ComponentDto mainBranch = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
     RuleDto hotspotRule = newHotspotRule();
@@ -2107,7 +2147,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void security_hotspot_are_ignored_when_filtering_by_severities() {
+  void security_hotspot_are_ignored_when_filtering_by_severities() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto issueRule = db.rules().insertIssueRule();
@@ -2138,7 +2178,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_total_effort() {
+  void return_total_effort() {
     insertIssues(i -> i.setEffort(10L), i -> i.setEffort(15L));
     indexPermissionsAndIssues();
 
@@ -2148,7 +2188,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void givenNotQuickFixableIssue_returnIssueIsNotQuickFixable() {
+  void givenNotQuickFixableIssue_returnIssueIsNotQuickFixable() {
     insertIssues(i -> i.setQuickFixAvailable(false));
     indexPermissionsAndIssues();
 
@@ -2159,7 +2199,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void givenQuickFixableIssue_returnIssueIsQuickFixable() {
+  void givenQuickFixableIssue_returnIssueIsQuickFixable() {
     insertIssues(i -> i.setQuickFixAvailable(true));
     indexPermissionsAndIssues();
 
@@ -2170,7 +2210,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void paging() {
+  void paging() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
@@ -2190,7 +2230,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void paging_with_page_size_to_minus_one() {
+  void paging_with_page_size_to_minus_one() {
     TestRequest requestWithNegativePageSize = ws.newRequest()
       .setParam(WebService.Param.PAGE, "1")
       .setParam(WebService.Param.PAGE_SIZE, "-1");
@@ -2201,7 +2241,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void default_page_size_is_100() {
+  void default_page_size_is_100() {
     ws.newRequest()
       .execute()
       .assertJson(this.getClass(), "default_page_size_is_100.json");
@@ -2209,7 +2249,7 @@ public class SearchActionIT {
 
   // SONAR-10217
   @Test
-  public void empty_search_with_unknown_branch() {
+  void empty_search_with_unknown_branch() {
     SearchWsResponse response = ws.newRequest()
       .setParam("onComponentOnly", "true")
       .setParam("components", "foo")
@@ -2222,7 +2262,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void empty_search() {
+  void empty_search() {
     SearchWsResponse response = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
     assertThat(response)
@@ -2231,7 +2271,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_when_invalid_format() {
+  void fail_when_invalid_format() {
     TestRequest invalidFormatRequest = ws.newRequest()
       .setParam(PARAM_CREATED_AFTER, "wrong-date-input");
 
@@ -2241,7 +2281,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void test_definition() {
+  void test_definition() {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("search");
     assertThat(def.isInternal()).isFalse();
@@ -2272,7 +2312,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_when_additional_field_set_return_context_key() {
+  void search_when_additional_field_set_return_context_key() {
     insertIssues(issue -> issue.setRuleDescriptionContextKey("spring"));
     indexPermissionsAndIssues();
 
@@ -2285,7 +2325,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_when_no_additional_field_return_empty_context_key() {
+  void search_when_no_additional_field_return_empty_context_key() {
     insertIssues(issue -> issue.setRuleDescriptionContextKey("spring"));
     indexPermissionsAndIssues();
 
@@ -2297,7 +2337,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_when_additional_field_but_no_context_key_return_empty_context_key() {
+  void search_when_additional_field_but_no_context_key_return_empty_context_key() {
     insertIssues(issue -> issue.setRuleDescriptionContextKey(null));
     indexPermissionsAndIssues();
 
@@ -2310,7 +2350,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_when_additional_field_set_to_all_return_context_key() {
+  void search_when_additional_field_set_to_all_return_context_key() {
     insertIssues(issue -> issue.setRuleDescriptionContextKey("spring"));
     indexPermissionsAndIssues();
 
@@ -2323,7 +2363,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFixedInPullRequestSetAndNoComponentsSet_throwException() {
+  void search_whenFixedInPullRequestSetAndNoComponentsSet_throwException() {
     TestRequest request = ws.newRequest()
       .setParam("fixedInPullRequest", "1000");
 
@@ -2333,7 +2373,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFixedInPullRequestSetAndWrongBranchIsSet_throwException() {
+  void search_whenFixedInPullRequestSetAndWrongBranchIsSet_throwException() {
     String pullRequestId = "1000";
     String pullRequestUuid = "pullRequestUuid";
     userSession.logIn(db.users().insertUser());
@@ -2363,7 +2403,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFixedInPullRequestSetAndProjectDoesNotExist_throwException() {
+  void search_whenFixedInPullRequestSetAndProjectDoesNotExist_throwException() {
     String pullRequestId = "1000";
     String pullRequestUuid = "pullRequestUuid";
     userSession.logIn(db.users().insertUser());
@@ -2385,7 +2425,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenWrongFixedInPullRequestSet_throwException() {
+  void search_whenWrongFixedInPullRequestSet_throwException() {
     String pullRequestId = "wrongPullRequest";
     String pullRequestUuid = "pullRequestUuid";
     userSession.logIn(db.users().insertUser());
@@ -2407,7 +2447,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFixedInPullRequestSetAndNonExistingBranchIsSet_throwException() {
+  void search_whenFixedInPullRequestSetAndNonExistingBranchIsSet_throwException() {
     String pullRequestId = "1000";
     String pullRequestUuid = "pullRequestUuid";
     userSession.logIn(db.users().insertUser());
@@ -2430,7 +2470,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFixedInPullRequestSetAndComponentsIsSetButNoIssueFixedInPR_returnZeroIssues() {
+  void search_whenFixedInPullRequestSetAndComponentsIsSetButNoIssueFixedInPR_returnZeroIssues() {
     String pullRequestId = "1000";
     String pullRequestUuid = "pullRequestUuid";
     String issueKey = "issueKey";
@@ -2456,7 +2496,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFixedInPullRequestSetAndComponentsIsSet_returnOneIssueFixedInPR() {
+  void search_whenFixedInPullRequestSetAndComponentsIsSet_returnOneIssueFixedInPR() {
     String pullRequestId = "1000";
     String pullRequestUuid = "pullRequestUuid";
     String issueKey = "issueKey";

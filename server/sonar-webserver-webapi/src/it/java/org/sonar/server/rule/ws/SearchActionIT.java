@@ -50,7 +50,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.ImpactDto;
@@ -119,15 +118,16 @@ class SearchActionIT {
   private static final String JAVA = "java";
 
   @RegisterExtension
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
   @RegisterExtension
-  public DbTester db = DbTester.create(system2);
+  private final DbTester db = DbTester.create(system2);
   @RegisterExtension
-  public EsTester es = EsTester.create();
+  private final EsTester es = EsTester.create();
+  private final Configuration config = mock(Configuration.class);
 
-  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2, config);
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private final Languages languages = LanguageTesting.newLanguages(JAVA, "js");
@@ -144,10 +144,10 @@ class SearchActionIT {
   private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
     qualityProfileChangeEventService);
   private final WsActionTester ws = new WsActionTester(underTest);
-  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
 
   @BeforeAll
-  public static void before() {
+  static void before() {
     doReturn("interpreted").when(macroInterpreter).interpret(anyString());
   }
 

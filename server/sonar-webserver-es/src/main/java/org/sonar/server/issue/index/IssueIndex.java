@@ -45,9 +45,11 @@ import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.NestedQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.indices.TermsLookup;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
@@ -57,6 +59,7 @@ import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.LongBounds;
+import org.elasticsearch.search.aggregations.bucket.nested.ParsedNested;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -68,6 +71,7 @@ import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.Duration;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -118,6 +122,8 @@ import static org.elasticsearch.search.aggregations.AggregationBuilders.filters;
 import static org.elasticsearch.search.aggregations.AggregationBuilders.reverseNested;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.searchrequest.TopAggregationDefinition.NON_STICKY;
@@ -247,12 +253,18 @@ public class IssueIndex {
   private static final int MAX_FACET_SIZE = 100;
   private static final String AGG_VULNERABILITIES = "vulnerabilities";
   private static final String AGG_SEVERITIES = "severities";
+  private static final String ISSUES_WITH_SECURITY_IMPACT = "issues_with_security_impact";
+  private static final String AGG_IMPACT_SEVERITIES = "impact_severities";
   private static final String AGG_TO_REVIEW_SECURITY_HOTSPOTS = "toReviewSecurityHotspots";
   private static final String AGG_IN_REVIEW_SECURITY_HOTSPOTS = "inReviewSecurityHotspots";
   private static final String AGG_REVIEWED_SECURITY_HOTSPOTS = "reviewedSecurityHotspots";
   private static final String AGG_DISTRIBUTION = "distribution";
   private static final BoolQueryBuilder NON_RESOLVED_VULNERABILITIES_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name()))
+    .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
+  private static final BoolQueryBuilder NON_RESOLVED_SECURITY_IMPACT_FILTER = boolQuery()
+    .filter(nestedQuery(FIELD_ISSUE_IMPACTS, termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, SoftwareQuality.SECURITY.name()),
+      ScoreMode.Avg))
     .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
   private static final BoolQueryBuilder IN_REVIEW_HOTSPOTS_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
@@ -266,6 +278,14 @@ public class IssueIndex {
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
     .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_REVIEWED))
     .filter(termQuery(FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_FIXED));
+  private static final NestedQueryBuilder SECURITY_IMPACT_FILTER = nestedQuery(FIELD_ISSUE_IMPACTS,
+    termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, SoftwareQuality.SECURITY.name()), ScoreMode.Avg);
+  private static final BoolQueryBuilder SECURITY_IMPACT_AND_HOTSPOT_FILTER =
+    boolQuery()
+      .should(SECURITY_IMPACT_FILTER)
+      .should(termsQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
+      .minimumShouldMatch(1);
+
 
   private static final Object[] NO_SELECTED_VALUES = {0};
   private static final SimpleFieldTopAggregationDefinition EFFORT_TOP_AGGREGATION = new SimpleFieldTopAggregationDefinition(FIELD_ISSUE_EFFORT, NON_STICKY);
@@ -362,12 +382,15 @@ public class IssueIndex {
   private final System2 system;
   private final UserSession userSession;
   private final WebAuthorizationTypeSupport authorizationTypeSupport;
+  private final Configuration config;
 
-  public IssueIndex(EsClient client, System2 system, UserSession userSession, WebAuthorizationTypeSupport authorizationTypeSupport) {
+  public IssueIndex(EsClient client, System2 system, UserSession userSession, WebAuthorizationTypeSupport authorizationTypeSupport,
+    Configuration config) {
     this.client = client;
     this.system = system;
     this.userSession = userSession;
     this.authorizationTypeSupport = authorizationTypeSupport;
+    this.config = config;
 
     this.sorting = new Sorting();
     this.sorting.add(IssueQuery.SORT_BY_STATUS, FIELD_ISSUE_STATUS);
@@ -526,7 +549,7 @@ public class IssueIndex {
     return filters;
   }
 
-  private static void addOwaspAsvsFilter(String fieldName, Facet facet, IssueQuery query, AllFilters allFilters) {
+  private void addOwaspAsvsFilter(String fieldName, Facet facet, IssueQuery query, AllFilters allFilters) {
     if (!CollectionUtils.isEmpty(query.owaspAsvs40())) {
       Set<String> requirements = calculateRequirementsForOwaspAsvs40Params(query);
       QueryBuilder securityCategoryFilter = termsQuery(fieldName, requirements);
@@ -535,8 +558,12 @@ public class IssueIndex {
         facet.getFilterScope(),
         boolQuery()
           .must(securityCategoryFilter)
-          .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+          .must(getQueryBuilderForSecurityCategory()));
     }
+  }
+
+  private QueryBuilder getQueryBuilderForSecurityCategory() {
+    return isMQRMode() ? SECURITY_IMPACT_AND_HOTSPOT_FILTER : termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name());
   }
 
   private static Set<String> calculateRequirementsForOwaspAsvs40Params(IssueQuery query) {
@@ -553,7 +580,7 @@ public class IssueIndex {
       }).collect(Collectors.toSet());
   }
 
-  private static void addSecurityCategoryFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
+  private void addSecurityCategoryFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
     QueryBuilder securityCategoryFilter = createTermsFilter(fieldName, values);
     if (securityCategoryFilter != null) {
       allFilters.addFilter(
@@ -561,7 +588,7 @@ public class IssueIndex {
         facet.getFilterScope(),
         boolQuery()
           .must(securityCategoryFilter)
-          .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+          .must(getQueryBuilderForSecurityCategory()));
     }
   }
 
@@ -585,7 +612,7 @@ public class IssueIndex {
    * @param values     The PCI DSS categories to search for
    * @param allFilters Object that holds all the filters for the Elastic search call
    */
-  private static void addSecurityCategoryPrefixFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
+  private void addSecurityCategoryPrefixFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
     if (values.isEmpty()) {
       return;
     }
@@ -593,8 +620,7 @@ public class IssueIndex {
     BoolQueryBuilder boolQueryBuilder = boolQuery()
       // ensures that at least one "should" query is matched. Without it, "should" queries are optional, when a "must" is also present.
       .minimumShouldMatch(1)
-      // the field type must be vulnerability or security hotspot
-      .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name()));
+      .must(getQueryBuilderForSecurityCategory());
     // for top level categories a prefix query is added, while for subcategories a term query is used for exact matching
     values.stream().map(v -> choosePrefixQuery(fieldName, v)).forEach(boolQueryBuilder::should);
 
@@ -929,7 +955,8 @@ public class IssueIndex {
     esRequest.aggregation(topAggregation);
   }
 
-  private static void addSecurityCategoryFacetIfNeeded(String param, Facet facet, SearchOptions options, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest,
+  private void addSecurityCategoryFacetIfNeeded(String param, Facet facet, SearchOptions options, TopAggregationHelper aggregationHelper,
+    SearchSourceBuilder esRequest,
     Object[] selectedValues) {
     if (!options.getFacets().contains(param)) {
       return;
@@ -937,7 +964,7 @@ public class IssueIndex {
 
     AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
       facet.getName(), facet.getTopAggregationDef(), facet.getNumberOfTerms(),
-      filter -> filter.must(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name())),
+      filter -> filter.must(isMQRMode() ? SECURITY_IMPACT_FILTER : termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name())),
       t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(), selectedValues)
         .ifPresent(t::subAggregation));
     esRequest.aggregation(aggregation);
@@ -1375,7 +1402,8 @@ public class IssueIndex {
     return client.search(request);
   }
 
-  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter, @Nullable String version,
+  private SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter,
+    @Nullable String version,
     @Nullable Integer level) {
     var list = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets();
     List<SecurityStandardCategoryStatistics> children = list.stream()
@@ -1387,7 +1415,8 @@ public class IssueIndex {
     return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
   }
 
-  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithLevelDistribution(ParsedFilter categoryFilter, String version, String level) {
+  private SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithLevelDistribution(ParsedFilter categoryFilter,
+    String version, String level) {
     var list = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets();
     List<SecurityStandardCategoryStatistics> children = list.stream()
       .filter(categoryBucket -> OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(Integer.parseInt(level)).contains(categoryBucket.getKeyAsString()))
@@ -1397,7 +1426,8 @@ public class IssueIndex {
     return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
   }
 
-  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResults(ParsedFilter categoryBucket, boolean includeDistribution, String version) {
+  private SecurityStandardCategoryStatistics processSecurityReportIssueSearchResults(ParsedFilter categoryBucket,
+    boolean includeDistribution, String version) {
     List<SecurityStandardCategoryStatistics> children = new ArrayList<>();
     if (includeDistribution) {
       Stream<? extends Terms.Bucket> stream = ((ParsedStringTerms) categoryBucket.getAggregations().get(AGG_DISTRIBUTION)).getBuckets().stream();
@@ -1408,16 +1438,16 @@ public class IssueIndex {
     return processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getName(), children, version);
   }
 
-  private static SecurityStandardCategoryStatistics processSecurityReportCategorySearchResults(HasAggregations categoryBucket, String categoryName,
+  private SecurityStandardCategoryStatistics processSecurityReportCategorySearchResults(HasAggregations categoryBucket, String categoryName,
     @Nullable List<SecurityStandardCategoryStatistics> children, @Nullable String version) {
-    List<? extends Terms.Bucket> severityBuckets = ((ParsedStringTerms) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_VULNERABILITIES)).getAggregations()
-      .get(AGG_SEVERITIES)).getBuckets();
-    long vulnerabilities = severityBuckets.stream().mapToLong(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue()).sum();
+
+    Aggregation severitiesAggregations =
+      ((ParsedFilter) categoryBucket.getAggregations().get(AGG_VULNERABILITIES)).getAggregations().get(AGG_SEVERITIES);
+
+    CountAndRating countAndRating = getCountAndRating(severitiesAggregations);
+    long vulnerabilities = countAndRating.getCount();
     // Worst severity having at least one issue
-    OptionalInt severityRating = severityBuckets.stream()
-      .filter(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue() != 0)
-      .mapToInt(b -> Severity.ALL.indexOf(b.getKeyAsString()) + 1)
-      .max();
+    OptionalInt severityRating = countAndRating.getRating();
 
     long toReviewSecurityHotspots = ((ParsedValueCount) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
@@ -1431,7 +1461,32 @@ public class IssueIndex {
       reviewedSecurityHotspots, securityReviewRating, children, version);
   }
 
-  private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, String securityStandardVersionPrefix) {
+  private CountAndRating getCountAndRating(Aggregation severitiesAggregations) {
+    if (isMQRMode()) {
+      List<? extends Terms.Bucket> severityBuckets =
+        ((ParsedStringTerms) ((ParsedFilter) ((ParsedNested) severitiesAggregations).getAggregations().get(ISSUES_WITH_SECURITY_IMPACT)).getAggregations().get(AGG_IMPACT_SEVERITIES)).getBuckets();
+      long vulnerabilities =
+        severityBuckets.stream().mapToLong(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue()).sum();
+      // Worst severity having at least one issue
+      OptionalInt severityRating = severityBuckets.stream()
+        .filter(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue() != 0)
+        .mapToInt(b -> org.sonar.api.issue.impact.Severity.valueOf(b.getKeyAsString()).ordinal() + 1)
+        .max();
+      return new CountAndRating(vulnerabilities, severityRating);
+    } else {
+      List<? extends Terms.Bucket> severityBuckets = ((ParsedStringTerms) severitiesAggregations).getBuckets();
+      long vulnerabilities =
+        severityBuckets.stream().mapToLong(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue()).sum();
+      // Worst severity having at least one issue
+      OptionalInt severityRating = severityBuckets.stream()
+        .filter(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue() != 0)
+        .mapToInt(b -> Severity.ALL.indexOf(b.getKeyAsString()) + 1)
+        .max();
+      return new CountAndRating(vulnerabilities, severityRating);
+    }
+  }
+  
+  private AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, String securityStandardVersionPrefix) {
     AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
     final TermsAggregationBuilder distributionAggregation = AggregationBuilders.terms(AGG_DISTRIBUTION)
       .field(securityStandardVersionPrefix)
@@ -1442,7 +1497,8 @@ public class IssueIndex {
     return aggregationBuilder;
   }
 
-  private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, @Nullable Collection<String> cwesInCategory) {
+  private AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe,
+    @Nullable Collection<String> cwesInCategory) {
     AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
     if (includeCwe) {
       final TermsAggregationBuilder cwesAgg = AggregationBuilders.terms(AGG_DISTRIBUTION)
@@ -1457,14 +1513,11 @@ public class IssueIndex {
     return aggregationBuilder;
   }
 
-  private static AggregationBuilder addSecurityReportIssueCountAggregations(AggregationBuilder categoryAggs) {
+  private AggregationBuilder addSecurityReportIssueCountAggregations(AggregationBuilder categoryAggs) {
     return categoryAggs
       .subAggregation(
-        AggregationBuilders.filter(AGG_VULNERABILITIES, NON_RESOLVED_VULNERABILITIES_FILTER)
-          .subAggregation(
-            AggregationBuilders.terms(AGG_SEVERITIES).field(FIELD_ISSUE_SEVERITY)
-              .subAggregation(
-                AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY))))
+        AggregationBuilders.filter(AGG_VULNERABILITIES, getNonResolvedIssuesOrNonResolvedSecurityImpactQueryBuilderBasedOnMode())
+          .subAggregation(getAggregationBuilderBasedOnMode()))
       .subAggregation(AggregationBuilders.filter(AGG_TO_REVIEW_SECURITY_HOTSPOTS, TO_REVIEW_HOTSPOTS_FILTER)
         .subAggregation(
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)))
@@ -1476,7 +1529,27 @@ public class IssueIndex {
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)));
   }
 
-  private static SearchSourceBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid, boolean isViewOrApp) {
+  private AggregationBuilder getAggregationBuilderBasedOnMode() {
+    if (isMQRMode()) {
+      return AggregationBuilders.nested(AGG_SEVERITIES, FIELD_ISSUE_IMPACTS)
+        .subAggregation(AggregationBuilders.filter(ISSUES_WITH_SECURITY_IMPACT,
+            boolQuery().filter(termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, SoftwareQuality.SECURITY.name())))
+        .subAggregation(AggregationBuilders.terms(AGG_IMPACT_SEVERITIES).field(FIELD_ISSUE_IMPACT_SEVERITY)
+          .subAggregation(
+            AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_IMPACT_SEVERITY))));
+
+    } else {
+      return AggregationBuilders.terms(AGG_SEVERITIES).field(FIELD_ISSUE_SEVERITY)
+        .subAggregation(
+          AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY));
+
+    }
+  }
+  private QueryBuilder getNonResolvedIssuesOrNonResolvedSecurityImpactQueryBuilderBasedOnMode() {
+    return isMQRMode() ? NON_RESOLVED_SECURITY_IMPACT_FILTER : NON_RESOLVED_VULNERABILITIES_FILTER;
+  }
+
+  private SearchSourceBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid, boolean isViewOrApp) {
     BoolQueryBuilder componentFilter = boolQuery();
     if (isViewOrApp) {
       componentFilter.filter(QueryBuilders.termsLookupQuery(FIELD_ISSUE_BRANCH_UUID,
@@ -1492,7 +1565,7 @@ public class IssueIndex {
     return sourceBuilder
       .query(
         componentFilter
-          .should(NON_RESOLVED_VULNERABILITIES_FILTER)
+          .should(getNonResolvedIssuesOrNonResolvedSecurityImpactQueryBuilderBasedOnMode())
           .should(TO_REVIEW_HOTSPOTS_FILTER)
           .should(IN_REVIEW_HOTSPOTS_FILTER)
           .should(REVIEWED_HOTSPOTS_FILTER)
@@ -1500,4 +1573,26 @@ public class IssueIndex {
       .size(0);
   }
 
+  private boolean isMQRMode() {
+    return config.getBoolean(MULTI_QUALITY_MODE_ENABLED).orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE);
+  }
+
+
+  private static class CountAndRating {
+    private long count;
+    private OptionalInt rating;
+
+    public CountAndRating(long count, OptionalInt rating) {
+      this.count = count;
+      this.rating = rating;
+    }
+
+    public long getCount() {
+      return count;
+    }
+
+    public OptionalInt getRating() {
+      return rating;
+    }
+  }
 }

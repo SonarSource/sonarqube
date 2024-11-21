@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.assertj.core.api.Fail;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -61,6 +63,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.impact.Severity.HIGH;
 import static org.sonar.api.issue.impact.Severity.LOW;
 import static org.sonar.api.issue.impact.Severity.MEDIUM;
@@ -84,7 +87,8 @@ public class RuleCreatorIT {
   @Rule
   public EsTester es = EsTester.create();
 
-  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
+  private final Configuration config = mock(Configuration.class);
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2, config);
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());
   private final DbSession dbSession = dbTester.getSession();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();

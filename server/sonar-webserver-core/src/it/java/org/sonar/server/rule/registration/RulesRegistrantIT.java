@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -159,6 +160,7 @@ class RulesRegistrantIT {
   private ActiveRulesImpactInitializer activeRulesImpactInitializer;
   private final RuleDescriptionSectionsGenerator ruleDescriptionSectionsGenerator = mock();
   private final RuleDescriptionSectionsGeneratorResolver resolver = mock();
+  private final Configuration config = mock();
 
   private final RulesKeyVerifier rulesKeyVerifier = new RulesKeyVerifier();
   private final StartupRuleUpdater startupRuleUpdater = new StartupRuleUpdater(dbClient, system, uuidFactory, resolver);
@@ -168,7 +170,7 @@ class RulesRegistrantIT {
   @BeforeEach
   void before() {
     ruleIndexer = new RuleIndexer(es.client(), dbClient);
-    ruleIndex = new RuleIndex(es.client(), system);
+    ruleIndex = new RuleIndex(es.client(), system, config);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
     internalProperties = new MapInternalProperties();
     activeRulesImpactInitializer = new ActiveRulesImpactInitializer(internalProperties, dbClient);

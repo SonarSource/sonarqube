@@ -24,8 +24,9 @@ import java.util.Date;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
@@ -69,28 +70,29 @@ import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class SearchEventsActionIT {
+class SearchEventsActionIT {
 
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
     .toArray(RuleType[]::new);
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
-  private Server server = mock(Server.class);
-  private IssueIndex issueIndex = new IssueIndex(es.client(), null, null, null);
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone().logIn();
+  private final Server server = mock(Server.class);
+  private final Configuration config = mock(Configuration.class);
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), null, null, null, config);
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
+  private final WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
     issueIndexSyncProgressChecker));
   private final Random random = new SecureRandom();
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("search_events");
@@ -108,7 +110,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void json_example() {
+  void json_example() {
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setName("My Project").setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001));
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto());
@@ -127,7 +129,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void events() {
+  void events() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -159,7 +161,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void does_not_return_old_events() {
+  void does_not_return_old_events() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto());
@@ -184,7 +186,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void empty_response_for_empty_list_of_projects() {
+  void empty_response_for_empty_list_of_projects() {
     SearchEventsWsResponse result = ws.newRequest()
       .setParam(PARAM_PROJECTS, "")
       .setParam(PARAM_FROM, "")
@@ -194,7 +196,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void does_not_return_events_of_project_for_which_the_current_user_has_no_browse_permission() {
+  void does_not_return_events_of_project_for_which_the_current_user_has_no_browse_permission() {
     ProjectData projectData1 = db.components().insertPrivateProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     userSession.addProjectPermission(UserRole.CODEVIEWER, projectData1.getProjectDto());
@@ -226,7 +228,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void empty_response_if_project_key_is_unknown() {
+  void empty_response_if_project_key_is_unknown() {
     long from = 1_500_000_000_000L;
     SearchEventsWsResponse result = ws.newRequest()
       .setParam(PARAM_PROJECTS, "unknown")
@@ -237,7 +239,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void fail_when_not_loggued() {
+  void fail_when_not_loggued() {
     userSession.anonymous();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
@@ -251,7 +253,7 @@ public class SearchEventsActionIT {
   }
 
   @Test
-  public void fail_if_date_format_is_not_valid() {
+  void fail_if_date_format_is_not_valid() {
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam(PARAM_PROJECTS, "foo")

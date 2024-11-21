@@ -90,22 +90,23 @@ class QProfileRuleImplIT {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
   @RegisterExtension
-  public DbTester db = DbTester.create(system2);
+  private final DbTester db = DbTester.create(system2);
   @RegisterExtension
-  public EsTester es = EsTester.create();
+  private final EsTester es = EsTester.create();
   @RegisterExtension
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private Configuration configuration = mock(Configuration.class);
+  private final UserSessionRule userSession = UserSessionRule.standalone();
+  private final Configuration config = mock(Configuration.class);
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2, config);
+  private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
+  private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
+  private final Configuration configuration = mock(Configuration.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
 
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession, configuration,
-    sonarQubeVersion);
-  private QProfileRules underTest = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
+  private final RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations,
+    userSession, configuration, sonarQubeVersion);
+  private final QProfileRules underTest = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
     qualityProfileChangeEventService);
 
   @Test

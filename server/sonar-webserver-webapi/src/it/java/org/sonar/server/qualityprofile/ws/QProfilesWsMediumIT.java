@@ -22,9 +22,9 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -73,18 +73,19 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
 
-public class QProfilesWsMediumIT {
+class QProfilesWsMediumIT {
 
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public DbTester dbTester = DbTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create();
 
+  private final Configuration config = mock(Configuration.class);
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
-  private final RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE, config);
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private final TypeValidations typeValidations = new TypeValidations(emptyList());
@@ -101,15 +102,15 @@ public class QProfilesWsMediumIT {
   private final WsActionTester wsActivateRule = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSessionRule, qProfileWsSupport));
   private final WsActionTester wsActivateRules = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     userSessionRule.logIn().setSystemAdministrator();
     userSessionRule.addPermission(GlobalPermission.ADMINISTER);
     userSessionRule.addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
   }
 
   @Test
-  public void deactivate_rule() {
+  void deactivate_rule() {
     QProfileDto profile = createProfile("java");
     RuleDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
@@ -131,7 +132,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void bulk_deactivate_rule() {
+  void bulk_deactivate_rule() {
     QProfileDto profile = createProfile("java");
     RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
     RuleDto rule1 = createRule(profile.getLanguage(), "toto2");
@@ -158,7 +159,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void bulk_deactivate_rule_not_all() {
+  void bulk_deactivate_rule_not_all() {
     QProfileDto profile = createProfile("java");
     QProfileDto php = createProfile("php");
     RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
@@ -185,7 +186,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void bulk_deactivate_rule_by_profile() {
+  void bulk_deactivate_rule_by_profile() {
     QProfileDto profile = createProfile("java");
     RuleDto rule0 = createRule(profile.getLanguage(), "hello");
     RuleDto rule1 = createRule(profile.getLanguage(), "world");
@@ -209,7 +210,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void activate_rule() {
+  void activate_rule() {
     QProfileDto profile = createProfile("java");
     RuleDto rule = createRule(profile.getLanguage(), "toto");
     ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
@@ -229,7 +230,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void activate_rule_diff_languages() {
+  void activate_rule_diff_languages() {
     QProfileDto profile = createProfile("java");
     RuleDto rule = createRule("php", "toto");
     ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
@@ -251,7 +252,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void activate_rule_override_severity() {
+  void activate_rule_override_severity() {
     QProfileDto profile = createProfile("java");
     RuleDto rule = createRule(profile.getLanguage(), "toto");
     ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
@@ -276,7 +277,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void bulk_activate_rule() {
+  void bulk_activate_rule() {
     QProfileDto profile = createProfile("java");
     createRule(profile.getLanguage(), "toto");
     createRule(profile.getLanguage(), "tata");
@@ -300,7 +301,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void bulk_activate_rule_not_all() {
+  void bulk_activate_rule_not_all() {
     QProfileDto java = createProfile("java");
     QProfileDto php = createProfile("php");
     createRule(java.getLanguage(), "toto");
@@ -325,7 +326,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void bulk_activate_rule_by_query() {
+  void bulk_activate_rule_by_query() {
     QProfileDto profile = createProfile("java");
     createRule(profile.getLanguage(), "toto");
     createRule(profile.getLanguage(), "tata");
@@ -358,7 +359,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void bulk_activate_rule_by_query_with_severity() {
+  void bulk_activate_rule_by_query_with_severity() {
     QProfileDto profile = createProfile("java");
     RuleDto rule0 = createRule(profile.getLanguage(), "toto");
     RuleDto rule1 = createRule(profile.getLanguage(), "tata");
@@ -389,7 +390,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile() {
+  void does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile() {
     QProfileDto javaProfile = createProfile("java");
     createRule(javaProfile.getLanguage(), "toto");
     createRule(javaProfile.getLanguage(), "tata");
@@ -412,7 +413,7 @@ public class QProfilesWsMediumIT {
   }
 
   @Test
-  public void reset() {
+  void reset() {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setLanguage("java");
     QProfileDto childProfile = QualityProfileTesting.newQualityProfileDto().setParentKee(profile.getKee()).setLanguage("java");
     dbClient.qualityProfileDao().insert(dbSession, profile, childProfile);

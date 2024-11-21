@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -63,10 +64,12 @@ class SearchActionDependenciesIT {
   private final DbTester db = DbTester.create();
   @RegisterExtension
   private final EsTester es = EsTester.create();
+  private final Configuration config = mock(Configuration.class);
 
   private final TestSystem2 system2 = new TestSystem2();
   private final DbClient dbClient = db.getDbClient();
-  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession,
+    new WebAuthorizationTypeSupport(userSession), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), mock(AsyncIssueIndexing.class));
   private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
   private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(new TextRangeResponseFormatter());

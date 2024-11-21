@@ -26,8 +26,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -61,6 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
@@ -68,22 +70,24 @@ import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.rule.RuleUpdate.createForCustomRule;
 import static org.sonar.server.rule.RuleUpdate.createForPluginRule;
 
-public class RuleUpdaterIT {
+class RuleUpdaterIT {
 
-  static final RuleKey RULE_KEY = RuleKey.of("java", "S001");
+  private static final RuleKey RULE_KEY = RuleKey.of("java", "S001");
 
   private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @RegisterExtension
+  private final UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  @Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
 
-  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
+  private final Configuration config = mock(Configuration.class);
+
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2, config);
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private final DbSession dbSession = db.getSession();
 
@@ -91,7 +95,7 @@ public class RuleUpdaterIT {
   private final RuleUpdater underTest = new RuleUpdater(db.getDbClient(), ruleIndexer, uuidFactory, system2);
 
   @Test
-  public void do_update_rule_with_removed_status() {
+  void do_update_rule_with_removed_status() {
     db.rules().insert(newRule(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
@@ -107,7 +111,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void no_changes() {
+  void no_changes() {
     RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
@@ -134,7 +138,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void set_markdown_note() {
+  void set_markdown_note() {
     UserDto user = db.users().insertUser();
     userSessionRule.logIn(user);
 
@@ -168,7 +172,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void remove_markdown_note() {
+  void remove_markdown_note() {
     RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       .setNoteData("my *note*")
       .setNoteUserUuid("me");
@@ -188,7 +192,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void set_tags() {
+  void set_tags() {
     // insert db
     db.rules().insert(RuleTesting.newRule(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
@@ -210,7 +214,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void remove_tags() {
+  void remove_tags() {
     RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       .setUuid("57a3af91-32f8-48b0-9e11-0eac14ffa915")
       .setTags(Sets.newHashSet("security"))
@@ -233,7 +237,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void override_debt() {
+  void override_debt() {
     db.rules().insert(newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1d")
@@ -258,7 +262,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void override_debt_only_offset() {
+  void override_debt_only_offset() {
     db.rules().insert(newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefRemediationGapMultiplier("1d")
@@ -282,7 +286,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void override_debt_from_linear_with_offset_to_constant() {
+  void override_debt_from_linear_with_offset_to_constant() {
     db.rules().insert(newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1d")
@@ -306,7 +310,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void reset_remediation_function() {
+  void reset_remediation_function() {
     RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefRemediationGapMultiplier("1d")
@@ -334,7 +338,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void update_custom_rule() {
+  void update_custom_rule() {
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
@@ -385,7 +389,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void update_custom_rule_with_empty_parameter() {
+  void update_custom_rule_with_empty_parameter() {
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
@@ -415,7 +419,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void update_active_rule_parameters_when_updating_custom_rule() {
+  void update_active_rule_parameters_when_updating_custom_rule() {
     // Create template rule with 3 parameters
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
     RuleDto templateRuleDefinition = templateRule;
@@ -483,7 +487,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void fail_to_update_custom_rule_when_empty_name() {
+  void fail_to_update_custom_rule_when_empty_name() {
     // Create template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
@@ -507,7 +511,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void fail_to_update_custom_rule_when_empty_description() {
+  void fail_to_update_custom_rule_when_empty_description() {
     // Create template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
@@ -528,7 +532,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void fail_to_update_plugin_rule_if_name_is_set() {
+  void fail_to_update_plugin_rule_if_name_is_set() {
     RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("java", "S01")));
     dbSession.commit();
 
@@ -540,7 +544,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void fail_to_update_plugin_rule_if_description_is_set() {
+  void fail_to_update_plugin_rule_if_description_is_set() {
     RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("java", "S01")));
     dbSession.commit();
 
@@ -552,7 +556,7 @@ public class RuleUpdaterIT {
   }
 
   @Test
-  public void fail_to_update_plugin_rule_if_severity_is_set() {
+  void fail_to_update_plugin_rule_if_severity_is_set() {
     RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("java", "S01")));
     dbSession.commit();
 

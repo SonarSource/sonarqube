@@ -19,8 +19,9 @@
  */
 package org.sonar.server.issue.ws;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -55,15 +56,18 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class AuthorsActionIT {
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+class AuthorsActionIT {
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
-  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final Configuration config = mock(Configuration.class);
+
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession,
+    new WebAuthorizationTypeSupport(userSession), config);
   private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), asyncIssueIndexing);
   private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
@@ -73,7 +77,7 @@ public class AuthorsActionIT {
     issueIndexSyncProgressChecker));
 
   @Test
-  public void search_authors() {
+  void search_authors() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
     ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
@@ -91,7 +95,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void search_authors_by_query() {
+  void search_authors_by_query() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
     ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
@@ -112,7 +116,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void search_authors_by_project() {
+  void search_authors_by_project() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
     ComponentDto mainBranch1 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -143,7 +147,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void search_authors_by_portfolio() {
+  void search_authors_by_portfolio() {
     String leia = "leia.organa";
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
@@ -162,7 +166,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void search_authors_by_application() {
+  void search_authors_by_application() {
     String leia = "leia.organa";
     ComponentDto appMainBranch = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto projectMainBranch = db.components().insertPrivateProject().getMainBranchComponent();
@@ -181,7 +185,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void set_page_size() {
+  void set_page_size() {
     String han = "han.solo";
     String leia = "leia.organa";
     String luke = "luke.skywalker";
@@ -204,7 +208,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void should_ignore_authors_of_hotspot() {
+  void should_ignore_authors_of_hotspot() {
     String luke = "luke.skywalker";
     ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranch));
@@ -223,7 +227,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void fail_when_user_is_not_logged() {
+  void fail_when_user_is_not_logged() {
     userSession.anonymous();
 
     assertThatThrownBy(() -> ws.newRequest().execute())
@@ -231,7 +235,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void fail_when_project_does_not_exist() {
+  void fail_when_project_does_not_exist() {
     userSession.logIn();
 
     assertThatThrownBy(() -> {
@@ -244,7 +248,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void json_example() {
+  void json_example() {
     ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranch));
     RuleDto rule = db.rules().insertIssueRule();
@@ -260,7 +264,7 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("authors");
