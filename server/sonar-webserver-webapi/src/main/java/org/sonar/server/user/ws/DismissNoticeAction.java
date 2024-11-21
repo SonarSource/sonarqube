@@ -41,6 +41,8 @@ public class DismissNoticeAction implements UsersWsAction {
   private static final String OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = "overviewZeroNewIssuesSimplification";
   private static final String ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE = "issueNewIssueStatusAndTransitionGuide";
   private static final String ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE = "onboardingDismissCaycBranchSummaryGuide";
+  private static final String SHOW_NEW_MODES_TOUR = "showNewModesTour";
+  private static final String SHOW_NEW_MODES_BANNER = "showNewModesBanner";
 
   protected static final List<String> AVAILABLE_NOTICE_KEYS = List.of(EDUCATION_PRINCIPLES, SONARLINT_AD, ISSUE_CLEAN_CODE_GUIDE, QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION,
     OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION, ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE, ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE);
@@ -59,6 +61,8 @@ public class DismissNoticeAction implements UsersWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("dismiss_notice")
       .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
+      .setChangelog(new Change("10.8", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(SHOW_NEW_MODES_TOUR)))
+      .setChangelog(new Change("10.8", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(SHOW_NEW_MODES_BANNER)))
       .setChangelog(new Change("10.6", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE)))
       .setChangelog(new Change("10.4", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE)))
       .setChangelog(new Change("10.3", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION)))
