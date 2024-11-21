@@ -22,31 +22,19 @@ package org.sonar.core.documentation;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.Version;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.core.platform.SonarQubeVersion;
 
 public class DefaultDocumentationLinkGenerator implements DocumentationLinkGenerator {
-  public static final String DOCUMENTATION_PUBLIC_URL = "https://docs.sonarsource.com/sonarqube/";
 
+  public static final String DOCUMENTATION_PUBLIC_URL = "https://docs.sonarsource.com/sonarqube-community-build";
   private final String documentationBaseUrl;
 
-  public DefaultDocumentationLinkGenerator(SonarQubeVersion sonarQubeVersion, Configuration configuration) {
-    this.documentationBaseUrl = completeUrl(configuration.get(CorePropertyDefinitions.DOCUMENTATION_BASE_URL)
-      .orElse(DOCUMENTATION_PUBLIC_URL), sonarQubeVersion.get());
-  }
-
-  private static String completeUrl(String baseUrl, Version version) {
-    String url = baseUrl;
-    if (!url.endsWith("/")) {
-      url += "/";
-    }
-    if (version.qualifier().equals("SNAPSHOT")) {
-      url += "latest";
-    } else {
-      url += version.major() + "." + version.minor();
-    }
-    return url;
+  public DefaultDocumentationLinkGenerator(Configuration configuration, @Nullable DocumentationBaseLinkProvider documentationBaseLinkProvider) {
+    this.documentationBaseUrl =
+      configuration.get(CorePropertyDefinitions.DOCUMENTATION_BASE_URL)
+        .or(() -> Optional.ofNullable(documentationBaseLinkProvider).map(DocumentationBaseLinkProvider::getDocumentationBaseUrl))
+        .map(url -> url.endsWith("/") ? url.substring(0, url.lastIndexOf("/")) : url)
+        .orElse(DOCUMENTATION_PUBLIC_URL);
   }
 
   @Override

@@ -19,7 +19,6 @@
  */
 package org.sonar.core.documentation;
 
-import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
@@ -29,8 +28,6 @@ import org.sonar.core.extension.PlatformLevel;
 @ComputeEngineSide
 @ScannerSide
 @PlatformLevel(1)
-public interface DocumentationLinkGenerator {
-
-  String getDocumentationLink(@Nullable String suffix);
-
+public interface DocumentationBaseLinkProvider {
+  String getDocumentationBaseUrl();
 }

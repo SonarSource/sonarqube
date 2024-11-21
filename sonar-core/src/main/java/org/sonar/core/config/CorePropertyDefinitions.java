@@ -27,7 +27,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
-import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.PluginRiskConsent;
 
 import static java.util.Arrays.asList;
@@ -136,8 +135,7 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(DOCUMENTATION_BASE_URL)
         .name("Base URL of the documentation")
-        .description("Base URL to be used in SonarQube documentation links, such as <i>https://docs.sonarsource.com/sonarqube/</i>")
-        .defaultValue(DefaultDocumentationLinkGenerator.DOCUMENTATION_PUBLIC_URL)
+        .description("Override the base URL to be used in SonarQube documentation links.")
         .hidden()
         .type(STRING)
         .build(),

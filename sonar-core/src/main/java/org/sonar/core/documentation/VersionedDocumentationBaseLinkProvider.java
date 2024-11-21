@@ -19,18 +19,32 @@
  */
 package org.sonar.core.documentation;
 
-import javax.annotation.Nullable;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.server.ServerSide;
-import org.sonar.core.extension.PlatformLevel;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 
-@ServerSide
-@ComputeEngineSide
-@ScannerSide
-@PlatformLevel(1)
-public interface DocumentationLinkGenerator {
+public class VersionedDocumentationBaseLinkProvider implements DocumentationBaseLinkProvider {
 
-  String getDocumentationLink(@Nullable String suffix);
+  private final String documentationBaseUrl;
 
+  public VersionedDocumentationBaseLinkProvider(String baseUrl, SonarQubeVersion sonarQubeVersion) {
+    documentationBaseUrl = completeUrl(baseUrl, sonarQubeVersion.get());
+  }
+
+  @Override
+  public String getDocumentationBaseUrl() {
+    return documentationBaseUrl;
+  }
+
+  private static String completeUrl(String baseUrl, Version version) {
+    String url = baseUrl;
+    if (!url.endsWith("/")) {
+      url += "/";
+    }
+    if ("SNAPSHOT".equals(version.qualifier())) {
+      url += "latest";
+    } else {
+      url += version.major() + "." + version.minor();
+    }
+    return url;
+  }
 }

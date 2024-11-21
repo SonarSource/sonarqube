@@ -29,6 +29,7 @@ import javax.servlet.ServletRegistration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.app.ProcessCommandWrapper;
@@ -100,7 +101,9 @@ public class PlatformImpl implements Platform {
 
     // if AutoDbMigration kicked in or no DB migration was required, startup can be resumed in another thread
     if (dbRequiresMigration()) {
-      LOGGER.info("Database needs to be migrated. Please refer to https://docs.sonarsource.com/sonarqube/latest/setup/upgrading");
+      DocumentationLinkGenerator docLinkGenerator = currentLevel.getContainer().getComponentByType(DocumentationLinkGenerator.class);
+      String documentationLink = docLinkGenerator.getDocumentationLink("/setup/upgrading");
+      LOGGER.info("Database needs to be migrated. Please refer to {}", documentationLink);
     } else {
       this.autoStarter = createAutoStarter();
 
