@@ -75,7 +75,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
-public class ChangeParentActionIT {
+class ChangeParentActionIT {
 
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);
@@ -93,8 +93,7 @@ public class ChangeParentActionIT {
   private final Language language = LanguageTesting.newLanguage(secure().nextAlphanumeric(20));
   private final String ruleRepository = secure().nextAlphanumeric(5);
   private QProfileTreeImpl qProfileTree;
-  private SonarQubeVersion sonarQubeVersion;
-  private final  Configuration config = mock(Configuration.class);
+  private final Configuration config = mock(Configuration.class);
 
   @BeforeEach
   void setUp() {
@@ -105,7 +104,7 @@ public class ChangeParentActionIT {
     ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
-    sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+    var sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
     RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, UuidFactoryImpl.INSTANCE, typeValidations, userSession, mock(Configuration.class),
       sonarQubeVersion);
     qProfileTree = new QProfileTreeImpl(dbClient, ruleActivator, System2.INSTANCE, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
