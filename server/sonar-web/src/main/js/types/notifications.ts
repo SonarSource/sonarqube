@@ -23,6 +23,7 @@ export enum NotificationGlobalType {
   ChangesOnMyIssue = 'ChangesOnMyIssue',
   NewAlerts = 'NewAlerts',
   MyNewIssues = 'SQ-MyNewIssues',
+  QualityGateConditionsMismatch = 'QualityGateConditionsMismatch',
 }
 
 export enum NotificationProjectType {

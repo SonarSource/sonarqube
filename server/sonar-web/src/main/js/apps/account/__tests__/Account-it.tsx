@@ -515,6 +515,9 @@ describe('notifications page', () => {
     expect(globalUI.checkbox(NotificationGlobalType.CeReportTaskFailure).get()).not.toBeChecked();
     expect(globalUI.checkbox(NotificationGlobalType.NewAlerts).get()).not.toBeChecked();
     expect(globalUI.checkbox(NotificationGlobalType.MyNewIssues).get()).not.toBeChecked();
+    expect(
+      globalUI.checkbox(NotificationGlobalType.QualityGateConditionsMismatch).get(),
+    ).not.toBeChecked();
 
     /*
      * Update notifications
