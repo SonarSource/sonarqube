@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +48,9 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
+import static org.sonar.process.ProcessProperties.Property.SONAR_ELASTIC_CLOUD_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.SONAR_ELASTIC_CLOUD_ENDPOINT;
+import static org.sonar.process.ProcessProperties.Property.SONAR_ELASTIC_CLOUD_PASSWORD;
 import static org.sonar.process.cluster.NodeType.SEARCH;
 
 @ComputeEngineSide
@@ -68,6 +72,16 @@ public class EsClientProvider {
       httpHosts = getHttpHosts(config);
 
       LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(httpHosts));
+    } else if (config.getBoolean(SONAR_ELASTIC_CLOUD_ENABLED.getKey()).orElse(Boolean.FALSE)) {
+      httpHosts = Collections.singletonList(getCloudHttpHost(config));
+
+      LOGGER.info("Connected to cloud Elasticsearch: [{}]", displayedAddresses(httpHosts));
+      String cloudElasticPassword = config.get(SONAR_ELASTIC_CLOUD_PASSWORD.getKey()).orElse(null);
+      if (StringUtils.isBlank(cloudElasticPassword)) {
+        throw new RuntimeException("Cloud Elasticsearch password not configured");
+      }
+
+      return new EsClient(cloudElasticPassword, null,null, httpHosts.toArray(new HttpHost[0]));
     } else {
       // defaults provided in:
       // * in org.sonar.process.ProcessProperties.Property.SEARCH_HOST
@@ -81,6 +95,19 @@ public class EsClientProvider {
       config.get(CLUSTER_ES_HTTP_KEYSTORE.getKey()).orElse(null),
       config.get(CLUSTER_ES_HTTP_KEYSTORE_PASSWORD.getKey()).orElse(null),
       httpHosts.toArray(new HttpHost[0]));
+  }
+
+  private HttpHost getCloudHttpHost(Configuration config) {
+    Optional<String> cloudElasticHostAndPort = Optional.empty();
+    try {
+      cloudElasticHostAndPort = config.get(SONAR_ELASTIC_CLOUD_ENDPOINT.getKey());
+      if (cloudElasticHostAndPort.isEmpty()) {
+        throw new RuntimeException("Cloud Elasticsearch endpoint not configured");
+      }
+      return HttpHost.create(cloudElasticHostAndPort.get());
+    } catch (Exception e) {
+      throw new IllegalStateException("Can not resolve host [" + cloudElasticHostAndPort.get() + "]", e);
+    }
   }
 
   private static List<HttpHost> getHttpHosts(Configuration config) {

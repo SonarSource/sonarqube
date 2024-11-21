@@ -186,7 +186,11 @@ public class ProcessProperties {
      */
     ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
 
-    AUTO_DATABASE_UPGRADE("sonar.autoDatabaseUpgrade", DEFAULT_FALSE);
+    AUTO_DATABASE_UPGRADE("sonar.autoDatabaseUpgrade", DEFAULT_FALSE),
+
+    SONAR_ELASTIC_CLOUD_ENABLED("sonar.elastic.cloud.enabled", DEFAULT_FALSE),
+    SONAR_ELASTIC_CLOUD_ENDPOINT("sonar.elastic.cloud.endpoint"),
+    SONAR_ELASTIC_CLOUD_PASSWORD("sonar.elastic.cloud.password");
 
     /**
      * Properties that are defined for each LDAP server from the `ldap.servers` property
