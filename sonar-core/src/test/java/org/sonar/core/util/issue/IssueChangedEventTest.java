@@ -22,10 +22,10 @@ package org.sonar.core.util.issue;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
-import org.sonar.api.issue.impact.SoftwareQuality;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 
 public class IssueChangedEventTest {
   private static final String BRANCH_NAME = "branch-name";
@@ -35,7 +35,7 @@ public class IssueChangedEventTest {
   @Test
   public void issueChangedEvent_instantiation_accepts_nulls() {
     Issue issue = new Issue(ISSUE_KEY, BRANCH_NAME);
-    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    issue.addImpact(MAINTAINABILITY, Severity.HIGH);
 
     IssueChangedEvent event = new IssueChangedEvent(PROJECT_KEY, new Issue[] {issue}, null, null, null);
 
@@ -47,7 +47,7 @@ public class IssueChangedEventTest {
     assertThat(event.getIssues()).hasSize(1);
     assertThat(Arrays.stream(event.getIssues()).iterator().next().getImpacts())
       .hasSize(1)
-      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+      .containsExactlyInAnyOrder(new Issue.Impact(MAINTAINABILITY, Severity.HIGH));
   }
 
   @Test

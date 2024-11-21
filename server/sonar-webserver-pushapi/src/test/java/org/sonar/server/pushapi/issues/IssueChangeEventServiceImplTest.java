@@ -19,6 +19,7 @@
  */
 package org.sonar.server.pushapi.issues;
 
+import com.google.gson.Gson;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.issue.Issue;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -63,6 +65,7 @@ import static org.sonarqube.ws.Common.Severity.MAJOR;
 
 public class IssueChangeEventServiceImplTest {
 
+  private static final Gson GSON = new Gson();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -203,14 +206,16 @@ public class IssueChangeEventServiceImplTest {
       .contains("\"userSeverity\":\"" + CRITICAL.name() + "\"",
         "\"userType\":\"" + CODE_SMELL.name() + "\"",
         "\"resolved\":" + false)
-      .contains("\"issues\":[{\"issueKey\":\"%s\",\"branchName\":\"main\",\"impacts\":{\"RELIABILITY\":\"MEDIUM\"}}]".formatted(issue1.getKee()));
+      .contains("""
+        "issues":[{"issueKey":"%s","branchName":"main","impacts":[{"softwareQuality":"RELIABILITY","severity":"MEDIUM"}]}]""".formatted(issue1.getKee()));
 
     String secondPayload = new String(project2Event.get().getPayload(), StandardCharsets.UTF_8);
     assertThat(secondPayload)
       .contains("\"userSeverity\":\"" + CRITICAL.name() + "\"",
         "\"userType\":\"" + CODE_SMELL.name() + "\"",
         "\"resolved\":" + true)
-      .contains("\"issues\":[{\"issueKey\":\"%s\",\"branchName\":\"main\",\"impacts\":{\"MAINTAINABILITY\":\"LOW\"}}]".formatted(issue2.getKee()));
+      .contains("""
+        "issues":[{"issueKey":"%s","branchName":"main","impacts":[{"softwareQuality":"MAINTAINABILITY","severity":"LOW"}]}]""".formatted(issue2.getKee()));
 
   }
 
@@ -278,8 +283,7 @@ public class IssueChangeEventServiceImplTest {
     }
 
     for (Map.Entry<SoftwareQuality, Severity> impact : impacts.entrySet()) {
-      assertThat(payload).contains("\"impacts\":{\"");
-      assertThat(payload).contains(impact.getKey().name() + "\":\"" + impact.getValue().name() + "\"}");
+      assertThat(payload).contains(GSON.toJson(new Issue.Impact(impact.getKey(), impact.getValue())));
     }
   }
 
