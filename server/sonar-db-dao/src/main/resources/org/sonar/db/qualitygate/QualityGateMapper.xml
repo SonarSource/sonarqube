@@ -14,8 +14,9 @@
   </sql>
 
   <insert id="insertQualityGate" parameterType="QualityGate" useGeneratedKeys="false">
-    insert into quality_gates (uuid, name, is_built_in, created_at, updated_at)
-    values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+    insert into quality_gates (uuid, name, is_built_in, ai_code_supported, created_at, updated_at)
+    values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{aiCodeSupported, jdbcType=BOOLEAN},
+    #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
   </insert>
 
   <select id="selectAll" resultType="QualityGate">
@@ -89,6 +90,7 @@
     update quality_gates set
     name=#{name},
     is_built_in=#{isBuiltIn, jdbcType=BOOLEAN},
+    ai_code_supported=#{aiCodeSupported, jdbcType=BOOLEAN},
     updated_at=#{updatedAt, jdbcType=TIMESTAMP}
     where uuid=#{uuid, jdbcType=VARCHAR}
   </update>

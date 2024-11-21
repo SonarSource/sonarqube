@@ -115,6 +115,26 @@ public class ShowActionIT {
   }
 
   @Test
+  public void show_ai_code_supported() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().setDefaultQualityGate(qualityGate);
+
+    QualityGateDto qualityGateWithAiCodeSupported = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(true));
+    QualityGateDto qualityGateWithoutAiCodeSupported = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(false));
+
+    ShowWsResponse responseWithAiCodeAssurance = ws.newRequest()
+      .setParam("name", qualityGateWithAiCodeSupported.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    ShowWsResponse responseWithoutAiCodeAssurance = ws.newRequest()
+      .setParam("name", qualityGateWithoutAiCodeSupported.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(responseWithAiCodeAssurance.getIsAiCodeSupported()).isTrue();
+    assertThat(responseWithoutAiCodeAssurance.getIsAiCodeSupported()).isFalse();
+  }
+
+  @Test
   public void show_isCaycCompliant() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate.getUuid()))).thenReturn(COMPLIANT);
@@ -320,8 +340,8 @@ public class ShowActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", qualityGate.getName())
       .execute())
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining(format("Could not find metric with id %s", metric.getUuid()));
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining(format("Could not find metric with id %s", metric.getUuid()));
   }
 
   @Test
@@ -331,8 +351,8 @@ public class ShowActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", "UNKNOWN")
       .execute())
-        .isInstanceOf(NotFoundException.class)
-        .hasMessageContaining("No quality gate has been found for name UNKNOWN");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("No quality gate has been found for name UNKNOWN");
   }
 
   @Test

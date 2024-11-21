@@ -25,5 +25,6 @@
     "manageConditions": true,
     "delegate": true
   },
-  "caycStatus": "non-compliant"
+  "caycStatus": "non-compliant",
+  "isAiCodeSupported": false
 }

@@ -70,6 +70,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
+        new Change("10.8", "'isAiCodeSupported' field is added on quality gate"),
         new Change("10.8", "'hasMQRConditions' and 'hasStandardConditions' fields are added on quality gate"),
         new Change("10.3", "'isDefault' field is added to the response"),
         new Change("10.0", "Field 'id' in the response has been removed"),
@@ -118,6 +119,7 @@ public class ShowAction implements QualityGatesWsAction {
     return ShowWsResponse.newBuilder()
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
+      .setIsAiCodeSupported(qualityGate.isAiCodeSupported())
       .setIsDefault(qualityGate.getUuid().equals(defaultQualityGate.getUuid()))
       .setCaycStatus(caycStatus.toString())
       .setHasMQRConditions(qualityModeResult.hasMQRConditions())

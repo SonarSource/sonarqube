@@ -78,6 +78,15 @@ class QualityGateDaoIT {
   }
 
   @Test
+  void insert_ai_code_supported() {
+    underTest.insert(db.getSession(), new QualityGateDto().setName("test").setAiCodeSupported(true));
+
+    QualityGateDto reloaded = underTest.selectByName(db.getSession(), "test");
+
+    assertThat(reloaded.isAiCodeSupported()).isTrue();
+  }
+
+  @Test
   void select_all() {
     QualityGateDto qualityGate1 = qualityGateDbTester.insertQualityGate();
     QualityGateDto qualityGate2 = qualityGateDbTester.insertQualityGate();

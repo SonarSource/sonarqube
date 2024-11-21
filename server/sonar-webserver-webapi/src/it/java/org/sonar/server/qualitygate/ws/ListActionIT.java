@@ -113,6 +113,22 @@ public class ListActionIT {
   }
 
   @Test
+  public void test_ai_code_supported_flag() {
+    QualityGateDto qualityGateWithAiCodeSupported = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(true));
+    QualityGateDto qualityGateWithoutAiCodeSupported = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(false));
+    db.qualityGates().setDefaultQualityGate(qualityGateWithAiCodeSupported);
+
+    ListWsResponse response = ws.newRequest()
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getName, QualityGate::getIsAiCodeSupported)
+      .containsExactlyInAnyOrder(
+        tuple(qualityGateWithAiCodeSupported.getName(), true),
+        tuple(qualityGateWithoutAiCodeSupported.getName(), false));
+  }
+
+  @Test
   public void test_caycStatus_flag() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate1, db.measures().insertMetric());
@@ -177,7 +193,7 @@ public class ListActionIT {
 
     assertThatThrownBy(() -> ws.newRequest()
       .executeProtobuf(ListWsResponse.class))
-        .isInstanceOf(IllegalStateException.class);
+      .isInstanceOf(IllegalStateException.class);
 
   }
 

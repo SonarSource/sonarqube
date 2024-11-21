@@ -128,6 +128,7 @@ message ShowWsResponse {
   required bool isDefault = 7;
   optional bool hasStandardConditions = 8;
   optional bool hasMQRConditions = 9;
+  optional bool isAiCodeSupported = 10;
 
   message Condition {
     required string id = 1;
@@ -167,6 +168,7 @@ message ListWsResponse {
     optional string caycStatus = 6;
     optional bool hasStandardConditions = 7;
     optional bool hasMQRConditions = 8;
+    optional bool isAiCodeSupported = 9;
   }
 
   message RootActions {

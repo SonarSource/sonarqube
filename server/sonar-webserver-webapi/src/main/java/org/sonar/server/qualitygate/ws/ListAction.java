@@ -66,6 +66,7 @@ public class ListAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
       .setChangelog(
+        new Change("10.8", "'isAiCodeSupported' field is added on quality gate"),
         new Change("10.8", "'hasMQRConditions' and 'hasStandardConditions' fields are added on quality gate"),
         new Change("10.0", "Field 'default' in the response has been removed"),
         new Change("10.0", "Field 'id' in the response has been removed"),
@@ -101,6 +102,7 @@ public class ListAction implements QualityGatesWsAction {
             .setName(qualityGate.getName())
             .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
             .setIsBuiltIn(qualityGate.isBuiltIn())
+            .setIsAiCodeSupported(qualityGate.isAiCodeSupported())
             .setCaycStatus(qualityGateCaycChecker.checkCaycCompliant(conditions, metrics).toString())
             .setHasMQRConditions(qualityModeResult.hasMQRConditions())
             .setHasStandardConditions(qualityModeResult.hasStandardConditions())
