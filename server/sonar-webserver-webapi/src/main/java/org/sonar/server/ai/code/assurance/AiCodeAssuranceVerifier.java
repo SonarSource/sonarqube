@@ -38,7 +38,7 @@ public class AiCodeAssuranceVerifier {
 
 
   public boolean isAiCodeAssured(ProjectDto projectDto) {
-    return isAiCodeAssured(projectDto.getAiCodeAssurance());
+    return isAiCodeAssured(projectDto.getContainsAiCode());
   }
 
   public boolean isAiCodeAssured(boolean projectAiCodeAssurance) {

@@ -119,8 +119,8 @@ public class ProjectDao implements Dao {
     mapper(session).updateVisibility(uuid, isPrivate, system2.now());
   }
 
-  public void updateAiCodeAssurance(DbSession session, String uuid, boolean aiCodeAssurance) {
-    mapper(session).updateAiCodeAssurance(uuid, aiCodeAssurance, system2.now());
+  public void updateContainsAiCode(DbSession session, String uuid, boolean containsAiCode) {
+    mapper(session).updateContainsAiCode(uuid, containsAiCode, system2.now());
   }
 
   public void updateAiCodeFixEnablementForAllProjects(DbSession dbSession, boolean featureEnablement) {

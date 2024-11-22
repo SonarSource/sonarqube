@@ -183,8 +183,8 @@ class TelemetryDataLoaderImplIT {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ProjectData projectData1 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setAiCodeAssurance(true));
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData1.getProjectDto().getAiCodeAssurance())).thenReturn(true);
+    ProjectData projectData1 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setContainsAiCode(true));
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData1.getProjectDto().getContainsAiCode())).thenReturn(true);
 
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
@@ -202,8 +202,8 @@ class TelemetryDataLoaderImplIT {
     db.measures().insertMeasure(branch1, m -> m.addValue(technicalDebtDto.getKey(), 6d));
     db.measures().insertMeasure(branch2, m -> m.addValue(technicalDebtDto.getKey(), 7d));
 
-    ProjectData projectData2 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setAiCodeAssurance(false));
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData2.getProjectDto().getAiCodeAssurance())).thenReturn(false);
+    ProjectData projectData2 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setContainsAiCode(false));
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData2.getProjectDto().getContainsAiCode())).thenReturn(false);
 
     ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
     db.measures().insertMeasure(mainBranch2, m -> m.addValue(lines.getKey(), 200d));
@@ -542,9 +542,9 @@ class TelemetryDataLoaderImplIT {
   void load_shouldContainCorrectAiCodeAssuranceField(boolean expected) {
     ProjectDto project1 = db.components().insertPublicProject(componentDto -> {
     },
-      projectDto -> projectDto.setAiCodeAssurance(expected)).getProjectDto();
+      projectDto -> projectDto.setContainsAiCode(expected)).getProjectDto();
 
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getAiCodeAssurance())).thenReturn(expected);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getContainsAiCode())).thenReturn(expected);
 
     TelemetryData data = communityUnderTest.load();
 

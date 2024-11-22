@@ -138,7 +138,7 @@ public class SearchAction implements QualityGatesWsAction {
           .setName(project.getName())
           .setKey(project.getKey())
           .setSelected(project.getGateUuid() != null)
-          .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(project.getAiCodeAssurance()));
+          .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(project.getContainsAiCode()));
       }
 
       writeProtobuf(createResponse.build(), request, response);

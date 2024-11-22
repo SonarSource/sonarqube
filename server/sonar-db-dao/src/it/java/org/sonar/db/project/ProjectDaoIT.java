@@ -138,17 +138,17 @@ class ProjectDaoIT {
   }
 
   @Test
-  void selectProjects_returnsAiCodeAssurance() {
-    ProjectDto dto1 = createProject("o1", "p1").setAiCodeAssurance(true);
+  void selectProjects_returns_containsAiCode() {
+    ProjectDto dto1 = createProject("o1", "p1").setContainsAiCode(true);
     ProjectDto dto2 = createProject("o1", "p2");
 
     projectDao.insert(db.getSession(), dto1);
     projectDao.insert(db.getSession(), dto2);
 
     List<ProjectDto> projects = projectDao.selectProjects(db.getSession());
-    Map<String, Boolean> projectToAiCodeAssurance = projects.stream().collect(Collectors.toMap(EntityDto::getName,
-      ProjectDto::getAiCodeAssurance));
-    assertThat(projectToAiCodeAssurance)
+    Map<String, Boolean> projectToContainsAiCode = projects.stream().collect(Collectors.toMap(EntityDto::getName,
+      ProjectDto::getContainsAiCode));
+    assertThat(projectToContainsAiCode)
       .hasSize(2)
       .containsEntry("projectName_p1", true)
       .containsEntry("projectName_p2", false);
@@ -273,8 +273,8 @@ class ProjectDaoIT {
   }
 
   @Test
-  void update_aiCodeAssurance() {
-    ProjectDto dto1 = createProject("o1", "p1").setAiCodeAssurance(true);
+  void update_containsAiCode() {
+    ProjectDto dto1 = createProject("o1", "p1").setContainsAiCode(true);
     ProjectDto dto2 = createProject("o1", "p2");
 
     projectDao.insert(db.getSession(), dto1);
@@ -285,8 +285,8 @@ class ProjectDaoIT {
     assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false, true);
     assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", "tag1,tag2", false, false);
 
-    projectDao.updateAiCodeAssurance(db.getSession(), dto1.getUuid(), false);
-    projectDao.updateAiCodeAssurance(db.getSession(), dto2.getUuid(), true);
+    projectDao.updateContainsAiCode(db.getSession(), dto1.getUuid(), false);
+    projectDao.updateContainsAiCode(db.getSession(), dto2.getUuid(), true);
 
     projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
@@ -510,9 +510,9 @@ class ProjectDaoIT {
     assertProject(dto, name, kee, uuid, desc, tags, isPrivate, false);
   }
 
-  private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate, boolean isAiCodeAssurance) {
-    assertThat(dto).extracting("name", "kee", "key", "uuid", "description", "tagsString", "private", "aiCodeAssurance")
-      .containsExactly(name, kee, kee, uuid, desc, tags, isPrivate, isAiCodeAssurance);
+  private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate, boolean containsAiCode) {
+    assertThat(dto).extracting("name", "kee", "key", "uuid", "description", "tagsString", "private", "containsAiCode")
+      .containsExactly(name, kee, kee, uuid, desc, tags, isPrivate, containsAiCode);
   }
 
   private void assertProjectAiCodeFixEnablement(ProjectDto dto, String uuid, boolean isAiCodeFixEnabled) {

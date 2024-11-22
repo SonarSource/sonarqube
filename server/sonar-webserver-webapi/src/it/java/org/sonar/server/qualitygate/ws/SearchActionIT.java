@@ -292,12 +292,12 @@ public class SearchActionIT {
   public void return_disabled_property_in_projects() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPublicProject(componentDto -> componentDto.setName("proj1"),
-      projectDto -> projectDto.setAiCodeAssurance(true)).getProjectDto();
+      projectDto -> projectDto.setContainsAiCode(true)).getProjectDto();
     ProjectDto project2 = db.components().insertPublicProject(componentDto -> componentDto.setName("proj2"),
-      projectDto -> projectDto.setAiCodeAssurance(false)).getProjectDto();
+      projectDto -> projectDto.setContainsAiCode(false)).getProjectDto();
 
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getAiCodeAssurance())).thenReturn(true);
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(project2.getAiCodeAssurance())).thenReturn(false);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getContainsAiCode())).thenReturn(true);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project2.getContainsAiCode())).thenReturn(false);
 
     SearchResponse response = ws.newRequest()
       .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))

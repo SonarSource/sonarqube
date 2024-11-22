@@ -66,6 +66,7 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_023, "Add 'ai_code_fix_enabled' column to 'projects' table", AddAICodeFixEnabledColumnToProjectsTable.class)
       .add(10_8_024, "Migrate boolean values of 'sonar.ai.suggestions.enabled' property to new enum values", MigrateAiSuggestionEnabledValues.class)
       .add(10_8_025, "Add 'ai_code_supported' column in 'quality_gates' table", AddAICodeSupportedColumnToQualityGatesTable.class)
+      .add(10_8_026, "Rename 'ai_code_assurance' column in 'projects' table to 'contains_ai_code", RenameAiCodeAssuranceColumnInProjects.class)
     ;
   }
 

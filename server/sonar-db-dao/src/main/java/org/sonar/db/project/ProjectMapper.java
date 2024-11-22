@@ -58,7 +58,7 @@ public interface ProjectMapper {
 
   void updateVisibility(@Param("uuid") String uuid, @Param("isPrivate") boolean isPrivate, @Param("updatedAt") long updatedAt);
 
-  void updateAiCodeAssurance(@Param("uuid") String uuid, @Param("aiCodeAssurance") boolean aiCodeAssurance, @Param("updatedAt") long updatedAt);
+  void updateContainsAiCode(@Param("uuid") String uuid, @Param("containsAiCode") boolean containsAiCode, @Param("updatedAt") long updatedAt);
 
   void updateAiCodeFixEnablementForAllProjects(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled, @Param("updatedAt") long updatedAt);
 

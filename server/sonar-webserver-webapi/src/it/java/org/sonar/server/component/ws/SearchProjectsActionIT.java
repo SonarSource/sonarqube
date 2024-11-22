@@ -1382,7 +1382,7 @@ public class SearchProjectsActionIT {
     when(aiCodeAssuranceVerifier.isAiCodeAssured(any())).thenReturn(aiCodeAssured);
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
-      projectDto -> projectDto.setAiCodeAssurance(true)).getProjectDto();
+      projectDto -> projectDto.setContainsAiCode(true)).getProjectDto();
     authorizationIndexerTester.allowOnlyAnyone(project);
     index();
 

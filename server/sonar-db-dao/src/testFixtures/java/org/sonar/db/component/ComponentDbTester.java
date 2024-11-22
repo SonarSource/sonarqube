@@ -183,7 +183,7 @@ public class ComponentDbTester {
   }
 
   public ProjectData insertProjectWithAiCode() {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setAiCodeAssurance(true));
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setContainsAiCode(true));
   }
 
 

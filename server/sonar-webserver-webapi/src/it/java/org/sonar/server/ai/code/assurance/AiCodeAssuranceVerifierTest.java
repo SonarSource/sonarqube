@@ -56,9 +56,9 @@ class AiCodeAssuranceVerifierTest {
     when(platformEditionProvider.get()).thenReturn(Optional.of(edition));
     underTest = new AiCodeAssuranceVerifier(platformEditionProvider);
 
-    when(projectDto.getAiCodeAssurance()).thenReturn(aiCodeAssuredOnProject);
+    when(projectDto.getContainsAiCode()).thenReturn(aiCodeAssuredOnProject);
 
-    assertThat(underTest.isAiCodeAssured(projectDto.getAiCodeAssurance())).isEqualTo(expected);
+    assertThat(underTest.isAiCodeAssured(projectDto.getContainsAiCode())).isEqualTo(expected);
     assertThat(underTest.isAiCodeAssured(projectDto)).isEqualTo(expected);
   }
 }

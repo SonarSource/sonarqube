@@ -31,7 +31,7 @@ public class ProjectQgateAssociationDto {
   private String key;
   private String name;
   private String gateUuid;
-  private boolean aiCodeAssurance;
+  private boolean containsAiCode;
 
   public ProjectQgateAssociationDto() {
     // do nothing
@@ -74,12 +74,12 @@ public class ProjectQgateAssociationDto {
     return this;
   }
 
-  public boolean getAiCodeAssurance() {
-    return aiCodeAssurance;
+  public boolean getContainsAiCode() {
+    return containsAiCode;
   }
 
-  public ProjectQgateAssociationDto setAiCodeAssurance(boolean aiCodeAssurance) {
-    this.aiCodeAssurance = aiCodeAssurance;
+  public ProjectQgateAssociationDto setContainsAiCode(boolean containsAiCode) {
+    this.containsAiCode = containsAiCode;
     return this;
   }
 }
