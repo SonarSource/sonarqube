@@ -96,7 +96,7 @@ class MigrateAiSuggestionEnabledValuesTest {
   private void addAISuggestionEnabledProperty(boolean enabled) {
     db.executeInsert("properties",
       "prop_key", AI_CODEFIX_ENABLED_PROP_KEY,
-      "is_empty", "false",
+      "is_empty", false,
       "uuid", "uuid2",
       "text_value", enabled,
       "created_at", 1L);
