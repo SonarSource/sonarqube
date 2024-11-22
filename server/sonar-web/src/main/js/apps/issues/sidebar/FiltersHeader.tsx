@@ -20,6 +20,7 @@
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import { BasicSeparator, PageTitle } from '~design-system';
+import ModeBanner from '../../../components/common/ModeBanner';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -40,6 +41,7 @@ export function FiltersHeader({ displayReset, onReset }: Props) {
         )}
       </div>
 
+      <ModeBanner as="facetBanner" />
       <BasicSeparator className="sw-mt-4" />
     </div>
   );

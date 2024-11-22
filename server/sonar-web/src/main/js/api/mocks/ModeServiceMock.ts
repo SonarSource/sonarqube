@@ -43,6 +43,10 @@ export class ModeServiceMock {
     this.mode.mode = mode;
   };
 
+  setModified = () => {
+    this.mode.modified = true;
+  };
+
   handleGetMode: typeof getMode = () => {
     return this.reply(this.mode);
   };

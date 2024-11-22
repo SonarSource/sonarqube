@@ -38,6 +38,7 @@ export enum NoticeType {
   QG_CAYC_CONDITIONS_SIMPLIFICATION = 'qualityGateCaYCConditionsSimplification',
   OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = 'overviewZeroNewIssuesSimplification',
   ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE = 'onboardingDismissCaycBranchSummaryGuide',
+  MQR_MODE_ADVERTISEMENT_BANNER = 'showNewModesBanner',
 }
 
 export interface LoggedInUser extends CurrentUser, UserActive {

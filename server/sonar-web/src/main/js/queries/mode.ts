@@ -37,6 +37,10 @@ export const useStandardExperienceModeQuery = () => {
   return useModeQuery({ select: (data) => data.mode === Mode.Standard });
 };
 
+export const useModeModifiedQuery = () => {
+  return useModeQuery({ select: (data) => data.modified });
+};
+
 export function useUpdateModeMutation() {
   const queryClient = useQueryClient();
   const intl = useIntl();
