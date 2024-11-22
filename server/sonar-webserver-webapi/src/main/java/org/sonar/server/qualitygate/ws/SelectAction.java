@@ -27,8 +27,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
-import org.sonar.server.exceptions.ForbiddenException;
 
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
@@ -39,12 +37,10 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 public class SelectAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final QualityGatesWsSupport wsSupport;
-  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
 
-  public SelectAction(DbClient dbClient, QualityGatesWsSupport wsSupport, AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
+  public SelectAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
-    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   @Override
@@ -60,6 +56,7 @@ public class SelectAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setHandler(this)
       .setChangelog(
+        new Change("10.8", "Allow to change the Quality Gate of a project flagged as containing AI code."),
         new Change("10.7", "It is not possible anymore to change the Quality Gate of a project flagged as containing AI code."),
         new Change("10.0", "Parameter 'gateId' is removed. Use 'gateName' instead."),
         new Change("8.4", "Parameter 'gateName' added"),
@@ -90,7 +87,7 @@ public class SelectAction implements QualityGatesWsAction {
       QualityGateDto qualityGate;
       qualityGate = wsSupport.getByName(dbSession, gateName);
       ProjectDto project = wsSupport.getProject(dbSession, projectKey);
-      checkProjectQGCanChange(project);
+      wsSupport.checkCanAdminProject(project);
 
       QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());
       if (currentQualityGate == null) {
@@ -105,12 +102,5 @@ public class SelectAction implements QualityGatesWsAction {
       }
     }
     response.noContent();
-  }
-
-  private void checkProjectQGCanChange(ProjectDto project) {
-    wsSupport.checkCanAdminProject(project);
-    if (aiCodeAssuranceVerifier.isAiCodeAssured(project)) {
-      throw new ForbiddenException("Quality gate cannot be changed for project with AI Code Assurance enabled.");
-    }
   }
 }

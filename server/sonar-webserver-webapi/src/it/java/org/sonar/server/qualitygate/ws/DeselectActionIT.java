@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.server.ws.Change;
@@ -32,25 +31,18 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 
 class DeselectActionIT {
 
@@ -61,15 +53,9 @@ class DeselectActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
   private final DeselectAction underTest = new DeselectAction(dbClient, new QualityGatesWsSupport(db.getDbClient(), userSession,
-    componentFinder), aiCodeAssuranceVerifier);
+    componentFinder));
   private final WsActionTester ws = new WsActionTester(underTest);
-
-  @BeforeEach
-  void setUp() {
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(any())).thenReturn(false);
-  }
 
   @Test
   void deselect_by_key() {
@@ -185,29 +171,13 @@ class DeselectActionIT {
     assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.6", "The parameter 'gateId' was removed"),
       tuple("8.3", "The parameter 'projectId' was removed"),
-      tuple("10.7", "It is not possible anymore to change the Quality Gate of a project flagged as containing AI code."));
+      tuple("10.7", "It is not possible anymore to change the Quality Gate of a project flagged as containing AI code."),
+      tuple("10.8", "Allow to change the Quality Gate of a project flagged as containing AI code."));
 
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("projectKey", true));
-  }
-
-  @Test
-  void whenAiCodeAssuranceIsSet_failIfEditionIsDeveloperOrHigher() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto projectDto = db.components().insertProjectWithAiCode().getProjectDto();
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectDto)).thenReturn(true);
-
-    userSession.logIn().addProjectPermission(ADMIN, projectDto);
-
-    TestRequest request = ws.newRequest()
-      .setParam(PARAM_GATE_NAME, qualityGate.getName())
-      .setParam("projectKey", projectDto.getKey());
-
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessage("Quality gate cannot be changed for project with AI Code Assurance enabled.");
   }
 
   private void associateProjectToQualityGate(ProjectDto project, QualityGateDto qualityGate) {
