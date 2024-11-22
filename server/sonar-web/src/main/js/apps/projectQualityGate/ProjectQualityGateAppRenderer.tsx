@@ -243,68 +243,70 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
                 />
               </div>
 
-              {isAiAssured && (
-                <>
-                  <p className="sw-w-abs-400 sw-mt-6">
-                    <FormattedMessage
-                      id="project_quality_gate.ai_assured.message1"
-                      defaultMessage={translate('project_quality_gate.ai_assured.message1')}
-                      values={{
-                        link: (
-                          <DocumentationLink to={DocLink.AiCodeAssurance}>
-                            {translate('project_quality_gate.ai_assured.message1.link')}
-                          </DocumentationLink>
-                        ),
-                      }}
-                    />
-                  </p>
-                  <p className="sw-w-abs-400 sw-mt-6">
-                    <FormattedMessage
-                      id="project_quality_gate.ai_assured.message2"
-                      defaultMessage={translate('project_quality_gate.ai_assured.message2')}
-                      values={{
-                        link: (
-                          <LinkStandalone
-                            className="sw-shrink-0"
-                            to={{
-                              pathname:
-                                '/project/admin/extension/developer-server/ai-project-settings',
-                              search: queryToSearchString({
-                                ...location.query,
-                                qualifier: ComponentQualifier.Project,
-                              }),
-                            }}
-                          >
-                            {translate('project_quality_gate.ai_assured.message2.link')}
-                          </LinkStandalone>
-                        ),
-                        value: <b>{translate('false')}</b>,
-                      }}
-                    />
-                  </p>
-                </>
-              )}
+              <div aria-live="polite">
+                {isAiAssured && (
+                  <>
+                    <p className="sw-w-abs-400 sw-mt-6">
+                      <FormattedMessage
+                        id="project_quality_gate.ai_assured.message1"
+                        defaultMessage={translate('project_quality_gate.ai_assured.message1')}
+                        values={{
+                          link: (
+                            <DocumentationLink to={DocLink.AiCodeAssurance}>
+                              {translate('project_quality_gate.ai_assured.message1.link')}
+                            </DocumentationLink>
+                          ),
+                        }}
+                      />
+                    </p>
+                    <p className="sw-w-abs-400 sw-mt-6">
+                      <FormattedMessage
+                        id="project_quality_gate.ai_assured.message2"
+                        defaultMessage={translate('project_quality_gate.ai_assured.message2')}
+                        values={{
+                          link: (
+                            <LinkStandalone
+                              className="sw-shrink-0"
+                              to={{
+                                pathname:
+                                  '/project/admin/extension/developer-server/ai-project-settings',
+                                search: queryToSearchString({
+                                  ...location.query,
+                                  qualifier: ComponentQualifier.Project,
+                                }),
+                              }}
+                            >
+                              {translate('project_quality_gate.ai_assured.message2.link')}
+                            </LinkStandalone>
+                          ),
+                          value: <b>{translate('false')}</b>,
+                        }}
+                      />
+                    </p>
+                  </>
+                )}
 
-              {selectedQualityGate && !hasConditionOnNewCode(selectedQualityGate) && (
-                <FlagMessage variant="warning">
-                  <FormattedMessage
-                    id="project_quality_gate.no_condition_on_new_code"
-                    defaultMessage={translate('project_quality_gate.no_condition_on_new_code')}
-                    values={{
-                      link: (
-                        <Link to={getQualityGateUrl(selectedQualityGate.name)}>
-                          {translate('project_quality_gate.no_condition.link')}
-                        </Link>
-                      ),
-                    }}
-                  />
-                </FlagMessage>
-              )}
-              {needsReanalysis && (
-                <FlagMessage className="sw-mt-4 sw-w-abs-600" variant="warning">
-                  {translate('project_quality_gate.requires_new_analysis')}
-                </FlagMessage>
-              )}
+                {selectedQualityGate && !hasConditionOnNewCode(selectedQualityGate) && (
+                  <FlagMessage variant="warning">
+                    <FormattedMessage
+                      id="project_quality_gate.no_condition_on_new_code"
+                      defaultMessage={translate('project_quality_gate.no_condition_on_new_code')}
+                      values={{
+                        link: (
+                          <Link to={getQualityGateUrl(selectedQualityGate.name)}>
+                            {translate('project_quality_gate.no_condition.link')}
+                          </Link>
+                        ),
+                      }}
+                    />
+                  </FlagMessage>
+                )}
+                {needsReanalysis && (
+                  <FlagMessage className="sw-mt-4 sw-w-abs-600" variant="warning">
+                    {translate('project_quality_gate.requires_new_analysis')}
+                  </FlagMessage>
+                )}
+              </div>
             </div>
 
             <div>
