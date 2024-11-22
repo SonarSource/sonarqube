@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading, Link } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link, Title } from '~design-system';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
@@ -35,7 +35,9 @@ export default function PageHeader({ children }: Readonly<Props>) {
   return (
     <header className="sw-mb-2 sw-flex sw-items-center sw-justify-between">
       <div>
-        <Title>{translate('webhooks.page')}</Title>
+        <Heading as="h1" className="sw-mb-4">
+          {translate('webhooks.page')}
+        </Heading>
         <p>{translate('webhooks.description0')}</p>
         <p>
           <FormattedMessage
