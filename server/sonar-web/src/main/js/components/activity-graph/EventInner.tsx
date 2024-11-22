@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Tooltip } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { Note } from '~design-system';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
@@ -25,7 +26,6 @@ import { translate } from '../../helpers/l10n';
 import { useCurrentBranchQuery } from '../../queries/branch';
 import { StaleTime } from '../../queries/common';
 import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../types/project-activity';
-import Tooltip from '../controls/Tooltip';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
 import { RichQualityGateEventInner, isRichQualityGateEvent } from './RichQualityGateEventInner';
 import {

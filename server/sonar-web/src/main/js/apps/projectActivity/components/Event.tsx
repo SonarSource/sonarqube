@@ -18,10 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import {
+  ButtonIcon,
+  ButtonSize,
+  ButtonVariety,
+  IconDelete,
+  IconEdit,
+} from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { DestructiveIcon, InteractiveIcon, PencilIcon, TrashIcon } from '~design-system';
+import { useIntl } from 'react-intl';
 import EventInner from '../../../components/activity-graph/EventInner';
-import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import ChangeEventForm from './forms/ChangeEventForm';
@@ -36,6 +42,7 @@ export interface EventProps {
 
 function Event(props: Readonly<EventProps>) {
   const { analysisKey, event, canAdmin, isFirst } = props;
+  const intl = useIntl();
 
   const [changing, setChanging] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
@@ -46,6 +53,15 @@ function Event(props: Readonly<EventProps>) {
   const canDelete = isOther || (isVersion && !isFirst);
   const showActions = canAdmin && (canChange || canDelete);
 
+  const editEventLabel = intl.formatMessage(
+    { id: 'project_activity.events.tooltip.edit' },
+    { event: `${event.category} ${event.name}` },
+  );
+  const deleteEventLabel = intl.formatMessage(
+    { id: 'project_activity.events.tooltip.delete' },
+    { event: `${event.category} ${event.name}` },
+  );
+
   return (
     <div className="it__project-activity-event sw-flex sw-justify-between">
       <EventInner event={event} />
@@ -53,28 +69,28 @@ function Event(props: Readonly<EventProps>) {
       {showActions && (
         <div className="sw-grow-0 sw-shrink-0 sw-ml-2">
           {canChange && (
-            <Tooltip content={translate('project_activity.events.tooltip.edit')}>
-              <InteractiveIcon
-                Icon={PencilIcon}
-                aria-label={translate('project_activity.events.tooltip.edit')}
-                data-test="project-activity__edit-event"
-                onClick={() => setChanging(true)}
-                stopPropagation
-                size="small"
-              />
-            </Tooltip>
+            <ButtonIcon
+              Icon={IconEdit}
+              className="-sw-mt-1"
+              variety={ButtonVariety.PrimaryGhost}
+              size={ButtonSize.Medium}
+              tooltipContent={editEventLabel}
+              ariaLabel={editEventLabel}
+              data-test="project-activity__edit-event"
+              onClick={() => setChanging(true)}
+            />
           )}
           {canDelete && (
-            <Tooltip content={translate('project_activity.events.tooltip.delete')}>
-              <DestructiveIcon
-                Icon={TrashIcon}
-                aria-label={translate('project_activity.events.tooltip.delete')}
-                data-test="project-activity__delete-event"
-                onClick={() => setDeleting(true)}
-                stopPropagation
-                size="small"
-              />
-            </Tooltip>
+            <ButtonIcon
+              className="-sw-mt-1"
+              Icon={IconDelete}
+              size={ButtonSize.Medium}
+              variety={ButtonVariety.DangerGhost}
+              tooltipContent={deleteEventLabel}
+              ariaLabel={deleteEventLabel}
+              data-test="project-activity__delete-event"
+              onClick={() => setDeleting(true)}
+            />
           )}
         </div>
       )}

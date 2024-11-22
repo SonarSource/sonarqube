@@ -101,7 +101,7 @@ describe('data table modal', () => {
     await ui.closeDataTable();
     await ui.changeGraphType(GraphType.coverage);
 
-    await ui.openDataTable();
+    await ui.openDataTable(true);
     expect(ui.dataTable.get()).toBeInTheDocument();
     expect(ui.dataTableColHeaders.getAll()).toHaveLength(4);
     expect(ui.dataTableRows.getAll()).toHaveLength(HISTORY_COUNT + 1);
@@ -229,7 +229,7 @@ function getPageObject() {
     noDataText: byText('project_activity.graphs.custom.no_history'),
 
     // Data in table.
-    openInTableBtn: byRole('button', { name: 'project_activity.graphs.open_in_table' }),
+    openInTableRegion: byRole('region', { name: /project_activity.graphs.open_in_table/ }),
     closeDataTableBtn: byRole('button', { name: 'close' }),
     dataTable: byRole('table'),
     dataTableRows: byRole('row'),
@@ -260,8 +260,15 @@ function getPageObject() {
       async removeMetric(metric: MetricKey) {
         await user.click(ui.legendRemoveMetricBtn(metric).get());
       },
-      async openDataTable() {
-        await user.click(ui.openInTableBtn.get());
+      async openDataTable(tabFromGraphSelection = false) {
+        // tab to graph selection and close popup
+        if (!tabFromGraphSelection) {
+          await user.tab();
+          await user.keyboard('{escape}');
+        }
+        // tab to graph region and open data table
+        await user.tab();
+        await user.keyboard('{enter}');
       },
       async closeDataTable() {
         await user.click(ui.closeDataTableBtn.get());

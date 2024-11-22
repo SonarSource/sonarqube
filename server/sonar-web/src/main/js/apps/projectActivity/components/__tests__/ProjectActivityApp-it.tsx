@@ -325,10 +325,10 @@ describe('CRUD', () => {
     await ui.addVersionEvent('1.1.0.1', initialValue);
     expect(screen.getAllByText(initialValue).length).toBeGreaterThan(0);
 
-    await ui.updateEvent(1, updatedValue);
+    await ui.updateEvent(`VERSION ${initialValue}`, updatedValue);
     expect(screen.getAllByText(updatedValue).length).toBeGreaterThan(0);
 
-    await ui.deleteEvent(0);
+    await ui.deleteEvent(`VERSION ${updatedValue}`);
     expect(screen.queryByText(updatedValue)).not.toBeInTheDocument();
   });
 
@@ -351,10 +351,10 @@ describe('CRUD', () => {
     await ui.addCustomEvent('1.1.0.1', initialValue);
     expect(screen.getAllByText(initialValue).length).toBeGreaterThan(0);
 
-    await ui.updateEvent(1, updatedValue);
+    await ui.updateEvent(`OTHER ${initialValue}`, updatedValue);
     expect(screen.getAllByText(updatedValue).length).toBeGreaterThan(0);
 
-    await ui.deleteEvent(0);
+    await ui.deleteEvent(`OTHER ${updatedValue}`);
     expect(screen.queryByText(updatedValue)).not.toBeInTheDocument();
   });
 
@@ -799,8 +799,10 @@ function getPageObject() {
     addCustomEventBtn: byRole('menuitem', { name: 'project_activity.add_custom_event' }),
     addVersionEvenBtn: byRole('menuitem', { name: 'project_activity.add_version' }),
     deleteAnalysisBtn: byRole('menuitem', { name: 'project_activity.delete_analysis' }),
-    editEventBtn: byRole('button', { name: 'project_activity.events.tooltip.edit' }),
-    deleteEventBtn: byRole('button', { name: 'project_activity.events.tooltip.delete' }),
+    editEventBtn: (event: string) =>
+      byRole('button', { name: `project_activity.events.tooltip.edit.${event}` }),
+    deleteEventBtn: (event: string) =>
+      byRole('button', { name: `project_activity.events.tooltip.delete.${event}` }),
 
     // Event modal.
     nameInput: byLabelText('name'),
@@ -876,15 +878,15 @@ function getPageObject() {
         await user.click(ui.saveBtn.get());
       },
 
-      async updateEvent(index: number, value: string) {
-        await user.click(ui.editEventBtn.getAll()[index]);
+      async updateEvent(event: string, value: string) {
+        await user.click(ui.editEventBtn(event).get());
         await user.clear(ui.nameInput.get());
         await user.type(ui.nameInput.get(), value);
         await user.click(ui.changeBtn.get());
       },
 
-      async deleteEvent(index: number) {
-        await user.click(ui.deleteEventBtn.getAll()[index]);
+      async deleteEvent(event: string) {
+        await user.click(ui.deleteEventBtn(event).get());
         await user.click(ui.deleteBtn.get());
       },
 

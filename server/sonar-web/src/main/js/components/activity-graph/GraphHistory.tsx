@@ -20,14 +20,13 @@
 
 import styled from '@emotion/styled';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
-import { ButtonSecondary } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { AdvancedTimeline } from '../../components/charts/AdvancedTimeline';
-import { translate } from '../../helpers/l10n';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import { getShortType } from '../../helpers/measures';
 import { MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
-import ModalButton from '../controls/ModalButton';
 import DataTableModal from './DataTableModal';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
@@ -70,8 +69,10 @@ export default function GraphHistory(props: Readonly<Props>) {
     showAreas,
     graphDescription,
   } = props;
+  const intl = useIntl();
   const [tooltipIdx, setTooltipIdx] = React.useState<number | undefined>(undefined);
   const [tooltipXPos, setTooltipXPos] = React.useState<number | undefined>(undefined);
+  const [tableIsVisible, setTableIsVisible] = React.useState(false);
 
   const formatValue = (tick: string | number) => {
     return formatMeasure(tick, getShortType(metricsType));
@@ -87,84 +88,88 @@ export default function GraphHistory(props: Readonly<Props>) {
     setTooltipXPos(tooltipXPos);
   };
 
-  const modalProp = ({ onClose }: { onClose: () => void }) => (
-    <DataTableModal
-      analyses={analyses}
-      graphEndDate={graphEndDate}
-      graphStartDate={graphStartDate}
-      series={series}
-      onClose={onClose}
-    />
-  );
-
   const events = getAnalysisEventsForDate(analyses, selectedDate);
 
   return (
-    <StyledGraphContainer className="sw-flex sw-flex-col sw-justify-center sw-items-stretch sw-grow sw-py-2">
-      {isCustom && props.removeCustomMetric ? (
-        <GraphsLegendCustom
-          leakPeriodDate={leakPeriodDate}
-          removeMetric={props.removeCustomMetric}
+    <>
+      <StyledGraphContainer
+        tabIndex={canShowDataAsTable ? 0 : -1}
+        aria-label={`${intl.formatMessage(
+          { id: 'project_activity.graphs.graph_shown_x' },
+          { '0': isCustom ? series.map((s) => s.translatedName).join(',') : graph },
+        )} ${intl.formatMessage({ id: 'project_activity.graphs.open_in_table' })}`}
+        onKeyUp={(event) => {
+          if (event.key === KeyboardKeys.Enter) {
+            setTableIsVisible(true);
+          }
+        }}
+        className="sw-flex sw-flex-col sw-justify-center sw-items-stretch sw-grow sw-py-2"
+      >
+        {isCustom && props.removeCustomMetric ? (
+          <GraphsLegendCustom
+            leakPeriodDate={leakPeriodDate}
+            removeMetric={props.removeCustomMetric}
+            series={series}
+          />
+        ) : (
+          <GraphsLegendStatic leakPeriodDate={leakPeriodDate} series={series} />
+        )}
+
+        <div className="sw-flex-1">
+          <AutoSizer>
+            {({ height, width }) => (
+              <div>
+                <AdvancedTimeline
+                  endDate={graphEndDate}
+                  formatYTick={formatValue}
+                  height={height}
+                  leakPeriodDate={leakPeriodDate}
+                  splitPointDate={measuresHistory.find((m) => m.splitPointDate)?.splitPointDate}
+                  metricType={metricsType}
+                  selectedDate={selectedDate}
+                  series={series}
+                  showAreas={showAreas}
+                  startDate={graphStartDate}
+                  graphDescription={graphDescription}
+                  updateSelectedDate={props.updateSelectedDate}
+                  updateTooltip={updateTooltip}
+                  updateZoom={props.updateGraphZoom}
+                  width={width}
+                />
+
+                {selectedDate !== undefined &&
+                  tooltipIdx !== undefined &&
+                  tooltipXPos !== undefined && (
+                    <GraphsTooltips
+                      events={events}
+                      formatValue={formatTooltipValue}
+                      graph={graph}
+                      graphWidth={width}
+                      measuresHistory={measuresHistory}
+                      selectedDate={selectedDate}
+                      series={series}
+                      tooltipIdx={tooltipIdx}
+                      tooltipPos={tooltipXPos}
+                    />
+                  )}
+              </div>
+            )}
+          </AutoSizer>
+        </div>
+      </StyledGraphContainer>
+      {tableIsVisible && (
+        <DataTableModal
+          analyses={analyses}
+          graphEndDate={graphEndDate}
+          graphStartDate={graphStartDate}
           series={series}
+          onClose={() => setTableIsVisible(false)}
         />
-      ) : (
-        <GraphsLegendStatic leakPeriodDate={leakPeriodDate} series={series} />
       )}
-
-      <div className="sw-flex-1">
-        <AutoSizer>
-          {({ height, width }) => (
-            <div>
-              <AdvancedTimeline
-                endDate={graphEndDate}
-                formatYTick={formatValue}
-                height={height}
-                leakPeriodDate={leakPeriodDate}
-                splitPointDate={measuresHistory.find((m) => m.splitPointDate)?.splitPointDate}
-                metricType={metricsType}
-                selectedDate={selectedDate}
-                series={series}
-                showAreas={showAreas}
-                startDate={graphStartDate}
-                graphDescription={graphDescription}
-                updateSelectedDate={props.updateSelectedDate}
-                updateTooltip={updateTooltip}
-                updateZoom={props.updateGraphZoom}
-                width={width}
-              />
-
-              {selectedDate !== undefined &&
-                tooltipIdx !== undefined &&
-                tooltipXPos !== undefined && (
-                  <GraphsTooltips
-                    events={events}
-                    formatValue={formatTooltipValue}
-                    graph={graph}
-                    graphWidth={width}
-                    measuresHistory={measuresHistory}
-                    selectedDate={selectedDate}
-                    series={series}
-                    tooltipIdx={tooltipIdx}
-                    tooltipPos={tooltipXPos}
-                  />
-                )}
-            </div>
-          )}
-        </AutoSizer>
-      </div>
-      {canShowDataAsTable && (
-        <ModalButton modal={modalProp}>
-          {({ onClick }) => (
-            <ButtonSecondary className="sw-sr-only" onClick={onClick}>
-              {translate('project_activity.graphs.open_in_table')}
-            </ButtonSecondary>
-          )}
-        </ModalButton>
-      )}
-    </StyledGraphContainer>
+    </>
   );
 }
 
-const StyledGraphContainer = styled.div`
+const StyledGraphContainer = styled.section`
   height: 300px;
 `;

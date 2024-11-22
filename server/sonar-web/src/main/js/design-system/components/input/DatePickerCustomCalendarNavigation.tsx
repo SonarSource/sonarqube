@@ -52,9 +52,8 @@ export function CustomCalendarNavigation(props: CaptionProps) {
     if (date === undefined) {
       return intl.formatMessage({ id: 'disabled_' });
     }
-    return `${intl.formatDate(date, { month: 'long', format: 'M' })} ${intl.formatDate(date, {
+    return `${intl.formatDate(date, { month: 'long' })} ${intl.formatDate(date, {
       year: 'numeric',
-      format: 'y',
     })}`;
   };
 

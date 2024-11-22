@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { ButtonGroup, InputSize, Label, Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { InputSelect, LabelValueSelectOption } from '~design-system';
+import { LabelValueSelectOption } from '~design-system';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
@@ -52,8 +53,8 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
   }));
 
   const handleCategoryChange = React.useCallback(
-    (option: { value: string } | null) => {
-      updateQuery({ category: option ? option.value : '' });
+    (option: string | null) => {
+      updateQuery({ category: option ?? '' });
     },
     [updateQuery],
   );
@@ -61,19 +62,19 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
   return (
     <div className="sw-flex sw-mb-5 sw-items-center">
       {!isPortfolioLike(project.qualifier) && (
-        <InputSelect
-          aria-label={translate('project_activity.filter_events')}
-          className="sw-mr-8 sw-typo-default sw-w-abs-200"
-          isClearable
-          onChange={(data: LabelValueSelectOption) => handleCategoryChange(data)}
-          options={options}
-          placeholder={translate('project_activity.filter_events')}
-          size="full"
-          value={options.find((o) => o.value === category)}
-          classNames={{
-            menu: () => 'sw-z-dropdown-menu-page',
-          }}
-        />
+        <ButtonGroup>
+          <Label htmlFor="graph-type">{translate('project_activity.filter_events')}</Label>
+          <Select
+            id="events-filter"
+            className="sw-mr-8 sw-typo-default sw-w-abs-200"
+            hasDropdownAutoWidth
+            placeholder={translate('project_activity.filter_events.placeholder')}
+            onChange={(value) => handleCategoryChange(value)}
+            value={options.find((o) => o.value === category)?.value}
+            size={InputSize.Small}
+            data={options}
+          />
+        </ButtonGroup>
       )}
       <ProjectActivityDateInput from={from} onChange={props.updateQuery} to={to} />
     </div>
