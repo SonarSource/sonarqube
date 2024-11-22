@@ -233,12 +233,16 @@ it('should be able to set as default a quality gate which is CaYC compliant', as
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
-  const notDefaultQualityGate = await screen.findByRole('button', { name: /Sonar way/ });
+  const notDefaultQualityGate = await screen.findByRole('button', {
+    name: /Sonar way for AI code/,
+  });
   await user.click(notDefaultQualityGate);
   await user.click(await screen.findByLabelText('actions'));
   const setAsDefaultButton = screen.getByRole('menuitem', { name: 'set_as_default' });
   await user.click(setAsDefaultButton);
-  expect(await screen.findByRole('button', { name: /Sonar way default/ })).toBeInTheDocument();
+  expect(
+    await screen.findByRole('button', { name: /Sonar way for AI code default/ }),
+  ).toBeInTheDocument();
 });
 
 it('should be able to add a condition on new code', async () => {
@@ -611,7 +615,7 @@ it('should not display CaYC condition simplification tour for users who dismisse
   expect(byRole('alertdialog').query()).not.toBeInTheDocument();
 });
 
-it('should advertise the Sonar way Quality Gate as AI-ready', async () => {
+it('should advertise the Sonar way for AI code Quality Gate as AI-ready', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp({
@@ -621,13 +625,14 @@ it('should advertise the Sonar way Quality Gate as AI-ready', async () => {
     featureList: [Feature.AiCodeAssurance],
   });
 
-  await user.click(await screen.findByRole('link', { name: /Sonar way/ }));
+  await user.click(await screen.findByRole('link', { name: /Sonar way for AI code/ }));
 
   expect(
     await screen.findByRole('link', {
-      name: 'quality_gates.ai_generated.description.clean_ai_generated_code',
+      name: 'quality_gates.ai_generated.description.clean_ai_generated_code open_in_new_tab',
     }),
   ).toBeInTheDocument();
+  expect(await screen.findByText('quality_gates.is_built_in.ai.description')).toBeInTheDocument();
 });
 
 it('should show AI indicator for Sonar AI Way based in DE+ editions', async () => {

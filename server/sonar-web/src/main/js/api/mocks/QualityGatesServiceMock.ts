@@ -202,7 +202,7 @@ export class QualityGatesServiceMock {
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
-        name: 'Sonar AI way',
+        name: 'Sonar way for AI code',
         conditions: [
           {
             id: 'AXJMbIUHPAOIsUIE3eQQ',
@@ -231,6 +231,27 @@ export class QualityGatesServiceMock {
             op: 'LT',
             error: '100',
             isCaycCondition: true,
+          },
+          {
+            id: '0cf34ce4-7760-4bbb-8d8c-41e32b1913c8',
+            metric: 'software_quality_security_rating',
+            op: 'GT',
+            error: '1',
+            isCaycCondition: false,
+          },
+          {
+            id: '92561420-727c-49f8-837e-87e9d413b403',
+            metric: 'security_review_rating',
+            op: 'GT',
+            error: '1',
+            isCaycCondition: false,
+          },
+          {
+            id: 'eae5888d-92d6-463a-bd81-9911debaa88d',
+            metric: 'software_quality_reliability_rating',
+            op: 'GT',
+            error: '3',
+            isCaycCondition: false,
           },
         ],
         isDefault: false,

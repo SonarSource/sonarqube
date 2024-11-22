@@ -26,6 +26,7 @@ import {
   IconDelete,
   IconRefresh,
   ModalAlert,
+  Text,
 } from '@sonarsource/echoes-react';
 import { useIntl } from 'react-intl';
 import {
@@ -36,7 +37,6 @@ import {
   PillHighlight,
   PillVariant,
   TableRow,
-  TextError,
 } from '~design-system';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
@@ -55,12 +55,6 @@ import {
 import ConditionValue from './ConditionValue';
 import EditConditionModal from './EditConditionModal';
 import UpdateConditionsFromOtherModeModal from './UpdateConditionsFromOtherModeModal';
-
-export enum ConditionChange {
-  Added = 'added',
-  Updated = 'updated',
-  Deleted = 'deleted',
-}
 
 interface Props {
   canEdit: boolean;
@@ -101,7 +95,11 @@ export default function ConditionComponent({
             })}
           </Pill>
         )}
-        {metric.hidden && <TextError className="sw-ml-1" text={translate('deprecated')} />}
+        {metric.hidden && (
+          <Text colorOverride="echoes-color-text-danger" className="sw-ml-1">
+            {translate('deprecated')}
+          </Text>
+        )}
       </ContentCell>
 
       <ContentCell className="sw-whitespace-nowrap">{getOperatorLabel(op, metric)}</ContentCell>

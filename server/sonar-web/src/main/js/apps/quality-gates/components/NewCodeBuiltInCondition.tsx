@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from '@emotion/styled';
+import { IconQuestionMark, Text } from '@sonarsource/echoes-react';
 import { FormattedMessage } from 'react-intl';
-import { HelperHintIcon, Highlight } from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -28,6 +27,7 @@ import withMetricsContext from '../../../app/components/metrics/withMetricsConte
 import { translate } from '../../../helpers/l10n';
 import { Condition, Dict, Metric } from '../../../types/types';
 import { getCaycConditionMetadata, getLocalizedMetricNameNoDiffMetric } from '../utils';
+import { BuiltInStyledContentCell, BuiltInStyledItem } from './BuiltInConditionWrappers';
 
 interface Props {
   condition: Condition;
@@ -35,7 +35,7 @@ interface Props {
   metrics: Dict<Metric>;
 }
 
-function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
+function NewCodeBuiltInCondition({ condition, metric, metrics }: Readonly<Props>) {
   const { shouldRenderOperator } = getCaycConditionMetadata(condition);
 
   const renderOperator = () => {
@@ -44,63 +44,35 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
   };
 
   return (
-    <StyledItem
+    <BuiltInStyledItem
       data-guiding-id={
         condition.metric === MetricKey.new_violations ? 'caycConditionsSimplification' : undefined
       }
     >
       <span>
-        <Highlight>{translate(`metric.${metric.key}.description.positive`)}</Highlight>
+        <Text isHighlighted>{translate(`metric.${metric.key}.description.positive`)}</Text>
       </span>
 
       {shouldRenderOperator && (
-        <StyledContentCell>
+        <BuiltInStyledContentCell>
           <FormattedMessage
-            id="quality_gates.conditions.cayc.metric"
+            id="quality_gates.conditions.builtin_new_code.metric"
             values={{
               metric: getLocalizedMetricNameNoDiffMetric(metric, metrics),
               operator: renderOperator(),
-              value: <Highlight>&nbsp;{formatMeasure(condition.error, metric.type)}</Highlight>,
+              value: <Text isHighlighted>&nbsp;{formatMeasure(condition.error, metric.type)}</Text>,
             }}
           />
           <DocHelpTooltip
-            className="sw-ml-2 sw-align-text-top"
+            className="sw-ml-2"
             content={translate('quality_gates.conditions.cayc.threshold.hint')}
           >
-            <HelperHintIcon />
+            <IconQuestionMark />
           </DocHelpTooltip>
-        </StyledContentCell>
+        </BuiltInStyledContentCell>
       )}
-    </StyledItem>
+    </BuiltInStyledItem>
   );
 }
 
-const StyledItem = styled.li`
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-  flex-wrap: wrap;
-
-  &:not(:last-child) {
-    padding-bottom: 0;
-  }
-
-  &:not(:last-child):after {
-    content: '';
-    border-bottom: 1px solid rgb(235, 235, 235);
-    display: flex;
-    height: 10px;
-    width: 100%;
-    padding-top: 1rem;
-  }
-`;
-
-const StyledContentCell = styled.div`
-  white-space: nowrap;
-
-  & > div {
-    justify-content: flex-end !important;
-  }
-`;
-
-export default withMetricsContext(CaycCondition);
+export default withMetricsContext(NewCodeBuiltInCondition);

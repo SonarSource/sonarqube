@@ -36,6 +36,9 @@ const METRICS = {
   [MetricKey.new_bugs]: mockMetric({ name: 'New Bugs' }),
   [MetricKey.code_smells]: mockMetric({ name: 'Code Smells' }),
   [MetricKey.duplicated_lines_density]: mockMetric({ name: 'Duplicated lines (%)' }),
+  [MetricKey.security_review_rating]: mockMetric({ name: 'Security Review Rating' }),
+  [MetricKey.software_quality_reliability_rating]: mockMetric({ name: 'Reliability Rating' }),
+  [MetricKey.software_quality_security_rating]: mockMetric({ name: 'Security Rating' }),
 };
 
 describe('getLocalizedMetricNameNoDiffMetric', () => {
@@ -85,6 +88,11 @@ describe('groupAndSortByPriorityConditions', () => {
     MetricKey.new_coverage,
     MetricKey.new_duplicated_lines_density,
   ];
+  const expectedConditionsOrderAIOverall = [
+    MetricKey.software_quality_security_rating,
+    MetricKey.security_review_rating,
+    MetricKey.software_quality_reliability_rating,
+  ];
 
   it('should return grouped conditions by overall/new code and sort them by CaYC order', () => {
     const result = groupAndSortByPriorityConditions(conditions, METRICS, true);
@@ -94,7 +102,23 @@ describe('groupAndSortByPriorityConditions', () => {
     expect(result.overallCodeConditions.map(conditionsMap)).toEqual(
       expectConditionsOrderOverallCode,
     );
-    expect(result.caycConditions.map(conditionsMap)).toEqual(expectedConditionsOrderCayc);
+    expect(result.builtInNewCodeConditions.map(conditionsMap)).toEqual(expectedConditionsOrderCayc);
+  });
+
+  it('should return grouped conditions by overall/new code and sort them for builtIn Ai QG', () => {
+    const aiConditions = [
+      ...conditions,
+      mockCondition({ metric: MetricKey.security_review_rating }),
+      mockCondition({ metric: MetricKey.software_quality_reliability_rating }),
+      mockCondition({ metric: MetricKey.software_quality_security_rating }),
+    ];
+    const result = groupAndSortByPriorityConditions(aiConditions, METRICS, true, true);
+    const conditionsMap = ({ metric }: Condition) => metric;
+
+    expect(result.builtInOverallConditions.map(conditionsMap)).toEqual(
+      expectedConditionsOrderAIOverall,
+    );
+    expect(result.builtInNewCodeConditions.map(conditionsMap)).toEqual(expectedConditionsOrderCayc);
   });
 
   it('should return grouped conditions and add CaYC conditions to new code if QG is not compliant', () => {
@@ -112,6 +136,6 @@ describe('groupAndSortByPriorityConditions', () => {
     expect(result.overallCodeConditions.map(conditionsMap)).toEqual(
       expectConditionsOrderOverallCode,
     );
-    expect(result.caycConditions.map(conditionsMap)).toEqual([]);
+    expect(result.builtInNewCodeConditions.map(conditionsMap)).toEqual([]);
   });
 });
