@@ -47,6 +47,7 @@ import org.sonarqube.ws.client.l10n.L10nService;
 import org.sonarqube.ws.client.languages.LanguagesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.metrics.MetricsService;
+import org.sonarqube.ws.client.mode.ModeService;
 import org.sonarqube.ws.client.monitoring.MonitoringService;
 import org.sonarqube.ws.client.navigation.NavigationService;
 import org.sonarqube.ws.client.newcodeperiods.NewCodePeriodsService;
@@ -155,6 +156,8 @@ public interface WsClient {
   MeasuresService measures();
 
   MetricsService metrics();
+
+  ModeService mode();
 
   NavigationService navigation();
 

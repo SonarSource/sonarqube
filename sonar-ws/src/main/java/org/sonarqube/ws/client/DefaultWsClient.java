@@ -47,6 +47,7 @@ import org.sonarqube.ws.client.l10n.L10nService;
 import org.sonarqube.ws.client.languages.LanguagesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.metrics.MetricsService;
+import org.sonarqube.ws.client.mode.ModeService;
 import org.sonarqube.ws.client.monitoring.MonitoringService;
 import org.sonarqube.ws.client.navigation.NavigationService;
 import org.sonarqube.ws.client.newcodeperiods.NewCodePeriodsService;
@@ -153,6 +154,7 @@ class DefaultWsClient implements WsClient {
   private final GitlabPermissionService gitlabPermissionsService;
 
   private final GitlabSynchronizationRunService gitlabSynchronizationRunService;
+  private final ModeService modeService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -178,6 +180,7 @@ class DefaultWsClient implements WsClient {
     this.languagesService = new LanguagesService(wsConnector);
     this.measuresService = new MeasuresService(wsConnector);
     this.metricsService = new MetricsService(wsConnector);
+    this.modeService = new ModeService(wsConnector);
     this.monitoringService = new MonitoringService(wsConnector);
     this.navigationService = new NavigationService(wsConnector);
     this.newCodePeriodsService = new NewCodePeriodsService(wsConnector);
@@ -358,6 +361,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public MetricsService metrics() {
     return metricsService;
+  }
+
+  @Override
+  public ModeService mode() {
+    return modeService;
   }
 
   @Override
