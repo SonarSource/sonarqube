@@ -19,13 +19,15 @@
  */
 package org.sonar.server.notification.ws;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -49,14 +51,15 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class ListActionIT {
+class ListActionIT {
   private static final String NOTIF_MY_NEW_ISSUES = "MyNewIssues";
   private static final String NOTIF_NEW_ISSUES = "NewIssues";
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "NewQualityGateStatus";
+  private static final String NOTIF_CONDITIONS_MISMATCH = "QualityGateConditionsMismatch";
 
-  @Rule
+  @RegisterExtension
   public final UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
+  @RegisterExtension
   public final DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
@@ -65,8 +68,8 @@ public class ListActionIT {
   private final NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
   private final NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
 
-  private final NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient);
   private final Dispatchers dispatchers = mock(Dispatchers.class);
+  private final NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient, dispatchers);
 
   private final WsActionTester ws = new WsActionTester(new ListAction(new NotificationCenter(
     new NotificationDispatcherMetadata[] {},
@@ -74,7 +77,7 @@ public class ListActionIT {
     dbClient, userSession, dispatchers));
 
   @Test
-  public void channels() {
+  void channels() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -84,18 +87,18 @@ public class ListActionIT {
   }
 
   @Test
-  public void overall_dispatchers() {
+  void overall_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS, NOTIF_CONDITIONS_MISMATCH));
+    when(dispatchers.getEnabledByDefaultDispatchers()).thenReturn(singletonList(NOTIF_CONDITIONS_MISMATCH));
     ListResponse result = call();
 
-    assertThat(result.getGlobalTypesList()).containsExactly(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS);
+    assertThat(result.getGlobalTypesList()).containsExactly(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS, NOTIF_CONDITIONS_MISMATCH);
   }
 
   @Test
-  public void per_project_dispatchers() {
+  void per_project_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
@@ -106,7 +109,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void filter_unauthorized_projects() {
+  void filter_unauthorized_projects() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -124,7 +127,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void filter_channels() {
+  void filter_channels() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
@@ -138,7 +141,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void filter_overall_dispatchers() {
+  void filter_overall_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
@@ -152,7 +155,102 @@ public class ListActionIT {
   }
 
   @Test
-  public void filter_per_project_dispatchers() {
+  void filter_enabled_by_default_dispatchers() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS, NOTIF_CONDITIONS_MISMATCH));
+    when(dispatchers.getEnabledByDefaultDispatchers()).thenReturn(singletonList(NOTIF_CONDITIONS_MISMATCH));
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
+    notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, null);
+    dbSession.commit();
+
+    ListResponse result = call();
+
+    assertThat(result.getNotificationsList()).extracting(Notification::getType).containsOnly(NOTIF_MY_NEW_ISSUES, NOTIF_CONDITIONS_MISMATCH);
+  }
+
+  @Test
+  void filter_whenDispatcherEnabledByDefaultAndRemoved_shouldNotShowNotification() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_CONDITIONS_MISMATCH));
+    when(dispatchers.getEnabledByDefaultDispatchers()).thenReturn(singletonList(NOTIF_CONDITIONS_MISMATCH));
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
+    notificationUpdater.remove(dbSession, emailChannel.getKey(), NOTIF_CONDITIONS_MISMATCH, user, null);
+    notificationUpdater.remove(dbSession, twitterChannel.getKey(), NOTIF_CONDITIONS_MISMATCH, user, null);
+    dbSession.commit();
+
+    ListResponse result = call();
+
+    assertThat(result.getNotificationsList()).extracting(Notification::getType).containsOnly(NOTIF_MY_NEW_ISSUES);
+  }
+
+  @Test
+  void filter_whenUserHasPermissionToDispatcher_shouldShowNotifications() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER_QUALITY_GATES);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_CONDITIONS_MISMATCH));
+    when(dispatchers.getPermissionRestrictedDispatchers()).thenReturn(Map.of(NOTIF_CONDITIONS_MISMATCH, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
+
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_CONDITIONS_MISMATCH, user, null);
+
+    dbSession.commit();
+
+    ListResponse result = call();
+
+    assertThat(result.getGlobalTypesList()).containsOnly(NOTIF_MY_NEW_ISSUES, NOTIF_CONDITIONS_MISMATCH);
+    assertThat(result.getNotificationsList()).extracting(Notification::getType).containsOnly(NOTIF_MY_NEW_ISSUES, NOTIF_CONDITIONS_MISMATCH);
+  }
+
+  @Test
+  void filter_whenAdminAndUserHasNoPermission_shouldNotShowNotifications() {
+    UserDto admin = db.users().insertUser();
+    db.users().insertGlobalPermissionOnUser(admin, GlobalPermission.ADMINISTER_QUALITY_GATES);
+    userSession.logIn(admin).setSystemAdministrator();
+
+    UserDto user = db.users().insertUser();
+
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_CONDITIONS_MISMATCH));
+    when(dispatchers.getPermissionRestrictedDispatchers()).thenReturn(Map.of(NOTIF_CONDITIONS_MISMATCH, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
+
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_CONDITIONS_MISMATCH, user, null);
+
+    dbSession.commit();
+
+    ListResponse result = call(user.getLogin());
+
+    assertThat(result.getGlobalTypesList()).containsOnly(NOTIF_MY_NEW_ISSUES);
+    assertThat(result.getNotificationsList()).extracting(Notification::getType).containsOnly(NOTIF_MY_NEW_ISSUES);
+  }
+
+  @Test
+  void filter_whenUserHasNotPermissions_shouldNotShowNotifications() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_CONDITIONS_MISMATCH, NOTIF_NEW_QUALITY_GATE_STATUS));
+
+    when(dispatchers.getPermissionRestrictedDispatchers()).thenReturn(Map.of(NOTIF_CONDITIONS_MISMATCH, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey(),
+      NOTIF_NEW_QUALITY_GATE_STATUS, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
+
+    when(dispatchers.getEnabledByDefaultDispatchers()).thenReturn(singletonList(NOTIF_CONDITIONS_MISMATCH));
+
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, user, null);
+
+    dbSession.commit();
+
+    ListResponse result = call();
+
+    assertThat(result.getGlobalTypesList()).containsOnly(NOTIF_MY_NEW_ISSUES);
+    assertThat(result.getNotificationsList()).extracting(Notification::getType).containsOnly(NOTIF_MY_NEW_ISSUES);
+  }
+
+  @Test
+  void filter_per_project_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -170,7 +268,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void order_with_global_then_by_channel_and_dispatcher() {
+  void order_with_global_then_by_channel_and_dispatcher() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
@@ -199,7 +297,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void list_user_notifications_as_system_admin() {
+  void list_user_notifications_as_system_admin() {
     UserDto user = db.users().insertUser();
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     userSession.logIn(user).setSystemAdministrator();
@@ -215,7 +313,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void fail_if_login_and_not_system_admin() {
+  void fail_if_login_and_not_system_admin() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setNonSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -228,7 +326,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void fail_if_login_is_provided_and_unknown() {
+  void fail_if_login_is_provided_and_unknown() {
     userSession.logIn().setSystemAdministrator();
 
     assertThatThrownBy(() -> call("LOGIN 404"))
@@ -237,7 +335,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void json_example() {
+  void json_example() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
@@ -261,7 +359,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("list");
@@ -276,7 +374,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void fail_when_not_authenticated() {
+  void fail_when_not_authenticated() {
     userSession.anonymous();
 
     assertThatThrownBy(this::call)

@@ -19,7 +19,9 @@
  */
 package org.sonar.server.notification.ws;
 
-import org.junit.Test;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.issue.notification.FPOrAcceptedNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
@@ -28,12 +30,14 @@ import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.sonar.server.notification.NotificationDispatcherMetadata.ENABLED_BY_DEFAULT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
+import static org.sonar.server.notification.NotificationDispatcherMetadata.PERMISSION_RESTRICTION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 
-public class DispatchersImplTest {
+class DispatchersImplTest {
 
-  private NotificationCenter notificationCenter = new NotificationCenter(
+  private final NotificationCenter notificationCenter = new NotificationCenter(
     new NotificationDispatcherMetadata[] {
       NotificationDispatcherMetadata.create(MyNewIssuesNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
@@ -42,17 +46,19 @@ public class DispatchersImplTest {
         .setProperty(GLOBAL_NOTIFICATION, "false"),
       NotificationDispatcherMetadata.create(QGChangeNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
-        .setProperty(PER_PROJECT_NOTIFICATION, "true"),
+        .setProperty(PER_PROJECT_NOTIFICATION, "true")
+        .setProperty(PERMISSION_RESTRICTION, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()),
       NotificationDispatcherMetadata.create(FPOrAcceptedNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "false")
         .setProperty(PER_PROJECT_NOTIFICATION, "true")
+        .setProperty(ENABLED_BY_DEFAULT_NOTIFICATION, "true")
     },
     new NotificationChannel[] {});
 
-  private DispatchersImpl underTest = new DispatchersImpl(notificationCenter);
+  private final DispatchersImpl underTest = new DispatchersImpl(notificationCenter);
 
   @Test
-  public void get_sorted_global_dispatchers() {
+  void get_sorted_global_dispatchers() {
     underTest.start();
 
     assertThat(underTest.getGlobalDispatchers()).containsExactly(
@@ -60,11 +66,27 @@ public class DispatchersImplTest {
   }
 
   @Test
-  public void get_sorted_project_dispatchers() {
+  void get_sorted_project_dispatchers() {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsExactly(
       QGChangeNotificationHandler.KEY, FPOrAcceptedNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
+  }
+
+  @Test
+  void get_enabled_by_default_dispatchers() {
+    underTest.start();
+
+    assertThat(underTest.getEnabledByDefaultDispatchers()).containsExactly(
+      FPOrAcceptedNotificationHandler.KEY);
+  }
+
+  @Test
+  void start_shouldProcessPermissionRestrictedDispatchers() {
+    underTest.start();
+
+    assertThat(underTest.getPermissionRestrictedDispatchers())
+      .containsExactlyEntriesOf(Map.of(QGChangeNotificationHandler.KEY, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
   }
 
 }

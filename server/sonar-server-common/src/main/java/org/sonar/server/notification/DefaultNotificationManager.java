@@ -115,7 +115,7 @@ public class DefaultNotificationManager implements NotificationManager {
     verifyProjectKey(projectKey);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEmailSubscribersForNotification(
+      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEnabledEmailSubscribersForNotification(
         dbSession, dispatcherKey, EmailNotificationChannel.class.getSimpleName(), projectKey);
 
       return keepAuthorizedEmailSubscribers(dbSession, projectKey, subscriberPermissionsOnProject, emailSubscribers);
@@ -132,7 +132,7 @@ public class DefaultNotificationManager implements NotificationManager {
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEmailSubscribersForNotification(
+      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEnabledEmailSubscribersForNotification(
         dbSession, dispatcherKey, EmailNotificationChannel.class.getSimpleName(), projectKey, logins);
 
       return keepAuthorizedEmailSubscribers(dbSession, projectKey, subscriberPermissionsOnProject, emailSubscribers);

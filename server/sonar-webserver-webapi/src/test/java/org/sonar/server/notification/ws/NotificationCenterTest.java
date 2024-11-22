@@ -19,6 +19,7 @@
  */
 package org.sonar.server.notification.ws;
 
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.server.notification.NotificationChannel;
@@ -42,8 +43,7 @@ public class NotificationCenterTest {
 
     underTest = new NotificationCenter(
       new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
-      new NotificationChannel[] {emailChannel, gtalkChannel}
-    );
+      new NotificationChannel[] {emailChannel, gtalkChannel});
   }
 
   @Test
@@ -72,6 +72,12 @@ public class NotificationCenterTest {
     underTest = new NotificationCenter(new NotificationDispatcherMetadata[] {NotificationDispatcherMetadata.create("Dispatcher1").setProperty("global", "true")});
     assertThat(underTest.getChannels()).isEmpty();
     assertThat(underTest.getDispatcherKeysForProperty("global", null)).hasSize(1);
+  }
+
+  @Test
+  public void getValueByDispatchers_ShouldReturnExpectedMap() {
+    assertThat(underTest.getValueByDispatchers("global"))
+      .containsExactlyInAnyOrderEntriesOf(Map.of("Dispatcher1", "true", "Dispatcher2", "true", "Dispatcher3", "FOO"));
   }
 
 }

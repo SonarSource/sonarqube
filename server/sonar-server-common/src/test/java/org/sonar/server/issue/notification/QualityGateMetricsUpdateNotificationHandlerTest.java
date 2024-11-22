@@ -60,8 +60,10 @@ class QualityGateMetricsUpdateNotificationHandlerTest {
     when(authorizationDao.selectQualityGateAdministratorLogins(dbSession))
       .thenReturn(Set.of(new EmailSubscriberDto().setLogin("login1").setEmail("email@email.com"), new EmailSubscriberDto().setLogin("login2").setEmail("email2@email.com")));
 
-    when(propertiesDao.findEmailSubscribersForNotification(eq(dbSession), eq(QualityGateMetricsUpdateNotificationHandler.KEY), any(), isNull(), eq(Set.of("login1", "login2"))))
-      .thenReturn(Set.of(new EmailSubscriberDto().setLogin("login1").setEmail("email@email.com"), new EmailSubscriberDto().setLogin("login2").setEmail("email2@email.com")));
+    when(
+      propertiesDao.findDisabledEmailSubscribersForNotification(eq(dbSession), eq(QualityGateMetricsUpdateNotificationHandler.KEY), any(), isNull(),
+        eq(Set.of("login1", "login2"))))
+          .thenReturn(Set.of());
 
     Assertions.assertThat(underTest.toEmailDeliveryRequests(List.of(new QualityGateMetricsUpdateNotification(true))))
       .extracting(EmailNotificationChannel.EmailDeliveryRequest::recipientEmail, EmailNotificationChannel.EmailDeliveryRequest::notification)
@@ -70,12 +72,12 @@ class QualityGateMetricsUpdateNotificationHandlerTest {
   }
 
   @Test
-  void toEmailDeliveryRequests_whenHasAdminsButNotSubscribed_shouldNotSendExpectedNotification() {
+  void toEmailDeliveryRequests_whenHasAdminsButHasUnsubscribe_shouldNotSendExpectedNotification() {
     when(authorizationDao.selectQualityGateAdministratorLogins(dbSession))
       .thenReturn(Set.of(new EmailSubscriberDto().setLogin("login1").setEmail("email@email.com")));
 
-    when(propertiesDao.findEmailSubscribersForNotification(eq(dbSession), eq(QualityGateMetricsUpdateNotificationHandler.KEY), any(), isNull(), eq(Set.of("login1"))))
-      .thenReturn(Set.of());
+    when(propertiesDao.findDisabledEmailSubscribersForNotification(eq(dbSession), eq(QualityGateMetricsUpdateNotificationHandler.KEY), any(), isNull(), eq(Set.of("login1"))))
+      .thenReturn(Set.of(new EmailSubscriberDto().setLogin("login1").setEmail("email@email.com")));
 
     Assertions.assertThat(underTest.toEmailDeliveryRequests(List.of(new QualityGateMetricsUpdateNotification(true))))
       .isEmpty();

@@ -20,10 +20,15 @@
 package org.sonar.server.notification.ws;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Dispatchers {
 
   List<String> getGlobalDispatchers();
 
   List<String> getProjectDispatchers();
+
+  List<String> getEnabledByDefaultDispatchers();
+
+  Map<String, String> getPermissionRestrictedDispatchers();
 }

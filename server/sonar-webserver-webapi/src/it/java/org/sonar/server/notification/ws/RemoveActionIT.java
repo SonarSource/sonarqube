@@ -19,8 +19,8 @@
  */
 package org.sonar.server.notification.ws;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -55,13 +55,13 @@ import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_L
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_TYPE;
 
-public class RemoveActionIT {
+class RemoveActionIT {
   private static final String NOTIF_MY_NEW_ISSUES = "Dispatcher1";
   private static final String NOTIF_NEW_ISSUES = "Dispatcher2";
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "Dispatcher3";
-  @Rule
+  @RegisterExtension
   public final UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
+  @RegisterExtension
   public final DbTester db = DbTester.create();
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -71,8 +71,8 @@ public class RemoveActionIT {
   // default channel, based on class simple name
   private final NotificationChannel defaultChannel = new FakeNotificationChannel("EmailNotificationChannel");
 
-  private final NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient);
   private final Dispatchers dispatchers = mock(Dispatchers.class);
+  private final NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient, dispatchers);
 
   private final RemoveRequest request = new RemoveRequest().setType(NOTIF_MY_NEW_ISSUES);
 
@@ -81,7 +81,7 @@ public class RemoveActionIT {
     new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel}), notificationUpdater, dispatchers, dbClient, TestComponentFinder.from(db), userSession));
 
   @Test
-  public void remove_to_email_channel_by_default() {
+  void remove_to_email_channel_by_default() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -94,7 +94,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void remove_from_a_specific_channel() {
+  void remove_from_a_specific_channel() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_NEW_QUALITY_GATE_STATUS));
@@ -107,7 +107,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void remove_a_project_notification() {
+  void remove_a_project_notification() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -122,7 +122,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_remove_a_global_notification_when_a_project_one_exists() {
+  void fail_when_remove_a_global_notification_when_a_project_one_exists() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -137,7 +137,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_remove_a_project_notification_when_a_global_one_exists() {
+  void fail_when_remove_a_project_notification_when_a_global_one_exists() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -153,7 +153,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void http_no_content() {
+  void http_no_content() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -167,12 +167,12 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void remove_a_notification_from_a_user_as_system_administrator() {
+  void remove_a_notification_from_a_user_as_system_administrator() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null, true);
     userSession.logIn().setSystemAdministrator();
     dbSession.commit();
 
@@ -182,7 +182,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_if_login_is_provided_and_unknown() {
+  void fail_if_login_is_provided_and_unknown() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -194,7 +194,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_if_login_provided_and_not_system_administrator() {
+  void fail_if_login_provided_and_not_system_administrator() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setNonSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -207,7 +207,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_notification_does_not_exist() {
+  void fail_when_notification_does_not_exist() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -218,7 +218,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_unknown_channel() {
+  void fail_when_unknown_channel() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -229,7 +229,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_unknown_global_dispatcher() {
+  void fail_when_unknown_global_dispatcher() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
@@ -241,7 +241,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_unknown_project_dispatcher() {
+  void fail_when_unknown_project_dispatcher() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -255,7 +255,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_no_type_parameter() {
+  void fail_when_no_type_parameter() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -267,7 +267,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_project_is_unknown() {
+  void fail_when_project_is_unknown() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -279,7 +279,7 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_component_is_not_a_project() {
+  void fail_when_component_is_not_a_project() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -293,12 +293,26 @@ public class RemoveActionIT {
   }
 
   @Test
-  public void fail_when_not_authenticated() {
+  void fail_when_not_authenticated() {
     userSession.anonymous();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  void execute_whenDispatcherEnabledByDefault_shouldAddDisabledNotification() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getEnabledByDefaultDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
+
+    call(request);
+
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null, false);
   }
 
   private TestResponse call(RemoveRequest remove) {

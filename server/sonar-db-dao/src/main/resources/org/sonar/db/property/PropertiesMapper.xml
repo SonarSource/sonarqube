@@ -13,7 +13,7 @@
     INNER JOIN properties p ON
       p.user_uuid = u.uuid
       and p.prop_key = #{notifKey,jdbcType=VARCHAR}
-      and p.text_value = 'true'
+      and p.text_value = #{notifValue,jdbcType=VARCHAR}
       and p.entity_uuid IS NULL
     WHERE
       u.email is not null
@@ -35,7 +35,7 @@
       INNER JOIN properties p ON
         p.user_uuid = u.uuid
         and p.prop_key = #{notifKey,jdbcType=VARCHAR}
-        and p.text_value = 'true'
+        and p.text_value = #{notifValue,jdbcType=VARCHAR}
         and p.entity_uuid = proj.uuid
       WHERE
         u.email is not null

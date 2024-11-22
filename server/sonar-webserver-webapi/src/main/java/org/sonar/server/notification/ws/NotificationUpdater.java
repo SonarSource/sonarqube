@@ -33,12 +33,15 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class NotificationUpdater {
   private static final String PROP_NOTIFICATION_PREFIX = "notification";
-  private static final String PROP_NOTIFICATION_VALUE = "true";
+  private static final String PROP_ENABLED_NOTIFICATION_VALUE = "true";
+  private static final String PROP_DISABLED_NOTIFICATION_VALUE = "false";
 
   private final DbClient dbClient;
+  private final Dispatchers dispatchers;
 
-  public NotificationUpdater(DbClient dbClient) {
+  public NotificationUpdater(DbClient dbClient, Dispatchers dispatchers) {
     this.dbClient = dbClient;
+    this.dispatchers = dispatchers;
   }
 
   /**
@@ -52,22 +55,22 @@ public class NotificationUpdater {
     String qualifier = project == null ? null : project.getQualifier();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
-        PropertyQuery.builder()
-          .setKey(key)
-          .setEntityUuid(projectUuid)
-          .setUserUuid(user.getUuid())
-          .build(),
-        dbSession).stream()
+      PropertyQuery.builder()
+        .setKey(key)
+        .setEntityUuid(projectUuid)
+        .setUserUuid(user.getUuid())
+        .build(),
+      dbSession).stream()
       .filter(notificationScope(project))
       .toList();
     checkArgument(existingNotification.isEmpty()
-      || !PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification already added");
+      || !PROP_ENABLED_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification already added");
 
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-        .setKey(key)
-        .setUserUuid(user.getUuid())
-        .setValue(PROP_NOTIFICATION_VALUE)
-        .setEntityUuid(projectUuid),
+      .setKey(key)
+      .setUserUuid(user.getUuid())
+      .setValue(PROP_ENABLED_NOTIFICATION_VALUE)
+      .setEntityUuid(projectUuid),
       user.getLogin(), projectKey, projectName, qualifier);
   }
 
@@ -82,21 +85,31 @@ public class NotificationUpdater {
     String qualifier = project == null ? null : project.getQualifier();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
-        PropertyQuery.builder()
-          .setKey(key)
-          .setEntityUuid(projectUuid)
-          .setUserUuid(user.getUuid())
-          .build(),
-        dbSession).stream()
+      PropertyQuery.builder()
+        .setKey(key)
+        .setEntityUuid(projectUuid)
+        .setUserUuid(user.getUuid())
+        .build(),
+      dbSession).stream()
       .filter(notificationScope(project))
       .toList();
-    checkArgument(!existingNotification.isEmpty() && PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification doesn't exist");
 
-    dbClient.propertiesDao().delete(dbSession, new PropertyDto()
-      .setKey(key)
-      .setUserUuid(user.getUuid())
-      .setValue(PROP_NOTIFICATION_VALUE)
-      .setEntityUuid(projectUuid), user.getLogin(), projectKey, projectName, qualifier);
+    if (dispatchers.getEnabledByDefaultDispatchers().contains(dispatcher)) {
+      dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
+        .setKey(key)
+        .setUserUuid(user.getUuid())
+        .setValue(PROP_DISABLED_NOTIFICATION_VALUE)
+        .setEntityUuid(projectUuid),
+        user.getLogin(), projectKey, projectName, qualifier);
+    } else {
+      checkArgument(!existingNotification.isEmpty() && PROP_ENABLED_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification doesn't exist");
+      dbClient.propertiesDao().delete(dbSession, new PropertyDto()
+        .setKey(key)
+        .setUserUuid(user.getUuid())
+        .setValue(PROP_ENABLED_NOTIFICATION_VALUE)
+        .setEntityUuid(projectUuid), user.getLogin(), projectKey, projectName, qualifier);
+    }
+
   }
 
   private static Predicate<PropertyDto> notificationScope(@Nullable EntityDto project) {

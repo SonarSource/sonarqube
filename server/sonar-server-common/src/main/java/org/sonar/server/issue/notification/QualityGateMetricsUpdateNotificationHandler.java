@@ -25,6 +25,7 @@ import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.email.EmailNotificationChannel;
@@ -35,7 +36,9 @@ public class QualityGateMetricsUpdateNotificationHandler extends EmailNotificati
   static final String KEY = "QualityGateConditionsMismatch";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
     .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-    .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(false));
+    .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(false))
+    .setProperty(NotificationDispatcherMetadata.ENABLED_BY_DEFAULT_NOTIFICATION, String.valueOf(true))
+    .setProperty(NotificationDispatcherMetadata.PERMISSION_RESTRICTION, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey());
 
   private final DbClient dbClient;
 
@@ -48,21 +51,24 @@ public class QualityGateMetricsUpdateNotificationHandler extends EmailNotificati
   protected Set<EmailNotificationChannel.EmailDeliveryRequest> toEmailDeliveryRequests(Collection<QualityGateMetricsUpdateNotification> notifications) {
     try (DbSession session = dbClient.openSession(false)) {
 
-      Set<String> logins = dbClient.authorizationDao()
-        .selectQualityGateAdministratorLogins(session).stream()
-        .map(EmailSubscriberDto::getLogin)
-        .collect(toSet());
+      Set<EmailSubscriberDto> subscriptions = dbClient.authorizationDao()
+        .selectQualityGateAdministratorLogins(session);
 
-      if (logins.isEmpty()) {
+      if (subscriptions.isEmpty()) {
         return Set.of();
       }
 
-      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEmailSubscribersForNotification(
-        session, KEY, EmailNotificationChannel.class.getSimpleName(), null, logins);
-
-      return emailSubscribers
+      Set<String> disabledLogins = dbClient.propertiesDao().findDisabledEmailSubscribersForNotification(
+        session, KEY, EmailNotificationChannel.class.getSimpleName(), null,
+        subscriptions.stream().map(EmailSubscriberDto::getLogin).collect(toSet()))
         .stream()
-        .flatMap(t -> notifications.stream().map(notification -> new EmailNotificationChannel.EmailDeliveryRequest(t.getEmail(), notification)))
+        .map(EmailSubscriberDto::getLogin)
+        .collect(toSet());
+
+      return subscriptions
+        .stream()
+        .filter(s -> !disabledLogins.contains(s.getLogin()))
+        .flatMap(s -> notifications.stream().map(notification -> new EmailNotificationChannel.EmailDeliveryRequest(s.getEmail(), notification)))
         .collect(toSet());
     }
   }
