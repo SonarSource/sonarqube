@@ -22,12 +22,12 @@ import { IconRefresh, Spinner, Tooltip } from '@sonarsource/echoes-react';
 import { useNavigate } from 'react-router-dom';
 import { Badge, BareButton, SubnavigationGroup, SubnavigationItem } from '~design-system';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
+import AIAssuredIcon, { AiIconColor } from '../../../components/icon-mappers/AIAssuredIcon';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Feature } from '../../../types/features';
 import { CaycStatus, QualityGate } from '../../../types/types';
-import AIAssuredIcon from './AIAssuredIcon';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import QGRecommendedIcon from './QGRecommendedIcon';
 
@@ -111,7 +111,13 @@ export default function List({ qualityGates, currentQualityGate }: Readonly<Prop
                         className="sw-mr-1 sw-flex sw-items-start"
                         data-testid="quality-gates-ai-assurance-indicator"
                       >
-                        <AIAssuredIcon isDisabled={shouldShowQualityGateUpdateIcon} />
+                        <AIAssuredIcon
+                          color={
+                            shouldShowQualityGateUpdateIcon
+                              ? AiIconColor.Disable
+                              : AiIconColor.Accent
+                          }
+                        />
                       </span>
                     </Tooltip>
                   )}

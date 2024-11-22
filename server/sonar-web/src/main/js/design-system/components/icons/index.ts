@@ -77,7 +77,6 @@ export { SeverityCriticalIcon } from './SeverityCriticalIcon';
 export { SeverityInfoIcon } from './SeverityInfoIcon';
 export { SeverityMajorIcon } from './SeverityMajorIcon';
 export { SeverityMinorIcon } from './SeverityMinorIcon';
-export { ShieldIcon } from './ShieldIcon';
 export { SnoozeCircleIcon } from './SnoozeCircleIcon';
 export { SoftwareImpactSeverityBlockerIcon } from './SoftwareImpactSeverityBlockerIcon';
 export { SoftwareImpactSeverityHighIcon } from './SoftwareImpactSeverityHighIcon';

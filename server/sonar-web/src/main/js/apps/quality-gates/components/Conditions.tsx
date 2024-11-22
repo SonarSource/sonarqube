@@ -39,6 +39,7 @@ import { useAvailableFeatures } from '../../../app/components/available-features
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { ModalProps } from '../../../components/controls/ModalButton';
+import AIAssuredIcon from '../../../components/icon-mappers/AIAssuredIcon';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
@@ -53,7 +54,6 @@ import {
   STANDARD_CONDITIONS_MAP,
 } from '../utils';
 import AddConditionModal from './AddConditionModal';
-import AIAssuredIcon from './AIAssuredIcon';
 import CaycCompliantBanner from './CaycCompliantBanner';
 import CaycCondition from './CaycCondition';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
