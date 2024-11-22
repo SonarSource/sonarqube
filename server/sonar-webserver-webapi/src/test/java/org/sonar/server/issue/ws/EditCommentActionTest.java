@@ -86,7 +86,7 @@ public class EditCommentActionTest {
 
     call(commentDto.getKey(), "please have a look");
 
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
 
     verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueChangeDto issueComment = dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey()).get();

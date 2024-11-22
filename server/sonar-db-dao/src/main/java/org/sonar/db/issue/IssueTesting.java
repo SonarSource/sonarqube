@@ -58,7 +58,7 @@ public class IssueTesting {
     checkArgument(file.branchUuid().equals(projectUuid), "The file doesn't belong to the project");
 
     return new IssueDto()
-      .setKee("uuid_" + randomAlphabetic(5))
+      .setKee(UuidFactoryFast.getInstance().create())
       .setRule(rule)
       .setType(RuleType.values()[nextInt(RuleType.values().length)])
       .setProjectUuid(projectUuid)

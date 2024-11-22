@@ -52,7 +52,7 @@ public class DatabaseServerCompatibility implements Startable {
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
       Optional<Long> currentVersion = this.version.getVersion();
       if (currentVersion.isPresent() && currentVersion.get() < DatabaseVersion.MIN_UPGRADE_VERSION) {
-        throw MessageException.of("Current version is too old. Please upgrade to Long Term Support version firstly.");
+        throw MessageException.of("The version of SonarQube is too old. Please upgrade to the Long-Term Active version first.");
       }
       boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
       if (!blueGreen) {

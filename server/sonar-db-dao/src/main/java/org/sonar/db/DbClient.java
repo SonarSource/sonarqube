@@ -45,6 +45,7 @@ import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.mapping.ProjectMappingsDao;
+import org.sonar.db.measure.JsonMeasureDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -161,6 +162,7 @@ public class DbClient {
   private final QProfileEditUsersDao qProfileEditUsersDao;
   private final QProfileEditGroupsDao qProfileEditGroupsDao;
   private final LiveMeasureDao liveMeasureDao;
+  private final JsonMeasureDao jsonMeasureDao;
   private final WebhookDao webhookDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
   private final ProjectMappingsDao projectMappingsDao;
@@ -198,6 +200,7 @@ public class DbClient {
     componentDao = getDao(map, ComponentDao.class);
     componentKeyUpdaterDao = getDao(map, ComponentKeyUpdaterDao.class);
     measureDao = getDao(map, MeasureDao.class);
+    jsonMeasureDao = getDao(map, JsonMeasureDao.class);
     userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
     userTokenDao = getDao(map, UserTokenDao.class);
@@ -513,6 +516,10 @@ public class DbClient {
 
   public LiveMeasureDao liveMeasureDao() {
     return liveMeasureDao;
+  }
+
+  public JsonMeasureDao jsonMeasureDao() {
+    return jsonMeasureDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

@@ -43,14 +43,14 @@ function formatDate(date: Date): string {
 
 it('should render correctly', async () => {
   let wrapper = shallowRender({
-    appState: mockAppState({ version: '9.0' }),
+    appState: mockAppState({ version: '9.0', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('default');
 
   wrapper = shallowRender({
-    appState: mockAppState({ version: '9.0' }),
+    appState: mockAppState({ version: '9.0', versionEOL: '2026-01-01' }),
     currentUser: mockCurrentUser(),
   });
   expect(wrapper.type()).toBeNull();
@@ -69,7 +69,9 @@ it('should not show prompt when not admin', async () => {
 });
 
 it('should not show prompt when no current version', async () => {
-  const wrapper = shallowRender({ appState: mockAppState({ version: 'NOVERSION' }) });
+  const wrapper = shallowRender({
+    appState: mockAppState({ version: 'NOVERSION', versionEOL: '2026-01-01' }),
+  });
   await waitAndUpdate(wrapper);
   expect(wrapper.type()).toBeNull();
 });
@@ -77,7 +79,7 @@ it('should not show prompt when no current version', async () => {
 it('should not show prompt when no upgrade', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({ upgrades: [], latestLTS: '8.9' });
   const wrapper = shallowRender({
-    appState: mockAppState({ version: '9.1' }),
+    appState: mockAppState({ version: '9.1', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
@@ -90,7 +92,7 @@ it('should show prompt when no lts date', async () => {
     latestLTS: '8.9',
   });
   const wrapper = shallowRender({
-    appState: mockAppState({ version: '8.1' }),
+    appState: mockAppState({ version: '8.1', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
@@ -104,7 +106,7 @@ it('should show prompt when minor upgrade', async () => {
     latestLTS: '8.9',
   });
   const wrapper = shallowRender({
-    appState: mockAppState({ version: '9.1' }),
+    appState: mockAppState({ version: '9.1', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
@@ -118,7 +120,7 @@ it('should show prompt when patch upgrade', async () => {
     latestLTS: '8.9',
   });
   const wrapper = shallowRender({
-    appState: mockAppState({ version: '9.1' }),
+    appState: mockAppState({ version: '9.1', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
@@ -136,7 +138,7 @@ it('should show prompt when lts upgrade', async () => {
     latestLTS: '8.9',
   });
   const wrapper = shallowRender({
-    appState: mockAppState({ version: '8.8' }),
+    appState: mockAppState({ version: '8.8', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
@@ -156,7 +158,7 @@ it('should show prompt when lts upgrade is more than 6 month', async () => {
     latestLTS: '8.9',
   });
   const wrapper = shallowRender({
-    appState: mockAppState({ version: '8.8' }),
+    appState: mockAppState({ version: '8.8', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
@@ -174,13 +176,23 @@ it('should show correct alert when not dismissable', async () => {
     latestLTS: '8.9',
   });
   const wrapper = shallowRender({
-    appState: mockAppState({ version: '8.8' }),
+    appState: mockAppState({ version: '8.8', versionEOL: '2026-01-01' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(DismissableAlert).type).toBeDefined();
   wrapper.setProps({ dismissable: false });
   expect(wrapper.find(Alert).type).toBeDefined();
+});
+
+it('should show alert if version has reached eol, but there are no upgrades', async () => {
+  (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({ upgrades: [], latestLTS: '9.9' });
+  const wrapper = shallowRender({
+    appState: mockAppState({ version: '9.9', versionEOL: '2020-01-01' }),
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.contains('admin_notification.update.previous_lts')).toBe(true);
 });
 
 function shallowRender(props: Partial<UpdateNotification['props']> = {}) {

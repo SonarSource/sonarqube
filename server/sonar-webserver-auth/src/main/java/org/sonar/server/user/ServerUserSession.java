@@ -182,7 +182,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+  protected List<ProjectDto> doKeepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
     Set<String> projectsUuids = projects.stream().map(ProjectDto::getUuid).collect(Collectors.toSet());
     Set<String> authorizedProjectsUuids = keepProjectsUuidsByPermission(permission, projectsUuids);
 
@@ -325,7 +325,7 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> allProjectUuids = new HashSet<>(projectUuids);
       allProjectUuids.addAll(originalComponentsProjectUuids);
 
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, allProjectUuids, getUuid(), permission);
+      Set<String> authorizedProjectUuids = keepAuthorizedProjectsUuids(dbSession, permission, allProjectUuids);
 
       return components.stream()
         .filter(c -> {
@@ -339,6 +339,10 @@ public class ServerUserSession extends AbstractUserSession {
         })
         .collect(MoreCollectors.toList(components.size()));
     }
+  }
+
+  protected Set<String> keepAuthorizedProjectsUuids(DbSession dbSession, String permission, Collection<String> entityUuids) {
+    return dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, entityUuids, getUuid(), permission);
   }
 
   private Map<String, ComponentDto> findComponentsByCopyComponentUuid(Collection<ComponentDto> components, DbSession dbSession) {

@@ -116,13 +116,17 @@ public class UpdateGithubAction implements AlmSettingsWsAction {
   private void doHandle(Request request, DbSession dbSession) {
     String key = request.mandatoryParam(PARAM_KEY);
     String newKey = request.param(PARAM_NEW_KEY);
+
     if (isNotBlank(newKey) && !newKey.equals(key)) {
       almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, newKey);
     }
 
     AlmSettingDto almSettingDto = almSettingsSupport.getAlmSetting(dbSession, key);
-
+    String url = request.mandatoryParam(PARAM_URL);
     String privateKey = request.param(PARAM_PRIVATE_KEY);
+
+    almSettingsSupport.checkPrivateKeyOnUrlUpdate(almSettingDto, url, privateKey);
+
     if (isNotBlank(privateKey)) {
       almSettingDto.setPrivateKey(privateKey);
     }

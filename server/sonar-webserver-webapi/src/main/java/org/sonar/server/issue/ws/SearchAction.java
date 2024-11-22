@@ -451,14 +451,14 @@ public class SearchAction implements IssuesWsAction {
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result).value);
-    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
+    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, userSession.isLoggedIn());
   }
 
   private static TotalHits getTotalHits(SearchResponse response) {
     return ofNullable(response.getHits().getTotalHits()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 
-  private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
+  private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
 
@@ -468,7 +468,11 @@ public class SearchAction implements IssuesWsAction {
       return options;
     }
 
-    options.addFacets(facets);
+    List<String> requestedFacets = new ArrayList<>(facets);
+    if (!userSession.isLoggedIn()) {
+      requestedFacets.remove(PARAM_AUTHOR);
+    }
+    options.addFacets(requestedFacets);
     return options;
   }
 

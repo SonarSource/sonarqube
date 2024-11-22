@@ -94,6 +94,8 @@ public class UpdateBitbucketAction implements AlmSettingsWsAction {
         almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, newKey);
       }
 
+      almSettingsSupport.checkPatOnUrlUpdate(almSettingDto, url, pat);
+
       if (isNotBlank(pat)) {
         almSettingDto.setPersonalAccessToken(pat);
       }

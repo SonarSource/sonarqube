@@ -20,14 +20,13 @@
 package org.sonar.db;
 
 import org.apache.ibatis.session.Configuration;
-import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.db.rule.RuleMapper;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class MyBatisTest {
   private static SQDatabase database;
@@ -50,9 +49,10 @@ public class MyBatisTest {
     underTest.start();
 
     Configuration conf = underTest.getSessionFactory().getConfiguration();
-    assertThat(conf.isUseGeneratedKeys(), Is.is(true));
-    assertThat(conf.hasMapper(RuleMapper.class), Is.is(true));
-    assertThat(conf.isLazyLoadingEnabled(), Is.is(false));
+
+    assertThat(conf.isUseGeneratedKeys()).isFalse();
+    assertThat(conf.hasMapper(RuleMapper.class)).isTrue();
+    assertThat(conf.isLazyLoadingEnabled()).isFalse();
   }
 
   @Test
@@ -60,8 +60,8 @@ public class MyBatisTest {
     underTest.start();
 
     try (DbSession session = underTest.openSession(false)) {
-      assertThat(session.getConnection(), notNullValue());
-      assertThat(session.getMapper(RuleMapper.class), notNullValue());
+      assertThat(session.getConnection()).isNotNull();
+      assertThat(session.getMapper(RuleMapper.class)).isNotNull();
     }
   }
 }

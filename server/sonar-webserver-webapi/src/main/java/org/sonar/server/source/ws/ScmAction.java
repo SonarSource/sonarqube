@@ -104,7 +104,8 @@ public class ScmAction implements SourcesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
-      Iterable<DbFileSources.Line> sourceLines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "File '%s' has no sources", fileKey);
+      Iterable<DbFileSources.Line> sourceLines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "File " +
+        "'%s' has no sources", fileKey);
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         writeSource(sourceLines, commitsByLine, json);
@@ -113,7 +114,7 @@ public class ScmAction implements SourcesWsAction {
     }
   }
 
-  private static void writeSource(Iterable<DbFileSources.Line> lines, boolean showCommitsByLine, JsonWriter json) {
+  private void writeSource(Iterable<DbFileSources.Line> lines, boolean showCommitsByLine, JsonWriter json) {
     json.name("scm").beginArray();
 
     DbFileSources.Line previousLine = null;
@@ -121,8 +122,8 @@ public class ScmAction implements SourcesWsAction {
     for (DbFileSources.Line lineDoc : lines) {
       if (hasScm(lineDoc) && (!started || showCommitsByLine || !isSameCommit(previousLine, lineDoc))) {
         json.beginArray()
-          .value(lineDoc.getLine())
-          .value(lineDoc.getScmAuthor());
+          .value(lineDoc.getLine());
+        json.value(userSession.isLoggedIn() ? lineDoc.getScmAuthor() : "");
         json.value(lineDoc.hasScmDate() ? DateUtils.formatDateTime(new Date(lineDoc.getScmDate())) : null);
         json.value(lineDoc.getScmRevision());
         json.endArray();

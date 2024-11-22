@@ -20,6 +20,7 @@ dependencies {
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'com.squareup.okhttp3:okhttp'
     testImplementation 'junit:junit'
+    testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
 }

@@ -95,6 +95,8 @@ public class UpdateAzureAction implements AlmSettingsWsAction {
         almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, newKey);
       }
 
+      almSettingsSupport.checkPatOnUrlUpdate(almSettingDto, url, pat);
+
       if (isNotBlank(pat)) {
         almSettingDto.setPersonalAccessToken(pat);
       }

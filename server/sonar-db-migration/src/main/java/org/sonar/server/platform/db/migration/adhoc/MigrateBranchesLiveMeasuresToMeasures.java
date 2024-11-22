@@ -17,7 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.ce.db;
+package org.sonar.server.platform.db.migration.adhoc;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
+import org.sonar.db.Database;
+
+@ServerSide
+public class MigrateBranchesLiveMeasuresToMeasures extends AbstractMigrateLiveMeasuresToMeasures {
+
+  public MigrateBranchesLiveMeasuresToMeasures(Database db, System2 system2) {
+    super(db, system2, "project_branches", "branch");
+  }
+}

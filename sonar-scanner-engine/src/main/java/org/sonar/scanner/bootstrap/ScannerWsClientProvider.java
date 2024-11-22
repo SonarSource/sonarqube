@@ -40,7 +40,7 @@ public class ScannerWsClientProvider {
   public DefaultScannerWsClient provide(ScannerProperties scannerProps, EnvironmentInformation env, GlobalAnalysisMode globalMode,
     System2 system, AnalysisWarnings analysisWarnings) {
     String url = defaultIfBlank(scannerProps.property("sonar.host.url"), "http://localhost:9000");
-    HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
+    HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder().acceptGzip(true);
 
     String timeoutSec = defaultIfBlank(scannerProps.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
     String token = defaultIfBlank(system.envVariable("SONAR_TOKEN"), null);

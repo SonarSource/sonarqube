@@ -30,7 +30,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import java.util.zip.GZIPOutputStream;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.AfterClass;
@@ -82,14 +81,6 @@ public class DefaultHttpDownloaderIT {
             } catch (InterruptedException e) {
               throw new IllegalStateException(e);
             }
-          } else if (req.getPath().getPath().contains("/gzip/")) {
-            if (!"gzip".equals(req.getValue("Accept-Encoding"))) {
-              throw new IllegalStateException("Should accept gzip");
-            }
-            resp.setValue("Content-Encoding", "gzip");
-            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
-            gzipOutputStream.write("GZIP response".getBytes());
-            gzipOutputStream.close();
           } else if (req.getPath().getPath().contains("/redirected")) {
             resp.getPrintStream().append("redirected");
           } else {
@@ -123,7 +114,7 @@ public class DefaultHttpDownloaderIT {
   }
 
   @Test(timeout = 10000)
-  public void openStream_network_errors() throws IOException, URISyntaxException {
+  public void openStream_network_errors() {
     // non routable address
     String url = "http://10.255.255.1";
 
@@ -157,19 +148,13 @@ public class DefaultHttpDownloaderIT {
   }
 
   @Test
-  public void readGzipString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
-    assertThat(text).isEqualTo("GZIP response");
-  }
-
-  @Test
   public void readStringWithDefaultTimeout() throws URISyntaxException {
     String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
-  public void readStringWithTimeout() throws URISyntaxException {
+  public void readStringWithTimeout() {
     assertThatThrownBy(
       () -> new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig(), null, 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8))
       .isEqualToComparingFieldByField(new BaseMatcher<Exception>() {

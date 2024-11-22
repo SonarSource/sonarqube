@@ -91,7 +91,7 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_components_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getComponentsList()).hasSize(1);
     assertThat(result.getComponentsList().get(0).getKey()).isEqualTo(issueDto.getComponentKey());
@@ -99,7 +99,7 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_rules_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getRulesList()).hasSize(1);
     assertThat(result.getRulesList().get(0).getKey()).isEqualTo(issueDto.getRuleKey().toString());
@@ -107,7 +107,7 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_users_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getUsersList()).hasSize(1);
     assertThat(result.getUsers(0)).isSameAs(user);
@@ -115,7 +115,7 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_issue_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertIssueEqualsIssueDto(result.getIssue(), issueDto);
   }
@@ -145,7 +145,7 @@ public class SearchResponseFormatFormatOperationTest {
   public void formatOperation_should_not_add_issue_when_several_issue() {
     searchResponseData = new SearchResponseData(List.of(createIssue(), createIssue()));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue()).isEqualTo(Issue.getDefaultInstance());
   }
@@ -162,14 +162,14 @@ public class SearchResponseFormatFormatOperationTest {
   public void formatOperation_should_add_branch_on_issue() {
     String branchName = randomAlphanumeric(5);
     searchResponseData = newSearchResponseDataBranch(branchName);
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
     assertThat(result.getIssue().getBranch()).isEqualTo(branchName);
   }
 
   @Test
   public void formatOperation_should_add_pullrequest_on_issue() {
     searchResponseData = newSearchResponseDataPr("pr1");
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
     assertThat(result.getIssue().getPullRequest()).isEqualTo("pr1");
   }
 
@@ -177,7 +177,7 @@ public class SearchResponseFormatFormatOperationTest {
   public void formatOperation_should_add_project_on_issue() {
     issueDto.setProjectUuid(componentDto.uuid());
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getProject()).isEqualTo(componentDto.getKey());
   }
@@ -188,7 +188,7 @@ public class SearchResponseFormatFormatOperationTest {
     String expected = randomAlphanumeric(5);
     issueDto.setRuleKey(EXTERNAL_RULE_REPO_PREFIX + expected, randomAlphanumeric(5));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getExternalRuleEngine()).isEqualTo(expected);
   }
@@ -199,7 +199,7 @@ public class SearchResponseFormatFormatOperationTest {
     issueDto.setEffort(effort);
     String expected = durations.encode(Duration.create(effort));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getEffort()).isEqualTo(expected);
     assertThat(result.getIssue().getDebt()).isEqualTo(expected);
@@ -209,7 +209,7 @@ public class SearchResponseFormatFormatOperationTest {
   public void formatOperation_should_add_scope_test_on_issue_when_unit_test_file() {
     componentDto.setQualifier(UNIT_TEST_FILE);
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getScope()).isEqualTo(TEST.name());
   }
@@ -218,7 +218,7 @@ public class SearchResponseFormatFormatOperationTest {
   public void formatOperation_should_add_scope_main_on_issue_when_not_unit_test_file() {
     componentDto.setQualifier(randomAlphanumeric(5));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getScope()).isEqualTo(MAIN.name());
   }
@@ -228,7 +228,7 @@ public class SearchResponseFormatFormatOperationTest {
     Set<String> expectedActions = Set.of("actionA", "actionB");
     searchResponseData.addActions(issueDto.getKey(), expectedActions);
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getActions().getActionsList()).containsExactlyInAnyOrderElementsOf(expectedActions);
   }
@@ -238,7 +238,7 @@ public class SearchResponseFormatFormatOperationTest {
     Set<String> expectedTransitions = Set.of("transitionone", "transitiontwo");
     searchResponseData.addTransitions(issueDto.getKey(), createFakeTransitions(expectedTransitions));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getTransitions().getTransitionsList()).containsExactlyInAnyOrderElementsOf(expectedTransitions);
   }
@@ -254,7 +254,7 @@ public class SearchResponseFormatFormatOperationTest {
     IssueChangeDto issueChangeDto = newIssuechangeDto(issueDto);
     searchResponseData.setComments(List.of(issueChangeDto));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getComments().getCommentsList()).hasSize(1).extracting(Common.Comment::getKey).containsExactly(issueChangeDto.getKey());
   }
@@ -263,7 +263,7 @@ public class SearchResponseFormatFormatOperationTest {
   public void formatOperation_should_not_set_severity_for_security_hotspot_issue() {
     issueDto.setType(SECURITY_HOTSPOT);
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().hasSeverity()).isFalse();
   }

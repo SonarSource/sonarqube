@@ -28,9 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
 import org.sonar.db.audit.AuditDbTester;
@@ -62,11 +63,11 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
  */
 public class DbTester extends AbstractDbTester<TestDbImpl> {
 
-  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final System2 system2;
   private final AuditPersister auditPersister;
   private DbClient client;
-  private DbSession session = null;
+  ThreadLocal<DbSessionContext> session = new ThreadLocal<>();
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final ProjectLinkDbTester componentLinkTester;
@@ -250,22 +251,33 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   @Override
   protected void after() {
-    if (session != null) {
-      session.rollback();
-      session.close();
+    if (session.get() != null) {
+      session.get().dbSession.rollback();
+      session.get().dbSession.close();
+      session.remove();
     }
     db.stop();
   }
 
   public DbSession getSession() {
-    if (session == null) {
-      session = db.getMyBatis().openSession(false);
+    return getSession(false);
+  }
+
+  public DbSession getSession(boolean batched) {
+    if (session.get() == null) {
+      session.set(new DbSessionContext(db.getMyBatis().openSession(batched), batched));
     }
-    return session;
+    return session.get().dbSession;
+  }
+
+  public void forceCommit() {
+    getSession().commit(true);
   }
 
   public void commit() {
-    getSession().commit();
+    if(session.get() != null && !session.get().isBatched) {
+      getSession().commit();
+    }
   }
 
   public DbClient getDbClient() {
@@ -311,6 +323,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return ((HikariDataSource) db.getDatabase().getDataSource()).getJdbcUrl();
   }
 
+  private record DbSessionContext(@NotNull DbSession dbSession, boolean isBatched){}
+
   private static class DbSessionConnectionSupplier implements ConnectionSupplier {
     private final DbSession dbSession;
 
@@ -335,8 +349,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
     public DbTesterMyBatisConfExtension(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
       this.mapperClasses = Stream.concat(
-        Stream.of(firstMapperClass),
-        Arrays.stream(otherMapperClasses))
+          Stream.of(firstMapperClass),
+          Arrays.stream(otherMapperClasses))
         .sorted(Comparator.comparing(Class::getName))
         .toArray(Class<?>[]::new);
     }

@@ -20,6 +20,7 @@
 package org.sonar.server.almsettings.ws;
 
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,6 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmSettings;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.web.UserRole.ADMIN;
 
 @ServerSide
@@ -111,6 +113,20 @@ public class AlmSettingsSupport {
         return AlmSettings.Alm.gitlab;
       default:
         throw new IllegalStateException(format("Unknown DevOps Platform '%s'", alm.name()));
+    }
+  }
+
+  public void checkPrivateKeyOnUrlUpdate(AlmSettingDto almSettingDto, String url, @Nullable String privateKey) {
+    checkCredentialArtifactOnUrlUpdate(url, almSettingDto, privateKey, "Please provide the Private Key to update the URL.");
+  }
+
+  public void checkPatOnUrlUpdate(AlmSettingDto almSettingDto, String url, @Nullable String pat) {
+    checkCredentialArtifactOnUrlUpdate(url, almSettingDto, pat, "Please provide the Personal Access Token to update the URL.");
+  }
+
+  private static void checkCredentialArtifactOnUrlUpdate(String url, AlmSettingDto almSettingDto, @Nullable String credentialArtifact, String errorMessage) {
+    if (!url.equals(almSettingDto.getUrl()) && isEmpty(credentialArtifact)) {
+      throw new IllegalArgumentException(errorMessage);
     }
   }
 }

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
+import Link from '../common/Link';
 import { Button } from '../controls/buttons';
 import SystemUpgradeForm from './SystemUpgradeForm';
 import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
@@ -48,6 +49,19 @@ export default class SystemUpgradeButton extends React.PureComponent<Props, Stat
   render() {
     const { latestLTS, systemUpgrades, updateUseCase } = this.props;
     const { openSystemUpgradeForm } = this.state;
+
+    if (systemUpgrades.length === 0) {
+      return (
+        <Link
+          className="spacer-left"
+          to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+          target="_blank"
+        >
+          {translate('learn_more')}
+        </Link>
+      );
+    }
+
     return (
       <>
         <Button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>

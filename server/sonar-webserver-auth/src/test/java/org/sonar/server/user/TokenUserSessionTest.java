@@ -19,22 +19,36 @@
  */
 package org.sonar.server.user;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.List;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.SCAN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
+import static org.sonar.db.user.TokenType.PROJECT_BADGE_TOKEN;
 import static org.sonar.db.user.TokenType.USER_TOKEN;
 
+@RunWith(DataProviderRunner.class)
 public class TokenUserSessionTest {
 
   @Rule
@@ -82,7 +96,7 @@ public class TokenUserSessionTest {
     db.users().insertProjectPermissionOnUser(user, SCAN, project1);
     db.users().insertProjectPermissionOnUser(user, SCAN, project2);
 
-    TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
+    TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user, project1);
 
     assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
     assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
@@ -97,7 +111,7 @@ public class TokenUserSessionTest {
 
     db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
 
-    TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
+    TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user, project1);
 
     assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
     assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
@@ -125,7 +139,7 @@ public class TokenUserSessionTest {
 
     db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
 
-    TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
+    TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user, project1);
 
     assertThat(userSession.hasPermission(GlobalPermission.SCAN)).isFalse();
   }
@@ -178,6 +192,207 @@ public class TokenUserSessionTest {
     assertThat(userSession.hasPermission(GlobalPermission.ADMINISTER)).isFalse();
   }
 
+  @Test
+  public void keepAuthorizedEntities_shouldFilterProjects_whenGlobalAnalysisToken() {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto privateProjectComponent = db.components().insertPrivateProject();
+    ProjectDto publicProject = db.components().insertPublicProjectDto();
+    ProjectDto privateProject = toProjectDto(privateProjectComponent, 0L);
+    ProjectDto privateProjectWithoutAccess = db.components().insertPrivateProjectDto();
+
+    db.users().insertProjectPermissionOnUser(user, USER, privateProjectComponent);
+
+    Set<ProjectDto> projectDto = Set.of(publicProject, privateProject);
+    List<ProjectDto> projectDtos = mockGlobalAnalysisTokenUserSession(user).doKeepAuthorizedProjects(USER, projectDto);
+
+    assertThat(projectDtos).containsExactlyInAnyOrder(privateProject, publicProject)
+      .doesNotContain(privateProjectWithoutAccess);
+  }
+
+  @Test
+  @UseDataProvider("validPermissions")
+  public void keepAuthorizedEntities_shouldFilterPrivateProjects_whenProjectAnalysisToken(String permission) {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto privateProjectComponent = db.components().insertPrivateProject();
+    ProjectDto publicProject = db.components().insertPublicProjectDto();
+    ProjectDto privateProject = toProjectDto(privateProjectComponent, 0L);
+    ProjectDto privateProjectWithoutAccess = db.components().insertPrivateProjectDto();
+
+    db.users().insertProjectPermissionOnUser(user, permission, privateProjectComponent);
+
+    Set<ProjectDto> projectDto = Set.of(publicProject, privateProject);
+    List<ProjectDto> projectDtos = mockProjectAnalysisTokenUserSession(user, privateProjectComponent).keepAuthorizedProjects(permission, projectDto);
+
+    assertThat(projectDtos).containsExactly(privateProject)
+      .doesNotContain(privateProjectWithoutAccess);
+  }
+
+  @Test
+  public void keepAuthorizedEntities_shouldFilterPrivateProjects_whenUserToken() {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto privateProjectComponent = db.components().insertPrivateProject();
+    ProjectDto publicProject = db.components().insertPublicProjectDto();
+    ProjectDto privateProject = toProjectDto(privateProjectComponent, 0L);
+    ProjectDto privateProjectWithoutAccess = db.components().insertPrivateProjectDto();
+
+    db.users().insertProjectPermissionOnUser(user, USER, privateProjectComponent);
+
+    Set<ProjectDto> projectDto = Set.of(publicProject, privateProject);
+    List<ProjectDto> projectDtos = mockTokenUserSession(user).keepAuthorizedProjects(USER, projectDto);
+
+    assertThat(projectDtos).containsExactlyInAnyOrder(privateProject, publicProject)
+      .doesNotContain(privateProjectWithoutAccess);
+  }
+
+  @Test
+  public void keepAuthorizedEntities_shouldFilterPrivateProjects_returnEmptyListForPermissionOtherThanScanOrBrowse() {
+    UserDto user = db.users().insertUser();
+
+    ProjectDto publicProject = db.components().insertPublicProjectDto();
+    ComponentDto privateProjectComponent = db.components().insertPrivateProject();
+    ProjectDto privateProject = toProjectDto(privateProjectComponent, 0L);
+
+    db.users().insertProjectPermissionOnUser(user, CODEVIEWER, privateProjectComponent);
+
+    Set<ProjectDto> projectDto = Set.of(publicProject, privateProject);
+    List<ProjectDto> projectDtos = mockProjectAnalysisTokenUserSession(user, privateProjectComponent).keepAuthorizedProjects(CODEVIEWER, projectDto);
+
+    assertThat(projectDtos).isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedEntities_shouldFailForUnsupportedTokenSession() {
+    UserDto user = db.users().insertUser();
+
+    ProjectDto publicProject = db.components().insertPublicProjectDto();
+    ComponentDto privateProjectComponent = db.components().insertPrivateProject();
+    ProjectDto privateProject = toProjectDto(privateProjectComponent, 0L);
+
+    db.users().insertProjectPermissionOnUser(user, USER, privateProjectComponent);
+
+    Set<ProjectDto> projectDto = Set.of(publicProject, privateProject);
+
+    TokenUserSession tokenUserSession = mockProjectBadgeTokenSession(user);
+    assertThatThrownBy(() -> tokenUserSession.keepAuthorizedProjects(USER, projectDto))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported token type PROJECT_BADGE_TOKEN");
+  }
+
+  @Test
+  public void keepAuthorizedComponents_shouldFilterProjects_whenGlobalAnalysisToken() {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProjectWithoutAccess = db.components().insertPrivateProject();
+
+    db.users().insertProjectPermissionOnUser(user, USER, privateProject);
+
+    Set<ComponentDto> componentDtos = Set.of(publicProject, privateProject);
+    List<ComponentDto> authorizedComponents = mockGlobalAnalysisTokenUserSession(user).keepAuthorizedComponents(USER, componentDtos);
+
+    assertThat(authorizedComponents).containsExactlyInAnyOrder(privateProject, publicProject)
+      .doesNotContain(privateProjectWithoutAccess);
+  }
+
+  @Test
+  @UseDataProvider("validPermissions")
+  public void keepAuthorizedComponents_shouldFilterPrivateProjects_whenProjectAnalysisToken(String permission) {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProjectWithoutAccess = db.components().insertPrivateProject();
+
+    db.users().insertProjectPermissionOnUser(user, permission, privateProject);
+
+    Set<ComponentDto> componentDtos = Set.of(publicProject, privateProject);
+    List<ComponentDto> authorizedComponents = mockProjectAnalysisTokenUserSession(user, privateProject)
+      .keepAuthorizedComponents(permission, componentDtos);
+
+    assertThat(authorizedComponents).containsExactly(privateProject)
+      .doesNotContain(privateProjectWithoutAccess, publicProject);
+  }
+
+  @Test
+  public void keepAuthorizedComponents_shouldFilterPrivateProjects_whenUserToken() {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProjectWithoutAccess = db.components().insertPrivateProject();
+
+    db.users().insertProjectPermissionOnUser(user, USER, privateProject);
+
+    Set<ComponentDto> componentDtos = Set.of(publicProject, privateProject);
+    List<ComponentDto> authorizedComponents = mockTokenUserSession(user).keepAuthorizedComponents(USER, componentDtos);
+
+    assertThat(authorizedComponents).containsExactlyInAnyOrder(privateProject, publicProject)
+      .doesNotContain(privateProjectWithoutAccess);
+  }
+
+  @Test
+  public void keepAuthorizedComponents_returnEmptyListForPermissionOtherThanScanOrBrowse() {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+
+    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, privateProject);
+
+    Set<ComponentDto> componentDtos = Set.of(publicProject, privateProject);
+    List<ComponentDto> authorizedComponents = mockProjectAnalysisTokenUserSession(user, privateProject)
+      .keepAuthorizedComponents(UserRole.CODEVIEWER, componentDtos);
+
+    assertThat(authorizedComponents).isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedComponents_shouldFailForUnsupportedTokenSession() {
+    UserDto user = db.users().insertUser();
+
+    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+
+    db.users().insertProjectPermissionOnUser(user, USER, privateProject);
+
+    Set<ComponentDto> componentDtos = Set.of(publicProject, privateProject);
+
+    TokenUserSession tokenUserSession = mockProjectBadgeTokenSession(user);
+    assertThatThrownBy(() -> tokenUserSession.keepAuthorizedComponents(USER, componentDtos))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported token type PROJECT_BADGE_TOKEN");
+  }
+
+  @DataProvider
+  public static Object[][] validPermissions() {
+    return new Object[][] {
+      {USER},
+      {SCAN},
+    };
+  }
+
+  @Test
+  public void getType_shouldReturnValidTypeOfToken() {
+    UserDto user = db.users().insertUser();
+    ComponentDto privateComponent = db.components().insertPrivateProject();
+
+    TokenUserSession projectBadgeTokenSession = mockProjectBadgeTokenSession(user);
+    assertThat(projectBadgeTokenSession.getTokenType()).isEqualTo(PROJECT_BADGE_TOKEN);
+
+    TokenUserSession tokenUserSession = mockTokenUserSession(user);
+    assertThat(tokenUserSession.getTokenType()).isEqualTo(USER_TOKEN);
+
+    TokenUserSession projectAnalysisTokenUserSession = mockProjectAnalysisTokenUserSession(user, privateComponent);
+    assertThat(projectAnalysisTokenUserSession.getTokenType()).isEqualTo(PROJECT_ANALYSIS_TOKEN);
+
+    TokenUserSession globalAnalysisTokenUserSession = mockGlobalAnalysisTokenUserSession(user);
+    assertThat(globalAnalysisTokenUserSession.getTokenType()).isEqualTo(GLOBAL_ANALYSIS_TOKEN);
+  }
+
   private TokenUserSession mockTokenUserSession(UserDto userDto) {
     return new TokenUserSession(dbClient, userDto, mockUserTokenDto());
   }
@@ -188,6 +403,10 @@ public class TokenUserSessionTest {
 
   private TokenUserSession mockGlobalAnalysisTokenUserSession(UserDto userDto) {
     return new TokenUserSession(dbClient, userDto, mockGlobalAnalysisTokenDto());
+  }
+
+  private TokenUserSession mockProjectBadgeTokenSession(UserDto userDto) {
+    return new TokenUserSession(dbClient, userDto, mockBadgeTokenDto());
   }
 
   private static UserTokenDto mockUserTokenDto() {
@@ -213,6 +432,14 @@ public class TokenUserSessionTest {
     UserTokenDto userTokenDto = new UserTokenDto();
     userTokenDto.setType(GLOBAL_ANALYSIS_TOKEN.name());
     userTokenDto.setName("Global Analysis Token");
+    userTokenDto.setUserUuid("userUid");
+    return userTokenDto;
+  }
+
+  private static UserTokenDto mockBadgeTokenDto() {
+    UserTokenDto userTokenDto = new UserTokenDto();
+    userTokenDto.setType(PROJECT_BADGE_TOKEN.name());
+    userTokenDto.setName("Badge token");
     userTokenDto.setUserUuid("userUid");
     return userTokenDto;
   }

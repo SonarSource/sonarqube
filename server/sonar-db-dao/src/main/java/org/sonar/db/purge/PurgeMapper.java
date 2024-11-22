@@ -40,6 +40,8 @@ public interface PurgeMapper {
 
   Set<String> selectDisabledComponentsWithLiveMeasures(@Param("branchUuid") String branchUuid);
 
+  Set<String> selectDisabledComponentsWithJsonMeasures(@Param("branchUuid") String branchUuid);
+
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteAnalysisProperties(@Param("analysisUuids") List<String> analysisUuids);
@@ -165,7 +167,11 @@ public interface PurgeMapper {
 
   void deleteLiveMeasuresByProjectUuid(@Param("projectUuid") String projectUuid);
 
+  void deleteJsonMeasuresByBranchUuid(@Param("branchUuid") String branchUuid);
+
   void deleteLiveMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
+
+  void deleteJsonMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
   void deleteNewCodePeriodsByRootUuid(String rootUuid);
 

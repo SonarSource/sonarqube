@@ -141,7 +141,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+  public final List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
     return doKeepAuthorizedProjects(permission, projects);
   }
 

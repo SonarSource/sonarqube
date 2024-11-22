@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertiesDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,7 +51,7 @@ public class PurgeDaoWithAuditTest {
 
   private final DbSession dbSession = db.getSession();
   private final AuditPersister auditPersister = mock(AuditPersister.class);
-  private final PurgeDao underTestWithPersister = new PurgeDao(system2, auditPersister);
+  private final PurgeDao underTestWithPersister = new PurgeDao(system2, auditPersister, mock(PropertiesDao.class));
 
   @Test
   public void delete_project_persist_audit_with_uuid_and_name() {

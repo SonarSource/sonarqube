@@ -72,6 +72,7 @@ public class OkHttpClientBuilder {
   private long readTimeoutMs = -1;
   private SSLSocketFactory sslSocketFactory = null;
   private X509TrustManager sslTrustManager = null;
+  private boolean acceptGzip = false;
 
   /**
    * Optional User-Agent. If set, then all the requests sent by the
@@ -115,6 +116,14 @@ public class OkHttpClientBuilder {
    */
   public OkHttpClientBuilder setProxyLogin(@Nullable String s) {
     this.proxyLogin = s;
+    return this;
+  }
+
+  /**
+   * This flag decides whether the client should accept GZIP encoding. Default is false.
+   */
+  public OkHttpClientBuilder acceptGzip(boolean acceptGzip) {
+    this.acceptGzip = acceptGzip;
     return this;
   }
 
@@ -179,6 +188,9 @@ public class OkHttpClientBuilder {
       builder.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS);
     }
     builder.addNetworkInterceptor(this::addHeaders);
+    if(!acceptGzip) {
+      builder.addNetworkInterceptor(new GzipRejectorInterceptor());
+    }
     if (proxyLogin != null) {
       builder.proxyAuthenticator((route, response) -> {
         if (response.request().header(PROXY_AUTHORIZATION) != null) {

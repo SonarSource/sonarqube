@@ -52,7 +52,7 @@ public class DatabaseServerCompatibilityTest {
   }
 
   @Test
-  public void fail_if_requires_firstly_to_upgrade_to_lts() {
+  public void fail_if_requires_firstly_to_upgrade_to_lta() {
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(12L));
@@ -60,7 +60,7 @@ public class DatabaseServerCompatibilityTest {
     var compatibility = new DatabaseServerCompatibility(version, config);
     assertThatThrownBy(compatibility::start)
       .isInstanceOf(MessageException.class)
-      .hasMessage("Current version is too old. Please upgrade to Long Term Support version firstly.");
+      .hasMessage("The version of SonarQube is too old. Please upgrade to the Long-Term Active version first.");
   }
 
   @Test

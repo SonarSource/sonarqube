@@ -57,6 +57,7 @@ import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
@@ -69,6 +70,12 @@ public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
   private static final int VALUE_MAXIMUM_LENGTH = 4000;
+  static final Map<String, String> KEY_CONSTRAINTS = Map.of(
+    "sonar.auth.gitlab.url", "sonar.auth.gitlab.secret.secured",
+    "sonar.auth.github.webUrl", "sonar.auth.github.clientSecret.secured",
+    "sonar.auth.github.apiUrl", "sonar.auth.github.clientSecret.secured",
+    "email.smtp_host.secured", "email.smtp_password.secured"
+  );
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
@@ -136,10 +143,25 @@ public class SetAction implements SettingsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SetRequest wsRequest = toWsRequest(request);
+      throwIfUnmatchedConstraintOnGlobalKey(wsRequest.getKey());
       SettingsWsSupport.validateKey(wsRequest.getKey());
       doHandle(dbSession, wsRequest);
     }
     response.noContent();
+  }
+
+  private void throwIfUnmatchedConstraintOnGlobalKey(String key) {
+    if (KEY_CONSTRAINTS.containsKey(key)) {
+      String keyConstrained = KEY_CONSTRAINTS.get(key);
+      checkRequest(!isGlobalKeySet(keyConstrained), format("Setting '%s' must be empty to set '%s'", keyConstrained, key));
+    }
+  }
+
+  private boolean isGlobalKeySet(String keyConstrained) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PropertyDto propertyDto = dbClient.propertiesDao().selectGlobalProperty(dbSession, keyConstrained);
+      return propertyDto != null && !StringUtils.isBlank(propertyDto.getValue());
+    }
   }
 
   private void doHandle(DbSession dbSession, SetRequest request) {

@@ -24,6 +24,7 @@
     "POL"
   ],
   "version": "6.2",
+  "versionEOL": "2025-01-01",
   "productionDatabase": true,
   "canAdmin": false,
   "standalone": true,

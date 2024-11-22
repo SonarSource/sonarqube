@@ -28,7 +28,8 @@ dependencies {
 import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
   filter ReplaceTokens, tokens: [
-          'project.version': project.version
+          'project.version': project.version,
+          'versionEOL': project.properties["versionEOL"]
   ]
 }
 

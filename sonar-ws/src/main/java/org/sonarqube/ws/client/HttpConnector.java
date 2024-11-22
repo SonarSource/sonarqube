@@ -86,6 +86,7 @@ public class HttpConnector implements WsConnector {
     okHttpClientBuilder.setReadTimeoutMs(builder.readTimeoutMs);
     okHttpClientBuilder.setSSLSocketFactory(builder.sslSocketFactory);
     okHttpClientBuilder.setTrustManager(builder.sslTrustManager);
+    okHttpClientBuilder.acceptGzip(builder.acceptGzip);
     this.okHttpClient = okHttpClientBuilder.build();
     this.noRedirectOkHttpClient = newClientWithoutRedirect(this.okHttpClient);
   }
@@ -264,6 +265,7 @@ public class HttpConnector implements WsConnector {
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
     private SSLSocketFactory sslSocketFactory = null;
     private X509TrustManager sslTrustManager = null;
+    private boolean acceptGzip = false;
 
     /**
      * Private since 5.5.
@@ -304,6 +306,14 @@ public class HttpConnector implements WsConnector {
     public Builder token(@Nullable String token) {
       this.login = token;
       this.password = null;
+      return this;
+    }
+
+    /**
+     * This flag decides whether the client should accept GZIP encoding. Default is false.
+     */
+    public Builder acceptGzip(boolean acceptGzip) {
+      this.acceptGzip = acceptGzip;
       return this;
     }
 

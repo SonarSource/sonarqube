@@ -17,29 +17,29 @@ exports[`should display the sq version 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      footer.version_x.6.4-SNAPSHOT
+      <AppVersionStatus />
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://www.gnu.org/licenses/lgpl-3.0.txt"
+      <ForwardRef(Link)
         rel="noopener noreferrer"
         target="_blank"
+        to="https://www.gnu.org/licenses/lgpl-3.0.txt"
       >
         footer.license
-      </a>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://community.sonarsource.com/c/help/sq"
+      <ForwardRef(Link)
         rel="noopener noreferrer"
         target="_blank"
+        to="https://community.sonarsource.com/c/help/sq"
       >
         footer.community
-      </a>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
@@ -84,24 +84,24 @@ exports[`should not render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://www.gnu.org/licenses/lgpl-3.0.txt"
+      <ForwardRef(Link)
         rel="noopener noreferrer"
         target="_blank"
+        to="https://www.gnu.org/licenses/lgpl-3.0.txt"
       >
         footer.license
-      </a>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://community.sonarsource.com/c/help/sq"
+      <ForwardRef(Link)
         rel="noopener noreferrer"
         target="_blank"
+        to="https://community.sonarsource.com/c/help/sq"
       >
         footer.community
-      </a>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
@@ -142,29 +142,29 @@ exports[`should render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      footer.version_x.1.0
+      <AppVersionStatus />
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://www.gnu.org/licenses/lgpl-3.0.txt"
+      <ForwardRef(Link)
         rel="noopener noreferrer"
         target="_blank"
+        to="https://www.gnu.org/licenses/lgpl-3.0.txt"
       >
         footer.license
-      </a>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://community.sonarsource.com/c/help/sq"
+      <ForwardRef(Link)
         rel="noopener noreferrer"
         target="_blank"
+        to="https://community.sonarsource.com/c/help/sq"
       >
         footer.community
-      </a>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"

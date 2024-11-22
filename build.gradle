@@ -185,7 +185,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '3.21.12'
+    protobufVersion = '3.25.5'
   }
 
   sonar {
@@ -200,7 +200,7 @@ subprojects {
       // bundled plugin list -- keep it alphabetically ordered
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.11.0.4030'
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.2.1.7644'
-      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.41.1.62265'
+      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.41.2.69583'
       dependency 'com.sonarsource.dbd:sonar-dbd-plugin:1.10.0.3046'
       dependency 'com.sonarsource.dbd:sonar-dbd-java-frontend-plugin:1.10.0.3046'
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:1.10.0.3046'
@@ -277,7 +277,7 @@ subprojects {
       }
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
       dependency 'com.h2database:h2:2.1.214'
-      dependencySet(group: 'com.hazelcast', version: '5.2.1') {
+      dependencySet(group: 'com.hazelcast', version: '5.2.5') {
         entry 'hazelcast'
       }
       // Documentation must be updated if mssql-jdbc is updated: https://github.com/SonarSource/sonarqube/commit/03e4773ebf6cba854cdcf57a600095f65f4f53e7
@@ -325,7 +325,7 @@ subprojects {
         entry 'log4j-api'
         entry 'log4j-to-slf4j'
       }
-      dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.85') {
+      dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.95') {
         entry 'tomcat-embed-core'
         entry('tomcat-embed-jasper') {
           exclude 'org.eclipse.jdt.core.compiler:ecj'

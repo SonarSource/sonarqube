@@ -84,7 +84,7 @@ public class GithubAppSecurityImplTest {
     assertThatThrownBy(() -> underTest.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey()))
       .isInstanceOf(IllegalArgumentException.class)
       .hasRootCauseInstanceOf(IOException.class)
-      .hasRootCauseMessage("-----END RSA PRIVATE KEY not found");
+      .hasRootCauseMessage("-----END RSA PRIVATE KEY----- not found");
   }
 
   @Test

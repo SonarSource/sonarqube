@@ -21,12 +21,13 @@ import * as React from 'react';
 import DocLink from '../../components/common/DocLink';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import Link from '../../components/common/Link';
+import AppVersionStatus from '../../components/shared/AppVersionStatus';
 import { Alert } from '../../components/ui/Alert';
 import { getEdition } from '../../helpers/editions';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
-import withAppStateContext from './app-state/withAppStateContext';
 import GlobalFooterBranding from './GlobalFooterBranding';
+import withAppStateContext from './app-state/withAppStateContext';
 
 export interface GlobalFooterProps {
   hideLoggedInInfo?: boolean;
@@ -55,26 +56,26 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
         )}
         {!hideLoggedInInfo && appState?.version && (
           <li className="page-footer-menu-item">
-            {translateWithParameters('footer.version_x', appState.version)}
+            <AppVersionStatus />
           </li>
         )}
         <li className="page-footer-menu-item">
-          <a
-            href="https://www.gnu.org/licenses/lgpl-3.0.txt"
+          <Link
+            to="https://www.gnu.org/licenses/lgpl-3.0.txt"
             rel="noopener noreferrer"
             target="_blank"
           >
             {translate('footer.license')}
-          </a>
+          </Link>
         </li>
         <li className="page-footer-menu-item">
-          <a
-            href="https://community.sonarsource.com/c/help/sq"
+          <Link
+            to="https://community.sonarsource.com/c/help/sq"
             rel="noopener noreferrer"
             target="_blank"
           >
             {translate('footer.community')}
-          </a>
+          </Link>
         </li>
         <li className="page-footer-menu-item">
           <DocLink to="/">{translate('footer.documentation')}</DocLink>

@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.sonar.db.component.ProjectLinkTesting.newCustomLinkDto;
@@ -31,12 +30,10 @@ import static org.sonar.db.component.ProjectLinkTesting.newProvidedLinkDto;
 public class ProjectLinkDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public ProjectLinkDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   @SafeVarargs
@@ -52,7 +49,7 @@ public class ProjectLinkDbTester {
   @SafeVarargs
   private final ProjectLinkDto insertLink(ComponentDto project, ProjectLinkDto componentLink, Consumer<ProjectLinkDto>... dtoPopulators) {
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(componentLink));
-    dbClient.projectLinkDao().insert(dbSession, componentLink.setProjectUuid(project.uuid()));
+    dbClient.projectLinkDao().insert(db.getSession(), componentLink.setProjectUuid(project.uuid()));
     db.commit();
     return componentLink;
   }

@@ -19,10 +19,13 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.mockito.MockedStatic;
+import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
@@ -50,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -185,6 +189,15 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void execute_shouldReturnVersionEol() {
+    init();
+    try (MockedStatic<MetadataLoader> mocked = mockStatic(MetadataLoader.class)) {
+      mocked.when(() -> MetadataLoader.loadSqVersionEol(any())).thenReturn("2025-01-01");
+      assertThat(call()).contains("\"versionEOL\":\"2025-01-01\"");
+    }
+  }
+
+  @Test
   public void functional_version_when_4_digits() {
     init();
     when(server.getVersion()).thenReturn("6.3.1.1234");
@@ -283,8 +296,14 @@ public class GlobalActionTest {
     when(nodeInformation.isStandalone()).thenReturn(true);
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
-    String result = call();
-    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+
+    try (MockedStatic<MetadataLoader> mocked = mockStatic(MetadataLoader.class)) {
+      mocked.when(() -> MetadataLoader.loadSqVersionEol(any())).thenReturn("2025-01-01");
+
+      String result = call();
+
+      assertJson(result).isSimilarTo(Objects.requireNonNull(ws.getDef().responseExampleAsString()));
+    }
   }
 
   @Test

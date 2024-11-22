@@ -78,4 +78,17 @@ public class MetadataLoaderTest {
       .hasMessageContaining("Can not load /sonar-api-version.txt from classpath");
   }
 
+  @Test
+  public void loadSqVersionEol_shouldLoadCorrectEol() {
+    String eol = MetadataLoader.loadSqVersionEol(System2.INSTANCE);
+    assertThat(eol).isNotNull();
+  }
+
+  @Test
+  public void loadSqVersionEol_whenFileNotFound_shouldThrowException() throws MalformedURLException {
+    when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
+    assertThatThrownBy(() -> MetadataLoader.loadSqVersionEol(system))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Can not load /sq-version-eol.txt from classpath");
+  }
 }

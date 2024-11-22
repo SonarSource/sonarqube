@@ -916,6 +916,7 @@ public class SearchActionTest {
 
   @Test
   public void search_by_author() {
+    userSession.logIn();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     RuleDto rule = db.rules().insertIssueRule();
@@ -944,6 +945,27 @@ public class SearchActionTest {
       .setMultiParam("author", singletonList("unknown"))
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
       .isEmpty();
+  }
+
+  @Test
+  public void hide_author_if_not_logged_in() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("leia"));
+    db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("luke"));
+    db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("han, solo"));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setMultiParam("author", asList("leia", "han, solo"))
+      .setParam(FACETS, "author")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getAuthor)
+      .containsExactlyInAnyOrder("", "");
+   assertThat(response.getFacets().getFacetsList()).isEmpty();
   }
 
   @Test

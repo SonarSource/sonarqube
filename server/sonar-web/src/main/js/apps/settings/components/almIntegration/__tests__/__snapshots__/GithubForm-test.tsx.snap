@@ -26,6 +26,9 @@ exports[`should render correctly 1`] = `
         <em>
           https://api.github.com/
         </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.github.private_key_warning
       </React.Fragment>
     }
     id="url.github"
@@ -129,6 +132,9 @@ exports[`should render correctly 2`] = `
         <em>
           https://api.github.com/
         </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.github.private_key_warning
       </React.Fragment>
     }
     id="url.github"

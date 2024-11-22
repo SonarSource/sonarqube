@@ -248,4 +248,53 @@
     from dual
   </select>
 
+  <update id="updateMeasuresMigrated">
+    update project_branches
+    set
+    measures_migrated = #{measuresMigrated, jdbcType=BOOLEAN},
+    updated_at = #{now, jdbcType=BIGINT}
+    where
+    uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+
+  <select id="isMeasuresMigrated" resultType="boolean">
+    select
+    pb.measures_migrated
+    from project_branches pb
+    where
+    pb.uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
+
+    <select id="selectUuidsWithMeasuresMigratedFalse" resultType="java.lang.String" parameterType="int">
+    SELECT pb.uuid
+    FROM project_branches pb
+    WHERE pb.measures_migrated = ${_false}
+    ORDER BY pb.uuid ASC
+    LIMIT #{limit}
+  </select>
+
+  <select id="selectUuidsWithMeasuresMigratedFalse" resultType="java.lang.String" parameterType="int" databaseId="oracle">
+    SELECT * FROM (
+      SELECT pb.uuid
+      FROM project_branches pb
+      WHERE pb.measures_migrated = ${_false}
+      ORDER BY pb.uuid ASC
+    ) WHERE rownum &lt;= #{limit}
+  </select>
+
+  <select id="selectUuidsWithMeasuresMigratedFalse" resultType="java.lang.String" parameterType="int" databaseId="mssql">
+    SELECT top(#{limit, jdbcType=INTEGER}) pb.uuid
+    FROM project_branches pb
+    WHERE pb.measures_migrated = ${_false}
+    ORDER BY pb.uuid ASC
+  </select>
+
+  <select id="countByMeasuresMigratedFalse" resultType="int">
+    select
+    count(pb.uuid)
+    from project_branches pb
+    where
+    pb.measures_migrated = ${_false}
+  </select>
+
 </mapper>

@@ -136,6 +136,23 @@ public class BranchDao implements Dao {
     return mapper(session).countByNeedIssueSync(needIssueSync);
   }
 
+  public List<String> selectUuidsWithMeasuresMigratedFalse(DbSession session, int limit) {
+    return mapper(session).selectUuidsWithMeasuresMigratedFalse(limit);
+  }
+
+  public int countByMeasuresMigratedFalse(DbSession session) {
+    return mapper(session).countByMeasuresMigratedFalse();
+  }
+
+  public long updateMeasuresMigrated(DbSession dbSession, String branchUuid, boolean measuresMigrated) {
+    long now = system2.now();
+    return mapper(dbSession).updateMeasuresMigrated(branchUuid, measuresMigrated, now);
+  }
+
+  public boolean isMeasuresMigrated(DbSession dbSession, String uuid) {
+    return mapper(dbSession).isMeasuresMigrated(uuid);
+  }
+
   public int countAll(DbSession session) {
     return mapper(session).countAll();
   }
@@ -177,4 +194,5 @@ public class BranchDao implements Dao {
     }
     return false;
   }
+
 }

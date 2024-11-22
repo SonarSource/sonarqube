@@ -537,4 +537,57 @@
     WHERE
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
+
+  <update id="updateMeasuresMigrated">
+    update portfolios
+    set
+    measures_migrated = #{measuresMigrated, jdbcType=BOOLEAN},
+    updated_at = #{now, jdbcType=BIGINT}
+    where
+    root_uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectUuidsWithMeasuresMigratedFalse" resultType="java.lang.String" parameterType="int">
+    SELECT p.uuid
+    FROM portfolios p
+    WHERE p.measures_migrated = ${_false}
+    AND p.parent_uuid is null
+    ORDER BY p.uuid ASC
+    LIMIT #{limit}
+  </select>
+
+  <select id="selectUuidsWithMeasuresMigratedFalse" resultType="java.lang.String" parameterType="int" databaseId="oracle">
+    SELECT * FROM (
+      SELECT p.uuid
+      FROM portfolios p
+      WHERE p.measures_migrated = ${_false}
+      AND p.parent_uuid is null
+      ORDER BY p.uuid ASC
+    ) WHERE rownum &lt;= #{limit}
+  </select>
+
+  <select id="selectUuidsWithMeasuresMigratedFalse" resultType="java.lang.String" parameterType="int" databaseId="mssql">
+    SELECT top(#{limit, jdbcType=INTEGER}) p.uuid
+    FROM portfolios p
+    WHERE p.measures_migrated = ${_false}
+    AND p.parent_uuid is null
+    ORDER BY p.uuid ASC
+  </select>
+
+  <select id="countByMeasuresMigratedFalse" resultType="int">
+    select
+    count(p.uuid)
+    from portfolios p
+    where
+    p.measures_migrated = ${_false}
+    and p.parent_uuid is null
+  </select>
+
+  <select id="isMeasuresMigrated" resultType="boolean">
+    select
+    p.measures_migrated
+    from portfolios p
+    where
+    p.uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
 </mapper>

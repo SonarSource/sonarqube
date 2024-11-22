@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
@@ -35,11 +34,11 @@ public class NotificationDbTester {
   private static final String PROP_NOTIFICATION_PREFIX = "notification";
 
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public NotificationDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
   public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ComponentDto component) {
@@ -47,7 +46,7 @@ public class NotificationDbTester {
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
       .setComponentUuid(component == null ? null : component.uuid())
       .setUserUuid(userUuid)
-      .build(), dbSession).stream()
+      .build(), db.getSession()).stream()
       .filter(prop -> component == null ? prop.getComponentUuid() == null : prop.getComponentUuid() != null)
       .collect(MoreCollectors.toList());
     assertThat(result).hasSize(1);
@@ -59,7 +58,7 @@ public class NotificationDbTester {
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
       .setComponentUuid(component == null ? null : component.uuid())
       .setUserUuid(userUuid)
-      .build(), dbSession);
+      .build(), db.getSession());
     assertThat(result).isEmpty();
   }
 }

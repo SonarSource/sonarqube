@@ -97,7 +97,7 @@ public class AssignAction implements IssuesWsAction {
     String assignee = getAssignee(request);
     String key = request.mandatoryParam(PARAM_ISSUE);
     SearchResponseData preloadedResponseData = assign(key, assignee);
-    responseWriter.write(key, preloadedResponseData, request, response);
+    responseWriter.write(key, preloadedResponseData, request, response, true);
   }
 
   private SearchResponseData assign(String issueKey, @Nullable String login) {

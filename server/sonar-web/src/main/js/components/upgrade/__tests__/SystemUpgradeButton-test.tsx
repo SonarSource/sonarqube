@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockSystemUpgrade } from '../../../helpers/mocks/system-upgrades';
 import { click } from '../../../helpers/testUtils';
 import { Button } from '../../controls/buttons';
 import SystemUpgradeButton from '../SystemUpgradeButton';
@@ -31,8 +32,14 @@ it('should open modal correctly', () => {
   expect(wrapper.find(SystemUpgradeForm)).toBeDefined();
 });
 
+it('should not show button if there are no upgrades', () => {
+  const wrapper = shallowRender({ systemUpgrades: [] });
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find(Button).exists()).toBe(false);
+});
+
 function shallowRender(props: Partial<SystemUpgradeButton['props']> = {}) {
   return shallow<SystemUpgradeButton['props']>(
-    <SystemUpgradeButton systemUpgrades={[]} latestLTS="9.2" {...props} />
+    <SystemUpgradeButton systemUpgrades={[mockSystemUpgrade()]} latestLTS="9.2" {...props} />
   );
 }

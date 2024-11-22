@@ -19,6 +19,7 @@
  */
 package org.sonar.db.portfolio;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -251,6 +252,24 @@ public class PortfolioDao implements Dao {
 
   public void deleteBranch(DbSession dbSession, String portfolioUuid, String projectUuid, String branchUuid) {
     mapper(dbSession).deleteBranch(portfolioUuid, projectUuid, branchUuid);
+  }
+
+  public long updateMeasuresMigrated(DbSession dbSession, String branchUuid, boolean measuresMigrated) {
+    long now = system2.now();
+    return mapper(dbSession).updateMeasuresMigrated(branchUuid, measuresMigrated, now);
+  }
+
+  public List<String> selectUuidsWithMeasuresMigratedFalse(DbSession session, int limit) {
+    return mapper(session).selectUuidsWithMeasuresMigratedFalse(limit);
+  }
+
+  public int countByMeasuresMigratedFalse(DbSession session) {
+    return mapper(session).countByMeasuresMigratedFalse();
+  }
+
+  @VisibleForTesting
+  boolean isMeasuresMigrated(DbSession dbSession, String uuid) {
+    return mapper(dbSession).isMeasuresMigrated(uuid);
   }
 
   /*

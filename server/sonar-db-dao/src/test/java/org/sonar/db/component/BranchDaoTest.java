@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
+import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToProjectBranchesTable;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -649,6 +651,93 @@ public class BranchDaoTest {
 
     assertThat(underTest.countByNeedIssueSync(dbSession, true)).isEqualTo(4);
     assertThat(underTest.countByNeedIssueSync(dbSession, false)).isEqualTo(4);
+  }
+
+  @Test
+  public void selectUuidsWithMeasuresMigratedFalse() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    // master branch with flag set to false
+    ComponentDto notMigratedProject = db.components().insertPrivateProject();
+    // branches & PRs
+    ComponentDto migratedBranch = db.components().insertProjectBranch(notMigratedProject, b -> b.setBranchType(BRANCH));
+    ComponentDto notMigratedBranch = db.components().insertProjectBranch(notMigratedProject, b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto migratedPR = db.components().insertProjectBranch(notMigratedProject, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto notMigratedPR = db.components().insertProjectBranch(notMigratedProject, b -> b.setBranchType(PULL_REQUEST));
+
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, migratedBranch.branchUuid(), true);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, notMigratedBranch.branchUuid(), false);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, migratedPR.branchUuid(), true);
+
+    assertThat(underTest.selectUuidsWithMeasuresMigratedFalse(dbSession, 10))
+      .hasSize(3)
+      .containsOnly(notMigratedProject.branchUuid(), notMigratedBranch.branchUuid(), notMigratedPR.branchUuid());
+
+    assertThat(underTest.selectUuidsWithMeasuresMigratedFalse(dbSession, 1))
+      .hasSize(1)
+      .containsOnly(notMigratedProject.branchUuid());
+  }
+
+  @Test
+  public void countByMeasuresMigratedFalse() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    // master branch with flag set to false
+    ComponentDto project = db.components().insertPrivateProject();
+    // branches & PRs
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch1.branchUuid(), true);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch2.branchUuid(), false);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch3.branchUuid(), true);
+
+    assertThat(underTest.countByMeasuresMigratedFalse(dbSession)).isEqualTo(3);
+  }
+
+  @Test
+  public void updateMeasuresMigrated() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
+    String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
+
+    underTest.updateMeasuresMigrated(dbSession, uuid1, true);
+    underTest.updateMeasuresMigrated(dbSession, uuid2, false);
+
+    assertThat(underTest.isMeasuresMigrated(dbSession, uuid1)).isTrue();
+    assertThat(underTest.isMeasuresMigrated(dbSession, uuid2)).isFalse();
+  }
+
+  @Test
+  public void isMeasuresMigrated() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    // master branch with flag set to false
+    ComponentDto project = db.components().insertPrivateProject();
+    // branches & PRs
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto branch4 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch1.branchUuid(), true);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch2.branchUuid(), false);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch3.branchUuid(), true);
+
+    assertThat(underTest.isMeasuresMigrated(dbSession, project.uuid())).isFalse();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch1.uuid())).isTrue();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch2.uuid())).isFalse();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch3.uuid())).isTrue();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch4.uuid())).isFalse();
+  }
+
+  private void createMeasuresMigratedColumn() throws SQLException {
+    AddMeasuresMigratedColumnToProjectBranchesTable migration = new AddMeasuresMigratedColumnToProjectBranchesTable(db.getDbClient().getDatabase());
+    migration.execute();
   }
 
   @Test

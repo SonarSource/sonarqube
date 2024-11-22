@@ -63,6 +63,10 @@ public class UserDbTester {
     return insertUser(UserTesting.newUserDto());
   }
 
+  public UserDto insertUserRealistic() {
+    return insertUser(UserTesting.newUserDtoRealistic());
+  }
+
   public UserDto insertUser(String login) {
     UserDto dto = UserTesting.newUserDto().setLogin(login).setActive(true);
     return insertUser(dto);

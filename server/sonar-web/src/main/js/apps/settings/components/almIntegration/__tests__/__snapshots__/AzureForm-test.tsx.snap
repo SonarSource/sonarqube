@@ -26,6 +26,9 @@ exports[`should render correctly: create 1`] = `
         <em>
           https://dev.azure.com/your_organization
         </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.pat_warning
       </React.Fragment>
     }
     id="url.azure"
@@ -97,6 +100,9 @@ exports[`should render correctly: edit 1`] = `
         <em>
           https://dev.azure.com/your_organization
         </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.pat_warning
       </React.Fragment>
     }
     id="url.azure"

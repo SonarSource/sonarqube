@@ -48,7 +48,6 @@ import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.analysis.cache.cleaning.AnalysisCacheCleaningModule;
 import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
-import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.issue.index.NoAsyncIssueIndexing;
 import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.monitoring.CEQueueStatusImpl;
@@ -296,7 +295,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // DB
       new DaoModule(),
-      ReadOnlyPropertiesDao.class,
       DBSessionsImpl.class,
       DbClient.class,
 
@@ -325,9 +323,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,
       UrlSettings.class,
-
-      // add ReadOnlyPropertiesDao at level2 again so that it shadows PropertiesDao
-      ReadOnlyPropertiesDao.class,
 
       // plugins
       PluginClassloaderFactory.class,

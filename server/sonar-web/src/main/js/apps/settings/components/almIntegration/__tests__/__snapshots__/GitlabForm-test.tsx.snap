@@ -19,6 +19,9 @@ exports[`should render correctly 1`] = `
         <em>
           https://gitlab.com/api/v4
         </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.pat_warning
       </React.Fragment>
     }
     id="url.gitlab"
@@ -86,6 +89,9 @@ exports[`should render correctly 2`] = `
         <em>
           https://gitlab.com/api/v4
         </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.pat_warning
       </React.Fragment>
     }
     id="url.gitlab"

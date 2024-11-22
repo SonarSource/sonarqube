@@ -56,6 +56,9 @@ export default function GithubForm(props: GithubFormProps) {
             {translate('settings.almintegration.form.url.github.help2')}
             <br />
             <em>https://api.github.com/</em>
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.github.private_key_warning')}
           </>
         }
         id="url.github"

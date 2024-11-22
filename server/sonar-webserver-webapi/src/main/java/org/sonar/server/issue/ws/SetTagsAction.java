@@ -95,7 +95,7 @@ public class SetTagsAction implements IssuesWsAction {
     String key = request.mandatoryParam(PARAM_ISSUE);
     List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings(PARAM_TAGS), Collections.emptyList());
     SearchResponseData preloadedSearchResponseData = setTags(key, tags);
-    responseWriter.write(key, preloadedSearchResponseData, request, response);
+    responseWriter.write(key, preloadedSearchResponseData, request, response, true);
   }
 
   private SearchResponseData setTags(String issueKey, List<String> tags) {
