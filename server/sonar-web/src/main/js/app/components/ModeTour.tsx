@@ -95,6 +95,13 @@ export default function ModeTour() {
   const isAdmin = currentUser.permissions?.global.includes(Permissions.Admin);
   const isAdminOrQGAdmin =
     isAdmin || currentUser.permissions?.global.includes(Permissions.QualityGateAdmin);
+  const dismissedTour = currentUser.dismissedNotices[NoticeType.MODE_TOUR];
+
+  useEffect(() => {
+    if (currentUser.isLoggedIn && !isAdminOrQGAdmin && !dismissedTour) {
+      dismissTour();
+    }
+  }, [currentUser.isLoggedIn, isAdminOrQGAdmin, dismissedTour]);
 
   if (!runManually && (currentUser.dismissedNotices[NoticeType.MODE_TOUR] || !isAdminOrQGAdmin)) {
     return null;
