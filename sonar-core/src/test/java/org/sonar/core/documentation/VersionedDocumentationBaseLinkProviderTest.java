@@ -37,7 +37,7 @@ class VersionedDocumentationBaseLinkProviderTest {
     "http://base, 1.2-SNAPSHOT, http://base/latest",
   })
   @ParameterizedTest
-  void runTest(String baseUrl, String version, String expected) {
+  void formatBaseUrlWithVersion(String baseUrl, String version, String expected) {
     SonarQubeVersion sonarQubeVersion = mock();
 
     when(sonarQubeVersion.get()).thenReturn(Version.parse(version));
