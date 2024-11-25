@@ -109,7 +109,7 @@ export default function ListFooter(props: ListFooterProps) {
         className,
       )}
     >
-      <span aria-live="polite" aria-busy={loading}>
+      <output aria-busy={loading}>
         {total !== undefined
           ? translateWithParameters(
               'x_of_y_shown',
@@ -117,7 +117,7 @@ export default function ListFooter(props: ListFooterProps) {
               formatMeasure(total, MetricType.Integer),
             )
           : translateWithParameters('x_show', formatMeasure(count, MetricType.Integer))}
-      </span>
+      </output>
       {button}
       <Spinner loading={loading} className="sw-ml-2" />
     </StyledDiv>

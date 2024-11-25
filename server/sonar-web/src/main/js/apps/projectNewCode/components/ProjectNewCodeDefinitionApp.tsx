@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading, Spinner } from '@sonarsource/echoes-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { HeadingDark, LargeCenteredLayout, PageContentFontWrapper, Spinner } from '~design-system';
+import { LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
@@ -200,9 +201,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
       <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <AppHeader canAdmin={!!appState.canAdmin} />
 
-        <Spinner loading={isLoading} />
-
-        {!isLoading && (
+        <Spinner isLoading={isLoading}>
           <div className="it__project-baseline">
             {globalNewCodeDefinition && isSpecificNewCodeDefinition !== undefined && (
               <ProjectNewCodeDefinitionSelector
@@ -233,9 +232,9 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
 
             {globalNewCodeDefinition && branchSupportEnabled && (
               <div className="sw-mt-6">
-                <HeadingDark as="h3" className="sw-mb-4">
+                <Heading as="h3" className="sw-mb-4">
                   {translate('project_baseline.configure_branches')}
-                </HeadingDark>
+                </Heading>
 
                 <BranchList
                   branchList={branchList}
@@ -246,7 +245,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
               </div>
             )}
           </div>
-        )}
+        </Spinner>
       </PageContentFontWrapper>
     </LargeCenteredLayout>
   );

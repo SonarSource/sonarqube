@@ -115,8 +115,7 @@ const StyledButton = styled.button`
   color: inherit;
 
   &:focus {
-    outline: none;
-    border: ${themeBorder('default', 'selectionCardBorderHover')};
+    outline: ${themeBorder('focus', 'selectionCardBorderSelected')};
     box-shadow: ${themeShadow('sm')};
   }
 

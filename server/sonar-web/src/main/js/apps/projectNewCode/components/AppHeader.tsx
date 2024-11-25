@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading, Link, LinkHighlight } from '@sonarsource/echoes-react';
 import { FormattedMessage } from 'react-intl';
-import { HeadingDark, Link, Title } from '~design-system';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
@@ -34,17 +34,21 @@ export default function AppHeader(props: AppHeaderProps) {
 
   return (
     <header className="sw-mt-8 sw-mb-4">
-      <Title className="sw-mb-4">{translate('project_baseline.page')}</Title>
+      <Heading as="h1" className="sw-mb-4">
+        {translate('project_baseline.page')}
+      </Heading>
       <p className="sw-mb-2">{translate('project_baseline.page.description')}</p>
       <p className="sw-mb-2">{translate('settings.new_code_period.description1')}</p>
       <p className="sw-mb-2">
         {canAdmin && (
           <FormattedMessage
-            defaultMessage={translate('project_baseline.page.description2')}
             id="project_baseline.page.description2"
             values={{
               link: (
-                <Link to="/admin/settings?category=new_code_period">
+                <Link
+                  highlight={LinkHighlight.CurrentColor}
+                  to="/admin/settings?category=new_code_period"
+                >
                   {translate('project_baseline.page.description2.link')}
                 </Link>
               ),
@@ -54,16 +58,16 @@ export default function AppHeader(props: AppHeaderProps) {
       </p>
       <p className="sw-mb-2">
         <FormattedMessage
-          defaultMessage={translate('settings.new_code_period.description3')}
           id="settings.new_code_period.description3"
           values={{
-            link: <Link to={toUrl}>{translate('settings.new_code_period.description3.link')}</Link>,
+            link: (
+              <Link highlight={LinkHighlight.CurrentColor} to={toUrl}>
+                {translate('settings.new_code_period.description3.link')}
+              </Link>
+            ),
           }}
         />
       </p>
-      <HeadingDark className="sw-mt-4" as="h2">
-        {translate('project_baseline.page.question')}
-      </HeadingDark>
     </header>
   );
 }

@@ -33,7 +33,6 @@ export default function LicensePromptModal({ isOpen, onClose }: Readonly<Props>)
       isOpen={isOpen ?? false}
       content={
         <FormattedMessage
-          defaultMessage={translate('license.prompt.description')}
           id="license.prompt.description"
           values={{
             url: (

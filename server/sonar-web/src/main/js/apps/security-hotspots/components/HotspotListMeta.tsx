@@ -42,7 +42,7 @@ export default function HotspotListMeta(props: Readonly<HotspotListMetaProps>) {
   } = props;
 
   return (
-    <output aria-live="polite">
+    <output>
       <span className="sw-sr-only">
         {(hotspotsTotal === 0 || !hasSelectedHotspot) &&
           !loading &&

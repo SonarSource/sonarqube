@@ -18,15 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import classNames from 'classnames';
 import { TextSubdued } from '~design-system';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-definition';
 
 interface Props {
+  className?: string;
   globalNcd: NewCodeDefinition;
 }
 
-export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Readonly<Props>) {
+export default function GlobalNewCodeDefinitionDescription({
+  globalNcd,
+  className,
+}: Readonly<Props>) {
   let setting: string;
   let description: string;
   let useCase: string;
@@ -46,7 +51,7 @@ export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Readon
   }
 
   return (
-    <div className="sw-flex sw-flex-col sw-gap-2 sw-max-w-[800px]">
+    <div className={classNames('sw-flex sw-flex-col sw-gap-2 sw-max-w-[800px]', className)}>
       <TextSubdued>
         <strong className="sw-font-bold">{setting}</strong>
       </TextSubdued>

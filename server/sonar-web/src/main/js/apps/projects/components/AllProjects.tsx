@@ -264,7 +264,7 @@ function AllProjects({ isFavorite }: Readonly<{ isFavorite: boolean }>) {
     const isFiltered = hasFilterParams(parsedQuery);
     return (
       <div className="it__layout-page-main-inner it__projects-list sw-h-full">
-        <div aria-live="polite" aria-busy={isLoading}>
+        <output>
           <Spinner isLoading={isLoading}>
             {readyProjects.length === 0 && isFiltered && isFavorite && (
               <EmptyFavoriteSearch query={parsedQuery} />
@@ -278,7 +278,7 @@ function AllProjects({ isFavorite }: Readonly<{ isFavorite: boolean }>) {
               </span>
             )}
           </Spinner>
-        </div>
+        </output>
         {readyProjects.length > 0 && (
           <ProjectsList
             cardType={queryView}

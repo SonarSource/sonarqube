@@ -73,7 +73,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
 
     return (
       <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-text-center sw-grow">
-        <div aria-live="polite" aria-busy={loading}>
+        <output aria-busy={loading}>
           <Spinner isLoading={loading}>
             {!hasHistoryData(series) && (
               <Text isSubdued className="sw-max-w-full">
@@ -85,7 +85,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
               </Text>
             )}
           </Spinner>
-        </div>
+        </output>
 
         {hasHistoryData(series) && !loading && (
           <>

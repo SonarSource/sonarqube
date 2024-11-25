@@ -131,7 +131,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
 
     return (
       <>
-        <div aria-live="polite">
+        <output>
           <Spinner isLoading={initializing}>
             {!hasData && (
               <div className="sw-p-4 sw-typo-default">
@@ -139,7 +139,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
               </div>
             )}
           </Spinner>
-        </div>
+        </output>
 
         {hasData && (
           <ul

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, Label } from '@sonarsource/echoes-react';
 import { noop } from 'lodash';
 import * as React from 'react';
-import { Modal, PageContentFontWrapper, Spinner } from '~design-system';
+import { Modal, Spinner } from '~design-system';
 import { setNewCodeDefinition } from '../../../api/newCodeDefinition';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
@@ -176,8 +176,10 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
 
     const formBody = (
       <form id={FORM_ID} onSubmit={this.handleSubmit}>
-        <PageContentFontWrapper className="sw-typo-default">
-          <p className="sw-mb-3">{translate('baseline.new_code_period_for_branch_x.question')}</p>
+        <fieldset>
+          <legend className="sw-mb-2">
+            <Label>{translate('baseline.new_code_period_for_branch_x.question')}</Label>
+          </legend>
           <div className="sw-flex sw-flex-col sw-mb-10 sw-gap-4" role="radiogroup">
             <NewCodeDefinitionPreviousVersionOption
               isDefault={false}
@@ -211,7 +213,7 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
               />
             )}
           </div>
-        </PageContentFontWrapper>
+        </fieldset>
       </form>
     );
 
