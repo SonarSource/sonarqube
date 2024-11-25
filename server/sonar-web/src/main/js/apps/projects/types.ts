@@ -19,11 +19,12 @@
  */
 
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
+import { AiCodeAssuranceStatus } from '../../api/ai-code-assurance';
 import { Dict } from '../../types/types';
 
 export interface Project {
+  aiCodeAssurance?: AiCodeAssuranceStatus;
   analysisDate?: string;
-  isAiCodeAssured?: boolean;
   isFavorite?: boolean;
   isScannable: boolean;
   key: string;

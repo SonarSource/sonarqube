@@ -22,6 +22,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { AiCodeAssuranceStatus } from '../../../../../api/ai-code-assurance';
 import { MeasuresServiceMock } from '../../../../../api/mocks/MeasuresServiceMock';
 import { ModeServiceMock } from '../../../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
@@ -51,7 +52,19 @@ const PROJECT: Project = {
   tags: [],
   visibility: Visibility.Public,
   isScannable: false,
-  isAiCodeAssured: true,
+  aiCodeAssurance: AiCodeAssuranceStatus.AI_CODE_ASSURED,
+};
+
+const PROJECT_CONTAINS_AI_CODE: Project = {
+  analysisDate: '2017-01-01',
+  key: 'foo',
+  measures: MEASURES,
+  name: 'Foo',
+  qualifier: ComponentQualifier.Project,
+  tags: [],
+  visibility: Visibility.Public,
+  isScannable: false,
+  aiCodeAssurance: AiCodeAssuranceStatus.CONTAINS_AI_CODE,
 };
 
 const PROJECT_WITH_AI_CODE_DISABLED: Project = {
@@ -63,7 +76,7 @@ const PROJECT_WITH_AI_CODE_DISABLED: Project = {
   tags: [],
   visibility: Visibility.Public,
   isScannable: false,
-  isAiCodeAssured: false,
+  aiCodeAssurance: AiCodeAssuranceStatus.NONE,
 };
 
 const USER_LOGGED_OUT = mockCurrentUser();
@@ -95,8 +108,14 @@ it('should display private badge', () => {
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
 });
 
-it('should display ai code assurance badge when isAiCodeAssured is true', () => {
+it('should display ai code assurance badge when ai code assurance is true and quality gate is compliant', () => {
   const project: Project = { ...PROJECT, visibility: Visibility.Private };
+  renderProjectCard(project);
+  expect(screen.getByText('ai_code_assurance')).toBeInTheDocument();
+});
+
+it('should display ai code badge when ai code assurance is true and quality gate is not compliant', () => {
+  const project: Project = { ...PROJECT_CONTAINS_AI_CODE, visibility: Visibility.Private };
   renderProjectCard(project);
   expect(screen.getByText('ai_code')).toBeInTheDocument();
 });
@@ -120,16 +139,7 @@ it('should not display configure analysis button for logged in user and without 
 
 it('should display applications', () => {
   renderProjectCard({ ...PROJECT, qualifier: ComponentQualifier.Application });
-  expect(screen.getAllByText('qualifier.APP')).toHaveLength(2);
-});
-
-it('should display 3 projects', () => {
-  renderProjectCard({
-    ...PROJECT,
-    qualifier: ComponentQualifier.Application,
-    measures: { ...MEASURES, projects: '3' },
-  });
-  expect(screen.getByText(/x_projects_.3/)).toBeInTheDocument();
+  expect(screen.getByText('qualifier.APP')).toBeInTheDocument();
 });
 
 describe('upgrade scenario (awaiting scan)', () => {

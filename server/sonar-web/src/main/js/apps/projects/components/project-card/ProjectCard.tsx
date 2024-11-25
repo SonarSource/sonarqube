@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Link, LinkStandalone } from '@sonarsource/echoes-react';
+import { IconSparkle, Link, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -41,10 +41,11 @@ import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import { AiCodeAssuranceStatus } from '../../../../api/ai-code-assurance';
 import ChangeInCalculation from '../../../../app/components/ChangeInCalculationPill';
 import { useCurrentUser } from '../../../../app/components/current-user/CurrentUserContext';
 import Favorite from '../../../../components/controls/Favorite';
-import Tooltip from '../../../../components/controls/Tooltip';
+import AIAssuredIcon, { AiIconColor } from '../../../../components/icon-mappers/AIAssuredIcon';
 import DateFromNow from '../../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
@@ -124,11 +125,28 @@ function renderFirstLine(project: Props['project'], isNewCode: boolean) {
             </span>
           </Tooltip>
 
-          {project.isAiCodeAssured && (
-            <Tooltip content={translate('projects.ai_code.content')}>
+          {project.aiCodeAssurance === AiCodeAssuranceStatus.CONTAINS_AI_CODE && (
+            <Tooltip content={translate('projects.ai_code.tooltip.content')}>
+              <span>
+                <Badge className="sw-ml-2">
+                  <IconSparkle className="sw-mr-1 sw-fon" />
+                  {translate('ai_code')}
+                </Badge>
+              </span>
+            </Tooltip>
+          )}
+
+          {project.aiCodeAssurance === AiCodeAssuranceStatus.AI_CODE_ASSURED && (
+            <Tooltip content={translate('projects.ai_code_assurance.tooltip.content')}>
               <span>
                 <Badge variant="new" className="sw-ml-2">
-                  {translate('ai_code')}
+                  <AIAssuredIcon
+                    className="sw-mr-1 sw-align-bottom"
+                    color={AiIconColor.Default}
+                    width={16}
+                    height={16}
+                  />
+                  {translate('ai_code_assurance')}
                 </Badge>
               </span>
             </Tooltip>

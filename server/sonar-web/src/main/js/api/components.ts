@@ -35,6 +35,7 @@ import {
   SourceLine,
   SourceViewerFile,
 } from '../types/types';
+import { AiCodeAssuranceStatus } from './ai-code-assurance';
 
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
@@ -53,8 +54,8 @@ export interface ProjectBase {
 }
 
 export interface ComponentRaw {
+  aiCodeAssurance?: AiCodeAssuranceStatus;
   analysisDate?: string;
-  isAiCodeAssured?: boolean;
   isAiCodeFixEnabled?: boolean;
   isFavorite?: boolean;
   key: string;
