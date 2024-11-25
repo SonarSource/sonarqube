@@ -19,7 +19,8 @@
  */
 
 import { Button, ButtonVariety, Modal, ModalSize } from '@sonarsource/echoes-react';
-import { useContext, useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { CallBackProps } from 'react-joyride';
 import { SpotlightTour, SpotlightTourStep } from '~design-system';
@@ -44,6 +45,8 @@ export default function ModeTour() {
   const [step, setStep] = useState(1);
   const [runManually, setRunManually] = useState(false);
 
+  const dismissedTour = currentUser.dismissedNotices[NoticeType.MODE_TOUR];
+
   const nextStep = () => {
     if (step === MAX_STEPS) {
       document.dispatchEvent(new CustomEvent(CustomEvents.OpenHelpMenu));
@@ -53,17 +56,27 @@ export default function ModeTour() {
     }
   };
 
-  const dismissTour = () => {
+  const dismissTourWithDebounce = useMemo(
+    () =>
+      debounce(() => {
+        dismissNotice(NoticeType.MODE_TOUR)
+          .then(() => {
+            updateDismissedNotices(NoticeType.MODE_TOUR, true);
+          })
+          .catch(() => {
+            /* noop */
+          });
+      }, 500),
+    [updateDismissedNotices],
+  );
+
+  const dismissTour = useCallback(() => {
     document.dispatchEvent(new CustomEvent(CustomEvents.CloseHelpMenu));
     setStep(6);
-    dismissNotice(NoticeType.MODE_TOUR)
-      .then(() => {
-        updateDismissedNotices(NoticeType.MODE_TOUR, true);
-      })
-      .catch(() => {
-        /* noop */
-      });
-  };
+    if (!dismissedTour) {
+      dismissTourWithDebounce();
+    }
+  }, [dismissedTour, dismissTourWithDebounce]);
 
   const onToggle = (props: CallBackProps) => {
     switch (props.action) {
@@ -95,13 +108,12 @@ export default function ModeTour() {
   const isAdmin = currentUser.permissions?.global.includes(Permissions.Admin);
   const isAdminOrQGAdmin =
     isAdmin || currentUser.permissions?.global.includes(Permissions.QualityGateAdmin);
-  const dismissedTour = currentUser.dismissedNotices[NoticeType.MODE_TOUR];
 
   useEffect(() => {
     if (currentUser.isLoggedIn && !isAdminOrQGAdmin && !dismissedTour) {
       dismissTour();
     }
-  }, [currentUser.isLoggedIn, isAdminOrQGAdmin, dismissedTour]);
+  }, [currentUser.isLoggedIn, isAdminOrQGAdmin, dismissedTour, dismissTour]);
 
   if (!runManually && (currentUser.dismissedNotices[NoticeType.MODE_TOUR] || !isAdminOrQGAdmin)) {
     return null;
@@ -201,7 +213,7 @@ export default function ModeTour() {
         steps={steps}
         run={step > maxModalSteps}
         continuous
-        disableOverlay={step === 5}
+        disableOverlay={false}
         showProgress={step !== 5}
         stepIndex={step - maxModalSteps - 1}
         nextLabel={intl.formatMessage({ id: 'next' })}

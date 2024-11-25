@@ -18,19 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Link } from '@sonarsource/echoes-react';
+import { Button, Link, Modal } from '@sonarsource/echoes-react';
 import { FormattedMessage } from 'react-intl';
-import { Modal } from '~design-system';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
+  isOpen?: boolean;
   onClose: () => void;
 }
 
-export default function LicensePromptModal({ onClose }: Readonly<Props>) {
+export default function LicensePromptModal({ isOpen, onClose }: Readonly<Props>) {
   return (
     <Modal
-      body={
+      isOpen={isOpen ?? false}
+      content={
         <FormattedMessage
           defaultMessage={translate('license.prompt.description')}
           id="license.prompt.description"
@@ -43,9 +44,9 @@ export default function LicensePromptModal({ onClose }: Readonly<Props>) {
           }}
         />
       }
-      headerTitle={translate('license.prompt.title')}
-      onClose={onClose}
-      secondaryButtonLabel={translate('cancel')}
+      onOpenChange={(open) => !open && onClose()}
+      title={translate('license.prompt.title')}
+      secondaryButton={<Button onClick={onClose}>{translate('cancel')}</Button>}
     />
   );
 }

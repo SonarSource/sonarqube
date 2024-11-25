@@ -76,7 +76,7 @@ export class StartupModal extends React.PureComponent<React.PropsWithChildren<Pr
 
   render() {
     const { open } = this.state;
-    return open ? <LicensePromptModal onClose={this.closeLicense} /> : null;
+    return <LicensePromptModal isOpen={open} onClose={this.closeLicense} />;
   }
 }
 
