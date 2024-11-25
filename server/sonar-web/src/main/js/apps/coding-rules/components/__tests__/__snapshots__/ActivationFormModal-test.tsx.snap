@@ -160,14 +160,14 @@ exports[`should render correctly: default 1`] = `
           type="text"
           value="1"
         />
-        <div
-          className="note"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "description",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="description"
+          sanitizeLevel={1}
+        >
+          <div
+            className="note"
+          />
+        </SafeHTMLInjection>
       </div>
       <div
         className="modal-field"
@@ -281,14 +281,14 @@ exports[`should render correctly: submitting 1`] = `
           type="text"
           value="1"
         />
-        <div
-          className="note"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "description",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="description"
+          sanitizeLevel={1}
+        >
+          <div
+            className="note"
+          />
+        </SafeHTMLInjection>
       </div>
       <div
         className="modal-field"
@@ -400,14 +400,14 @@ exports[`should render correctly: update mode 1`] = `
           type="text"
           value="1"
         />
-        <div
-          className="note"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "description",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="description"
+          sanitizeLevel={1}
+        >
+          <div
+            className="note"
+          />
+        </SafeHTMLInjection>
       </div>
       <div
         className="modal-field"
@@ -555,14 +555,14 @@ exports[`should render correctly: with deep profiles 1`] = `
           type="text"
           value="1"
         />
-        <div
-          className="note"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "description",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="description"
+          sanitizeLevel={1}
+        >
+          <div
+            className="note"
+          />
+        </SafeHTMLInjection>
       </div>
       <div
         className="modal-field"

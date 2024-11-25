@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeStringRestricted } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { ExtendedSettingDefinition, SettingValue } from '../../../types/settings';
 import {
   combineDefinitionAndSettingValue,
@@ -52,7 +53,7 @@ export interface DefinitionRendererProps {
 
 const formNoop = (e: React.FormEvent<HTMLFormElement>) => e.preventDefault();
 
-export default function DefinitionRenderer(props: DefinitionRendererProps) {
+export default function DefinitionRenderer(props: Readonly<DefinitionRendererProps>) {
   const { changedValue, loading, validationMessage, settingValue, success, definition, isEditing } =
     props;
 
@@ -78,11 +79,9 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
         </h3>
 
         {description && (
-          <div
-            className="markdown small spacer-top"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeStringRestricted(description) }}
-          />
+          <SafeHTMLInjection htmlAsString={description} sanitizeLevel={SanitizeLevel.RESTRICTED}>
+            <div className="markdown small spacer-top" />
+          </SafeHTMLInjection>
         )}
 
         <Tooltip overlay={translateWithParameters('settings.key_x', definition.key)}>

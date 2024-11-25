@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { sanitizeString } from '../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../helpers/sanitize';
 import ButtonToggle from '../controls/ButtonToggle';
 import { Alert } from '../ui/Alert';
 import OtherContextOption from './OtherContextOption';
@@ -157,13 +158,16 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
                 </h2>
               )}
             </div>
+
             {selectedContext.key === OTHERS_KEY ? (
               <OtherContextOption />
             ) : (
-              <div
-                /* eslint-disable-next-line react/no-danger */
-                dangerouslySetInnerHTML={{ __html: sanitizeString(selectedContext.content) }}
-              />
+              <SafeHTMLInjection
+                htmlAsString={selectedContext.content}
+                sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+              >
+                <div />
+              </SafeHTMLInjection>
             )}
           </div>
         </div>
@@ -171,19 +175,20 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div
-        className={classNames(className, {
-          markdown: isDefault,
-          'rule-desc': !isDefault,
-        })}
-        ref={(node) => {
-          applyCodeDifferences(node);
-        }}
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: sanitizeString(sections[0].content),
-        }}
-      />
+      <SafeHTMLInjection
+        htmlAsString={sections[0].content}
+        sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+      >
+        <div
+          className={classNames(className, {
+            markdown: isDefault,
+            'rule-desc': !isDefault,
+          })}
+          ref={(node) => {
+            applyCodeDifferences(node);
+          }}
+        />
+      </SafeHTMLInjection>
     );
   }
 }

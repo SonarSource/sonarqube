@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 import { OptionTypeBase } from 'react-select';
@@ -26,7 +27,7 @@ import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import { sortProfiles } from '../../quality-profiles/utils';
 import { SeveritySelect } from './SeveritySelect';
@@ -218,11 +219,12 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                     />
                   )}
                   {param.htmlDesc !== undefined && (
-                    <div
-                      className="note"
-                      // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-                    />
+                    <SafeHTMLInjection
+                      htmlAsString={param.htmlDesc}
+                      sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+                    >
+                      <div className="note" />
+                    </SafeHTMLInjection>
                   )}
                 </div>
               ))

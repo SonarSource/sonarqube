@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { IssueComment } from '../../../types/types';
 import { DeleteButton, EditButton } from '../../controls/buttons';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
@@ -81,12 +82,14 @@ export default class CommentTile extends React.PureComponent<CommentTileProps, C
         </div>
         <div className="spacer-top display-flex-space-between">
           {!showEditArea && (
-            <div
-              className="flex-1 markdown"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeUserInput(comment.htmlText) }}
-            />
+            <SafeHTMLInjection
+              htmlAsString={comment.htmlText}
+              sanitizeLevel={SanitizeLevel.USER_INPUT}
+            >
+              <div className="flex-1 markdown" />
+            </SafeHTMLInjection>
           )}
+
           {showEditArea && (
             <div className="flex-1">
               <CommentForm

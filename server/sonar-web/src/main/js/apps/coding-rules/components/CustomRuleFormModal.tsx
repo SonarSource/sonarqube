@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { components, OptionProps, OptionTypeBase, SingleValueProps } from 'react-select';
 import { createRule, updateRule } from '../../../api/rules';
@@ -31,7 +32,7 @@ import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsEx
 import { RULE_STATUSES, RULE_TYPES } from '../../../helpers/constants';
 import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
 import { Dict, RuleDetails, RuleParameter } from '../../../types/types';
 import { SeveritySelect } from './SeveritySelect';
@@ -317,11 +318,12 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
         />
       )}
       {param.htmlDesc !== undefined && (
-        <div
-          className="modal-field-description"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-        />
+        <SafeHTMLInjection
+          htmlAsString={param.htmlDesc}
+          sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+        >
+          <div className="modal-field-description" />
+        </SafeHTMLInjection>
       )}
     </div>
   );

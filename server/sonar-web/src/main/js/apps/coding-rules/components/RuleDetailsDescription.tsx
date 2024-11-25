@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import RuleTabViewer from '../../../components/rules/RuleTabViewer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeString, sanitizeUserInput } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { RuleDetails } from '../../../types/types';
 import { RuleDescriptionSections } from '../rule';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
@@ -112,14 +113,14 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
   renderExtendedDescription = () => (
     <div id="coding-rules-detail-description-extra">
       {this.props.ruleDetails.htmlNote !== undefined && (
-        <div
-          className="rule-desc spacer-bottom markdown"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: sanitizeUserInput(this.props.ruleDetails.htmlNote),
-          }}
-        />
+        <SafeHTMLInjection
+          htmlAsString={this.props.ruleDetails.htmlNote}
+          sanitizeLevel={SanitizeLevel.USER_INPUT}
+        >
+          <div className="rule-desc spacer-bottom markdown" />
+        </SafeHTMLInjection>
       )}
+
       {this.props.canWrite && (
         <Button
           id="coding-rules-detail-extend-description"
@@ -216,23 +217,28 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     return (
       <div className="js-rule-description">
         {defaultSection && (
-          <section
-            className="coding-rules-detail-description markdown"
-            key={defaultSection.key}
-            /* eslint-disable-next-line react/no-danger */
-            dangerouslySetInnerHTML={{ __html: sanitizeString(defaultSection.content) }}
-          />
+          <SafeHTMLInjection
+            htmlAsString={defaultSection.content}
+            sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+          >
+            <section
+              className="coding-rules-detail-description markdown"
+              key={defaultSection.key}
+            />
+          </SafeHTMLInjection>
         )}
 
         {hasDescriptionSection && !defaultSection && (
           <>
             {introductionSection && (
-              <div
-                className="rule-desc"
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: sanitizeString(introductionSection) }}
-              />
+              <SafeHTMLInjection
+                htmlAsString={introductionSection}
+                sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+              >
+                <div className="rule-desc" />
+              </SafeHTMLInjection>
             )}
+
             <RuleTabViewer ruleDetails={ruleDetails} />
           </>
         )}

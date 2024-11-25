@@ -119,14 +119,13 @@ exports[`should render correctly 1`] = `
   <div
     className="boxed-group-inner"
   >
-    <div
-      className="web-api-action-description markdown"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "Foo Desc",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="Foo Desc"
+    >
+      <div
+        className="web-api-action-description markdown"
+      />
+    </SafeHTMLInjection>
     <ul
       className="web-api-action-actions tabs"
     >

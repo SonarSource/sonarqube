@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { IssueComment } from '../../../types/types';
 import DateFromNow from '../../intl/DateFromNow';
 import Avatar from '../../ui/Avatar';
@@ -95,11 +96,11 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
           />
           {displayName}
         </div>
-        <div
-          className="issue-comment-text markdown"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: sanitizeUserInput(comment.htmlText) }}
-        />
+
+        <SafeHTMLInjection htmlAsString={comment.htmlText} sanitizeLevel={SanitizeLevel.USER_INPUT}>
+          <div className="issue-comment-text markdown" />
+        </SafeHTMLInjection>
+
         <div className="issue-comment-age">
           <span className="a11y-hidden">{translate('issue.comment.posted_on')}</span>
           <DateFromNow date={comment.createdAt} />

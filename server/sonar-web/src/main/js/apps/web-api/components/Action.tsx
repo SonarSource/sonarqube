@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 import Link from '../../../components/common/Link';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { SafeHTMLInjection } from '../../../helpers/sanitize';
 import { queryToSearch } from '../../../helpers/urls';
 import { WebApi } from '../../../types/types';
 import { getActionKey, serializeQuery } from '../utils';
@@ -177,11 +179,9 @@ export default class Action extends React.PureComponent<Props, State> {
         </header>
 
         <div className="boxed-group-inner">
-          <div
-            className="web-api-action-description markdown"
-            // Safe: comes from the backend
-            dangerouslySetInnerHTML={{ __html: action.description }}
-          />
+          <SafeHTMLInjection htmlAsString={action.description}>
+            <div className="web-api-action-description markdown" />
+          </SafeHTMLInjection>
 
           {this.renderTabs()}
 

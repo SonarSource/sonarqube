@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 import { Button, ButtonLink, DeleteButton, EditButton } from '../../../components/controls/buttons';
@@ -27,7 +28,7 @@ import IssueChangelogDiff from '../../../components/issue/components/IssueChange
 import Avatar from '../../../components/ui/Avatar';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory } from '../utils';
 import HotspotCommentPopup from './HotspotCommentPopup';
@@ -103,11 +104,10 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
 
               {type === ReviewHistoryType.Comment && key && html && markdown && (
                 <div className="spacer-top display-flex-space-between">
-                  <div
-                    className="markdown"
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: sanitizeUserInput(html) }}
-                  />
+                  <SafeHTMLInjection htmlAsString={html} sanitizeLevel={SanitizeLevel.USER_INPUT}>
+                    <div className="markdown" />
+                  </SafeHTMLInjection>
+
                   {updatable && (
                     <div>
                       <div className="dropdown">

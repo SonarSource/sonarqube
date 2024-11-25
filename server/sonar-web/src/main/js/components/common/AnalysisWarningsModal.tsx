@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../api/ce';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
@@ -25,7 +26,7 @@ import Modal from '../../components/controls/Modal';
 import WarningIcon from '../../components/icons/WarningIcon';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
-import { sanitizeStringRestricted } from '../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../helpers/sanitize';
 import { TaskWarning } from '../../types/tasks';
 import { CurrentUser } from '../../types/users';
 
@@ -135,11 +136,9 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
               <div className="panel panel-vertical" key={key}>
                 <WarningIcon className="pull-left spacer-right" />
                 <div className="overflow-hidden markdown">
-                  <span
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeStringRestricted(message.trim().replace(/\n/g, '<br />')),
-                    }}
+                  <SafeHTMLInjection
+                    htmlAsString={message.trim().replace(/\n/g, '<br />')}
+                    sanitizeLevel={SanitizeLevel.RESTRICTED}
                   />
 
                   {dismissable && currentUser.isLoggedIn && (

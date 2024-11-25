@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import FormattingTipsWithLink from '../../../../components/common/FormattingTipsWithLink';
 import { Button } from '../../../../components/controls/buttons';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { translate } from '../../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../../helpers/sanitize';
 import { DefaultSpecializedInputProps } from '../../utils';
 
 export default function InputForFormattedText(props: DefaultSpecializedInputProps) {
@@ -51,11 +52,13 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
         </div>
       ) : (
         <>
-          <div
-            className="markdown-preview markdown"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
-          />
+          <SafeHTMLInjection
+            htmlAsString={formattedValue ?? ''}
+            sanitizeLevel={SanitizeLevel.USER_INPUT}
+          >
+            <div className="markdown-preview markdown" />
+          </SafeHTMLInjection>
+
           <Button className="spacer-top" onClick={props.onEditing}>
             <EditIcon className="spacer-right" />
             {translate('edit')}

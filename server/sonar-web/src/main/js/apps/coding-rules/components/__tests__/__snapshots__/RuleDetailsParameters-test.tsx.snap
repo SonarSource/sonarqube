@@ -25,13 +25,12 @@ exports[`should render correctly 1`] = `
         <td
           className="coding-rules-detail-parameter-description"
         >
-          <p
-            dangerouslySetInnerHTML={
-              {
-                "__html": "description",
-              }
-            }
-          />
+          <SafeHTMLInjection
+            htmlAsString="description"
+            sanitizeLevel={1}
+          >
+            <p />
+          </SafeHTMLInjection>
           <div
             className="note spacer-top"
           >
@@ -57,13 +56,12 @@ exports[`should render correctly 1`] = `
         <td
           className="coding-rules-detail-parameter-description"
         >
-          <p
-            dangerouslySetInnerHTML={
-              {
-                "__html": "description",
-              }
-            }
-          />
+          <SafeHTMLInjection
+            htmlAsString="description"
+            sanitizeLevel={1}
+          >
+            <p />
+          </SafeHTMLInjection>
           <div
             className="note spacer-top"
           >

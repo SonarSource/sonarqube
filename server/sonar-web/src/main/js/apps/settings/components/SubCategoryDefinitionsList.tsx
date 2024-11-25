@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
-import { sanitizeStringRestricted } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import { getSubCategoryDescription, getSubCategoryName } from '../utils';
@@ -91,15 +92,16 @@ export class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryD
                 {subCategory.name}
               </h2>
             )}
+
             {subCategory.description != null && (
-              <div
-                className="settings-sub-category-description markdown"
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeStringRestricted(subCategory.description),
-                }}
-              />
+              <SafeHTMLInjection
+                htmlAsString={subCategory.description}
+                sanitizeLevel={SanitizeLevel.RESTRICTED}
+              >
+                <div className="settings-sub-category-description markdown" />
+              </SafeHTMLInjection>
             )}
+
             <DefinitionsList
               component={component}
               scrollToDefinition={this.scrollToSubCategoryOrDefinition}

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { diffLines } from 'diff';
 import { groupBy, keyBy } from 'lodash';
-import { sanitizeString } from './sanitize';
+import { sanitizeHTMLNoSVGNoMathML } from './sanitize';
 
 const NUMBER_OF_EXAMPLES = 2;
 
@@ -71,7 +72,8 @@ function differentiateCode(compliant: string, nonCompliant: string) {
   let compliantCode = '';
 
   hunks.forEach((hunk) => {
-    const value = sanitizeString(hunk.value);
+    const value = sanitizeHTMLNoSVGNoMathML(hunk.value);
+
     if (!hunk.added && !hunk.removed) {
       nonCompliantCode += `<div>${value}</div>`;
       compliantCode += `<div>${value}</div>`;

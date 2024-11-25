@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { RuleParameter } from '../../../types/types';
 
 interface Props {
@@ -30,13 +31,17 @@ export default class RuleDetailsParameters extends React.PureComponent<Props> {
   renderParameter = (param: RuleParameter) => (
     <tr className="coding-rules-detail-parameter" key={param.key}>
       <td className="coding-rules-detail-parameter-name">{param.key}</td>
+
       <td className="coding-rules-detail-parameter-description">
         {param.htmlDesc !== undefined && (
-          <p
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-          />
+          <SafeHTMLInjection
+            htmlAsString={param.htmlDesc}
+            sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+          >
+            <p />
+          </SafeHTMLInjection>
         )}
+
         {param.defaultValue !== undefined && (
           <div className="note spacer-top">
             {translate('coding_rules.parameters.default_value')}

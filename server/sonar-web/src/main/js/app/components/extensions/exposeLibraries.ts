@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FormattedMessage } from 'react-intl';
 import NotFound from '../../../app/components/NotFound';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
@@ -103,7 +104,7 @@ import {
   postJSONBody,
   request,
 } from '../../../helpers/request';
-import { sanitizeStringRestricted } from '../../../helpers/sanitize';
+import { sanitizeHTMLRestricted } from '../../../helpers/sanitize';
 import {
   getStandards,
   renderCWECategory,
@@ -166,7 +167,7 @@ const exposeLibraries = () => {
         getComponentSecurityHotspotsUrl,
         getMeasureHistoryUrl,
         getRulesUrl,
-        sanitizeStringRestricted,
+        sanitizeStringRestricted: sanitizeHTMLRestricted,
       };
     },
   });

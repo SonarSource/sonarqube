@@ -80,14 +80,13 @@ exports[`renders match 1`] = `
             qualifier="TRK"
           />
         </span>
-        <span
-          className="navbar-search-item-match"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "f<mark>o</mark>o",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="f<mark>o</mark>o"
+        >
+          <span
+            className="navbar-search-item-match"
+          />
+        </SafeHTMLInjection>
       </div>
       <div
         className="navbar-search-item-right text-muted-2"

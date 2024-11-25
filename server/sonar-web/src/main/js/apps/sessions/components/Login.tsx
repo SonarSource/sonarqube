@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { Location } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
+import { SafeHTMLInjection, SanitizeLevel } from '../../../helpers/sanitize';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import './Login.css';
@@ -59,11 +60,9 @@ export default function Login(props: LoginProps) {
           )}
 
           {message && (
-            <div
-              className="login-message markdown big-padded spacer-top huge-spacer-bottom"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeUserInput(message) }}
-            />
+            <SafeHTMLInjection htmlAsString={message} sanitizeLevel={SanitizeLevel.USER_INPUT}>
+              <div className="login-message markdown big-padded spacer-top huge-spacer-bottom" />
+            </SafeHTMLInjection>
           )}
 
           {identityProviders.length > 0 && (

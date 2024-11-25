@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import Link from '../../../components/common/Link';
 import ClockIcon from '../../../components/icons/ClockIcon';
 import FavoriteIcon from '../../../components/icons/FavoriteIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { SafeHTMLInjection } from '../../../helpers/sanitize';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentResult } from './utils';
 
@@ -60,12 +62,9 @@ export default class SearchResult extends React.PureComponent<Props> {
               </span>
 
               {component.match ? (
-                <span
-                  className="navbar-search-item-match"
-                  // Safe: comes from the search engine, that injects bold tags into component names
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: component.match }}
-                />
+                <SafeHTMLInjection htmlAsString={component.match}>
+                  <span className="navbar-search-item-match" />
+                </SafeHTMLInjection>
               ) : (
                 <span className="navbar-search-item-match">{component.name}</span>
               )}

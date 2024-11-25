@@ -44,14 +44,13 @@ exports[`should render deprecated and internal parameters 1`] = `
           </div>
         </td>
         <td>
-          <div
-            className="markdown"
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Foo desc",
-              }
-            }
-          />
+          <SafeHTMLInjection
+            htmlAsString="Foo desc"
+          >
+            <div
+              className="markdown"
+            />
+          </SafeHTMLInjection>
         </td>
         <td
           style={
@@ -94,14 +93,13 @@ exports[`should render deprecated and internal parameters 1`] = `
           </div>
         </td>
         <td>
-          <div
-            className="markdown"
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Foo desc",
-              }
-            }
-          />
+          <SafeHTMLInjection
+            htmlAsString="Foo desc"
+          >
+            <div
+              className="markdown"
+            />
+          </SafeHTMLInjection>
         </td>
         <td
           style={
@@ -163,14 +161,13 @@ exports[`should render deprecated key 1`] = `
           </div>
         </td>
         <td>
-          <div
-            className="markdown"
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Foo desc",
-              }
-            }
-          />
+          <SafeHTMLInjection
+            htmlAsString="Foo desc"
+          >
+            <div
+              className="markdown"
+            />
+          </SafeHTMLInjection>
         </td>
         <td
           style={
@@ -212,14 +209,13 @@ exports[`should render different value constraints 1`] = `
           </div>
         </td>
         <td>
-          <div
-            className="markdown"
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Foo desc",
-              }
-            }
-          />
+          <SafeHTMLInjection
+            htmlAsString="Foo desc"
+          >
+            <div
+              className="markdown"
+            />
+          </SafeHTMLInjection>
         </td>
         <td
           style={

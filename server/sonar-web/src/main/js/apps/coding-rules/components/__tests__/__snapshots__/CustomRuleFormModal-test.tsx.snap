@@ -210,14 +210,14 @@ exports[`should handle re-activation 1`] = `
           type="text"
           value=""
         />
-        <div
-          className="modal-field-description"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "description",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="description"
+          sanitizeLevel={1}
+        >
+          <div
+            className="modal-field-description"
+          />
+        </SafeHTMLInjection>
       </div>
       <div
         className="modal-field"
@@ -465,14 +465,14 @@ exports[`should render correctly: default 1`] = `
           type="text"
           value=""
         />
-        <div
-          className="modal-field-description"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "description",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="description"
+          sanitizeLevel={1}
+        >
+          <div
+            className="modal-field-description"
+          />
+        </SafeHTMLInjection>
       </div>
       <div
         className="modal-field"

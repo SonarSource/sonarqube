@@ -14,14 +14,14 @@ exports[`should render correctly: changed value 1`] = `
     >
       property.foo.name
     </h3>
-    <div
-      className="markdown small spacer-top"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.foo.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.foo.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="markdown small spacer-top"
+      />
+    </SafeHTMLInjection>
     <Tooltip
       overlay="settings.key_x.foo"
     >
@@ -105,14 +105,14 @@ exports[`should render correctly: in error 1`] = `
     >
       property.foo.name
     </h3>
-    <div
-      className="markdown small spacer-top"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.foo.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.foo.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="markdown small spacer-top"
+      />
+    </SafeHTMLInjection>
     <Tooltip
       overlay="settings.key_x.foo"
     >
@@ -205,14 +205,14 @@ exports[`should render correctly: loading 1`] = `
     >
       property.foo.name
     </h3>
-    <div
-      className="markdown small spacer-top"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.foo.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.foo.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="markdown small spacer-top"
+      />
+    </SafeHTMLInjection>
     <Tooltip
       overlay="settings.key_x.foo"
     >
@@ -303,14 +303,14 @@ exports[`should render correctly: original value 1`] = `
     >
       property.foo.name
     </h3>
-    <div
-      className="markdown small spacer-top"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.foo.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.foo.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="markdown small spacer-top"
+      />
+    </SafeHTMLInjection>
     <Tooltip
       overlay="settings.key_x.foo"
     >
@@ -395,14 +395,14 @@ exports[`should render correctly: success 1`] = `
     >
       property.foo.name
     </h3>
-    <div
-      className="markdown small spacer-top"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.foo.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.foo.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="markdown small spacer-top"
+      />
+    </SafeHTMLInjection>
     <Tooltip
       overlay="settings.key_x.foo"
     >
@@ -493,14 +493,14 @@ exports[`should render correctly: with description 1`] = `
     >
       property.foo.name
     </h3>
-    <div
-      className="markdown small spacer-top"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.foo.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.foo.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="markdown small spacer-top"
+      />
+    </SafeHTMLInjection>
     <Tooltip
       overlay="settings.key_x.foo"
     >

@@ -28,12 +28,9 @@ exports[`should fetch task warnings if it has to 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "message foo",
-              }
-            }
+          <SafeHTMLInjection
+            htmlAsString="message foo"
+            sanitizeLevel={3}
           />
         </div>
       </div>
@@ -47,12 +44,9 @@ exports[`should fetch task warnings if it has to 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "message-bar",
-              }
-            }
+          <SafeHTMLInjection
+            htmlAsString="message-bar"
+            sanitizeLevel={3}
           />
         </div>
       </div>
@@ -68,12 +62,9 @@ secondline
         <div
           className="overflow-hidden markdown"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "multiline message<br>secondline<br>  third line",
-              }
-            }
+          <SafeHTMLInjection
+            htmlAsString="multiline message<br />secondline<br />  third line"
+            sanitizeLevel={3}
           />
         </div>
       </div>
@@ -120,12 +111,9 @@ exports[`should render correctly: default 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "warning 1",
-              }
-            }
+          <SafeHTMLInjection
+            htmlAsString="warning 1"
+            sanitizeLevel={3}
           />
         </div>
       </div>
@@ -139,12 +127,9 @@ exports[`should render correctly: default 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "warning 2",
-              }
-            }
+          <SafeHTMLInjection
+            htmlAsString="warning 2"
+            sanitizeLevel={3}
           />
         </div>
       </div>
@@ -191,12 +176,9 @@ exports[`should render correctly: do not show dismissable links for anonymous 1`
         <div
           className="overflow-hidden markdown"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Lorem ipsum",
-              }
-            }
+          <SafeHTMLInjection
+            htmlAsString="Lorem ipsum"
+            sanitizeLevel={3}
           />
         </div>
       </div>
@@ -243,12 +225,9 @@ exports[`should render correctly: with dismissable warnings 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Lorem ipsum",
-              }
-            }
+          <SafeHTMLInjection
+            htmlAsString="Lorem ipsum"
+            sanitizeLevel={3}
           />
           <div
             className="spacer-top display-flex-inline"

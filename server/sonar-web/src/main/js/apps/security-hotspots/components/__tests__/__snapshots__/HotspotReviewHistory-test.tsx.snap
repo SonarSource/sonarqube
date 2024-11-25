@@ -113,14 +113,14 @@ exports[`should render correctly: default 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
       </div>
     </li>
     <li
@@ -155,14 +155,14 @@ exports[`should render correctly: default 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
       </div>
     </li>
     <li
@@ -197,14 +197,14 @@ exports[`should render correctly: default 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
       </div>
     </li>
   </ul>
@@ -358,14 +358,14 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
       </div>
     </li>
     <li
@@ -400,14 +400,14 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
       </div>
     </li>
     <li
@@ -442,14 +442,14 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
       </div>
     </li>
     <li
@@ -484,14 +484,14 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
       </div>
     </li>
     <li
@@ -526,14 +526,14 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="spacer-top display-flex-space-between"
       >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<strong>TEST</strong>",
-            }
-          }
-        />
+        <SafeHTMLInjection
+          htmlAsString="<strong>TEST</strong>"
+          sanitizeLevel={2}
+        >
+          <div
+            className="markdown"
+          />
+        </SafeHTMLInjection>
         <div>
           <div
             className="dropdown"

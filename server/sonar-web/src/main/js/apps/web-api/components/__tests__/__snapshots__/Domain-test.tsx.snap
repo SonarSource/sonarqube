@@ -13,14 +13,13 @@ exports[`should also render actions with a description matching the query 1`] = 
       api
     </h2>
   </header>
-  <div
-    className="web-api-domain-description markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "API Desc",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="API Desc"
+  >
+    <div
+      className="web-api-domain-description markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="web-api-domain-actions"
   >
@@ -139,14 +138,13 @@ exports[`should not render deprecated actions 1`] = `
       api
     </h2>
   </header>
-  <div
-    className="web-api-domain-description markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "API Desc",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="API Desc"
+  >
+    <div
+      className="web-api-domain-description markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="web-api-domain-actions"
   />
@@ -166,14 +164,13 @@ exports[`should not render internal actions 1`] = `
       api
     </h2>
   </header>
-  <div
-    className="web-api-domain-description markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "API Desc",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="API Desc"
+  >
+    <div
+      className="web-api-domain-description markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="web-api-domain-actions"
   />
@@ -193,14 +190,13 @@ exports[`should render deprecated actions 1`] = `
       api
     </h2>
   </header>
-  <div
-    className="web-api-domain-description markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "API Desc",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="API Desc"
+  >
+    <div
+      className="web-api-domain-description markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="web-api-domain-actions"
   >
@@ -256,14 +252,13 @@ exports[`should render internal actions 1`] = `
       api
     </h2>
   </header>
-  <div
-    className="web-api-domain-description markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "API Desc",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="API Desc"
+  >
+    <div
+      className="web-api-domain-description markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="web-api-domain-actions"
   >
@@ -317,14 +312,13 @@ exports[`should render only actions matching the query 1`] = `
       api
     </h2>
   </header>
-  <div
-    className="web-api-domain-description markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "API Desc",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="API Desc"
+  >
+    <div
+      className="web-api-domain-description markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="web-api-domain-actions"
   >

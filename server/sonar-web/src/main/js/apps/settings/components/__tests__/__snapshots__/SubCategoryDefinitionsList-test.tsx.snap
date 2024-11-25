@@ -13,14 +13,14 @@ exports[`should render correctly 1`] = `
     >
       property.category.general.email
     </h2>
-    <div
-      className="settings-sub-category-description markdown"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.category.general.email.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.category.general.email.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="settings-sub-category-description markdown"
+      />
+    </SafeHTMLInjection>
     <DefinitionsList
       scrollToDefinition={[Function]}
       settings={
@@ -55,14 +55,14 @@ exports[`should render correctly 1`] = `
     >
       property.category.general.qg
     </h2>
-    <div
-      className="settings-sub-category-description markdown"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.category.general.qg.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.category.general.qg.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="settings-sub-category-description markdown"
+      />
+    </SafeHTMLInjection>
     <DefinitionsList
       scrollToDefinition={[Function]}
       settings={
@@ -101,14 +101,14 @@ exports[`should render correctly: subcategory 1`] = `
     >
       property.category.general.qg
     </h2>
-    <div
-      className="settings-sub-category-description markdown"
-      dangerouslySetInnerHTML={
-        {
-          "__html": "property.category.general.qg.description",
-        }
-      }
-    />
+    <SafeHTMLInjection
+      htmlAsString="property.category.general.qg.description"
+      sanitizeLevel={3}
+    >
+      <div
+        className="settings-sub-category-description markdown"
+      />
+    </SafeHTMLInjection>
     <DefinitionsList
       scrollToDefinition={[Function]}
       settings={

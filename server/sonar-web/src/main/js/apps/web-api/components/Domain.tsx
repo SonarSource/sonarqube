@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
+import { SafeHTMLInjection } from '../../../helpers/sanitize';
 import { WebApi } from '../../../types/types';
 import { actionsFilter, getActionKey, Query } from '../utils';
 import Action from './Action';
@@ -51,11 +53,9 @@ export default function Domain({ domain, query }: Props) {
       </header>
 
       {domain.description && (
-        <div
-          className="web-api-domain-description markdown"
-          // Safe: comes from the backend
-          dangerouslySetInnerHTML={{ __html: domain.description }}
-        />
+        <SafeHTMLInjection htmlAsString={domain.description}>
+          <div className="web-api-domain-description markdown" />
+        </SafeHTMLInjection>
       )}
 
       <div className="web-api-domain-actions">

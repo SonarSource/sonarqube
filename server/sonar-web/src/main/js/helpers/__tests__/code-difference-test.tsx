@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { render } from '@testing-library/react';
 import React from 'react';
 import applyCodeDifferences from '../code-difference';
+import { SafeHTMLInjection } from '../sanitize';
 
 it('should apply diff view correctly', () => {
   const { container } = renderDom(properCodeSnippet);
@@ -146,12 +148,8 @@ public void endpoint(HttpServletRequest request, HttpServletResponse response) t
 
 function renderDom(codeSnippet: string) {
   return render(
-    <div
-      className="markdown"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{
-        __html: codeSnippet,
-      }}
-    />
+    <SafeHTMLInjection htmlAsString={codeSnippet}>
+      <div className="markdown" />
+    </SafeHTMLInjection>
   );
 }

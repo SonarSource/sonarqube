@@ -28,14 +28,14 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
     />
     John Doe
   </div>
-  <div
-    className="issue-comment-text markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "<b>test</b>",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="<b>test</b>"
+    sanitizeLevel={2}
+  >
+    <div
+      className="issue-comment-text markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="issue-comment-age"
   >
@@ -126,14 +126,14 @@ exports[`should render correctly a comment that is not updatable 1`] = `
     />
     John Doe
   </div>
-  <div
-    className="issue-comment-text markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "<b>test</b>",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="<b>test</b>"
+    sanitizeLevel={2}
+  >
+    <div
+      className="issue-comment-text markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="issue-comment-age"
   >
@@ -168,14 +168,14 @@ exports[`should render correctly a comment that is updatable 1`] = `
     />
     John Doe
   </div>
-  <div
-    className="issue-comment-text markdown"
-    dangerouslySetInnerHTML={
-      {
-        "__html": "<b>test</b>",
-      }
-    }
-  />
+  <SafeHTMLInjection
+    htmlAsString="<b>test</b>"
+    sanitizeLevel={2}
+  >
+    <div
+      className="issue-comment-text markdown"
+    />
+  </SafeHTMLInjection>
   <div
     className="issue-comment-age"
   >
