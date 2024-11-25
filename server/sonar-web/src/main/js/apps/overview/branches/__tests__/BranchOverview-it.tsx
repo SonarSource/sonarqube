@@ -22,7 +22,6 @@ import { screen, waitFor } from '@testing-library/react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { AiCodeAssuredServiceMock } from '../../../../api/mocks/AiCodeAssuredServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
@@ -47,7 +46,6 @@ import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/t
 import { renderComponent, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { SoftwareQuality } from '../../../../types/clean-code-taxonomy';
-import { Feature } from '../../../../types/features';
 import { Mode } from '../../../../types/mode';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { CaycStatus } from '../../../../types/types';
@@ -63,7 +61,6 @@ let projectActivityHandler: ProjectActivityServiceMock;
 let usersHandler: UsersServiceMock;
 let timeMarchineHandler: TimeMachineServiceMock;
 let qualityGatesHandler: QualityGatesServiceMock;
-let aiCodeAssuranceHandler: AiCodeAssuredServiceMock;
 let messageshandler: MessagesServiceMock;
 
 jest.mock('../../../../api/ce', () => ({
@@ -125,7 +122,6 @@ beforeAll(() => {
       },
     ],
   });
-  aiCodeAssuranceHandler = new AiCodeAssuredServiceMock();
   messageshandler = new MessagesServiceMock();
 });
 
@@ -140,7 +136,6 @@ afterEach(() => {
   qualityGatesHandler.reset();
   almHandler.reset();
   modeHandler.reset();
-  aiCodeAssuranceHandler.reset();
   messageshandler.reset();
 });
 
@@ -328,15 +323,6 @@ describe('project overview', () => {
       'D',
       'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.D.overview.measures.software_impact.severity.HIGH.improve_tooltip',
     );
-  });
-
-  it('should show unsolved message when project is AI assured', async () => {
-    const { user, ui } = getPageObjects();
-    renderBranchOverview({ branch: undefined }, { featureList: [Feature.AiCodeAssurance] });
-    expect(await ui.unsolvedOverallMessage.find()).toBeInTheDocument();
-    await user.click(ui.dismissUnsolvedButton.get());
-
-    expect(ui.unsolvedOverallMessage.query()).not.toBeInTheDocument();
   });
 
   // eslint-disable-next-line jest/expect-expect

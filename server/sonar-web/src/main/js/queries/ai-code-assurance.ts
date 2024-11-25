@@ -19,15 +19,17 @@
  */
 
 import { queryOptions } from '@tanstack/react-query';
-import { isProjectAiCodeAssured } from '../api/ai-code-assurance';
+import { getProjectAiCodeAssuranceStatus } from '../api/ai-code-assurance';
 import { createQueryHook } from './common';
 
 export const AI_CODE_ASSURANCE_QUERY_PREFIX = 'ai-code-assurance';
 
-export const useProjectAiCodeAssuredQuery = createQueryHook(({ project }: { project: string }) => {
-  return queryOptions({
-    queryKey: [AI_CODE_ASSURANCE_QUERY_PREFIX, project], // - or _ ?
-    queryFn: ({ queryKey: [_, project] }) => isProjectAiCodeAssured(project),
-    enabled: project !== undefined,
-  });
-});
+export const useProjectAiCodeAssuranceStatusQuery = createQueryHook(
+  ({ project }: { project: string }) => {
+    return queryOptions({
+      queryKey: [AI_CODE_ASSURANCE_QUERY_PREFIX, project], // - or _ ?
+      queryFn: ({ queryKey: [_, project] }) => getProjectAiCodeAssuranceStatus(project),
+      enabled: project !== undefined,
+    });
+  },
+);

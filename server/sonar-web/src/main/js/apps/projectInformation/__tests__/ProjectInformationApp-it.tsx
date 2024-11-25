@@ -22,7 +22,11 @@ import { screen } from '@testing-library/react';
 import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { AiCodeAssuredServiceMock } from '../../../api/mocks/AiCodeAssuredServiceMock';
+import {
+  AiCodeAssuredServiceMock,
+  PROJECT_WITH_AI_ASSURED_QG,
+  PROJECT_WITHOUT_AI_ASSURED_QG,
+} from '../../../api/mocks/AiCodeAssuredServiceMock';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
@@ -86,7 +90,9 @@ afterEach(() => {
 
 it('should show fields for project', async () => {
   measuresHandler.registerComponentMeasures({
-    'my-project': { [MetricKey.ncloc]: mockMeasure({ metric: MetricKey.ncloc, value: '1000' }) },
+    [PROJECT_WITH_AI_ASSURED_QG]: {
+      [MetricKey.ncloc]: mockMeasure({ metric: MetricKey.ncloc, value: '1000' }),
+    },
   });
   linksHandler.projectLinks = [{ id: '1', name: 'test', type: '', url: 'http://test.com' }];
   renderProjectInformationApp(
@@ -94,6 +100,7 @@ it('should show fields for project', async () => {
       visibility: Visibility.Private,
       description: 'Test description',
       tags: ['bar'],
+      key: PROJECT_WITH_AI_ASSURED_QG,
     },
     { currentUser: mockLoggedInUser(), featureList: [Feature.AiCodeAssurance] },
   );
@@ -102,9 +109,9 @@ it('should show fields for project', async () => {
   expect(byRole('link', { name: /project.info.quality_gate.link_label/ }).getAll()).toHaveLength(1);
   expect(byRole('link', { name: /overview.link_to_x_profile_y/ }).getAll()).toHaveLength(1);
   expect(byRole('link', { name: 'test' }).getAll()).toHaveLength(1);
-  expect(screen.getByText('project.info.ai_code_assurance.title')).toBeInTheDocument();
+  expect(screen.getByText('project.info.ai_code_assurance_on.title')).toBeInTheDocument();
   expect(screen.getByText('Test description')).toBeInTheDocument();
-  expect(screen.getByText('my-project')).toBeInTheDocument();
+  expect(screen.getByText(PROJECT_WITH_AI_ASSURED_QG)).toBeInTheDocument();
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('bar');
   expect(ui.size.get()).toHaveTextContent('1short_number_suffix.k');
@@ -152,7 +159,7 @@ it('should hide some fields for application', async () => {
   expect(ui.tags.get()).toHaveTextContent('no_tags');
 });
 
-it('should not display ai code assurence', async () => {
+it('should not display ai code assurance', async () => {
   renderProjectInformationApp(
     {
       key: 'no-ai',
@@ -160,7 +167,19 @@ it('should not display ai code assurence', async () => {
     { featureList: [Feature.AiCodeAssurance] },
   );
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(screen.queryByText('project.info.ai_code_assurance.title')).not.toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_assurance_on.title')).not.toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_assurance_off.title')).not.toBeInTheDocument();
+});
+
+it('should display it contains ai code', async () => {
+  renderProjectInformationApp(
+    {
+      key: PROJECT_WITHOUT_AI_ASSURED_QG,
+    },
+    { featureList: [Feature.AiCodeAssurance] },
+  );
+  expect(await ui.projectPageTitle.find()).toBeInTheDocument();
+  expect(screen.getByText('project.info.ai_code_assurance_off.title')).toBeInTheDocument();
 });
 
 it('should display ai code fix section if enabled', async () => {

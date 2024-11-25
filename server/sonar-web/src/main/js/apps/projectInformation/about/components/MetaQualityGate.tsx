@@ -19,17 +19,17 @@
  */
 
 import { Heading, LinkStandalone, Text } from '@sonarsource/echoes-react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../../helpers/urls';
 
 interface Props {
-  isAiAssured?: boolean;
   qualityGate: { isDefault?: boolean; name: string };
 }
 
-export default function MetaQualityGate({ qualityGate, isAiAssured }: Props) {
+export default function MetaQualityGate({ qualityGate }: Props) {
   const intl = useIntl();
+
   return (
     <section>
       <Heading as="h3">{translate('project.info.quality_gate')}</Heading>
@@ -51,11 +51,6 @@ export default function MetaQualityGate({ qualityGate, isAiAssured }: Props) {
           </LinkStandalone>
         </li>
       </ul>
-      {isAiAssured === true && (
-        <Text as="p" isSubdued className="sw-mt-2">
-          <FormattedMessage id="project.info.quality_gate.ai_code_assurance.description" />
-        </Text>
-      )}
     </section>
   );
 }

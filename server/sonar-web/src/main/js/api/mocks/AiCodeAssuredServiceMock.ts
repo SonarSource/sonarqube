@@ -18,22 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { isProjectAiCodeAssured } from '../ai-code-assurance';
+import { AiCodeAssuranceStatus, getProjectAiCodeAssuranceStatus } from '../ai-code-assurance';
 
 jest.mock('../ai-code-assurance');
+
+export const PROJECT_WITH_AI_ASSURED_QG = 'Sonar AI way';
+export const PROJECT_WITHOUT_AI_ASSURED_QG = 'Sonar way';
 
 export class AiCodeAssuredServiceMock {
   noAiProject = 'no-ai';
 
   constructor() {
-    jest.mocked(isProjectAiCodeAssured).mockImplementation(this.handleProjectAiGeneratedCode);
+    jest
+      .mocked(getProjectAiCodeAssuranceStatus)
+      .mockImplementation(this.handleProjectAiGeneratedCode);
   }
 
   handleProjectAiGeneratedCode = (project: string) => {
-    if (project === this.noAiProject) {
-      return Promise.resolve(false);
+    if (project === PROJECT_WITH_AI_ASSURED_QG) {
+      return Promise.resolve(AiCodeAssuranceStatus.AI_CODE_ASSURED);
+    } else if (project === PROJECT_WITHOUT_AI_ASSURED_QG) {
+      return Promise.resolve(AiCodeAssuranceStatus.CONTAINS_AI_CODE);
     }
-    return Promise.resolve(true);
+    return Promise.resolve(AiCodeAssuranceStatus.NONE);
   };
 
   reset() {

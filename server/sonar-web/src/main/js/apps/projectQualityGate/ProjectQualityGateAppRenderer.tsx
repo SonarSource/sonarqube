@@ -49,7 +49,7 @@ import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { LabelValueSelectOption } from '../../helpers/search';
 import { getQualityGateUrl } from '../../helpers/urls';
-import { useProjectAiCodeAssuredQuery } from '../../queries/ai-code-assurance';
+import { useProjectAiCodeAssuranceStatusQuery } from '../../queries/ai-code-assurance';
 import { useLocation } from '../../sonar-aligned/components/hoc/withRouter';
 import { queryToSearchString } from '../../sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '../../sonar-aligned/types/component';
@@ -117,7 +117,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
 
   const location = useLocation();
 
-  const { data: isAiAssured } = useProjectAiCodeAssuredQuery(
+  const { data: aiAssuranceStatus } = useProjectAiCodeAssuranceStatusQuery(
     { project: component.key },
     {
       enabled:
@@ -189,7 +189,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
               <RadioButton
                 className="it__project-quality-default sw-items-start"
                 checked={usesDefault}
-                disabled={submitting || isAiAssured}
+                disabled={submitting}
                 onCheck={() => props.onSelect(USE_SYSTEM_DEFAULT)}
                 value={USE_SYSTEM_DEFAULT}
               >
@@ -211,7 +211,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
               <RadioButton
                 className="it__project-quality-specific sw-items-start sw-mt-1"
                 checked={!usesDefault}
-                disabled={submitting || isAiAssured}
+                disabled={submitting}
                 onCheck={(value: string) => {
                   if (usesDefault) {
                     props.onSelect(value);
@@ -233,7 +233,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
                     Option: renderQualitygateOption,
                   }}
                   isClearable={usesDefault}
-                  isDisabled={submitting || usesDefault || isAiAssured}
+                  isDisabled={submitting || usesDefault}
                   onChange={({ value }: QualityGateOption) => {
                     props.onSelect(value);
                   }}
@@ -243,78 +243,72 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
                 />
               </div>
 
-              <div aria-live="polite">
-                {isAiAssured && (
-                  <>
-                    <p className="sw-w-abs-400 sw-mt-6">
-                      <FormattedMessage
-                        id="project_quality_gate.ai_assured.message1"
-                        defaultMessage={translate('project_quality_gate.ai_assured.message1')}
-                        values={{
-                          link: (
-                            <DocumentationLink to={DocLink.AiCodeAssurance}>
-                              {translate('project_quality_gate.ai_assured.message1.link')}
-                            </DocumentationLink>
-                          ),
-                        }}
-                      />
-                    </p>
-                    <p className="sw-w-abs-400 sw-mt-6">
-                      <FormattedMessage
-                        id="project_quality_gate.ai_assured.message2"
-                        defaultMessage={translate('project_quality_gate.ai_assured.message2')}
-                        values={{
-                          link: (
-                            <LinkStandalone
-                              className="sw-shrink-0"
-                              to={{
-                                pathname:
-                                  '/project/admin/extension/developer-server/ai-project-settings',
-                                search: queryToSearchString({
-                                  ...location.query,
-                                  qualifier: ComponentQualifier.Project,
-                                }),
-                              }}
-                            >
-                              {translate('project_quality_gate.ai_assured.message2.link')}
-                            </LinkStandalone>
-                          ),
-                          value: <b>{translate('false')}</b>,
-                        }}
-                      />
-                    </p>
-                  </>
-                )}
-
-                {selectedQualityGate && !hasConditionOnNewCode(selectedQualityGate) && (
-                  <FlagMessage variant="warning">
+              {aiAssuranceStatus && (
+                <>
+                  <p className="sw-w-abs-400 sw-mt-6">
                     <FormattedMessage
-                      id="project_quality_gate.no_condition_on_new_code"
-                      defaultMessage={translate('project_quality_gate.no_condition_on_new_code')}
+                      id="project_quality_gate.ai_assured.message1"
+                      defaultMessage={translate('project_quality_gate.ai_assured.message1')}
                       values={{
                         link: (
-                          <Link to={getQualityGateUrl(selectedQualityGate.name)}>
-                            {translate('project_quality_gate.no_condition.link')}
-                          </Link>
+                          <DocumentationLink to={DocLink.AiCodeAssurance}>
+                            {translate('project_quality_gate.ai_assured.message1.link')}
+                          </DocumentationLink>
                         ),
                       }}
                     />
-                  </FlagMessage>
-                )}
-                {needsReanalysis && (
-                  <FlagMessage className="sw-mt-4 sw-w-abs-600" variant="warning">
-                    {translate('project_quality_gate.requires_new_analysis')}
-                  </FlagMessage>
-                )}
-              </div>
+                  </p>
+                  <p className="sw-w-abs-400 sw-mt-6">
+                    <FormattedMessage
+                      id="project_quality_gate.ai_assured.message2"
+                      defaultMessage={translate('project_quality_gate.ai_assured.message2')}
+                      values={{
+                        link: (
+                          <LinkStandalone
+                            className="sw-shrink-0"
+                            to={{
+                              pathname:
+                                '/project/admin/extension/developer-server/ai-project-settings',
+                              search: queryToSearchString({
+                                ...location.query,
+                                qualifier: ComponentQualifier.Project,
+                              }),
+                            }}
+                          >
+                            {translate('project_quality_gate.ai_assured.message2.link')}
+                          </LinkStandalone>
+                        ),
+                        value: <b>{translate('false')}</b>,
+                      }}
+                    />
+                  </p>
+                </>
+              )}
+
+              {selectedQualityGate && !hasConditionOnNewCode(selectedQualityGate) && (
+                <FlagMessage variant="warning">
+                  <FormattedMessage
+                    id="project_quality_gate.no_condition_on_new_code"
+                    defaultMessage={translate('project_quality_gate.no_condition_on_new_code')}
+                    values={{
+                      link: (
+                        <Link to={getQualityGateUrl(selectedQualityGate.name)}>
+                          {translate('project_quality_gate.no_condition.link')}
+                        </Link>
+                      ),
+                    }}
+                  />
+                </FlagMessage>
+              )}
+              {needsReanalysis && (
+                <FlagMessage className="sw-mt-4 sw-w-abs-600" variant="warning">
+                  {translate('project_quality_gate.requires_new_analysis')}
+                </FlagMessage>
+              )}
             </div>
 
             <div>
-              <ButtonPrimary
-                form="project_quality_gate"
-                disabled={submitting || isAiAssured}
-                type="submit"
-              >
+              <ButtonPrimary form="project_quality_gate" disabled={submitting} type="submit">
                 {translate('save')}
               </ButtonPrimary>
               <Spinner loading={submitting} />
