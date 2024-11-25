@@ -184,7 +184,7 @@ class TelemetryDataLoaderImplIT {
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
     ProjectData projectData1 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setContainsAiCode(true));
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData1.getProjectDto().getContainsAiCode())).thenReturn(true);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData1.getProjectDto())).thenReturn(true);
 
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
@@ -203,7 +203,7 @@ class TelemetryDataLoaderImplIT {
     db.measures().insertMeasure(branch2, m -> m.addValue(technicalDebtDto.getKey(), 7d));
 
     ProjectData projectData2 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setContainsAiCode(false));
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData2.getProjectDto().getContainsAiCode())).thenReturn(false);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData2.getProjectDto())).thenReturn(false);
 
     ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
     db.measures().insertMeasure(mainBranch2, m -> m.addValue(lines.getKey(), 200d));
@@ -544,7 +544,7 @@ class TelemetryDataLoaderImplIT {
     },
       projectDto -> projectDto.setContainsAiCode(expected)).getProjectDto();
 
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getContainsAiCode())).thenReturn(expected);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1)).thenReturn(expected);
 
     TelemetryData data = communityUnderTest.load();
 

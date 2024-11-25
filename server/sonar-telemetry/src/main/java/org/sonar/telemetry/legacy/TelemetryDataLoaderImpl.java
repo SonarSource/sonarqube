@@ -334,7 +334,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setExternalSecurityReportExportedAt(securityReportExportedAtByProjectUuid.get(projectUuid))
         .setCreationMethod(project.getCreationMethod())
         .setMonorepo(resolveMonorepo(almAndUrlAndMonorepoByProject, projectUuid))
-        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(project.getContainsAiCode()))
+        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(project))
         .build();
       projectStatistics.add(stats);
     }
