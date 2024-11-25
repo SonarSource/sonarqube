@@ -57,6 +57,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.TokenType;
+import org.sonar.server.ai.code.assurance.AiCodeAssurance;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchResultsBuilder;
@@ -69,6 +70,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 
@@ -131,6 +133,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
+        new Change("10.8", "Field 'isAiCodeAssured' response field has been deprecated. Use 'aiCodeAssurance' instead."),
+        new Change("10.8", "Add 'aiCodeAssurance' response field"),
         new Change("10.7", "Add 'isAiCodeAssured' response field"),
         new Change("10.3", "Add 'creationDate' sort parameter."),
         new Change("10.2", "Field 'needIssueSync' removed from response"),
@@ -483,13 +487,15 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     @Override
     public Component apply(ProjectDto dbProject) {
+      AiCodeAssurance aiCodeAssurance = aiCodeAssuranceVerifier.getAiCodeAssurance(dbProject);
       wsComponent
         .clear()
         .setKey(dbProject.getKey())
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
         .setVisibility(Visibility.getLabel(dbProject.isPrivate()))
-        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(dbProject))
+        .setIsAiCodeAssured(AiCodeAssurance.AI_CODE_ASSURED.equals(aiCodeAssurance))
+        .setAiCodeAssurance(Components.AiCodeAssurance.valueOf(aiCodeAssurance.name()))
         .setIsAiCodeFixEnabled(dbProject.getAiCodeFixEnabled());
       wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
 

@@ -16,6 +16,7 @@
       ],
       "visibility": "public",
       "isAiCodeAssured": false,
+      "aiCodeAssurance": "CONTAINS_AI_CODE",
       "isAiCodeFixEnabled": false
     },
     {
@@ -26,6 +27,7 @@
       "tags": [],
       "visibility": "public",
       "isAiCodeAssured": false,
+      "aiCodeAssurance": "CONTAINS_AI_CODE",
       "isAiCodeFixEnabled": false
     },
     {
@@ -40,6 +42,7 @@
       ],
       "visibility": "public",
       "isAiCodeAssured": false,
+      "aiCodeAssurance": "CONTAINS_AI_CODE",
       "isAiCodeFixEnabled": false
     }
   ],
