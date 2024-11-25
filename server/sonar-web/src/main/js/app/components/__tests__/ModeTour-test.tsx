@@ -35,6 +35,7 @@ const ui = {
   step1Dialog: byRole('dialog', { name: /mode_tour.step1.title/ }),
   step2Dialog: byRole('dialog', { name: /mode_tour.step2.title/ }),
   step3Dialog: byRole('dialog', { name: /mode_tour.step3.title/ }),
+  step4Dialog: byRole('dialog', { name: /mode_tour.step4.title/ }),
   next: byRole('button', { name: 'next' }),
   later: byRole('button', { name: 'later' }),
   skip: byRole('button', { name: 'skip' }),
@@ -109,7 +110,7 @@ it('renders the tour for gateadmins', async () => {
   expect(ui.later.get()).toBeInTheDocument();
   expect(ui.next.query()).not.toBeInTheDocument();
   expect(ui.letsgo.get()).toBeInTheDocument();
-  expect(ui.step1Dialog.get()).toHaveTextContent('guiding.step_x_of_y.1.3');
+  expect(ui.step1Dialog.get()).toHaveTextContent('guiding.step_x_of_y.1.4');
   await user.click(ui.letsgo.get());
 
   expect(ui.step2Dialog.get()).toBeInTheDocument();
@@ -117,13 +118,19 @@ it('renders the tour for gateadmins', async () => {
   expect(ui.later.query()).not.toBeInTheDocument();
   expect(ui.next.get()).toBeInTheDocument();
   expect(ui.letsgo.query()).not.toBeInTheDocument();
-  expect(ui.step2Dialog.get()).toHaveTextContent('guiding.step_x_of_y.2.3');
+  expect(ui.step2Dialog.get()).toHaveTextContent('guiding.step_x_of_y.2.4');
   await user.click(ui.next.get());
 
   expect(ui.step3Dialog.get()).toBeInTheDocument();
   expect(ui.step2Dialog.query()).not.toBeInTheDocument();
   expect(ui.next.get()).toBeInTheDocument();
-  expect(ui.step3Dialog.get()).toHaveTextContent('guiding.step_x_of_y.3.3');
+  expect(ui.step3Dialog.get()).toHaveTextContent('guiding.step_x_of_y.3.4');
+  await user.click(ui.next.get());
+
+  expect(ui.step4Dialog.get()).toBeInTheDocument();
+  expect(ui.step3Dialog.query()).not.toBeInTheDocument();
+  expect(ui.next.get()).toBeInTheDocument();
+  expect(ui.step4Dialog.get()).toHaveTextContent('guiding.step_x_of_y.4.4');
   await user.click(ui.next.get());
 
   expect(ui.dialog.query()).not.toBeInTheDocument();
@@ -141,7 +148,7 @@ it('renders the tour for gateadmins', async () => {
   await user.click(ui.help.get());
   await user.click(ui.tourTrigger.get());
   expect(ui.step1Dialog.get()).toBeInTheDocument();
-  expect(ui.step1Dialog.get()).toHaveTextContent('guiding.step_x_of_y.1.3');
+  expect(ui.step1Dialog.get()).toHaveTextContent('guiding.step_x_of_y.1.4');
 });
 
 it('should not render the tour for regular users', async () => {

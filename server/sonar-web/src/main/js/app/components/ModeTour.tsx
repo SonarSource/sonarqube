@@ -34,6 +34,8 @@ import { NoticeType } from '../../types/users';
 import { useAppState } from './app-state/withAppStateContext';
 import { CurrentUserContext } from './current-user/CurrentUserContext';
 
+const MAX_STEPS = 4;
+
 export default function ModeTour() {
   const { currentUser, updateDismissedNotices } = useContext(CurrentUserContext);
   const appState = useAppState();
@@ -42,34 +44,8 @@ export default function ModeTour() {
   const [step, setStep] = useState(1);
   const [runManually, setRunManually] = useState(false);
 
-  const steps: SpotlightTourStep[] = [
-    {
-      target: '[data-guiding-id="mode-tour-1"]',
-      content: intl.formatMessage(
-        { id: 'mode_tour.step4.description' },
-        {
-          mode: intl.formatMessage({
-            id: `settings.mode.${isStandardMode ? 'standard' : 'mqr'}.name`,
-          }),
-          p1: (text) => <p>{text}</p>,
-          p: (text) => <p className="sw-mt-2">{text}</p>,
-          b: (text) => <b>{text}</b>,
-        },
-      ),
-      title: intl.formatMessage({ id: 'mode_tour.step4.title' }),
-      placement: 'bottom',
-    },
-    {
-      target: '[data-guiding-id="mode-tour-2"]',
-      title: intl.formatMessage({ id: 'mode_tour.step5.title' }),
-      content: null,
-      placement: 'left',
-      hideFooter: true,
-    },
-  ];
-
   const nextStep = () => {
-    if ((step === 3 && !isAdmin) || step === 4) {
+    if (step === MAX_STEPS) {
       document.dispatchEvent(new CustomEvent(CustomEvents.OpenHelpMenu));
       setTimeout(() => setStep(5));
     } else {
@@ -124,21 +100,51 @@ export default function ModeTour() {
     return null;
   }
 
-  const maxSteps = isAdmin ? 4 : 3;
+  const steps: SpotlightTourStep[] = [
+    ...(isAdmin
+      ? [
+          {
+            target: '[data-guiding-id="mode-tour-1"]',
+            content: intl.formatMessage(
+              { id: 'mode_tour.step4.description' },
+              {
+                mode: intl.formatMessage({
+                  id: `settings.mode.${isStandardMode ? 'standard' : 'mqr'}.name`,
+                }),
+                p1: (text) => <p>{text}</p>,
+                p: (text) => <p className="sw-mt-2">{text}</p>,
+                b: (text) => <b>{text}</b>,
+              },
+            ),
+            title: intl.formatMessage({ id: 'mode_tour.step4.title' }),
+            placement: 'bottom' as const,
+          },
+        ]
+      : []),
+    {
+      target: '[data-guiding-id="mode-tour-2"]',
+      title: intl.formatMessage({ id: 'mode_tour.step5.title' }),
+      content: null,
+      placement: 'left',
+      hideFooter: true,
+    },
+  ];
+
+  const maxModalSteps = isAdmin ? MAX_STEPS - 1 : MAX_STEPS;
 
   return (
     <>
       <Modal
         size={ModalSize.Wide}
-        isOpen={step <= 3}
+        isOpen={step <= maxModalSteps}
         onOpenChange={(isOpen) => isOpen === false && dismissTour()}
         title={
-          step < 4 &&
+          step <= maxModalSteps &&
           intl.formatMessage({ id: `mode_tour.step${step}.title` }, { version: appState.version })
         }
         content={
           <>
-            {step < 4 && (
+            {step <= maxModalSteps && (
               <>
                 <Image
                   alt={intl.formatMessage({ id: `mode_tour.step${step}.img_alt` })}
@@ -148,6 +154,9 @@ export default function ModeTour() {
                 {intl.formatMessage(
                   { id: `mode_tour.step${step}.description` },
                   {
+                    mode: intl.formatMessage({
+                      id: `settings.mode.${isStandardMode ? 'standard' : 'mqr'}.name`,
+                    }),
                     p1: (text) => <p>{text}</p>,
                     p: (text) => <p className="sw-mt-4">{text}</p>,
                     b: (text) => <b>{text}</b>,
@@ -155,7 +164,7 @@ export default function ModeTour() {
                 )}
                 <div className="sw-mt-6">
                   <b>
-                    {intl.formatMessage({ id: 'guiding.step_x_of_y' }, { 0: step, 1: maxSteps })}
+                    {intl.formatMessage({ id: 'guiding.step_x_of_y' }, { 0: step, 1: MAX_STEPS })}
                   </b>
                 </div>
               </>
@@ -183,13 +192,14 @@ export default function ModeTour() {
       <SpotlightTour
         callback={onToggle}
         steps={steps}
-        run={step > 3}
+        run={step > maxModalSteps}
         continuous
+        disableOverlay={step === 5}
         showProgress={step !== 5}
-        stepIndex={step - 4}
+        stepIndex={step - maxModalSteps - 1}
         nextLabel={intl.formatMessage({ id: 'next' })}
         stepXofYLabel={(x: number) =>
-          intl.formatMessage({ id: 'guiding.step_x_of_y' }, { 0: x + 3, 1: maxSteps })
+          intl.formatMessage({ id: 'guiding.step_x_of_y' }, { 0: x + maxModalSteps, 1: MAX_STEPS })
         }
       />
     </>
