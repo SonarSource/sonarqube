@@ -80,7 +80,7 @@ export default function AboutProject(props: AboutProjectProps) {
             )}
 
             {component.qualityProfiles && component.qualityProfiles.length > 0 && (
-              <MetaQualityProfiles profiles={component.qualityProfiles} />
+              <MetaQualityProfiles organization={component.organization} profiles={component.qualityProfiles} />
             )}
           </ProjectInformationSection>
         )}

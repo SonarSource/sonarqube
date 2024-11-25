@@ -30,9 +30,10 @@ import { Dict } from '../../../../types/types';
 
 interface Props {
   profiles: ComponentQualityProfile[];
+  organization: string;
 }
 
-export function MetaQualityProfiles({ profiles }: Readonly<Props>) {
+export function MetaQualityProfiles({ organization, profiles }: Readonly<Props>) {
   const [deprecatedByKey, setDeprecatedByKey] = React.useState<Dict<number>>({});
   const languages = useContext(LanguagesContext);
 
@@ -70,6 +71,7 @@ export function MetaQualityProfiles({ profiles }: Readonly<Props>) {
             key={profile.key}
             profile={profile}
             languages={languages}
+            organization={organization}
             deprecatedByKey={deprecatedByKey}
           />
         ))}
@@ -81,11 +83,13 @@ export function MetaQualityProfiles({ profiles }: Readonly<Props>) {
 function ProfileItem({
   profile,
   languages,
+  organization,
   deprecatedByKey,
 }: {
   deprecatedByKey: Dict<number>;
   languages: Languages;
   profile: ComponentQualityProfile;
+  organization: string;
 }) {
   const languageFromStore = languages[profile.language];
   const languageName = languageFromStore ? languageFromStore.name : profile.language;
@@ -105,7 +109,7 @@ function ProfileItem({
             </Tooltip>
           ) : (
             <>
-              <Link to={getQualityProfileUrl(profile.name, profile.language)}>
+              <Link to={getQualityProfileUrl(profile.name, profile.language, organization)}>
                 <span
                   aria-label={translateWithParameters(
                     'overview.link_to_x_profile_y',

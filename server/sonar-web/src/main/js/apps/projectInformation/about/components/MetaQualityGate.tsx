@@ -26,7 +26,7 @@ import { getQualityGateUrl } from '../../../../helpers/urls';
 interface Props {
   isAiAssured?: boolean;
   qualityGate: { isDefault?: boolean; name: string };
-  organizzation: string;
+  organization: string;
 }
 
 export default function MetaQualityGate({ organization, qualityGate, isAiAssured }: Props) {
