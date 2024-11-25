@@ -29,14 +29,14 @@ export interface Props {
 
 export default function MembersListHeader({ handleSearch, total }: Props) {
   return (
-    <div className="panel panel-vertical bordered-bottom spacer-bottom">
+    <div className="sw-mt-16 sw-ml-16 sw-mr-8 panel panel-vertical bordered-bottom spacer-bottom">
       <InputSearch
         minLength={2}
         onChange={handleSearch}
         placeholder={translate('search.search_for_users')}
       />
       {total && (
-        <span className="pull-right little-spacer-top">
+        <span className="sw-mt-16 sw-ml-16 sw-mr-8 pull-right little-spacer-top">
           <strong>{ formatMeasure(total, 'INT') }</strong> {translate('organization.members.members')}
         </span>
       )}

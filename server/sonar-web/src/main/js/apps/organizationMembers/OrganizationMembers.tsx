@@ -74,7 +74,7 @@ function OrganizationMembers({ currentUser, organization }: Props) {
       q: query
     }).then(({ paging, users }) => {
       setLoading(false);
-      setMembers(members);
+      setMembers(users);
       setPaging(paging);
     }, stopLoading);
   };
