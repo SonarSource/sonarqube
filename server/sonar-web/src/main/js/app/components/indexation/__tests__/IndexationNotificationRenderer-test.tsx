@@ -59,5 +59,13 @@ describe('Indexation notification renderer', () => {
 });
 
 function renderIndexationNotificationRenderer(status: IndexationNotificationType) {
-  renderComponent(<IndexationNotificationRenderer completedCount={23} total={42} type={status} />);
+  renderComponent(
+    <IndexationNotificationRenderer
+      completedCount={23}
+      onDismissBanner={() => undefined}
+      shouldDisplaySurveyLink={false}
+      total={42}
+      type={status}
+    />,
+  );
 }

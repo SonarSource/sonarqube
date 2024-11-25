@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { isBefore } from 'date-fns';
 import * as React from 'react';
 import withIndexationContext, {
   WithIndexationContextProps,
@@ -26,6 +27,7 @@ import { hasGlobalPermission } from '../../../helpers/users';
 import { IndexationNotificationType } from '../../../types/indexation';
 import { Permissions } from '../../../types/permissions';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
+import withAppStateContext, { WithAppStateContextProps } from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
@@ -36,15 +38,24 @@ interface Props extends WithIndexationContextProps {
 
 interface State {
   notificationType?: IndexationNotificationType;
+  shouldDisplaySurveyLink: boolean;
 }
 
-const COMPLETED_NOTIFICATION_DISPLAY_DURATION = 5000;
+type IndexationNotificationProps = Props & WithIndexationContextProps & WithAppStateContextProps;
 
-export class IndexationNotification extends React.PureComponent<Props, State> {
-  state: State = {};
+const SPRIG_SURVEY_LIMIT_DATE = new Date('2025-07-01T00:00:00+01:00');
+
+export class IndexationNotification extends React.PureComponent<
+  IndexationNotificationProps,
+  State
+> {
+  state: State = {
+    shouldDisplaySurveyLink: false,
+  };
+
   isSystemAdmin = false;
 
-  constructor(props: Props) {
+  constructor(props: IndexationNotificationProps) {
     super(props);
 
     this.isSystemAdmin =
@@ -62,8 +73,19 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
     }
   }
 
+  dismissBanner = () => {
+    this.setState({ notificationType: undefined });
+  };
+
   refreshNotification() {
     const { isCompleted, hasFailures } = this.props.indexationContext.status;
+
+    const currentSqsVersion = this.props.appState.version;
+    this.setState({
+      shouldDisplaySurveyLink:
+        isBefore(new Date(), SPRIG_SURVEY_LIMIT_DATE) &&
+        IndexationNotificationHelper.getLastIndexationSQSVersion() !== currentSqsVersion,
+    });
 
     if (!isCompleted) {
       IndexationNotificationHelper.markCompletedNotificationAsToDisplay();
@@ -73,26 +95,31 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
           ? IndexationNotificationType.InProgressWithFailure
           : IndexationNotificationType.InProgress,
       });
-    } else if (hasFailures) {
+
+      return;
+    }
+
+    IndexationNotificationHelper.saveLastIndexationSQSVersion(this.props.appState.version);
+
+    if (hasFailures) {
       this.setState({ notificationType: IndexationNotificationType.CompletedWithFailure });
-    } else if (IndexationNotificationHelper.shouldDisplayCompletedNotification()) {
+      return;
+    }
+
+    if (IndexationNotificationHelper.shouldDisplayCompletedNotification()) {
       this.setState({
         notificationType: IndexationNotificationType.Completed,
       });
 
       IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
-
-      // Hide after some time
-      setTimeout(() => {
-        this.refreshNotification();
-      }, COMPLETED_NOTIFICATION_DISPLAY_DURATION);
-    } else {
-      this.setState({ notificationType: undefined });
+      return;
     }
+
+    this.setState({ notificationType: undefined });
   }
 
   render() {
-    const { notificationType } = this.state;
+    const { notificationType, shouldDisplaySurveyLink } = this.state;
 
     const {
       indexationContext: {
@@ -103,6 +130,8 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
     return !this.isSystemAdmin ? null : (
       <IndexationNotificationRenderer
         completedCount={completedCount}
+        onDismissBanner={this.dismissBanner}
+        shouldDisplaySurveyLink={shouldDisplaySurveyLink}
         total={total}
         type={notificationType}
       />
@@ -110,4 +139,6 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUserContext(withIndexationContext(IndexationNotification));
+export default withCurrentUserContext(
+  withIndexationContext(withAppStateContext(IndexationNotification)),
+);

@@ -25,6 +25,7 @@ import { IndexationStatus } from '../../../types/indexation';
 const POLLING_INTERVAL_MS = 5000;
 const LS_INDEXATION_COMPLETED_NOTIFICATION_SHOULD_BE_DISPLAYED =
   'display_indexation_completed_notification';
+const LS_LAST_INDEXATION_SQS_VERSION = 'last_indexation_sqs_version';
 
 export default class IndexationNotificationHelper {
   private static interval?: NodeJS.Timeout;
@@ -73,5 +74,13 @@ export default class IndexationNotificationHelper {
     return JSON.parse(
       get(LS_INDEXATION_COMPLETED_NOTIFICATION_SHOULD_BE_DISPLAYED) ?? false.toString(),
     );
+  }
+
+  static saveLastIndexationSQSVersion(version: string) {
+    save(LS_LAST_INDEXATION_SQS_VERSION, version);
+  }
+
+  static getLastIndexationSQSVersion() {
+    return get(LS_LAST_INDEXATION_SQS_VERSION);
   }
 }
