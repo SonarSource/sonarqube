@@ -91,8 +91,10 @@ class NewModesNotificationsSenderTest {
     verify(notificationManager, times(2)).scheduleForSending(captor.capture());
 
     assertThat(captor.getAllValues())
-      .filteredOn(notification -> notification instanceof QualityGateMetricsUpdateNotification)
-      .map(notification -> (QualityGateMetricsUpdateNotification) notification)
+      .filteredOn(
+        QualityGateMetricsUpdateNotification.class::isInstance)
+      .map(
+        QualityGateMetricsUpdateNotification.class::cast)
       .hasSize(1)
       .extracting(QualityGateMetricsUpdateNotification::isMQRModeEnabled).isEqualTo(List.of(false));
   }
@@ -109,8 +111,9 @@ class NewModesNotificationsSenderTest {
     verify(notificationManager, times(1)).scheduleForSending(captor.capture());
 
     assertThat(captor.getAllValues())
-      .filteredOn(notification -> notification instanceof QualityGateMetricsUpdateNotification)
-      .map(notification -> (QualityGateMetricsUpdateNotification) notification)
+      .filteredOn(
+        QualityGateMetricsUpdateNotification.class::isInstance)
+      .map(QualityGateMetricsUpdateNotification.class::cast)
       .isEmpty();
   }
 }
