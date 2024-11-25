@@ -21,7 +21,6 @@ import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
-import { PROFILE_PATH } from '../constants';
 import { getProfilesForLanguagePath } from '../utils';
 
 const MIN_LANGUAGES = 2;
@@ -35,6 +34,7 @@ export default function LanguageSelect(props: Readonly<Props>) {
   const { currentFilter, languages } = props;
   const intl = useIntl();
   const router = useRouter();
+  const currentOrg: any = localStorage.getItem('org');
 
   const options = languages.map((language) => ({
     label: language.name,
@@ -63,7 +63,7 @@ export default function LanguageSelect(props: Readonly<Props>) {
         controlAriaLabel={intl.formatMessage({ id: 'quality_profiles.select_lang' })}
         options={options}
         onChange={(option: LabelValueSelectOption<string>) =>
-          router.replace(!option ? PROFILE_PATH : getProfilesForLanguagePath(option.value))
+          router.replace(!option ? '' : getProfilesForLanguagePath(option.value, currentOrg))
         }
         defaultOptions={options}
         loadOptions={handleLanguagesSearch}

@@ -74,6 +74,8 @@ export interface SearchQualityProfilesResponse {
 export function searchQualityProfiles(
   parameters?: SearchQualityProfilesParameters,
 ): Promise<SearchQualityProfilesResponse> {
+  const currentOrg: any = parameters?.organization;
+  localStorage.setItem('org', currentOrg);
   return getJSON('/api/qualityprofiles/search', parameters).catch(throwGlobalError);
 }
 
