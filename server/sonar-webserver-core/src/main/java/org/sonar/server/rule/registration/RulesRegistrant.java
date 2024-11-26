@@ -48,7 +48,6 @@ import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.metadata.MetadataIndex;
-import org.sonar.server.plugins.DetectPluginChange;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -82,12 +81,11 @@ public class RulesRegistrant implements Startable {
   private final NewRuleCreator newRuleCreator;
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater;
   private final SonarQubeVersion sonarQubeVersion;
-  private final DetectPluginChange detectPluginChange;
 
   public RulesRegistrant(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, System2 system2, WebServerRuleFinder webServerRuleFinder,
     MetadataIndex metadataIndex, RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater,
-    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion, DetectPluginChange detectPluginChange) {
+    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -101,24 +99,16 @@ public class RulesRegistrant implements Startable {
     this.newRuleCreator = newRuleCreator;
     this.qualityProfileChangesUpdater = qualityProfileChangesUpdater;
     this.sonarQubeVersion = sonarQubeVersion;
-    this.detectPluginChange = detectPluginChange;
   }
 
   @Override
   public void start() {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(true)) {
-      var anyPluginChanged = detectPluginChange.anyPluginChanged();
+      List<RulesDefinition.Repository> rulesRepositories = new ArrayList<>(defLoader.load().repositories());
+
       RulesRegistrationContext rulesRegistrationContext = RulesRegistrationContext.create(dbClient, dbSession);
-
-      List<RulesDefinition.Repository> rulesRepositories = new ArrayList<>(defLoader.loadBuiltIn().repositories());
-      if (anyPluginChanged) {
-        LOG.info("Some plugins have changed, triggering loading of rules from plugins");
-        rulesRepositories.addAll(defLoader.loadFromPlugins().repositories());
-      }
       rulesKeyVerifier.verifyRuleKeyConsistency(rulesRepositories, rulesRegistrationContext);
-
-      persistRepositories(dbSession, rulesRepositories, anyPluginChanged);
 
       for (RulesDefinition.Repository repoDef : rulesRepositories) {
         if (repoDef.language() == null) {
@@ -132,8 +122,10 @@ public class RulesRegistrant implements Startable {
         dbSession.commit();
       }
       processRemainingDbRules(rulesRegistrationContext, dbSession);
-      List<ActiveRuleChange> changes = anyPluginChanged ? removeActiveRulesOnStillExistingRepositories(dbSession, rulesRegistrationContext, rulesRepositories) : List.of();
+      List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, rulesRegistrationContext, rulesRepositories);
       dbSession.commit();
+
+      persistRepositories(dbSession, rulesRepositories);
 
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
@@ -158,7 +150,7 @@ public class RulesRegistrant implements Startable {
     }
   }
 
-  private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories, boolean deleteMissing) {
+  private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
     List<String> keys = repositories.stream().map(RulesDefinition.Repository::key).toList();
     Set<String> existingKeys = dbClient.ruleRepositoryDao().selectAllKeys(dbSession);
 
@@ -168,9 +160,7 @@ public class RulesRegistrant implements Startable {
 
     dbClient.ruleRepositoryDao().update(dbSession, dtos.getOrDefault(true, emptyList()));
     dbClient.ruleRepositoryDao().insert(dbSession, dtos.getOrDefault(false, emptyList()));
-    if (deleteMissing) {
-      dbClient.ruleRepositoryDao().deleteIfKeyNotIn(dbSession, keys);
-    }
+    dbClient.ruleRepositoryDao().deleteIfKeyNotIn(dbSession, keys);
     dbSession.commit();
   }
 

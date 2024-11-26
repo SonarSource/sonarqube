@@ -31,13 +31,13 @@ public class RuleDefinitionsLoaderTest {
 
   @Test
   public void no_definitions() {
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(ServerPluginRepository.class)).loadFromPlugins();
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(ServerPluginRepository.class)).load();
 
     assertThat(context.repositories()).isEmpty();
   }
 
   @Test
-  public void load_FromPlugins_definitions_only_returns_from_plugins() {
+  public void load_returns_definition() {
     var serverPluginRepository = mock(ServerPluginRepository.class);
     var findbugsDefinitions = new FindbugsDefinitions();
     var builtInJavaDefinitions = new JavaDefinitions();
@@ -46,25 +46,10 @@ public class RuleDefinitionsLoaderTest {
     RulesDefinition.Context context = new RuleDefinitionsLoader(serverPluginRepository,
       new RulesDefinition[] {
         findbugsDefinitions, builtInJavaDefinitions
-      }).loadFromPlugins();
+      }).load();
 
-    assertThat(context.repositories()).hasSize(1);
+    assertThat(context.repositories()).hasSize(2);
     assertThat(context.repository("findbugs")).isNotNull();
-  }
-
-  @Test
-  public void load_builtin_definitions_only_returns_builtin() {
-    var serverPluginRepository = mock(ServerPluginRepository.class);
-    var findbugsDefinitions = new FindbugsDefinitions();
-    var builtInJavaDefinitions = new JavaDefinitions();
-    when(serverPluginRepository.getPluginKey(findbugsDefinitions)).thenReturn("findbugs");
-    when(serverPluginRepository.getPluginKey(builtInJavaDefinitions)).thenReturn(null);
-    RulesDefinition.Context context = new RuleDefinitionsLoader(serverPluginRepository,
-      new RulesDefinition[] {
-        findbugsDefinitions, builtInJavaDefinitions
-      }).loadBuiltIn();
-
-    assertThat(context.repositories()).hasSize(1);
     assertThat(context.repository("java")).isNotNull();
   }
 

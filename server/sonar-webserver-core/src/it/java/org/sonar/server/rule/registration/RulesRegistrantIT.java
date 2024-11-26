@@ -165,7 +165,6 @@ public class RulesRegistrantIT {
   private final StartupRuleUpdater startupRuleUpdater = new StartupRuleUpdater(dbClient, system, uuidFactory, resolver);
   private final NewRuleCreator newRuleCreator = new NewRuleCreator(resolver, uuidFactory, system);
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater = mock();
-  private final DetectPluginChange detectPluginChange = mock();
 
   @Before
   public void before() {
@@ -1168,7 +1167,6 @@ public class RulesRegistrantIT {
     when(pluginRepository.getPluginKey(builtInRepoV1)).thenReturn(null);
     when(pluginRepository.getPluginKey(pluginRepo)).thenReturn(FAKE_PLUGIN_KEY);
     RuleDefinitionsLoader loader1 = new RuleDefinitionsLoader(pluginRepository, new RulesDefinition[] {builtInRepoV1, pluginRepo});
-    when(detectPluginChange.anyPluginChanged()).thenReturn(true);
     execute(loader1);
 
     RuleDto builtInRulev1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("sca", "rule1"));
@@ -1177,7 +1175,6 @@ public class RulesRegistrantIT {
     RulesDefinition builtInRepoV2 = context -> createRule(context, "builtin", "sca", "rule1", rule -> rule.setName("Name after"));
     when(pluginRepository.getPluginKey(builtInRepoV2)).thenReturn(null);
     RuleDefinitionsLoader loader2 = new RuleDefinitionsLoader(pluginRepository, new RulesDefinition[] {builtInRepoV2, pluginRepo});
-    when(detectPluginChange.anyPluginChanged()).thenReturn(false);
     execute(loader2);
 
     RuleDto builtInRulev2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("sca", "rule1"));
@@ -1191,7 +1188,6 @@ public class RulesRegistrantIT {
     ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
     when(pluginRepository.getPluginKey(any(RulesDefinition.class))).thenReturn(FAKE_PLUGIN_KEY);
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(pluginRepository, defs);
-    when(detectPluginChange.anyPluginChanged()).thenReturn(true);
     execute(loader);
   }
 
@@ -1199,7 +1195,7 @@ public class RulesRegistrantIT {
     reset(webServerRuleFinder);
 
     RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, system, webServerRuleFinder, metadataIndex,
-      rulesKeyVerifier, startupRuleUpdater, newRuleCreator, qualityProfileChangesUpdater, sonarQubeVersion, detectPluginChange);
+      rulesKeyVerifier, startupRuleUpdater, newRuleCreator, qualityProfileChangesUpdater, sonarQubeVersion);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();
