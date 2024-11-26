@@ -245,6 +245,59 @@ it('should be able to set as default a quality gate which is CaYC compliant', as
   ).toBeInTheDocument();
 });
 
+it('should be able to qualify/disqualify a quality gate for AI code assurance', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+  await user.click(await screen.findByLabelText('actions'));
+  const qualifyButton = screen.getByRole('menuitem', {
+    name: 'quality_gates.actions.qualify_for_ai_code_assurance',
+  });
+  expect(qualifyButton).toBeInTheDocument();
+  await user.click(qualifyButton);
+
+  await user.click(await screen.findByLabelText('actions'));
+  const disqualifyButton = screen.getByRole('menuitem', {
+    name: 'quality_gates.actions.disqualify_for_ai_code_assurance',
+  });
+
+  expect(disqualifyButton).toBeInTheDocument();
+  await user.click(disqualifyButton);
+});
+
+it('should show confirmation when disqualifying a quality gate with projects having AI code', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  await user.click(await screen.findByText('SonarSource way - CFamily'));
+
+  await user.click(await screen.findByLabelText('actions'));
+  const qualifyButton = screen.getByRole('menuitem', {
+    name: 'quality_gates.actions.qualify_for_ai_code_assurance',
+  });
+  await user.click(qualifyButton);
+
+  await user.click(await screen.findByLabelText('actions'));
+  const disqualifyButton = screen.getByRole('menuitem', {
+    name: 'quality_gates.actions.disqualify_for_ai_code_assurance',
+  });
+
+  await user.click(disqualifyButton);
+
+  expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', { name: 'quality_gates.disqualify_ai_modal.confirm' }),
+  );
+
+  await user.click(await screen.findByLabelText('actions'));
+  expect(
+    screen.getByRole('menuitem', {
+      name: 'quality_gates.actions.qualify_for_ai_code_assurance',
+    }),
+  ).toBeInTheDocument();
+});
+
 it('should be able to add a condition on new code', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
@@ -724,7 +777,7 @@ describe('The Project section', () => {
     await user.click(notDefaultQualityGate);
 
     // by default it shows "selected" values
-    expect(await screen.findAllByRole('checkbox')).toHaveLength(3);
+    expect(await screen.findAllByRole('checkbox')).toHaveLength(4);
 
     // change tabs to show deselected projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
@@ -732,7 +785,7 @@ describe('The Project section', () => {
 
     // change tabs to show all projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
-    expect(screen.getAllByRole('checkbox')).toHaveLength(6);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(7);
   });
 
   it('should handle select and deselect correctly', async () => {
@@ -744,7 +797,7 @@ describe('The Project section', () => {
 
     await user.click(notDefaultQualityGate);
 
-    expect(await screen.findAllByRole('checkbox')).toHaveLength(3);
+    expect(await screen.findAllByRole('checkbox')).toHaveLength(4);
     const checkedProjects = screen.getAllByRole('checkbox')[0];
     await user.click(checkedProjects);
     const reloadButton = screen.getByRole('button', { name: 'reload' });
@@ -753,7 +806,7 @@ describe('The Project section', () => {
 
     // FP
     // eslint-disable-next-line jest-dom/prefer-in-document
-    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
 
     // projects with disabled as true are not selectable
     // last checked project in mock service is disabled
@@ -781,7 +834,7 @@ describe('The Project section', () => {
 
     // change tabs to show all projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
-    expect(screen.getAllByRole('checkbox')).toHaveLength(6);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(7);
 
     const disabledCheckedProjectsAll = screen.getByRole('checkbox', {
       name: 'test5 test5 quality_gates.projects.ai_assured_message',

@@ -360,7 +360,6 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
           <div>
             <FormattedMessage
               id="quality_gates.cayc_unfollow.description"
-              defaultMessage={translate('quality_gates.cayc_unfollow.description')}
               values={{
                 cayc_link: <Link to={docUrl}>{translate('quality_gates.cayc')}</Link>,
               }}

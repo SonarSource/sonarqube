@@ -90,7 +90,7 @@ describe('groupAndSortByPriorityConditions', () => {
   ];
   const expectedConditionsOrderAIOverall = [
     MetricKey.software_quality_security_rating,
-    MetricKey.security_review_rating,
+    MetricKey.security_hotspots_reviewed,
     MetricKey.software_quality_reliability_rating,
   ];
 
@@ -108,7 +108,7 @@ describe('groupAndSortByPriorityConditions', () => {
   it('should return grouped conditions by overall/new code and sort them for builtIn Ai QG', () => {
     const aiConditions = [
       ...conditions,
-      mockCondition({ metric: MetricKey.security_review_rating }),
+      mockCondition({ metric: MetricKey.security_hotspots_reviewed }),
       mockCondition({ metric: MetricKey.software_quality_reliability_rating }),
       mockCondition({ metric: MetricKey.software_quality_security_rating }),
     ];

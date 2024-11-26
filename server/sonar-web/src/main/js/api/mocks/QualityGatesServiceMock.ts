@@ -35,6 +35,7 @@ import {
   SearchPermissionsParameters,
 } from '../../types/quality-gates';
 import { CaycStatus, Condition, QualityGate } from '../../types/types';
+import { AiCodeAssuranceStatus } from '../ai-code-assurance';
 import {
   addGroup,
   addUser,
@@ -47,6 +48,7 @@ import {
   dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
+  getAllQualityGateProjects,
   getApplicationQualityGate,
   getGateForProject,
   getQualityGateProjectStatus,
@@ -54,6 +56,7 @@ import {
   searchGroups,
   searchProjects,
   searchUsers,
+  setQualityGateAiQualified,
   setQualityGateAsDefault,
   updateCondition,
 } from '../quality-gates';
@@ -242,10 +245,10 @@ export class QualityGatesServiceMock {
             isCaycCondition: false,
           },
           {
-            id: '92561420-727c-49f8-837e-87e9d413b403',
-            metric: 'security_review_rating',
-            op: 'GT',
-            error: '1',
+            id: 'fc3d8a6e-e020-48a8-8bcb-ceccd1f9ca63',
+            metric: 'security_hotspots_reviewed',
+            op: 'LT',
+            error: '100',
             isCaycCondition: false,
           },
           {
@@ -401,12 +404,48 @@ export class QualityGatesServiceMock {
     this.list = cloneDeep(this.readOnlyList);
 
     this.projects = [
-      { key: 'test1', name: 'test1', selected: false, isAiCodeAssured: false },
-      { key: 'test2', name: 'test2', selected: false, isAiCodeAssured: false },
-      { key: 'test3', name: 'test3', selected: true, isAiCodeAssured: false },
-      { key: 'test4', name: 'test4', selected: true, isAiCodeAssured: false },
-      { key: 'test5', name: 'test5', selected: true, isAiCodeAssured: true },
-      { key: 'test6', name: 'test6', selected: false, isAiCodeAssured: true },
+      {
+        key: 'test1',
+        name: 'test1',
+        selected: false,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test2',
+        name: 'test2',
+        selected: false,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test3',
+        name: 'test3',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test4',
+        name: 'test4',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test5',
+        name: 'test5',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.CONTAINS_AI_CODE,
+      },
+      {
+        key: 'test6',
+        name: 'test6',
+        selected: false,
+        aiCodeAssurance: AiCodeAssuranceStatus.CONTAINS_AI_CODE,
+      },
+      {
+        key: 'test7',
+        name: 'test7',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.AI_CODE_ASSURED,
+      },
     ];
 
     this.getGateForProjectGateName = 'SonarSource way';
@@ -422,6 +461,9 @@ export class QualityGatesServiceMock {
     jest.mocked(updateCondition).mockImplementation(this.updateConditionHandler);
     jest.mocked(deleteCondition).mockImplementation(this.deleteConditionHandler);
     jest.mocked(searchProjects).mockImplementation(this.searchProjectsHandler);
+    jest
+      .mocked(getAllQualityGateProjects)
+      .mockImplementation(this.getAllQualityGateProjectsHandler);
     jest.mocked(searchUsers).mockImplementation(this.searchUsersHandler);
     jest.mocked(searchGroups).mockImplementation(this.searchGroupsHandler);
     jest.mocked(associateGateWithProject).mockImplementation(this.selectHandler);
@@ -430,6 +472,7 @@ export class QualityGatesServiceMock {
     jest.mocked(getGateForProject).mockImplementation(this.projectGateHandler);
     jest.mocked(getQualityGateProjectStatus).mockImplementation(this.handleQualityGetProjectStatus);
     jest.mocked(getApplicationQualityGate).mockImplementation(this.handleGetApplicationQualityGate);
+    jest.mocked(setQualityGateAiQualified).mockImplementation(this.handleSetQualityGateAiQualified);
 
     this.qualityGateProjectStatus = mockQualityGateProjectStatus({});
     this.applicationQualityGate = mockQualityGateApplicationStatus({});
@@ -478,6 +521,7 @@ export class QualityGatesServiceMock {
       delete: q.isBuiltIn ? false : this.isAdmin,
       manageConditions: this.isAdmin,
       delegate: this.isAdmin,
+      manageAiCodeAssurance: this.isAdmin && !q.isBuiltIn,
     };
   }
 
@@ -685,6 +729,27 @@ export class QualityGatesServiceMock {
     return this.reply(response);
   };
 
+  getAllQualityGateProjectsHandler = async ({
+    gateName,
+    selected,
+    query,
+  }: {
+    gateName: string;
+    query: string | undefined;
+    selected: string;
+  }) => {
+    const initialResponse = await this.searchProjectsHandler({ gateName: '', query, selected });
+
+    const response = {
+      paging: { pageIndex: 3, pageSize: 3, total: 55 },
+      results:
+        gateName === 'SonarSource way'
+          ? initialResponse.results.filter((p) => p.aiCodeAssurance !== 'AI_CODE_ASSURED')
+          : initialResponse.results,
+    };
+    return this.reply(response);
+  };
+
   searchUsersHandler = ({ selected }: SearchPermissionsParameters) => {
     if (selected === 'selected') {
       return this.reply({ users: [] });
@@ -755,6 +820,15 @@ export class QualityGatesServiceMock {
     if (qg) {
       qg.caycStatus = caycStatus;
     }
+  };
+
+  handleSetQualityGateAiQualified = (gateName: string, aiCodeAssurance: boolean) => {
+    const targetQG = this.list.find((q) => q.name === gateName);
+    if (targetQG === undefined) {
+      return Promise.reject(new Error(`No quality gate has been found for name ${gateName}`));
+    }
+    targetQG.isAiCodeSupported = aiCodeAssurance;
+    return this.reply(undefined);
   };
 
   reply<T>(response: T): Promise<T> {

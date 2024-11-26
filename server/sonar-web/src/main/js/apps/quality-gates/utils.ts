@@ -140,7 +140,7 @@ export const CAYC_CONDITION_ORDER_PRIORITIES: Dict<number> = {
 export const AI_SUPPORTED_CONDITION_ORDER_PRIORITIES: Dict<number> = {
   [MetricKey.software_quality_security_rating]: 1,
   [MetricKey.security_rating]: 1,
-  [MetricKey.security_review_rating]: 2,
+  [MetricKey.security_hotspots_reviewed]: 2,
   [MetricKey.software_quality_reliability_rating]: 3,
   [MetricKey.reliability_rating]: 3,
 };

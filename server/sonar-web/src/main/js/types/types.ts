@@ -477,6 +477,7 @@ export interface QualityGate extends QualityGatePreview {
     copy?: boolean;
     delegate?: boolean;
     delete?: boolean;
+    manageAiCodeAssurance?: boolean;
     manageConditions?: boolean;
     rename?: boolean;
     setAsDefault?: boolean;

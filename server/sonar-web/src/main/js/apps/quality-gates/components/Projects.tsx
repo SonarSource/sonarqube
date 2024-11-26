@@ -21,6 +21,7 @@
 import { find, without } from 'lodash';
 import * as React from 'react';
 import { Note } from '~design-system';
+import { AiCodeAssuranceStatus } from '../../../api/ai-code-assurance';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
@@ -48,7 +49,7 @@ interface State {
 
 // exported for testing
 export interface Project {
-  isAiCodeAssured: boolean;
+  aiCodeAssurance: AiCodeAssuranceStatus;
   key: string;
   name: string;
   selected: boolean;
@@ -142,7 +143,7 @@ export default class Projects extends React.PureComponent<Props, State> {
             {project.name}
             <br />
             <Note>{project.key}</Note>
-            {project.isAiCodeAssured && (
+            {project.aiCodeAssurance === AiCodeAssuranceStatus.CONTAINS_AI_CODE && (
               <p>
                 <Note>{translate('quality_gates.projects.ai_assured_message')}</Note>
               </p>
@@ -166,7 +167,7 @@ export default class Projects extends React.PureComponent<Props, State> {
       <SelectList
         elements={this.state.projects.map((project) => project.key)}
         disabledElements={this.state.projects
-          .filter((project) => project.isAiCodeAssured)
+          .filter((project) => project.aiCodeAssurance === AiCodeAssuranceStatus.CONTAINS_AI_CODE)
           .map((project) => project.key)}
         elementsTotalCount={this.state.projectsTotalCount}
         labelAll={translate('quality_gates.projects.all')}

@@ -18,17 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonIcon, DropdownMenu, IconMoreVertical, Tooltip } from '@sonarsource/echoes-react';
+import {
+  ButtonIcon,
+  DropdownMenu,
+  DropdownMenuAlign,
+  IconMoreVertical,
+  Tooltip,
+} from '@sonarsource/echoes-react';
 import { countBy } from 'lodash';
 import * as React from 'react';
+import { useCallback } from 'react';
 import { Badge, ButtonSecondary, DangerButtonPrimary, SubTitle } from '~design-system';
+import { AiCodeAssuranceStatus } from '../../../api/ai-code-assurance';
 import LegacyTooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { useSetQualityGateAsDefaultMutation } from '../../../queries/quality-gates';
+import {
+  useGetAllQualityGateProjectsQuery,
+  useSetAiSupportedQualityGateMutation,
+  useSetQualityGateAsDefaultMutation,
+} from '../../../queries/quality-gates';
 import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
+import DisqualifyAiQualityGateForm from './DisqualifyAiQualityGateForm';
 import RenameQualityGateForm from './RenameQualityGateForm';
 
 interface Props {
@@ -39,6 +52,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
   const [isRenameFormOpen, setIsRenameFormOpen] = React.useState(false);
   const [isCopyFormOpen, setIsCopyFormOpen] = React.useState(false);
   const [isRemoveFormOpen, setIsRemoveFormOpen] = React.useState(false);
+  const [isQualifyAiFormOpen, setIsQualifyAiFormOpen] = React.useState(false);
   const actions = qualityGate.actions ?? {};
   const actionsCount = countBy([
     actions.rename,
@@ -47,12 +61,40 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
     actions.setAsDefault,
   ])['true'];
   const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation();
+  const { mutateAsync: setAiSupportedQualityGate } = useSetAiSupportedQualityGateMutation(
+    qualityGate.name,
+  );
+  const { data: qualityGateProjectsHavingAiCode = [], isLoading: isCountLoading } =
+    useGetAllQualityGateProjectsQuery(
+      { gateName: qualityGate.name, selected: 'selected' },
+      {
+        select: (data) =>
+          data.results.filter((p) => p.aiCodeAssurance === AiCodeAssuranceStatus.AI_CODE_ASSURED),
+      },
+    );
 
   const handleSetAsDefaultClick = () => {
     if (!qualityGate.isDefault) {
       setQualityGateAsDefault({ name: qualityGate.name });
     }
   };
+
+  const handleSetQualityGateAiCodeAssurance = () => {
+    if (qualityGateProjectsHavingAiCode?.length > 0 && qualityGate.isAiCodeSupported) {
+      setIsQualifyAiFormOpen(true);
+      return;
+    }
+
+    updateQualityGateAiCodeAssurance();
+  };
+
+  const updateQualityGateAiCodeAssurance = useCallback(() => {
+    setAiSupportedQualityGate({
+      isQualityGateAiSupported: !qualityGate.isAiCodeSupported,
+      name: qualityGate.name,
+    });
+    setIsQualifyAiFormOpen(false);
+  }, [qualityGate.isAiCodeSupported, qualityGate.name, setAiSupportedQualityGate]);
 
   return (
     <>
@@ -115,6 +157,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
 
         {actionsCount > 1 && (
           <DropdownMenu.Root
+            align={DropdownMenuAlign.End}
             id="quality-gate-actions"
             items={
               <>
@@ -155,6 +198,15 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
                     </DropdownMenu.ItemButton>
                   </Tooltip>
                 )}
+                {actions.manageAiCodeAssurance && !isCountLoading && (
+                  <DropdownMenu.ItemButton onClick={handleSetQualityGateAiCodeAssurance}>
+                    {translate(
+                      qualityGate.isAiCodeSupported
+                        ? 'quality_gates.actions.disqualify_for_ai_code_assurance'
+                        : 'quality_gates.actions.qualify_for_ai_code_assurance',
+                    )}
+                  </DropdownMenu.ItemButton>
+                )}
                 {actions.delete && (
                   <>
                     <DropdownMenu.Separator />
@@ -186,6 +238,13 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
         <DeleteQualityGateForm
           onClose={() => setIsRemoveFormOpen(false)}
           qualityGate={qualityGate}
+        />
+      )}
+      {isQualifyAiFormOpen && (
+        <DisqualifyAiQualityGateForm
+          onClose={() => setIsQualifyAiFormOpen(false)}
+          onConfirm={updateQualityGateAiCodeAssurance}
+          count={qualityGateProjectsHavingAiCode.length}
         />
       )}
     </>

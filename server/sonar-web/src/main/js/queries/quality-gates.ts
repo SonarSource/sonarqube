@@ -30,10 +30,12 @@ import {
   deleteQualityGate,
   fetchQualityGate,
   fetchQualityGates,
+  getAllQualityGateProjects,
   getApplicationQualityGate,
   getGateForProject,
   getQualityGateProjectStatus,
   renameQualityGate,
+  setQualityGateAiQualified,
   setQualityGateAsDefault,
   updateCondition,
 } from '../api/quality-gates';
@@ -46,11 +48,13 @@ const QUERY_STALE_TIME = 5 * 60 * 1000;
 
 const qualityQuery = {
   all: () => ['quality-gate'] as const,
-  list: () => ['quality-gate', 'list'] as const,
-  details: () => ['quality-gate', 'details'] as const,
+  list: () => [qualityQuery.all(), 'list'] as const,
+  details: () => [qualityQuery.all(), 'details'] as const,
   detail: (name?: string) => [...qualityQuery.details(), name ?? ''] as const,
-  projectsAssoc: () => ['quality-gate', 'project-assoc'] as const,
+  projectsAssoc: () => [qualityQuery.all(), 'project-assoc'] as const,
   projectAssoc: (project: string) => [...qualityQuery.projectsAssoc(), project] as const,
+  allProjectsSearch: (qualityGate: string) =>
+    [qualityQuery.all(), 'all-project-search', qualityGate] as const,
 };
 
 // This is internal to "enable" query when searching from the project page
@@ -93,6 +97,17 @@ export const useQualityGatesQuery = createQueryHook(() => {
     staleTime: StaleTime.LONG,
   });
 });
+
+export const useGetAllQualityGateProjectsQuery = createQueryHook(
+  (data: Parameters<typeof getAllQualityGateProjects>[0]) => {
+    return queryOptions({
+      queryKey: qualityQuery.allProjectsSearch(data?.gateName ?? ''),
+      queryFn: () => {
+        return getAllQualityGateProjects(data);
+      },
+    });
+  },
+);
 
 export function useCreateQualityGateMutation() {
   const queryClient = useQueryClient();
@@ -160,6 +175,27 @@ export function useDeleteQualityGateMutation(name: string) {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
       queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
       queryClient.removeQueries({ queryKey: qualityQuery.detail(name) });
+    },
+  });
+}
+
+export function useSetAiSupportedQualityGateMutation(name: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      name,
+      isQualityGateAiSupported,
+    }: {
+      isQualityGateAiSupported: boolean;
+      name: string;
+    }) => {
+      return setQualityGateAiQualified(name, isQualityGateAiSupported);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.detail(name) });
     },
   });
 }

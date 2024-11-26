@@ -32,6 +32,25 @@ import {
 } from '../types/quality-gates';
 import { Condition, Paging, QualityGate, QualityGatePreview } from '../types/types';
 import { UserBase } from '../types/users';
+import { AiCodeAssuranceStatus } from './ai-code-assurance';
+
+export interface SearchQualityGateProjectsData {
+  gateName: string;
+  page?: number;
+  pageSize?: number;
+  query?: string;
+  selected?: string;
+}
+
+export interface SearchQualityGateProjectsResponse {
+  paging: Paging;
+  results: Array<{
+    aiCodeAssurance: AiCodeAssuranceStatus;
+    key: string;
+    name: string;
+    selected: boolean;
+  }>;
+}
 
 export function fetchQualityGates(): Promise<{
   actions: { create: boolean };
@@ -67,6 +86,16 @@ export function setQualityGateAsDefault(data: { name: string }): Promise<void | 
   return post('/api/qualitygates/set_as_default', data).catch(throwGlobalError);
 }
 
+export function setQualityGateAiQualified(
+  gateName: string,
+  aiCodeAssurance: boolean,
+): Promise<void> {
+  return post('/api/qualitygates/set_ai_code_assurance', {
+    aiCodeAssurance,
+    gateName,
+  }).catch(throwGlobalError);
+}
+
 export function createCondition(
   data: {
     gateName: string;
@@ -93,17 +122,29 @@ export function getGateForProject(data: { project: string }): Promise<QualityGat
   );
 }
 
-export function searchProjects(data: {
-  gateName: string;
-  page?: number;
-  pageSize?: number;
-  query?: string;
-  selected?: string;
-}): Promise<{
-  paging: Paging;
-  results: Array<{ isAiCodeAssured: boolean; key: string; name: string; selected: boolean }>;
-}> {
+export function searchProjects(
+  data: SearchQualityGateProjectsData,
+): Promise<SearchQualityGateProjectsResponse> {
   return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
+}
+
+export function getAllQualityGateProjects(
+  data: SearchQualityGateProjectsData,
+  prev?: SearchQualityGateProjectsResponse,
+): Promise<SearchQualityGateProjectsResponse> {
+  return searchProjects({ ...data, pageSize: 1000 }).then((r) => {
+    const result = prev
+      ? {
+          results: [...prev.results, ...r.results],
+          paging: r.paging,
+        }
+      : r;
+
+    if (result.paging.pageIndex * result.paging.pageSize >= result.paging.total) {
+      return result;
+    }
+    return getAllQualityGateProjects({ ...data, page: result.paging.pageIndex + 1 }, result);
+  });
 }
 
 export function associateGateWithProject(data: {
