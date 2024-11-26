@@ -17,33 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from "react";
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { getReturnUrl } from '../../../helpers/urls';
+import { ButtonLink, ButtonPrimary, Card, InputField } from 'design-system';
+import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
-import { ButtonPrimary } from "design-system";
+import { translate } from '../../../helpers/l10n';
+import { getReturnUrl } from '../../../helpers/urls';
+import './SamlLogin.css';
 
 export default function SamlLogin() {
-
   const location = useLocation();
+
+  const navigate = useNavigate();
 
   const [email, setEmail] = React.useState<string>();
 
   const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.currentTarget.value)
+    setEmail(event.currentTarget.value);
+  };
+
+  function goToBaseUrl() {
+    navigate('/sessions/new');
   }
 
   return (
-      <div className="login-page" id="login_form">
-        <h1 className="login-title text-center">Sign in Using SSO</h1>
-        <form className="login-form" action={
-            `/_codescan/saml2/login/${email}?return_to=${encodeURIComponent(getReturnUrl(location))}`
-         } method="POST">
-          <div className="big-spacer-bottom">
-            <input
+    <div className="login-card-ctnr sw-flex sw-justify-center sw-items-center">
+      <Card>
+        <div className="login-page" id="login_form">
+          <h1 className="login-title text-center sw-my-4">Sign in Using SSO</h1>
+          <form
+            className="login-form"
+            action={`/_codescan/saml2/login/${email}?return_to=${encodeURIComponent(getReturnUrl(location))}`}
+            method="POST"
+          >
+            <div className="big-spacer-bottom">
+              <InputField
                 autoFocus={true}
-                className="login-input"
+                className="login-input sw-my-4"
                 id="login"
                 maxLength={255}
                 name="login"
@@ -51,20 +61,20 @@ export default function SamlLogin() {
                 placeholder="Your Company Domain or Email"
                 required={true}
                 type="text"
-            />
-          </div>
-
-          <div>
-            <div className="text-right overflow-hidden">
-              <ButtonPrimary type="submit">
-                {translate('sessions.log_in')}
-              </ButtonPrimary>
-              <a className="spacer-left" href={`${getBaseUrl()}/`}>
-                {translate('back')}
-              </a>
+              />
             </div>
-          </div>
-        </form>
-      </div>
+
+            <div>
+              <div className="text-right overflow-hidden sw-flex sw-justify-end">
+                <ButtonPrimary type="submit" className="sw-mr-4">
+                  {translate('sessions.log_in')}
+                </ButtonPrimary>
+                <ButtonLink onClick={goToBaseUrl}> {translate('back')} </ButtonLink>
+              </div>
+            </div>
+          </form>
+        </div>
+      </Card>
+    </div>
   );
 }
