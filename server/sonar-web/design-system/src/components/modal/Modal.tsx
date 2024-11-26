@@ -43,6 +43,7 @@ interface CommonProps {
   isScrollable?: boolean;
   noBackground?: boolean;
   onClose: VoidFunction;
+  showClosebtn?: boolean;
 }
 
 interface ChildrenProp {
@@ -106,6 +107,7 @@ export function Modal({
   isOverflowVisible = false,
   isScrollable = true,
   noBackground = false,
+  showClosebtn = true,
   onClose,
   ...props
 }: Props) {
@@ -138,20 +140,22 @@ export function Modal({
               {props.body}
             </ModalBody>
 
-            <ModalFooter
-              loading={props.loading}
-              primaryButton={props.primaryButton}
-              secondaryButton={
-                <Button
-                  className="js-modal-close sw-capitalize"
-                  isDisabled={props.loading}
-                  onClick={onClose}
-                  type="reset"
-                >
-                  {props.secondaryButtonLabel ?? intl.formatMessage({ id: 'close' })}
-                </Button>
-              }
-            />
+            {showClosebtn && (
+              <ModalFooter
+                loading={props.loading}
+                primaryButton={props.primaryButton}
+                secondaryButton={
+                  <Button
+                    className="js-modal-close sw-capitalize"
+                    isDisabled={props.loading}
+                    onClick={onClose}
+                    type="reset"
+                  >
+                    {props.secondaryButtonLabel ?? intl.formatMessage({ id: 'close' })}
+                  </Button>
+                }
+              />
+            )}
           </Fragment>
         ) : (
           (props as PropsWithChildren).children

@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import { keyBy, pickBy, some } from 'lodash';
-import OrganizationGroupCheckbox from './OrganizationGroupCheckbox';
+import * as React from 'react';
 import { getUserGroups, UserGroup } from '../../api/users';
-import {translate, translateWithParameters} from "../../helpers/l10n";
-import { Group, Organization, OrganizationMember } from "../../types/types";
-import { Button, ButtonVariety, Modal, Spinner } from "@sonarsource/echoes-react";
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { Group, Organization, OrganizationMember } from '../../types/types';
+import OrganizationGroupCheckbox from './OrganizationGroupCheckbox';
 
 interface Props {
   onClose: () => void;
@@ -33,7 +34,7 @@ interface Props {
   updateMemberGroups: (
     member: OrganizationMember,
     add: string[],
-    remove: string[]
+    remove: string[],
   ) => Promise<void>;
 }
 
@@ -61,7 +62,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
       login: this.props.member.login,
       organization: this.props.organization.kee,
     }).then(
-      response => {
+      (response) => {
         if (this.mounted) {
           this.setState({ loading: false, userGroups: keyBy(response.groups, 'name') });
         }
@@ -70,7 +71,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -79,9 +80,8 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
       const group = this.state.userGroups[groupName] || {};
       if (group.status) {
         return group.status === 'add';
-      } 
-        return group.selected === true;
-      
+      }
+      return group.selected === true;
     }
     return false;
   };
@@ -104,15 +104,15 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
     return this.props
       .updateMemberGroups(
         this.props.member,
-        Object.keys(pickBy(this.state.userGroups, group => group.status === 'add')),
-        Object.keys(pickBy(this.state.userGroups, group => group.status === 'remove'))
+        Object.keys(pickBy(this.state.userGroups, (group) => group.status === 'add')),
+        Object.keys(pickBy(this.state.userGroups, (group) => group.status === 'remove')),
       )
       .then(this.props.onClose);
   };
 
   renderForm = () => {
     const { loading, userGroups = {} } = this.state;
-    const hasChanges = some(userGroups, group => group.status !== undefined);
+    const hasChanges = some(userGroups, (group) => group.status !== undefined);
 
     return (
       <form onSubmit={this.handleFormSubmit}>
@@ -121,13 +121,13 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
             <strong>
               {translateWithParameters(
                 'organization.members.members_groups',
-                this.props.member.name
+                this.props.member.name,
               )}
             </strong>
           </p>
           <Spinner isLoading={loading}>
             <ul className="list-spaced">
-              {this.props.organizationGroups.map(group => (
+              {this.props.organizationGroups.map((group) => (
                 <OrganizationGroupCheckbox
                   checked={this.isGroupSelected(group.name)}
                   group={group}
@@ -139,26 +139,26 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
           </Spinner>
         </div>
 
-        <footer className="modal-foot">
-          <Spinner className="sw-ml-2" loading={loading} />
-          <Button variety={ButtonVariety.Primary} type="submit" disabled={loading || !hasChanges}>
+        <footer className="modal-foot sw-mt-4 sw-flex sw-justify-end">
+          {loading}
+          <Spinner className="sw-ml-2" isLoading={loading} />
+          <Button className="sw-mr-2" variety={ButtonVariety.Primary} type="submit">
             {translate('save')}
           </Button>
-          <Button onClick={this.props.onClose} disabled={loading}>
-            {translate('cancel')}
-          </Button>
+          <Button onClick={this.props.onClose}>{translate('cancel')}</Button>
         </footer>
       </form>
     );
-  }
+  };
 
   render() {
     return (
       <Modal
-        title={translate('organization.members.manage_groups')}
+        headerTitle={translate('organization.members.manage_groups')}
         onClose={this.props.onClose}
-        content={this.renderForm()}
+        body={this.renderForm()}
         loading={this.state.loading}
+        showClosebtn={false}
       />
     );
   }

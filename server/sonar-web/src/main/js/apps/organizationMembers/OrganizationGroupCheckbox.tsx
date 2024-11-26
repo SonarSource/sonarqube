@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
-import { Group } from "../../types/types";
-import { Checkbox } from "design-system";
+import { Checkbox } from 'design-system';
+import * as React from 'react';
+import { Group } from '../../types/types';
 
 interface Props {
   group: Group;
@@ -31,7 +31,7 @@ interface Props {
 export default class OrganizationGroupCheckbox extends React.PureComponent<Props> {
   onCheck = (checked: boolean) => {
     const { group } = this.props;
-    if (!group.default) {
+    if (!group.default && group.name) {
       this.props.onCheck(group.name, checked);
     }
   };
@@ -45,8 +45,10 @@ export default class OrganizationGroupCheckbox extends React.PureComponent<Props
     return (
       <li
         className={classNames('capitalize list-item-checkable-link', { disabled: group.default })}
-        onClick={this.toggleCheck}>
-        <Checkbox checked={this.props.checked} onCheck={this.onCheck} /> {group.name}
+        onClick={this.toggleCheck}
+      >
+        <Checkbox checked={this.props.checked} disabled={group.default} onCheck={this.onCheck} />{' '}
+        {group.name}
       </li>
     );
   }

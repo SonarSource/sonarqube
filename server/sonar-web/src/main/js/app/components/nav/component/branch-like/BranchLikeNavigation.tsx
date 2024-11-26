@@ -62,9 +62,14 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const canAdminComponent = configuration?.showSettings;
   const hasManyBranches = branchLikes.length >= 2;
-  const isMenuEnabled = branchSupportEnabled && hasManyBranches;
+  // const isMenuEnabled = branchSupportEnabled && hasManyBranches;
 
-  const currentBranchLikeElement = <CurrentBranchLike currentBranchLike={currentBranchLike} comparisonBranchesEnabled={comparisonBranchesEnabled} />;
+  const currentBranchLikeElement = (
+    <CurrentBranchLike
+      currentBranchLike={currentBranchLike}
+      comparisonBranchesEnabled={comparisonBranchesEnabled}
+    />
+  );
 
   const handleOutsideClick = () => {
     setIsMenuOpen(false);
@@ -107,7 +112,6 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
             onClick={() => {
               setIsMenuOpen(!isMenuOpen);
             }}
-            isDisabled={!isMenuEnabled}
             aria-expanded={isMenuOpen}
             aria-haspopup="menu"
           >
