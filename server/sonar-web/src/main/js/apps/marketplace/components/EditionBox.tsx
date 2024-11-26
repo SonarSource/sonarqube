@@ -94,7 +94,7 @@ export default function EditionBox({ edition }: Readonly<Props>) {
           <p className="sw-mt-4">
             <em>Built for Developers by Developers</em>
           </p>
-          <p className="sw-mt-4">Community Edition functionality plus:</p>
+          <p className="sw-mt-4">Community Build functionality plus:</p>
           <UnorderedList className="sw-ml-8" ticks>
             <li>
               <span>PR / MR decoration &amp; Quality Gate</span>

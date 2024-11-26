@@ -25,7 +25,7 @@ import { SystemUpgrade } from '../types/system';
 const EDITIONS: { [x in EditionKey]: Edition } = {
   community: {
     key: EditionKey.community,
-    name: 'Community Edition',
+    name: 'Community Build',
     homeUrl: 'https://www.sonarsource.com/open-source-editions/',
     downloadProperty: 'downloadUrl',
   },

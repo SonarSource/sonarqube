@@ -21,6 +21,7 @@
 import { addDays, subDays } from 'date-fns';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
+import { getEdition } from '../../../helpers/editions';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../types/appstate';
@@ -29,6 +30,8 @@ import { FCProps } from '../../../types/misc';
 import GlobalFooter from '../GlobalFooter';
 
 const systemMock = new SystemServiceMock();
+
+const COMMUNITY = getEdition(EditionKey.community).name;
 
 afterEach(() => {
   systemMock.reset();
@@ -41,7 +44,7 @@ it('should render the logged-in information', async () => {
 
   expect(ui.footerListItems.getAll()).toHaveLength(7);
 
-  expect(byText('Community Edition').get()).toBeInTheDocument();
+  expect(byText(COMMUNITY).get()).toBeInTheDocument();
   expect(await ui.versionLabel('4.2').find()).toBeInTheDocument();
   expect(ui.ltaDocumentationLinkActive.query()).not.toBeInTheDocument();
   expect(ui.apiLink.get()).toBeInTheDocument();
@@ -80,7 +83,7 @@ it('should not render missing logged-in information', () => {
 
   expect(ui.footerListItems.getAll()).toHaveLength(5);
 
-  expect(byText('Community Edition').query()).not.toBeInTheDocument();
+  expect(byText(COMMUNITY).query()).not.toBeInTheDocument();
   expect(ui.versionLabel().query()).not.toBeInTheDocument();
 });
 
@@ -91,7 +94,7 @@ it('should not render the logged-in information', () => {
 
   expect(ui.footerListItems.getAll()).toHaveLength(4);
 
-  expect(byText('Community Edition').query()).not.toBeInTheDocument();
+  expect(byText(COMMUNITY).query()).not.toBeInTheDocument();
   expect(ui.versionLabel().query()).not.toBeInTheDocument();
   expect(ui.apiLink.query()).not.toBeInTheDocument();
 });

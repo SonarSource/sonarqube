@@ -158,7 +158,7 @@ class App extends React.PureComponent<Props, State> {
 
     /*
      * standalone mode is true when cluster mode is not active. We preserve this
-     * condition if it ever becomes possible to have a community edition NOT in standalone mode.
+     * condition if it ever becomes possible to have a community build NOT in standalone mode.
      */
     const allowActions =
       currentEdition === EditionKey.community &&
