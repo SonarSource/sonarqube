@@ -25,7 +25,7 @@ import {
   UserGroupIcon,
 } from 'design-system';
 import { omit } from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import { useIntl } from 'react-intl';
 import {
   SearchUsersGroupsParameters,
@@ -44,12 +44,17 @@ interface Props {
   selected?: Option;
 }
 
-export default function ProfilePermissionsFormSelect(props: Readonly<Props>) {
-  const { profile, selected } = props;
+export default function ProfilePermissionsFormSelect({
+  organization,
+  onChange,
+  profile,
+  selected,
+}: Props) {
   const [defaultOptions, setDefaultOptions] = React.useState<LabelValueSelectOption<string>[]>([]);
   const intl = useIntl();
 
   const value = selected ? getOption(selected) : null;
+
   const controlLabel = selected ? (
     <>
       {isUser(selected) ? (
@@ -64,7 +69,7 @@ export default function ProfilePermissionsFormSelect(props: Readonly<Props>) {
   const loadOptions = React.useCallback(
     async (q = '') => {
       const parameters: SearchUsersGroupsParameters = {
-        organization: this.props.organization,
+        organization,
         language: profile.language,
         q,
         qualityProfile: profile.name,
@@ -77,7 +82,7 @@ export default function ProfilePermissionsFormSelect(props: Readonly<Props>) {
 
       return { users, groups };
     },
-    [profile.language, profile.name],
+    [organization, profile.language, profile.name],
   );
 
   const loadInitial = React.useCallback(async () => {
@@ -85,21 +90,24 @@ export default function ProfilePermissionsFormSelect(props: Readonly<Props>) {
       const { users, groups } = await loadOptions();
       setDefaultOptions([...users, ...groups].map(getOption));
     } catch {
-      // noop
+      setDefaultOptions([]);
     }
   }, [loadOptions]);
 
-  const handleSearch = (q: string, cb: (options: LabelValueSelectOption<string>[]) => void) => {
-    loadOptions(q)
-      .then(({ users, groups }) => [...users, ...groups].map(getOption))
-      // eslint-disable-next-line promise/no-callback-in-promise
-      .then(cb)
-      // eslint-disable-next-line promise/no-callback-in-promise
-      .catch(() => cb([]));
-  };
+  const handleSearch = React.useCallback(
+    async (q: string, cb: (options: LabelValueSelectOption<string>[]) => void) => {
+      try {
+        const { users, groups } = await loadOptions(q);
+        cb([...users, ...groups].map(getOption));
+      } catch {
+        cb([]);
+      }
+    },
+    [loadOptions],
+  );
 
   const handleChange = (option: LabelValueSelectOption<string>) => {
-    props.onChange(omit(option, ['Icon', 'label', 'value']) as Option);
+    onChange(omit(option, ['Icon', 'label', 'value']) as Option);
   };
 
   React.useEffect(() => {
@@ -121,18 +129,16 @@ export default function ProfilePermissionsFormSelect(props: Readonly<Props>) {
   );
 }
 
-const getOption = (option: Option): LabelValueSelectOption<string> => {
-  return {
-    ...option,
-    value: getStringValue(option),
-    label: option.name,
-    Icon: isUser(option) ? (
-      <Avatar hash={option.avatar} name={option.name} size="xs" />
-    ) : (
-      <GenericAvatar Icon={UserGroupIcon} name={option.name} size="xs" />
-    ),
-  };
-};
+const getOption = (option: Option): LabelValueSelectOption<string> => ({
+  ...option,
+  value: getStringValue(option),
+  label: option.name,
+  Icon: isUser(option) ? (
+    <Avatar hash={option.avatar} name={option.name} size="xs" />
+  ) : (
+    <GenericAvatar Icon={UserGroupIcon} name={option.name} size="xs" />
+  ),
+});
 
 function isUser(option: Option): option is UserSelected {
   return (option as UserSelected).login !== undefined;
