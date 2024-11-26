@@ -18,8 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ClipboardIconButton, CodeSnippet, HelperHintIcon, SubHeading } from '~design-system';
-import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import {
+  Button,
+  ButtonVariety,
+  Heading,
+  IconQuestionMark,
+  Popover,
+} from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
+import { ClipboardIconButton, CodeSnippet } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 
 interface MetaKeyProps {
@@ -28,26 +35,35 @@ interface MetaKeyProps {
 }
 
 export default function MetaKey({ componentKey, qualifier }: MetaKeyProps) {
+  const intl = useIntl();
   return (
     <>
       <div className="sw-flex sw-items-baseline">
-        <SubHeading>{translate('overview.project_key', qualifier)}</SubHeading>
-        <HelpTooltip
-          className="sw-ml-1"
-          overlay={
-            <p className="sw-max-w-abs-250">
-              {translate('overview.project_key.tooltip', qualifier)}
-            </p>
-          }
+        <Heading as="h3">{translate('overview.project_key', qualifier)}</Heading>
+        <Popover
+          title={intl.formatMessage(
+            { id: 'about_x' },
+            { x: translate('overview.project_key', qualifier) },
+          )}
+          description={translate('overview.project_key.tooltip', qualifier)}
         >
-          <HelperHintIcon />
-        </HelpTooltip>
+          <Button
+            className="sw-ml-1 sw-p-0 sw-h-fit sw-min-h-fit"
+            aria-label={intl.formatMessage({ id: 'help' })}
+            variety={ButtonVariety.DefaultGhost}
+          >
+            <IconQuestionMark color="echoes-color-icon-subdued" />
+          </Button>
+        </Popover>
       </div>
-      <div className="sw-w-full">
-        <div className="sw-flex sw-gap-2 sw-items-center sw-min-w-0">
-          <CodeSnippet className="sw-min-w-0 sw-px-1" isOneLine noCopy snippet={componentKey} />
-          <ClipboardIconButton copyValue={componentKey} />
-        </div>
+      <div className="sw-mt-2 sw-w-full sw-flex sw-gap-2 sw-items-center sw-break-words sw-min-w-0">
+        <CodeSnippet
+          className="sw-min-w-0 sw-px-1 sw-max-w-10/12"
+          noCopy
+          isOneLine
+          snippet={componentKey}
+        />
+        <ClipboardIconButton copyValue={componentKey} />
       </div>
     </>
   );

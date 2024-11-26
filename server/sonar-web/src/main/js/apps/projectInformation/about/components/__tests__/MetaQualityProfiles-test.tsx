@@ -54,8 +54,12 @@ it('should render correctly', async () => {
 
   renderMetaQualityprofiles();
 
-  expect(await screen.findByText('overview.deleted_profile.javascript')).toBeInTheDocument();
-  expect(await screen.findByText('overview.deprecated_profile.10')).toBeInTheDocument();
+  await expect(await screen.findByText('javascript')).toHaveATooltipWithContent(
+    'overview.deleted_profile.javascript',
+  );
+  await expect(await screen.findByText('deprecated')).toHaveATooltipWithContent(
+    'overview.deprecated_profile.10',
+  );
 });
 
 function renderMetaQualityprofiles(

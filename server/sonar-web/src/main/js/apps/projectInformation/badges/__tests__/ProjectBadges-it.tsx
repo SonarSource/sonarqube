@@ -57,7 +57,9 @@ it('should renew token', async () => {
   renderProjectBadges();
   await ui.appLoaded();
 
-  expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
+  expect(
+    screen.getByAltText(`overview.badges.${BadgeType.measure}.alt.metric.alert_status.name`),
+  ).toHaveAttribute(
     'src',
     expect.stringContaining(
       `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo`,
@@ -75,7 +77,9 @@ it('should renew token', async () => {
     ),
   );
 
-  expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
+  expect(
+    screen.getByAltText(`overview.badges.${BadgeType.measure}.alt.metric.alert_status.name`),
+  ).toHaveAttribute(
     'src',
     expect.stringContaining(
       `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=bar`,

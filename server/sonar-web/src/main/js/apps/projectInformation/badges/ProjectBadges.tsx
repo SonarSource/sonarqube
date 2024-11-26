@@ -21,6 +21,7 @@
 import { Spinner } from '@sonarsource/echoes-react';
 import { isEmpty } from 'lodash';
 import { useState } from 'react';
+import { useIntl } from 'react-intl';
 import {
   BasicSeparator,
   ButtonSecondary,
@@ -58,6 +59,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
     branchLike,
     component: { key: project, qualifier, configuration },
   } = props;
+  const intl = useIntl();
   const [selectedType, setSelectedType] = useState(BadgeType.measure);
   const [selectedMetric, setSelectedMetric] = useState(MetricKey.alert_status);
   const [selectedFormat, setSelectedFormat] = useState<BadgeFormats>('md');
@@ -94,6 +96,8 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
   };
   const canRenew = configuration?.showSettings;
 
+  const selectedMetricOption = metricOptions.find((m) => m.value === selectedMetric);
+
   return (
     <div>
       <SubTitle>{translate('overview.badges.get_badge')}</SubTitle>
@@ -107,7 +111,10 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             selected={BadgeType.measure === selectedType}
             image={
               <Image
-                alt={translate('overview.badges', BadgeType.measure, 'alt')}
+                alt={intl.formatMessage(
+                  { id: `overview.badges.${BadgeType.measure}.alt` },
+                  { metric: selectedMetricOption?.label },
+                )}
                 src={getBadgeUrl(BadgeType.measure, fullBadgeOptions, token, true)}
               />
             }
@@ -164,7 +171,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
                 setSelectedMetric(option.value);
               }
             }}
-            value={metricOptions.find((m) => m.value === selectedMetric)}
+            value={selectedMetricOption}
           />
         </FormField>
       )}
@@ -189,6 +196,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
       <Spinner className="sw-my-2" isLoading={isFetchingToken || isRenewing}>
         {!isLoading && (
           <CodeSnippet
+            copyAriaLabel={translate('overview.badges.copy_snippet')}
             language="plaintext"
             className="sw-p-6 it__code-snippet"
             snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)}

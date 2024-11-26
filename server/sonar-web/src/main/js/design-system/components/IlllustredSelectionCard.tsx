@@ -38,7 +38,11 @@ export function IllustratedSelectionCard(props: Props) {
   const { className, description, image, onClick, selected } = props;
 
   return (
-    <StyledSelectionCard className={classNames(className, { selected })} onClick={onClick}>
+    <StyledSelectionCard
+      className={classNames(className, { selected })}
+      aria-pressed={selected}
+      onClick={onClick}
+    >
       <ImageContainer>{image}</ImageContainer>
       <DescriptionContainer>
         <Note>{description}</Note>
@@ -73,9 +77,12 @@ export const StyledSelectionCard = styled(BareButton)`
   transition: border 0.3s ease;
 
   &:hover,
-  &:focus,
   &:active {
     border: ${themeBorder('default', 'primary')};
+  }
+
+  &:focus {
+    outline: ${themeBorder('focus', 'primary')};
   }
 
   &.selected {

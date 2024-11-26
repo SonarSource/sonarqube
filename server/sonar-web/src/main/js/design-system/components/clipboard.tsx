@@ -34,6 +34,7 @@ import React, { ComponentProps, useCallback, useState } from 'react';
 const COPY_SUCCESS_NOTIFICATION_LIFESPAN = 1000;
 
 interface ButtonProps {
+  ariaLabel?: string;
   children?: React.ReactNode;
   className?: string;
   copiedLabel?: string;
@@ -48,6 +49,7 @@ export function ClipboardButton(props: ButtonProps) {
     className,
     children,
     copyValue,
+    ariaLabel,
     copiedLabel = 'Copied',
     copyLabel = 'Copy',
   } = props;
@@ -58,6 +60,7 @@ export function ClipboardButton(props: ButtonProps) {
       {/* TODO ^ Remove TooltipProvider after design-system is reintegrated into sonar-web */}
       <Tooltip content={copiedLabel} isOpen={copySuccess}>
         <Button
+          aria-label={ariaLabel}
           className={classNames('sw-select-none', className)}
           onClick={handleCopy}
           prefix={icon}

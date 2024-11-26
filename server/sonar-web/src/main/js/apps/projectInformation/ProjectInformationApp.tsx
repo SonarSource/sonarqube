@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading } from '@sonarsource/echoes-react';
 import { useEffect, useState } from 'react';
-import { Card, LargeCenteredLayout, PageContentFontWrapper, Title } from '~design-system';
+import { Helmet } from 'react-helmet-async';
+import { Card, LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getMeasures } from '../../api/measures';
 import withAvailableFeatures, {
@@ -71,14 +73,17 @@ function ProjectInformationApp(props: Props) {
   const regulatoryReportFeatureEnabled = props.hasFeature(Feature.RegulatoryReport);
   const isApp = isApplication(component.qualifier);
 
+  const title = translate(isApp ? 'application' : 'project', 'info.title');
+
   return (
     <main>
+      <Helmet defer={false} title={title} />
       <LargeCenteredLayout>
         <PageContentFontWrapper>
           <div className="overview sw-my-6 sw-typo-default">
-            <Title className="sw-mb-12">
-              {translate(isApp ? 'application' : 'project', 'info.title')}
-            </Title>
+            <Heading as="h1" className="sw-mb-12">
+              {title}
+            </Heading>
             <div className="sw-grid sw-grid-cols-[488px_minmax(0,_2fr)] sw-gap-x-12 sw-gap-y-3 sw-auto-rows-min">
               <div className="sw-row-span-3">
                 <Card>

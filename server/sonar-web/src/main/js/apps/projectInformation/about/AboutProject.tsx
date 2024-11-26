@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { BasicSeparator, SubHeading, SubTitle } from '~design-system';
+import { BasicSeparator } from '~design-system';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { getProjectLinks } from '../../../api/projectLinks';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
@@ -68,9 +69,9 @@ export default function AboutProject(props: AboutProjectProps) {
 
   return (
     <>
-      <div>
-        <SubTitle>{translate(isApp ? 'application' : 'project', 'about.title')}</SubTitle>
-      </div>
+      <Heading className="sw-mb-4" as="h2">
+        {translate(isApp ? 'application' : 'project', 'about.title')}
+      </Heading>
 
       {!isApp &&
         (component.qualityGate ||
@@ -88,19 +89,19 @@ export default function AboutProject(props: AboutProjectProps) {
 
       {isAiAssured === true && (
         <ProjectInformationSection>
-          <SubHeading>{translate('project.info.ai_code_assurance.title')}</SubHeading>
-          <span>
-            <FormattedMessage id="projects.ai_code.content" />
-          </span>
+          <Heading className="sw-mb-2" as="h3">
+            {translate('project.info.ai_code_assurance.title')}
+          </Heading>
+          <FormattedMessage id="projects.ai_code.content" />
         </ProjectInformationSection>
       )}
 
       {component.isAiCodeFixEnabled === true && (
         <ProjectInformationSection>
-          <SubHeading>{translate('project.info.ai_code_fix.title')}</SubHeading>
-          <span>
-            <FormattedMessage id="project.info.ai_code_fix.message" />
-          </span>
+          <Heading className="sw-mb-2" as="h3">
+            {translate('project.info.ai_code_fix.title')}
+          </Heading>
+          <FormattedMessage id="project.info.ai_code_fix.message" />
         </ProjectInformationSection>
       )}
 
@@ -145,7 +146,7 @@ function ProjectInformationSection(props: PropsWithChildren<ProjectInformationSe
   const { children, className, last = false } = props;
   return (
     <>
-      <div className={classNames('sw-py-4', className)}>{children}</div>
+      <section className={classNames('sw-py-4', className)}>{children}</section>
       {!last && <BasicSeparator />}
     </>
   );

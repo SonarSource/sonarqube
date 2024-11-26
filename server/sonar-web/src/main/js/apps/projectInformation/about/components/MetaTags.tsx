@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Spinner } from '@sonarsource/echoes-react';
+import { Heading, Spinner } from '@sonarsource/echoes-react';
 import { difference, without } from 'lodash';
 import { useEffect, useState } from 'react';
-import { MultiSelector, SubHeading, Tags } from '~design-system';
+import { MultiSelector, Tags } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { searchProjectTags, setApplicationTags, setProjectTags } from '../../../../api/components';
 import Tooltip from '../../../../components/controls/Tooltip';
@@ -74,7 +74,9 @@ export default function MetaTags(props: Props) {
 
   return (
     <>
-      <SubHeading>{translate('tags')}</SubHeading>
+      <Heading as="h3" className="sw-mb-2">
+        {translate('tags')}
+      </Heading>
       <Tags
         allowUpdate={canUpdateTags()}
         ariaTagsListLabel={translate('tags')}

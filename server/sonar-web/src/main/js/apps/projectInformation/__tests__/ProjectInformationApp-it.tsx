@@ -62,10 +62,9 @@ const modeHandler = new ModeServiceMock();
 const ui = {
   projectPageTitle: byRole('heading', { name: 'project.info.title' }),
   applicationPageTitle: byRole('heading', { name: 'application.info.title' }),
-  qualityGateList: byRole('list', { name: 'project.info.quality_gate' }),
-  qualityProfilesList: byRole('list', { name: 'overview.quality_profiles' }),
-  externalLinksList: byRole('list', { name: 'overview.external_links' }),
-  link: byRole('link'),
+  qualityGateHeader: byRole('heading', { name: 'project.info.quality_gate' }),
+  qualityProfilesHeader: byRole('heading', { name: 'overview.quality_profiles' }),
+  externalLinksHeader: byRole('heading', { name: 'overview.external_links' }),
   tags: byRole('generic', { name: /tags:/ }),
   size: byRole('link', { name: /project.info.see_more_info_on_x_locs/ }),
   newKeyInput: byRole('textbox'),
@@ -99,10 +98,10 @@ it('should show fields for project', async () => {
     { currentUser: mockLoggedInUser(), featureList: [Feature.AiCodeAssurance] },
   );
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.get()).toBeInTheDocument();
-  expect(ui.link.getAll(ui.qualityGateList.get())).toHaveLength(1);
-  expect(ui.link.getAll(ui.qualityProfilesList.get())).toHaveLength(1);
-  expect(ui.link.getAll(ui.externalLinksList.get())).toHaveLength(1);
+  expect(ui.qualityGateHeader.get()).toBeInTheDocument();
+  expect(byRole('link', { name: /project.info.quality_gate.link_label/ }).getAll()).toHaveLength(1);
+  expect(byRole('link', { name: /overview.link_to_x_profile_y/ }).getAll()).toHaveLength(1);
+  expect(byRole('link', { name: 'test' }).getAll()).toHaveLength(1);
   expect(screen.getByText('project.info.ai_code_assurance.title')).toBeInTheDocument();
   expect(screen.getByText('Test description')).toBeInTheDocument();
   expect(screen.getByText('my-project')).toBeInTheDocument();
@@ -128,9 +127,9 @@ it('should show application fields', async () => {
     { currentUser: mockLoggedInUser() },
   );
   expect(await ui.applicationPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.query()).not.toBeInTheDocument();
-  expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
-  expect(ui.externalLinksList.query()).not.toBeInTheDocument();
+  expect(ui.qualityGateHeader.query()).not.toBeInTheDocument();
+  expect(ui.qualityProfilesHeader.query()).not.toBeInTheDocument();
+  expect(ui.externalLinksHeader.query()).not.toBeInTheDocument();
   expect(screen.getByText('Test description')).toBeInTheDocument();
   expect(screen.getByText('my-project')).toBeInTheDocument();
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
@@ -188,8 +187,8 @@ it('should not show field that is not configured', async () => {
     qualityProfiles: [],
   });
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.query()).not.toBeInTheDocument();
-  expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
+  expect(ui.qualityGateHeader.query()).not.toBeInTheDocument();
+  expect(ui.qualityProfilesHeader.query()).not.toBeInTheDocument();
   expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();
@@ -202,8 +201,8 @@ it('should hide visibility if public', async () => {
     qualityProfiles: [],
   });
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.query()).not.toBeInTheDocument();
-  expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
+  expect(ui.qualityGateHeader.query()).not.toBeInTheDocument();
+  expect(ui.qualityProfilesHeader.query()).not.toBeInTheDocument();
   expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();

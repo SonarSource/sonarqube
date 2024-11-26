@@ -29,6 +29,7 @@ import { ClipboardButton } from './clipboard';
 
 interface Props {
   className?: string;
+  copyAriaLabel?: string;
   isOneLine?: boolean;
   join?: string;
   language?: string;
@@ -43,16 +44,26 @@ interface Props {
 const s = ' \\' + '\n  ';
 
 export function CodeSnippet(props: Readonly<Props>) {
-  const { className, isOneLine, join = s, language, noCopy, render, snippet, wrap = false } = props;
+  const {
+    copyAriaLabel,
+    className,
+    isOneLine,
+    join = s,
+    language,
+    noCopy,
+    render,
+    snippet,
+    wrap = false,
+  } = props;
   const snippetArray = Array.isArray(snippet) ? snippet.filter(isDefined) : [snippet];
   const finalSnippet = isOneLine ? snippetArray.join(' ') : snippetArray.join(join);
 
   const isSimpleOneLine = isOneLine && noCopy;
 
   const copyButton = isOneLine ? (
-    <StyledSingleLineClipboardButton copyValue={finalSnippet} />
+    <StyledSingleLineClipboardButton copyValue={finalSnippet} ariaLabel={copyAriaLabel} />
   ) : (
-    <StyledClipboardButton copyValue={finalSnippet} />
+    <StyledClipboardButton ariaLabel={copyAriaLabel} copyValue={finalSnippet} />
   );
 
   const renderSnippet =
@@ -77,7 +88,10 @@ export function CodeSnippet(props: Readonly<Props>) {
     >
       {!noCopy && copyButton}
       <CodeSyntaxHighlighter
-        className={classNames('sw-overflow-auto', { 'sw-pr-24': !noCopy, 'sw-flex': !noCopy })}
+        className={classNames('sw-overflow-auto', {
+          'sw-pr-24': !noCopy,
+          'sw-flex': !noCopy,
+        })}
         htmlAsString={renderSnippet}
         language={language}
         wrap={wrap}

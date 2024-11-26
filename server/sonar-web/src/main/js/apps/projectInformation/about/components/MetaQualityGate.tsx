@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FormattedMessage } from 'react-intl';
-import { Link, Note, StyledMutedText, SubHeading } from '~design-system';
+import { Heading, LinkStandalone, Text } from '@sonarsource/echoes-react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../../helpers/urls';
 
@@ -29,21 +29,33 @@ interface Props {
 }
 
 export default function MetaQualityGate({ qualityGate, isAiAssured }: Props) {
+  const intl = useIntl();
   return (
-    <div>
-      <SubHeading id="quality-gate-header">{translate('project.info.quality_gate')}</SubHeading>
-
-      <ul className="sw-flex sw-flex-col sw-gap-2" aria-labelledby="quality-gate-header">
+    <section>
+      <Heading as="h3">{translate('project.info.quality_gate')}</Heading>
+      <ul className="sw-mt-2 sw-flex sw-flex-col sw-gap-3">
         <li>
-          {qualityGate.isDefault && <Note className="sw-mr-2">({translate('default')})</Note>}
-          <Link to={getQualityGateUrl(qualityGate.name)}>{qualityGate.name}</Link>
+          {qualityGate.isDefault && (
+            <Text isSubdued className="sw-mr-2">
+              ({translate('default')})
+            </Text>
+          )}
+          <LinkStandalone
+            aria-label={intl.formatMessage(
+              { id: 'project.info.quality_gate.link_label' },
+              { gate: qualityGate.name },
+            )}
+            to={getQualityGateUrl(qualityGate.name)}
+          >
+            {qualityGate.name}
+          </LinkStandalone>
         </li>
       </ul>
       {isAiAssured === true && (
-        <StyledMutedText className="sw-text-wrap sw-mt-2">
+        <Text as="p" isSubdued className="sw-mt-2">
           <FormattedMessage id="project.info.quality_gate.ai_code_assurance.description" />
-        </StyledMutedText>
+        </Text>
       )}
-    </div>
+    </section>
   );
 }
