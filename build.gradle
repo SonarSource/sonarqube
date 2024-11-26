@@ -476,7 +476,7 @@ subprojects {
       dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:4.9.0.1920') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
-      dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.145'
+      dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.153'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.32.0.2441'
       dependency("org.springframework:spring-context:${springVersion}") {
         exclude 'commons-logging:commons-logging'
