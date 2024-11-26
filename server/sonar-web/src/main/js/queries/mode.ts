@@ -47,7 +47,11 @@ export function useUpdateModeMutation() {
   return useMutation({
     mutationFn: (mode: Mode) => updateMode(mode),
     onSuccess: (res) => {
+      // This can have a broader side effect on the backend
+      // Let's remove all frontend cache.
+      queryClient.invalidateQueries();
       queryClient.setQueryData<ModeResponse>(['mode'], res);
+
       addGlobalSuccessMessage(
         intl.formatMessage(
           {

@@ -125,6 +125,7 @@ export class QualityGatesServiceMock {
         isDefault: true,
         isBuiltIn: false,
         caycStatus: CaycStatus.Compliant,
+        isAiCodeSupported: false,
       }),
       mockQualityGate({
         name: 'SonarSource way - CFamily',
@@ -200,6 +201,7 @@ export class QualityGatesServiceMock {
         hasStandardConditions: false,
         hasMQRConditions: false,
         caycStatus: CaycStatus.Compliant,
+        isAiCodeSupported: false,
       }),
       mockQualityGate({
         name: 'Sonar way for AI code',
