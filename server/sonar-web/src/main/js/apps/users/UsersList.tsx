@@ -44,7 +44,6 @@ export default function UsersList({ identityProviders, users, manageProvider }: 
           <HelperHintIcon />
         </HelpTooltip>
       </ContentCell>
-      <ContentCell>{translate('my_profile.groups')}</ContentCell>
       <ContentCell>{translate('users.tokens')}</ContentCell>
       {(manageProvider === undefined || users.some((u) => !u.managed)) && (
         <ActionCell>{translate('actions')}</ActionCell>

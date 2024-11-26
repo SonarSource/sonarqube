@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
 import org.sonar.server.authentication.IdentityProviderRepository;
@@ -111,6 +110,9 @@ public class UserService {
       builder.isManagedClause(managedInstanceSql);
     } else if (request.isManaged() != null) {
       throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
+    }
+    if (request.getOrganizationUuids() != null) {
+      builder.addOrganizationUuids(request.getOrganizationUuids());
     }
     return builder
       .isActive(!request.isDeactivated())
