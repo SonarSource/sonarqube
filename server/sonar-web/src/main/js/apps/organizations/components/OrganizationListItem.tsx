@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge } from 'design-system';
 import * as React from 'react';
-import { Organization } from "../../../types/types";
-import OrganizationLink from "./OrganizationLink";
-import OrganizationAvatar from "./OrganizationAvatar";
-import { translate } from "../../../helpers/l10n";
-import { Badge } from "design-system";
+import { translate } from '../../../helpers/l10n';
+import { Organization } from '../../../types/types';
+import OrganizationAvatar from './OrganizationAvatar';
+import OrganizationLink from './OrganizationLink';
 
 interface Props {
   organization: Organization;
@@ -33,7 +33,7 @@ export default function OrganizationListItem({ organization, onClick }: Props) {
   const { actions = {} } = organization;
   return (
     <OrganizationLink
-      className="sw-flex sw-gap-3 sw-items-center"
+      className="sw-flex sw-gap-3 sw-items-center sw-mb-4"
       organization={organization}
       onClick={onClick}
     >

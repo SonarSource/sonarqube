@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuAlign,
+  IconChevronDown,
+} from '@sonarsource/echoes-react';
 import { sortBy } from 'lodash';
-import { Organization } from "../../../types/types";
-import OrganizationAvatar from "../components/OrganizationAvatar";
-import OrganizationListItem from "../components/OrganizationListItem";
-import { Button, DropdownMenu, DropdownMenuAlign, IconChevronDown } from "@sonarsource/echoes-react";
-import { NavBarTabLink, Popup, PopupPlacement, PopupZLevel, TopBar } from "design-system";
-import FocusOutHandler from "../../../components/controls/FocusOutHandler";
-import EscKeydownHandler from "../../../components/controls/EscKeydownHandler";
-import OutsideClickHandler from "../../../components/controls/OutsideClickHandler";
+import * as React from 'react';
+import { Organization } from '../../../types/types';
+import OrganizationAvatar from '../components/OrganizationAvatar';
+import OrganizationListItem from '../components/OrganizationListItem';
 
 export interface Props {
   organization: Organization;
@@ -34,15 +35,14 @@ export interface Props {
 }
 
 export default function OrganizationNavigationHeader({ organization, organizations }: Props) {
-
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
-  const other = organizations.filter(o => o.kee !== organization.kee);
+  const other = organizations.filter((o) => o.kee !== organization.kee);
 
   return (
     <div>
       <div className="sw-flex sw-items-center">
-        <OrganizationAvatar organization={organization}/>
+        <OrganizationAvatar organization={organization} />
 
         {other.length ? (
           <DropdownMenu.Root
@@ -51,7 +51,7 @@ export default function OrganizationNavigationHeader({ organization, organizatio
             className="sw-p-3"
             items={
               <>
-                {sortBy(other, org => org.name.toLowerCase()).map(organization => (
+                {sortBy(other, (org) => org.name.toLowerCase()).map((organization) => (
                   <OrganizationListItem
                     key={organization.kee}
                     organization={organization}
@@ -62,15 +62,15 @@ export default function OrganizationNavigationHeader({ organization, organizatio
             }
           >
             <Button
-              className="sw-max-w-abs-800 sw-px-3 sw-outline-none"
+              className="sw-max-w-abs-800 sw-px-3 sw-outline-none sw-ml-2"
               onClick={() => {
                 setIsMenuOpen(!isMenuOpen);
               }}
               isDisabled={organizations.length === 1}
               aria-expanded={isMenuOpen}
               aria-haspopup="menu"
-              suffix={<IconChevronDown/>}
-              style={{ border: "none" }}
+              suffix={<IconChevronDown />}
+              style={{ border: 'none' }}
             >
               {organization.name}
             </Button>

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
+import { Avatar } from 'design-system';
+import * as React from 'react';
+import { OrganizationBase } from '../../../types/types';
 import './OrganizationAvatar.css';
-import { OrganizationBase } from "../../../types/types";
-import { Avatar } from "design-system";
 
 interface Props {
   className?: string;
@@ -49,8 +49,9 @@ export default class OrganizationAvatar extends React.PureComponent<Props, State
           'navbar-context-avatar',
           'rounded',
           { 'no-border': !organization.avatar, 'is-small': small },
-          className
-        )}>
+          className,
+        )}
+      >
         <img
           alt={organization.name}
           className="rounded"
@@ -59,7 +60,7 @@ export default class OrganizationAvatar extends React.PureComponent<Props, State
         />
       </div>
     ) : (
-      <Avatar name={organization.name} size={small ? "xs" : "md"}/>
+      <Avatar name={organization.name} size={small ? 'xs' : 'md'} />
     );
   }
 }
