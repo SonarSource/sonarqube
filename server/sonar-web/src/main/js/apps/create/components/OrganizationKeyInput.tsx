@@ -19,7 +19,7 @@
  */
 import { ButtonIcon, ButtonVariety, IconQuestionMark } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FormField, InputField } from 'design-system';
+import {FlagMessage, FormField, InputField} from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
@@ -109,9 +109,6 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
     const isValid = this.state.touched && !this.state.validating && this.state.error === undefined;
     return (
       <FormField
-        error={this.state.error}
-        isInvalid={isInvalid}
-        isValid={isValid}
         label={translate('onboarding.create_organization.organization_name')}
         required
         className="sw-mt-2"
@@ -143,6 +140,12 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
               variety={ButtonVariety.DefaultGhost}
             />
           </HelpTooltip>
+
+          {isInvalid && (
+              <FlagMessage id="it__error-message" className="sw-mb-4" variant="error">
+                {this.state.error}
+              </FlagMessage>
+          )}
         </div>
       </FormField>
     );

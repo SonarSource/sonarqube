@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { FormField, InputField } from 'design-system';
+import {FlagMessage, FormField, InputField} from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -110,9 +110,6 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
         label={translate('organization.name')}
         description={translate('organization.name.description')}
         required
-        error={this.state.error}
-        isInvalid={isInvalid}
-        isValid={isValid}
       >
         <InputField
           className={classNames('input-super-large', {
@@ -125,6 +122,12 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
           type="text"
           value={this.state.value}
         />
+
+        {isInvalid && (
+            <FlagMessage id="it__error-message" className="sw-mt-2" variant="error">
+              {this.state.error}
+            </FlagMessage>
+        )}
       </FormField>
     );
   }

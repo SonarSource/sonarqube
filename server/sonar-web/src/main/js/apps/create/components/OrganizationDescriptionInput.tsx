@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { IconQuestionMark } from '@sonarsource/echoes-react';
-import { FormField, InputTextArea } from 'design-system';
+import {FlagMessage, FormField, InputTextArea} from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
@@ -86,33 +86,37 @@ export default class OrganizationDescriptionInput extends React.PureComponent<Pr
 
   render() {
     const isInvalid = this.state.touched && this.state.error !== undefined;
-    const isValid = this.state.touched && !this.state.validating && this.state.error === undefined;
+    // const isValid = this.state.touched && !this.state.validating && this.state.error === undefined;
     const { showHelpIcon } = this.props;
     return (
-      <FormField
-        error={this.state.error}
-        isInvalid={isInvalid}
-        isValid={isValid}
-        label={translate('description')}
-        description={translate('organization.description.description')}
-      >
-        <div className="display-inline-flex-center">
-          <InputTextArea
-            id="organization-description"
-            maxLength={256}
-            onChange={this.handleChange}
-            value={this.state.value}
-            rows={3}
-          />
-          {showHelpIcon && (
-            <HelpTooltip
-              overlay={<div className="sw-py-4">{translate('organization.name.description')}</div>}
-            >
-              <IconQuestionMark />
-            </HelpTooltip>
-          )}
-        </div>
-      </FormField>
-    );
+        <FormField
+            label={translate('description')}
+            description={translate('organization.description.description')}
+        >
+          <div className="display-inline-flex-center">
+            <InputTextArea
+                id="organization-description"
+                maxLength={256}
+                onChange={this.handleChange}
+                value={this.state.value}
+                rows={3}
+            />
+            {showHelpIcon && (
+                <HelpTooltip
+                    overlay={<div className="sw-py-4">{translate('organization.name.description')}</div>}
+                >
+                  <IconQuestionMark/>
+                </HelpTooltip>
+            )}
+          </div>
+          <div className="display-inline-flex-center">
+            {isInvalid && (
+                <FlagMessage id="it__error-message" className="sw-mb-4" variant="error">
+                  {this.state.error}
+                </FlagMessage>
+            )}
+          </div>
+        </FormField>
+  );
   }
-}
+  }
