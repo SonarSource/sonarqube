@@ -65,8 +65,13 @@ public class DefaultUserController implements UserController {
 
   @Override
   public UsersSearchRestResponse search(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId, RestPage page) {
-    OrganizationDto organization = organizationService.getOrganizationByKey(usersSearchRestRequest.organization());
-    throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest, organization, excludedGroupId);
+    OrganizationDto organization = null;
+    if (usersSearchRestRequest.organization() != null) {
+      organization = organizationService.getOrganizationByKey(usersSearchRestRequest.organization());
+      throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest, organization, excludedGroupId);
+    } else if (!userSession.isRoot()) {
+      throw new IllegalStateException("The mandatory organization key parameter is missed.");
+    }
 
     SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, organization, excludedGroupId, page));
     PaginationInformation paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());
@@ -94,9 +99,9 @@ public class DefaultUserController implements UserController {
     throw new ForbiddenException("Parameter " + parameterName + " requires Administer System permission.");
   }
 
-  private static UsersSearchRequest toUserSearchRequest(UsersSearchRestRequest usersSearchRestRequest, OrganizationDto organizationDto, @Nullable String excludedGroupId, RestPage page) {
+  private static UsersSearchRequest toUserSearchRequest(UsersSearchRestRequest usersSearchRestRequest, @Nullable OrganizationDto organizationDto, @Nullable String excludedGroupId, RestPage page) {
     return UsersSearchRequest.builder()
-      .setOrganizationUuids(List.of(organizationDto.getUuid()))
+      .setOrganizationUuids(organizationDto != null ? List.of(organizationDto.getUuid()) : null)
       .setDeactivated(Optional.ofNullable(usersSearchRestRequest.active()).map(active -> !active).orElse(false))
       .setManaged(usersSearchRestRequest.managed())
       .setQuery(usersSearchRestRequest.q())

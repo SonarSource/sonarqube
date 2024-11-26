@@ -27,12 +27,10 @@ import {
 import { ActionCell, Avatar, ContentCell, TableRow } from 'design-system';
 import * as React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { useUserGroupsCountQuery } from '../../../queries/group-memberships';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { useUserTokensQuery } from '../../../queries/users';
 import { IdentityProvider, Provider } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
-import GroupsForm from './GroupsForm';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserListItemIdentity from './UserListItemIdentity';
@@ -47,7 +45,6 @@ export interface UserListItemProps {
 export default function UserListItem(props: Readonly<UserListItemProps>) {
   const { identityProvider, user, manageProvider } = props;
   const {
-    id,
     name,
     login,
     avatar,
@@ -57,9 +54,7 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
   } = user;
 
   const [openTokenForm, setOpenTokenForm] = React.useState(false);
-  const [openGroupForm, setOpenGroupForm] = React.useState(false);
   const { data: tokens, isLoading: tokensAreLoading } = useUserTokensQuery(login);
-  const { data: groupsCount, isLoading: groupsAreLoading } = useUserGroupsCountQuery(id);
 
   return (
     <TableRow>
@@ -83,22 +78,6 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
         <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
       </ContentCell>
       <ContentCell>
-        <Spinner isLoading={groupsAreLoading}>
-          {groupsCount}
-          {manageProvider === undefined && (
-            <ButtonIcon
-              Icon={IconMoreVertical}
-              tooltipContent={translate('users.update_groups')}
-              className="it__user-groups sw-ml-2"
-              ariaLabel={translateWithParameters('users.update_users_groups', user.login)}
-              onClick={() => setOpenGroupForm(true)}
-              size={ButtonSize.Medium}
-              variety={ButtonVariety.DefaultGhost}
-            />
-          )}
-        </Spinner>
-      </ContentCell>
-      <ContentCell>
         <Spinner isLoading={tokensAreLoading}>
           {tokens?.length}
 
@@ -119,7 +98,6 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
       </ActionCell>
 
       {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
-      {openGroupForm && <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />}
     </TableRow>
   );
 }

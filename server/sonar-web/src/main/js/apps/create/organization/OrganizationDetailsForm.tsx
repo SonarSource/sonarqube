@@ -181,8 +181,8 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
             <div className="little-spacer-top">
               <OrganizationDescriptionInput
                 onChange={this.handleDescriptionUpdate}
-                value={this.state.description}
-              ></OrganizationDescriptionInput>
+                initialValue={this.state.description}
+                showHelpIcon={true}/>
               <div className="note abs-width-400">
                 {translate('organization.description.description')}
               </div>
@@ -200,7 +200,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
           <Button
             className="sw-my-4"
             variety={ButtonVariety.Primary}
-            disabled={submitting || !this.canSubmit(this.state)}
+            isDisabled={submitting || !this.canSubmit(this.state)}
             type="submit"
           >
             {this.props.submitText}
