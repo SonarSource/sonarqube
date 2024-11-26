@@ -33,15 +33,6 @@ it('should redirect to static doc for specific version', async () => {
   );
 });
 
-it('should redirect to static doc for latest version', async () => {
-  renderDocumentationRedirect('land', '10.0-SNAPSHOT');
-
-  expect(await screen.findByRole('link')).toHaveAttribute(
-    'href',
-    'https://docs.sonarsource.com/sonarqube/latest/land',
-  );
-});
-
 function renderDocumentationRedirect(navigate: string, version?: string) {
   renderAppRoutes(
     `documentation/${navigate}`,

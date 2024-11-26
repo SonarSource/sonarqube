@@ -25,19 +25,15 @@ import { DocLink } from './doc-links';
 // This is only meant to be used directly for DocumentationRedirect. For all other uses,
 // please use useDocUrl instead (it forces the use of a catalogued documentation link)
 export function useUncataloguedDocUrl(to?: string) {
-  const { version, documentationUrl: docUrl } = React.useContext(AppStateContext);
+  const { documentationUrl: docUrl } = React.useContext(AppStateContext);
 
   const formatDocUrl = React.useCallback(
     (href: string) => {
-      const isSnapshot = version.indexOf('SNAPSHOT') !== -1;
-
       const path = href.replace(/^\//, '');
 
-      return isSnapshot
-        ? `${docUrl.replace(docUrl.slice(docUrl.lastIndexOf('/')), '/latest')}/${path}`
-        : `${docUrl}/${path}`;
+      return `${docUrl}/${path}`;
     },
-    [docUrl, version],
+    [docUrl],
   );
 
   return to ? formatDocUrl(to) : formatDocUrl;
