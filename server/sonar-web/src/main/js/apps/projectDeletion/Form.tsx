@@ -22,47 +22,23 @@ import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
-import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { Router } from '~sonar-aligned/types/router';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { useDeleteApplicationMutation } from '../../queries/applications';
-import { useDeletePortfolioMutation } from '../../queries/portfolios';
-import { useDeleteProjectMutation } from '../../queries/projects';
-import { isApplication } from '../../types/component';
 import { Component } from '../../types/types';
 import { deleteProject } from '../../api/codescan';
 
 interface Props {
-  organization: string;
   component: Pick<Component, 'id' | 'key' | 'name' | 'qualifier' | 'organization'>;
   router: Router;
 }
 
-export function Form({ organization, component, router }: Readonly<Props>) {
-  const { mutate: deleteProject } = useDeleteProjectMutation(organization);
-  const { mutate: deleteApplication } = useDeleteApplicationMutation(organization);
-  const { mutate: deletePortfolio } = useDeletePortfolioMutation(organization);
+export function Form({ component, router }: Readonly<Props>) {
 
-  const handleDelete = () => {
-    let deleteMethod = deleteProject;
-    let redirectTo = '/';
-
-    if (isPortfolioLike(component.qualifier)) {
-      deleteMethod = deletePortfolio;
-      redirectTo = '/portfolios';
-    } else if (isApplication(component.qualifier)) {
-      deleteMethod = deleteApplication;
-    }
-
-    deleteMethod(component.organization, component.key, {
-      onSuccess: () => {
-        addGlobalSuccessMessage(
-          translateWithParameters('project_deletion.resource_deleted', component.name),
-        );
-
-        router.replace(redirectTo);
-      },
+  const handleDelete = async () => {
+    deleteProject(component.id, true).then(() => {
+      addGlobalSuccessMessage(translateWithParameters('project_deletion.resource_deleted', component.name));
+      router.replace('/');
     });
   };
 
