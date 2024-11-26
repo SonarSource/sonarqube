@@ -45,17 +45,6 @@ class AiCodeAssuranceVerifierTest {
   private AiCodeAssuranceVerifier underTest;
 
   @ParameterizedTest
-  @MethodSource("provideParams")
-  void isAiCodeAssured(Edition edition, boolean containsAiCode, boolean expected) {
-    when(platformEditionProvider.get()).thenReturn(Optional.of(edition));
-    underTest = new AiCodeAssuranceVerifier(platformEditionProvider, dbClient);
-
-    when(projectDto.getContainsAiCode()).thenReturn(containsAiCode);
-
-    assertThat(underTest.isAiCodeAssured(projectDto.getContainsAiCode())).isEqualTo(expected);
-  }
-
-  @ParameterizedTest
   @MethodSource("isAiCodeAssuredForProject")
   void isAiCodeAssuredForProject(boolean containsAiCode, boolean aiCodeSupportedQg, boolean expected) {
     when(platformEditionProvider.get()).thenReturn(Optional.of(Edition.DEVELOPER));
@@ -75,6 +64,7 @@ class AiCodeAssuranceVerifierTest {
     mockProjectAndQualityGate(containsAiCode, aiCodeSupportedQg);
 
     assertThat(underTest.getAiCodeAssurance(projectDto)).isEqualTo(expected);
+    assertThat(underTest.getAiCodeAssurance(containsAiCode, aiCodeSupportedQg)).isEqualTo(expected);
   }
 
   @ParameterizedTest

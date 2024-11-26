@@ -43,10 +43,7 @@ public class AiCodeAssuranceVerifier {
   }
 
   public AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto) {
-    if (!isSupported) {
-      return AiCodeAssurance.NONE;
-    }
-    if (!projectDto.getContainsAiCode()) {
+    if (!isSupported || !projectDto.getContainsAiCode()) {
       return AiCodeAssurance.NONE;
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -65,8 +62,13 @@ public class AiCodeAssuranceVerifier {
     return AiCodeAssurance.AI_CODE_ASSURED.equals(getAiCodeAssurance(projectDto));
   }
 
-  @Deprecated(forRemoval = true)
-  public boolean isAiCodeAssured(boolean containsAiCode) {
-    return isSupported && containsAiCode;
+  public AiCodeAssurance getAiCodeAssurance(boolean containsAiCode, boolean aiCodeSupportedQg) {
+    if (!isSupported || !containsAiCode) {
+      return AiCodeAssurance.NONE;
+    }
+    if (aiCodeSupportedQg) {
+      return AiCodeAssurance.AI_CODE_ASSURED;
+    }
+    return AiCodeAssurance.CONTAINS_AI_CODE;
   }
 }

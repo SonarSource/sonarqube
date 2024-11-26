@@ -32,6 +32,7 @@ public class ProjectQgateAssociationDto {
   private String name;
   private String gateUuid;
   private boolean containsAiCode;
+  private boolean aiCodeSupportedByQg;
 
   public ProjectQgateAssociationDto() {
     // do nothing
@@ -81,5 +82,13 @@ public class ProjectQgateAssociationDto {
   public ProjectQgateAssociationDto setContainsAiCode(boolean containsAiCode) {
     this.containsAiCode = containsAiCode;
     return this;
+  }
+
+  public boolean isAiCodeSupportedByQg() {
+    return aiCodeSupportedByQg;
+  }
+
+  public void setAiCodeSupportedByQg(boolean aiCodeSupportedByQg) {
+    this.aiCodeSupportedByQg = aiCodeSupportedByQg;
   }
 }

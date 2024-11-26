@@ -150,6 +150,14 @@ message SearchResponse {
     optional bool selected = 3;
     optional string key = 4;
     optional bool isAiCodeAssured = 5;
+    optional AiCodeAssurance aiCodeAssurance = 6;
+  }
+
+  enum AiCodeAssurance {
+    UNKNOWN_AI_CODE_ASSURANCE = 0;
+    NONE = 1;
+    CONTAINS_AI_CODE = 2;
+    AI_CODE_ASSURED = 3;
   }
 }
 
