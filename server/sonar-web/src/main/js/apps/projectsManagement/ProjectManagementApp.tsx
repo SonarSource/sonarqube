@@ -125,7 +125,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
           if (this.state.page > 1) {
             projects = [...this.state.projects, ...projects];
           }
-          this.setState({ ready: true, projects, selection: [], total: r.paging.total });
+          this.setState({ ready: true, projects, total: r.paging.total });
         }
       })
       .catch(throwGlobalError);
@@ -199,6 +199,10 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
     this.setState({ selection: [] });
   };
 
+  onProjectsDeleted = () => {
+    this.setState({ ready: false, page: 1, selection: [] }, this.requestProjects);
+  };
+
   render() {
     const { currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
@@ -218,7 +222,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
             onAllDeselected={this.onAllDeselected}
             onAllSelected={this.onAllSelected}
             onDateChanged={this.handleDateChanged}
-            onDeleteProjects={this.requestProjects}
+            onDeleteProjects={this.onProjectsDeleted}
             onProvisionedChanged={this.onProvisionedChanged}
             onQualifierChanged={this.onQualifierChanged}
             onSearch={this.onSearch}

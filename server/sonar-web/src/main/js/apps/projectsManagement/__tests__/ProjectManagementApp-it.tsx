@@ -289,7 +289,9 @@ it('should delete projects, but not Portfolios or Applications', async () => {
     ui.deleteDialog.byText('projects_management.delete_selected_warning.2').get(),
   ).toBeInTheDocument();
   await user.click(ui.deleteDialog.by(ui.delete).get());
-  expect(ui.row.getAll()).toHaveLength(3);
+  await waitFor(() => {
+    expect(ui.row.getAll()).toHaveLength(3);
+  });
 });
 
 describe('Bulk permission templates', () => {
