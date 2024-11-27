@@ -136,12 +136,11 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
 
     return (
       <div className="page page-limited sw-mt-16 sw-ml-16 sw-mr-8">
+        <header className="page-header sw-my-4">
+          <h1 className="page-title">{title}</h1>
+        </header>
         <Card className="sw-mb-4">
           <Helmet title={title} />
-
-          <header className="page-header">
-            <h1 className="page-title">{title}</h1>
-          </header>
 
           <div className="boxed-group boxed-group-inner">
             <h2 className="boxed-title">{translate('organization.details')}</h2>
