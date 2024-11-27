@@ -42,6 +42,7 @@ import { Issue, Organization, Paging } from '../../../types/types';
 import AssigneeSelect from './AssigneeSelect';
 import TagsSelect from './TagsSelect';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 
 interface Props {
   organization: Organization;
@@ -100,7 +101,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 
     Promise.all([
       this.loadIssues(),
-      needIssueSync ? Promise.resolve([]) : searchIssueTags({ organization: props.organization.kee }),
+      needIssueSync ? Promise.resolve([]) : searchIssueTags({ organization: this.props.organization.kee }),
     ]).then(
       ([{ issues, paging }, tags]) => {
         if (this.mounted) {
@@ -261,7 +262,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         <AssigneeSelect
           className="sw-max-w-abs-300"
           inputId={`issues-bulk-change-${field}`}
-          organization={props.organization.kee}
+          organization={this.props.organization.kee}
           issues={issues}
           label={translate('issue.assign.formlink')}
           onAssigneeSelect={this.handleAssigneeSelect}
@@ -447,4 +448,4 @@ function hasAction(action: string) {
   return (issue: Issue) => issue.actions?.includes(action);
 }
 
-export default withOrganizationContext(withBranchStatusRefresh(BulkChangeModal));
+export default withComponentContext(withOrganizationContext(withBranchStatusRefresh(BulkChangeModal)));
