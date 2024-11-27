@@ -268,6 +268,10 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   // Set portal anchor on mount
   React.useEffect(() => {
     portalAnchor.current = document.querySelector('#component-nav-portal');
+
+    return () => {
+      window.clearTimeout(watchStatusTimer.current);
+    }
   }, []);
 
   const isInProgress = tasksInProgress && tasksInProgress.length > 0;
