@@ -26,7 +26,6 @@ import javax.annotation.CheckForNull;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.profile.BuiltInQualityProfileAnnotationLoader;
@@ -113,6 +112,7 @@ import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.platform.DefaultNodeInformation;
 import org.sonar.server.platform.OfficialDistribution;
@@ -406,8 +406,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // Notifications
       QGChangeEmailTemplate.class,
-      EmailSettings.class,
       EmailSmtpConfiguration.class,
+      OAuthMicrosoftRestClient.class,
       NotificationService.class,
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,

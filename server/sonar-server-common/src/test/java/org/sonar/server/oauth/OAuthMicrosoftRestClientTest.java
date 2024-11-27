@@ -25,9 +25,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OAuthMicrosoftRestClientTest {
 
+  private final OAuthMicrosoftRestClient underTest = new OAuthMicrosoftRestClient();
+
   @Test
   void getAccessTokenFromClientCredentialsGrantFlow_throwsException() {
-    assertThatThrownBy(() -> OAuthMicrosoftRestClient.getAccessTokenFromClientCredentialsGrantFlow("https://localhost", "clientId", "clientSecret", "tenant", "scope"))
+    assertThatThrownBy(() -> underTest.getAccessTokenFromClientCredentialsGrantFlow("https://localhost", "clientId", "clientSecret", "tenant", "scope"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageStartingWith("Unable to get a token: ");
   }

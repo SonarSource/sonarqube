@@ -22,8 +22,8 @@ package org.sonar.ce.task.projectanalysis.notification;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import javax.annotation.CheckForNull;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 
@@ -35,11 +35,11 @@ public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemp
   private static final char TAB = '\t';
 
   private final ReportAnalysisFailureNotificationSerializer serializer;
-  protected final EmailSettings settings;
+  private final Server server;
 
-  public ReportAnalysisFailureNotificationEmailTemplate(ReportAnalysisFailureNotificationSerializer serializer, EmailSettings settings) {
+  public ReportAnalysisFailureNotificationEmailTemplate(ReportAnalysisFailureNotificationSerializer serializer, Server server) {
     this.serializer = serializer;
-    this.settings = settings;
+    this.server = server;
   }
 
   @Override
@@ -88,7 +88,7 @@ public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemp
     }
 
     res.append(LINE_RETURN);
-    res.append("More details at: ").append(String.format("%s/project/background_tasks?id=%s", settings.getServerBaseURL(), encode(project.key())));
+    res.append("More details at: ").append(String.format("%s/project/background_tasks?id=%s", server.getPublicRootUrl(), encode(project.key())));
 
     return res.toString();
   }

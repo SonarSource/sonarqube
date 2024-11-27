@@ -24,8 +24,8 @@ import java.net.URLEncoder;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
@@ -51,10 +51,10 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
   static final String FIELD_BRANCH = "branch";
   static final String FIELD_PULL_REQUEST = "pullRequest";
 
-  protected final EmailSettings settings;
+  protected final Server server;
 
-  protected AbstractNewIssuesEmailTemplate(EmailSettings settings) {
-    this.settings = settings;
+  protected AbstractNewIssuesEmailTemplate(Server server) {
+    this.server = server;
   }
 
   public static String encode(String toEncode) {
@@ -175,8 +175,7 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
     if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/project/issues?id=%s",
-        settings.getServerBaseURL(), encode(projectKey));
+      String url = String.format("%s/project/issues?id=%s", server.getPublicRootUrl(), encode(projectKey));
       String branchName = notification.getFieldValue(FIELD_BRANCH);
       if (branchName != null) {
         url += "&branch=" + encode(branchName);

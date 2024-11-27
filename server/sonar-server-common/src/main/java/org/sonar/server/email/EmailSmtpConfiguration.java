@@ -44,6 +44,7 @@ public class EmailSmtpConfiguration {
   // Auth selection
   public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD = "email.smtp.auth.method";
   public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD_DEFAULT = "BASIC";
+  public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH = "OAUTH";
   // Basic Auth
   public static final String EMAIL_CONFIG_SMTP_USERNAME = "email.smtp_username.secured";
   public static final String EMAIL_CONFIG_SMTP_USERNAME_DEFAULT = "";

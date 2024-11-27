@@ -35,8 +35,8 @@ import java.util.stream.Stream;
 import org.elasticsearch.common.util.set.Sets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
@@ -82,9 +82,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   private static final String[] SECURITY_HOTSPOTS_STATUSES = {STATUS_TO_REVIEW, STATUS_REVIEWED};
 
 
-  private I18n i18n = mock(I18n.class);
-  private EmailSettings emailSettings = mock(EmailSettings.class);
-  private ChangesOnMyIssuesEmailTemplate underTest = new ChangesOnMyIssuesEmailTemplate(i18n, emailSettings);
+  private final I18n i18n = mock(I18n.class);
+  private final Server server = mock();
+  private final ChangesOnMyIssuesEmailTemplate underTest = new ChangesOnMyIssuesEmailTemplate(i18n, server);
 
   @Test
   public void format_returns_null_on_Notification() {
@@ -311,7 +311,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String host = secure().nextAlphabetic(15);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.ChangesOnMyIssue", "notification.dispatcher.ChangesOnMyIssue"))
       .thenReturn(wordingNotification);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
     Project project = newProject("foo");
     Rule rule = newRule("bar", ruleType);
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
@@ -397,7 +397,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)));
 
@@ -418,9 +418,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
-      .collect(toList());
+      .toList();
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -449,7 +449,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.of(changedIssue)));
 
@@ -471,7 +471,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)));
 
@@ -494,7 +494,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.of(changedIssue)));
 
@@ -517,9 +517,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String issueStatus = randomValidStatus();
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, issueStatus, project, rule))
-      .collect(toList());
+      .toList();
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -543,9 +543,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
-      .collect(toList());
+      .toList();
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -571,9 +571,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String status = randomValidStatus();
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, status, project, rule))
-      .collect(toList());
+      .toList();
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -598,9 +598,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Rule rule = newRandomNotAHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
-      .collect(toList());
+      .toList();
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -630,7 +630,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .collect(toList());
     Collections.shuffle(changedIssues);
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -667,7 +667,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .collect(toList());
     Collections.shuffle(changedIssues);
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -702,7 +702,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .collect(toList());
     Collections.shuffle(changedIssues);
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -745,7 +745,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
     Collections.shuffle(changedIssues);
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -808,7 +808,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .collect(toList());
     Collections.shuffle(changedIssues);
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 

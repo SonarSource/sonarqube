@@ -20,8 +20,8 @@
 package org.sonar.server.issue.notification;
 
 import java.util.Date;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
@@ -30,8 +30,8 @@ import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
  */
 public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
 
-  public MyNewIssuesEmailTemplate(EmailSettings settings) {
-    super(settings);
+  public MyNewIssuesEmailTemplate(Server server) {
+    super(server);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
     if (projectKey != null && dateString != null && assignee != null) {
       Date date = DateUtils.parseDateTime(dateString);
       String url = String.format("%s/project/issues?id=%s&assignees=%s",
-        settings.getServerBaseURL(),
+        server.getPublicRootUrl(),
         encode(projectKey),
         encode(assignee));
       String branchName = notification.getFieldValue(FIELD_BRANCH);

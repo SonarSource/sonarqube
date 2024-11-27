@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.notification;
 
 import org.junit.Test;
-import org.sonar.api.config.EmailSettings;
+import org.sonar.api.platform.Server;
 import org.sonar.server.qualitygate.notification.QGChangeNotification;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,9 +29,9 @@ import static org.mockito.Mockito.when;
 
 public class ReportAnalysisFailureNotificationEmailTemplateTest {
   ReportAnalysisFailureNotificationSerializer serializer = new ReportAnalysisFailureNotificationSerializerImpl();
-  EmailSettings settings = mock(EmailSettings.class);
 
-  ReportAnalysisFailureNotificationEmailTemplate underTest = new ReportAnalysisFailureNotificationEmailTemplate(serializer, settings);
+  Server server = mock();
+  ReportAnalysisFailureNotificationEmailTemplate underTest = new ReportAnalysisFailureNotificationEmailTemplate(serializer, server);
 
   @Test
   public void should_not_format_other_than_analysis_failure() {
@@ -51,7 +51,7 @@ public class ReportAnalysisFailureNotificationEmailTemplateTest {
     when(notification.getFieldValue("task.failedAt")).thenReturn("1673449576159");
     when(notification.getFieldValue("error.message")).thenReturn("error");
 
-    when(settings.getServerBaseURL()).thenReturn("sonarsource.com");
+    when(server.getPublicRootUrl()).thenReturn("sonarsource.com");
 
     var result = underTest.format(notification);
 

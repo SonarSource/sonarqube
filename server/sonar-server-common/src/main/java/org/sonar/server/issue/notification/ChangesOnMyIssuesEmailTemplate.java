@@ -23,8 +23,8 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
@@ -47,8 +47,8 @@ import static org.sonar.server.issue.notification.RuleGroup.resolveGroup;
 public class ChangesOnMyIssuesEmailTemplate extends IssueChangesEmailTemplate {
   private static final String NOTIFICATION_NAME_I18N_KEY = "notification.dispatcher.ChangesOnMyIssue";
 
-  public ChangesOnMyIssuesEmailTemplate(I18n i18n, EmailSettings settings) {
-    super(i18n, settings);
+  public ChangesOnMyIssuesEmailTemplate(I18n i18n, Server server) {
+    super(i18n, server);
   }
 
   @Override

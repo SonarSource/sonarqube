@@ -21,26 +21,32 @@ package org.sonar.server.email;
 
 import java.net.MalformedURLException;
 import java.time.Duration;
+import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
-import org.sonar.api.config.EmailSettings;
+import org.sonar.api.platform.Server;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH;
 
 public abstract class EmailSender<T extends BasicEmail> {
 
   private static final Duration SOCKET_TIMEOUT = Duration.of(30, SECONDS);
 
-  protected final EmailSettings emailSettings;
+  protected final EmailSmtpConfiguration emailSmtpConfiguration;
+  protected final Server server;
+  private final OAuthMicrosoftRestClient oAuthMicrosoftRestClient;
 
-  protected EmailSender(EmailSettings emailSettings) {
-    this.emailSettings = emailSettings;
+  protected EmailSender(EmailSmtpConfiguration emailSmtpConfiguration, Server server, OAuthMicrosoftRestClient oAuthMicrosoftRestClient) {
+    this.emailSmtpConfiguration = emailSmtpConfiguration;
+    this.server = server;
+    this.oAuthMicrosoftRestClient = oAuthMicrosoftRestClient;
   }
 
   public void send(T report) {
@@ -68,44 +74,60 @@ public abstract class EmailSender<T extends BasicEmail> {
   }
 
   public boolean areEmailSettingsSet() {
-    return isNotBlank(emailSettings.getSmtpHost());
+    return isNotBlank(emailSmtpConfiguration.getSmtpHost());
   }
 
   protected abstract void addReportContent(HtmlEmail email, T report) throws EmailException, MalformedURLException;
 
   private void setEmailSettings(MultiPartEmail email) throws EmailException {
     configureSecureConnection(email);
-    email.setHostName(emailSettings.getSmtpHost());
+    email.setHostName(emailSmtpConfiguration.getSmtpHost());
     email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
     email.setSocketTimeout(SOCKET_TIMEOUT);
     email.setCharset(UTF_8.name());
-    email.setFrom(emailSettings.getFrom(), emailSettings.getFromName());
+    email.setFrom(emailSmtpConfiguration.getFrom(), emailSmtpConfiguration.getFromName());
 
-    if (isNotBlank(emailSettings.getSmtpUsername() + emailSettings.getSmtpPassword())) {
-      email.setAuthentication(emailSettings.getSmtpUsername(), emailSettings.getSmtpPassword());
+    if (EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH.equals(emailSmtpConfiguration.getAuthMethod())) {
+      setOauthAuthentication(email);
+    } else if (StringUtils.isNotBlank(emailSmtpConfiguration.getSmtpUsername()) || StringUtils.isNotBlank(emailSmtpConfiguration.getSmtpPassword())) {
+      setBasicAuthentication(email);
+    }
+  }
+
+  private void setOauthAuthentication(Email email) throws EmailException {
+    String token = oAuthMicrosoftRestClient.getAccessTokenFromClientCredentialsGrantFlow(emailSmtpConfiguration.getOAuthHost(), emailSmtpConfiguration.getOAuthClientId(),
+      emailSmtpConfiguration.getOAuthClientSecret(), emailSmtpConfiguration.getOAuthTenant(), emailSmtpConfiguration.getOAuthScope());
+    email.setAuthentication(emailSmtpConfiguration.getSmtpUsername(), token);
+    Properties props = email.getMailSession().getProperties();
+    props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+    props.put("mail.smtp.auth.login.disable", "true");
+    props.put("mail.smtp.auth.plain.disable", "true");
+  }
+
+  private void setBasicAuthentication(Email email) {
+    if (StringUtils.isNotBlank(emailSmtpConfiguration.getSmtpUsername()) || StringUtils.isNotBlank(emailSmtpConfiguration.getSmtpPassword())) {
+      email.setAuthentication(emailSmtpConfiguration.getSmtpUsername(), emailSmtpConfiguration.getSmtpPassword());
     }
   }
 
   private void configureSecureConnection(MultiPartEmail email) {
-    String secureConnection = emailSettings.getSecureConnection();
-    int smtpPort = emailSettings.getSmtpPort();
-    if (equalsIgnoreCase(secureConnection, "ssl")) {
+    if (StringUtils.equalsIgnoreCase(emailSmtpConfiguration.getSecureConnection(), "SSLTLS")) {
       email.setSSLOnConnect(true);
       email.setSSLCheckServerIdentity(true);
-      email.setSslSmtpPort(String.valueOf(smtpPort));
+      email.setSslSmtpPort(String.valueOf(emailSmtpConfiguration.getSmtpPort()));
 
       // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
       // It prevents from getting bad message.
-      email.setSmtpPort(smtpPort);
-    } else if (equalsIgnoreCase(secureConnection, "starttls")) {
+      email.setSmtpPort(emailSmtpConfiguration.getSmtpPort());
+    } else if (StringUtils.equalsIgnoreCase(emailSmtpConfiguration.getSecureConnection(), "STARTTLS")) {
       email.setStartTLSEnabled(true);
       email.setStartTLSRequired(true);
       email.setSSLCheckServerIdentity(true);
-      email.setSmtpPort(smtpPort);
-    } else if (isBlank(secureConnection)) {
-      email.setSmtpPort(smtpPort);
+      email.setSmtpPort(emailSmtpConfiguration.getSmtpPort());
+    } else if (StringUtils.equalsIgnoreCase(emailSmtpConfiguration.getSecureConnection(), "NONE")) {
+      email.setSmtpPort(emailSmtpConfiguration.getSmtpPort());
     } else {
-      throw new IllegalStateException("Unknown type of SMTP secure connection: " + secureConnection);
+      throw new IllegalStateException("Unknown type of SMTP secure connection: " + emailSmtpConfiguration.getSecureConnection());
     }
   }
 

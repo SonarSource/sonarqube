@@ -19,13 +19,8 @@
  */
 package org.sonar.server.issue.notification;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.EmailSettings;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
 
@@ -40,10 +35,8 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 
 public class NewIssuesEmailTemplateTest {
 
-  private MapSettings settings = new MapSettings();
-
-  private Server server = mock(Server.class);
-  private NewIssuesEmailTemplate template = new NewIssuesEmailTemplate(new EmailSettings(settings.asConfig(), server));
+  private final Server server = mock(Server.class);
+  private final NewIssuesEmailTemplate template = new NewIssuesEmailTemplate(server);
 
   @Before
   public void setUp() {
@@ -96,7 +89,6 @@ public class NewIssuesEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
 
-    // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage()).startsWith("""
       Project: Struts
       Version: 42.1.1
@@ -128,7 +120,6 @@ public class NewIssuesEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
 
-    // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage()).startsWith("""
       Project: Struts
       
@@ -156,7 +147,6 @@ public class NewIssuesEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
 
-    // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage()).startsWith("""
       Project: Struts
       Branch: feature1
@@ -174,7 +164,6 @@ public class NewIssuesEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
 
-    // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage()).startsWith("""
       Project: Struts
       Branch: feature1
@@ -236,15 +225,4 @@ public class NewIssuesEmailTemplateTest {
       .setFieldValue(RULE + ".2.count", "5");
   }
 
-  private void assertStartsWithFile(String message, String resourcePath) throws IOException {
-    String fileContent = IOUtils.toString(getClass().getResource(resourcePath), StandardCharsets.UTF_8);
-    assertThat(sanitizeString(message)).startsWith(sanitizeString(fileContent));
-  }
-
-  /**
-   * sanitize EOL and tabs if git clone is badly configured
-   */
-  private static String sanitizeString(String s) {
-    return s.replaceAll("\\r\\n|\\r|\\s+", "");
-  }
 }

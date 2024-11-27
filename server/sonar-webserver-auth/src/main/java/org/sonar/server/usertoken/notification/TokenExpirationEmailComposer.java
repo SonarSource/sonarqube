@@ -19,26 +19,27 @@
  */
 package org.sonar.server.usertoken.notification;
 
-import java.net.MalformedURLException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
-import org.sonar.api.config.EmailSettings;
+import org.sonar.api.platform.Server;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.email.EmailSender;
+import org.sonar.server.email.EmailSmtpConfiguration;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 import static java.lang.String.format;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 
 public class TokenExpirationEmailComposer extends EmailSender<TokenExpirationEmail> {
 
-  protected TokenExpirationEmailComposer(EmailSettings emailSettings) {
-    super(emailSettings);
+  protected TokenExpirationEmailComposer(EmailSmtpConfiguration emailSmtpConfiguration, Server server, OAuthMicrosoftRestClient oAuthMicrosoftRestClient) {
+    super(emailSmtpConfiguration, server, oAuthMicrosoftRestClient);
   }
 
-  @Override protected void addReportContent(HtmlEmail email, TokenExpirationEmail emailData) throws EmailException, MalformedURLException {
+  @Override protected void addReportContent(HtmlEmail email, TokenExpirationEmail emailData) throws EmailException {
     email.addTo(emailData.getRecipients().toArray(String[]::new));
     UserTokenDto token = emailData.getUserToken();
     if (token.isExpired()) {
@@ -69,7 +70,7 @@ public class TokenExpirationEmailComposer extends EmailSender<TokenExpirationEma
     }
     builder.append(format("%s on: %s<br/>", token.isExpired() ? "Expired" : "Expires", parseDate(token.getExpirationDate())))
       .append(
-        format("<br/>If this token is still needed, please consider <a href=\"%s/account/security/\">generating</a> an equivalent.<br/><br/>", emailSettings.getServerBaseURL()))
+        format("<br/>If this token is still needed, please consider <a href=\"%s/account/security/\">generating</a> an equivalent.<br/><br/>", server.getPublicRootUrl()))
       .append("Don't forget to update the token in the locations where it is in use. "
         + "This may include the CI pipeline that analyzes your projects, "
         + "the IDE settings that connect SonarLint to SonarQube, "

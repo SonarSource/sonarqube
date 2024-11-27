@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usertoken.notification;
 
-import java.net.MalformedURLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -28,32 +27,35 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.EmailSettings;
+import org.sonar.api.platform.Server;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserTokenDto;
+import org.sonar.server.email.EmailSmtpConfiguration;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TokenExpirationEmailComposerTest {
-  private final EmailSettings emailSettings = mock(EmailSettings.class);
+  private final EmailSmtpConfiguration emailSmtpConfiguration = mock();
+  private final Server server = mock();
   private final long createdAt = LocalDate.parse("2022-01-01").atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
-  private final TokenExpirationEmailComposer underTest = new TokenExpirationEmailComposer(emailSettings);
+  private final TokenExpirationEmailComposer underTest = new TokenExpirationEmailComposer(emailSmtpConfiguration, server, mock(OAuthMicrosoftRestClient.class));
 
   @Before
   public void setup() {
-    when(emailSettings.getServerBaseURL()).thenReturn("http://localhost");
+    when(server.getPublicRootUrl()).thenReturn("http://localhost");
   }
 
   @Test
-  public void composer_email_with_expiring_project_token() throws MalformedURLException, EmailException {
+  public void composer_email_with_expiring_project_token() throws EmailException {
     long expiredDate = LocalDate.now().atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli();
     var token = createToken("projectToken", "projectA", expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
     var email = mock(HtmlEmail.class);
     underTest.addReportContent(email, emailData);
-    verify(email).setSubject(String.format("Your token \"projectToken\" will expire."));
+    verify(email).setSubject("Your token \"projectToken\" will expire.");
     verify(email).setHtmlMsg(
       String.format("Your token \"projectToken\" will expire on %s.<br/><br/>"
           + "Token Summary<br/><br/>"
@@ -69,7 +71,7 @@ public class TokenExpirationEmailComposerTest {
   }
 
   @Test
-  public void composer_email_with_expired_global_token() throws MalformedURLException, EmailException {
+  public void composer_email_with_expired_global_token() throws EmailException {
     long expiredDate = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     var token = createToken("globalToken", null, expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);

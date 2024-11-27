@@ -32,8 +32,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.i18n.I18n;
@@ -63,8 +63,8 @@ import static org.sonar.server.issue.notification.IssuesChangesNotificationBuild
 @RunWith(DataProviderRunner.class)
 public class FpPrAcceptedEmailTemplateTest {
   private final I18n i18n = mock(I18n.class);
-  private final EmailSettings emailSettings = mock(EmailSettings.class);
-  private final FpOrAcceptedEmailTemplate underTest = new FpOrAcceptedEmailTemplate(i18n, emailSettings);
+  private final Server server = mock();
+  private final FpOrAcceptedEmailTemplate underTest = new FpOrAcceptedEmailTemplate(i18n, server);
 
   private static final long DATE_LONG = Instant.now().toEpochMilli();
   
@@ -144,7 +144,7 @@ public class FpPrAcceptedEmailTemplateTest {
     String host = secure().nextAlphabetic(15);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.NewFalsePositiveIssue", "notification.dispatcher.NewFalsePositiveIssue"))
       .thenReturn(wordingNotification);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), fpPrAccepted));
 
@@ -169,7 +169,7 @@ public class FpPrAcceptedEmailTemplateTest {
     String ruleName = secure().nextAlphabetic(8);
     String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", project, ruleName, randomRuleTypeHotspotExcluded());
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
@@ -189,7 +189,7 @@ public class FpPrAcceptedEmailTemplateTest {
     String ruleName = secure().nextAlphabetic(8);
     String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", project, ruleName, SECURITY_HOTSPOT);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
@@ -211,7 +211,7 @@ public class FpPrAcceptedEmailTemplateTest {
     String host = secure().nextAlphabetic(15);
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, project, ruleName, randomRuleTypeHotspotExcluded());
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
@@ -234,7 +234,7 @@ public class FpPrAcceptedEmailTemplateTest {
     String host = secure().nextAlphabetic(15);
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, project, ruleName, SECURITY_HOTSPOT);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
@@ -257,8 +257,8 @@ public class FpPrAcceptedEmailTemplateTest {
     Rule rule = newRandomNotAHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
-      .collect(toList());
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+      .toList();
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
@@ -283,8 +283,8 @@ public class FpPrAcceptedEmailTemplateTest {
     Rule rule = newSecurityHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
-      .collect(toList());
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+      .toList();
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
@@ -310,8 +310,8 @@ public class FpPrAcceptedEmailTemplateTest {
     Rule rule = newRandomNotAHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
-      .collect(toList());
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+      .toList();
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
@@ -337,8 +337,8 @@ public class FpPrAcceptedEmailTemplateTest {
     Rule rule = newSecurityHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
-      .collect(toList());
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+      .toList();
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
@@ -368,7 +368,7 @@ public class FpPrAcceptedEmailTemplateTest {
       .map(project -> newChangedIssue("issue_" + project.getUuid(), project, newRandomNotAHotspotRule(secure().nextAlphabetic(2))))
       .collect(toList());
     Collections.shuffle(changedIssues);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
@@ -403,7 +403,7 @@ public class FpPrAcceptedEmailTemplateTest {
       .map(rule -> newChangedIssue("issue_" + rule.getName(), project, rule))
       .collect(toList());
     Collections.shuffle(changedIssues);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
@@ -436,7 +436,7 @@ public class FpPrAcceptedEmailTemplateTest {
       .flatMap(t -> t)
       .collect(toList());
     Collections.shuffle(changedIssues);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 

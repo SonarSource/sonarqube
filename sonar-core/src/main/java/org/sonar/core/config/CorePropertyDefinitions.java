@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.core.extension.PluginRiskConsent;
@@ -65,7 +64,6 @@ public class CorePropertyDefinitions {
     defs.addAll(SecurityProperties.all());
     defs.addAll(DebtProperties.all());
     defs.addAll(PurgeProperties.all());
-    defs.addAll(EmailSettings.definitions());
     defs.addAll(ScannerProperties.all());
     defs.addAll(MQRModeProperties.all());
 
