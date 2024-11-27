@@ -38,4 +38,10 @@ public class OrganizationService {
     }
   }
 
+  public OrganizationDto getOrganizationByUuid(String orgUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.organizationDao().selectByUuid(dbSession, orgUuid)
+              .orElseThrow(() -> new IllegalArgumentException("No organization found by uuid: " + orgUuid));
+    }
+  }
 }
