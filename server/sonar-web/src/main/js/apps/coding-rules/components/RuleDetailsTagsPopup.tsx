@@ -77,24 +77,26 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
     const availableTags = difference(searchResult, tags);
     const selectedTags = [...sysTags, ...tags];
     return (
-      <MultiSelector
-        createElementLabel={translate('coding_rules.create_tag')}
-        headerLabel={translate('tags')}
-        searchInputAriaLabel={translate('search.search_for_tags')}
-        noResultsLabel={translate('no_results')}
-        onSearch={this.onSearch}
-        onSelect={this.onSelect}
-        onUnselect={this.onUnselect}
-        selectedElements={selectedTags}
-        selectedElementsDisabled={sysTags}
-        elements={availableTags}
-        renderTooltip={(element: string, disabled: boolean) => {
-          if (sysTags.includes(element) && disabled) {
-            return translate('coding_rules.system_tags_tooltip');
-          }
-          return null;
-        }}
-      />
+      <div style={{ maxHeight: '400px', overflowY: 'auto', }}>
+        <MultiSelector
+          createElementLabel={translate('coding_rules.create_tag')}
+          headerLabel={translate('tags')}
+          searchInputAriaLabel={translate('search.search_for_tags')}
+          noResultsLabel={translate('no_results')}
+          onSearch={this.onSearch}
+          onSelect={this.onSelect}
+          onUnselect={this.onUnselect}
+          selectedElements={selectedTags}
+          selectedElementsDisabled={sysTags}
+          elements={availableTags}
+          renderTooltip={(element: string, disabled: boolean) => {
+            if (sysTags.includes(element) && disabled) {
+              return translate('coding_rules.system_tags_tooltip');
+            }
+            return null;
+          }}
+        />
+      </div>
     );
   }
 }
