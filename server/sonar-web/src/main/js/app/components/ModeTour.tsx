@@ -47,12 +47,12 @@ export default function ModeTour() {
 
   const dismissedTour = currentUser.dismissedNotices[NoticeType.MODE_TOUR];
 
-  const nextStep = () => {
-    if (step === MAX_STEPS) {
+  const nextStep = (next?: number) => {
+    if (step === MAX_STEPS || next === 5) {
       document.dispatchEvent(new CustomEvent(CustomEvents.OpenHelpMenu));
       setTimeout(() => setStep(5));
     } else {
-      setStep(step + 1);
+      setStep(next ?? step + 1);
     }
   };
 
@@ -78,11 +78,17 @@ export default function ModeTour() {
     }
   }, [dismissedTour, dismissTourWithDebounce]);
 
+  const onLater = () => {
+    nextStep(5);
+  };
+
   const onToggle = (props: CallBackProps) => {
     switch (props.action) {
       case 'close':
       case 'skip':
       case 'reset':
+        // ideally we should trigger onLater here, but spotlight tour will be closed on close/skip/reset.
+        // So it is not possible without a dirty hack.
         dismissTour();
         break;
       case 'next':
@@ -156,7 +162,7 @@ export default function ModeTour() {
       <Modal
         size={ModalSize.Wide}
         isOpen={step <= maxModalSteps}
-        onOpenChange={(isOpen) => isOpen === false && dismissTour()}
+        onOpenChange={(isOpen) => isOpen === false && onLater()}
         title={
           step <= maxModalSteps &&
           intl.formatMessage({ id: `mode_tour.step${step}.title` }, { version: appState.version })
@@ -196,13 +202,13 @@ export default function ModeTour() {
           </DocumentationLink>
         }
         primaryButton={
-          <Button variety={ButtonVariety.Primary} onClick={nextStep}>
+          <Button variety={ButtonVariety.Primary} onClick={() => nextStep()}>
             {intl.formatMessage({ id: step === 1 ? 'lets_go' : 'next' })}
           </Button>
         }
         secondaryButton={
           step === 1 && (
-            <Button variety={ButtonVariety.Default} onClick={dismissTour}>
+            <Button variety={ButtonVariety.Default} onClick={onLater}>
               {intl.formatMessage({ id: 'later' })}
             </Button>
           )

@@ -38,6 +38,7 @@ const ui = {
   step4Dialog: byRole('dialog', { name: /mode_tour.step4.title/ }),
   next: byRole('button', { name: 'next' }),
   later: byRole('button', { name: 'later' }),
+  close: byRole('button', { name: 'modal.close' }),
   skip: byRole('button', { name: 'skip' }),
   letsgo: byRole('button', { name: 'lets_go' }),
   help: byRole('button', { name: 'help' }),
@@ -149,6 +150,32 @@ it('renders the tour for gateadmins', async () => {
   await user.click(ui.tourTrigger.get());
   expect(ui.step1Dialog.get()).toBeInTheDocument();
   expect(ui.step1Dialog.get()).toHaveTextContent('guiding.step_x_of_y.1.4');
+});
+
+it('should highlight the replay button on "later"', async () => {
+  const user = userEvent.setup();
+  renderGlobalNav(mockCurrentUser({ permissions: { global: [Permissions.Admin] } }));
+  expect(await ui.dialog.find()).toBeInTheDocument();
+  await user.click(ui.later.get());
+
+  expect(ui.dialog.query()).not.toBeInTheDocument();
+  expect(ui.tourTrigger.get()).toBeInTheDocument();
+  expect(await ui.guidePopup.find()).toBeInTheDocument();
+  expect(ui.skip.get()).toBeInTheDocument();
+  await user.click(ui.skip.get());
+});
+
+it('should highlight the replay button on closing the dialog', async () => {
+  const user = userEvent.setup();
+  renderGlobalNav(mockCurrentUser({ permissions: { global: [Permissions.Admin] } }));
+  expect(await ui.dialog.find()).toBeInTheDocument();
+  await user.click(ui.close.get());
+
+  expect(ui.dialog.query()).not.toBeInTheDocument();
+  expect(ui.tourTrigger.get()).toBeInTheDocument();
+  expect(await ui.guidePopup.find()).toBeInTheDocument();
+  expect(ui.skip.get()).toBeInTheDocument();
+  await user.click(ui.skip.get());
 });
 
 it('should not render the tour for regular users', async () => {
