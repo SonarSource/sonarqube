@@ -37,6 +37,7 @@ import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.qualitygate.QualityGateFindingDto.PERCENT_VALUE_TYPE;
 import static org.sonar.db.qualitygate.QualityGateFindingDto.RATING_VALUE_TYPE;
 
@@ -159,7 +160,8 @@ class QualityGateDaoIT {
 
     // check fields
     assertThat(findings).hasSize(3);
-    assertThat(findings.stream().map(QualityGateFindingDto::getDescription).collect(Collectors.toSet())).containsExactlyInAnyOrder(metric1.getShortName(), metric2.getShortName(), metric3.getShortName());
+    assertThat(findings.stream().map(QualityGateFindingDto::getDescription).collect(Collectors.toSet())).containsExactlyInAnyOrder(metric1.getShortName(), metric2.getShortName(),
+      metric3.getShortName());
 
     QualityGateFindingDto finding1 = findings.stream().filter(f -> f.getDescription().equals(metric1.getShortName())).findFirst().get();
     validateQualityGateFindingFields(finding1, metric1, condition1);
@@ -222,20 +224,21 @@ class QualityGateDaoIT {
     QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName("Random quality gate").setBuiltIn(false));
     dbSession.commit();
 
-    QualityGateDto result = underTest.selectBuiltIn(dbSession);
+    List<QualityGateDto> result = underTest.selectBuiltIn(dbSession);
 
-    assertThat(result.getUuid()).isEqualTo(builtInQualityGate.getUuid());
-    assertThat(result.getName()).isEqualTo(builtInQualityGate.getName());
+    assertThat(result)
+      .extracting(QualityGateDto::getUuid, QualityGateDto::getName)
+      .containsExactly(tuple(builtInQualityGate.getUuid(), builtInQualityGate.getName()));
   }
 
   @Test
-  void ensureOneBuiltInQualityGate() {
+  void ensureOnlySonarWayQualityGatesAreBuiltIn() {
     String builtInQgName = "Sonar Way";
     QualityGateDto builtInQualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
     QualityGateDto qualityGate1 = qualityGateDbTester.insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
     QualityGateDto qualityGate2 = qualityGateDbTester.insertQualityGate(qg -> qg.setName("QG2"));
 
-    underTest.ensureOneBuiltInQualityGate(dbSession, builtInQgName);
+    underTest.ensureOnlySonarWayQualityGatesAreBuiltIn(dbSession, builtInQgName);
     dbSession.commit();
 
     QualityGateDto reloaded = underTest.selectByName(dbSession, builtInQgName);

@@ -58,6 +58,10 @@ public class QualityGateConditionDao implements Dao {
     mapper(session).deleteConditionsWithInvalidMetrics();
   }
 
+  public int countByQualityGateUuid(DbSession session, String name) {
+    return mapper(session).countByQualityGateUuid(name);
+  }
+
   private static QualityGateConditionMapper mapper(DbSession session) {
     return session.getMapper(QualityGateConditionMapper.class);
   }

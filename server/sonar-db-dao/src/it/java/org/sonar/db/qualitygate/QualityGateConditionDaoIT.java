@@ -165,6 +165,19 @@ class QualityGateConditionDaoIT {
     assertThat(underTest.selectByUuid(condition3.getUuid(), dbSession)).isNull();
   }
 
+  @Test
+  void countByQualityGateUuid_shouldReturnCorrectCount() {
+    insertQGCondition("1", "1");
+    insertQGCondition("1", "3");
+    insertQGCondition("1", "299");
+
+    dbTester.commit();
+
+
+    assertThat(underTest.countByQualityGateUuid(dbSession,"1")).isEqualTo(3);
+    assertThat(underTest.countByQualityGateUuid(dbSession,"unknown")).isZero();
+  }
+
   private QualityGateConditionDto insertQGCondition(String qualityGateUuid) {
     return insertQGCondition(qualityGateUuid, secure().nextAlphabetic(2));
   }

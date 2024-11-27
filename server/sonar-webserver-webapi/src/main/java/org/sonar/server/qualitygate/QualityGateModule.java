@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
 
 public class QualityGateModule extends Module {
   @Override
@@ -31,6 +32,7 @@ public class QualityGateModule extends Module {
       QualityGateConditionsUpdater.class,
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class,
-      QualityGateFallbackManager.class);
+      QualityGateFallbackManager.class,
+      SonarWayQualityGate.class);
   }
 }

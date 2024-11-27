@@ -33,6 +33,14 @@
     where name=#{name, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByNames" parameterType="map" resultType="QualityGate">
+    select
+    <include refid="gateColumns"/>
+    from quality_gates qg
+    where name in
+    <foreach collection="names" open="(" close=")" item="name" separator=",">#{name, jdbcType=VARCHAR}</foreach>
+  </select>
+
   <select id="selectByUuid" parameterType="String" resultType="QualityGate">
     select
     <include refid="gateColumns"/>
@@ -40,7 +48,7 @@
     where uuid=#{uuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByProjectUuid" parameterType="Map" resultType="org.sonar.db.qualitygate.QualityGateDto">
+  <select id="selectByProjectUuid" parameterType="Map" resultType="QualityGate">
     SELECT
     <include refid="gateColumns"/>
     FROM
@@ -49,7 +57,7 @@
     project_qgates pqg ON pqg.quality_gate_uuid = qg.uuid AND pqg.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectBuiltIn" resultType="org.sonar.db.qualitygate.QualityGateDto">
+  <select id="selectBuiltIn" resultType="QualityGate">
     SELECT
       <include refid="gateColumns"/>
     FROM quality_gates qg
@@ -57,7 +65,7 @@
       is_built_in = ${_true}
   </select>
 
-  <select id="selectDefault" resultType="org.sonar.db.qualitygate.QualityGateDto">
+  <select id="selectDefault" resultType="QualityGate">
     SELECT
       <include refid="gateColumns"/>
     FROM quality_gates qg INNER JOIN properties p ON qg.uuid = p.text_value
@@ -95,12 +103,14 @@
     where uuid=#{uuid, jdbcType=VARCHAR}
   </update>
 
-  <update id="ensureOneBuiltInQualityGate" parameterType="string">
+  <update id="ensureOnlySonarWayQualityGatesAreBuiltIn" parameterType="string">
     UPDATE quality_gates
     SET
       is_built_in=${_false}
     WHERE
-      is_built_in=${_true} AND name &lt;&gt; #{builtInQualityName, jdbcType=VARCHAR}
+      is_built_in=${_true}
+    AND name not in
+    <foreach collection="names" open="(" close=")" item="name" separator=",">#{name, jdbcType=VARCHAR}</foreach>
   </update>
 
 </mapper>

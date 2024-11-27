@@ -27,6 +27,13 @@
     order by qgate_uuid asc
   </select>
 
+
+    <select id="countByQualityGateUuid" resultType="int">
+    select count(1)
+    from quality_gate_conditions
+    where qgate_uuid=#{qGateUuid}
+  </select>
+
   <select id="selectByUuid" parameterType="String" resultType="QualityGateCondition">
     select
     <include refid="conditionColumns"/>

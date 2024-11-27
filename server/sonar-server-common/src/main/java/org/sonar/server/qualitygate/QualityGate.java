@@ -29,10 +29,6 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class QualityGate {
 
-  public static final String BUILTIN_QUALITY_GATE_NAME = "Sonar way";
-
-  public static final String SONAR_WAY_LEGACY_QUALITY_GATE_NAME = "Sonar way (legacy)";
-
   private final String id;
   private final String name;
   private final Set<Condition> conditions;
