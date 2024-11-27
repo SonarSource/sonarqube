@@ -20,13 +20,10 @@
 package org.sonar.server.ai.code.assurance;
 
 import org.sonar.core.platform.EditionProvider;
-import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-
-import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 
 /**
  * Make sure that for {@link EditionProvider.Edition#COMMUNITY} we'll always get false or {@link AiCodeAssurance#NONE}, no matter of the
@@ -34,16 +31,16 @@ import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
  * This is to support correctly downgraded instances.
  */
 public class AiCodeAssuranceVerifier {
-  private final boolean isSupported;
   private final DbClient dbClient;
+  private final AiCodeAssuranceEntitlement entitlement;
 
-  public AiCodeAssuranceVerifier(PlatformEditionProvider editionProvider, DbClient dbClient) {
+  public AiCodeAssuranceVerifier(AiCodeAssuranceEntitlement entitlement, DbClient dbClient) {
     this.dbClient = dbClient;
-    this.isSupported = editionProvider.get().map(edition -> !edition.equals(COMMUNITY)).orElse(false);
+    this.entitlement = entitlement;
   }
 
   public AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto) {
-    if (!isSupported || !projectDto.getContainsAiCode()) {
+    if (!entitlement.isEnabled() || !projectDto.getContainsAiCode()) {
       return AiCodeAssurance.NONE;
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -63,7 +60,7 @@ public class AiCodeAssuranceVerifier {
   }
 
   public AiCodeAssurance getAiCodeAssurance(boolean containsAiCode, boolean aiCodeSupportedQg) {
-    if (!isSupported || !containsAiCode) {
+    if (!entitlement.isEnabled() || !containsAiCode) {
       return AiCodeAssurance.NONE;
     }
     if (aiCodeSupportedQg) {

@@ -52,14 +52,16 @@ public class ShowAction implements QualityGatesWsAction {
   private final QualityGatesWsSupport wsSupport;
   private final QualityGateCaycChecker qualityGateCaycChecker;
   private final QualityGateModeChecker qualityGateModeChecker;
+  private final QualityGateActionsSupport actionsSupport;
 
   public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport, QualityGateCaycChecker qualityGateCaycChecker,
-    QualityGateModeChecker qualityGateModeChecker) {
+    QualityGateModeChecker qualityGateModeChecker, QualityGateActionsSupport actionsSupport) {
     this.dbClient = dbClient;
     this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
     this.qualityGateCaycChecker = qualityGateCaycChecker;
     this.qualityGateModeChecker = qualityGateModeChecker;
+    this.actionsSupport = actionsSupport;
   }
 
   @Override
@@ -127,7 +129,7 @@ public class ShowAction implements QualityGatesWsAction {
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
         .toList())
-      .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
+      .setActions(actionsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
       .build();
   }
 

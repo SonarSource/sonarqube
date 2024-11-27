@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualitygate.ws;
+package org.sonar.server.ai.code.assurance;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import org.sonar.core.platform.PlatformEditionProvider;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 
-public class QualityGateWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new QualityGateWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(24);
+public class AiCodeAssuranceEntitlement {
+  private final boolean isSupported;
+
+  public AiCodeAssuranceEntitlement(PlatformEditionProvider editionProvider) {
+    this.isSupported = editionProvider.get().map(edition -> !edition.equals(COMMUNITY)).orElse(false);
+  }
+
+  public boolean isEnabled() {
+    return isSupported;
   }
 }

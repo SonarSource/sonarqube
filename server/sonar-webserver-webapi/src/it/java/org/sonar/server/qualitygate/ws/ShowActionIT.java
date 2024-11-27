@@ -21,9 +21,9 @@ package org.sonar.server.qualitygate.ws;
 
 import java.util.Collection;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbSession;
@@ -32,6 +32,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
@@ -60,27 +61,30 @@ import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.Qualitygates.Actions;
 
-public class ShowActionIT {
+class ShowActionIT {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
+  @RegisterExtension
+  UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  DbTester db = DbTester.create();
   private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
   private final QualityGateModeChecker qualityGateModeChecker = mock(QualityGateModeChecker.class);
-  private final WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
-      new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db)), qualityGateCaycChecker, qualityGateModeChecker));
+  private final AiCodeAssuranceEntitlement aiCodeAssuranceEntitlement = mock(AiCodeAssuranceEntitlement.class);
+  private final QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db));
 
-  @Before
-  public void setUp() {
+  private final WsActionTester ws = new WsActionTester(
+    new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()), wsSupport, qualityGateCaycChecker, qualityGateModeChecker,
+      new QualityGateActionsSupport(wsSupport, aiCodeAssuranceEntitlement)));
+
+  @BeforeEach
+  void setUp() {
     when(qualityGateCaycChecker.checkCaycCompliant(any(), any(String.class))).thenReturn(COMPLIANT);
     when(qualityGateModeChecker.getUsageOfModeMetrics(any()))
       .thenReturn(new QualityGateModeChecker.QualityModeResult(false, false));
   }
 
   @Test
-  public void show() {
+  void show() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
     MetricDto metric1 = db.measures().insertMetric();
@@ -103,7 +107,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void show_built_in() {
+  void show_built_in() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
@@ -115,7 +119,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void show_ai_code_supported() {
+  void show_ai_code_supported() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
@@ -135,7 +139,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void show_isCaycCompliant() {
+  void show_isCaycCompliant() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate.getUuid()))).thenReturn(COMPLIANT);
     db.qualityGates().setDefaultQualityGate(qualityGate);
@@ -148,7 +152,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void execute_shouldShowModeFlags() {
+  void execute_shouldShowModeFlags() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     when(qualityGateModeChecker.getUsageOfModeMetrics(any(Collection.class)))
       .thenReturn(new QualityGateModeChecker.QualityModeResult(true, true));
@@ -163,7 +167,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void show_by_name() {
+  void show_by_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
@@ -175,7 +179,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void no_condition() {
+  void no_condition() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
@@ -188,7 +192,8 @@ public class ShowActionIT {
   }
 
   @Test
-  public void actions() {
+  void actions() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
@@ -205,10 +210,28 @@ public class ShowActionIT {
     assertThat(actions.getCopy()).isTrue();
     assertThat(actions.getSetAsDefault()).isTrue();
     assertThat(actions.getAssociateProjects()).isTrue();
+    assertThat(actions.getManageAiCodeAssurance()).isTrue();
   }
 
   @Test
-  public void actions_on_default() {
+  void getManageAiCodeAssurance_action_not_available_when_feature_disabled() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(false);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
+    db.qualityGates().setDefaultQualityGate(qualityGate2);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    Actions actions = response.getActions();
+    assertThat(actions.getManageAiCodeAssurance()).isFalse();
+  }
+
+  @Test
+  void actions_on_default() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
@@ -224,10 +247,12 @@ public class ShowActionIT {
     assertThat(actions.getCopy()).isTrue();
     assertThat(actions.getSetAsDefault()).isFalse();
     assertThat(actions.getAssociateProjects()).isFalse();
+    assertThat(actions.getManageAiCodeAssurance()).isTrue();
   }
 
   @Test
-  public void actions_on_built_in() {
+  void actions_on_built_in() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(false));
@@ -244,10 +269,12 @@ public class ShowActionIT {
     assertThat(actions.getCopy()).isTrue();
     assertThat(actions.getSetAsDefault()).isTrue();
     assertThat(actions.getAssociateProjects()).isTrue();
+    assertThat(actions.getManageAiCodeAssurance()).isFalse();
   }
 
   @Test
-  public void actions_when_not_quality_gate_administer() {
+  void actions_when_not_quality_gate_administer() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
     db.qualityGates().setDefaultQualityGate(qualityGate);
@@ -263,10 +290,12 @@ public class ShowActionIT {
     assertThat(actions.getCopy()).isFalse();
     assertThat(actions.getSetAsDefault()).isFalse();
     assertThat(actions.getAssociateProjects()).isFalse();
+    assertThat(actions.getManageAiCodeAssurance()).isFalse();
   }
 
   @Test
-  public void actions_when_delegate_quality_gate_administer() {
+  void actions_when_delegate_quality_gate_administer() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way - Without Coverage"));
     UserDto user = db.users().insertUser();
@@ -282,9 +311,9 @@ public class ShowActionIT {
     assertThat(response.getActions())
       .extracting(
         Actions::getRename, Actions::getDelete, Actions::getManageConditions,
-        Actions::getCopy, Actions::getSetAsDefault, Actions::getAssociateProjects, Actions::getDelegate)
+        Actions::getCopy, Actions::getSetAsDefault, Actions::getAssociateProjects, Actions::getDelegate, Actions::getManageAiCodeAssurance)
       .containsExactlyInAnyOrder(
-        false, false, true, false, false, false, true);
+        false, false, true, false, false, false, true, false);
 
     response = ws.newRequest()
       .setParam("name", otherQualityGate.getName())
@@ -293,14 +322,14 @@ public class ShowActionIT {
     assertThat(response.getActions())
       .extracting(
         Actions::getRename, Actions::getDelete, Actions::getManageConditions,
-        Actions::getCopy, Actions::getSetAsDefault, Actions::getAssociateProjects, Actions::getDelegate)
+        Actions::getCopy, Actions::getSetAsDefault, Actions::getAssociateProjects, Actions::getDelegate, Actions::getManageAiCodeAssurance)
       .containsExactlyInAnyOrder(
-        false, false, true, false, false, false, true);
+        false, false, true, false, false, false, true, false);
 
   }
 
   @Test
-  public void reponse_should_show_isDefault() {
+  void reponse_should_show_isDefault() {
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(defaultQualityGate);
 
@@ -320,7 +349,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void fail_when_no_name() {
+  void fail_when_no_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest().execute())
@@ -329,7 +358,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void fail_when_condition_is_on_disabled_metric() {
+  void fail_when_condition_is_on_disabled_metric() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
     MetricDto metric = db.measures().insertMetric();
@@ -345,7 +374,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void fail_when_quality_name_does_not_exist() {
+  void fail_when_quality_name_does_not_exist() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -356,7 +385,8 @@ public class ShowActionIT {
   }
 
   @Test
-  public void json_example() {
+  void json_example() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("My Quality Gate"));
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("My Quality Gate 2"));
@@ -377,7 +407,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void verify_definition() {
+  void verify_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action.since()).isEqualTo("4.3");
     assertThat(action.params())

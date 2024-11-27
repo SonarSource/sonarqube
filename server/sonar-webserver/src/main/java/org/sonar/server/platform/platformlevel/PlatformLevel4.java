@@ -58,6 +58,7 @@ import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
@@ -343,6 +344,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // ai code assurance
       AiCodeAssuranceVerifier.class,
+      AiCodeAssuranceEntitlement.class,
 
       // batch
       new BatchWsModule(),

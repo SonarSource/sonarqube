@@ -19,14 +19,12 @@
  */
 package org.sonar.server.ai.code.assurance;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.core.platform.EditionProvider.Edition;
-import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -39,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 class AiCodeAssuranceVerifierTest {
   private final ProjectDto projectDto = mock(ProjectDto.class);
-  private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
+  private final AiCodeAssuranceEntitlement aiCodeAssuranceEntitlement = mock(AiCodeAssuranceEntitlement.class);
   private final DbClient dbClient = mock(DbClient.class);
   private final QualityGateDao qualityGateDao = mock(QualityGateDao.class);
   private AiCodeAssuranceVerifier underTest;
@@ -47,8 +45,8 @@ class AiCodeAssuranceVerifierTest {
   @ParameterizedTest
   @MethodSource("isAiCodeAssuredForProject")
   void isAiCodeAssuredForProject(boolean containsAiCode, boolean aiCodeSupportedQg, boolean expected) {
-    when(platformEditionProvider.get()).thenReturn(Optional.of(Edition.DEVELOPER));
-    underTest = new AiCodeAssuranceVerifier(platformEditionProvider, dbClient);
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
+    underTest = new AiCodeAssuranceVerifier(aiCodeAssuranceEntitlement, dbClient);
     mockProjectAndQualityGate(containsAiCode, aiCodeSupportedQg);
 
     when(projectDto.getContainsAiCode()).thenReturn(containsAiCode);
@@ -58,9 +56,9 @@ class AiCodeAssuranceVerifierTest {
 
   @ParameterizedTest
   @MethodSource("paramsForGetAiCodeAssurance")
-  void getAiCodeAssurance(Edition edition, boolean containsAiCode, boolean aiCodeSupportedQg, AiCodeAssurance expected) {
-    when(platformEditionProvider.get()).thenReturn(Optional.of(edition));
-    underTest = new AiCodeAssuranceVerifier(platformEditionProvider, dbClient);
+  void getAiCodeAssurance(boolean isFeatureEnabled, boolean containsAiCode, boolean aiCodeSupportedQg, AiCodeAssurance expected) {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(isFeatureEnabled);
+    underTest = new AiCodeAssuranceVerifier(aiCodeAssuranceEntitlement, dbClient);
     mockProjectAndQualityGate(containsAiCode, aiCodeSupportedQg);
 
     assertThat(underTest.getAiCodeAssurance(projectDto)).isEqualTo(expected);
@@ -71,8 +69,8 @@ class AiCodeAssuranceVerifierTest {
   @MethodSource("paramsForDefaultQualityGate")
   void getAiCodeAssurance_fallback_on_default_qg_when_no_qg_defined_and_contains_ai_code(boolean aiCodeSupportedQg,
     AiCodeAssurance expected) {
-    when(platformEditionProvider.get()).thenReturn(Optional.of(Edition.DEVELOPER));
-    underTest = new AiCodeAssuranceVerifier(platformEditionProvider, dbClient);
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
+    underTest = new AiCodeAssuranceVerifier(aiCodeAssuranceEntitlement, dbClient);
     when(projectDto.getContainsAiCode()).thenReturn(true);
     mockDefaultQg(aiCodeSupportedQg);
 
@@ -81,8 +79,8 @@ class AiCodeAssuranceVerifierTest {
 
   @Test
   void getAiCodeAssurance_no_exception_when_no_default_qg_and_no_qg_defined_and_contains_ai_code() {
-    when(platformEditionProvider.get()).thenReturn(Optional.of(Edition.DEVELOPER));
-    underTest = new AiCodeAssuranceVerifier(platformEditionProvider, dbClient);
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
+    underTest = new AiCodeAssuranceVerifier(aiCodeAssuranceEntitlement, dbClient);
     when(projectDto.getContainsAiCode()).thenReturn(true);
     when(dbClient.qualityGateDao()).thenReturn(qualityGateDao);
     when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(null);
@@ -116,22 +114,14 @@ class AiCodeAssuranceVerifierTest {
 
   private static Stream<Arguments> paramsForGetAiCodeAssurance() {
     return Stream.of(
-      Arguments.of(Edition.COMMUNITY, true, true, AiCodeAssurance.NONE),
-      Arguments.of(Edition.COMMUNITY, true, false, AiCodeAssurance.NONE),
-      Arguments.of(Edition.COMMUNITY, false, false, AiCodeAssurance.NONE),
-      Arguments.of(Edition.COMMUNITY, false, true, AiCodeAssurance.NONE),
-      Arguments.of(Edition.DEVELOPER, true, true, AiCodeAssurance.AI_CODE_ASSURED),
-      Arguments.of(Edition.DEVELOPER, true, false, AiCodeAssurance.CONTAINS_AI_CODE),
-      Arguments.of(Edition.DEVELOPER, false, false, AiCodeAssurance.NONE),
-      Arguments.of(Edition.DEVELOPER, false, true, AiCodeAssurance.NONE),
-      Arguments.of(Edition.ENTERPRISE, true, true, AiCodeAssurance.AI_CODE_ASSURED),
-      Arguments.of(Edition.ENTERPRISE, true, false, AiCodeAssurance.CONTAINS_AI_CODE),
-      Arguments.of(Edition.ENTERPRISE, false, false, AiCodeAssurance.NONE),
-      Arguments.of(Edition.ENTERPRISE, false, true, AiCodeAssurance.NONE),
-      Arguments.of(Edition.DATACENTER, true, true, AiCodeAssurance.AI_CODE_ASSURED),
-      Arguments.of(Edition.DATACENTER, true, false, AiCodeAssurance.CONTAINS_AI_CODE),
-      Arguments.of(Edition.DATACENTER, false, false, AiCodeAssurance.NONE),
-      Arguments.of(Edition.DATACENTER, false, true, AiCodeAssurance.NONE)
+      Arguments.of(false, true, true, AiCodeAssurance.NONE),
+      Arguments.of(false, true, false, AiCodeAssurance.NONE),
+      Arguments.of(false, false, false, AiCodeAssurance.NONE),
+      Arguments.of(false, false, true, AiCodeAssurance.NONE),
+      Arguments.of(true, true, true, AiCodeAssurance.AI_CODE_ASSURED),
+      Arguments.of(true, true, false, AiCodeAssurance.CONTAINS_AI_CODE),
+      Arguments.of(true, false, false, AiCodeAssurance.NONE),
+      Arguments.of(true, false, true, AiCodeAssurance.NONE)
     );
   }
 
@@ -141,19 +131,6 @@ class AiCodeAssuranceVerifierTest {
       Arguments.of(true, false, false),
       Arguments.of(false, false, false),
       Arguments.of(false, true, false)
-    );
-  }
-
-  private static Stream<Arguments> provideParams() {
-    return Stream.of(
-      Arguments.of(Edition.COMMUNITY, true, false),
-      Arguments.of(Edition.COMMUNITY, false, false),
-      Arguments.of(Edition.DEVELOPER, true, true),
-      Arguments.of(Edition.DEVELOPER, false, false),
-      Arguments.of(Edition.ENTERPRISE, true, true),
-      Arguments.of(Edition.ENTERPRISE, false, false),
-      Arguments.of(Edition.DATACENTER, true, true),
-      Arguments.of(Edition.DATACENTER, false, false)
     );
   }
 

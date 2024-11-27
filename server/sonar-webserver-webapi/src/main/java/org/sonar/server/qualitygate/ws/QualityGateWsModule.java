@@ -38,6 +38,7 @@ public class QualityGateWsModule extends Module {
       ProjectStatusAction.class,
       QualityGatesWs.class,
       QualityGatesWsSupport.class,
+      QualityGateActionsSupport.class,
       RemoveGroupAction.class,
       RemoveUserAction.class,
       RenameAction.class,

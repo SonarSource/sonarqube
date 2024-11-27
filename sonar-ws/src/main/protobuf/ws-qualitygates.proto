@@ -192,6 +192,7 @@ message Actions {
   optional bool delete = 5;
   optional bool manageConditions = 6;
   optional bool delegate = 7;
+  optional bool manageAiCodeAssurance = 8;
 }
 
 // WS api/qualitygates/search_users

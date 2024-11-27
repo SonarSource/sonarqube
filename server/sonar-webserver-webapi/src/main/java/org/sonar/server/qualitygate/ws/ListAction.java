@@ -49,14 +49,16 @@ public class ListAction implements QualityGatesWsAction {
   private final QualityGateFinder finder;
   private final QualityGateCaycChecker qualityGateCaycChecker;
   private final QualityGateModeChecker qualityGateModeChecker;
+  private final QualityGateActionsSupport actionsSupport;
 
   public ListAction(DbClient dbClient, QualityGatesWsSupport wsSupport, QualityGateFinder finder, QualityGateCaycChecker qualityGateCaycChecker,
-    QualityGateModeChecker qualityGateModeChecker) {
+    QualityGateModeChecker qualityGateModeChecker, QualityGateActionsSupport actionsSupport) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.finder = finder;
     this.qualityGateCaycChecker = qualityGateCaycChecker;
     this.qualityGateModeChecker = qualityGateModeChecker;
+    this.actionsSupport = actionsSupport;
   }
 
   @Override
@@ -106,7 +108,7 @@ public class ListAction implements QualityGatesWsAction {
             .setCaycStatus(qualityGateCaycChecker.checkCaycCompliant(conditions, metrics).toString())
             .setHasMQRConditions(qualityModeResult.hasMQRConditions())
             .setHasStandardConditions(qualityModeResult.hasStandardConditions())
-            .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
+            .setActions(actionsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
             .build();
         })
         .toList());
