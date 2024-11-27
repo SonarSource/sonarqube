@@ -26,6 +26,7 @@ import withAppStateContext from '../../app/components/app-state/withAppStateCont
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { Organization, OrganizationMember } from '../../types/types';
+import './AddMemberForm.css';
 import UsersSelectSearch from './UsersSelectSearch';
 
 interface AddMemberFormProps {
@@ -54,7 +55,7 @@ function AddMemberForm(props: AddMemberFormProps) {
     setSelectedMember(undefined);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit: any = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (selectedMember) {
       props.addMember(selectedMember);
@@ -74,19 +75,19 @@ function AddMemberForm(props: AddMemberFormProps) {
         key="add-member-form"
         onClose={closeForm}
         body={
-          <form onSubmit={handleSubmit}>
+          <div className="add-member-form-height">
             <label>{translate('users.search_description')}</label>
             <UsersSelectSearch
-              autoFocus={true}
+              autoFocus={false}
               excludedUsers={props.memberLogins}
               handleValueChange={selectedMemberChange}
               selectedUser={selectedMember}
               organization={props.organization}
             />
-          </form>
+          </div>
         }
         primaryButton={
-          <Button type="submit" form="add-member-form" isDisabled={!selectedMember}>
+          <Button type="submit" onClick={handleSubmit} isDisabled={!selectedMember}>
             {translate('organization.members.add_to_members')}
           </Button>
         }

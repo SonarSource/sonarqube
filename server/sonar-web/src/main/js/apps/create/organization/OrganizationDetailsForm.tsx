@@ -139,7 +139,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
         {!keyReadOnly && (
           <OrganizationKeyInput initialValue={this.state.kee} onChange={this.handleKeyUpdate} />
         )}
-        <div className="big-spacer-top">
+        <div className="big-spacer-top sw-my-4">
           <Button onClick={this.handleAdditionalClick} className="sw-mb-4">
             {translate(
               this.state.additional
@@ -151,10 +151,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
           </Button>
         </div>
         <div className="js-additional-info" hidden={!this.state.additional}>
-          <div className="big-spacer-top">
-            <label htmlFor="organization-display-name">
-              <strong>{translate('onboarding.create_organization.display_name')}</strong>
-            </label>
+          <div className="big-spacer-top sw-my-4">
             <div className="little-spacer-top">
               <OrganizationNameInput
                 isEditMode={false}
@@ -163,40 +160,31 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
                 onChange={this.handleNameUpdate}
               />
             </div>
-            <div className="note abs-width-400">
-              {translate('onboarding.create_organization.display_name.description')}
-            </div>
           </div>
-          <div className="big-spacer-top">
+          <div className="big-spacer-top sw-my-4">
             <OrganizationAvatarInput
               initialValue={this.state.avatar}
               name={this.state.name}
               onChange={this.handleAvatarUpdate}
             />
           </div>
-          <div className="big-spacer-top">
-            <label htmlFor="organization-description">
-              <strong>{translate('onboarding.create_organization.description')}</strong>
-            </label>
+          <div className="big-spacer-top sw-my-4">
             <div className="little-spacer-top">
               <OrganizationDescriptionInput
                 onChange={this.handleDescriptionUpdate}
                 initialValue={this.state.description}
-                showHelpIcon={true}/>
-              <div className="note abs-width-400">
-                {translate('organization.description.description')}
-              </div>
+                showHelpIcon={true}
+              />
             </div>
           </div>
-          <div className="big-spacer-top">
+          <div className="big-spacer-top sw-my-4">
             <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />
-            <div className="note abs-width-400">{translate('organization.url.description')}</div>
           </div>
         </div>
 
         {infoBlock}
 
-        <div className="display-flex-center big-spacer-top">
+        <div className="display-flex-center big-spacer-top sw-my-4">
           <Button
             className="sw-my-4"
             variety={ButtonVariety.Primary}

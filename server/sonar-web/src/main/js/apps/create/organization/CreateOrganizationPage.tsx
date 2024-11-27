@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Card } from 'design-system/lib';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -56,15 +57,18 @@ export class CreateOrganizationPage extends React.PureComponent<
 
     return (
       <>
-        <Helmet title={header} titleTemplate="%s" />
-        <div className="page page-limited huge-spacer-top huge-spacer-bottom sw-mt-16 sw-ml-16">
-          <header className="page-header huge-spacer-bottom">
-            <h2 className="page-title huge big-spacer-bottom">
-              <strong>{header}</strong>
-            </h2>
-          </header>
-          {this.renderContent()}
-        </div>
+        <Card className="sw-mt-16 sw-ml-16 sw-mb-8 sw-mr-8">
+          <Helmet title={header} titleTemplate="%s" />
+
+          <div className="page page-limited huge-spacer-top huge-spacer-bottom ">
+            <header className="page-header huge-spacer-bottom">
+              <h2 className="page-title huge big-spacer-bottom">
+                <strong>{header}</strong>
+              </h2>
+            </header>
+            {this.renderContent()}
+          </div>
+        </Card>
       </>
     );
   }

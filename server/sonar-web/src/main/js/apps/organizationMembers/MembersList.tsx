@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Table } from 'design-system/lib';
-import * as React from 'react';
 import { sortBy } from 'lodash';
+import * as React from 'react';
+import { Group, Organization, OrganizationMember } from '../../types/types';
+import { LoggedInUser } from '../../types/users';
+import './MembersList.css';
 import MembersListItem from './MembersListItem';
-import {LoggedInUser} from "../../types/users";
-import { Group, Organization, OrganizationMember } from "../../types/types";
 
 interface Props {
   currentUser: LoggedInUser;
@@ -33,7 +34,7 @@ interface Props {
   updateMemberGroups: (
     member: OrganizationMember,
     add: Array<string>,
-    remove: Array<string>
+    remove: Array<string>,
   ) => Promise<void>;
 }
 
@@ -45,26 +46,29 @@ export default class MembersList extends React.PureComponent<Props> {
       return <div className="note">No results</div>;
     }
 
-    const sortedMembers = sortBy(members, member => member.name, member => member.login);
+    const sortedMembers = sortBy(
+      members,
+      (member) => member.name,
+      (member) => member.login,
+    );
     return (
-        <div className='sw-mt-16 sw-ml-16 sw-mr-8'>
-      <div className="boxed-group boxed-group-inner">
-        <Table
-          className="data zebra">
-          {sortedMembers.map((member) => (
-            <MembersListItem
-              key={member.login}
-              member={member}
-              organization={this.props.organization}
-              organizationGroups={this.props.organizationGroups}
-              removeMember={
-                currentUser.login !== member.login ? this.props.removeMember : undefined
-              }
-              updateMemberGroups={this.props.updateMemberGroups}
-            />
-          ))}
-        </Table>
-      </div>
+      <div className="sw-mt-16 sw-ml-16 sw-mr-8">
+        <div className="boxed-group boxed-group-inner">
+          <Table className="data zebra members-list-table">
+            {sortedMembers.map((member) => (
+              <MembersListItem
+                key={member.login}
+                member={member}
+                organization={this.props.organization}
+                organizationGroups={this.props.organizationGroups}
+                removeMember={
+                  currentUser.login !== member.login ? this.props.removeMember : undefined
+                }
+                updateMemberGroups={this.props.updateMemberGroups}
+              />
+            ))}
+          </Table>
+        </div>
       </div>
     );
   }

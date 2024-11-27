@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonIcon,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
 import * as React from 'react';
-import RemoveMemberForm from './RemoveMemberForm';
-import ManageMemberGroupsForm from './ManageMemberGroupsForm';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import Avatar from '../../components/ui/Avatar';
-import {translate, translateWithParameters} from "../../helpers/l10n";
-import { Group, Organization, OrganizationMember } from "../../types/types";
-import { ButtonIcon, ButtonVariety, DropdownMenu, IconMoreVertical } from "@sonarsource/echoes-react";
-import { formatMeasure } from "~sonar-aligned/helpers/measures";
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { Group, Organization, OrganizationMember } from '../../types/types';
+import ManageMemberGroupsForm from './ManageMemberGroupsForm';
+import RemoveMemberForm from './RemoveMemberForm';
 
 interface Props {
   member: OrganizationMember;
@@ -34,7 +39,7 @@ interface Props {
   updateMemberGroups: (
     member: OrganizationMember,
     add: string[],
-    remove: string[]
+    remove: string[],
   ) => Promise<void>;
 }
 
@@ -83,7 +88,7 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
     return (
       <tr>
         <td className="thin nowrap">
-          <Avatar hash={member.avatar} name={member.name} size={AVATAR_SIZE} />
+          <Avatar className="sw-p-2" hash={member.avatar} name={member.name} size={AVATAR_SIZE} />
         </td>
         <td className="nowrap text-middle">
           <strong>{member.name}</strong>
@@ -93,7 +98,7 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
           <td className="text-right text-middle">
             {translateWithParameters(
               'organization.members.x_groups',
-              formatMeasure(member.groupCount || 0, 'INT')
+              formatMeasure(member.groupCount || 0, 'INT'),
             )}
           </td>
         )}
@@ -132,15 +137,14 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
               />
             )}
 
-            {removeMember &&
-              this.state.removeMemberForm && (
-                <RemoveMemberForm
-                  member={this.props.member}
-                  onClose={this.closeRemoveMemberForm}
-                  organization={this.props.organization}
-                  removeMember={removeMember}
-                />
-              )}
+            {removeMember && this.state.removeMemberForm && (
+              <RemoveMemberForm
+                member={this.props.member}
+                onClose={this.closeRemoveMemberForm}
+                organization={this.props.organization}
+                removeMember={removeMember}
+              />
+            )}
           </>
         )}
       </tr>
