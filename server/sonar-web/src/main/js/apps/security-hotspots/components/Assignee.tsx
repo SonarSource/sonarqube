@@ -32,10 +32,11 @@ import { CurrentUserContext } from '../../../app/components/current-user/Current
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Hotspot, HotspotResolution, HotspotStatus } from '../../../types/security-hotspots';
+import { Organization } from '../../../types/types';
 import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 
 interface Props {
-  organization: string;
+  organization: Organization | any;
   hotspot: Hotspot;
   onAssigneeChange: () => Promise<void>;
 }
