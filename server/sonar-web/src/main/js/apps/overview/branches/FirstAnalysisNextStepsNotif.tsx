@@ -23,7 +23,7 @@ import { Link } from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import DismissableAlert from '../../../components/ui/DismissableAlert';
+import { DismissableAlert } from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
 import { useProjectBindingQuery } from '../../../queries/devops-integration';
 import { Component } from '../../../types/types';

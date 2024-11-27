@@ -24,7 +24,7 @@ import { Button } from './Button';
 
 /**
  * @deprecated Use Button from Echoes instead without the `variety` prop set,
- * this is a the default look and feel of the button.
+ * this is the default look and feel of the button.
  *
  * Some of the props have changed or been renamed:
  * - `blurAfterClick` is now `shouldBlurAfterClick`

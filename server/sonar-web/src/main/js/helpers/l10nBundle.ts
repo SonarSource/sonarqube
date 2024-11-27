@@ -23,6 +23,7 @@ import { fetchL10nBundle } from '../api/l10n';
 import { AppState } from '../types/appstate';
 import { EditionKey } from '../types/editions';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10nBundle';
+import { ProductName } from '../types/system';
 import { Dict } from '../types/types';
 import { toISO8601WithOffsetString } from './dates';
 import { isDefined } from './types';
@@ -127,8 +128,8 @@ function persistL10nBundleInCache(bundle: L10nBundle) {
 function getProductName(appState?: AppState) {
   if (isDefined(appState?.edition)) {
     return appState?.edition === EditionKey.community
-      ? 'SonarQube Community Build'
-      : 'SonarQube Server';
+      ? ProductName.SonarQubeCommunityBuild
+      : ProductName.SonarQubeServer;
   }
 
   return 'SonarQube';

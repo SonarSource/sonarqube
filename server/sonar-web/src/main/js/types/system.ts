@@ -25,9 +25,20 @@ export interface SystemUpgradeDownloadUrls {
   downloadUrl: string;
 }
 
+export enum ProductName {
+  SonarQubeCommunityBuild = 'SonarQube Community Build',
+  SonarQubeServer = 'SonarQube Server',
+}
+
+export enum ProductNameForUpgrade {
+  SonarQubeCommunityBuild = 'SONARQUBE_COMMUNITY_BUILD',
+  SonarQubeServer = 'SONARQUBE_SERVER',
+}
+
 export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
   changeLogUrl?: string;
   description?: string;
+  product?: ProductNameForUpgrade;
   releaseDate?: string;
   version: string;
 }

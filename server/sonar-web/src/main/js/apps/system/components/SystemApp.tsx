@@ -24,7 +24,7 @@ import { LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { getSystemInfo } from '../../../api/system';
-import UpdateNotification from '../../../app/components/update-notification/UpdateNotification';
+import { UpdateNotification } from '../../../app/components/update-notification/UpdateNotification';
 import { translate } from '../../../helpers/l10n';
 import { SysInfoCluster, SysInfoStandalone } from '../../../types/types';
 import '../styles.css';

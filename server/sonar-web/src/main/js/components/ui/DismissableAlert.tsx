@@ -32,7 +32,7 @@ export interface DismissableAlertProps {
 
 export const DISMISSED_ALERT_STORAGE_KEY = 'sonarqube.dismissed_alert';
 
-export default function DismissableAlert(props: DismissableAlertProps) {
+export function DismissableAlert(props: DismissableAlertProps) {
   const { alertKey, children, className, variant } = props;
   const [show, setShow] = React.useState(false);
 

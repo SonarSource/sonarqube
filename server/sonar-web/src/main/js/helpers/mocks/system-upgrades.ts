@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SystemUpgrade } from '../../types/system';
+import { ProductNameForUpgrade, SystemUpgrade } from '../../types/system';
 
-export function mockSystemUpgrade(override: Partial<SystemUpgrade> = {}): SystemUpgrade {
-  return {
-    version: '5.6.7',
-    description: 'Version 5.6.7 description',
-    releaseDate: '2017-03-01',
+export const mockSystemUpgrade = (override: Partial<SystemUpgrade> = {}) =>
+  ({
     changeLogUrl: 'changelogurl',
+    description: 'Version 5.6.7 description',
     downloadUrl: 'downloadurl',
+    product: ProductNameForUpgrade.SonarQubeServer,
+    releaseDate: '2017-03-01',
+    version: '5.6.7',
     ...override,
-  };
-}
+  }) as SystemUpgrade;

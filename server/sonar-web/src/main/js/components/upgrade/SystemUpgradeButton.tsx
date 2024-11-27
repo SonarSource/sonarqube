@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Link } from '@sonarsource/echoes-react';
-import * as React from 'react';
-import { ButtonSecondary } from '~design-system';
+import { Button, Link } from '@sonarsource/echoes-react';
+import React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
-import SystemUpgradeForm from './SystemUpgradeForm';
+import { SystemUpgradeForm } from './SystemUpgradeForm';
 import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
 
 interface Props {
@@ -32,18 +31,18 @@ interface Props {
   updateUseCase: UpdateUseCase;
 }
 
-export default function SystemUpgradeButton(props: Readonly<Props>) {
+export function SystemUpgradeButton(props: Readonly<Props>) {
   const { latestLTA, systemUpgrades, updateUseCase } = props;
 
-  const [isSystemUpgradeFormOpen, setSystemUpgradeFormOpen] = React.useState(false);
+  const [isSystemUpgradeFormOpen, setIsSystemUpgradeFormOpen] = React.useState(false);
 
   const openSystemUpgradeForm = React.useCallback(() => {
-    setSystemUpgradeFormOpen(true);
-  }, [setSystemUpgradeFormOpen]);
+    setIsSystemUpgradeFormOpen(true);
+  }, [setIsSystemUpgradeFormOpen]);
 
   const closeSystemUpgradeForm = React.useCallback(() => {
-    setSystemUpgradeFormOpen(false);
-  }, [setSystemUpgradeFormOpen]);
+    setIsSystemUpgradeFormOpen(false);
+  }, [setIsSystemUpgradeFormOpen]);
 
   if (systemUpgrades.length === 0) {
     return (
@@ -59,9 +58,10 @@ export default function SystemUpgradeButton(props: Readonly<Props>) {
 
   return (
     <>
-      <ButtonSecondary className="sw-ml-2" onClick={openSystemUpgradeForm}>
+      <Button className="sw-ml-2" onClick={openSystemUpgradeForm}>
         {translate('learn_more')}
-      </ButtonSecondary>
+      </Button>
+
       {isSystemUpgradeFormOpen && (
         <SystemUpgradeForm
           onClose={closeSystemUpgradeForm}

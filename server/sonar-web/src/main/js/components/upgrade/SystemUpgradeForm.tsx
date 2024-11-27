@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Button, ButtonVariety, LinkStandalone, Modal } from '@sonarsource/echoes-react';
 import { filter, flatMap, isEmpty, negate } from 'lodash';
-import { FlagMessage, Link, Modal } from '~design-system';
+import { FlagMessage } from '~design-system';
 import { useAppState } from '../../app/components/app-state/withAppStateContext';
 import { BANNER_VARIANT } from '../../app/components/update-notification/helpers';
 import { translate } from '../../helpers/l10n';
+import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
-import SystemUpgradeItem from './SystemUpgradeItem';
+import { SystemUpgradeItem } from './SystemUpgradeItem';
 import { SYSTEM_VERSION_REGEXP, UpdateUseCase } from './utils';
 
 interface Props {
@@ -34,15 +36,20 @@ interface Props {
   updateUseCase: UpdateUseCase;
 }
 
-export default function SystemUpgradeForm(props: Readonly<Props>) {
+export function SystemUpgradeForm(props: Readonly<Props>) {
   const appState = useAppState();
+
   const { latestLTA, onClose, updateUseCase, systemUpgrades } = props;
 
+  const isCommunityBuildRunning = appState.edition === EditionKey.community;
+
   let systemUpgradesWithPatch: SystemUpgrade[][] = [];
+
   const alertVariant =
     updateUseCase !== UpdateUseCase.NewVersion ? BANNER_VARIANT[updateUseCase] : undefined;
-  const header = translate('system.system_upgrade');
+
   const parsedVersion = SYSTEM_VERSION_REGEXP.exec(appState.version);
+
   let patches: SystemUpgrade[] = [];
 
   if (updateUseCase === UpdateUseCase.NewPatch && parsedVersion !== null) {
@@ -52,6 +59,7 @@ export default function SystemUpgradeForm(props: Readonly<Props>) {
     patches = flatMap(systemUpgrades, (upgrades) =>
       filter(upgrades, (upgrade) => upgrade.version.startsWith(majoMinorVersion)),
     );
+
     systemUpgradesWithPatch = systemUpgrades
       .map((upgrades) =>
         upgrades.filter((upgrade) => !upgrade.version.startsWith(majoMinorVersion)),
@@ -65,6 +73,7 @@ export default function SystemUpgradeForm(props: Readonly<Props>) {
     for (const upgrades of systemUpgrades) {
       if (untilLTA === false) {
         systemUpgradesWithPatch.push(upgrades);
+
         untilLTA = upgrades.some(
           (upgrade) => latestLTA !== undefined && upgrade.version.startsWith(latestLTA),
         );
@@ -74,15 +83,14 @@ export default function SystemUpgradeForm(props: Readonly<Props>) {
 
   return (
     <Modal
-      headerTitle={header}
-      onClose={onClose}
-      body={
-        <>
+      content={
+        <div className="sw-mt-4">
           {alertVariant && (
             <FlagMessage variant={alertVariant} className={`it__upgrade-alert-${updateUseCase}`}>
               {translate('admin_notification.update', updateUseCase)}
             </FlagMessage>
           )}
+
           {systemUpgradesWithPatch.map((upgrades) => (
             <SystemUpgradeItem
               edition={appState.edition}
@@ -94,14 +102,39 @@ export default function SystemUpgradeForm(props: Readonly<Props>) {
               )}
             />
           ))}
-        </>
+        </div>
       }
+      {...(isCommunityBuildRunning && {
+        description: translate(
+          'admin_notification.update.new_sqs_version_when_running_sqcb.upgrade',
+        ),
+      })}
+      isOpen
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onClose();
+        }
+      }}
       primaryButton={
-        <Link to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube">
-          {translate('system.see_sonarqube_downloads')}
-        </Link>
+        !isCommunityBuildRunning && (
+          <LinkStandalone
+            className="sw-mr-8"
+            to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
+          >
+            {translate('system.see_sonarqube_downloads')}
+          </LinkStandalone>
+        )
       }
-      secondaryButtonLabel={translate('cancel')}
+      secondaryButton={
+        <Button onClick={onClose} variety={ButtonVariety.Default}>
+          {translate('cancel')}
+        </Button>
+      }
+      title={translate(
+        isCommunityBuildRunning
+          ? 'admin_notification.update.new_sqs_version_when_running_sqcb.modal'
+          : 'system.system_upgrade',
+      )}
     />
   );
 }

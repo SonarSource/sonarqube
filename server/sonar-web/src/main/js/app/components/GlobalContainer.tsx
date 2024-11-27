@@ -38,7 +38,7 @@ import GlobalNav from './nav/global/GlobalNav';
 import PromotionNotification from './promotion-notification/PromotionNotification';
 import StartupModal from './StartupModal';
 import SystemAnnouncement from './SystemAnnouncement';
-import UpdateNotification from './update-notification/UpdateNotification';
+import { UpdateNotification } from './update-notification/UpdateNotification';
 
 /*
  * These pages need a white background (aka 'secondary', rather than the default 'primary')

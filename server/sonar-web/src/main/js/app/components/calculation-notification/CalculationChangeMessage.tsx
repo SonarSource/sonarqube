@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
-import DismissableAlert from '../../../components/ui/DismissableAlert';
+import { DismissableAlert } from '../../../components/ui/DismissableAlert';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { useStandardExperienceModeQuery } from '../../../queries/mode';
@@ -49,7 +49,7 @@ export default function CalculationChangeMessage() {
         id={`notification.calculation_change.message.${SHOW_MESSAGE_PATHS[location.pathname]}`}
         values={{
           link: (
-            <DocumentationLink to={DocLink.MetricDefinitions}>
+            <DocumentationLink className="sw-ml-1" to={DocLink.MetricDefinitions}>
               {translate('learn_more')}
             </DocumentationLink>
           ),
