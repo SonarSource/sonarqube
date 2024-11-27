@@ -156,23 +156,25 @@ export default function ActivationFormModal(props: Readonly<Props>) {
     setChangedParams({ ...params });
   };
 
-  function getParamsFromMap(stateParams) {
+  function getParamsFromMap(ruleParams) {
     const { params = [] } = props.rule;
+    let saveParams = {...ruleParams}
     params.map(param => {
       if (param.type == 'KEY_VALUE_MAP') {
-        stateParams[param.key].pop();
+        saveParams[param.key].pop();
         let res = '';
-        let row = stateParams[param.key].length;
-        stateParams[param.key].map((param: string[], index: number) => {
-          res = res + param[0] + this.keyValueDelimiter + param[1];
+        let row = saveParams[param.key].length;
+        saveParams[param.key].map((param: string[], index: number) => {
+          res = res + param[0] + KEY_VALUE_DELIMITER + param[1];
           if (index + 1 != row) {
-            res = res + this.paramsDelimiter;
+            res = res + PARAMS_DELIMITER;
           }
         })
-        stateParams[param.key] = res;
+        saveParams[param.key] = res;
       }
     })
-    return stateParams;
+
+    return saveParams;
   }
 
   return (
