@@ -82,6 +82,7 @@ export default function ComparisonResultActivation(props: React.PropsWithChildre
           }}
           onDone={props.onDone}
           profiles={[profile]}
+          organization={props.organization}
           rule={rule}
         />
       )}

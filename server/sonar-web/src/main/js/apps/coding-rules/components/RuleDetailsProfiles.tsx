@@ -102,6 +102,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
       <ActionCell>
         <ActivatedRuleActions
           activation={activation}
+          organization={props.organization}
           profile={profile}
           ruleDetails={ruleDetails}
           onActivate={props.onActivate}
@@ -224,6 +225,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
               referencedProfiles,
               (profile) => !activations.find((activation) => activation.qProfile === profile.key),
             )}
+            organization={props.organization}
             rule={ruleDetails}
           />
         )}

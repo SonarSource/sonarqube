@@ -211,6 +211,7 @@ export default function RuleListItem(props: Readonly<Props>) {
           onActivate={handleActivate}
           handleDeactivate={handleDeactivate}
           handleRevert={handleRevert}
+          organization={organization}
           showDeactivated
           canDeactivateInherited={canDeactivateInherited}
         />
