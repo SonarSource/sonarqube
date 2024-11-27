@@ -252,7 +252,7 @@ exports[`can choose build tools and copy provided settings: gradle: execute scan
 
 exports[`can choose build tools and copy provided settings: gradle: sonarqube plugin 1`] = `
 "plugins {
-  id "org.sonarqube" version "6.0.0.5145"
+  id "org.sonarqube" version "6.0.1.5171"
 }"
 `;
 

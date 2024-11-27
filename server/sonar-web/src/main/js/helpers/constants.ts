@@ -281,7 +281,7 @@ export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.GitLab,
 ];
 
-export const GRADLE_SCANNER_VERSION = '6.0.0.5145';
+export const GRADLE_SCANNER_VERSION = '6.0.1.5171';
 
 export const ONE_SECOND = 1000;
 
