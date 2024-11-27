@@ -30,6 +30,7 @@ import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupMembershipSearchRequest;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
@@ -74,9 +75,10 @@ public class DefaultGroupMembershipControllerTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   private final GroupMembershipService groupMembershipService = mock();
   private final ManagedInstanceChecker managedInstanceChecker = mock();
+  private final OrganizationService organizationService = mock();
 
   private final MockMvc mockMvc = ControllerTester
-    .getMockMvc(new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker));
+    .getMockMvc(new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker, organizationService));
 
   @Test
   public void create_whenCallersIsNotAdmin_shouldReturnForbidden() throws Exception {

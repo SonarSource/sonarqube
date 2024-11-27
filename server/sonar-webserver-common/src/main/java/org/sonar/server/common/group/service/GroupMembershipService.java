@@ -93,6 +93,14 @@ public class GroupMembershipService {
     }
   }
 
+  public GroupDto findGroupMembership(String groupMembershipUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserGroupDto userGroupDto = findMembershipOrThrow(groupMembershipUuid, dbSession);
+      GroupDto groupDto = findNonDefaultGroupOrThrow(userGroupDto.getGroupUuid(), dbSession);
+      return  groupDto;
+    }
+  }
+
   private UserGroupDto findMembershipOrThrow(String groupMembershipUuid, DbSession dbSession) {
     return userGroupDao.selectByQuery(dbSession, new UserGroupQuery(groupMembershipUuid, null, null), 1, 1).stream()
       .findFirst()
