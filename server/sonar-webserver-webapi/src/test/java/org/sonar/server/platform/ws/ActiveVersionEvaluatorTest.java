@@ -34,6 +34,7 @@ import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.Version.parse;
@@ -56,7 +57,7 @@ class ActiveVersionEvaluatorTest {
 
   @Test
   void evaluateIfActiveVersion_whenInstalledVersionIsLatestLta_shouldReturnActiveVersion() {
-    when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(getReleases());
     when(sonarQubeVersion.get()).thenReturn(parse("9.9.2"));
 
     assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
@@ -71,7 +72,7 @@ class ActiveVersionEvaluatorTest {
     when(sonarQubeVersion.get()).thenReturn(parse("8.9.5"));
     SortedSet<Release> releases = getReleases();
     releases.stream().filter(r -> r.getVersion().equals(Version.create("9.9"))).findFirst().get().setDate(calendar.getTime());
-    when(sonar.getAllReleases()).thenReturn(releases);
+    when(sonar.getAllReleases(any())).thenReturn(releases);
 
     assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
   }
@@ -87,7 +88,7 @@ class ActiveVersionEvaluatorTest {
     when(sonarQubeVersion.get()).thenReturn(parse("8.9.5"));
     SortedSet<Release> releases = getReleases();
     releases.stream().filter(r -> r.getVersion().equals(Version.create("9.9"))).findFirst().get().setDate(calendar.getTime());
-    when(sonar.getAllReleases()).thenReturn(releases);
+    when(sonar.getAllReleases(any())).thenReturn(releases);
 
     assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isFalse();
   }
@@ -97,7 +98,7 @@ class ActiveVersionEvaluatorTest {
 
     when(sonarQubeVersion.get()).thenReturn(parse("8.9.5"));
     SortedSet<Release> releases = getReleases();
-    when(sonar.getAllReleases()).thenReturn(releases);
+    when(sonar.getAllReleases(any())).thenReturn(releases);
 
     assertThatThrownBy(() -> underTest.evaluateIfActiveVersion(updateCenter))
       .isInstanceOf(IllegalStateException.class)
@@ -110,7 +111,7 @@ class ActiveVersionEvaluatorTest {
     when(sonarQubeVersion.get()).thenReturn(parse("10.4.1"));
     TreeSet<Release> releases = new TreeSet<>();
     releases.add(new Release(sonar, Version.create("10.4.1")));
-    when(sonar.getAllReleases()).thenReturn(releases);
+    when(sonar.getAllReleases(any())).thenReturn(releases);
 
     assertThatThrownBy(() -> underTest.evaluateIfActiveVersion(updateCenter))
       .isInstanceOf(IllegalStateException.class)
@@ -120,7 +121,7 @@ class ActiveVersionEvaluatorTest {
   @Test
   void evaluateIfActiveVersion_whenInstalledVersionIsLatestMinusOne_shouldReturnVersionIsActive() {
     when(sonarQubeVersion.get()).thenReturn(parse("10.9"));
-    when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(getReleases());
 
     assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
   }
@@ -128,7 +129,7 @@ class ActiveVersionEvaluatorTest {
   @Test
   void evaluateIfActiveVersion_whenInstalledVersionIsSnapshot_shouldReturnVersionIsActive() {
     when(sonarQubeVersion.get()).thenReturn(parse("10.11-SNAPSHOT"));
-    when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(getReleases());
 
     assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
   }

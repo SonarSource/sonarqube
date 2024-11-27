@@ -30,9 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.internal.MetadataLoader;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.process.ProcessProperties;
+import org.sonar.updatecenter.common.Product;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
@@ -67,6 +71,7 @@ public class UpdateCenterClient {
   static final String CACHE_TTL_DEFAULT_VALUE = "3600000";
 
   private final long periodInMilliseconds;
+  private final Product product;
 
   private final URI uri;
   private final UriReader uriReader;
@@ -74,11 +79,14 @@ public class UpdateCenterClient {
   private UpdateCenter pluginCenter = null;
   private long lastRefreshDate = 0;
 
+
   public UpdateCenterClient(UriReader uriReader, Configuration config) throws URISyntaxException {
     this.uriReader = uriReader;
     this.uri = new URI(config.get(URL_PROPERTY).get());
     this.isActivated = config.getBoolean(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey()).get();
     this.periodInMilliseconds = Long.parseLong(config.get(CACHE_TTL_PROPERTY).get());
+    this.product = MetadataLoader.loadEdition(System2.INSTANCE) == SonarEdition.COMMUNITY ?
+      Product.SONARQUBE_COMMUNITY_BUILD : Product.SONARQUBE_SERVER;
 
     LOG.info("Update center: {}", uriReader.description(uri));
   }
@@ -114,8 +122,9 @@ public class UpdateCenterClient {
       java.util.Properties properties = new java.util.Properties();
       input = IOUtils.toInputStream(content, StandardCharsets.UTF_8);
       properties.load(input);
-      return new UpdateCenterDeserializer(Mode.PROD, true).fromProperties(properties);
-
+      UpdateCenter updateCenter = new UpdateCenterDeserializer(Mode.PROD, true).fromProperties(properties);
+      updateCenter.setInstalledSonarProduct(product);
+      return updateCenter;
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);
       return null;
