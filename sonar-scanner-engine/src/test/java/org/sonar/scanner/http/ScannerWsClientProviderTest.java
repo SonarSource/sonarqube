@@ -42,7 +42,9 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junitpioneer.jupiter.RestoreSystemProperties;
+import org.slf4j.event.Level;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
@@ -72,6 +74,10 @@ class ScannerWsClientProviderTest {
   private static final GlobalAnalysisMode GLOBAL_ANALYSIS_MODE = new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()));
   private static final AnalysisWarnings ANALYSIS_WARNINGS = warning -> {
   };
+
+  @RegisterExtension
+  private LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
   private SonarUserHome sonarUserHome = mock(SonarUserHome.class);
   private final Map<String, String> scannerProps = new HashMap<>();
 
@@ -112,6 +118,25 @@ class ScannerWsClientProviderTest {
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
     assertThat(httpConnector.baseUrl()).isEqualTo("https://here/sonarqube/");
     assertThat(httpConnector.okHttpClient().proxy()).isNull();
+  }
+
+  @Test
+  void should_load_os_certificates_by_default() {
+    logTester.setLevel(Level.DEBUG);
+
+    underTest.provide(new ScannerProperties(scannerProps), env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome);
+
+    assertThat(logTester.logs(Level.DEBUG)).contains("Loading OS trusted SSL certificates...");
+  }
+
+  @Test
+  void should_skip_load_of_os_certificates_if_props_set() {
+    logTester.setLevel(Level.DEBUG);
+    scannerProps.put("sonar.scanner.skipSystemTruststore", "true");
+
+    underTest.provide(new ScannerProperties(scannerProps), env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome);
+
+    assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Loading OS trusted SSL certificates...");
   }
 
   @ParameterizedTest

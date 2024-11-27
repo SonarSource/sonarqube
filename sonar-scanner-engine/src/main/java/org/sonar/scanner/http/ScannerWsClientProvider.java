@@ -73,6 +73,7 @@ public class ScannerWsClientProvider {
   public static final String SONAR_SCANNER_CONNECT_TIMEOUT = "sonar.scanner.connectTimeout";
   public static final String SONAR_SCANNER_SOCKET_TIMEOUT = "sonar.scanner.socketTimeout";
   public static final String SONAR_SCANNER_RESPONSE_TIMEOUT = "sonar.scanner.responseTimeout";
+  public static final String SKIP_SYSTEM_TRUST_MATERIAL = "sonar.scanner.skipSystemTruststore";
 
   @Bean("DefaultScannerWsClient")
   public DefaultScannerWsClient provide(ScannerProperties scannerProps, EnvironmentInformation env, GlobalAnalysisMode globalMode,
@@ -87,7 +88,8 @@ public class ScannerWsClientProvider {
     String envVarToken = defaultIfBlank(system.envVariable(TOKEN_ENV_VARIABLE), null);
     String token = defaultIfBlank(scannerProps.property(TOKEN_PROPERTY), envVarToken);
     String login = defaultIfBlank(scannerProps.property(CoreProperties.LOGIN), token);
-    var sslContext = configureSsl(parseSslConfig(scannerProps, sonarUserHome), system);
+    boolean skipSystemTrustMaterial = Boolean.parseBoolean(defaultIfBlank(scannerProps.property(SKIP_SYSTEM_TRUST_MATERIAL), "false"));
+    var sslContext = configureSsl(parseSslConfig(scannerProps, sonarUserHome), system, skipSystemTrustMaterial);
     connectorBuilder
       .readTimeoutMilliseconds(parseDurationProperty(socketTimeout, SONAR_SCANNER_SOCKET_TIMEOUT))
       .connectTimeoutMilliseconds(parseDurationProperty(connectTimeout, SONAR_SCANNER_CONNECT_TIMEOUT))
@@ -147,10 +149,14 @@ public class ScannerWsClientProvider {
     return new SslConfig(keyStore, trustStore);
   }
 
-  private static SSLFactory configureSsl(SslConfig sslConfig, System2 system2) {
+  private static SSLFactory configureSsl(SslConfig sslConfig, System2 system2, boolean skipSystemTrustMaterial) {
     var sslFactoryBuilder = SSLFactory.builder()
-      .withDefaultTrustMaterial()
-      .withSystemTrustMaterial();
+      .withDefaultTrustMaterial();
+    if (!skipSystemTrustMaterial) {
+      LOG.debug("Loading OS trusted SSL certificates...");
+      LOG.debug("This operation might be slow or even get stuck. You can skip it by passing the scanner property '{}=true'", SKIP_SYSTEM_TRUST_MATERIAL);
+      sslFactoryBuilder.withSystemTrustMaterial();
+    }
     if (system2.properties().containsKey("javax.net.ssl.keyStore")) {
       sslFactoryBuilder.withSystemPropertyDerivedIdentityMaterial();
     }
