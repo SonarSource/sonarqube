@@ -248,7 +248,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
                       <Link
                         highlight={LinkHighlight.Default}
                         to={{
-                          pathname: '/quality_gates/show/Sonar%20AI%20way',
+                          pathname: '/quality_gates/show/Sonar%20way%20for%20AI%20Code',
                         }}
                       >
                         {text}
