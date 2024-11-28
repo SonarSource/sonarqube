@@ -18,17 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Button, ButtonVariety, ModalAlert, Text } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import {
-  ButtonPrimary,
-  ButtonSecondary,
-  FlagMessage,
-  FormField,
-  InputField,
-  Note,
-} from '~design-system';
-import ConfirmButton from '../../components/controls/ConfirmButton';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { useIntl } from 'react-intl';
+import { FlagMessage, FormField, InputField } from '~design-system';
+import { translate } from '../../helpers/l10n';
 import { validateProjectKey } from '../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../types/component';
 import { Component } from '../../types/types';
@@ -38,8 +32,8 @@ export interface UpdateFormProps {
   onKeyChange: (newKey: string) => Promise<void>;
 }
 
-export default function UpdateForm(props: UpdateFormProps) {
-  const { component } = props;
+export default function UpdateForm({ component, onKeyChange }: Readonly<UpdateFormProps>) {
+  const intl = useIntl();
   const [newKey, setNewKey] = React.useState(component.key);
   const hasChanged = newKey !== component.key;
 
@@ -57,76 +51,89 @@ export default function UpdateForm(props: UpdateFormProps) {
   );
 
   return (
-    <ConfirmButton
-      confirmButtonText={translate('update_verb')}
-      confirmData={newKey}
-      modalBody={
-        <>
-          {translateWithParameters('update_key.are_you_sure_to_change_key', component.name)}
-          <div className="sw-mt-2">
-            {translate('update_key.old_key')}
-            {': '}
-            <strong className="sw-typo-lg-semibold">{component.key}</strong>
-          </div>
-          <div className="sw-mt-2">
-            {translate('update_key.new_key')}
-            {': '}
-            <strong className="sw-typo-lg-semibold">{newKey}</strong>
-          </div>
-        </>
-      }
-      modalHeader={translate('update_key.page')}
-      onConfirm={props.onKeyChange}
-    >
-      {({ onFormSubmit }) => (
-        <form onSubmit={onFormSubmit}>
-          <FormField label={translate('update_key.new_key')} required>
-            <InputField
-              id="project-key"
-              name="update_key.new_key"
-              required
-              isInvalid={hasChanged && error !== undefined}
-              isValid={hasChanged && error === undefined}
-              autoFocus
-              onChange={onInputChange}
-              value={newKey}
-              type="text"
-            />
+    <form onSubmit={(e) => e.preventDefault()}>
+      <FormField htmlFor="project-key-input" label={translate('update_key.new_key')} required>
+        <InputField
+          id="project-key-input"
+          name="update_key.new_key"
+          required
+          aria-invalid={hasChanged && error !== undefined}
+          aria-describedby="project-key-input-error project-key-input-hint"
+          isInvalid={hasChanged && error !== undefined}
+          isValid={hasChanged && error === undefined}
+          autoFocus
+          onChange={onInputChange}
+          value={newKey}
+          type="text"
+        />
 
-            {error && (
-              <FlagMessage className="sw-mt-2 sw-w-abs-400" variant="error">
-                {error}
-              </FlagMessage>
-            )}
-
-            <Note className="sw-mt-2 sw-max-w-1/2">
-              {translate('onboarding.create_project.project_key.description')}
-            </Note>
-          </FormField>
-
-          <div className="sw-mt-2">
-            <ButtonPrimary
-              disabled={!hasChanged || error !== undefined}
-              id="update-key-submit"
-              type="submit"
+        <output>
+          {Boolean(error) && (
+            <FlagMessage
+              id="project-key-input-error"
+              className="sw-mt-2 sw-w-abs-400"
+              variant="error"
             >
+              {error}
+            </FlagMessage>
+          )}
+        </output>
+
+        <Text isSubdued className="sw-mt-2 sw-max-w-1/2">
+          <span id="project-key-input-hint">
+            {translate('onboarding.create_project.project_key.description')}
+          </span>
+        </Text>
+      </FormField>
+
+      <div className="sw-mt-2">
+        <ModalAlert
+          primaryButton={
+            <Button variety={ButtonVariety.Primary} onClick={() => onKeyChange(newKey)}>
               {translate('update_verb')}
-            </ButtonPrimary>
+            </Button>
+          }
+          title={translate('update_key.page')}
+          description={intl.formatMessage(
+            { id: 'update_key.are_you_sure_to_change_key' },
+            { '0': component.name },
+          )}
+          content={
+            <>
+              <span>
+                {translate('update_key.old_key')}:&nbsp;
+                <strong className="sw-typo-lg-semibold">{component.key}</strong>
+              </span>
+              <div className="sw-mt-2">
+                {translate('update_key.new_key')}:&nbsp;
+                <strong className="sw-typo-lg-semibold">{newKey}</strong>
+              </div>
+            </>
+          }
+        >
+          <Button
+            variety={ButtonVariety.Primary}
+            isDisabled={!hasChanged || error !== undefined}
+            id="update-key-submit"
+            type="submit"
+          >
+            {translate('update_verb')}
+          </Button>
+        </ModalAlert>
 
-            <ButtonSecondary
-              className="sw-ml-2"
-              disabled={!hasChanged}
-              id="update-key-reset"
-              onClick={() => {
-                setNewKey(component.key);
-              }}
-              type="reset"
-            >
-              {translate('reset_verb')}
-            </ButtonSecondary>
-          </div>
-        </form>
-      )}
-    </ConfirmButton>
+        <Button
+          variety={ButtonVariety.Default}
+          className="sw-ml-2"
+          isDisabled={!hasChanged}
+          id="update-key-reset"
+          onClick={() => {
+            setNewKey(component.key);
+          }}
+          type="reset"
+        >
+          {translate('reset_verb')}
+        </Button>
+      </div>
+    </form>
   );
 }

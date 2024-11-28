@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading } from '@sonarsource/echoes-react';
 import { Helmet } from 'react-helmet-async';
-import { LargeCenteredLayout, PageContentFontWrapper, Title } from '~design-system';
+import { LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Router } from '~sonar-aligned/types/router';
 import { changeKey } from '../../api/components';
@@ -47,7 +48,9 @@ function ProjectKeyApp({ component, router }: Props) {
       <Helmet defer={false} title={translate('update_key.page')} />
       <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <header className="sw-mt-8 sw-mb-4">
-          <Title className="sw-mb-4">{translate('update_key.page')}</Title>
+          <Heading as="h1" className="sw-mb-4">
+            {translate('update_key.page')}
+          </Heading>
           <div className="sw-mb-2">{translate('update_key.page.description')}</div>
         </header>
         <UpdateForm component={component} onKeyChange={handleChangeKey} />
