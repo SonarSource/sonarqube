@@ -302,6 +302,18 @@
 }
 
 .coding-rule-map-input {
-  width: 170px !important;
+  width: 14.375rem !important;
   vertical-align: text-top;
+  margin-right: 0.625rem;
+  border-radius: 0.5rem;
+  height: 1.3rem;
+  border-style: solid;
+}
+
+.display-inline-block {
+  display: inline-block !important;
+}
+
+.spacer-bottom {
+  margin-bottom: 0.5rem !important;
 }
