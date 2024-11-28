@@ -46,12 +46,12 @@ export function getLeakValue(measure: MeasureIntern | undefined): string | undef
 
 export function duplicationRatingConverter(val: number) {
   const value = val || 0;
-  const THRESHOLD_A = 3;
-  const THRESHOLD_B = 5;
-  const THRESHOLD_C = 10;
-  const THRESHOLD_D = 20;
+  const THRESHOLD_B = 3;
+  const THRESHOLD_C = 5;
+  const THRESHOLD_D = 10;
+  const THRESHOLD_E = 20;
 
-  if (value < THRESHOLD_A) {
+  if (value === 0) {
     return 'A';
   } else if (value < THRESHOLD_B) {
     return 'B';
@@ -59,6 +59,8 @@ export function duplicationRatingConverter(val: number) {
     return 'C';
   } else if (value < THRESHOLD_D) {
     return 'D';
+  } else if (value < THRESHOLD_E) {
+    return 'E';
   }
-  return 'E';
+  return 'F';
 }

@@ -22,13 +22,13 @@ import { duplicationRatingConverter } from '../utils';
 
 describe('duplicationRatingConverter', () => {
   it.each([
-    [-10, 'A'],
-    [2, 'A'],
-    [4, 'B'],
-    [8, 'C'],
-    [18, 'D'],
-    [20, 'E'],
-    [25, 'E'],
+    [0, 'A'],
+    [2, 'B'],
+    [4, 'C'],
+    [8, 'D'],
+    [18, 'E'],
+    [20, 'F'],
+    [25, 'F'],
   ])('should work correctly when value is %s', (value: number, result: string) => {
     expect(duplicationRatingConverter(value)).toEqual(result);
   });
