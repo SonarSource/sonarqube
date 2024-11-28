@@ -154,7 +154,20 @@ it('should follow and complete all steps', async () => {
   // Dart
   await user.click(ui.dartBuildButton.get());
   expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
-    'Dart: .github/workflows/build.yml',
+    'Dart: sonar-project.properties',
+  );
+
+  await user.click(ui.linuxButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'Dart Linux: .github/workflows/build.yml',
+  );
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'Dart Windows: .github/workflows/build.yml',
+  );
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'Dart MacOS: .github/workflows/build.yml',
   );
 
   // Other
@@ -162,8 +175,18 @@ it('should follow and complete all steps', async () => {
   expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
     'C++ (automatic) and other: sonar-project.properties',
   );
+
+  await user.click(ui.linuxButton.get());
   expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
-    'C++ (automatic) and other: .github/workflows/build.yml',
+    'C++ (automatic) and other Linux: .github/workflows/build.yml',
+  );
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'C++ (automatic) and other Windows: .github/workflows/build.yml',
+  );
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'C++ (automatic) and other MacOS: .github/workflows/build.yml',
   );
 
   expect(ui.allSetSentence.get()).toBeInTheDocument();

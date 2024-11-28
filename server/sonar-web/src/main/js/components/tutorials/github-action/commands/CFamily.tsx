@@ -101,7 +101,7 @@ export default function CFamily(props: Readonly<CFamilyProps>) {
   const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
   if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
-    return <Others {...props} />;
+    return <Others buildSteps="" {...props} />;
   }
 
   const runsOn = {

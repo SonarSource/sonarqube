@@ -51,6 +51,105 @@ jobs:
           .\\.sonar\\scanner\\dotnet-sonarscanner end /d:sonar.token="\${{ secrets.SONAR_TOKEN }}""
 `;
 
+exports[`should follow and complete all steps: C++ (automatic) and other Linux: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
+`;
+
+exports[`should follow and complete all steps: C++ (automatic) and other MacOS: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: macos-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
+`;
+
+exports[`should follow and complete all steps: C++ (automatic) and other Windows: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
+`;
+
 exports[`should follow and complete all steps: C++ (automatic) and other: .github/workflows/build.yml 1`] = `
 "name: Build
 
@@ -70,7 +169,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@v3
+      - uses: sonarsource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
@@ -78,40 +177,7 @@ jobs:
       # following lines. This would typically be used to fail a deployment.
       # We do not recommend to use this in a pull request. Prefer using pull request
       # decoration instead.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
-`;
-
-exports[`should follow and complete all steps: C++ (automatic) and other: .github/workflows/build.yml 2`] = `
-"name: Build
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-jobs:
-  build:
-    name: Build and analyze
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@v3
-        env:
-          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # We do not recommend to use this in a pull request. Prefer using pull request
-      # decoration instead.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
@@ -267,7 +333,7 @@ jobs:
 
 exports[`should follow and complete all steps: C++: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
 
-exports[`should follow and complete all steps: Dart: .github/workflows/build.yml 1`] = `
+exports[`should follow and complete all steps: Dart Linux: .github/workflows/build.yml 1`] = `
 "name: Build
 
 on:
@@ -281,20 +347,101 @@ jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+    
     steps:
-      - <commands to build your project>
-      - name: Download sonar-scanner
-        run: |
-          curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
-          unzip $HOME/.sonar/sonar-scanner.zip -o -d $HOME/.sonar/
-      - name: Run sonar-scanner
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      # The analysis requires to retrieve dependencies and build successfully
+      - name: Build project
+        run: <commands to build your project>
+      - uses: sonarsource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: |
-          sonar-scanner-6.1.0.4477-linux-x64/bin/sonar-scanner \\
-            -Dsonar.projectKey=my-project"
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
 `;
+
+exports[`should follow and complete all steps: Dart MacOS: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: macos-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      # The analysis requires to retrieve dependencies and build successfully
+      - name: Build project
+        run: <commands to build your project>
+      - uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
+`;
+
+exports[`should follow and complete all steps: Dart Windows: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      # The analysis requires to retrieve dependencies and build successfully
+      - name: Build project
+        run: <commands to build your project>
+      - uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
+`;
+
+exports[`should follow and complete all steps: Dart: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
 
 exports[`should follow and complete all steps: Gradle: .github/workflows/build.yml 1`] = `
 "name: Build
