@@ -111,6 +111,8 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
               size="full"
               type="text"
               value={name}
+              placeholder={profile.name}
+              maxLength={100}
             />
           </FormField>
         </>

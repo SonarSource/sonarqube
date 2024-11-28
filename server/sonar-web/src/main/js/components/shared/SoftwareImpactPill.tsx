@@ -66,11 +66,6 @@ export default function SoftwareImpactPill(props: Props) {
           </p>
         </>
       }
-      footer={
-        <DocumentationLink to={DocLink.CleanCodeIntroduction}>
-          {translate('learn_more')}
-        </DocumentationLink>
-      }
     >
       <Pill
         className={classNames('sw-flex sw-gap-1 sw-items-center', className)}

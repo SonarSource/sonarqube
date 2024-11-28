@@ -737,7 +737,7 @@
     rules r
     <include refid="leftOuterJoinRulesTags"/>
     WHERE lower(value) like #{query}
-      AND r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      AND (r.organization_uuid IS NULL OR r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
       AND (rt.organization_uuid IS NULL OR rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
     ORDER BY value
     <include refid="org.sonar.db.common.Common.pagination"/>

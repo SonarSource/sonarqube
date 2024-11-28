@@ -38,6 +38,7 @@ import GlobalNav from './nav/global/GlobalNav';
 import StartupModal from './StartupModal';
 import SystemAnnouncement from './SystemAnnouncement';
 import UpdateNotification from './update-notification/UpdateNotification';
+import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 
 /*
  * These pages need a white background (aka 'secondary', rather than the default 'primary')
@@ -88,27 +89,29 @@ export default function GlobalContainer() {
               className="sw-box-border sw-flex-[1_0_auto]"
               id="container"
             >
-              <Workspace>
-                <IndexationContextProvider>
-                  <LanguagesContextProvider>
-                    <MetricsContextProvider>
-                      <div className="sw-sticky sw-top-0 sw-z-global-navbar">
-                        <SystemAnnouncement />
-                        <IndexationNotification />
-                        <NCDAutoUpdateMessage />
-                        <UpdateNotification dismissable />
-                        <GlobalNav location={location} />
-                        <CalculationChangeMessage />
-                        {/* The following is the portal anchor point for the component nav
-                         * See ComponentContainer.tsx
-                         */}
-                        <div id="component-nav-portal" />
-                      </div>
-                      <Outlet />
-                    </MetricsContextProvider>
-                  </LanguagesContextProvider>
-                </IndexationContextProvider>
-              </Workspace>
+              <BranchStatusContextProvider>
+                <Workspace>
+                  <IndexationContextProvider>
+                    <LanguagesContextProvider>
+                      <MetricsContextProvider>
+                        <div className="sw-sticky sw-top-0 sw-z-global-navbar">
+                          <SystemAnnouncement />
+                          <IndexationNotification />
+                          <NCDAutoUpdateMessage />
+                          <UpdateNotification dismissable />
+                          <GlobalNav location={location} />
+                          <CalculationChangeMessage />
+                          {/* The following is the portal anchor point for the component nav
+                          * See ComponentContainer.tsx
+                          */}
+                          <div id="component-nav-portal" />
+                        </div>
+                        <Outlet />
+                      </MetricsContextProvider>
+                    </LanguagesContextProvider>
+                  </IndexationContextProvider>
+                </Workspace>
+              </BranchStatusContextProvider>
             </GlobalBackground>
             <GlobalFooterCodescan />
           </GlobalContainerWrapper>
