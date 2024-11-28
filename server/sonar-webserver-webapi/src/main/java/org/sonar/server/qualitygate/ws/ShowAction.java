@@ -121,7 +121,7 @@ public class ShowAction implements QualityGatesWsAction {
     return ShowWsResponse.newBuilder()
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
-      .setIsAiCodeSupported(qualityGate.isAiCodeSupported())
+      .setIsAiCodeSupported(actionsSupport.isAiCodeAssuranceEnabled() && qualityGate.isAiCodeSupported())
       .setIsDefault(qualityGate.getUuid().equals(defaultQualityGate.getUuid()))
       .setCaycStatus(caycStatus.toString())
       .setHasMQRConditions(qualityModeResult.hasMQRConditions())

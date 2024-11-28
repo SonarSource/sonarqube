@@ -51,4 +51,8 @@ public class QualityGateActionsSupport {
       .setManageAiCodeAssurance(aiCodeAssuranceEntitlement.isEnabled() && !isBuiltIn && isQualityGateAdmin)
       .build();
   }
+
+  boolean isAiCodeAssuranceEnabled() {
+    return aiCodeAssuranceEntitlement.isEnabled();
+  }
 }

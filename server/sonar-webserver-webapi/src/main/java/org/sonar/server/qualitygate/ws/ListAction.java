@@ -104,7 +104,7 @@ public class ListAction implements QualityGatesWsAction {
             .setName(qualityGate.getName())
             .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
             .setIsBuiltIn(qualityGate.isBuiltIn())
-            .setIsAiCodeSupported(qualityGate.isAiCodeSupported())
+            .setIsAiCodeSupported(actionsSupport.isAiCodeAssuranceEnabled() && qualityGate.isAiCodeSupported())
             .setCaycStatus(qualityGateCaycChecker.checkCaycCompliant(conditions, metrics).toString())
             .setHasMQRConditions(qualityModeResult.hasMQRConditions())
             .setHasStandardConditions(qualityModeResult.hasStandardConditions())

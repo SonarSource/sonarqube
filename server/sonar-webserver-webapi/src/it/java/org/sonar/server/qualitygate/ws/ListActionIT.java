@@ -117,6 +117,7 @@ class ListActionIT {
 
   @Test
   void test_ai_code_supported_flag() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     QualityGateDto qualityGateWithAiCodeSupported = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(true));
     QualityGateDto qualityGateWithoutAiCodeSupported = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(false));
     db.qualityGates().setDefaultQualityGate(qualityGateWithAiCodeSupported);
@@ -237,6 +238,9 @@ class ListActionIT {
 
     assertThat(response.getQualitygatesList()).hasSize(1);
     assertThat(response.getQualitygatesList().get(0).getActions().getManageAiCodeAssurance()).isFalse();
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getName, QualityGate::getIsAiCodeSupported)
+      .containsExactly(tuple(defaultQualityGate.getName(), false));
   }
 
   @Test

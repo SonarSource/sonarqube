@@ -120,6 +120,7 @@ class ShowActionIT {
 
   @Test
   void show_ai_code_supported() {
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
@@ -224,6 +225,8 @@ class ShowActionIT {
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
       .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getIsAiCodeSupported()).isFalse();
 
     Actions actions = response.getActions();
     assertThat(actions.getManageAiCodeAssurance()).isFalse();
