@@ -127,4 +127,12 @@ public class StandardToMQRMetrics {
     return Optional.ofNullable(STANDARD_TO_MQR_MODE_METRICS.get(metricKey))
       .or(() -> Optional.ofNullable(MQR_TO_STANDARD_MODE_METRICS.get(metricKey)));
   }
+
+  public static Optional<String> getEquivalentStandardExperienceMetric(String metricKey) {
+    return Optional.ofNullable(MQR_TO_STANDARD_MODE_METRICS.get(metricKey));
+  }
+
+  public static Optional<String> getEquivalentMQRMetric(String metricKey) {
+    return Optional.ofNullable(STANDARD_TO_MQR_MODE_METRICS.get(metricKey));
+  }
 }
