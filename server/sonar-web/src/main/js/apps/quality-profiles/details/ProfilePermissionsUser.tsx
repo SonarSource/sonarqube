@@ -47,7 +47,7 @@ export default function ProfilePermissionsGroup(props: Readonly<Props>) {
       language: profile.language,
       login: user.login,
       qualityProfile: profile.name,
-      organization: this.props.organization,
+      organization: props.organization,
     }).then(() => {
       setDeleteDialogOpened(false);
       props.onDelete(user);
