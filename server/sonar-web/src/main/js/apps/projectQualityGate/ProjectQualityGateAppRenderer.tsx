@@ -53,6 +53,10 @@ import { isDiffMetric } from '../../helpers/measures';
 import { LabelValueSelectOption } from '../../helpers/search';
 import { getQualityGateUrl } from '../../helpers/urls';
 import { useProjectAiCodeAssuranceStatusQuery } from '../../queries/ai-code-assurance';
+import {
+  useAssociateGateWithProjectMutation,
+  useDissociateGateWithProjectMutation,
+} from '../../queries/quality-gates';
 import { ComponentQualifier } from '../../sonar-aligned/types/component';
 import { Feature } from '../../types/features';
 import { Component, QualityGate } from '../../types/types';
@@ -67,9 +71,8 @@ export interface ProjectQualityGateAppRendererProps extends WithAvailableFeature
   currentQualityGate?: QualityGate;
   loading: boolean;
   onSelect: (id: string) => void;
-  onSubmit: () => Promise<void>;
+  onSubmit: () => void;
   selectedQualityGateName: string;
-  submitting: boolean;
 }
 
 function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
@@ -123,14 +126,8 @@ function singleValueRenderer(props: SingleValueProps<QualityGateOption, false>) 
 }
 
 function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRendererProps>) {
-  const {
-    allQualityGates,
-    component,
-    currentQualityGate,
-    loading,
-    selectedQualityGateName,
-    submitting,
-  } = props;
+  const { allQualityGates, component, currentQualityGate, loading, selectedQualityGateName } =
+    props;
   const defaultQualityGate = allQualityGates?.find((g) => g.isDefault);
   const [isUserEditing, setIsUserEditing] = useState(false);
 
@@ -143,6 +140,33 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
           props.hasFeature(Feature.AiCodeAssurance),
       },
     );
+
+  const { mutateAsync: associateGateWithProject, isPending: associateIsPending } =
+    useAssociateGateWithProjectMutation();
+  const { mutateAsync: dissociateGateWithProject, isPending: dissociateisPending } =
+    useDissociateGateWithProjectMutation();
+  const submitting = associateIsPending || dissociateisPending;
+
+  const handleSubmit = async () => {
+    const { allQualityGates, currentQualityGate, selectedQualityGateName } = props;
+
+    if (allQualityGates === undefined || currentQualityGate === undefined) {
+      return;
+    }
+
+    if (selectedQualityGateName === USE_SYSTEM_DEFAULT) {
+      await dissociateGateWithProject({
+        projectKey: component.key,
+      });
+    } else {
+      await associateGateWithProject({
+        gateName: selectedQualityGateName,
+        projectKey: component.key,
+      });
+    }
+
+    props.onSubmit();
+  };
 
   if (loading) {
     return <Spinner />;
@@ -272,7 +296,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
           <form
             onSubmit={async (e) => {
               e.preventDefault();
-              await props.onSubmit();
+              await handleSubmit();
               setIsUserEditing(false);
               refetchAiCodeAssuranceStatus();
             }}

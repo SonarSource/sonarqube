@@ -23,11 +23,13 @@ import { useIntl } from 'react-intl';
 import { addGlobalSuccessMessage } from '~design-system';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import {
+  associateGateWithProject,
   copyQualityGate,
   createCondition,
   createQualityGate,
   deleteCondition,
   deleteQualityGate,
+  dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
   getAllQualityGateProjects,
@@ -196,6 +198,34 @@ export function useSetAiSupportedQualityGateMutation(name: string) {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
       queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
       queryClient.invalidateQueries({ queryKey: qualityQuery.detail(name) });
+    },
+  });
+}
+
+export function useAssociateGateWithProjectMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { gateName: string; projectKey: string }) => {
+      return associateGateWithProject(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
+      queryClient.invalidateQueries({ queryKey: ['project', 'list'] });
+    },
+  });
+}
+
+export function useDissociateGateWithProjectMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { projectKey: string }) => {
+      return dissociateGateWithProject(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
+      queryClient.invalidateQueries({ queryKey: ['project', 'list'] });
     },
   });
 }
