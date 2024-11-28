@@ -20,17 +20,18 @@
 
 import styled from '@emotion/styled';
 import { Heading } from '@sonarsource/echoes-react';
+import AIAssuredIllustration, { AiIconVariant } from '../illustrations/AiAssuredIllustration';
 
 interface AiCodeAssuranceBannerProps {
   className?: string;
   description: React.ReactNode;
-  icon: React.ReactNode;
+  iconVariant: AiIconVariant;
   title: React.ReactNode;
 }
 
-function AiCodeAssuranceBanner({
+export default function AiCodeAssuranceBanner({
   className,
-  icon,
+  iconVariant,
   title,
   description,
 }: Readonly<AiCodeAssuranceBannerProps>) {
@@ -38,7 +39,7 @@ function AiCodeAssuranceBanner({
     <StyledWrapper className={className}>
       <MessageContainer>
         <LeftContent>
-          {icon}
+          <AIAssuredIllustration variant={iconVariant} width={84} height={84} />
           <TextWrapper>
             <PromotedHeading as="h3">{title}</PromotedHeading>
             {description}
@@ -48,8 +49,6 @@ function AiCodeAssuranceBanner({
     </StyledWrapper>
   );
 }
-
-export default AiCodeAssuranceBanner;
 
 const StyledWrapper = styled.div`
   background-color: var(--echoes-color-background-accent-weak-default);

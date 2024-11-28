@@ -44,10 +44,8 @@ import withAvailableFeatures, {
 import DisableableSelectOption from '../../components/common/DisableableSelectOption';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import AIAssuredIcon, {
-  AiIconColor,
-  AiIconVariant,
-} from '../../components/icon-mappers/AIAssuredIcon';
+import AIAssuredIcon, { AiIconColor } from '../../components/icon-mappers/AIAssuredIcon';
+import { AiIconVariant } from '../../components/illustrations/AiAssuredIllustration';
 import AiCodeAssuranceBanner from '../../components/ui/AiCodeAssuranceBanner';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
@@ -200,14 +198,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
           {aiAssuranceStatus === AiCodeAssuranceStatus.AI_CODE_ASSURED && (
             <AiCodeAssuranceBanner
               className="sw-mb-10 sw-w-abs-800"
-              icon={
-                <AIAssuredIcon
-                  variant={AiIconVariant.Check}
-                  color={AiIconColor.Subdued}
-                  width={84}
-                  height={84}
-                />
-              }
+              iconVariant={AiIconVariant.Check}
               title={
                 <FormattedMessage id="project_quality_gate.ai_generated_code_protected.title" />
               }
@@ -235,14 +226,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
           {aiAssuranceStatus === AiCodeAssuranceStatus.CONTAINS_AI_CODE && (
             <AiCodeAssuranceBanner
               className="sw-mb-10 sw-w-abs-800"
-              icon={
-                <AIAssuredIcon
-                  variant={AiIconVariant.Default}
-                  color={AiIconColor.Subdued}
-                  width={84}
-                  height={84}
-                />
-              }
+              iconVariant={AiIconVariant.Default}
               title={
                 <FormattedMessage id="project_quality_gate.ai_generated_code_not_protected.title" />
               }
