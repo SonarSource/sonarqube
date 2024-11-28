@@ -51,6 +51,7 @@ import { differenceBy } from 'lodash';
 import BranchOverview from '../../overview/branches/BranchOverview';
 import { Spinner } from "@sonarsource/echoes-react";
 import { ComponentQualifier } from "~sonar-aligned/types/component";
+import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 
 const FETCH_STATUS_WAIT_TIME = 3000;
 
@@ -366,16 +367,21 @@ class PolicyResults extends React.PureComponent<Props, State> {
     const { loading, component, branchLike, loadingProjects, projects, selectedOption } = { ...this.state }
     const branchSupportEnabled = false;
     const projectBinding: any = {};
-    const style = {
-      marginLeft: "-20px"
-    }
+    const headerStyle = {
+      boxSizing: 'border-box',
+      margin: '0px auto',
+      maxWidth: '1280px',
+      paddingLeft: '3.75rem',
+      marginBottom: '1.75rem',
+    };
+
     return (
       <div className="page page-limited" style={{ paddingBottom: "0" }}>
-        <header className='page-header'>
+        <header className='page-header' style={headerStyle}>
           <h1>Policy Results</h1>
         </header>
         <Spinner className="sw-my-2" isLoading={loading || loadingProjects}>
-          <div className="display-flex-row">
+          <div className="display-flex-row" style={headerStyle}>
             <div className="width-25 big-spacer-right">
               {
                 projects?.length == 0 ? (<>
@@ -392,7 +398,7 @@ class PolicyResults extends React.PureComponent<Props, State> {
             </div>
           </div>
           {projects?.length > 0 && component?.analysisDate && (
-            <div style={style}>
+            <div>
               <BranchOverview
                 branch={branchLike}
                 branchesEnabled={branchSupportEnabled}
@@ -408,4 +414,4 @@ class PolicyResults extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUserContext(withOrganizationContext(withAvailableFeatures(PolicyResults)));
+export default withCurrentUserContext(withOrganizationContext(withBranchStatusActions(withAvailableFeatures(PolicyResults))));
