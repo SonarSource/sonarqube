@@ -27,7 +27,7 @@ import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { Organization, OrganizationMember } from '../../types/types';
 import './AddMemberForm.css';
-import UsersSelectSearch from './UsersSelectSearch';
+import CustomSearchInput from './SearchUser';
 
 interface AddMemberFormProps {
   appState: AppState;
@@ -67,6 +67,10 @@ function AddMemberForm(props: AddMemberFormProps) {
     setSelectedMember(member);
   };
 
+  const handleUserSelect = (user: any) => {
+    console.log('Selected user:', user); // Handle user select event
+  };
+
   const renderModal = () => {
     const header = translate('users.add');
     return (
@@ -77,12 +81,12 @@ function AddMemberForm(props: AddMemberFormProps) {
         body={
           <div className="add-member-form-height">
             <label>{translate('users.search_description')}</label>
-            <UsersSelectSearch
-              autoFocus={false}
-              excludedUsers={props.memberLogins}
-              handleValueChange={selectedMemberChange}
-              selectedUser={selectedMember}
-              organization={props.organization}
+            <CustomSearchInput
+              excludedUsers={props.memberLogins} // Pass the excluded users list
+              handleValueChange={selectedMemberChange} // Pass the callback to handle value changes
+              selectedUser={selectedMember} // Pass the current selected user
+              organization={props.organization} // Pass the organization info
+              onUserSelect={handleUserSelect} // Pass the callback for user selection
             />
           </div>
         }
