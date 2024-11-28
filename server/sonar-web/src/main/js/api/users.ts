@@ -59,7 +59,7 @@ export function changePassword(data: {
 export interface UserGroup {
   default: boolean;
   description: string;
-  id: number;
+  id: string;
   name: string;
   selected: boolean;
 }
