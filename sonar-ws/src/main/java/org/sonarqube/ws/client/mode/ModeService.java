@@ -44,7 +44,7 @@ public class ModeService extends BaseService {
         .setMediaType(MediaTypes.JSON));
   }
 
-  ModeResource getMode() {
+  public ModeResource getMode() {
     return new Gson().fromJson(call(
       new GetRequest(path("clean-code-policy/mode"))
         .setMediaType(MediaTypes.JSON)).content(),
