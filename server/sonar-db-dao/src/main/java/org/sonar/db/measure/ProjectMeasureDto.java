@@ -23,6 +23,7 @@ import com.google.common.base.MoreObjects;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.util.UuidFactoryImpl;
 
 public class ProjectMeasureDto {
   private static final int MAX_TEXT_VALUE_LENGTH = 4000;
@@ -129,6 +130,18 @@ public class ProjectMeasureDto {
     return this;
   }
 
+  public ProjectMeasureDto copy() {
+    ProjectMeasureDto copy = new ProjectMeasureDto()
+      .setAlertStatus(alertStatus)
+      .setAnalysisUuid(analysisUuid)
+      .setAlertText(alertText)
+      .setComponentUuid(componentUuid)
+      .setMetricUuid(metricUuid)
+      .setData(getData())
+      .setValue(value);
+    copy.setUuid(UuidFactoryImpl.INSTANCE.create());
+    return copy;
+  }
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
