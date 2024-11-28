@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { HelperHintIcon, ItemDivider, ItemHeader } from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { getBranchLikeKey, isSameBranchLike } from '../../../../../helpers/branch-like';
@@ -31,10 +32,12 @@ export interface MenuItemListProps {
   branchLikeTree: BranchLikeTree;
   hasResults: boolean;
   onSelect: (branchLike: BranchLike) => void;
+  search: string;
   selectedBranchLike: BranchLike | undefined;
 }
 
 export function MenuItemList(props: MenuItemListProps) {
+  const intl = useIntl();
   let selectedNode: HTMLLIElement | null = null;
 
   React.useEffect(() => {
@@ -44,7 +47,7 @@ export function MenuItemList(props: MenuItemListProps) {
     }
   });
 
-  const { branchLikeTree, hasResults, onSelect, selectedBranchLike } = props;
+  const { branchLikeTree, hasResults, onSelect, selectedBranchLike, search } = props;
 
   const renderItem = (branchLike: BranchLike, indent = false) => (
     <MenuItem
@@ -57,46 +60,65 @@ export function MenuItemList(props: MenuItemListProps) {
     />
   );
 
-  const branches = [branchLikeTree.mainBranchTree, ...branchLikeTree.branchTree];
+  const branches = [branchLikeTree.mainBranchTree, ...branchLikeTree.branchTree].filter(isDefined);
+  const total =
+    branches.length +
+    branches.reduce((t, branchTree) => t + (branchTree?.pullRequests.length ?? 0), 0) +
+    branchLikeTree.parentlessPullRequests.length +
+    branchLikeTree.orphanPullRequests.length;
 
   return (
-    <ul className="item-list sw-overflow-y-auto sw-overflow-x-hidden">
-      {!hasResults && (
-        <div className="sw-px-3 sw-py-2">
-          <span>{translate('no_results')}</span>
-        </div>
-      )}
+    <ul
+      aria-label={`- ${translate('branch_like_navigation.list')}`}
+      className="item-list sw-overflow-y-auto sw-overflow-x-hidden"
+    >
+      <output>
+        {!hasResults && (
+          <div className="sw-px-3 sw-py-2">
+            <span>{intl.formatMessage({ id: 'no_results_for_x' }, { '0': search })}</span>
+          </div>
+        )}
+        {hasResults && (
+          <span className="sw-sr-only">
+            {intl.formatMessage({ id: 'results_shown_x' }, { count: total })}
+          </span>
+        )}
+      </output>
 
       {/* BRANCHES & PR */}
-      {branches.filter(isDefined).map((tree, treeIndex) => (
+      {branches.map((tree, treeIndex) => (
         <React.Fragment key={getBranchLikeKey(tree.branch)}>
           {renderItem(tree.branch)}
           {tree.pullRequests.length > 0 && (
-            <>
-              <ItemDivider />
-              <ItemHeader>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
-              <ItemDivider />
+            <ul
+              aria-label={` - ${intl.formatMessage({ id: 'branch_like_navigation.pull_requests_targeting' }, { branch: tree.branch.name })}`}
+            >
+              <ItemDivider aria-hidden />
+              <ItemHeader aria-hidden>
+                {translate('branch_like_navigation.pull_requests')}
+              </ItemHeader>
+              <ItemDivider aria-hidden />
               {tree.pullRequests.map((pr) => renderItem(pr, true))}
               {tree.pullRequests.length > 0 && treeIndex !== branches.length - 1 && <ItemDivider />}
-            </>
+            </ul>
           )}
         </React.Fragment>
       ))}
 
       {/* PARENTLESS PR (for display during search) */}
       {branchLikeTree.parentlessPullRequests.length > 0 && (
-        <>
-          <ItemDivider />
-          <ItemHeader>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
-          <ItemDivider />
+        <ul aria-label={` - ${translate('branch_like_navigation.pull_requests')}`}>
+          <ItemDivider aria-hidden />
+          <ItemHeader aria-hidden>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
+          <ItemDivider aria-hidden />
           {branchLikeTree.parentlessPullRequests.map((pr) => renderItem(pr))}
-        </>
+        </ul>
       )}
 
       {/* ORPHAN PR */}
       {branchLikeTree.orphanPullRequests.length > 0 && (
-        <>
-          <ItemDivider />
+        <ul aria-label={` - ${translate('branch_like_navigation.orphan_pull_requests')}`}>
+          <ItemDivider aria-hidden />
           <ItemHeader>
             {translate('branch_like_navigation.orphan_pull_requests')}
             <HelpTooltip
@@ -106,9 +128,9 @@ export function MenuItemList(props: MenuItemListProps) {
               <HelperHintIcon />
             </HelpTooltip>
           </ItemHeader>
-          <ItemDivider />
+          <ItemDivider aria-hidden />
           {branchLikeTree.orphanPullRequests.map((pr) => renderItem(pr))}
-        </>
+        </ul>
       )}
     </ul>
   );
