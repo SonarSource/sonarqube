@@ -94,6 +94,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
             hotspot={hotspot}
             categoryStandard={categoryStandard}
             onUpdateHotspot={props.onUpdateHotspot}
+            organization={component.organization}
           />
         </div>
       </div>

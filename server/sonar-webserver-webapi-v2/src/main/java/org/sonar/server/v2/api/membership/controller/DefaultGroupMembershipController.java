@@ -20,9 +20,9 @@
 package org.sonar.server.v2.api.membership.controller;
 
 import java.util.List;
-
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupMembershipSearchRequest;
@@ -32,8 +32,8 @@ import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.membership.request.GroupMembershipCreateRestRequest;
 import org.sonar.server.v2.api.membership.request.GroupsMembershipSearchRestRequest;
-import org.sonar.server.v2.api.membership.response.GroupsMembershipSearchRestResponse;
 import org.sonar.server.v2.api.membership.response.GroupMembershipRestResponse;
+import org.sonar.server.v2.api.membership.response.GroupsMembershipSearchRestResponse;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
@@ -71,13 +71,19 @@ public class DefaultGroupMembershipController implements GroupMembershipControll
 
   @Override
   public void delete(String id) {
-    throwIfNotAllowedToModifyGroups();
+    //throwIfNotAllowedToModifyGroups();
+    GroupDto groupDto = groupMembershipService.findGroupMembership(id);
+    OrganizationDto organization = organizationService.getOrganizationByUuid(groupDto.getOrganizationUuid());
+    userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
     groupMembershipService.removeMembership(id);
   }
 
   @Override
   public GroupMembershipRestResponse create(GroupMembershipCreateRestRequest request) {
-    throwIfNotAllowedToModifyGroups();
+    //throwIfNotAllowedToModifyGroups();
+    OrganizationDto organization = organizationService.getOrganizationByKey(request.organization());
+    userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+
     UserGroupDto userGroupDto = groupMembershipService.addMembership(request.groupId(), request.userId());
     return toRestGroupMembershipResponse(userGroupDto);
   }

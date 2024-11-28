@@ -59,7 +59,7 @@ function HotspotHeaderRightSection(props: Props) {
         </HotspotHeaderInfo>
       )}
       <HotspotHeaderInfo title={translate('assignee')}>
-        <Assignee organization={organization.kee} hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
+        <Assignee organization={organization} hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
       </HotspotHeaderInfo>
     </>
   );

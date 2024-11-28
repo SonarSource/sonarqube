@@ -20,8 +20,13 @@
 package org.sonar.server.v2.api.membership.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotEmpty;
 
 public record GroupMembershipCreateRestRequest(
+
+  @NotEmpty
+  @Schema(description = "Organization key.")
+  String organization,
 
   @Schema(description = "ID of the user to add to group.")
   String userId,

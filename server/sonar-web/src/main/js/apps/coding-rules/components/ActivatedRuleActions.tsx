@@ -35,6 +35,7 @@ interface Props {
   profile: Profile;
   ruleDetails: Rule;
   showDeactivated?: boolean;
+  organization: string;
 }
 
 export default function ActivatedRuleActions(props: Readonly<Props>) {
@@ -47,6 +48,7 @@ export default function ActivatedRuleActions(props: Readonly<Props>) {
     handleDeactivate,
     showDeactivated,
     canDeactivateInherited,
+    organization
   } = props;
 
   const canEdit = profile.actions?.edit && !profile.isBuiltIn;
@@ -65,6 +67,7 @@ export default function ActivatedRuleActions(props: Readonly<Props>) {
               modalHeader={translate('coding_rules.change_details')}
               onDone={onActivate}
               profiles={[profile]}
+              organization={organization}
               rule={ruleDetails}
             />
           )}

@@ -28,9 +28,10 @@ import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 import Avatar from '../../ui/Avatar';
 
 interface Props {
+  organization: string;
   canAssign: boolean;
   isOpen: boolean;
-  issue: Pick<Issue, 'assignee' | 'assigneeActive' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization'>;
+  issue: Pick<Issue, 'assignee' | 'assigneeActive' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization' | 'organization'>;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
@@ -46,7 +47,7 @@ const renderAvatar = (name?: string, avatar?: string) => (
 export default function IssueAssignee(props: Props) {
   const {
     canAssign,
-    issue: { assignee, assigneeName, assigneeLogin, assigneeAvatar },
+    issue: { assignee, assigneeName, assigneeLogin, assigneeAvatar, organization },
   } = props;
 
   const assinedUser = assigneeName ?? assignee;
@@ -85,7 +86,7 @@ export default function IssueAssignee(props: Props) {
     query: string,
     cb: (options: Options<LabelValueSelectOption<string>>) => void,
   ) => {
-    getUsers<RestUser>({ q: query })
+    getUsers<RestUser>({ q: query, organization: organization})
       .then((result) => {
         const options: Array<LabelValueSelectOption<string>> = result.users
           .filter(isUserActive)

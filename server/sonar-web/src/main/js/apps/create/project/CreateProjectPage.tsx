@@ -167,7 +167,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
       : translate('onboarding.create_project.select_method');
 
     return (
-      <LargeCenteredLayout id="create-project" className="analyza-project-ctnr">
+      <LargeCenteredLayout id="create-project" className="analyze-project-ctnr">
         <div className={gridLayoutStyle}>
           <Helmet title={pageTitle} titleTemplate="%s" />
           <A11ySkipTarget anchor="create_project_main" />

@@ -232,11 +232,6 @@ export function SonarLintConnection({ appState, currentUser }: Readonly<Props>) 
       {status === Status.tokenSent && newToken && (
         <>
           <Title>{translate('sonarlint-connection.success.title')}</Title>
-          <Image
-            alt="sonarlint-connection-success"
-            className="sw-mb-4"
-            src="/images/SonarLint-connection-ok.png"
-          />
           <p className="sw-my-4">
             {translateWithParameters('sonarlint-connection.success.description', newToken.name)}
           </p>
