@@ -26,8 +26,6 @@ import java.util.Set;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
-import org.sonar.server.component.ComponentType;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -36,11 +34,14 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
+import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.ui.PageRepository;
@@ -180,7 +181,13 @@ public class GlobalAction implements NavigationWsAction, Startable {
   }
 
   private void writeVersion(JsonWriter json) {
-    String displayVersion = VersionFormatter.format(server.getVersion());
+    final String displayVersion;
+    // if edition is community
+    if(editionProvider.get().filter(e -> e.equals(EditionProvider.Edition.COMMUNITY)).isPresent()) {
+      displayVersion = server.getVersion();
+    } else {
+      displayVersion = VersionFormatter.format(server.getVersion());
+    }
     json.prop("version", displayVersion);
   }
 
