@@ -170,3 +170,10 @@ code.rule {
   padding: 5px 10px;
   border: 1px solid var(--barBorderColor);
 }
+
+.hyperlink-text {
+  color: rgb(93, 108, 208);
+}
+.hyperlink-text:hover {
+  border-bottom: rgb(93, 108, 208);
+}

@@ -76,7 +76,7 @@ export default function OrganizationNavigationHeader({ organization, organizatio
             </Button>
           </DropdownMenu.Root>
         ) : (
-          <span className="spacer-left">{organization.name}</span>
+          <span className="spacer-left sw-ml-2">{organization.name}</span>
         )}
       </div>
 
