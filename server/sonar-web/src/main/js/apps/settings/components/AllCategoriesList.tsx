@@ -29,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import { CATEGORY_OVERRIDES } from '../constants';
+import { AI_CODE_FIX_CATEGORY, CATEGORY_OVERRIDES } from '../constants';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 
@@ -74,7 +74,7 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
           c.displayTab &&
           availableForCurrentMenu &&
           (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport) &&
-          (props.hasFeature(Feature.FixSuggestions) || c.key !== 'codefix')
+          (props.hasFeature(Feature.FixSuggestions) || c.key !== AI_CODE_FIX_CATEGORY)
         );
       }),
     );
