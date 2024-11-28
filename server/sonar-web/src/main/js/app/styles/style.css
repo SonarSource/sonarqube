@@ -177,3 +177,7 @@ code.rule {
 .hyperlink-text:hover {
   border-bottom: rgb(93, 108, 208);
 }
+
+.design-system-modal-contents{
+  overflow: auto;
+}
