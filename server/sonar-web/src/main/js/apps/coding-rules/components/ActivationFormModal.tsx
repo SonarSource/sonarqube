@@ -28,6 +28,8 @@ import {
   LabelValueSelectOption,
   Note,
   Switch,
+  DestructiveIcon,
+  TrashIcon,
 } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
@@ -339,9 +341,9 @@ export default function ActivationFormModal(props: Readonly<Props>) {
 
                         {!(index === params[param.key].length - 1) && (
                           <div className="display-inline-block spacer-left">
-                            <Button
-                              variety={ButtonVariety.Danger}
-                              isDisabled={submitting}
+                            <DestructiveIcon
+                              Icon={TrashIcon}
+                              className="js-remove-value"
                               onClick={() => handleDeleteValue(index, param.key)}
                             />
                           </div>

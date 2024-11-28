@@ -54,17 +54,19 @@ function IssueTagsPopup({ organization, selectedTags, setTags }: IssueTagsPopupP
   const availableTags = difference(searchResult, selectedTags);
 
   return (
-    <MultiSelector
-      headerLabel={translate('issue.tags')}
-      searchInputAriaLabel={translate('search.search_for_tags')}
-      createElementLabel={translate('issue.create_tag')}
-      noResultsLabel={translate('no_results')}
-      onSearch={onSearch}
-      onSelect={onSelect}
-      onUnselect={onUnselect}
-      selectedElements={selectedTags}
-      elements={availableTags}
-    />
+    <div style={{ maxHeight: '400px', overflowY: 'auto', }}>
+      <MultiSelector
+        headerLabel={translate('issue.tags')}
+        searchInputAriaLabel={translate('search.search_for_tags')}
+        createElementLabel={translate('issue.create_tag')}
+        noResultsLabel={translate('no_results')}
+        onSearch={onSearch}
+        onSelect={onSelect}
+        onUnselect={onUnselect}
+        selectedElements={selectedTags}
+        elements={availableTags}
+      />
+    </div>
   );
 }
 
