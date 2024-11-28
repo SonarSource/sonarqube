@@ -42,7 +42,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
   private static final List<Class<? extends ComputationStep>> STEPS = Arrays.asList(
     ExtractReportStep.class,
-    SendAnalysisTelemetryStep.class,
     PersistScannerContextStep.class,
     PersistAnalysisWarningsStep.class,
     GenerateAnalysisUuid.class,
@@ -53,6 +52,8 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     BuildComponentTreeStep.class,
     ValidateProjectStep.class,
     LoadQualityProfilesStep.class,
+
+    SendAnalysisTelemetryStep.class,
 
     // Dependencies
     BuildProjectDependenciesStep.class,

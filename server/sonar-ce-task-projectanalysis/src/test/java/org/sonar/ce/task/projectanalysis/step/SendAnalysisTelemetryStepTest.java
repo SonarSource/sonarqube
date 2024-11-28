@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -26,11 +27,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.project.Project;
 import org.sonar.telemetry.core.TelemetryClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,13 +52,15 @@ class SendAnalysisTelemetryStepTest {
   private final Server server = mock();
   private final ComputationStep.Context context = mock();
   private final Configuration configuration = mock();
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock();
   private final SendAnalysisTelemetryStep underTest = new SendAnalysisTelemetryStep(telemetryClient, batchReportReader, uuidFactory,
-    server, configuration);
+    server, configuration, analysisMetadataHolder);
 
   {
     when(uuidFactory.create()).thenReturn("uuid");
     when(server.getId()).thenReturn("serverId");
     when(configuration.getBoolean("sonar.telemetry.enable")).thenReturn(Optional.of(true));
+    when(analysisMetadataHolder.getProject()).thenReturn(new Project("uuid", "key", "name",null, Collections.emptyList()));
   }
 
   @Test

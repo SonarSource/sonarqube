@@ -19,15 +19,40 @@
  */
 package org.sonar.telemetry.core.schema;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
 public class AnalysisMetric extends Metric {
 
-  public AnalysisMetric(String key, String value) {
+  @JsonProperty("project_uuid")
+  private String projectUuid;
+
+  @JsonProperty("analysis_type")
+  private String analysisType;
+
+  public AnalysisMetric(String key, String value, String projectUuid, String analysisType) {
     this.key = key;
     this.value = value;
     this.type = TelemetryDataType.STRING;
     this.granularity = Granularity.ADHOC;
+    this.projectUuid = projectUuid;
+    this.analysisType = analysisType;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
+  public void setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+  }
+
+  public String getAnalysisType() {
+    return analysisType;
+  }
+
+  public void setAnalysisType(String analysisType) {
+    this.analysisType = analysisType;
   }
 }

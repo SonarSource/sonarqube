@@ -30,11 +30,23 @@ class AnalysisMetricTest {
 
   @Test
   void getters() {
-    AnalysisMetric metric = new AnalysisMetric("memory", "100");
+    AnalysisMetric metric = new AnalysisMetric("memory", "100", "projectUuid", "analysisType");
 
     assertThat(metric.getKey()).isEqualTo("memory");
     assertThat(metric.getValue()).isEqualTo("100");
+    assertThat(metric.getProjectUuid()).isEqualTo("projectUuid");
+    assertThat(metric.getAnalysisType()).isEqualTo("analysisType");
     assertThat(metric.getGranularity()).isEqualTo(Granularity.ADHOC);
     assertThat(metric.getType()).isEqualTo(TelemetryDataType.STRING);
+  }
+
+  @Test
+  void setters() {
+    AnalysisMetric metric = new AnalysisMetric("memory", "100", "projectUuid", "analysisType");
+    metric.setProjectUuid("newProjectUuid");
+    metric.setAnalysisType("newAnalysisType");
+
+    assertThat(metric.getProjectUuid()).isEqualTo("newProjectUuid");
+    assertThat(metric.getAnalysisType()).isEqualTo("newAnalysisType");
   }
 }
