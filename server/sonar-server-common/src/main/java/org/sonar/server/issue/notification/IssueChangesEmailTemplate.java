@@ -244,7 +244,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
       s.append("<small>");
       s.append("You received this email because you are subscribed to ")
         .append('"').append(i18n.message(Locale.ENGLISH, notificationI18nKey, notificationI18nKey)).append('"')
-        .append(" notifications from SonarQube.");
+        .append(" notifications from SonarQube Server.");
       s.append(" Click ");
       link(s, s1 -> s1.append(settings.getServerBaseURL()).append("/account/notifications"), s1 -> s1.append("here"));
       s.append(" to edit your email preferences.");

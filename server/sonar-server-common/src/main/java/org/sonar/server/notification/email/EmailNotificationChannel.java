@@ -287,7 +287,7 @@ public class EmailNotificationChannel extends NotificationChannel {
         email.addHeader(REFERENCES_HEADER, messageId);
       }
       // Set headers for proper filtering
-      email.addHeader(LIST_ID_HEADER, "SonarQube <sonar." + host + ">");
+      email.addHeader(LIST_ID_HEADER, "SonarQube Server <sonar." + host + ">");
       email.addHeader(LIST_ARCHIVE_HEADER, server.getPublicRootUrl());
     }
   }

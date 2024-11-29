@@ -329,7 +329,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
         // skip content
         HtmlListAssert htmlListAssert = skipContent.apply(htmlAssert);
 
-        String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from SonarQube."
+        String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from SonarQube Server."
           + " Click here to edit your email preferences.";
         htmlListAssert.hasEmptyParagraph()
           .hasParagraph(footerText)

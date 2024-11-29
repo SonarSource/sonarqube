@@ -39,10 +39,10 @@ public record EmailConfigurationResource(
   @Schema(description = "Address emails will come from")
   String fromAddress,
 
-  @Schema(description = "Name emails will come from (usually \"SonarQube\")")
+  @Schema(description = "Name emails will come from (usually \"SonarQube Server\")")
   String fromName,
 
-  @Schema(description = "Prefix added to email so they can be easily recognized (usually \"[SonarQube]\")")
+  @Schema(description = "Prefix added to email so they can be easily recognized (usually \"[SonarQube Server]\")")
   String subjectPrefix,
 
   @Schema(description = "Authentication method used to connect to the SMTP server. OAuth is only supported for Microsoft Exchange")

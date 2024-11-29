@@ -44,11 +44,11 @@ const EMAIL_CONFIGURATION_DEFAULT: EmailConfiguration = {
   authMethod: AuthMethod.Basic,
   basicPassword: '',
   fromAddress: '',
-  fromName: 'SonarQube',
+  fromName: 'SonarQube Server',
   host: '',
   port: '587',
   securityProtocol: '',
-  subjectPrefix: '[SonarQube]',
+  subjectPrefix: '[SonarQube Server]',
   username: '',
 };
 
