@@ -23,13 +23,15 @@ import { debounce } from 'lodash';
 import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import tw, { theme } from 'twin.macro';
-import { DEBOUNCE_DELAY } from '../../helpers/constants';
+import { DEBOUNCE_DELAY, INPUT_SIZES } from '../../helpers/constants';
 import { Key } from '../../helpers/keyboard';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
 import { InputSizeKeys } from '../../types/theme';
 import { InteractiveIcon } from '../InteractiveIcon';
 import { Spinner } from '../Spinner';
 import { CloseIcon } from '../icons/CloseIcon';
+
+const DEFAULT_MAX_LENGTH = 100;
 
 interface Props {
   autoFocus?: boolean;
@@ -39,7 +41,7 @@ interface Props {
   inputId?: string;
   loading?: boolean;
   maxLength?: number;
-  minLength?: number; // Added minLength
+  minLength?: number;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onChange: (value: string) => void;
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
@@ -50,8 +52,6 @@ interface Props {
   size?: InputSizeKeys;
   value?: string;
 }
-
-const DEFAULT_MAX_LENGTH = 100;
 
 export function InputSearch(props: PropsWithChildren<Props>) {
   const {
@@ -68,7 +68,8 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     placeholder,
     loading,
     maxLength = DEFAULT_MAX_LENGTH,
-    minLength = 0,
+    minLength = 0, // Added minLength with default value
+    size = 'medium', // Default size
     value: parentValue,
     searchInputAriaLabel,
   } = props;
@@ -101,6 +102,7 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     const eventValue = event.currentTarget.value;
     setValue(eventValue);
 
+    // Trigger onChange only if value length satisfies minLength or is empty
     if (eventValue.length === 0 || eventValue.length >= minLength) {
       debouncedOnChange(eventValue);
     }
@@ -121,7 +123,12 @@ export function InputSearch(props: PropsWithChildren<Props>) {
   };
 
   return (
-    <InputSearchWrapper className={className} id={id} onMouseDown={onMouseDown}>
+    <InputSearchWrapper
+      className={className}
+      id={id}
+      onMouseDown={onMouseDown}
+      style={{ '--inputSize': INPUT_SIZES[size] }}
+    >
       <StyledInputWrapper className="sw-flex sw-items-center">
         <input
           aria-label={searchInputAriaLabel ?? placeholder}
