@@ -50,13 +50,13 @@ const QUERY_STALE_TIME = 5 * 60 * 1000;
 
 const qualityQuery = {
   all: () => ['quality-gate'] as const,
-  list: () => [qualityQuery.all(), 'list'] as const,
-  details: () => [qualityQuery.all(), 'details'] as const,
+  list: () => [...qualityQuery.all(), 'list'] as const,
+  details: () => [...qualityQuery.all(), 'details'] as const,
   detail: (name?: string) => [...qualityQuery.details(), name ?? ''] as const,
-  projectsAssoc: () => [qualityQuery.all(), 'project-assoc'] as const,
+  projectsAssoc: () => [...qualityQuery.all(), 'project-assoc'] as const,
   projectAssoc: (project: string) => [...qualityQuery.projectsAssoc(), project] as const,
   allProjectsSearch: (qualityGate: string) =>
-    [qualityQuery.all(), 'all-project-search', qualityGate] as const,
+    [...qualityQuery.all(), 'all-project-search', qualityGate] as const,
 };
 
 // This is internal to "enable" query when searching from the project page
@@ -181,7 +181,7 @@ export function useDeleteQualityGateMutation(name: string) {
   });
 }
 
-export function useSetAiSupportedQualityGateMutation(name: string) {
+export function useSetAiSupportedQualityGateMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -195,9 +195,7 @@ export function useSetAiSupportedQualityGateMutation(name: string) {
       return setQualityGateAiQualified(name, isQualityGateAiSupported);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
-      queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
-      queryClient.invalidateQueries({ queryKey: qualityQuery.detail(name) });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.all() });
     },
   });
 }
@@ -383,3 +381,13 @@ export const useApplicationQualityGateStatus = createQueryHook(
     });
   },
 );
+
+/**
+ * @deprecated This is only for component that has not been migrated to react-query
+ */
+export function useInvalidateQualityGateQuery() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: qualityQuery.all() });
+  };
+}

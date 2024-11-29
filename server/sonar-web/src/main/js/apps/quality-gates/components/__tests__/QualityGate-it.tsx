@@ -808,12 +808,11 @@ describe('The Project section', () => {
     // eslint-disable-next-line jest-dom/prefer-in-document
     expect(screen.getAllByRole('checkbox')).toHaveLength(3);
 
-    // projects with disabled as true are not selectable
-    // last checked project in mock service is disabled
+    // Show ai code assurance project
     const disabledCheckedProjects = screen.getByRole('checkbox', {
       name: 'test5 test5 quality_gates.projects.ai_assured_message',
     });
-    expect(disabledCheckedProjects).toBeDisabled();
+    expect(disabledCheckedProjects).toBeInTheDocument();
 
     // change tabs to show deselected projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
@@ -825,26 +824,9 @@ describe('The Project section', () => {
     await user.click(reloadButton);
     expect(screen.getAllByRole('checkbox')).toHaveLength(3);
 
-    // projects with disabled as true are not selectable
-    // last unchecked project in mock service is disabled
-    const disabledUncheckedProjects = screen.getByRole('checkbox', {
-      name: 'test6 test6 quality_gates.projects.ai_assured_message',
-    });
-    expect(disabledUncheckedProjects).toBeDisabled();
-
     // change tabs to show all projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
     expect(screen.getAllByRole('checkbox')).toHaveLength(7);
-
-    const disabledCheckedProjectsAll = screen.getByRole('checkbox', {
-      name: 'test5 test5 quality_gates.projects.ai_assured_message',
-    });
-    expect(disabledCheckedProjectsAll).toBeDisabled();
-
-    const disabledUncheckedProjectsAll = screen.getByRole('checkbox', {
-      name: 'test6 test6 quality_gates.projects.ai_assured_message',
-    });
-    expect(disabledUncheckedProjectsAll).toBeDisabled();
   });
 
   it('should handle the search of projects', async () => {

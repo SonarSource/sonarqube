@@ -23,6 +23,7 @@ import * as React from 'react';
 import { FlagMessage } from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { translate } from '../../../helpers/l10n';
+import { useInvalidateQualityGateQuery } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
 import Conditions from './Conditions';
 import Projects from './Projects';
@@ -36,6 +37,7 @@ export interface DetailsContentProps {
 export function DetailsContent(props: DetailsContentProps) {
   const { qualityGate, isFetching } = props;
   const actions = qualityGate.actions ?? {};
+  const invalidateQueryCache = useInvalidateQualityGateQuery();
 
   return (
     <div>
@@ -64,6 +66,7 @@ export function DetailsContent(props: DetailsContentProps) {
           ) : (
             <Projects
               canEdit={actions.associateProjects}
+              onUpdate={invalidateQueryCache}
               // pass unique key to re-mount the component when the quality gate changes
               key={qualityGate.name}
               qualityGate={qualityGate}

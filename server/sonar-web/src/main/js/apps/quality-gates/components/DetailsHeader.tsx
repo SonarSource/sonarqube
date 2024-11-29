@@ -61,9 +61,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
     actions.setAsDefault,
   ])['true'];
   const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation();
-  const { mutateAsync: setAiSupportedQualityGate } = useSetAiSupportedQualityGateMutation(
-    qualityGate.name,
-  );
+  const { mutateAsync: setAiSupportedQualityGate } = useSetAiSupportedQualityGateMutation();
   const { data: qualityGateProjectsHavingAiCode = [], isLoading: isCountLoading } =
     useGetAllQualityGateProjectsQuery(
       { gateName: qualityGate.name, selected: 'selected' },
