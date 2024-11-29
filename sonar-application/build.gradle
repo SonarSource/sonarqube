@@ -70,17 +70,19 @@ dependencies {
 
     scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
     cyclonedx project(path: ':sonar-scanner-engine-shaded')
-    web project(':server:sonar-web')
     shutdowner project(':sonar-shutdowner')
 
     jdbc_h2 'com.h2database:h2'
     jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
     jdbc_postgresql 'org.postgresql:postgresql'
 
+
     def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+    
     if (artifactoryUsername && artifactoryPassword) {
       zipDist "sonarqube:elasticsearch:${elasticSearchServerVersion}-no-jdk@tar.gz"
+      webapp 'com.sonarsource.sonarqube:webapp-assets'
     } else {
       zipDist "elasticsearch:elasticsearch:${elasticSearchServerVersion}-linux-x86_64@tar.gz"
     }
@@ -307,16 +309,23 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
   }
   into("${archiveDir}/web/") {
     duplicatesStrategy DuplicatesStrategy.FAIL
-    // FIXME use configurations.web with correct artifacts
-    from(tasks.getByPath(':server:sonar-web:yarn_run').outputs) { a ->
-      if (official) {
-         project(':private:branding').fileTree('src').visit { b ->
-           if (!b.isDirectory()) {
-             a.exclude b.relativePath.toString()
-           }
-         }
-      }
+
+    def webappBuildPath = System.getenv('WEBAPP_BUILD_PATH') 
+
+    def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+    if (webappBuildPath == null && artifactoryUsername && artifactoryPassword) {
+      from(zipTree(configurations.webapp.singleFile))
+
+    } else {
+      // TODO: fix default location!
+      webappBuildPath ?= "../sonarqube-webapp/server/sonar-web/build/webapp"
+
+      assert rootProject.file(webappBuildPath).exists()
+
+      from(rootProject.fileTree(webappBuildPath))
     }
+
     if (official) {
       from project(':private:branding').file('src')
     }
