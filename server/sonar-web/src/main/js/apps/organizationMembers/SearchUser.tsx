@@ -92,7 +92,7 @@ const CustomSearchInput: React.FC<CustomSearchInputProps> = ({
           </button>
         )}
       </div>
-      <div className={`dropdown-panel ${options.length > 0 ? 'open' : ''}`}>
+      <div className={`custom-dropdown-panel ${options.length > 0 ? 'open' : ''}`}>
         {options.map((user) => (
           <div key={user.value} className="dropdown-option" onClick={() => handleSelect(user)}>
             {user.login}

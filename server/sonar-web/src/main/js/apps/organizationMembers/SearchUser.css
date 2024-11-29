@@ -19,7 +19,7 @@
   box-shadow: 0 0 0 3px rgba(106, 149, 255, 0.3);
 }
 
-.dropdown-panel {
+.custom-dropdown-panel {
   position: absolute;
   width: 100%;
   max-height: 200px;
@@ -35,7 +35,7 @@
   display: none; /* Default to hidden */
 }
 
-.dropdown-panel.open {
+.custom-dropdown-panel.open {
   display: block; /* Show when open */
 }
 
