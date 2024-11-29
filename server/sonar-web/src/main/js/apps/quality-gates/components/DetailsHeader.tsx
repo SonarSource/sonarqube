@@ -78,7 +78,10 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
   };
 
   const handleSetQualityGateAiCodeAssurance = () => {
-    if (qualityGateProjectsHavingAiCode?.length > 0 && qualityGate.isAiCodeSupported) {
+    if (
+      (qualityGateProjectsHavingAiCode?.length > 0 && qualityGate.isAiCodeSupported) ||
+      (qualityGate.isDefault && qualityGate.isAiCodeSupported)
+    ) {
       setIsQualifyAiFormOpen(true);
       return;
     }
@@ -241,6 +244,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
       {isQualifyAiFormOpen && (
         <DisqualifyAiQualityGateForm
           onClose={() => setIsQualifyAiFormOpen(false)}
+          isDefault={qualityGate.isDefault}
           onConfirm={updateQualityGateAiCodeAssurance}
           count={qualityGateProjectsHavingAiCode.length}
         />

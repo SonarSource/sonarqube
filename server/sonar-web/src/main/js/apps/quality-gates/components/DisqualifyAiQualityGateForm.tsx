@@ -23,6 +23,7 @@ import { useIntl } from 'react-intl';
 
 interface Props {
   count: number;
+  isDefault?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -30,6 +31,7 @@ interface Props {
 export default function DisqualifyAiQualityGateForm({
   onConfirm,
   onClose,
+  isDefault = false,
   count = 0,
 }: Readonly<Props>) {
   const intl = useIntl();
@@ -38,15 +40,24 @@ export default function DisqualifyAiQualityGateForm({
     <Modal
       isOpen
       size={ModalSize.Wide}
-      title={intl.formatMessage({ id: 'quality_gates.disqualify_ai_modal.title' }, { count })}
+      title={
+        isDefault
+          ? intl.formatMessage({ id: 'quality_gates.disqualify_ai_modal_default.title' })
+          : intl.formatMessage({ id: 'quality_gates.disqualify_ai_modal.title' }, { count })
+      }
       onOpenChange={onClose}
       content={
         <>
           <p>
-            {intl.formatMessage(
-              { id: 'quality_gates.disqualify_ai_modal.content.line1' },
-              { count },
-            )}
+            {isDefault
+              ? intl.formatMessage(
+                  { id: 'quality_gates.disqualify_ai_modal_default.content.line1' },
+                  { count },
+                )
+              : intl.formatMessage(
+                  { id: 'quality_gates.disqualify_ai_modal.content.line1' },
+                  { count },
+                )}
           </p>
           <br />
           <p>{intl.formatMessage({ id: 'quality_gates.disqualify_ai_modal.content.line2' })}</p>
