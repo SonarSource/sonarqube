@@ -136,7 +136,10 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
               id="quality_gates.ai_generated.description"
               values={{
                 link: (
-                  <DocumentationLink shouldOpenInNewTab to={DocLink.AiCodeAssurance}>
+                  <DocumentationLink
+                    shouldOpenInNewTab
+                    to={DocLink.AiCodeAssuranceQualifyQualityGate}
+                  >
                     {translate('quality_gates.ai_generated.description.clean_ai_generated_code')}
                   </DocumentationLink>
                 ),
