@@ -1,23 +1,3 @@
-/*
- * SonarQube
- * Copyright (C) 2009-2024 SonarSource SA
- * mailto:info AT sonarsource DOT com
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
-
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import {
   DropdownMenu,
@@ -30,10 +10,10 @@ import {
   Spinner,
 } from 'design-system';
 import * as React from 'react';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getSuggestions } from '../../../api/components';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
+import { ComponentQualifier } from '../../../sonar-aligned/types/component';
 import { NotificationProject } from '../../../types/notifications';
 
 interface Props {
@@ -48,11 +28,11 @@ interface State {
   query?: string;
   selectedProject?: NotificationProject;
   suggestions?: NotificationProject[];
+  preventOnChange?: boolean;
 }
 
 export default class ProjectModal extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State;
 
   constructor(props: Props) {
     super(props);
@@ -88,7 +68,6 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
   getCurrentIndex = () => {
     const { highlighted, suggestions } = this.state;
-
     return highlighted && suggestions
       ? suggestions.findIndex((suggestion) => suggestion.project === highlighted.project)
       : -1;
@@ -96,7 +75,6 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
   highlightIndex = (index: number) => {
     const { suggestions } = this.state;
-
     if (suggestions && suggestions.length > 0) {
       if (index < 0) {
         index = suggestions.length - 1;
@@ -104,9 +82,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
         index = 0;
       }
 
-      this.setState({
-        highlighted: suggestions[index],
-      });
+      this.setState({ highlighted: suggestions[index] });
     }
   };
 
@@ -120,38 +96,48 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
   handleSelectHighlighted = () => {
     const { highlighted } = this.state;
-
-    if (highlighted !== undefined) {
+    if (highlighted) {
       this.handleSelect(highlighted);
     }
   };
 
   handleSearch = (query: string) => {
     const { addedProjects } = this.props;
+    const { preventOnChange } = this.state;
+
+    if (preventOnChange) {
+      return;
+    }
+
+    if (query === '') {
+      this.setState({
+        query: '',
+        selectedProject: undefined,
+        suggestions: [],
+      });
+      return;
+    }
 
     if (query.length < 2) {
       this.setState({ query, selectedProject: undefined, suggestions: undefined });
-
       return;
     }
 
     this.setState({ loading: true, query, selectedProject: undefined });
 
     getSuggestions(query).then(
-      (r) => {
+      (response) => {
         if (this.mounted) {
-          let suggestions = undefined;
+          const projectDomain = response.results.find(
+            (domain: any) => domain.q === ComponentQualifier.Project,
+          );
 
-          const projects = r.results.find((domain) => domain.q === ComponentQualifier.Project);
-
-          if (projects && projects.items.length > 0) {
-            suggestions = projects.items
-              .filter((item) => !addedProjects.find((p) => p.project === item.key))
-              .map((item) => ({
-                project: item.key,
-                projectName: item.name,
-              }));
-          }
+          const suggestions = projectDomain?.items
+            .filter((item) => !addedProjects.find((p) => p.project === item.key))
+            .map((item) => ({
+              project: item.key,
+              projectName: item.name,
+            }));
 
           this.setState({ loading: false, suggestions });
         }
@@ -165,11 +151,17 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
   };
 
   handleSelect = (selectedProject: NotificationProject) => {
-    this.setState({
-      query: selectedProject.projectName,
-      selectedProject,
-      suggestions: undefined,
-    });
+    this.setState(
+      {
+        query: selectedProject.projectName,
+        selectedProject,
+        suggestions: undefined,
+        preventOnChange: true,
+      },
+      () => {
+        setTimeout(() => this.setState({ preventOnChange: false }), 0);
+      },
+    );
   };
 
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -187,7 +179,6 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
     const projectSuggestion = (suggestion: NotificationProject) => (
       <ItemButton
-        className="sw-my-1"
         key={suggestion.project}
         onClick={() => this.handleSelect(suggestion)}
         selected={
@@ -200,7 +191,6 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
     );
 
     const isSearching = query?.length && !selectedProject;
-
     const noResults = isSearching ? (
       <div className="sw-mx-5 sw-my-3">{translate('no_results')}</div>
     ) : undefined;
@@ -241,7 +231,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
                 placeholder={translate('my_account.set_notifications_for')}
                 searchInputAriaLabel={translate('search_verb')}
                 size="full"
-                value={query}
+                value={this.state.query}
               />
             </Popup>
           </form>

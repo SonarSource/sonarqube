@@ -19,7 +19,6 @@
  */
 import styled from '@emotion/styled';
 import { IconSearch } from '@sonarsource/echoes-react';
-import classNames from 'classnames';
 import { debounce } from 'lodash';
 import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -27,7 +26,6 @@ import tw, { theme } from 'twin.macro';
 import { DEBOUNCE_DELAY, INPUT_SIZES } from '../../helpers/constants';
 import { Key } from '../../helpers/keyboard';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
-import { isDefined } from '../../helpers/types';
 import { InputSizeKeys } from '../../types/theme';
 import { InteractiveIcon } from '../InteractiveIcon';
 import { Spinner } from '../Spinner';
@@ -69,7 +67,6 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     onMouseDown,
     placeholder,
     loading,
-    minLength,
     maxLength = DEFAULT_MAX_LENGTH,
     size = 'medium',
     value: parentValue,
@@ -78,6 +75,7 @@ export function InputSearch(props: PropsWithChildren<Props>) {
   const intl = useIntl();
   const input = useRef<null | HTMLElement>(null);
   const [value, setValue] = useState(parentValue ?? '');
+
   const debouncedOnChange = useMemo(
     () =>
       debounce((val: string) => {
@@ -86,19 +84,11 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     [onChange],
   );
 
-  const tooShort = isDefined(minLength) && value.length > 0 && value.length < minLength;
-  const inputClassName = classNames('js-input-search', {
-    touched: value.length > 0 && (!minLength || minLength > value.length),
-    'sw-pr-10': value.length > 0,
-  });
-
   useEffect(() => {
-    // initially letting parentValue control the value of the input
-    // later the value is controlled by the local value state
-    if (parentValue === '' || (parentValue !== undefined && value === '')) {
+    if (parentValue !== undefined && parentValue !== value) {
       setValue(parentValue);
     }
-  }, [parentValue]); // eslint-disable-line
+  }, [parentValue]);
 
   useEffect(() => {
     if (autoFocus && input.current) {
@@ -106,17 +96,12 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     }
   }, [autoFocus]);
 
-  const changeValue = (newValue: string) => {
-    if (newValue.length === 0 || !minLength || minLength <= newValue.length) {
-      debouncedOnChange(newValue);
-    }
-  };
-
-  const handleInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const eventValue = event.currentTarget.value;
     setValue(eventValue);
-    changeValue(eventValue);
+    debouncedOnChange(eventValue);
   };
+
 
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === Key.Escape) {
@@ -127,13 +112,9 @@ export function InputSearch(props: PropsWithChildren<Props>) {
   };
 
   const handleClearClick = () => {
-    onChange('');
     setValue('');
+    onChange('');
     input.current?.focus();
-  };
-  const ref = (node: HTMLInputElement | null) => {
-    input.current = node;
-    innerRef?.(node);
   };
 
   return (
@@ -142,17 +123,12 @@ export function InputSearch(props: PropsWithChildren<Props>) {
       id={id}
       onMouseDown={onMouseDown}
       style={{ '--inputSize': INPUT_SIZES[size] }}
-      title={
-        tooShort && isDefined(minLength)
-          ? intl.formatMessage({ id: 'select2.tooShort' }, { 0: minLength })
-          : ''
-      }
     >
       <StyledInputWrapper className="sw-flex sw-items-center">
         <input
           aria-label={searchInputAriaLabel ?? placeholder}
           autoComplete="off"
-          className={inputClassName}
+          className="js-input-search"
           id={inputId}
           maxLength={maxLength}
           onBlur={onBlur}
@@ -160,7 +136,10 @@ export function InputSearch(props: PropsWithChildren<Props>) {
           onFocus={onFocus}
           onKeyDown={handleInputKeyDown}
           placeholder={placeholder}
-          ref={ref}
+          ref={(node) => {
+            input.current = node;
+            innerRef?.(node);
+          }}
           role="searchbox"
           type="search"
           value={value}
@@ -174,16 +153,9 @@ export function InputSearch(props: PropsWithChildren<Props>) {
           <StyledInteractiveIcon
             Icon={CloseIcon}
             aria-label={intl.formatMessage({ id: 'clear' })}
-            className="it__search-box-clear"
             onClick={handleClearClick}
             size="small"
           />
-        )}
-
-        {tooShort && isDefined(minLength) && (
-          <StyledNote className="sw-ml-1" role="note">
-            {intl.formatMessage({ id: 'select2.tooShort' }, { 0: minLength })}
-          </StyledNote>
         )}
       </StyledInputWrapper>
     </InputSearchWrapper>
