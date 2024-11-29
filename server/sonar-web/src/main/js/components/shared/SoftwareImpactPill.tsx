@@ -119,7 +119,10 @@ export default function SoftwareImpactPill(props: Props) {
 
   return (
     <Popover
-      title={translate('severity_impact.title')}
+      title={intl.formatMessage(
+        { id: 'severity_impact.title' },
+        { x: translate('severity_impact', severity) },
+      )}
       description={
         <>
           <FormattedMessage
@@ -129,10 +132,15 @@ export default function SoftwareImpactPill(props: Props) {
               quality: quality.toLowerCase(),
             }}
           />
-          <p className="sw-mt-2">
-            <span className="sw-mr-1">{translate('severity_impact.help.line1')}</span>
-            {type === 'issue' && translate('severity_impact.help.line2')}
-          </p>
+          <div className="sw-mt-2">
+            {intl.formatMessage(
+              { id: `severity_impact.help.description` },
+              {
+                p1: (text) => <p>{text}</p>,
+                p: (text) => (type === 'issue' ? <p className="sw-mt-2">{text}</p> : ''),
+              },
+            )}
+          </div>
         </>
       }
       footer={

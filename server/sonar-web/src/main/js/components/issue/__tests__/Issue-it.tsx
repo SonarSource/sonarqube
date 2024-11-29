@@ -219,7 +219,7 @@ describe('updating', () => {
       ui.softwareQualitySeverity(SoftwareImpactSeverity.Medium).query(),
     ).not.toBeInTheDocument();
     // popover visible
-    expect(byRole('heading', { name: 'severity_impact.title' }).get()).toBeInTheDocument();
+    expect(byRole('heading', { name: /severity_impact.title/ }).get()).toBeInTheDocument();
   });
 
   it('should allow updating the severity in Standard experience', async () => {
