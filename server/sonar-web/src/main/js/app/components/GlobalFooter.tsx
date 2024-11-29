@@ -27,6 +27,7 @@ import AppVersionStatus from '../../components/shared/AppVersionStatus';
 import { COMMUNITY_FORUM_URL, DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
+import { EditionKey } from '../../types/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import { useAppState } from './app-state/withAppStateContext';
 
@@ -40,6 +41,8 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
   const intl = useIntl();
 
   const docUrl = useDocUrl();
+
+  const isCommunityBuildRunning = appState.edition === EditionKey.community;
 
   return (
     <StyledFooter className="sw-p-6" id="footer">
@@ -73,12 +76,21 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             )}
 
             <li>
-              <LinkStandalone
-                highlight={LinkHighlight.CurrentColor}
-                to="https://www.gnu.org/licenses/lgpl-3.0.txt"
-              >
-                {intl.formatMessage({ id: 'footer.license' })}
-              </LinkStandalone>
+              {isCommunityBuildRunning ? (
+                <LinkStandalone
+                  highlight={LinkHighlight.CurrentColor}
+                  to="https://www.gnu.org/licenses/lgpl-3.0.txt"
+                >
+                  {intl.formatMessage({ id: 'footer.license.lgplv3' })}
+                </LinkStandalone>
+              ) : (
+                <LinkStandalone
+                  highlight={LinkHighlight.CurrentColor}
+                  to="https://www.sonarsource.com/legal/sonarqube/terms-and-conditions/"
+                >
+                  {intl.formatMessage({ id: 'footer.license.sqs' })}
+                </LinkStandalone>
+              )}
             </li>
 
             <li>
