@@ -39,7 +39,6 @@ interface Props {
   inputId?: string;
   loading?: boolean;
   maxLength?: number;
-  minLength?: number;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onChange: (value: string) => void;
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
@@ -101,7 +100,6 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     setValue(eventValue);
     debouncedOnChange(eventValue);
   };
-
 
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === Key.Escape) {
