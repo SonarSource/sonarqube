@@ -32,8 +32,8 @@ public class MQRAndStandardModesExistTemplate implements EmailTemplate {
 
     boolean isMQREnabled = ((MQRAndStandardModesExistNotification) notification).isMQRModeEnabled();
     String message = """
-      In this version of SonarQube Server, there are two options to reflect the health of all the projects: Multi-Quality Rule (MQR) Mode and Standard Experience.
-      The SonarQube Server documentation explains more.
+      In this version of SonarQube, there are two options to reflect the health of all the projects: Multi-Quality Rule (MQR) Mode and Standard Experience.
+      The SonarQube documentation explains more.
 
       Your instance is currently using the %s.
 
@@ -44,7 +44,7 @@ public class MQRAndStandardModesExistTemplate implements EmailTemplate {
     // And finally return the email that will be sent
     return new EmailMessage()
       .setMessageId(MQRAndStandardModesExistNotification.TYPE)
-      .setSubject("Your SonarQube Server instance is in %s"
+      .setSubject("Your SonarQube instance is in %s"
         .formatted(isMQREnabled ? "Multi-Quality Rule (MQR) Mode" : "Standard Experience"))
       .setPlainTextMessage(message);
   }

@@ -31,26 +31,26 @@ class QualityGateMetricsUpdateTemplateTest {
   void format_whenStandardExperience_shouldReturnExpectEmailMessage() {
     Assertions.assertThat(underTest.format(new QualityGateMetricsUpdateNotification(false)))
       .extracting(EmailMessage::getSubject, EmailMessage::getMessage)
-      .containsExactly("Update your SonarQube Server's Quality Gate metrics",
+      .containsExactly("Information about your SonarQube Quality Gate metrics",
         """
-          We are sending this message because this version of SonarQube Server is in Standard Experience and some of your quality gates conditions are using metrics from Multi-Quality Rule (MQR) Mode.
+          We are sending this message because this version of SonarQube is in Standard Experience and some of your quality gates conditions are using metrics from Multi-Quality Rule (MQR) Mode.
 
           We recommend you update them to ensure the most accurate categorization and ranking of your issues.
 
-          If you would like to update your quality gates, go to the Quality Gates page in the SonarQube Server UI and we will guide you through the process.""");
+          If you would like to update your quality gates, go to the Quality Gates page in the SonarQube UI and we will guide you through the process.""");
   }
 
   @Test
   void format_whenMQRMode_shouldReturnExpectEmailMessage() {
     Assertions.assertThat(underTest.format(new QualityGateMetricsUpdateNotification(true)))
       .extracting(EmailMessage::getSubject, EmailMessage::getMessage)
-      .containsExactly("Update your SonarQube Server's Quality Gate metrics",
+      .containsExactly("Information about your SonarQube Quality Gate metrics",
         """
-          We are sending this message because this version of SonarQube Server is in Multi-Quality Rule (MQR) Mode and some of your quality gates conditions are using metrics from Standard Experience.
+          We are sending this message because this version of SonarQube is in Multi-Quality Rule (MQR) Mode and some of your quality gates conditions are using metrics from Standard Experience.
 
           We recommend you update them to ensure the most accurate categorization and ranking of your issues.
 
-          If you would like to update your quality gates, go to the Quality Gates page in the SonarQube Server UI and we will guide you through the process.""");
+          If you would like to update your quality gates, go to the Quality Gates page in the SonarQube UI and we will guide you through the process.""");
   }
 
   @Test

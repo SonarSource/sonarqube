@@ -40,19 +40,19 @@ public class QualityGateMetricsUpdateTemplate implements EmailTemplate {
     // And finally return the email that will be sent
     return new EmailMessage()
       .setMessageId(MQRAndStandardModesExistNotification.TYPE)
-      .setSubject("Update your SonarQube Server's Quality Gate metrics")
+      .setSubject("Information about your SonarQube Quality Gate metrics")
       .setPlainTextMessage(message);
   }
 
   @NotNull
   private static String retrieveMessage(QualityGateMetricsUpdateNotification notification) {
     StringBuilder message = new StringBuilder();
-    message.append("We are sending this message because this version of SonarQube Server is in ");
+    message.append("We are sending this message because this version of SonarQube is in ");
     message.append(notification.isMQRModeEnabled() ? MQR_MODE : STANDARD_EXPERIENCE);
     message.append(" and some of your quality gates conditions are using metrics from ");
     message.append(notification.isMQRModeEnabled() ? STANDARD_EXPERIENCE : MQR_MODE);
     message.append(".\n\nWe recommend you update them to ensure the most accurate categorization and ranking of your issues.\n\n");
-    message.append("If you would like to update your quality gates, go to the Quality Gates page in the SonarQube Server UI and we will guide you through the process.");
+    message.append("If you would like to update your quality gates, go to the Quality Gates page in the SonarQube UI and we will guide you through the process.");
     return message.toString();
   }
 }

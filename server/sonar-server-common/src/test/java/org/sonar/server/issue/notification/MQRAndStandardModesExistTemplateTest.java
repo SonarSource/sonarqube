@@ -31,10 +31,10 @@ class MQRAndStandardModesExistTemplateTest {
   void format_whenStandardExperience_shouldReturnExpectEmailMessage() {
     Assertions.assertThat(underTest.format(new MQRAndStandardModesExistNotification(false)))
       .extracting(EmailMessage::getSubject, EmailMessage::getMessage)
-      .containsExactly("Your SonarQube Server instance is in Standard Experience",
+      .containsExactly("Your SonarQube instance is in Standard Experience",
         """
-          In this version of SonarQube Server, there are two options to reflect the health of all the projects: Multi-Quality Rule (MQR) Mode and Standard Experience.
-          The SonarQube Server documentation explains more.
+          In this version of SonarQube, there are two options to reflect the health of all the projects: Multi-Quality Rule (MQR) Mode and Standard Experience.
+          The SonarQube documentation explains more.
 
           Your instance is currently using the Standard Experience.
 
@@ -46,10 +46,10 @@ class MQRAndStandardModesExistTemplateTest {
   void format_whenMQRMode_shouldReturnExpectEmailMessage() {
     Assertions.assertThat(underTest.format(new MQRAndStandardModesExistNotification(true)))
       .extracting(EmailMessage::getSubject, EmailMessage::getMessage)
-      .containsExactly("Your SonarQube Server instance is in Multi-Quality Rule (MQR) Mode",
+      .containsExactly("Your SonarQube instance is in Multi-Quality Rule (MQR) Mode",
         """
-          In this version of SonarQube Server, there are two options to reflect the health of all the projects: Multi-Quality Rule (MQR) Mode and Standard Experience.
-          The SonarQube Server documentation explains more.
+          In this version of SonarQube, there are two options to reflect the health of all the projects: Multi-Quality Rule (MQR) Mode and Standard Experience.
+          The SonarQube documentation explains more.
 
           Your instance is currently using the Multi-Quality Rule (MQR) Mode.
 
