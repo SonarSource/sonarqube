@@ -51,8 +51,8 @@ public class QualityGateMetricsUpdateTemplate implements EmailTemplate {
     message.append(notification.isMQRModeEnabled() ? MQR_MODE : STANDARD_EXPERIENCE);
     message.append(" and some of your quality gates conditions are using metrics from ");
     message.append(notification.isMQRModeEnabled() ? STANDARD_EXPERIENCE : MQR_MODE);
-    message.append(".\n\nWe recommend you update them to ensure accurate categorization and ranking of your issues.\n\n");
-    message.append("Go to the Quality Gates page, and we will guide you through the process.");
+    message.append(".\n\nWe recommend you update them to ensure the most accurate categorization and ranking of your issues.\n\n");
+    message.append("If you would like to update your quality gates, go to the Quality Gates page in the SonarQube Server UI and we will guide you through the process.");
     return message.toString();
   }
 }

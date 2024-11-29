@@ -35,9 +35,9 @@ class QualityGateMetricsUpdateTemplateTest {
         """
           We are sending this message because this version of SonarQube Server is in Standard Experience and some of your quality gates conditions are using metrics from Multi-Quality Rule (MQR) Mode.
 
-          We recommend you update them to ensure accurate categorization and ranking of your issues.
+          We recommend you update them to ensure the most accurate categorization and ranking of your issues.
 
-          Go to the Quality Gates page, and we will guide you through the process.""");
+          If you would like to update your quality gates, go to the Quality Gates page in the SonarQube Server UI and we will guide you through the process.""");
   }
 
   @Test
@@ -48,9 +48,9 @@ class QualityGateMetricsUpdateTemplateTest {
         """
           We are sending this message because this version of SonarQube Server is in Multi-Quality Rule (MQR) Mode and some of your quality gates conditions are using metrics from Standard Experience.
 
-          We recommend you update them to ensure accurate categorization and ranking of your issues.
+          We recommend you update them to ensure the most accurate categorization and ranking of your issues.
 
-          Go to the Quality Gates page, and we will guide you through the process.""");
+          If you would like to update your quality gates, go to the Quality Gates page in the SonarQube Server UI and we will guide you through the process.""");
   }
 
   @Test
