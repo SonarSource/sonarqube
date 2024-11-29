@@ -22,6 +22,7 @@ import { Checkbox, ListItem, UnorderedList, themeBorder } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SelectListFilter } from './SelectList';
+import "./SelectListContainer.css";
 import SelectListListElement from './SelectListListElement';
 
 interface Props {
@@ -100,7 +101,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
     const { allowBulkSelection, elements, filter } = this.props;
 
     return (
-      <ListContainer className="sw-mt-2 sw-p-3 sw-rounded-1 it__select-list-list-container">
+      <ListContainer className="sw-mt-2 sw-p-3 sw-rounded-1 list-container-height it__select-list-list-container">
         <UnorderedList className="-sw-mt-3">
           {allowBulkSelection &&
             elements.length > 0 &&

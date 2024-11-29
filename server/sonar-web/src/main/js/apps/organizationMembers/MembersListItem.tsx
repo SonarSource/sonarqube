@@ -30,6 +30,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Group, Organization, OrganizationMember } from '../../types/types';
 import ManageMemberGroupsForm from './ManageMemberGroupsForm';
 import RemoveMemberForm from './RemoveMemberForm';
+import {UserGroup} from "../../api/users";
 
 interface Props {
   member: OrganizationMember;
@@ -38,8 +39,8 @@ interface Props {
   removeMember?: (member: OrganizationMember) => void;
   updateMemberGroups: (
     member: OrganizationMember,
-    add: string[],
-    remove: string[],
+    add: UserGroup[],
+    remove: UserGroup[],
   ) => Promise<void>;
 }
 

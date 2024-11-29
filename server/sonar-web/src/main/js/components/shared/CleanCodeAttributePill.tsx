@@ -50,11 +50,6 @@ export function CleanCodeAttributePill(props: Readonly<Props>) {
         cleanCodeAttribute ?? cleanCodeAttributeCategory,
         'advice',
       )}
-      footer={
-        <DocumentationLink to={DocLink.CleanCodeIntroduction}>
-          {translate('learn_more')}
-        </DocumentationLink>
-      }
     >
       <Pill variant={PillVariant.Accent} data-guiding-id="issue-1" className={className}>
         <span className="sw-font-semibold">

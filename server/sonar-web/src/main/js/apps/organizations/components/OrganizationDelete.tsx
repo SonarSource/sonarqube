@@ -114,11 +114,11 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
                   </FlagMessage>
                 )}
                 <p>{translate('organization.delete.question')}</p>
-                <div className="spacer-top">
+                <div className="spacer-top sw-my-4">
                   <label htmlFor="downgrade-organization-name">
                     {translate('billing.downgrade.modal.type_to_proceed')}
                   </label>
-                  <div className="little-spacer-top">
+                  <div className="little-spacer-top sw-my-4">
                     <InputField
                       autoFocus={true}
                       className="input-super-large"

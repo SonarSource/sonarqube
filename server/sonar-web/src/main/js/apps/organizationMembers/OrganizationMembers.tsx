@@ -35,6 +35,7 @@ import {
   useAddGroupMembershipMutation,
   useRemoveGroupMembershipMutation
 } from "../../queries/group-memberships";
+import {UserGroup} from "../../api/users";
 
 interface Props {
   currentUser: LoggedInUser;
@@ -137,28 +138,28 @@ function OrganizationMembers({ currentUser, organization }: Props) {
   };
 
   const updateGroup = (
-    login: string,
-    updater: (member: OrganizationMember) => OrganizationMember
+      uuid: string,
+      updater: (member: OrganizationMember) => OrganizationMember
   ) => {
-    setMembers(members && members.map(member => (member.login === login ? updater(member) : member)));
+    setMembers(members && members.map(member => (member.uuid === uuid ? updater(member) : member)));
   };
 
-  const updateMemberGroups = ({ login }: OrganizationMember, add: string[], remove: string[]) => {
+  const updateMemberGroups = ({ uuid }: OrganizationMember, add: UserGroup[], remove: UserGroup[]) => {
     // TODO optimistic update
     const promises = [
-      ...add.map(name =>
-        addUserToGroup({ name, login, organization: organization.kee })
+      ...add.map(grp =>
+        addUserToGroup({ groupId: grp.id, userId: uuid, organization: organization.kee })
       ),
-      ...remove.map(name =>
+      ...remove.map(grp =>
         removeUserFromGroup({
           organization: organization.kee,
-          name,
-          login,
+          groupId: grp.id,
+          userId: uuid,
         })
       )
     ]
     return Promise.all(promises).then(() => {
-      updateGroup(login, member => ({
+      updateGroup(uuid, member => ({
         ...member,
         groupCount: (member.groupCount || 0) + add.length - remove.length
       }));
