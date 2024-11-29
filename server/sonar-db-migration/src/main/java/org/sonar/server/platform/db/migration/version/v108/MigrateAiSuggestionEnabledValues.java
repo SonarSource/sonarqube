@@ -36,7 +36,6 @@ public class MigrateAiSuggestionEnabledValues extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-
     var isAiCodeFixEnabledOptional = Optional.ofNullable(context.prepareSelect("select text_value from properties where prop_key=?")
       .setString(1, AI_CODEFIX_ENABLED_PROP_KEY)
       .get(r -> r.getBoolean(1)));
@@ -49,7 +48,8 @@ public class MigrateAiSuggestionEnabledValues extends DataChange {
         .execute()
         .commit();
       if (isAiCodeFixEnabled) {
-        context.prepareUpsert("update projects set ai_code_fix_enabled=true")
+        context.prepareUpsert("update projects set ai_code_fix_enabled = ?")
+          .setBoolean(1, true)
           .execute()
           .commit();
       }

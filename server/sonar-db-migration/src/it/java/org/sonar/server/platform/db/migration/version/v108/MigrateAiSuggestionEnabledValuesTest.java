@@ -44,8 +44,8 @@ class MigrateAiSuggestionEnabledValuesTest {
   void execute_shouldNotUpdateAnything_whenThePropertyDoesNotExists() throws SQLException {
     underTest.execute();
 
-    assertThat(db.countSql(String.format("select count(1) from properties where prop_key = '%s'", AI_CODEFIX_ENABLED_PROP_KEY))).isZero();
-    assertThat(db.countSql("select count(1) from projects where ai_code_fix_enabled is true")).isZero();
+    assertThat(db.countSql(String.format("select count(*) from properties where prop_key = '%s'", AI_CODEFIX_ENABLED_PROP_KEY))).isZero();
+    assertThat(db.countSql("select count(*) from projects where ai_code_fix_enabled = " + getBool(true))).isZero();
   }
 
   @Test
@@ -57,7 +57,7 @@ class MigrateAiSuggestionEnabledValuesTest {
       .extracting(r -> r.get("TEXT_VALUE"))
       .containsExactly(DISABLED);
 
-    assertThat(db.countSql("select count(1) from projects where ai_code_fix_enabled is true")).isZero();
+    assertThat(db.countSql("select count(*) from projects where ai_code_fix_enabled = " + getBool(true))).isZero();
   }
 
   @Test
@@ -69,7 +69,8 @@ class MigrateAiSuggestionEnabledValuesTest {
       .extracting(r -> r.get("TEXT_VALUE"))
       .containsExactly(ENABLED_FOR_ALL_PROJECTS);
 
-    assertThat(db.countSql("select count(1) from projects where ai_code_fix_enabled is false")).isZero();
+    assertThat(db.countSql("select count(*) from projects where ai_code_fix_enabled = " + getBool(true))).isEqualTo(2);
+    assertThat(db.countSql("select count(*) from projects where ai_code_fix_enabled = " + getBool(false))).isZero();
   }
 
   private void insertProjects() {
@@ -102,4 +103,8 @@ class MigrateAiSuggestionEnabledValuesTest {
       "created_at", 1L);
   }
 
+  private String getBool(boolean isTrue) {
+    var dialect = db.database().getDialect();
+    return isTrue ? dialect.getTrueSqlValue() : dialect.getFalseSqlValue();
+  }
 }
