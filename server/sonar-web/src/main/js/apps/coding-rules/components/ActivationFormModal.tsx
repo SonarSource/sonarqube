@@ -132,10 +132,13 @@ export default function ActivationFormModal(props: Readonly<Props>) {
     setChangedParams({ ...params, [name]: value });
   };
 
-  const handleSingleSelectListChange = ({ value, labelKey }: { label: string, value: string, labelKey: string }) => {
-    params[labelKey] = value;
+  const handleSingleSelectListChange = React.useCallback(
+    (value: any,labelKey) => {
+    params[labelKey.labelKey] = value;
     setChangedParams({ ...params });
-  };
+    },
+    [setChangedParams],
+  );
 
   const handleKeyChange = (index: any, value: any, paramKey: any) => {
     params[paramKey][index][0] = value;
@@ -311,12 +314,12 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                   <Select
                     clearable={false}
                     onChange={handleSingleSelectListChange}
-                    options={allParams[param.key].map((item: string) => ({
+                    data={allParams[param.key].map((item: string) => ({
                       labelKey: param.key,
                       label: item,
                       value: item
                     }))}
-                    value={{labelKey: param.key, label: params[param.key], value: params[param.key]}}
+                    value={params[param.key]}
                   />
                 )}
                 {param.type === 'KEY_VALUE_MAP' && (
