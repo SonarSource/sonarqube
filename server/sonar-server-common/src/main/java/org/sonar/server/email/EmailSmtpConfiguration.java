@@ -38,9 +38,9 @@ public class EmailSmtpConfiguration {
   public static final String EMAIL_CONFIG_FROM = "email.from";
   public static final String EMAIL_CONFIG_FROM_DEFAULT = "noreply@nowhere";
   public static final String EMAIL_CONFIG_FROM_NAME = "email.fromName";
-  public static final String EMAIL_CONFIG_FROM_NAME_DEFAULT = "SonarQube Server";
+  public static final String EMAIL_CONFIG_FROM_NAME_DEFAULT = "SonarQube";
   public static final String EMAIL_CONFIG_PREFIX = "email.prefix";
-  public static final String EMAIL_CONFIG_PREFIX_DEFAULT = "[SONARQUBE SERVER]";
+  public static final String EMAIL_CONFIG_PREFIX_DEFAULT = "[SONARQUBE]";
   // Auth selection
   public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD = "email.smtp.auth.method";
   public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD_DEFAULT = "BASIC";

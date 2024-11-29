@@ -144,8 +144,8 @@ describe('Email Basic Configuration', () => {
     expect(ui.port.get()).toHaveValue(587);
     expect(ui.securityProtocol.get()).toHaveValue('');
     expect(ui.fromAddress.get()).toHaveValue('');
-    expect(ui.fromName.get()).toHaveValue('SonarQube Server');
-    expect(ui.subjectPrefix.get()).toHaveValue('[SonarQube Server]');
+    expect(ui.fromName.get()).toHaveValue('SonarQube');
+    expect(ui.subjectPrefix.get()).toHaveValue('[SonarQube]');
 
     await user.type(ui.basic_password.get(), 'password');
     await user.type(ui.host.get(), 'host');
@@ -309,8 +309,8 @@ describe('Email Oauth Configuration', () => {
     expect(ui.port.get()).toHaveValue(587);
     expect(ui.securityProtocol.get()).toHaveValue('');
     expect(ui.fromAddress.get()).toHaveValue('');
-    expect(ui.fromName.get()).toHaveValue('SonarQube Server');
-    expect(ui.subjectPrefix.get()).toHaveValue('[SonarQube Server]');
+    expect(ui.fromName.get()).toHaveValue('SonarQube');
+    expect(ui.subjectPrefix.get()).toHaveValue('[SonarQube]');
 
     await user.type(ui.oauth_auth_host.get(), 'oauth_auth_host');
     await user.type(ui.oauth_client_id.get(), 'oauth_client_id');

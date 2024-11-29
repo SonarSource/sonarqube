@@ -148,7 +148,7 @@ public class FpPrAcceptedEmailTemplateTest {
 
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), fpPrAccepted));
 
-    String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from SonarQube Server."
+    String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from SonarQube."
       + " Click here to edit your email preferences.";
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph("Hi,")
