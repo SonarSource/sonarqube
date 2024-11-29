@@ -33,8 +33,8 @@ interface Props {
   organizationGroups: Group[];
   updateMemberGroups: (
     member: OrganizationMember,
-    add: string[],
-    remove: string[],
+    add: UserGroup[],
+    remove: UserGroup[],
   ) => Promise<void>;
 }
 
@@ -89,7 +89,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
   onCheck = (groupName: string, checked: boolean) => {
     this.setState((prevState: State) => {
       const { userGroups = {} } = prevState;
-      const group = userGroups[groupName] || {};
+      const group = userGroups[groupName] || this.props.organizationGroups.find(g => g.name === groupName)
       let status = '';
       if (group.selected && !checked) {
         status = 'remove';
@@ -100,12 +100,16 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
     });
   };
 
-  handleFormSubmit = () => {
+  handleFormSubmit = (event) => {
+    event.preventDefault();
+    const addGroups = Object.values(pickBy(this.state.userGroups, (group) => group.status === 'add')).map(({ status, ...group }) => group);
+    const removeGroups = Object.values(pickBy(this.state.userGroups, (group) => group.status === 'remove')).map(({ status, ...group }) => group);
+
     return this.props
       .updateMemberGroups(
         this.props.member,
-        Object.keys(pickBy(this.state.userGroups, (group) => group.status === 'add')),
-        Object.keys(pickBy(this.state.userGroups, (group) => group.status === 'remove')),
+        addGroups,
+        removeGroups,
       )
       .then(this.props.onClose);
   };
@@ -113,7 +117,6 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
   renderForm = () => {
     const { loading, userGroups = {} } = this.state;
     const hasChanges = some(userGroups, (group) => group.status !== undefined);
-
     return (
       <form onSubmit={this.handleFormSubmit}>
         <div className="modal-body modal-container">
