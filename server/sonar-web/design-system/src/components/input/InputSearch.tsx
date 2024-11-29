@@ -101,7 +101,6 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     const eventValue = event.currentTarget.value;
     setValue(eventValue);
 
-    // Trigger onChange only if value length satisfies minLength or is empty
     if (eventValue.length === 0 || eventValue.length >= minLength) {
       debouncedOnChange(eventValue);
     }
