@@ -204,8 +204,9 @@ public class RuleWsSupport {
 
     action
       .createParam(PARAM_QPROFILE)
-      .setDescription("Quality profile key to filter on. Used only if the parameter '" +
-        PARAM_ACTIVATION + "' is set.")
+      .setDescription("Quality profile key to filter on. Only rules of the same language as this profile are returned." +
+        " By default only rules activated in this profile are returned. You can change that using the '" +
+        PARAM_ACTIVATION + "' parameter.")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_COMPARE_TO_PROFILE)
