@@ -33,11 +33,9 @@ interface Props {
 
 export default function DefinitionsList(props: Readonly<Props>) {
   const { component, settings } = props;
-  const hidePatterns = ['sonar.lang.patterns.vf', 'sonar.lang.patterns.sf', 'sonar.lang.patterns.sfmeta'];
-  const filteredSettingsWithoutSonarPatterns = settings.filter(item => !hidePatterns.includes(item.definition.key));
   return (
     <ul>
-      {filteredSettingsWithoutSonarPatterns.map((setting) => (
+      {settings.map((setting) => (
         <StyledListItem
           className="sw-p-6"
           key={setting.definition.key}
