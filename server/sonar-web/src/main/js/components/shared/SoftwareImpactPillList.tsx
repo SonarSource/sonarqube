@@ -20,7 +20,6 @@
 
 import classNames from 'classnames';
 import React from 'react';
-import { translate } from '../../helpers/l10n';
 import { useStandardExperienceModeQuery } from '../../queries/mode';
 import {
   SoftwareImpact,
@@ -41,12 +40,10 @@ interface SoftwareImpactPillListProps extends React.HTMLAttributes<HTMLUListElem
   type?: Parameters<typeof SoftwareImpactPill>[0]['type'];
 }
 
-const severityMap = {
-  [SoftwareImpactSeverity.Blocker]: 4,
-  [SoftwareImpactSeverity.High]: 3,
-  [SoftwareImpactSeverity.Medium]: 2,
-  [SoftwareImpactSeverity.Low]: 1,
-  [SoftwareImpactSeverity.Info]: 0,
+const sqOrderMap = {
+  [SoftwareQuality.Security]: 3,
+  [SoftwareQuality.Reliability]: 2,
+  [SoftwareQuality.Maintainability]: 1,
 };
 
 export default function SoftwareImpactPillList({
@@ -59,13 +56,8 @@ export default function SoftwareImpactPillList({
   ...props
 }: Readonly<SoftwareImpactPillListProps>) {
   const { data: isStandardMode } = useStandardExperienceModeQuery();
-  const getQualityLabel = (quality: SoftwareQuality) => translate('software_quality', quality);
-  const sortingFn = (a: SoftwareImpact, b: SoftwareImpact) => {
-    if (a.severity !== b.severity) {
-      return severityMap[b.severity] - severityMap[a.severity];
-    }
-    return getQualityLabel(a.softwareQuality).localeCompare(getQualityLabel(b.softwareQuality));
-  };
+  const sortingFn = (a: SoftwareImpact, b: SoftwareImpact) =>
+    sqOrderMap[b.softwareQuality] - sqOrderMap[a.softwareQuality];
 
   return (
     <ul className={classNames('sw-flex sw-gap-2', className)} {...props}>
