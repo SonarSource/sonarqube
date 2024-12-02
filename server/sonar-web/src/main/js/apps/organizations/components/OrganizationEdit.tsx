@@ -190,7 +190,7 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
               <Button
                 variety={ButtonVariety.Primary}
                 type="submit"
-                disabled={this.state.loading || !this.canSubmit(this.state)}
+                isDisabled={this.state.loading || !this.canSubmit(this.state)}
               >
                 {translate('save')}
               </Button>
