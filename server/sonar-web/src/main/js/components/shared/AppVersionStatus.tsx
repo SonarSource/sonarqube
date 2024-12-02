@@ -29,7 +29,7 @@ import { isCurrentVersionEOLActive } from '../../helpers/system';
 import { useSystemUpgrades } from '../../queries/system';
 import { EditionKey } from '../../types/editions';
 
-export default function AppVersionStatus() {
+export default function AppVersionStatus({ statusOnly }: Readonly<{ statusOnly?: boolean }>) {
   const { data } = useSystemUpgrades();
   const { edition, version, versionEOL } = useAppState();
 
@@ -45,7 +45,7 @@ export default function AppVersionStatus() {
   const intl = useIntl();
 
   return intl.formatMessage(
-    { id: `footer.version` },
+    { id: statusOnly ? `footer.version.status` : `footer.version.full` },
     {
       version: getInstanceVersionNumber(version),
       status: edition && edition !== EditionKey.community && (

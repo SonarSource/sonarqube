@@ -20,6 +20,7 @@
 
 import { addDays, subDays } from 'date-fns';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import { getEdition } from '../../../helpers/editions';
 import { mockAppState } from '../../../helpers/testMocks';
@@ -27,13 +28,16 @@ import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../types/appstate';
 import { EditionKey } from '../../../types/editions';
 import { FCProps } from '../../../types/misc';
+import { Mode } from '../../../types/mode';
 import GlobalFooter from '../GlobalFooter';
 
 const systemMock = new SystemServiceMock();
+const modeHandler = new ModeServiceMock();
 
 const COMMUNITY = getEdition(EditionKey.community).name;
 
 afterEach(() => {
+  modeHandler.reset();
   systemMock.reset();
 });
 
@@ -42,7 +46,7 @@ it('should render the logged-in information', async () => {
 
   expect(ui.databaseWarningMessage.query()).not.toBeInTheDocument();
 
-  expect(ui.footerListItems.getAll()).toHaveLength(7);
+  expect(ui.footerListItems.getAll()).toHaveLength(8);
 
   expect(byText(COMMUNITY).get()).toBeInTheDocument();
   expect(await ui.versionLabel('4.2').find()).toBeInTheDocument();
@@ -76,6 +80,16 @@ it('should show inactive status if offline and reached EOL', async () => {
   );
 
   expect(await ui.ltaDocumentationLinkInactive.find()).toBeInTheDocument();
+});
+
+it.each([
+  ['Standard', Mode.Standard, 'STANDARD'],
+  ['MQR', Mode.MQR, 'MQR'],
+])('should show correct %s mode', async (_, mode, expected) => {
+  modeHandler.setMode(mode);
+  renderGlobalFooter();
+
+  expect(await byText(`footer.mode.${expected}`).find()).toBeInTheDocument();
 });
 
 it('should not render missing logged-in information', () => {
@@ -124,7 +138,7 @@ const ui = {
   databaseWarningMessage: byText('footer.production_database_warning'),
 
   versionLabel: (version?: string) =>
-    version ? byText(/footer\.version\.*(\d.\d)/) : byText(/footer\.version/),
+    version ? byText(/footer\.version\.short\.*(\d.\d)/) : byText(/footer\.version\.short/),
 
   // links
   websiteLink: byRole('link', { name: 'SonarQube™' }),

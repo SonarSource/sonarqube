@@ -21,12 +21,20 @@
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { useIntl } from 'react-intl';
-import { FlagMessage, LAYOUT_VIEWPORT_MIN_WIDTH, themeBorder, themeColor } from '~design-system';
+import {
+  FlagMessage,
+  LAYOUT_VIEWPORT_MIN_WIDTH,
+  SeparatorCircleIcon,
+  themeBorder,
+  themeColor,
+} from '~design-system';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import AppVersionStatus from '../../components/shared/AppVersionStatus';
 import { COMMUNITY_FORUM_URL, DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
+import { getInstanceVersionNumber } from '../../helpers/strings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { EditionKey } from '../../types/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import { useAppState } from './app-state/withAppStateContext';
@@ -37,8 +45,10 @@ interface GlobalFooterProps {
 
 export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooterProps>) {
   const appState = useAppState();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const currentEdition = appState?.edition && getEdition(appState.edition);
   const intl = useIntl();
+  const version = getInstanceVersionNumber(appState.version);
 
   const docUrl = useDocUrl();
 
@@ -46,7 +56,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
 
   return (
     <StyledFooter className="sw-p-6" id="footer">
-      <div className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
+      <div className="sw-h-full sw-flex sw-flex-col sw-items-stretch">
         {appState?.productionDatabase === false && (
           <FlagMessage className="sw-mb-4" id="evaluation_warning" variant="warning">
             <p>
@@ -63,21 +73,45 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
           </FlagMessage>
         )}
 
-        <div className="sw-flex sw-justify-between sw-items-center">
+        <div className="sw-text-xs sw-flex sw-justify-between sw-items-center">
           <GlobalFooterBranding />
 
-          <ul className="sw-flex sw-items-center sw-gap-3 sw-ml-4">
-            {!hideLoggedInInfo && currentEdition && <li>{currentEdition.name}</li>}
+          {!hideLoggedInInfo && (
+            <ul className="sw-code sw-flex sw-items-center sw-gap-1">
+              {currentEdition && (
+                <>
+                  <li>{currentEdition.name}</li>
+                  <SeparatorCircleIcon aria-hidden as="li" />
+                </>
+              )}
 
-            {!hideLoggedInInfo && appState?.version && (
-              <li className="sw-code">
-                <AppVersionStatus />
-              </li>
-            )}
+              {appState?.version && (
+                <>
+                  <li>{intl.formatMessage({ id: 'footer.version.short' }, { version })}</li>
+                  <SeparatorCircleIcon aria-hidden as="li" />
+                  <li>
+                    <AppVersionStatus statusOnly />
+                  </li>
+                </>
+              )}
+              {isStandardMode !== undefined && (
+                <>
+                  <SeparatorCircleIcon aria-hidden as="li" />
+                  <li className="sw-uppercase">
+                    {intl.formatMessage({
+                      id: `footer.mode.${isStandardMode ? 'STANDARD' : 'MQR'}`,
+                    })}
+                  </li>
+                </>
+              )}
+            </ul>
+          )}
 
+          <ul className="sw-flex sw-items-center sw-gap-3">
             <li>
               {isCommunityBuildRunning ? (
                 <LinkStandalone
+                  shouldOpenInNewTab
                   highlight={LinkHighlight.CurrentColor}
                   to="https://www.gnu.org/licenses/lgpl-3.0.txt"
                 >
@@ -85,6 +119,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
                 </LinkStandalone>
               ) : (
                 <LinkStandalone
+                  shouldOpenInNewTab
                   highlight={LinkHighlight.CurrentColor}
                   to="https://www.sonarsource.com/legal/sonarqube/terms-and-conditions/"
                 >
@@ -94,19 +129,28 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             </li>
 
             <li>
-              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={COMMUNITY_FORUM_URL}>
+              <LinkStandalone
+                shouldOpenInNewTab
+                highlight={LinkHighlight.CurrentColor}
+                to={COMMUNITY_FORUM_URL}
+              >
                 {intl.formatMessage({ id: 'footer.community' })}
               </LinkStandalone>
             </li>
 
             <li>
-              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={docUrl(DocLink.Root)}>
+              <LinkStandalone
+                shouldOpenInNewTab
+                highlight={LinkHighlight.CurrentColor}
+                to={docUrl(DocLink.Root)}
+              >
                 {intl.formatMessage({ id: 'footer.documentation' })}
               </LinkStandalone>
             </li>
 
             <li>
               <LinkStandalone
+                shouldOpenInNewTab
                 highlight={LinkHighlight.CurrentColor}
                 to={docUrl(DocLink.InstanceAdminPluginVersionMatrix)}
               >

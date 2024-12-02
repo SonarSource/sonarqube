@@ -24,32 +24,42 @@ import { isOfficial } from '../../helpers/system';
 export default function GlobalFooterBranding() {
   const official = isOfficial();
 
-  return official ? (
-    <div>
-      SonarQube&trade; technology is powered by{' '}
-      <Link highlight={LinkHighlight.CurrentColor} to="https://www.sonarsource.com">
-        SonarSource SA
-      </Link>
-    </div>
-  ) : (
-    <div>
-      This application is based on{' '}
-      <Link
-        highlight={LinkHighlight.CurrentColor}
-        to="https://www.sonarsource.com/products/sonarqube/?referrer=sonarqube"
-        title="SonarQube™"
-      >
-        SonarQube™
-      </Link>{' '}
-      but is <strong>not</strong> an official version provided by{' '}
-      <Link
-        highlight={LinkHighlight.CurrentColor}
-        to="https://www.sonarsource.com"
-        title="SonarSource SA"
-      >
-        SonarSource SA
-      </Link>
-      .
+  return (
+    <div className="max-[1400px]:sw-max-w-[12rem] sw-flex sw-items-center">
+      {official ? (
+        <span>
+          SonarQube&trade; technology is powered by{' '}
+          <Link
+            shouldOpenInNewTab
+            highlight={LinkHighlight.CurrentColor}
+            to="https://www.sonarsource.com"
+          >
+            SonarSource SA
+          </Link>
+        </span>
+      ) : (
+        <span>
+          This application is based on{' '}
+          <Link
+            shouldOpenInNewTab
+            highlight={LinkHighlight.CurrentColor}
+            to="https://www.sonarsource.com/products/sonarqube/?referrer=sonarqube"
+            title="SonarQube™"
+          >
+            SonarQube™
+          </Link>{' '}
+          but is <strong>not</strong> an official version provided by{' '}
+          <Link
+            shouldOpenInNewTab
+            highlight={LinkHighlight.CurrentColor}
+            to="https://www.sonarsource.com"
+            title="SonarSource SA"
+          >
+            SonarSource SA
+          </Link>
+          .
+        </span>
+      )}
     </div>
   );
 }

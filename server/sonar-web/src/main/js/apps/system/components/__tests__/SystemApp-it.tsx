@@ -148,7 +148,7 @@ function getPageObjects() {
     healthCauseWarning: byText('Friendly warning'),
     saveButton: byRole('button', { name: 'save' }),
     versionLabel: (version?: string) =>
-      version ? byText(/footer\.version\s*(\d.\d)/) : byText(/footer\.version/),
+      version ? byText(/footer\.version\.full\s*(\d.\d)/) : byText(/footer\.version\.full/),
     ltaDocumentationLinkActive: byRole('link', {
       name: `footer.version.status.active`,
     }),
