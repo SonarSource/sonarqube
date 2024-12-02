@@ -24,6 +24,7 @@ import { Group, Organization, OrganizationMember } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
 import './MembersList.css';
 import MembersListItem from './MembersListItem';
+import {UserGroup} from "../../api/users";
 
 interface Props {
   currentUser: LoggedInUser;
@@ -33,8 +34,8 @@ interface Props {
   removeMember?: (member: OrganizationMember) => void;
   updateMemberGroups: (
     member: OrganizationMember,
-    add: Array<string>,
-    remove: Array<string>,
+    add: Array<UserGroup>,
+    remove: Array<UserGroup>,
   ) => Promise<void>;
 }
 

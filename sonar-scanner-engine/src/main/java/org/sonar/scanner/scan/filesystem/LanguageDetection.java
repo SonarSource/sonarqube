@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -77,7 +78,7 @@ public class LanguageDetection {
 
   private static PathPattern[] getLanguagePatterns(Language language) {
     Stream<PathPattern> fileSuffixes = language.fileSuffixes().stream()
-      .map(suffix -> "**/*." + sanitizeExtension(suffix))
+      .map(suffix -> "**/*" + sanitizeExtension(suffix))
       .map(PathPattern::create);
     Stream<PathPattern> filenamePatterns = language.filenamePatterns()
       .stream()

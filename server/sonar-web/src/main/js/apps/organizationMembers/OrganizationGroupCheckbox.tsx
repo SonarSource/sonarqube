@@ -36,18 +36,15 @@ export default class OrganizationGroupCheckbox extends React.PureComponent<Props
     }
   };
 
-  toggleCheck = () => {
-    this.onCheck(!this.props.checked);
-  };
-
   render() {
     const { group } = this.props;
     return (
       <li
         className={classNames('capitalize list-item-checkable-link', { disabled: group.default })}
-        onClick={this.toggleCheck}
       >
-        <Checkbox checked={this.props.checked} disabled={group.default} onCheck={this.onCheck} />{' '}
+        <Checkbox checked={this.props.checked} disabled={group.default}
+                  onClick={(e: React.MouseEvent<HTMLLabelElement>) => e.stopPropagation()}
+                  onCheck={(checked, _) => this.onCheck(checked)} />{' '}
         {group.name}
       </li>
     );

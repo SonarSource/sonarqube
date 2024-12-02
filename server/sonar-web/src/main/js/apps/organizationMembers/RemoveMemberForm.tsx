@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
-import {Organization, OrganizationMember} from "../../types/types";
-import {translate, translateWithParameters} from "../../helpers/l10n";
-import { Button, ButtonVariety, Modal } from "@sonarsource/echoes-react";
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { Organization, OrganizationMember } from '../../types/types';
 
 interface Props {
   onClose: () => void;
@@ -40,26 +41,22 @@ export default class RemoveMemberForm extends React.PureComponent<Props> {
     const header = translate('users.remove');
     return (
       <Modal
-        title={header}
+        headerTitle={header}
         onClose={this.props.onClose}
-        content={(
+        body={
           <form id="remove-member-form" onSubmit={this.handleSubmit}>
             {translateWithParameters(
               'organization.members.remove_x',
               this.props.member.name,
-              this.props.organization.name
+              this.props.organization.name,
             )}
           </form>
-        )}
-        primaryButton={(
-          <Button
-            variety={ButtonVariety.Primary}
-            type="submit"
-            form="remove-member-form"
-          >
+        }
+        primaryButton={
+          <Button variety={ButtonVariety.Danger} type="submit" form="remove-member-form">
             {translate('remove')}
           </Button>
-        )}
+        }
         secondaryButtonLabel={translate('cancel')}
       />
     );

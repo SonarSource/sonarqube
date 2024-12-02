@@ -105,6 +105,7 @@ export interface UserBase {
   email?: string | null;
   login: string;
   name?: string;
+  uuid?: string;
 }
 
 export interface RestUserBase {
