@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import classNames from 'classnames';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -31,7 +30,6 @@ import ProjectCard from './project-card/ProjectCard';
 
 const PROJECT_CARD_HEIGHT = 181;
 const PROJECT_CARD_MARGIN = 20;
-const PROJECT_LIST_FOOTER_HEIGHT = 90;
 
 interface Props {
   cardType?: string;
@@ -81,10 +79,10 @@ export default function ProjectsList(props: Readonly<Props>) {
 
     return (
       <div
-        className={classNames({ 'sw-mt-4': index === 0 })}
         key={key}
         role="row"
         style={{ ...style, height: PROJECT_CARD_HEIGHT }}
+        className="sw-pt-4"
       >
         <div className="sw-h-full" role="gridcell">
           <ProjectCard
@@ -105,18 +103,7 @@ export default function ProjectsList(props: Readonly<Props>) {
           height={height}
           overscanRowCount={2}
           rowCount={projects.length + 1}
-          rowHeight={({ index }) => {
-            if (index === 0) {
-              // first card, double top and bottom margin
-              return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN * 2;
-            }
-            if (index === projects.length) {
-              // Footer card, no margin
-              return PROJECT_LIST_FOOTER_HEIGHT;
-            }
-            // all other cards, only bottom margin
-            return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN;
-          }}
+          rowHeight={PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN}
           rowRenderer={renderRow}
           style={{ outline: 'none' }}
           tabIndex={-1}
