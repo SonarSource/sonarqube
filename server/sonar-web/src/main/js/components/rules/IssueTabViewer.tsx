@@ -395,6 +395,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
                   ruleDetails={ruleDetails}
                   branchLike={fillBranchLike(issue.branch, issue.pullRequest)}
                   onIssueChange={this.props.onIssueChange}
+                  organization={issue.organization}
                 />
                 <ToggleButton
                   role="tablist"
