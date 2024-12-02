@@ -423,7 +423,7 @@ tasks.register('updateJresMetadata') {
 
     def metadataContent = []
 
-    def supportedOsAndArch = [[os:'linux', arch:'x64'], [os:'linux', arch:'aarch64'], [os:ext.ALPINE_ADOPTIUM, arch:'x64'], [os: ext.WINDOWS, arch:'x64'], [os:ext.MAC, arch:'x64'], [os:'mac', arch:'aarch64']]
+    def supportedOsAndArch = [[os:'linux', arch:'x64'], [os:'linux', arch:'aarch64'], [os:project.ext.ALPINE_ADOPTIUM, arch:'x64'], [os: project.ext.WINDOWS, arch:'x64'], [os:project.ext.MAC, arch:'x64'], [os:'mac', arch:'aarch64']]
 
     for (jreFlavor in supportedOsAndArch) {
       var candidates = response.binaries.findAll {
@@ -435,8 +435,8 @@ tasks.register('updateJresMetadata') {
           'id': UUID.randomUUID(),
           'filename': jre.package.name,
           'sha256': jre.package.checksum,
-          'javaPath': "${jre_release_name}-jre" + (jreFlavor.os == ext.MAC ? '/Contents/Home' : '') + '/bin/java' + (jreFlavor.os == ext.WINDOWS ? '.exe' : ''),
-          'os': jreFlavor.os.replace(ext.ALPINE_ADOPTIUM, ext.ALPINE),
+          'javaPath': "${jre_release_name}-jre" + (jreFlavor.os == project.ext.MAC ? '/Contents/Home' : '') + '/bin/java' + (jreFlavor.os == project.ext.WINDOWS ? '.exe' : ''),
+          'os': jreFlavor.os.replace(project.ext.ALPINE_ADOPTIUM, project.ext.ALPINE),
           'arch': jreFlavor.arch
         ]
     }
