@@ -159,7 +159,7 @@ export class QualityGatesServiceMock {
             op: 'GT',
             error: '0',
           },
-          { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' },
+          { id: 'deprecated', metric: 'public_api', op: 'LT', error: '1' },
         ],
         isDefault: false,
         isBuiltIn: false,
@@ -315,7 +315,7 @@ export class QualityGatesServiceMock {
       mockQualityGate({
         name: 'Over Compliant CaYC QG',
         conditions: [
-          { id: 'deprecatedoc', metric: 'function_complexity', op: 'LT', error: '1' },
+          { id: 'deprecatedoc', metric: 'public_api', op: 'LT', error: '1' },
           { id: 'AXJMbIUHPAOIsUIE3eOFoc', metric: 'new_coverage', op: 'LT', error: '80' },
           { id: 'AXJMbIUHPAOIsUIE3eNsoc', metric: 'new_security_rating', op: 'GT', error: '1' },
           { id: 'AXJMbIUHPAOIsUIE3eODoc', metric: 'new_reliability_rating', op: 'GT', error: '1' },

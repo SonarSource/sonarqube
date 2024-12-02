@@ -51,18 +51,9 @@ import org.sonar.db.measure.MeasureHash;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
-
-  /**
-   * List of metrics that should not be persisted on file measure.
-   */
-  private static final Set<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = Set.of(
-    FILE_COMPLEXITY_DISTRIBUTION_KEY,
-    FUNCTION_COMPLEXITY_DISTRIBUTION_KEY);
 
   // 50 mb
   private static final int MAX_TRANSACTION_SIZE = 50_000_000;
@@ -155,9 +146,6 @@ public class PersistMeasuresStep implements ComputationStep {
     Map<String, Measure> measures = measureRepository.getRawMeasures(component);
     for (Map.Entry<String, Measure> measuresByMetricKey : measures.entrySet()) {
       String metricKey = measuresByMetricKey.getKey();
-      if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Type.FILE) {
-        continue;
-      }
       Metric metric = metricRepository.getByKey(metricKey);
       Predicate<Measure> notBestValueOptimized = BestValueOptimization.from(metric, component).negate();
       Measure measure = measuresByMetricKey.getValue();

@@ -22,26 +22,14 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.List;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.formula.AverageFormula;
-import org.sonar.ce.task.projectanalysis.formula.DistributionFormula;
 import org.sonar.ce.task.projectanalysis.formula.Formula;
 import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 
-import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumFormula;
 
 /**
@@ -50,23 +38,7 @@ import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumF
 public class ComplexityMeasuresStep implements ComputationStep {
   private static final List<Formula<?>> FORMULAS = List.of(
     createIntSumFormula(COMPLEXITY_KEY),
-    createIntSumFormula(COMPLEXITY_IN_CLASSES_KEY),
-    createIntSumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
-    createIntSumFormula(COGNITIVE_COMPLEXITY_KEY),
-    new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
-    new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
-    AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_KEY)
-      .setByMetricKey(FILES_KEY)
-      .build(),
-    AverageFormula.Builder.newBuilder().setOutputMetricKey(CLASS_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_IN_CLASSES_KEY)
-      .setByMetricKey(CLASSES_KEY)
-      .build(),
-    AverageFormula.Builder.newBuilder().setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-      .setByMetricKey(FUNCTIONS_KEY)
-      .build()
+    createIntSumFormula(COGNITIVE_COMPLEXITY_KEY)
   );
 
   private final TreeRootHolder treeRootHolder;

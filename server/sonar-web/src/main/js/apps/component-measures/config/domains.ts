@@ -177,12 +177,7 @@ export const domains: Domains = {
   },
 
   Complexity: {
-    order: [
-      MetricKey.complexity,
-      MetricKey.function_complexity,
-      MetricKey.file_complexity,
-      MetricKey.class_complexity,
-    ],
+    order: [MetricKey.complexity],
   },
 
   Releasability: {

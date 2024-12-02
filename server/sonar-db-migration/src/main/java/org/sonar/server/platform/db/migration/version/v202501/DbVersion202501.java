@@ -33,12 +33,13 @@ public class DbVersion202501 implements DbVersion {
    * 2025_01_001
    * 2025_01_002
    */
-
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2025_01_000, "Rename 'sonar.portfolios.confidential.header' property to 'sonar.pdf.confidential.header.enabled'",
         MigrateConfidentialHeaderProperty.class)
+      .add(2025_01_001, "Delete removed complexity measures from 'project_measures' table", DeleteRemovedComplexityMeasuresFromProjectMeasures.class)
+      .add(2025_01_002, "Delete removed complexity metrics from 'metrics' table", DeleteRemovedComplexityMetrics.class)
     ;
   }
 }

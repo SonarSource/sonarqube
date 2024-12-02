@@ -34,12 +34,8 @@ import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS;
 import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
@@ -77,11 +73,7 @@ public class ScannerMetrics {
     STATEMENTS,
 
     COMPLEXITY,
-    COMPLEXITY_IN_CLASSES,
-    COMPLEXITY_IN_FUNCTIONS,
     COGNITIVE_COMPLEXITY,
-    FILE_COMPLEXITY_DISTRIBUTION,
-    FUNCTION_COMPLEXITY_DISTRIBUTION,
 
     TESTS,
     SKIPPED_TESTS,

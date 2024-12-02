@@ -24,6 +24,7 @@ import com.google.common.collect.FluentIterable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.api.Startable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -45,6 +46,17 @@ import static org.sonar.db.metric.RemovedMetricConverter.REMOVED_METRIC;
 public class RegisterMetrics implements Startable {
 
   private static final Logger LOG = Loggers.get(RegisterMetrics.class);
+  /**
+   * Those metrics will be removed soon from the plugin API, so let's not register them in the database
+   */
+  private static final Set<String> SOON_TO_BE_REMOVED_FROM_CORE_API_METRIC = Set.of(
+    CoreMetrics.COMPLEXITY_IN_CLASSES_KEY,
+    CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY,
+    CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY,
+    CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY,
+    CoreMetrics.FUNCTION_COMPLEXITY_KEY,
+    CoreMetrics.CLASS_COMPLEXITY_KEY,
+    CoreMetrics.FILE_COMPLEXITY_KEY);
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
@@ -67,7 +79,7 @@ public class RegisterMetrics implements Startable {
 
   @Override
   public void start() {
-    FluentIterable<Metric> metricsToRegister = concat(CoreMetrics.getMetrics(), getPluginMetrics())
+    FluentIterable<Metric> metricsToRegister = concat(getCoreMetrics(), getPluginMetrics())
       .filter(m -> !REMOVED_METRIC.equals(m.getKey()));
     register(metricsToRegister);
   }
@@ -119,6 +131,13 @@ public class RegisterMetrics implements Startable {
     }
   }
 
+  private static List<Metric> getCoreMetrics() {
+    return CoreMetrics.getMetrics()
+      .stream()
+      .filter(m -> !SOON_TO_BE_REMOVED_FROM_CORE_API_METRIC.contains(m.getKey()))
+      .toList();
+  }
+
   @VisibleForTesting
   List<Metric> getPluginMetrics() {
     List<Metric> metricsToRegister = newArrayList();
@@ -134,7 +153,7 @@ public class RegisterMetrics implements Startable {
   private static void checkMetrics(Map<String, Metrics> metricsByRepository, Metrics metrics) {
     for (Metric metric : metrics.getMetrics()) {
       String metricKey = metric.getKey();
-      if (CoreMetrics.getMetrics().contains(metric)) {
+      if (getCoreMetrics().contains(metric)) {
         throw new IllegalStateException(String.format("Metric [%s] is already defined by SonarQube", metricKey));
       }
       Metrics anotherRepository = metricsByRepository.get(metricKey);

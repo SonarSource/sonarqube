@@ -48,14 +48,11 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.project.Project;
 
 import static java.util.Collections.emptyList;
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -95,8 +92,7 @@ class PersistMeasuresStepIT {
 
   @BeforeEach
   public void setUp() {
-    MetricDto stringMetricDto =
-      db.measures().insertMetric(m -> m.setKey(STRING_METRIC.getKey()).setValueType(Metric.ValueType.STRING.name()));
+    MetricDto stringMetricDto = db.measures().insertMetric(m -> m.setKey(STRING_METRIC.getKey()).setValueType(Metric.ValueType.STRING.name()));
     MetricDto intMetricDto = db.measures().insertMetric(m -> m.setKey(INT_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
     MetricDto bestValueMetricDto = db.measures()
       .insertMetric(m -> m.setKey(METRIC_WITH_BEST_VALUE.getKey()).setValueType(Metric.ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(0.0));
@@ -184,50 +180,6 @@ class PersistMeasuresStepIT {
     verifyInsertsOrUpdates(num - 1);
     verifyUnchanged(1);
     verify(computeDuplicationDataMeasure, times(num)).compute(any(Component.class));
-  }
-
-  @Test
-  void do_not_persist_excluded_file_metrics() {
-    MetricDto fileComplexityMetric =
-      db.measures().insertMetric(m -> m.setKey(FILE_COMPLEXITY_DISTRIBUTION_KEY).setValueType(Metric.ValueType.STRING.name()));
-    MetricDto functionComplexityMetric =
-      db.measures().insertMetric(m -> m.setKey(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).setValueType(Metric.ValueType.INT.name()));
-    metricRepository.add(fileComplexityMetric.getUuid(), new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "File Distribution / " +
-      "Complexity",
-      Metric.ValueType.DISTRIB).create());
-    metricRepository.add(functionComplexityMetric.getUuid(), new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Function " +
-      "Distribution / Complexity",
-      Metric.ValueType.DISTRIB).create());
-
-    prepareProject();
-
-    // the computed measures
-    measureRepository.addRawMeasure(REF_1, FILE_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("project-value"));
-    measureRepository.addRawMeasure(REF_3, FILE_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("dir-value"));
-    measureRepository.addRawMeasure(REF_4, FILE_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("file-value"));
-
-    measureRepository.addRawMeasure(REF_1, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("project-value"));
-    measureRepository.addRawMeasure(REF_3, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("dir-value"));
-    measureRepository.addRawMeasure(REF_4, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("file-value"));
-
-    step().execute(context);
-
-    // all measures are persisted, from project to file
-    assertThat(db.countRowsOfTable("measures")).isEqualTo(3);
-
-    assertThat(selectMeasure("project-uuid"))
-      .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).contains(
-        entry(FILE_COMPLEXITY_DISTRIBUTION_KEY, "project-value"),
-        entry(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "project-value")));
-    assertThat(selectMeasure("dir-uuid"))
-      .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).contains(
-        entry(FILE_COMPLEXITY_DISTRIBUTION_KEY, "dir-value"),
-        entry(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "dir-value")));
-    assertThat(selectMeasure("file-uuid"))
-      .hasValueSatisfying(measure -> assertThat(measure.getMetricValues())
-        .doesNotContainKeys(FILE_COMPLEXITY_DISTRIBUTION_KEY, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY));
-
-    verifyInsertsOrUpdates(4);
   }
 
   @Test
@@ -366,7 +318,8 @@ class PersistMeasuresStepIT {
   }
 
   private void insertBranch() {
-    dbClient.branchDao().insert(db.getSession(), new BranchDto().setUuid("project-uuid").setProjectUuid("project-uuid").setKey("branch").setBranchType(BranchType.BRANCH).setIsMain(true));
+    dbClient.branchDao().insert(db.getSession(),
+      new BranchDto().setUuid("project-uuid").setProjectUuid("project-uuid").setKey("branch").setBranchType(BranchType.BRANCH).setIsMain(true));
     db.commit();
   }
 

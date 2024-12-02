@@ -430,9 +430,7 @@ it('should be able to handle duplicate or deprecated condition', async () => {
   );
 
   expect(await screen.findByText('quality_gates.duplicated_conditions')).toBeInTheDocument();
-  expect(
-    await screen.findByRole('cell', { name: 'Complexity / Function deprecated' }),
-  ).toBeInTheDocument();
+  expect(await screen.findByRole('cell', { name: 'Public API deprecated' })).toBeInTheDocument();
 });
 
 it('should be able to handle delete condition', async () => {
@@ -510,7 +508,7 @@ it('should show warning banner when CaYC condition is not properly set and shoul
   const overallConditionsWrapper = within(
     await screen.findByTestId('quality-gates__conditions-overall'),
   );
-  expect(overallConditionsWrapper.getByText('Complexity / Function')).toBeInTheDocument();
+  expect(overallConditionsWrapper.getByText('Public API')).toBeInTheDocument();
 });
 
 it('should show optimize banner when CaYC condition is not properly set and QG is compliant and should be able to update them', async () => {

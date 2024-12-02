@@ -22,31 +22,31 @@ package org.sonar.core.metric;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScannerMetricsTest {
+class ScannerMetricsTest {
 
   // metrics that are always added, regardless of plugins
   private static final List<Metric> SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = metrics();
 
   @Test
-  public void check_number_of_allowed_core_metrics() {
-    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN).hasSize(22);
+  void check_number_of_allowed_core_metrics() {
+    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN).hasSize(18);
   }
 
   @Test
-  public void check_metrics_from_plugin() {
+  void check_metrics_from_plugin() {
     List<Metric> metrics = metrics(new FakeMetrics());
     metrics.removeAll(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
     assertThat(metrics).hasSize(2);
   }
 
   @Test
-  public void should_not_crash_on_null_metrics_from_faulty_plugins() {
+  void should_not_crash_on_null_metrics_from_faulty_plugins() {
     Metrics faultyMetrics = () -> null;
     Metrics okMetrics = new FakeMetrics();
 
@@ -57,16 +57,16 @@ public class ScannerMetricsTest {
   }
 
   @Test
-  public void should_add_new_plugin_metrics() {
+  void should_add_new_plugin_metrics() {
     Metrics fakeMetrics = new FakeMetrics();
     Metrics fakeMetrics2 = new FakeMetrics2();
 
     ScannerMetrics underTest = new ScannerMetrics(List.of(fakeMetrics));
-    assertThat(underTest.getMetrics()).hasSize(24);
+    assertThat(underTest.getMetrics()).hasSize(20);
     assertThat(underTest.getMetrics()).containsAll(fakeMetrics.getMetrics());
 
     underTest.addPluginMetrics(List.of( fakeMetrics, fakeMetrics2 ));
-    assertThat(underTest.getMetrics()).hasSize(25);
+    assertThat(underTest.getMetrics()).hasSize(21);
     assertThat(underTest.getMetrics()).containsAll(fakeMetrics.getMetrics());
     assertThat(underTest.getMetrics()).containsAll(fakeMetrics2.getMetrics());
   }
