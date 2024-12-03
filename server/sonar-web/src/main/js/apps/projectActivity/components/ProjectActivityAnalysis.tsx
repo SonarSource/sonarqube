@@ -104,7 +104,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
       <Tooltip mouseEnterDelay={0.5} content={tooltipContent} side="left">
         <ActivityAnalysisListItem
           className={classNames(
-            'it__project-activity-analysis sw-flex sw-cursor-pointer sw-p-1 sw-relative',
+            'it__project-activity-analysis sw-cursor-pointer sw-p-1 sw-relative',
             {
               active: selected,
             },
