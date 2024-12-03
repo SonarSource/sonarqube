@@ -470,10 +470,10 @@ subprojects {
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.git.blame:git-files-blame:1.0.3.1673'
-      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit4:4.9.0.1920') {
+      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit4:5.1.0.2254') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
-      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:4.9.0.1920') {
+      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:5.1.0.2254') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
       dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.174'
