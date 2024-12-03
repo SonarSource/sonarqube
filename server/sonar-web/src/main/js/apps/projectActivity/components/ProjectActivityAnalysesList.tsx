@@ -142,7 +142,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
 
     return (
       <ul
-        className="it__project-activity-versions-list sw-box-border sw-overflow-auto sw-grow sw-shrink-0 sw-py-0 sw-px-4"
+        className="it__project-activity-versions-list sw-box-border sw-grow sw-shrink-0 sw-py-0 sw-px-4"
         ref={(element) => (this.scrollContainer = element)}
         style={{
           height: 'calc(100vh - 250px)',

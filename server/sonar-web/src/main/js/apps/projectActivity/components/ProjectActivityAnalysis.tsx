@@ -120,75 +120,80 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           }}
           ref={(ref) => (node = ref)}
         >
-          <div className="it__project-activity-time">
-            <ActivityTime className="sw-h-page sw-typo-semibold sw-text-right sw-mr-2 sw-py-1/2">
-              <TimeFormatter date={parsedDate} long={false}>
-                {(formattedTime) => (
-                  <time dateTime={parsedDate.toISOString()}>{formattedTime}</time>
-                )}
-              </TimeFormatter>
-            </ActivityTime>
+          <div className="sw-flex sw-justify-between">
+            <div className="it__project-activity-time">
+              <ActivityTime className="sw-h-page sw-typo-semibold sw-text-right sw-mr-2 sw-py-1/2">
+                <TimeFormatter date={parsedDate} long={false}>
+                  {(formattedTime) => (
+                    <time dateTime={parsedDate.toISOString()}>{formattedTime}</time>
+                  )}
+                </TimeFormatter>
+              </ActivityTime>
+            </div>
+
+            {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
+              <ClickEventBoundary>
+                <div>
+                  <ActionsDropdown
+                    ariaLabel={translateWithParameters(
+                      'project_activity.analysis_X_actions',
+                      analysis.buildString ?? formatDate(parsedDate, formatterOption),
+                    )}
+                    buttonSize="small"
+                    id="it__analysis-actions"
+                    zLevel={PopupZLevel.Absolute}
+                  >
+                    {canAddVersion && (
+                      <ItemButton
+                        className="js-add-version"
+                        onClick={() => setDialog(Dialog.AddVersion)}
+                      >
+                        {translate('project_activity.add_version')}
+                      </ItemButton>
+                    )}
+                    {canAddEvent && (
+                      <ItemButton
+                        className="js-add-event"
+                        onClick={() => setDialog(Dialog.AddEvent)}
+                      >
+                        {translate('project_activity.add_custom_event')}
+                      </ItemButton>
+                    )}
+                    {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ItemDivider />}
+                    {canDeleteAnalyses && (
+                      <ItemDangerButton
+                        className="js-delete-analysis"
+                        onClick={() => setDialog(Dialog.RemoveAnalysis)}
+                      >
+                        {translate('project_activity.delete_analysis')}
+                      </ItemDangerButton>
+                    )}
+                  </ActionsDropdown>
+
+                  {[Dialog.AddEvent, Dialog.AddVersion].includes(dialog as Dialog) && (
+                    <AddEventForm
+                      category={
+                        dialog === Dialog.AddVersion
+                          ? ProjectAnalysisEventCategory.Version
+                          : undefined
+                      }
+                      addEventButtonText={
+                        dialog === Dialog.AddVersion
+                          ? 'project_activity.add_version'
+                          : 'project_activity.add_custom_event'
+                      }
+                      analysis={analysis}
+                      onClose={closeDialog}
+                    />
+                  )}
+
+                  {dialog === 'remove_analysis' && (
+                    <RemoveAnalysisForm analysis={analysis} onClose={closeDialog} />
+                  )}
+                </div>
+              </ClickEventBoundary>
+            )}
           </div>
-
-          {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
-            <ClickEventBoundary>
-              <div className="sw-h-page sw-grow-0 sw-shrink-0 sw-mr-4 sw-relative">
-                <ActionsDropdown
-                  ariaLabel={translateWithParameters(
-                    'project_activity.analysis_X_actions',
-                    analysis.buildString ?? formatDate(parsedDate, formatterOption),
-                  )}
-                  buttonSize="small"
-                  id="it__analysis-actions"
-                  zLevel={PopupZLevel.Absolute}
-                >
-                  {canAddVersion && (
-                    <ItemButton
-                      className="js-add-version"
-                      onClick={() => setDialog(Dialog.AddVersion)}
-                    >
-                      {translate('project_activity.add_version')}
-                    </ItemButton>
-                  )}
-                  {canAddEvent && (
-                    <ItemButton className="js-add-event" onClick={() => setDialog(Dialog.AddEvent)}>
-                      {translate('project_activity.add_custom_event')}
-                    </ItemButton>
-                  )}
-                  {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ItemDivider />}
-                  {canDeleteAnalyses && (
-                    <ItemDangerButton
-                      className="js-delete-analysis"
-                      onClick={() => setDialog(Dialog.RemoveAnalysis)}
-                    >
-                      {translate('project_activity.delete_analysis')}
-                    </ItemDangerButton>
-                  )}
-                </ActionsDropdown>
-
-                {[Dialog.AddEvent, Dialog.AddVersion].includes(dialog as Dialog) && (
-                  <AddEventForm
-                    category={
-                      dialog === Dialog.AddVersion
-                        ? ProjectAnalysisEventCategory.Version
-                        : undefined
-                    }
-                    addEventButtonText={
-                      dialog === Dialog.AddVersion
-                        ? 'project_activity.add_version'
-                        : 'project_activity.add_custom_event'
-                    }
-                    analysis={analysis}
-                    onClose={closeDialog}
-                  />
-                )}
-
-                {dialog === 'remove_analysis' && (
-                  <RemoveAnalysisForm analysis={analysis} onClose={closeDialog} />
-                )}
-              </div>
-            </ClickEventBoundary>
-          )}
 
           {analysis.events.length > 0 && (
             <Events
@@ -216,7 +221,6 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
 
 const ActivityTime = styled.div`
   box-sizing: border-box;
-  width: 4.5rem;
 `;
 
 const ActivityAnalysisListItem = styled.li`
