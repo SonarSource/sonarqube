@@ -178,6 +178,10 @@ code.rule {
   border-bottom: rgb(93, 108, 208);
 }
 
-.design-system-modal-contents{
+.design-system-modal-contents {
   overflow: auto;
+}
+
+.bg-white {
+  background: white;
 }

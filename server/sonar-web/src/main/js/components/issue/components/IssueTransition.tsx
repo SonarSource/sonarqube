@@ -84,7 +84,7 @@ export default function IssueTransition(props: Readonly<Props>) {
         withClickOutHandler={!guideIsRunning}
         withFocusOutHandler={!guideIsRunning}
         overlay={
-          <div className="sw-fixed">
+          <div className="sw-fixed bg-white">
             <IssueTransitionOverlay
               issue={issue}
               onClose={handleClose}
