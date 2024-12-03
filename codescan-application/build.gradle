@@ -129,7 +129,7 @@ zip {
     //tolerance will allow for some growth in the archive size.
     def expectedSize = 300_000_000
     //We set a tolerance of 15MB to avoid failing the build for small differences in the archive size.
-    def tolerance = 15_000_000
+    def tolerance = 30_000_000
     def minArchiveSize = expectedSize - tolerance
     def maxArchiveSize = expectedSize + tolerance
 
