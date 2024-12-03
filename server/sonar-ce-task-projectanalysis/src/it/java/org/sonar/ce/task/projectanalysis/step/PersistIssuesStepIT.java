@@ -161,7 +161,8 @@ public class PersistIssuesStepIT extends BaseStepTest {
           .setUserUuid("john_uuid")
           .setDiff("technicalDebt", null, 1L)
           .setCreationDate(new Date(NOW)))
-      .addImpact(SoftwareQuality.SECURITY, Severity.MEDIUM))
+      .addImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
+      .setPrioritizedRule(true))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -181,6 +182,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     assertThat(result.getImpacts())
       .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
       .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.SECURITY, Severity.MEDIUM));
+    assertThat(result.isPrioritizedRule()).isTrue();
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
@@ -278,7 +280,8 @@ public class PersistIssuesStepIT extends BaseStepTest {
         .setUserUuid("john_uuid")
         .setDiff("technicalDebt", null, 1L)
         .setCreationDate(new Date(NOW)))
-      .addImpact(SoftwareQuality.SECURITY, Severity.MEDIUM))
+      .addImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
+      .setPrioritizedRule(true))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -296,6 +299,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     assertThat(result.getImpacts())
       .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
       .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.SECURITY, Severity.MEDIUM));
+    assertThat(result.isPrioritizedRule()).isTrue();
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
@@ -361,7 +365,8 @@ public class PersistIssuesStepIT extends BaseStepTest {
       .setNew(true)
       .setIsOnChangedLine(true)
       .addImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
-      .setType(RuleType.BUG)).close();
+      .setType(RuleType.BUG)
+      .setPrioritizedRule(true)).close();
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -379,6 +384,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
     assertThat(result.isNewCodeReferenceIssue()).isTrue();
+    assertThat(result.isPrioritizedRule()).isTrue();
   }
 
   @Test

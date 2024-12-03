@@ -114,7 +114,8 @@ public class ExportIssuesStep implements ComputationStep {
       .setIssueUpdatedAt(Optional.of(issueDto).map(IssueDto::getIssueUpdateTime).orElse(0L))
       .setIssueClosedAt(Optional.of(issueDto).map(IssueDto::getIssueCloseTime).orElse(0L))
       .setProjectUuid(issueDto.getProjectUuid())
-      .setCodeVariants(Optional.of(issueDto).map(IssueDto::getCodeVariantsString).orElse(""));
+      .setCodeVariants(Optional.of(issueDto).map(IssueDto::getCodeVariantsString).orElse(""))
+      .setPrioritizedRule(issueDto.isPrioritizedRule());
     setLocations(builder, issueDto);
     setMessageFormattings(builder, issueDto);
     mergeImpacts(builder, issueDto);

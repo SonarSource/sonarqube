@@ -126,6 +126,8 @@ message Issue {
   string code_variants = 26;
 
   repeated Impact impacts = 27;
+
+  bool prioritized_rule = 28;
 }
 
 message Impact {

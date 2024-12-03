@@ -163,6 +163,7 @@ public final class IssueDto implements Serializable {
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
+      .setPrioritizedRule(issue.isPrioritizedRule())
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now)

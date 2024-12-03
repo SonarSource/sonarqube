@@ -235,7 +235,8 @@ public class ExportIssuesStepIT {
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH).setManualSeverity(true))
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.BLOCKER).setManualSeverity(false))
       .setIssueCloseTime(741L)
-      .setCodeVariants(List.of("v1", "v2"));
+      .setCodeVariants(List.of("v1", "v2"))
+      .setPrioritizedRule(true);
 
     // fields tested separately and/or required to match SQL request
     issueDto
@@ -276,6 +277,7 @@ public class ExportIssuesStepIT {
     assertThat(issue.getMessageFormattingsList())
       .isEqualTo(ExportIssuesStep.dbToDumpMessageFormatting(messageFormattings.getMessageFormattingList()));
     assertThat(issue.getCodeVariants()).isEqualTo(issueDto.getCodeVariantsString());
+    assertThat(issue.getPrioritizedRule()).isEqualTo(issueDto.isPrioritizedRule());
   }
 
   @Test

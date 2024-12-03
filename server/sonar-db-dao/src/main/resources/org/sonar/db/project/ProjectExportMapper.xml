@@ -129,6 +129,7 @@
           i.rule_description_context_key as ruleDescriptionContextKey,
           i.message_formattings as messageFormattings,
           i.code_variants as codeVariantsString,
+          i.prioritized_rule as prioritizedRule,
           ii.software_quality as ii_softwareQuality,
           ii.severity as ii_severity,
           ii.manual_severity as ii_manualSeverity,

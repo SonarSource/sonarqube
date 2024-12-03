@@ -313,6 +313,7 @@ class IssueDtoTest {
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
     assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity, ImpactDto::isManualSeverity)
       .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH, true), tuple(RELIABILITY, LOW, false));
+    assertThat(issueDto.isPrioritizedRule()).isTrue();
   }
 
   @Test
@@ -346,6 +347,7 @@ class IssueDtoTest {
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
     assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity, ImpactDto::isManualSeverity)
       .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH, true), tuple(RELIABILITY, LOW, false));
+    assertThat(issueDto.isPrioritizedRule()).isTrue();
   }
 
   @Test
@@ -401,6 +403,7 @@ class IssueDtoTest {
       .setIsNewCodeReferenceIssue(true)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
       .setCodeVariants(List.of("variant1", "variant2"))
+      .setPrioritizedRule(true)
       .addImpact(MAINTAINABILITY, HIGH, true)
       .addImpact(RELIABILITY, LOW, false);
     return defaultIssue;
