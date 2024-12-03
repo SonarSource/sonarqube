@@ -84,13 +84,15 @@ export default function IssueTransition(props: Readonly<Props>) {
         withClickOutHandler={!guideIsRunning}
         withFocusOutHandler={!guideIsRunning}
         overlay={
-          <IssueTransitionOverlay
-            issue={issue}
-            onClose={handleClose}
-            onSetTransition={handleSetTransition}
-            loading={transitioning}
-            guideStepIndex={guideStepIndex}
-          />
+          <div className="sw-fixed">
+            <IssueTransitionOverlay
+              issue={issue}
+              onClose={handleClose}
+              onSetTransition={handleSetTransition}
+              loading={transitioning}
+              guideStepIndex={guideStepIndex}
+            />
+          </div>
         }
         placement={PopupPlacement.Bottom}
         zLevel={PopupZLevel.Absolute}
