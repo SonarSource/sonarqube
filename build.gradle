@@ -328,7 +328,7 @@ subprojects {
       dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:1.4.0.2329'
 
       // Webapp
-      dependency "com.sonarsource.sonarqube:webapp-assets:$webappVersion"
+      dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.5.6') {

@@ -76,13 +76,13 @@ dependencies {
     jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
     jdbc_postgresql 'org.postgresql:postgresql'
 
+    webapp 'org.sonarsource.sonarqube:webapp-assets'
 
     def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
     
     if (artifactoryUsername && artifactoryPassword) {
       zipDist "sonarqube:elasticsearch:${elasticSearchServerVersion}-no-jdk@tar.gz"
-      webapp 'com.sonarsource.sonarqube:webapp-assets'
     } else {
       zipDist "elasticsearch:elasticsearch:${elasticSearchServerVersion}-linux-x86_64@tar.gz"
     }
@@ -312,15 +312,10 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
 
     def webappBuildPath = System.getenv('WEBAPP_BUILD_PATH') 
 
-    def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
-    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
-    if (webappBuildPath == null && artifactoryUsername && artifactoryPassword) {
+    if (webappBuildPath == null) {
       from(zipTree(configurations.webapp.singleFile))
 
     } else {
-      // TODO: fix default location!
-      webappBuildPath ?= "../sonarqube-webapp/server/sonar-web/build/webapp"
-
       assert rootProject.file(webappBuildPath).exists()
 
       from(rootProject.fileTree(webappBuildPath))
