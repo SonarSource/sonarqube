@@ -19,7 +19,8 @@
  */
 
 import styled from '@emotion/styled';
-import { LightLabel } from '~design-system';
+import { Heading, LinkHighlight, Text } from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
@@ -28,28 +29,57 @@ import CategoryDefinitionsList from './CategoryDefinitionsList';
 
 export function AnalysisScope(props: AdditionalCategoryComponentProps) {
   const { component, definitions, selectedCategory } = props;
+  const intl = useIntl();
 
   return (
     <>
-      <StyledGrid className="sw-pt-6 sw-px-6 sw-gap-2">
-        <p className="sw-col-span-2">
-          {translate('settings.analysis_scope.wildcards.introduction')}
-        </p>
+      <StyledGrid className="sw-pt-1 sw-px-1 sw-gap-2">
+        <Heading as="h2" className="sw-col-span-2">
+          {translate('property.category.exclusions')}
+        </Heading>
 
-        <span>*</span>
-        <LightLabel>{translate('settings.analysis_scope.wildcards.zero_more_char')}</LightLabel>
+        <Text className="sw-col-span-2 sw-mt-4 sw-mb-3">
+          {intl.formatMessage(
+            { id: 'settings.analysis_scope.introduction' },
+            {
+              link: (text) => (
+                <DocumentationLink
+                  shouldOpenInNewTab
+                  highlight={LinkHighlight.CurrentColor}
+                  to={DocLink.AnalysisScopeWildcardPatterns}
+                >
+                  {text}
+                </DocumentationLink>
+              ),
+            },
+          )}
+        </Text>
 
-        <span>**</span>
-        <LightLabel>{translate('settings.analysis_scope.wildcards.zero_more_dir')}</LightLabel>
+        <Text as="p" className="sw-col-span-2">
+          {intl.formatMessage(
+            { id: 'settings.analysis_scope.wildcards.introduction' },
+            {
+              link: (text) => (
+                <DocumentationLink
+                  shouldOpenInNewTab
+                  highlight={LinkHighlight.CurrentColor}
+                  to={DocLink.AnalysisScope}
+                >
+                  {text}
+                </DocumentationLink>
+              ),
+            },
+          )}
+        </Text>
 
-        <span>?</span>
-        <LightLabel>{translate('settings.analysis_scope.wildcards.single_char')}</LightLabel>
+        <Text>*</Text>
+        <Text isSubdued>{translate('settings.analysis_scope.wildcards.zero_more_char')}</Text>
 
-        <div className="sw-col-span-2">
-          <DocumentationLink to={DocLink.AnalysisScope}>
-            {translate('settings.analysis_scope.learn_more')}
-          </DocumentationLink>
-        </div>
+        <Text>**</Text>
+        <Text isSubdued>{translate('settings.analysis_scope.wildcards.zero_more_dir')}</Text>
+
+        <Text>?</Text>
+        <Text isSubdued>{translate('settings.analysis_scope.wildcards.single_char')}</Text>
       </StyledGrid>
 
       <CategoryDefinitionsList

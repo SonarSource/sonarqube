@@ -32,7 +32,9 @@ const handler = new SettingsServiceMock();
 
 const ui = {
   introduction: byText('settings.analysis_scope.wildcards.introduction'),
-  docLink: byRole('link', { name: /learn_more/ }),
+  docLink: byRole('link', {
+    name: 'settings.analysis_scope.wildcards.introduction_link open_in_new_tab',
+  }),
 };
 
 beforeEach(() => {

@@ -144,8 +144,8 @@ export default function SoftwareImpactPill(props: Props) {
         </>
       }
       footer={
-        <DocumentationLink to={DocLink.CleanCodeIntroduction}>
-          {translate('learn_more')}
+        <DocumentationLink shouldOpenInNewTab to={DocLink.MQRSeverity}>
+          {translate('severity_impact.help.link')}
         </DocumentationLink>
       }
     >

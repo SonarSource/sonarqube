@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Text, Tooltip } from '@sonarsource/echoes-react';
-import { SafeHTMLInjection, SanitizeLevel, SubHeading } from '~design-system';
+import { Heading, Text, Tooltip } from '@sonarsource/echoes-react';
+import { SafeHTMLInjection, SanitizeLevel } from '~design-system';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { getPropertyDescription, getPropertyName } from '../utils';
@@ -34,9 +34,9 @@ export default function DefinitionDescription({ definition }: Readonly<Props>) {
 
   return (
     <div className="sw-w-abs-300">
-      <SubHeading className="sw-text-ellipsis sw-overflow-hidden" title={propertyName}>
+      <Heading as="h4" className="sw-text-ellipsis sw-overflow-hidden">
         {propertyName}
-      </SubHeading>
+      </Heading>
 
       {description && (
         <SafeHTMLInjection htmlAsString={description} sanitizeLevel={SanitizeLevel.RESTRICTED}>

@@ -62,8 +62,8 @@ export default function SeverityFacet(props: Readonly<BasicProps>) {
               { id: `severity_impact.help.description` },
               { p1: (text) => <p>{text}</p>, p: (text) => <p className="sw-mt-4">{text}</p> },
             )}
-            link={DocLink.CleanCodeIntroduction}
-            linkText={intl.formatMessage({ id: 'learn_more' })}
+            link={DocLink.MQRSeverity}
+            linkText={intl.formatMessage({ id: 'severity_impact.help.link' })}
           />
         )
       }

@@ -30,7 +30,7 @@ module.exports = {
             {id}
             {Object.entries(values).map(([key, value]) => (
               <React.Fragment key={key}>
-                {typeof value === 'function' ? value() : value}
+                {typeof value === 'function' ? value(`${id}_${key}`) : value}
               </React.Fragment>
             ))}
           </>
@@ -45,7 +45,7 @@ module.exports = {
     values,
   }: {
     id: string;
-    values?: { [x: string]: React.ReactNode | (() => React.ReactNode) };
+    values?: { [x: string]: React.ReactNode | ((text: string) => React.ReactNode) };
   }) => {
     return (
       <>
@@ -53,7 +53,7 @@ module.exports = {
         {values !== undefined &&
           Object.entries(values).map(([key, value]) => (
             <React.Fragment key={key}>
-              {typeof value === 'function' ? value() : value}
+              {typeof value === 'function' ? value(`${id}_${key}`) : value}
             </React.Fragment>
           ))}
       </>

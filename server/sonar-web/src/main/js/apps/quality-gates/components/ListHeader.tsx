@@ -68,8 +68,8 @@ export default function ListHeader({ canCreate }: Readonly<Props>) {
           title={intl.formatMessage({ id: 'quality_gates.help.title' })}
           description={intl.formatMessage({ id: 'quality_gates.help.desc' })}
           footer={
-            <DocumentationLink standalone to={DocLink.QualityGates}>
-              {intl.formatMessage({ id: 'learn_more' })}
+            <DocumentationLink shouldOpenInNewTab standalone to={DocLink.QualityGates}>
+              {intl.formatMessage({ id: 'quality_gates.help.link' })}
             </DocumentationLink>
           }
         >

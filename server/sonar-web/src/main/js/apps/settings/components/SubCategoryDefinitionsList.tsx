@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading } from '@sonarsource/echoes-react';
+import classNames from 'classnames';
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
-import { BasicSeparator, Note, SafeHTMLInjection, SanitizeLevel, SubTitle } from '~design-system';
+import { BasicSeparator, Note, SafeHTMLInjection, SanitizeLevel } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
 import { SettingDefinitionAndValue } from '../../../types/settings';
@@ -81,17 +83,17 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
       : sortedSubCategories.filter((c) => !SUB_CATEGORY_EXCLUSIONS[category]?.includes(c.key));
 
     return (
-      <ul>
+      <ul className={classNames({ 'sw-mx-6': !noPadding })}>
         {filteredSubCategories.map((subCategory, index) => (
-          <li className={noPadding ? '' : 'sw-p-6'} key={subCategory.key}>
+          <li className={classNames({ 'sw-py-6': !noPadding })} key={subCategory.key}>
             {displaySubCategoryTitle && (
-              <SubTitle
-                as="h2"
+              <Heading
+                as="h3"
                 data-key={subCategory.key}
                 ref={this.scrollToSubCategoryOrDefinition}
               >
                 {subCategory.name}
-              </SubTitle>
+              </Heading>
             )}
 
             {subCategory.description != null && (

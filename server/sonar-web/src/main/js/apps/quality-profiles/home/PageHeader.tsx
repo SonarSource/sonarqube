@@ -18,14 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonGroup, ButtonVariety, Heading, Link } from '@sonarsource/echoes-react';
+import {
+  Button,
+  ButtonGroup,
+  ButtonVariety,
+  Heading,
+  LinkHighlight,
+} from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { FlagMessage } from '~design-system';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Actions } from '../../../api/quality-profiles';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
-import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 import { getProfilePath } from '../utils';
@@ -44,7 +50,6 @@ export default function PageHeader(props: Readonly<Props>) {
   const intl = useIntl();
   const location = useLocation();
   const router = useRouter();
-  const docUrl = useDocUrl(DocLink.InstanceAdminQualityProfiles);
 
   const [modal, setModal] = React.useState<'' | 'createProfile' | 'restoreProfile'>('');
 
@@ -67,11 +72,20 @@ export default function PageHeader(props: Readonly<Props>) {
         </Heading>
 
         <div className="sw-typo-default">
-          {intl.formatMessage({ id: 'quality_profiles.intro' })}
-
-          <Link className="sw-ml-2" to={docUrl}>
-            {intl.formatMessage({ id: 'learn_more' })}
-          </Link>
+          {intl.formatMessage(
+            { id: 'quality_profiles.intro' },
+            {
+              link: (text) => (
+                <DocumentationLink
+                  shouldOpenInNewTab
+                  to={DocLink.InstanceAdminQualityProfiles}
+                  highlight={LinkHighlight.CurrentColor}
+                >
+                  {text}
+                </DocumentationLink>
+              ),
+            },
+          )}
         </div>
       </div>
 

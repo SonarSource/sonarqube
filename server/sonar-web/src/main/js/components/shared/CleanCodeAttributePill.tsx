@@ -51,7 +51,7 @@ export function CleanCodeAttributePill(props: Readonly<Props>) {
       )}
       footer={
         <DocumentationLink to={DocLink.CleanCodeIntroduction}>
-          {translate('learn_more')}
+          {translate('clean_code_attribute.learn_more')}
         </DocumentationLink>
       }
     >

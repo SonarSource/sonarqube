@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Title } from '~design-system';
+import { Heading, LinkHighlight } from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
@@ -30,15 +31,28 @@ interface Props {
 }
 
 export default function Header(props: Readonly<Props>) {
+  const intl = useIntl();
   return (
     <header className="sw-mb-12 sw-flex sw-justify-between">
       <div className="sw-flex-1">
-        <Title className="sw-mb-4">{translate('background_tasks.page')}</Title>
+        <Heading as="h2" className="sw-mb-4">
+          {translate('background_tasks.page')}
+        </Heading>
         <p className="sw-max-w-3/4">
-          {translate('background_tasks.page.description')}
-          <DocumentationLink className="sw-ml-2" to={DocLink.BackgroundTasks}>
-            {translate('learn_more')}
-          </DocumentationLink>
+          {intl.formatMessage(
+            { id: 'background_tasks.page.description' },
+            {
+              link: (text) => (
+                <DocumentationLink
+                  shouldOpenInNewTab
+                  highlight={LinkHighlight.CurrentColor}
+                  to={DocLink.BackgroundTasks}
+                >
+                  {text}
+                </DocumentationLink>
+              ),
+            },
+          )}
         </p>
       </div>
       {!props.component && (
