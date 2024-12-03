@@ -45,7 +45,7 @@ export function getMessages() {
 }
 
 export function getCurrentLocale() {
-  return getL10nBundleFromCache().locale;
+  return getL10nBundleFromCache().locale ?? DEFAULT_LOCALE;
 }
 
 export function getCurrentL10nBundle() {

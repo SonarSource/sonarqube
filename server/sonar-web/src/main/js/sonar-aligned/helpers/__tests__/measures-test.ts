@@ -32,7 +32,7 @@ const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 jest.unmock('../../../helpers/l10n');
 
 jest.mock('../../../helpers/l10nBundle', () => ({
-  getCurrentLocale: jest.fn().mockReturnValue('us'),
+  getCurrentLocale: jest.fn().mockReturnValue('en'),
   getMessages: jest.fn().mockReturnValue({}),
   getIntl: jest.fn().mockReturnValue({ formatMessage: jest.fn(({ id }) => `${id}`) }),
 }));
