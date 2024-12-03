@@ -440,7 +440,7 @@ subprojects {
       dependency 'org.jsoup:jsoup:1.18.1'
       // JUnit 5
       dependency 'org.junit:junit-bom:5.11.3'
-      dependencySet(group: 'org.junit.jupiter', version: '5.11.1') {
+      dependencySet(group: 'org.junit.jupiter', version: '5.11.3') {
         entry 'junit-jupiter-api'
         entry 'junit-jupiter-engine'
         entry 'junit-jupiter-params'
