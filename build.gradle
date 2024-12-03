@@ -491,7 +491,7 @@ subprojects {
       dependency 'jakarta.el:jakarta.el-api:3.0.3'
       dependency 'org.glassfish:jakarta.el:3.0.4'
       dependency 'org.kohsuke:github-api:1.326'
-      dependency 'org.wiremock:wiremock-standalone:3.9.1'
+      dependency 'org.wiremock:wiremock-standalone:3.10.0'
       dependency 'org.skyscreamer:jsonassert:1.5.3'
       // to be used only in sonar-ws-generator
       dependency("org.apache.velocity:velocity:1.7") {
