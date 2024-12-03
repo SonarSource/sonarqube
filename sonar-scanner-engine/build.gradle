@@ -32,7 +32,7 @@ dependencies {
   api 'com.squareup.okhttp3:okhttp'
   api 'com.fasterxml.staxmate:staxmate'
   implementation 'io.github.hakky54:sslcontext-kickstart'
-  implementation 'org.bouncycastle:bcprov-jdk18on'
+  implementation 'org.bouncycastle:bc-fips'
   api 'javax.annotation:javax.annotation-api'
   api 'org.eclipse.jgit:org.eclipse.jgit'
   api 'org.tmatesoft.svnkit:svnkit'

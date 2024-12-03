@@ -36,7 +36,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 
@@ -70,7 +71,7 @@ public class GithubAppSecurityImpl implements GithubAppSecurity {
   private static Algorithm readApplicationPrivateKey(long appId, String encodedPrivateKey) {
     byte[] decodedPrivateKey = encodedPrivateKey.getBytes(UTF_8);
     try (PemReader pemReader = new PemReader(new InputStreamReader(new ByteArrayInputStream(decodedPrivateKey)))) {
-      Security.addProvider(new BouncyCastleProvider());
+      Security.addProvider(new BouncyCastleFipsProvider());
 
       PemObject pemObject = pemReader.readPemObject();
       if (pemObject == null) {
@@ -99,7 +100,7 @@ public class GithubAppSecurityImpl implements GithubAppSecurity {
     } catch (Exception e) {
       throw new IllegalArgumentException("The Github App private key is not valid", e);
     } finally {
-      Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
+      Security.removeProvider(BouncyCastleFipsProvider.PROVIDER_NAME);
     }
   }
 

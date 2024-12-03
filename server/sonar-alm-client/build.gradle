@@ -10,7 +10,7 @@ dependencies {
     api 'commons-codec:commons-codec'
     api 'org.kohsuke:github-api'
     api 'com.auth0:java-jwt'
-    api 'org.bouncycastle:bcpkix-jdk18on'
+    api 'org.bouncycastle:bcpkix-fips'
     api 'org.sonarsource.api.plugin:sonar-plugin-api'
     api project(':server:sonar-auth-github')
     api project(':server:sonar-auth-gitlab')

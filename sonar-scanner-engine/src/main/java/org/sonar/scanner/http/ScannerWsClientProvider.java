@@ -34,7 +34,7 @@ import java.time.Duration;
 import java.time.format.DateTimeParseException;
 import nl.altindag.ssl.SSLFactory;
 import nl.altindag.ssl.exception.GenericKeyStoreException;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -176,7 +176,7 @@ public class ScannerWsClientProvider {
   static KeyStore loadKeyStoreWithBouncyCastle(Path keystorePath, char[] keystorePassword, String keystoreType) throws IOException,
     KeyStoreException, CertificateException, NoSuchAlgorithmException {
     try (InputStream keystoreInputStream = Files.newInputStream(keystorePath, StandardOpenOption.READ)) {
-      KeyStore keystore = KeyStore.getInstance(keystoreType, new BouncyCastleProvider());
+      KeyStore keystore = KeyStore.getInstance(keystoreType, new BouncyCastleFipsProvider());
       keystore.load(keystoreInputStream, keystorePassword);
       return keystore;
     }

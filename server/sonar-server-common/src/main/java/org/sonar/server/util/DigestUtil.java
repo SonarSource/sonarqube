@@ -20,7 +20,12 @@
 package org.sonar.server.util;
 
 import java.nio.charset.StandardCharsets;
-import org.bouncycastle.jcajce.provider.digest.SHA3;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
+
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.bouncycastle.util.encoders.Hex;
 
 public class DigestUtil {
@@ -29,10 +34,18 @@ public class DigestUtil {
     // utility class
   }
 
-  public static String sha3_224Hex(String input) {
-    SHA3.DigestSHA3 sha3Digest = new SHA3.Digest224();
-    byte[] hashBytes = sha3Digest.digest(input.getBytes(StandardCharsets.UTF_8));
-    return Hex.toHexString(hashBytes);
-  }
+    public static String sha3_224Hex(String input) {
+        try {
+            Security.addProvider(new BouncyCastleFipsProvider());
+            MessageDigest digest = MessageDigest.getInstance("SHA3-224", "BCFIPS");
+            byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            return Hex.toHexString(hashBytes);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new RuntimeException("Error while hashing with SHA3-224", e);
+        } finally {
+            Security.removeProvider(BouncyCastleFipsProvider.PROVIDER_NAME);
+        }
+
+    }
 
 }
