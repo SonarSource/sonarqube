@@ -450,7 +450,7 @@ subprojects {
         entry 'junit-platform-suite-api'
         entry 'junit-platform-suite-engine'
       }
-      dependency 'org.junit-pioneer:junit-pioneer:2.2.0'
+      dependency 'org.junit-pioneer:junit-pioneer:2.3.0'
       dependency 'org.mindrot:jbcrypt:0.4'
       dependencySet(group: 'org.mockito', version: '5.14.2') {
         entry 'mockito-core'
