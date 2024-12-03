@@ -184,7 +184,7 @@
   <select id="selectUuidsByOrganizationAndUser" parameterType="map" resultType="String">
     select py.uuid
     from properties py
-    inner join components ps on py.component_uuid = ps.uuid
+    inner join components ps on py.entity_uuid = ps.uuid
     where
     py.user_uuid=#{userUuid,jdbcType=VARCHAR}
     and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
@@ -193,7 +193,7 @@
   <select id="selectIdsByOrganizationAndMatchingLogin" parameterType="String" resultType="String">
     select py.uuid
     from properties py
-    inner join components ps on py.component_uuid = ps.uuid
+    inner join components ps on py.entity_uuid = ps.uuid
     where
     py.text_value like #{login,jdbcType=VARCHAR}
     and py.prop_key in
