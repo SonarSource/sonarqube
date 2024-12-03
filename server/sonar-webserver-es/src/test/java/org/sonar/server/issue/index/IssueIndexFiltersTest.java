@@ -139,7 +139,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
       newDoc("I2", project.uuid(), file2).setDirectoryPath("/"));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().directories(singletonList("/src/main/xoo")), "I1");
-    assertThatSearchReturnsOnly(IssueQuery.builder().directories(singletonList("/")), "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().directories(singletonList("/")), "I1", "I2");
     assertThatSearchReturnsEmpty(IssueQuery.builder().directories(singletonList("unknown")));
   }
 

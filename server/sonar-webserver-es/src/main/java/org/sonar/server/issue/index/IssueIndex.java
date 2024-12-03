@@ -699,9 +699,11 @@ public class IssueIndex {
       filters.addFilter(
         FIELD_ISSUE_PROJECT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_PROJECT_UUID),
         createTermsFilter(FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
-      filters.addFilter(
-        FIELD_ISSUE_DIRECTORY_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_DIRECTORY_PATH),
-        createTermsFilter(FIELD_ISSUE_DIRECTORY_PATH, query.directories()));
+
+      BoolQueryBuilder directoryFilter = boolQuery();
+      query.directories().forEach(directory -> directoryFilter.should(createPrefixFilter(FIELD_ISSUE_DIRECTORY_PATH, directory)));
+      filters.addFilter(FIELD_ISSUE_DIRECTORY_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_DIRECTORY_PATH), directoryFilter);
+
       filters.addFilter(
         FIELD_ISSUE_FILE_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_FILE_PATH),
         createTermsFilter(FIELD_ISSUE_FILE_PATH, query.files()));

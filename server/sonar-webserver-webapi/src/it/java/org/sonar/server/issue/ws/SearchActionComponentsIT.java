@@ -252,7 +252,7 @@ class SearchActionComponentsIT {
     ws.newRequest()
       .setParam(PARAM_DIRECTORIES, "src/main/java")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json");
+      .assertJson(this.getClass(), "search_by_file_uuid.json");
   }
 
   @Test

@@ -110,6 +110,30 @@ class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
+  void search_directory_should_include_all_descendants() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+    List<IssueDoc> issues = new ArrayList<>();
+    String parentPath = "src/main/java/org/sonar";
+    String subDirectoryPath = parentPath + "/server";
+    String subSubDirectoryPath = subDirectoryPath + "/issue";
+    issues.add(newDoc("i1", project.uuid(), file).setDirectoryPath(parentPath));
+    issues.add(newDoc("i2", project.uuid(), file).setDirectoryPath(subDirectoryPath));
+    issues.add(newDoc("i3", project.uuid(), file).setDirectoryPath(subSubDirectoryPath));
+    indexIssues(issues.toArray(new IssueDoc[]{}));
+
+    IssueQuery.Builder query = IssueQuery.builder();
+    query.directories(singletonList(parentPath));
+
+    SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
+
+    assertThat(result.getHits().getHits())
+      .hasSize(3)
+      .extracting(SearchHit::getId)
+      .containsExactlyInAnyOrder("i1", "i2", "i3");
+  }
+
+  @Test
   void search_nine_issues_with_same_creation_date_sorted_by_creation_date_order_is_sorted_also_by_key() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
