@@ -1,3 +1,0 @@
-# We don't want robots to click all Sonar links
-User-agent: *
-Disallow: /

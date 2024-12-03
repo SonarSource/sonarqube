@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`installScript should add the given script to the dom 1`] = `"<script src="custom_script.js"></script>"`;
-
-exports[`installStyles should add the given stylesheet to the dom 1`] = `"<link href="custom_styles.css" rel="stylesheet">"`;
