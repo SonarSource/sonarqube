@@ -44,7 +44,10 @@ public class ModuleCoverageAndDuplicationExclusionsTest {
 
   @Before
   public void prepare() throws Exception {
-    baseDir = temp.newFolder();
+    // On Windows, 'temp.newFolder()' would return a 8.3 filename (or short filename).
+    // We need to convert it to long filename version, otherwise the path will be different and the resolution of the relative path will not work as intended.
+    // See https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/18e63b13-ba43-4f5f-a5b7-11e871b71f14
+    baseDir = temp.newFolder().toPath().toRealPath().toFile();
   }
 
   @Test

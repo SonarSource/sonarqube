@@ -118,7 +118,7 @@ public class FileIndexer {
     issueExclusionsLoader.addMulticriteriaPatterns(inputFile);
     String langStr = inputFile.language() != null ? format("with language '%s'", inputFile.language()) : "with no language";
     if (LOG.isDebugEnabled()) {
-      LOG.debug("'{}' indexed {}{}", projectRelativePath, type == Type.TEST ? "as test " : "", langStr);
+      LOG.debug("'{}' indexed {}{}", inputFile, type == Type.TEST ? "as test " : "", langStr);
     }
     evaluateCoverageExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     evaluateDuplicationExclusions(moduleCoverageAndDuplicationExclusions, inputFile);

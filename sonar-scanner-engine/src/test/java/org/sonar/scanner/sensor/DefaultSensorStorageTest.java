@@ -146,11 +146,11 @@ class DefaultSensorStorageTest {
   @Test
   void shouldFailIfUnknownMetric() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
-
-    assertThatThrownBy(() -> underTest.store(new DefaultMeasure()
+    DefaultMeasure defaultMeasure = new DefaultMeasure()
       .on(file)
       .forMetric(CoreMetrics.LINES)
-      .withValue(10)))
+      .withValue(10);
+    assertThatThrownBy(() -> underTest.store(defaultMeasure))
         .isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("Unknown metric: lines");
   }
@@ -257,9 +257,11 @@ class DefaultSensorStorageTest {
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 
-    ScannerReport.Measure m = reportReader.readComponentMeasures(file.scannerId()).next();
-    assertThat(m.getIntValue().getValue()).isEqualTo(10);
-    assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
+    try (CloseableIterator<ScannerReport.Measure> measureCloseableIterator = reportReader.readComponentMeasures(file.scannerId())) {
+      ScannerReport.Measure m = measureCloseableIterator.next();
+      assertThat(m.getIntValue().getValue()).isEqualTo(10);
+      assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
+    }
   }
 
   @Test
@@ -272,9 +274,11 @@ class DefaultSensorStorageTest {
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 
-    ScannerReport.Measure m = reportReader.readComponentMeasures(file.scannerId()).next();
-    assertThat(m.getIntValue().getValue()).isEqualTo(10);
-    assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
+    try (CloseableIterator<ScannerReport.Measure> measureCloseableIterator = reportReader.readComponentMeasures(file.scannerId())) {
+      ScannerReport.Measure m = measureCloseableIterator.next();
+      assertThat(m.getIntValue().getValue()).isEqualTo(10);
+      assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
+    }
   }
 
   @Test
@@ -314,9 +318,11 @@ class DefaultSensorStorageTest {
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 
-    ScannerReport.Measure m = reportReader.readComponentMeasures(module.scannerId()).next();
-    assertThat(m.getIntValue().getValue()).isEqualTo(10);
-    assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
+    try (CloseableIterator<ScannerReport.Measure> measureCloseableIterator = reportReader.readComponentMeasures(module.scannerId())) {
+      ScannerReport.Measure m = measureCloseableIterator.next();
+      assertThat(m.getIntValue().getValue()).isEqualTo(10);
+      assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
+    }
   }
 
   @Test

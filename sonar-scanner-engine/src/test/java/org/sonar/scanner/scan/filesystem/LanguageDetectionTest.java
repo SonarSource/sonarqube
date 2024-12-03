@@ -39,6 +39,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.mediumtest.FakeLanguagesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 
+import static java.io.File.separator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -193,8 +194,8 @@ public class LanguageDetectionTest {
 
     assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
     assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
-    verify(languageCacheSpy, times(1)).put(endsWith("/Foo.java"), any(org.sonar.scanner.repository.language.Language.class));
-    verify(languageCacheSpy, times(2)).get(endsWith("/Foo.java"));
+    verify(languageCacheSpy, times(1)).put(endsWith(separator + "Foo.java"), any(org.sonar.scanner.repository.language.Language.class));
+    verify(languageCacheSpy, times(2)).get(endsWith(separator + "Foo.java"));
   }
 
   private static Map<String, org.sonar.scanner.repository.language.Language> spyInternalLanguageCache(LanguageDetection detection) {
@@ -239,7 +240,7 @@ public class LanguageDetectionTest {
 
     @Override
     public String getName() {
-      return key;
+      return getKey();
     }
 
     @Override

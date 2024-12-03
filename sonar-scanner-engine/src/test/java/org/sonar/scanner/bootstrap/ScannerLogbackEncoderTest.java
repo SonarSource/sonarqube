@@ -70,9 +70,11 @@ class ScannerLogbackEncoderTest {
 
     var bytes = underTest.encode(logEvent);
 
-    assertThat(new String(bytes, StandardCharsets.UTF_8))
-      .startsWith(
-        "{\"level\":\"DEBUG\",\"message\":\"message\",\"stacktrace\":\"java.lang.IllegalArgumentException: foo\\n\\tat org.sonar.scanner.bootstrap.ScannerLogbackEncoderTest.should_encode_with_stacktrace");
+    String encodedLog = new String(bytes, StandardCharsets.UTF_8);
+    assertThat(encodedLog).contains("\"level\":\"DEBUG\"")
+      .contains("\"message\":\"message\"")
+      .contains("\"stacktrace\":\"java.lang.IllegalArgumentException: foo")
+      .contains("at org.sonar.scanner.bootstrap.ScannerLogbackEncoderTest.should_encode_with_stacktrace");
   }
 
 }
