@@ -22,7 +22,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { SonarLintLogo } from '../../../components/logos/SonarLintLogo';
 import { translate } from '../../../helpers/l10n';
 import { QualityGateStatusCondition } from '../../../types/quality-gates';
 import { CurrentUser } from '../../../types/users';
@@ -64,17 +63,15 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
           link: (
             <>
               <DiscreetLink
-                to="https://www.sonarsource.com/products/sonarlint/features/connected-mode/?referrer=sonarqube"
+                to="https://knowledgebase.autorabit.com/product-guides/codescan/codescan-integration/ide-plugins"
                 rel="noopener noreferrer"
                 target="_blank"
                 showExternalIcon={false}
                 className="sw-mr-1"
               >
-                SonarLint
+                CodeScan
               </DiscreetLink>
-              <span className="sw-align-middle">
-                <SonarLintLogo size={16} />
-              </span>
+              <img src="/images/embed-doc/codescan.svg" width={28} />
             </>
           ),
         }}

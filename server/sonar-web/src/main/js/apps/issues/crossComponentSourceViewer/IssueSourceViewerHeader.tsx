@@ -71,7 +71,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
     loading,
     onExpand,
     sourceViewerFile,
-    shouldShowOpenInIde = true,
+    shouldShowOpenInIde = false,
     shouldShowViewAllIssues = true,
     secondaryActions,
   } = props;

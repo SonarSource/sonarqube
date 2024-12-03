@@ -24,9 +24,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.slf4j.Logger;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.event.EventDto;
@@ -61,11 +64,11 @@ public class NewCodePeriodResolver {
 
   @CheckForNull
   public Period resolve(DbSession dbSession, String branchUuid, NewCodePeriodDto newCodePeriodDto, String projectVersion) {
-    return toPeriod(newCodePeriodDto.getType(), newCodePeriodDto.getValue(), dbSession, projectVersion, branchUuid);
+    return toPeriod(newCodePeriodDto.getType(), newCodePeriodDto.getValue(), dbSession, projectVersion, branchUuid, newCodePeriodDto.getProjectUuid());
   }
 
   @CheckForNull
-  private Period toPeriod(NewCodePeriodType type, @Nullable String value, DbSession dbSession, String projectVersion, String rootUuid) {
+  private Period toPeriod(NewCodePeriodType type, @Nullable String value, DbSession dbSession, String projectVersion, String rootUuid, String projectUuid) {
     switch (type) {
       case NUMBER_OF_DAYS:
         checkNotNullValue(value, type);
@@ -78,14 +81,31 @@ public class NewCodePeriodResolver {
         return resolveBySpecificAnalysis(dbSession, rootUuid, value);
       case REFERENCE_BRANCH:
         checkNotNullValue(value, type);
-        return resolveByReferenceBranch(value);
+        return resolveByReferenceBranch(dbSession, projectUuid, rootUuid, value);
       default:
         throw new IllegalStateException("Unexpected type: " + type);
     }
   }
 
-  private static Period resolveByReferenceBranch(String value) {
-    return newPeriod(NewCodePeriodType.REFERENCE_BRANCH, value, null);
+  private Period resolveByReferenceBranch(DbSession dbSession, String projectUuid, String rootUuid, String branchKee) {
+    if (StringUtils.isEmpty(projectUuid)) {
+      Optional<BranchDto> newBranch = dbClient.branchDao().selectByUuid(dbSession, rootUuid);
+      if (newBranch.isEmpty()) {
+        throw new IllegalStateException("New Branch with id " + rootUuid + " doesn't exist for branch ");
+      }
+      projectUuid = newBranch.get().getProjectUuid();
+    }
+    LOG.debug("Project Uuid: {} and Branch Kee: {} for reference branch resolver", projectUuid, branchKee);
+    List<BranchDto> branches = dbClient.branchDao().selectByKeys(dbSession, projectUuid, Set.of(branchKee));
+    if (branches.isEmpty()) {
+      throw new IllegalStateException("Reference Branch " + branchKee + " doesn't exist");
+    }
+    Optional<SnapshotDto> baseline = dbClient.snapshotDao()
+            .selectLastAnalysisByComponentUuid(dbSession, branches.get(0).getUuid());
+    if (baseline.isEmpty()) {
+      throw new IllegalStateException("Baseline doesn't exist for branch " + branches.get(0).getUuid());
+    }
+    return newPeriod(NewCodePeriodType.REFERENCE_BRANCH, branchKee, baseline.get().getCreatedAt());
   }
 
   private Period resolveBySpecificAnalysis(DbSession dbSession, String rootUuid, String value) {
