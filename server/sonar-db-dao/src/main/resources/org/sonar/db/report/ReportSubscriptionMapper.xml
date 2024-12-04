@@ -55,6 +55,16 @@
        and branch_uuid = #{branchUuid,jdbcType=VARCHAR}
    </select>
 
+  <select id="countByQualifier" parameterType="java.lang.String" resultType="int">
+    SELECT count(1)
+    FROM report_subscriptions rs
+    INNER JOIN project_branches pb
+      ON rs.branch_uuid = pb.uuid
+    INNER JOIN projects p
+      ON pb.project_uuid = p.uuid
+    WHERE p.qualifier = #{qualifier,jdbcType=VARCHAR}
+  </select>
+
     <delete id="delete" parameterType="map">
     delete from report_subscriptions
       where <include refid="filterConditions"/>

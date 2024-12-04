@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -150,6 +152,30 @@ class ReportSubscriptionDaoIT {
       subscriptionBranch.getBranchUuid(), subscriptionBranch.getUserUuid());
 
     assertThat(reportSubscriptionDtos).isPresent().get().extracting(ReportSubscriptionDto::getUuid).isEqualTo("uuid3");
+  }
+
+  @Test
+  void countByQualifier_shouldReturnCorrectValue() {
+    ProjectData projectData1 = db.components().insertPrivateProject( p -> p.setQualifier("APP"));
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPrivateProject( p -> p.setQualifier("TRK"));
+    ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
+
+    ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1);
+    ComponentDto branch2 = db.components().insertProjectBranch(mainBranch2);
+
+    ReportSubscriptionDto subscriptionBranch1 = createSubscriptionDto("uuid2").setBranchUuid(branch1.branchUuid()).setUserUuid("userUuid2");
+    ReportSubscriptionDto subscriptionBranch2 = createSubscriptionDto("uuid3").setBranchUuid(branch2.branchUuid()).setUserUuid("userUuid3");
+    ReportSubscriptionDto subscriptionBranch3 = createSubscriptionDto("uuid4").setBranchUuid(branch2.branchUuid()).setUserUuid("userUuid4");
+    ReportSubscriptionDto subscriptionBranch4 = createSubscriptionDto("uuid").setPortfolioUuid("pf_uuid").setUserUuid("userUuid");
+
+    underTest.insert(db.getSession(), subscriptionBranch1);
+    underTest.insert(db.getSession(), subscriptionBranch2);
+    underTest.insert(db.getSession(), subscriptionBranch3);
+    underTest.insert(db.getSession(), subscriptionBranch4);
+
+    assertThat(underTest.countByQualifier(db.getSession(), "APP")).isEqualTo(1);
+    assertThat(underTest.countByQualifier(db.getSession(), "TRK")).isEqualTo(2);
   }
 
   @NotNull

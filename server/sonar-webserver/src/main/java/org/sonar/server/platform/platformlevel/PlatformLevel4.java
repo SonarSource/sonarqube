@@ -181,6 +181,7 @@ import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.email.telemetry.EmailConfigAuthMethodTelemetryProvider;
 import org.sonar.server.notification.email.telemetry.EmailConfigHostTelemetryProvider;
+import org.sonar.server.notification.email.telemetry.TelemetryApplicationSubscriptionsProvider;
 import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
@@ -681,6 +682,9 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryUserEnabledProvider.class,
       TelemetryFipsEnabledProvider.class,
       TelemetryPortfolioConfidentialFlagProvider.class,
+
+      // Reports telemetry
+      TelemetryApplicationSubscriptionsProvider.class,
 
       // telemetry
       TelemetryMetricsLoader.class,

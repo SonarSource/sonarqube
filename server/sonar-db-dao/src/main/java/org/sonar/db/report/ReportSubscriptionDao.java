@@ -61,4 +61,8 @@ public class ReportSubscriptionDao implements Dao {
   private static ReportSubscriptionMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(ReportSubscriptionMapper.class);
   }
+
+  public int countByQualifier(DbSession dbSession, String qualifier) {
+    return mapper(dbSession).countByQualifier(qualifier);
+  }
 }
