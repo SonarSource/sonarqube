@@ -29,7 +29,7 @@ import org.sonar.server.notification.NotificationChannel;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.ENABLED_BY_DEFAULT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PERMISSION_RESTRICTION;
