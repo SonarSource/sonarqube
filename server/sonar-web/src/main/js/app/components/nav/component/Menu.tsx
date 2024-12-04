@@ -73,6 +73,14 @@ export function Menu(props: Readonly<Props>) {
 
   const location = useLocation();
 
+  const moreURLS = [
+    '/extension/developer'
+  ]
+
+  const isActiveRoute = moreURLS.some((url) => {
+    return window.location.href.includes(url) && !window.location.href.includes('extension/developer/project_admin');
+  });
+
   const hasAnalysis = () => {
     const hasBranches = branchLikes.length > 1;
     return hasBranches || isInProgress || isPending || component.analysisDate !== undefined;
@@ -530,7 +538,7 @@ export function Menu(props: Readonly<Props>) {
         id="component-navigation-more"
         items={withoutSecurityExtension.map((e) => renderExtension(e, false, query))}
       >
-        <NavBarTabLink preventDefault text={translate('more')} withChevron to={{}} />
+        <NavBarTabLink preventDefault active={isActiveRoute} text={translate('more')} withChevron to={{}} />
       </DropdownMenu.Root>
     );
   };

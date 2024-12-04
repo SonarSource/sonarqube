@@ -408,6 +408,8 @@ subprojects {
       dependency 'com.zaxxer:HikariCP:5.1.0'
       dependency ('org.apache.directory.server:apacheds-server-integ:2.0.0.AM27') {
         exclude 'log4j:log4j'
+        exclude 'org.bouncycastle:bcprov-jdk15on'
+        exclude 'org.bouncycastle:bcpkix-jdk15on'
       }
       // Be aware that Log4j is used by Elasticsearch client
       dependencySet(group: 'org.apache.logging.log4j', version: '2.23.1') {
@@ -425,8 +427,8 @@ subprojects {
       dependency 'org.apache.sshd:sshd-core:2.13.1'
       dependency 'org.assertj:assertj-core:3.26.0'
       dependency 'org.assertj:assertj-guava:3.26.0'
-      dependency 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
-      dependency 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+      dependency 'org.bouncycastle:bc-fips:2.0.0'
+      dependency 'org.bouncycastle:bcpkix-fips:2.0.7'
       dependency('org.codehaus.sonar:sonar-channel:4.2') {
         exclude 'org.slf4j:slf4j-api'
       }
