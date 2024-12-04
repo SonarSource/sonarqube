@@ -19,13 +19,18 @@
  */
 package org.sonar.scanner.sensor;
 
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.Configuration;
+import org.sonar.scanner.config.DefaultConfiguration;
 
 public abstract class AbstractSensorOptimizer {
 
@@ -33,12 +38,14 @@ public abstract class AbstractSensorOptimizer {
 
   private final FileSystem fs;
   private final ActiveRules activeRules;
-  private final Configuration config;
+  private final Configuration originalConfiguration;
+  private final ConfigurationReadsInterceptor config;
 
   public AbstractSensorOptimizer(FileSystem fs, ActiveRules activeRules, Configuration config) {
     this.fs = fs;
     this.activeRules = activeRules;
-    this.config = config;
+    this.originalConfiguration = config;
+    this.config = new ConfigurationReadsInterceptor(config);
   }
 
   /**
@@ -54,10 +61,25 @@ public abstract class AbstractSensorOptimizer {
       return false;
     }
     if (!settingsCondition(descriptor)) {
-      LOG.debug("'{}' skipped because one of the required properties is missing", descriptor.name());
+      String accessedConfiguration = config.getAccessedKeys().stream()
+        .map(key -> "- " + key + ": " + getConfigurationValue(key).orElse("<empty>"))
+        .collect(Collectors.joining("\n"));
+
+      LOG.debug("""
+        '{}' skipped because of missing configuration requirements.
+        Accessed configuration:
+        {}""", descriptor.name(), accessedConfiguration);
       return false;
     }
     return true;
+  }
+
+  private Optional<String> getConfigurationValue(String key) {
+    if (originalConfiguration instanceof DefaultConfiguration configuration) {
+      return Optional.ofNullable(configuration.getOriginalProperties().get(key));
+    } else {
+      return config.get(key);
+    }
   }
 
   private boolean settingsCondition(DefaultSensorDescriptor descriptor) {
@@ -89,4 +111,38 @@ public abstract class AbstractSensorOptimizer {
     return true;
   }
 
+  private static class ConfigurationReadsInterceptor implements Configuration {
+    private final Configuration configuration;
+    private final Set<String> accessedKeys;
+
+    private ConfigurationReadsInterceptor(Configuration configuration) {
+      this.configuration = configuration;
+      this.accessedKeys = new HashSet<>();
+    }
+
+    Set<String> getAccessedKeys() {
+      return accessedKeys;
+    }
+
+    @Override
+    public boolean hasKey(String key) {
+      boolean hasKey = configuration.hasKey(key);
+      accessedKeys.add(key);
+      return hasKey;
+    }
+
+    @Override
+    public Optional<String> get(String key) {
+      Optional<String> value = configuration.get(key);
+      accessedKeys.add(key);
+      return value;
+    }
+
+    @Override
+    public String[] getStringArray(String key) {
+      String[] values = configuration.getStringArray(key);
+      accessedKeys.add(key);
+      return values;
+    }
+  }
 }
