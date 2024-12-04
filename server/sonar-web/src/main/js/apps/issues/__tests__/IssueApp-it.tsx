@@ -336,15 +336,25 @@ describe('issue app', () => {
 
     await user.click(listItem.getByText('issue.issue_status.OPEN'));
 
+    expect(screen.getByText('issue.transition.status_change')).toBeInTheDocument();
     expect(listItem.getByText('issue.transition.accept')).toBeInTheDocument();
     expect(listItem.getByText('issue.transition.confirm')).toBeInTheDocument();
 
-    await user.click(listItem.getByText('issue.transition.accept'));
+    // test go back
+    await user.click(listItem.getByText('issue.transition.falsepositive'));
+    expect(listItem.getByText('issue.transition.falsepositive')).toBeInTheDocument();
+    expect(listItem.queryByText('issue.transition.accept')).not.toBeInTheDocument();
+    expect(listItem.queryByText('issue.transition.confirm')).not.toBeInTheDocument();
+    await user.click(screen.getByLabelText('go_back'));
+    expect(listItem.getByText('issue.transition.accept')).toBeInTheDocument();
 
+    // select accept
+    await user.click(listItem.getByText('issue.transition.accept'));
+    expect(screen.getByText('issue.transition.go_back_change_status')).toBeInTheDocument();
     expect(listItem.getByRole('textbox')).toBeInTheDocument();
 
     await user.type(listItem.getByRole('textbox'), 'test');
-    await user.click(listItem.getByText('resolve'));
+    await user.click(listItem.getByText('issue.transition.change_status'));
 
     expect(
       listItem.getByLabelText(
