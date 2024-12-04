@@ -106,51 +106,6 @@ build_task:
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-yarn_lint_task:
-  depends_on: cache_dependencies
-  container:
-    dockerfile: .cirrus/Dockerfile
-    cpu: 3
-    memory: 10Gb
-  <<: *DEFAULT_TEMPLATE
-  <<: *GRADLE_CACHE_TEMPLATE
-  <<: *YARN_CACHE_TEMPLATE
-  <<: *ESLINT_REPORT_CACHE_TEMPLATE
-  script:
-    - .cirrus/cirrus-yarn-lint-report.sh
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
-  <<: *DEFAULT_ARTIFACTS_TEMPLATE
-
-yarn_check_task:
-  depends_on: cache_dependencies
-  container:
-    dockerfile: .cirrus/Dockerfile
-    cpu: 3
-    memory: 10Gb
-  <<: *DEFAULT_TEMPLATE
-  <<: *GRADLE_CACHE_TEMPLATE
-  <<: *YARN_CACHE_TEMPLATE
-  script: |
-    source .cirrus/cirrus-env
-    ./gradlew yarn_check-ci
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
-  <<: *DEFAULT_ARTIFACTS_TEMPLATE
-
-yarn_validate_task:
-  depends_on: cache_dependencies
-  container:
-    dockerfile: .cirrus/Dockerfile
-    cpu: 8
-    memory: 32Gb
-  <<: *DEFAULT_TEMPLATE
-  <<: *GRADLE_CACHE_TEMPLATE
-  <<: *YARN_CACHE_TEMPLATE
-  <<: *JEST_REPORT_CACHE_TEMPLATE
-  script:
-    - .cirrus/cirrus-yarn-validate-ci.sh
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
-  <<: *DEFAULT_ARTIFACTS_TEMPLATE
-
 junit_task:
   depends_on: cache_dependencies
   container:
@@ -168,8 +123,6 @@ junit_task:
 sq_analysis_task:
   depends_on:
     - build
-    - yarn_lint
-    - yarn_validate
     - junit
   container:
     dockerfile: .cirrus/Dockerfile
