@@ -76,7 +76,7 @@ export function IssueTransitionOverlay(props: Readonly<Props>) {
   const filteredTransitionsDeprecated = filteredTransitions.filter(isTransitionDeprecated);
 
   return (
-    <ul className="sw-flex sw-flex-col">
+    <ul className="sw-flex sw-flex-col issues-status-panel">
       {filteredTransitionsRecommended.map((transition) => (
         <HighlightRing
           key={transition}
