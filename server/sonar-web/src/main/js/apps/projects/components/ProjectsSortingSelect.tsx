@@ -73,7 +73,11 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
 
     return (
       <div className="sw-flex sw-items-center">
-        <StyledPageTitle id="aria-projects-sort" as="label" className="sw-typo-semibold sw-mr-2">
+        <StyledPageTitle
+          id="aria-projects-sort"
+          as="label"
+          className="sw-w-24 sw-typo-semibold sw-mr-2"
+        >
           {translate('projects.sort_by')}
         </StyledPageTitle>
         <Select
@@ -85,7 +89,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
           placeholder={translate('project_activity.filter_events')}
           isNotClearable
           value={sortValue}
-          size={InputSize.Medium}
+          size={InputSize.Full}
         />
         <Tooltip
           content={

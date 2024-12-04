@@ -65,7 +65,7 @@ export default function PageHeader(props: Readonly<Props>) {
         <div className="sw-flex sw-flex-1">
           <Tooltip content={translate('projects.search')}>
             <InputSearch
-              className="sw-mr-4 it__page-header-search sw-max-w-abs-300 sw-flex-1"
+              className="sw-mr-4 it__page-header-search sw-min-w-abs-200 sw-max-w-abs-300 sw-flex-1"
               minLength={MIN_SEARCH_QUERY_LENGTH}
               onChange={handleSearch}
               size="auto"
