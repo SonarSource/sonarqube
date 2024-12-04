@@ -77,7 +77,8 @@ export default class AlmIntegrationsServiceMock {
   githubRepositories: GithubRepository[];
   pagination: Paging;
   bitbucketCloudRepositories: BitbucketCloudRepository[];
-  bitbucketIsLastPage: boolean;
+  bitbucketProjectsIsLastPage: boolean;
+  bitbucketReposIsLastPage: boolean;
   bitbucketRepositories: BitbucketRepository[];
   bitbucketProjects: BitbucketProject[];
   defaultAlmInstancePATMap: { [key: string]: boolean } = {
@@ -189,7 +190,8 @@ export default class AlmIntegrationsServiceMock {
     this.githubRepositories = cloneDeep(this.defaultGithubRepositories);
     this.bitbucketRepositories = cloneDeep(this.defaultBitbucketRepositories);
     this.bitbucketProjects = cloneDeep(this.defaultBitbucketProjects);
-    this.bitbucketIsLastPage = true;
+    this.bitbucketProjectsIsLastPage = true;
+    this.bitbucketReposIsLastPage = true;
     jest
       .mocked(checkPersonalAccessTokenIsValid)
       .mockImplementation(this.checkPersonalAccessTokenIsValid);
@@ -267,7 +269,7 @@ export default class AlmIntegrationsServiceMock {
 
   searchForBitbucketCloudRepositories = () => {
     return Promise.resolve({
-      isLastPage: this.bitbucketIsLastPage,
+      isLastPage: this.bitbucketReposIsLastPage,
       repositories: this.bitbucketCloudRepositories,
     });
   };
@@ -311,7 +313,7 @@ export default class AlmIntegrationsServiceMock {
     });
 
     this.bitbucketCloudRepositories = generatedRepositories;
-    this.bitbucketIsLastPage = quantity >= total;
+    this.bitbucketReposIsLastPage = quantity >= total;
   }
 
   createRandomGithubRepositoriessWithLoadMore(quantity: number, total: number) {
@@ -362,12 +364,17 @@ export default class AlmIntegrationsServiceMock {
   };
 
   getBitbucketServerProjects = () => {
-    return Promise.resolve({ projects: this.bitbucketProjects });
+    return Promise.resolve({
+      isLastPage: this.bitbucketProjectsIsLastPage,
+      nextPageStart: this.bitbucketProjects.length - Number(this.bitbucketProjectsIsLastPage),
+      projects: this.bitbucketProjects,
+    });
   };
 
   getBitbucketServerRepositories = () => {
     return Promise.resolve({
-      isLastPage: this.bitbucketIsLastPage,
+      isLastPage: this.bitbucketReposIsLastPage,
+      nextPageStart: this.bitbucketRepositories.length - Number(this.bitbucketReposIsLastPage),
       repositories: this.bitbucketRepositories,
     });
   };
@@ -389,7 +396,8 @@ export default class AlmIntegrationsServiceMock {
 
   searchForBitbucketServerRepositories = () => {
     return Promise.resolve({
-      isLastPage: this.bitbucketIsLastPage,
+      isLastPage: this.bitbucketReposIsLastPage,
+      nextPageStart: this.bitbucketRepositories.length - Number(this.bitbucketReposIsLastPage),
       repositories: this.bitbucketRepositories,
     });
   };
@@ -402,6 +410,7 @@ export default class AlmIntegrationsServiceMock {
     this.bitbucketCloudRepositories = cloneDeep(this.defaultBitbucketCloudRepositories);
     this.bitbucketRepositories = cloneDeep(this.defaultBitbucketRepositories);
     this.bitbucketProjects = cloneDeep(this.defaultBitbucketProjects);
-    this.bitbucketIsLastPage = true;
+    this.bitbucketProjectsIsLastPage = true;
+    this.bitbucketReposIsLastPage = true;
   };
 }

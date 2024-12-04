@@ -103,20 +103,31 @@ export function importAzureRepository(data: {
 
 export function getBitbucketServerProjects(
   almSetting: string,
-): Promise<{ projects: BitbucketProject[] }> {
-  return getJSON('/api/alm_integrations/list_bitbucketserver_projects', { almSetting });
+  start?: number,
+  pageSize?: number,
+): Promise<{ isLastPage: boolean; nextPageStart: number; projects: BitbucketProject[] }> {
+  return getJSON('/api/alm_integrations/list_bitbucketserver_projects', {
+    almSetting,
+    pageSize,
+    start,
+  });
 }
 
 export function getBitbucketServerRepositories(
   almSetting: string,
   projectName: string,
+  start?: number,
+  pageSize?: number,
 ): Promise<{
   isLastPage: boolean;
+  nextPageStart: number;
   repositories: BitbucketRepository[];
 }> {
   return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
     almSetting,
+    pageSize,
     projectName,
+    start,
   });
 }
 
@@ -144,13 +155,18 @@ export function importBitbucketServerProject(data: {
 export function searchForBitbucketServerRepositories(
   almSetting: string,
   repositoryName: string,
+  start?: number,
+  pageSize?: number,
 ): Promise<{
   isLastPage: boolean;
+  nextPageStart: number;
   repositories: BitbucketRepository[];
 }> {
   return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
     almSetting,
+    pageSize,
     repositoryName,
+    start,
   });
 }
 
