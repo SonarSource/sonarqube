@@ -185,3 +185,11 @@ code.rule {
 .bg-white {
   background: white;
 }
+
+.text-danger {
+  color: rgb(180,35,24);
+}
+
+.text-success {
+  color: rgb(83,128,39);
+}

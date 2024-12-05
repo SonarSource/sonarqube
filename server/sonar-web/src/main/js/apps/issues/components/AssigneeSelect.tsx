@@ -76,9 +76,8 @@ export default function AssigneeSelect(props: Readonly<AssigneeSelectProps>) {
         setOptions(defaultOptions);
         return;
       }
-
-      const assignees = await searchAssignees(query, this.props.organization).then(({ results }) =>
-        results.map(userToOption),
+      const assignees = await searchAssignees(query, props.organization).then(({ results }) =>              
+        results.map(userToOption),      
       );
 
       setOptions(assignees);
