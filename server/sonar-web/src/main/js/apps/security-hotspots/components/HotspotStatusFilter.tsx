@@ -53,7 +53,6 @@ export default function HotspotFilterByStatus(props: FilterBarProps) {
   const { filters, isStaticListOfHotspots } = props;
 
   return (   
-    <div className="security-hotspots-scroller">
     <div className="sw-flex sw-flex-col sw-justify-between sw-pb-4 sw-mb-3">
       {isStaticListOfHotspots ? (
         <StyledFilterWrapper className="sw-flex sw-px-2 sw-py-4">
@@ -84,9 +83,7 @@ export default function HotspotFilterByStatus(props: FilterBarProps) {
           />
         </StyledFilterWrapper>
       )}
-    </div>  
-    </div> 
-    
+    </div>      
   );
 }
 
