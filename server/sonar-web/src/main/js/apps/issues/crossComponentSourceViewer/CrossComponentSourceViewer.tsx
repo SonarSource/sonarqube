@@ -224,7 +224,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
         {locationsByComponent.map((snippetGroup, i) => {
           return (
             <SourceViewerContext.Provider
-              key={`${issue.key}-${this.props.selectedFlowIndex}-${snippetGroup.component.key}`}
+              key={`${issue.key}-${this.props.selectedFlowIndex}-${snippetGroup.component.key}-${i}`}
               value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}
             >
               <ComponentSourceSnippetGroupViewer
