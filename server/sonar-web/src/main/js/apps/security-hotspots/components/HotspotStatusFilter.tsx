@@ -38,6 +38,7 @@ const statusOptions: Array<{ label: string; value: HotspotStatusFilter }> = [
     value: HotspotStatusFilter.ACKNOWLEDGED,
     label: translate('hotspot.filters.status.acknowledged'),
   },
+  { value: HotspotStatusFilter.EXCEPTION, label: translate('hotspot.filters.status.exception') },
   { value: HotspotStatusFilter.FIXED, label: translate('hotspot.filters.status.fixed') },
   { value: HotspotStatusFilter.SAFE, label: translate('hotspot.filters.status.safe') },
 ];
