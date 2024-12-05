@@ -118,13 +118,15 @@ public class ScannerMain {
     var input = parseJsonInput(in);
     if (input != null && input.scannerProperties != null) {
       input.scannerProperties.forEach(prop -> {
-        if (prop == null) {
-          LOG.warn("Ignoring null property");
+        if (prop == null || (prop.key == null && prop.value == null)) {
+          LOG.warn("Ignoring null or empty property");
         } else if (prop.key == null) {
-          LOG.warn("Ignoring property with null key: '{}'", prop.value);
+          LOG.warn("Ignoring property with null key. Value='{}'", prop.value);
+        } else if (prop.value == null) {
+          LOG.warn("Ignoring property with null value. Key='{}'", prop.key);
         } else {
           if (properties.containsKey(prop.key)) {
-            LOG.warn("Duplicated properties with key: '{}'", prop.key);
+            LOG.warn("Duplicated properties. Key='{}'", prop.key);
           }
           properties.put(prop.key, prop.value);
         }

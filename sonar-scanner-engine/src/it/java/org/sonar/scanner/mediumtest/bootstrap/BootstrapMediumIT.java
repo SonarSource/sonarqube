@@ -126,15 +126,31 @@ class BootstrapMediumIT {
     ScannerMain.run(new ByteArrayInputStream("""
       {"scannerProperties": [{"value": "aValueWithoutKey"}]}""".getBytes()));
 
-    assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null key: 'aValueWithoutKey'");
+    assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null key. Value='aValueWithoutKey'");
+  }
+
+  @Test
+  void should_warn_if_null_property_value() {
+    ScannerMain.run(new ByteArrayInputStream("""
+      {"scannerProperties": [{"key": "aKey", "value": null}]}""".getBytes()));
+
+    assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null value. Key='aKey'");
+  }
+
+  @Test
+  void should_warn_if_not_provided_property_value() {
+    ScannerMain.run(new ByteArrayInputStream("""
+      {"scannerProperties": [{"key": "aKey"}]}""".getBytes()));
+
+    assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null value. Key='aKey'");
   }
 
   @Test
   void should_warn_if_duplicate_property_keys() {
     ScannerMain.run(new ByteArrayInputStream("""
-      {"scannerProperties": [{"key": "aKey"}, {"key": "aKey"}]}""".getBytes()));
+      {"scannerProperties": [{"key": "aKey", "value": "aValue"}, {"key": "aKey", "value": "aValue"}]}""".getBytes()));
 
-    assertThat(logTester.logs(Level.WARN)).contains("Duplicated properties with key: 'aKey'");
+    assertThat(logTester.logs(Level.WARN)).contains("Duplicated properties. Key='aKey'");
   }
 
   @Test
@@ -142,7 +158,15 @@ class BootstrapMediumIT {
     ScannerMain.run(new ByteArrayInputStream("""
       {"scannerProperties": [{"key": "aKey", "value": "aValue"},]}""".getBytes()));
 
-    assertThat(logTester.logs(Level.WARN)).contains("Ignoring null property");
+    assertThat(logTester.logs(Level.WARN)).contains("Ignoring null or empty property");
+  }
+
+  @Test
+  void should_warn_if_empty_property() {
+    ScannerMain.run(new ByteArrayInputStream("""
+      {"scannerProperties": [{}]}""".getBytes()));
+
+    assertThat(logTester.logs(Level.WARN)).contains("Ignoring null or empty property");
   }
 
   /**
