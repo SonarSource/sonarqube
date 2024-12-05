@@ -422,30 +422,7 @@ describe('project overview', () => {
     ).toBeInTheDocument();
   });
 
-  it.each([
-    [MetricKey.software_quality_security_issues],
-    [MetricKey.software_quality_reliability_issues],
-    [MetricKey.software_quality_maintainability_issues],
-  ])(
-    'should display info about missing analysis if a project is not computed for %s',
-    async (missingMetricKey) => {
-      measuresHandler.deleteComponentMeasure('foo', missingMetricKey);
-      const { user, ui } = getPageObjects();
-      renderBranchOverview();
-
-      await user.click(await ui.overallCodeButton.find());
-
-      expect(
-        await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find(),
-      ).toBeInTheDocument();
-
-      await user.click(await ui.overallCodeButton.find());
-
-      expect(await screen.findByText('overview.missing_project_dataTRK')).toBeInTheDocument();
-    },
-  );
-
-  it('should display info about missing analysis if a project did not compute ratings', async () => {
+  it('should display standard ratings if a project did not compute mqr ratings', async () => {
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
     measuresHandler.deleteComponentMeasure(
       'foo',
@@ -461,7 +438,6 @@ describe('project overview', () => {
 
     await user.click(await ui.overallCodeButton.find());
 
-    expect(await screen.findByText('overview.missing_project_dataTRK')).toBeInTheDocument();
     ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Security);
     expect(
       ui.softwareImpactMeasureCardRating(SoftwareQuality.Security, 'B').get(),
@@ -509,28 +485,6 @@ describe('project overview', () => {
       9,
       'CODE_SMELL',
     );
-  });
-
-  it('should not show analysis is missing message in legacy mode', async () => {
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
-    measuresHandler.deleteComponentMeasure(
-      'foo',
-      MetricKey.software_quality_maintainability_rating,
-    );
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
-    modeHandler.setMode(Mode.Standard);
-    const { user, ui } = getPageObjects();
-    renderBranchOverview();
-
-    await user.click(await ui.overallCodeButton.find());
-
-    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
-
-    await user.click(await ui.overallCodeButton.find());
-
-    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
-
-    expect(screen.queryByText('overview.missing_project_dataTRK')).not.toBeInTheDocument();
   });
 
   it('should dismiss CaYC promoted section', async () => {
@@ -713,23 +667,6 @@ describe('application overview', () => {
 
     expect(await screen.findByText('portfolio.app.empty')).toBeInTheDocument();
   });
-
-  it.each([
-    [MetricKey.software_quality_security_issues],
-    [MetricKey.software_quality_reliability_issues],
-    [MetricKey.software_quality_maintainability_issues],
-  ])(
-    'should ask to reanalyze all projects if a project is not computed for %s',
-    async (missingMetricKey) => {
-      const { ui, user } = getPageObjects();
-
-      measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
-      renderBranchOverview({ component });
-      await user.click(await ui.overallCodeButton.find());
-
-      expect(await screen.findByText('overview.missing_project_dataAPP')).toBeInTheDocument();
-    },
-  );
 });
 
 it.each([

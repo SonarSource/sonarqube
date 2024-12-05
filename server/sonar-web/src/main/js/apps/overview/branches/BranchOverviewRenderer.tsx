@@ -23,17 +23,11 @@ import { useState } from 'react';
 import { CardSeparator, CenteredLayout, PageContentFontWrapper } from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
-import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
-import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import {
-  areCCTMeasuresComputed,
-  areSoftwareQualityRatingsComputed,
-  isDiffMetric,
-} from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
 import { useDismissNoticeMutation } from '../../../queries/users';
 import { ApplicationPeriod } from '../../../types/application';
@@ -119,10 +113,6 @@ export default function BranchOverviewRenderer(props: Readonly<BranchOverviewRen
   const isNewCodeTab = tab === CodeScope.New;
   const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
 
-  // Check if any potentially missing uncomputed measure is not present
-  const isMissingMeasures =
-    !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
-
   const selectTab = (tab: CodeScope) => {
     router.replace({ query: { ...query, codeScope: tab } });
   };
@@ -136,14 +126,6 @@ export default function BranchOverviewRenderer(props: Readonly<BranchOverviewRen
     // it would prevent the user from selecting it, even if it's empty.
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [loadingStatus, hasNewCodeMeasures]);
-
-  const analysisMissingInfo = isMissingMeasures && (
-    <AnalysisMissingInfoMessage
-      qualifier={component.qualifier}
-      hide={isPortfolioLike(component.qualifier)}
-      className="sw-mb-8"
-    />
-  );
 
   const dismissPromotedSection = () => {
     dismissNotice(NoticeType.ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE);
@@ -268,17 +250,14 @@ export default function BranchOverviewRenderer(props: Readonly<BranchOverviewRen
                     )}
 
                     {!isNewCodeTab && (
-                      <>
-                        {analysisMissingInfo}
-                        <OverallCodeMeasuresPanel
-                          branch={branch}
-                          qgStatuses={qgStatuses}
-                          component={component}
-                          measures={measures}
-                          loading={loadingStatus}
-                          qualityGate={qualityGate}
-                        />
-                      </>
+                      <OverallCodeMeasuresPanel
+                        branch={branch}
+                        qgStatuses={qgStatuses}
+                        component={component}
+                        measures={measures}
+                        loading={loadingStatus}
+                        qualityGate={qualityGate}
+                      />
                     )}
                   </TabsPanel>
 

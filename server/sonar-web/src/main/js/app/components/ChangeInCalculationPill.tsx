@@ -19,7 +19,7 @@
  */
 
 import { Popover } from '@sonarsource/echoes-react';
-import * as React from 'react';
+import { noop } from 'lodash';
 import { Pill, PillVariant } from '~design-system';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';
@@ -32,7 +32,6 @@ interface Props {
 }
 
 export default function ChangeInCalculation({ qualifier }: Readonly<Props>) {
-  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
   const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
 
   if (isStandardMode || isLoading) {
@@ -41,20 +40,15 @@ export default function ChangeInCalculation({ qualifier }: Readonly<Props>) {
 
   return (
     <Popover
-      isOpen={isPopoverOpen}
       title={translate('projects.awaiting_scan.title')}
       description={translate(`projects.awaiting_scan.description.${qualifier}`)}
       footer={
-        <DocumentationLink to={DocLink.CleanCodeIntroduction}>
-          {translate('learn_more')}
+        <DocumentationLink shouldOpenInNewTab standalone to={DocLink.MetricDefinitions}>
+          {translate('projects.awaiting_scan.learn_more')}
         </DocumentationLink>
       }
     >
-      <Pill
-        variant={PillVariant.Info}
-        className="sw-ml-2"
-        onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-      >
+      <Pill variant={PillVariant.Info} className="sw-ml-2" onClick={noop}>
         {translate('projects.awaiting_scan')}
       </Pill>
     </Popover>

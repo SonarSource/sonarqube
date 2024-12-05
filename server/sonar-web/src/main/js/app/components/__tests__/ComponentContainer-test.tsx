@@ -53,7 +53,9 @@ jest.mock('../../../api/components', () => ({
 }));
 
 jest.mock('../../../queries/mode', () => ({
-  useStandardExperienceModeQuery: jest.fn(),
+  useStandardExperienceModeQuery: jest.fn(() => ({
+    data: { mode: 'STANDARD_EXPERIENCE', modified: false },
+  })),
 }));
 
 jest.mock('../../../api/navigation', () => ({

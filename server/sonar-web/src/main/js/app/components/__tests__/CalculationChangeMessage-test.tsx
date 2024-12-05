@@ -20,7 +20,6 @@
 
 import { Outlet, Route } from 'react-router-dom';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { Mode } from '../../../types/mode';
@@ -28,9 +27,11 @@ import CalculationChangeMessage from '../calculation-notification/CalculationCha
 
 const ui = {
   alert: byRole('alert'),
-  learnMoreLink: byRole('link', { name: 'learn_more' }),
+  learnMoreLink: byRole('link', {
+    name: 'notification.calculation_change.message_link open_in_new_tab',
+  }),
 
-  alertText: (qualifier: string) => byText(`notification.calculation_change.message.${qualifier}`),
+  alertText: byText('notification.calculation_change.message'),
 };
 
 const modeHandler = new ModeServiceMock();
@@ -40,30 +41,30 @@ beforeEach(() => {
 });
 
 it.each([
-  ['Project', '/projects', ComponentQualifier.Project],
-  ['Portfolios', '/portfolios', ComponentQualifier.Portfolio],
-])('should render on %s page', (_, path, qualifier) => {
+  ['Project', '/projects'],
+  ['Portfolios', '/portfolios'],
+])('should render on %s page', (_, path) => {
   render(path);
   expect(ui.alert.get()).toBeInTheDocument();
-  expect(ui.alertText(qualifier).get()).toBeInTheDocument();
+  expect(ui.alertText.get()).toBeInTheDocument();
   expect(ui.learnMoreLink.get()).toBeInTheDocument();
 });
 
 it.each([
-  ['Project', '/projects', ComponentQualifier.Project],
-  ['Portfolios', '/portfolios', ComponentQualifier.Portfolio],
-])('should not render on %s page if isStandardMode', (_, path, qualifier) => {
+  ['Project', '/projects'],
+  ['Portfolios', '/portfolios'],
+])('should not render on %s page if isStandardMode', (_, path) => {
   modeHandler.setMode(Mode.Standard);
   render(path);
   expect(ui.alert.get()).toBeInTheDocument();
-  expect(ui.alertText(qualifier).get()).toBeInTheDocument();
+  expect(ui.alertText.get()).toBeInTheDocument();
   expect(ui.learnMoreLink.get()).toBeInTheDocument();
 });
 
 it('should not render on other page', () => {
   render('/other');
   expect(ui.alert.query()).not.toBeInTheDocument();
-  expect(ui.alertText(ComponentQualifier.Project).query()).not.toBeInTheDocument();
+  expect(ui.alertText.query()).not.toBeInTheDocument();
   expect(ui.learnMoreLink.query()).not.toBeInTheDocument();
 });
 

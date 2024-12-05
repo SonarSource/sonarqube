@@ -184,7 +184,6 @@ describe('rendering', () => {
     ].forEach((measure) => {
       expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
-    expect(ui.analysisMissingMessage.get()).toBeInTheDocument();
   });
 
   it('should show new counts but not ratings if no rating measures', async () => {
@@ -216,7 +215,6 @@ describe('rendering', () => {
     ].forEach((measure) => {
       expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
-    expect(ui.analysisMissingMessage.get()).toBeInTheDocument();
   });
 
   it('should show old measures and no flag message if no rating measures and legacy mode', async () => {
@@ -359,18 +357,6 @@ describe('rendering', () => {
     await ui.appLoaded();
 
     expect(screen.queryByText('overview.missing_project_dataTRK')).not.toBeInTheDocument();
-  });
-
-  it('should render analysis missing if on a pull request and leak measure are missing', async () => {
-    const { ui } = getPageObject();
-    measuresHandler.deleteComponentMeasure(
-      'foo',
-      MetricKey.new_software_quality_maintainability_rating,
-    );
-    renderMeasuresApp('component_measures?id=foo&pullRequest=01');
-    await ui.appLoaded();
-
-    expect(ui.analysisMissingMessage.get()).toBeInTheDocument();
   });
 
   it('should render a warning message if the user does not have access to all components', async () => {
@@ -713,7 +699,6 @@ function getPageObject() {
     seeDataAsListLink: byRole('link', { name: 'component_measures.overview.see_data_as_list' }),
     bubbleChart: byTestId('bubble-chart'),
     newCodePeriodTxt: byText('component_measures.leak_legend.new_code'),
-    analysisMissingMessage: byText('overview.missing_project_dataTRK'),
 
     // Navigation
     overviewDomainLink: byRole('link', {

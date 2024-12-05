@@ -22,6 +22,7 @@ import * as React from 'react';
 import { TopBar } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import NCDAutoUpdateMessage from '../../../../components/new-code-definition/NCDAutoUpdateMessage';
+import { ComponentMissingMqrMetricsMessage } from '../../../../components/shared/ComponentMissingMqrMetricsMessage';
 import { getBranchLikeDisplayName } from '../../../../helpers/branch-like';
 import { translate } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
@@ -77,6 +78,7 @@ function ComponentNav(props: Readonly<ComponentNavProps>) {
         <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
       </TopBar>
       <NCDAutoUpdateMessage branchName={branchName} component={component} />
+      <ComponentMissingMqrMetricsMessage component={component} />
       {projectBindingErrors !== undefined && (
         <ComponentNavProjectBindingErrorNotif component={component} />
       )}

@@ -28,7 +28,6 @@ import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { Breadcrumb } from '~sonar-aligned/types/component';
 import { Location } from '~sonar-aligned/types/router';
 import ListFooter from '../../../components/controls/ListFooter';
-import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,
   LEAK_OLD_TAXONOMY_RATINGS,
@@ -152,14 +151,6 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
       )}
 
       <Spinner isLoading={loading || isLoadingStandardMode}>
-        {!allComponentsHaveSoftwareQualityMeasures && (
-          <AnalysisMissingInfoMessage
-            qualifier={component.qualifier}
-            hide={isPortfolio}
-            className="sw-mb-4"
-          />
-        )}
-
         <div className="sw-flex sw-justify-between">
           <div>
             {hasComponents && (

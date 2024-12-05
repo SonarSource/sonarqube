@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { LinkHighlight } from '@sonarsource/echoes-react';
 import { FormattedMessage } from 'react-intl';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DismissableAlert } from '../../../components/ui/DismissableAlert';
 import { DocLink } from '../../../helpers/doc-links';
-import { translate } from '../../../helpers/l10n';
 import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Dict } from '../../../types/types';
 
@@ -46,11 +46,16 @@ export default function CalculationChangeMessage() {
   return (
     <DismissableAlert variant="info" alertKey={ALERT_KEY + SHOW_MESSAGE_PATHS[location.pathname]}>
       <FormattedMessage
-        id={`notification.calculation_change.message.${SHOW_MESSAGE_PATHS[location.pathname]}`}
+        id="notification.calculation_change.message"
         values={{
-          link: (
-            <DocumentationLink className="sw-ml-1" to={DocLink.MetricDefinitions}>
-              {translate('learn_more')}
+          link: (text) => (
+            <DocumentationLink
+              shouldOpenInNewTab
+              className="sw-ml-1"
+              highlight={LinkHighlight.Default}
+              to={DocLink.MetricDefinitions}
+            >
+              {text}
             </DocumentationLink>
           ),
         }}
