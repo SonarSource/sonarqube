@@ -19,6 +19,8 @@
  */
 
 import { CodeSnippet } from '~design-system';
+import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
+import { EditionKey } from '../../../../types/editions';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import { Arch, AutoConfig, BuildTools, OSs, TutorialConfig } from '../../types';
 import {
@@ -94,9 +96,13 @@ const BUILD_TOOL_SPECIFIC: {
 };
 
 export default function PipeCommand(props: Readonly<PipeCommandProps>) {
+  const appState = useAppState();
+
   const { projectKey, buildTool, config, arch } = props;
   const { autoConfig } = config;
   const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
+
+  const isCommunityBuildRunning = appState.edition === EditionKey.community;
 
   const suffix = getScannerUrlSuffix(OSs.Linux, arch);
   const buildWrapperFolder = getBuildWrapperFolderLinux(arch);
@@ -185,14 +191,19 @@ export default function PipeCommand(props: Readonly<PipeCommandProps>) {
 
   if (shouldFetchBuildWrapper(buildTool, autoConfig)) {
     // only for c-family languages on manual configuration
-    stages = [getBinariesStage, sonarWithBuildWrapperStage, vulnerabilityReportStage];
-    stageDeclaration = ['get-binaries', 'build-sonar', 'sonarqube-vulnerability-report'];
+    stages = [getBinariesStage, sonarWithBuildWrapperStage];
+    stageDeclaration = ['get-binaries', 'build-sonar'];
   } else if (shouldFetchScanner(buildTool)) {
-    stages = [getBinariesStage, sonarStage, vulnerabilityReportStage];
-    stageDeclaration = ['get-binaries', 'build-sonar', 'sonarqube-vulnerability-report'];
+    stages = [getBinariesStage, sonarStage];
+    stageDeclaration = ['get-binaries', 'build-sonar'];
   } else {
-    stages = [sonarStage, vulnerabilityReportStage];
-    stageDeclaration = ['build-sonar', 'sonarqube-vulnerability-report'];
+    stages = [sonarStage];
+    stageDeclaration = ['build-sonar'];
+  }
+
+  if (!isCommunityBuildRunning) {
+    stages.push(vulnerabilityReportStage);
+    stageDeclaration.push('sonarqube-vulnerability-report');
   }
 
   const stageDefinition =
