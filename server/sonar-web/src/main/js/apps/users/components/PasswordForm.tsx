@@ -115,7 +115,7 @@ export default function PasswordForm(props: Readonly<Props>) {
                 type="password"
                 value={oldPassword}
               />
-              <input className="sw-hidden" aria-hidden name="old-password-fake" type="password" />
+              <input className="sw-hidden" name="old-password-fake" type="password" />
             </FormField>
           )}
 
