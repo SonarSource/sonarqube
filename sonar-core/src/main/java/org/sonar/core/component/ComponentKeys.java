@@ -30,7 +30,7 @@ public final class ComponentKeys {
   /**
    * Should be in sync with DefaultIndexedFile.MAX_KEY_LENGTH
    */
-  public static final int MAX_COMPONENT_KEY_LENGTH = 400;
+  public static final int MAX_COMPONENT_KEY_LENGTH = 999;
 
   public static final String ALLOWED_CHARACTERS_MESSAGE = "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit";
 
