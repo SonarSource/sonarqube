@@ -24,6 +24,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
+import './HotspotStatusFilter.css';
 
 export interface FilterBarProps {
   filters: HotspotFilters;
@@ -51,7 +52,8 @@ export enum AssigneeFilterOption {
 export default function HotspotFilterByStatus(props: FilterBarProps) {
   const { filters, isStaticListOfHotspots } = props;
 
-  return (
+  return (   
+    <div className="security-hotspots-scroller">
     <div className="sw-flex sw-flex-col sw-justify-between sw-pb-4 sw-mb-3">
       {isStaticListOfHotspots ? (
         <StyledFilterWrapper className="sw-flex sw-px-2 sw-py-4">
@@ -73,7 +75,7 @@ export default function HotspotFilterByStatus(props: FilterBarProps) {
           />
         </StyledFilterWrapper>
       ) : (
-        <StyledFilterWrapper className="sw-flex sw-px-2 sw-pb-4 sw-gap-2 sw-justify-between">
+        <StyledFilterWrapper className="sw-flex sw-pb-4 sw-gap-2 sw-justify-between hotspot-status-filter-button">
           <ToggleButton
             aria-label={translate('hotspot.filters.status')}
             onChange={(status: HotspotStatusFilter) => props.onChangeFilters({ status })}
@@ -82,7 +84,9 @@ export default function HotspotFilterByStatus(props: FilterBarProps) {
           />
         </StyledFilterWrapper>
       )}
-    </div>
+    </div>  
+    </div> 
+    
   );
 }
 

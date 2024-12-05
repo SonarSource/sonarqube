@@ -50,6 +50,7 @@ import HotspotSidebarHeader from './components/HotspotSidebarHeader';
 import HotspotSimpleList from './components/HotspotSimpleList';
 import HotspotFilterByStatus from './components/HotspotStatusFilter';
 import HotspotViewer from './components/HotspotViewer';
+import './SecurityHotspotsAppRenderer.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
@@ -141,7 +142,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
       <A11ySkipTarget anchor="security_hotspots_main" />
 
-      <LargeCenteredLayout id={MetricKey.security_hotspots}>
+      <LargeCenteredLayout id={MetricKey.security_hotspots} className="security-hotspot-page-container">
         <PageContentFontWrapper>
           <div className="sw-grid sw-grid-cols-12 sw-w-full">
             <StyledSidebar
@@ -228,7 +229,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               </StyledSidebarContent>
             </StyledSidebar>
 
-            <StyledMain className="sw-col-span-8 sw-relative sw-ml-12">
+            <StyledMain className="sw-col-span-8 sw-relative sw-ml-8">
               {hotspots.length === 0 || !selectedHotspot ? (
                 <EmptyHotspotsPage
                   filterByFile={Boolean(filterByFile)}
