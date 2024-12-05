@@ -49,6 +49,11 @@ goto:eof
         exit /b 1
     )
 
+	findstr /m "sonar.cluster.enabled=true" "%REALPATH%\..\..\conf\sonar.properties" >Nul
+	if %errorlevel%==0 (
+		rem For Data Center Edition we skip the detection of another SonarQube's java.exe process running on the same machine
+		exit /b 0
+	)
     set "SQ_PROCESS="
     where jps >nul 2>nul
     if %errorlevel% equ 0 (
