@@ -21,6 +21,7 @@
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ComponentRaw } from '../api/components';
 import { addFavorite, removeFavorite } from '../api/favorites';
+import { projectsQueryKeys } from './projects';
 
 export function useToggleFavoriteMutation() {
   const queryClient = useQueryClient();
@@ -30,17 +31,17 @@ export function useToggleFavoriteMutation() {
     onSuccess: (_, { component, addToFavorites }) => {
       // Update the list cache to reflect the new favorite status
       queryClient.setQueriesData(
-        { queryKey: ['project', 'list'] },
+        { queryKey: projectsQueryKeys.allList() },
         getProjectsFavoritesHandler(component, addToFavorites),
       );
       queryClient.invalidateQueries({
-        queryKey: ['project', 'list'],
+        queryKey: projectsQueryKeys.allList(),
         refetchType: 'none',
       });
 
       // Silently update component details cache
       queryClient.setQueryData(
-        ['project', 'details', component],
+        projectsQueryKeys.details(component),
         (oldData: { components: ComponentRaw[] }) => {
           if (!oldData) {
             return oldData;

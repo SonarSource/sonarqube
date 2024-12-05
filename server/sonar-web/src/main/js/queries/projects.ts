@@ -20,6 +20,7 @@
 
 import {
   infiniteQueryOptions,
+  QueryClient,
   queryOptions,
   useMutation,
   useQueryClient,
@@ -29,10 +30,19 @@ import { deleteProject } from '../api/project-management';
 import { Query } from '../apps/projects/query';
 import { convertToQueryData, defineFacets } from '../apps/projects/utils';
 import { getNextPagingParam } from '../helpers/react-query';
+import { RequestData } from '../helpers/request';
 import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
-import { invalidateMeasuresByComponentKey } from './measures';
+import { removeMeasuresByComponentKey } from './measures';
 
 export const PROJECTS_PAGE_SIZE = 50;
+
+export const projectsQueryKeys = {
+  all: () => ['project'] as const,
+  allList: () => [...projectsQueryKeys.all(), 'list'] as const,
+  list: (data?: RequestData) => [...projectsQueryKeys.allList(), data] as const,
+  details: (key: string) => [...projectsQueryKeys.all(), 'details', key] as const,
+  scannable: () => [...projectsQueryKeys.all(), 'my-scannable'] as const,
+};
 
 export const useProjectsQuery = createInfiniteQueryHook(
   ({
@@ -54,7 +64,7 @@ export const useProjectsQuery = createInfiniteQueryHook(
     });
 
     return infiniteQueryOptions({
-      queryKey: ['project', 'list', data] as const,
+      queryKey: projectsQueryKeys.list(data),
       queryFn: ({ pageParam: pageIndex }) => {
         return searchProjects({ ...data, p: pageIndex }).then((response) => {
           response.components.forEach((project) => {
@@ -73,14 +83,14 @@ export const useProjectsQuery = createInfiniteQueryHook(
 
 export const useProjectQuery = createQueryHook((key: string) => {
   return queryOptions({
-    queryKey: ['project', 'details', key],
+    queryKey: projectsQueryKeys.details(key),
     queryFn: ({ queryKey: [_1, _2, key] }) => searchProjects({ filter: `query=${key}` }),
   });
 });
 
 export const useMyScannableProjectsQuery = createQueryHook(() => {
   return queryOptions({
-    queryKey: ['project', 'my-scannable'],
+    queryKey: projectsQueryKeys.scannable(),
     queryFn: () => getScannableProjects(),
     staleTime: StaleTime.NEVER,
   });
@@ -91,7 +101,16 @@ export function useDeleteProjectMutation() {
   return useMutation({
     mutationFn: (key: string) => deleteProject(key),
     onSuccess: (_, key) => {
-      invalidateMeasuresByComponentKey(key, queryClient);
+      resetProjectsListQuery(queryClient);
+      removeMeasuresByComponentKey(key, queryClient);
     },
   });
+}
+
+export function invalidateProjectsListQuery(queryClient: QueryClient) {
+  queryClient.invalidateQueries({ queryKey: projectsQueryKeys.allList() });
+}
+
+function resetProjectsListQuery(queryClient: QueryClient) {
+  queryClient.resetQueries({ queryKey: projectsQueryKeys.allList() });
 }

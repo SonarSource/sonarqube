@@ -45,6 +45,7 @@ import { getCorrectCaycCondition } from '../apps/quality-gates/utils';
 import { translate } from '../helpers/l10n';
 import { Condition, QualityGate } from '../types/types';
 import { createQueryHook, StaleTime } from './common';
+import { invalidateProjectsListQuery } from './projects';
 
 const QUERY_STALE_TIME = 5 * 60 * 1000;
 
@@ -209,7 +210,7 @@ export function useAssociateGateWithProjectMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
-      queryClient.invalidateQueries({ queryKey: ['project', 'list'] });
+      invalidateProjectsListQuery(queryClient);
     },
   });
 }
@@ -223,7 +224,7 @@ export function useDissociateGateWithProjectMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
-      queryClient.invalidateQueries({ queryKey: ['project', 'list'] });
+      invalidateProjectsListQuery(queryClient);
     },
   });
 }

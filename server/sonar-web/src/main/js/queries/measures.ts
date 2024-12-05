@@ -20,6 +20,7 @@
 
 import {
   infiniteQueryOptions,
+  Query,
   QueryClient,
   queryOptions,
   useQueries,
@@ -41,21 +42,42 @@ import { Measure } from '../types/types';
 import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
 import { PROJECTS_PAGE_SIZE } from './projects';
 
+const measureQueryKeys = {
+  all: () => ['measures'] as const,
+  history: (componentKey: string) => [...measureQueryKeys.all(), 'history', componentKey] as const,
+  component: (componentKey: string) =>
+    [...measureQueryKeys.all(), 'component', componentKey] as const,
+  details: (componentKey: string) => [...measureQueryKeys.all(), 'details', componentKey] as const,
+  list: (componentKey: string) => [...measureQueryKeys.all(), 'list', componentKey] as const,
+};
+
+const projectsListPredicate = (query: Query, componentKey: string) =>
+  query.queryKey[0] === 'measures' &&
+  query.queryKey[1] === 'list' &&
+  query.queryKey[2] === 'projects' &&
+  Array.isArray(query.queryKey[3]) &&
+  query.queryKey[3].includes(componentKey);
+
 export const invalidateMeasuresByComponentKey = (
   componentKey: string,
   queryClient: QueryClient,
 ) => {
-  queryClient.invalidateQueries({ queryKey: ['measures', 'history', componentKey] });
-  queryClient.invalidateQueries({ queryKey: ['measures', 'component', componentKey] });
-  queryClient.invalidateQueries({ queryKey: ['measures', 'details', componentKey] });
-  queryClient.invalidateQueries({ queryKey: ['measures', 'list', componentKey] });
+  queryClient.invalidateQueries({ queryKey: measureQueryKeys.history(componentKey) });
+  queryClient.invalidateQueries({ queryKey: measureQueryKeys.component(componentKey) });
+  queryClient.invalidateQueries({ queryKey: measureQueryKeys.details(componentKey) });
+  queryClient.invalidateQueries({ queryKey: measureQueryKeys.list(componentKey) });
   queryClient.invalidateQueries({
-    predicate: (query) =>
-      query.queryKey[0] === 'measures' &&
-      query.queryKey[1] === 'list' &&
-      query.queryKey[2] === 'projects' &&
-      Array.isArray(query.queryKey[3]) &&
-      query.queryKey[3].includes(componentKey),
+    predicate: (query) => projectsListPredicate(query, componentKey),
+  });
+};
+
+export const removeMeasuresByComponentKey = (componentKey: string, queryClient: QueryClient) => {
+  queryClient.removeQueries({ queryKey: measureQueryKeys.history(componentKey) });
+  queryClient.removeQueries({ queryKey: measureQueryKeys.component(componentKey) });
+  queryClient.removeQueries({ queryKey: measureQueryKeys.details(componentKey) });
+  queryClient.removeQueries({ queryKey: measureQueryKeys.list(componentKey) });
+  queryClient.removeQueries({
+    predicate: (query) => projectsListPredicate(query, componentKey),
   });
 };
 
