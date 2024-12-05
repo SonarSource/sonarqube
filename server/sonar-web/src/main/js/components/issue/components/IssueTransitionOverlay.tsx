@@ -34,6 +34,7 @@ import { IssueActions, IssueTransition } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import { isTransitionDeprecated, isTransitionHidden, transitionRequiresComment } from '../helpers';
 import { IssueTransitionItem } from './IssueTransitionItem';
+import './IssueTransitionOverlay.css';
 
 export type Props = {
   guideStepIndex: number;
