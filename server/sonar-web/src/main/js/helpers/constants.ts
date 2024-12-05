@@ -248,7 +248,7 @@ export const SOFTWARE_QUALITY_RATING_METRICS = [
   MetricKey.new_software_quality_maintainability_debt_ratio,
 ];
 
-export const PROJECT_KEY_MAX_LEN = 400;
+export const PROJECT_KEY_MAX_LEN = 255;
 
 export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.Azure,

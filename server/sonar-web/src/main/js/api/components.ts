@@ -129,6 +129,7 @@ export function getComponentData(data: { component: string } & BranchParameters)
   ancestors: Array<Omit<ComponentRaw, 'tags'>>;
   component: Omit<ComponentRaw, 'tags'>;
 }> {
+  data.component = decodeURIComponent(data.component);
   return getJSON('/api/components/show', data);
 }
 
