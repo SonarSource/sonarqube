@@ -37,7 +37,6 @@ import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.jetbrains.annotations.NotNull;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -49,6 +48,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
@@ -73,9 +73,7 @@ import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
-import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
-import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
-import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
+import static org.sonar.api.issue.Issue.SECURITY_HOTSPOT_RESOLUTIONS;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -270,7 +268,7 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription(format(
         "If '%s' is provided and if status is '%s', only Security Hotspots with the specified resolution are returned.",
         PARAM_PROJECT, STATUS_REVIEWED))
-      .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED)
+      .setPossibleValues(SECURITY_HOTSPOT_RESOLUTIONS)
       .setRequired(false);
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)
       .setDescription("If '%s' is provided, only Security Hotspots created in the new code period are returned.", PARAM_IN_NEW_CODE_PERIOD)
