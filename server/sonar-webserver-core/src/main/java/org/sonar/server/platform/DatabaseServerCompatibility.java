@@ -56,7 +56,7 @@ public class DatabaseServerCompatibility implements Startable {
         throw MessageException.of("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the " +
           MIN_UPGRADE_VERSION_HUMAN_READABLE + " Long-Term Active version first.");
       }
-      String documentationLink = documentationLinkGenerator.getDocumentationLink("/setup/upgrading");
+      String documentationLink = documentationLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/upgrade-the-server/roadmap");
       String msg = String.format("The database must be manually upgraded. Please backup the database and browse /setup. "
         + "For more information: %s", documentationLink);
       LoggerFactory.getLogger(DatabaseServerCompatibility.class).warn(msg);
