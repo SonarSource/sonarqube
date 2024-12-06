@@ -80,7 +80,7 @@ dependencies {
     def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
     if (artifactoryUsername && artifactoryPassword) {
-      zipDist "sonarqube:elasticsearch:${elasticSearchServerVersion}-no-jdk-linux-x86_64@tar.gz"
+      zipDist "sonarqube:elasticsearch:${elasticSearchServerVersion}-no-jdk@tar.gz"
     } else {
       zipDist "elasticsearch:elasticsearch:${elasticSearchServerVersion}-linux-x86_64@tar.gz"
     }
@@ -342,7 +342,7 @@ zip {
     //When the archive size increases due to dependencies, the expected size should be updated as well.
     //Bump the expected size by at least 10 more megabytes than what is strictly needed, this in conjunction with the
     //tolerance will allow for some growth in the archive size.
-    def expectedSize = 790_000_000
+    def expectedSize = 810_000_000
     //We set a tolerance of 15MB to avoid failing the build for small differences in the archive size.
     def tolerance = 15000000
     def minArchiveSize = expectedSize - tolerance
