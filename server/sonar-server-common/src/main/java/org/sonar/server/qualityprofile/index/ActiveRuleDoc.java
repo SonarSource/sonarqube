@@ -20,19 +20,24 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Maps;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.server.es.BaseDoc;
-import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_IMPACTS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_PRIORITIZED_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UUID;
+import static org.sonar.server.rule.index.RuleIndexDefinition.SUB_FIELD_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleDoc extends BaseDoc {
@@ -44,6 +49,7 @@ public class ActiveRuleDoc extends BaseDoc {
     setField(FIELD_ACTIVE_RULE_UUID, uuid);
   }
 
+  // Invoked dynamically
   public ActiveRuleDoc(Map<String, Object> source) {
     super(TYPE_ACTIVE_RULE, source);
   }
@@ -95,17 +101,26 @@ public class ActiveRuleDoc extends BaseDoc {
     return this;
   }
 
-  ActiveRuleInheritance getInheritance() {
-    String inheritance = getNullableField(FIELD_ACTIVE_RULE_INHERITANCE);
-    if (inheritance == null || inheritance.isEmpty() ||
-      containsIgnoreCase(inheritance, "none")) {
-      return ActiveRuleInheritance.NONE;
-    } else if (containsIgnoreCase(inheritance, "herit")) {
-      return ActiveRuleInheritance.INHERITED;
-    } else if (containsIgnoreCase(inheritance, "over")) {
-      return ActiveRuleInheritance.OVERRIDES;
+  public ActiveRuleDoc setImpacts(Map<SoftwareQuality, Severity> impacts) {
+    List<Map<String, String>> convertedMap = impacts
+      .entrySet()
+      .stream()
+      .map(entry -> Map.of(
+        SUB_FIELD_SOFTWARE_QUALITY, entry.getKey().name(),
+        SUB_FIELD_SEVERITY, entry.getValue().name()))
+      .toList();
+    setField(FIELD_ACTIVE_RULE_IMPACTS, convertedMap);
+    return this;
+  }
+
+  public Map<SoftwareQuality, Severity> getImpacts() {
+    Object objectValue = getField(FIELD_ACTIVE_RULE_IMPACTS);
+    if (objectValue instanceof List<?> valueList) {
+      return valueList.stream()
+        .map(v -> (Map<String, String>) v)
+        .collect(Collectors.toMap(v -> SoftwareQuality.valueOf(v.get(SUB_FIELD_SOFTWARE_QUALITY)), v -> Severity.valueOf(v.get(SUB_FIELD_SEVERITY))));
     } else {
-      throw new IllegalStateException("Value \"" + inheritance + "\" is not valid for rule's inheritance");
+      return Map.of();
     }
   }
 

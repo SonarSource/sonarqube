@@ -23,12 +23,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
@@ -39,45 +40,49 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
-public class ActiveRuleIndexerIT {
+class ActiveRuleIndexerIT {
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  @Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
 
-  private ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client());
+  private final ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private RuleDto rule1;
   private RuleDto rule2;
   private QProfileDto profile1;
   private QProfileDto profile2;
 
-  @Before
-  public void before() {
-    rule1 = db.rules().insert();
+  @BeforeEach
+  void before() {
+    rule1 = db.rules().insert(r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, BLOCKER), new ImpactDto(RELIABILITY, LOW))));
     rule2 = db.rules().insert();
     profile1 = db.qualityProfiles().insert();
     profile2 = db.qualityProfiles().insert();
   }
 
   @Test
-  public void getIndexTypes() {
+  void getIndexTypes() {
     assertThat(underTest.getIndexTypes()).containsExactly(TYPE_ACTIVE_RULE);
   }
 
   @Test
-  public void indexOnStartup_does_nothing_if_no_data() {
+  void indexOnStartup_does_nothing_if_no_data() {
     underTest.indexOnStartup(emptySet());
     assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isZero();
   }
 
   @Test
-  public void indexOnStartup_indexes_all_data() {
+  void indexOnStartup_indexes_all_data() {
     ActiveRuleDto activeRule = db.qualityProfiles().activateRule(profile1, rule1);
 
     underTest.indexOnStartup(emptySet());
@@ -89,7 +94,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void indexAll_indexes_all_data() {
+  void indexAll_indexes_all_data() {
     ActiveRuleDto activeRule = db.qualityProfiles().activateRule(profile1, rule1);
 
     underTest.indexAll();
@@ -101,7 +106,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void test_commitAndIndex() {
+  void test_commitAndIndex() {
     ActiveRuleDto ar1 = db.qualityProfiles().activateRule(profile1, rule1);
     ActiveRuleDto ar2 = db.qualityProfiles().activateRule(profile2, rule1);
     db.qualityProfiles().activateRule(profile2, rule2);
@@ -113,7 +118,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void commitAndIndex_empty_list() {
+  void commitAndIndex_empty_list() {
     db.qualityProfiles().activateRule(profile1, rule1);
 
     underTest.commitAndIndex(db.getSession(), Collections.emptyList());
@@ -123,7 +128,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void commitAndIndex_keeps_elements_to_recover_in_ES_QUEUE_on_errors() {
+  void commitAndIndex_keeps_elements_to_recover_in_ES_QUEUE_on_errors() {
     ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
     es.lockWrites(TYPE_ACTIVE_RULE);
 
@@ -135,7 +140,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void commitAndIndex_deletes_the_documents_that_dont_exist_in_database() {
+  void commitAndIndex_deletes_the_documents_that_dont_exist_in_database() {
     ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
     indexAll();
     assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isOne();
@@ -148,7 +153,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void index_fails_and_deletes_doc_if_docIdType_is_unsupported() {
+  void index_fails_and_deletes_doc_if_docIdType_is_unsupported() {
     EsQueueDto item = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "the_id", "unsupported", "the_routing");
     db.getDbClient().esQueueDao().insert(db.getSession(), item);
 
@@ -159,7 +164,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void commitDeletionOfProfiles() {
+  void commitDeletionOfProfiles() {
     ActiveRuleDto ar1 = db.qualityProfiles().activateRule(profile1, rule1);
     db.qualityProfiles().activateRule(profile2, rule1);
     db.qualityProfiles().activateRule(profile2, rule2);
@@ -172,7 +177,7 @@ public class ActiveRuleIndexerIT {
   }
 
   @Test
-  public void commitDeletionOfProfiles_does_nothing_if_profiles_are_not_indexed() {
+  void commitDeletionOfProfiles_does_nothing_if_profiles_are_not_indexed() {
     db.qualityProfiles().activateRule(profile1, rule1);
     indexAll();
     assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isOne();
@@ -211,7 +216,8 @@ public class ActiveRuleIndexerIT {
     assertThat(doc1)
       .matches(doc -> doc.getId().equals("ar_" + activeRule.getUuid()))
       .matches(doc -> doc.getRuleProfileUuid().equals(profile.getRulesProfileUuid()))
-      .matches(doc -> doc.getSeverity().equals(activeRule.getSeverityString()));
+      .matches(doc -> doc.getSeverity().equals(activeRule.getSeverityString()))
+      .matches(doc -> doc.getImpacts().equals(activeRule.getImpacts()));
   }
 
   private void indexAll() {

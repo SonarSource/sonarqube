@@ -38,6 +38,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 
@@ -50,6 +51,9 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.rule.RuleStatus.BETA;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
@@ -93,7 +97,8 @@ class ActiveRuleDaoIT {
   void setUp() {
     profile1 = db.qualityProfiles().insert();
     profile2 = db.qualityProfiles().insert();
-    rule1 = db.rules().insert();
+    rule1 = db.rules().insert(r -> r.replaceAllDefaultImpacts(
+      List.of(new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER), new ImpactDto(RELIABILITY, LOW))));
     rule2 = db.rules().insert();
     rule3 = db.rules().insert();
     removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
@@ -131,9 +136,12 @@ class ActiveRuleDaoIT {
 
   @Test
   void selectByRuleIds() {
-    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
-    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
-    ActiveRuleDto activeRule3 = createFor(profile2, rule1).setSeverity(BLOCKER).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER)
+      .setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER)
+      .setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    ActiveRuleDto activeRule3 = createFor(profile2, rule1).setSeverity(BLOCKER)
+      .setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
     underTest.insert(dbSession, activeRule1);
     underTest.insert(dbSession, activeRule2);
     underTest.insert(dbSession, activeRule3);
@@ -232,7 +240,8 @@ class ActiveRuleDaoIT {
     assertThat(result)
       .hasSize(2)
       .extracting(ActiveRuleDto::getProfileUuid, ActiveRuleDto::getRuleKey, ActiveRuleDto::getSeverityString)
-      .containsOnly(tuple(profile1.getRulesProfileUuid(), rule1.getKey(), BLOCKER), tuple(profile1.getRulesProfileUuid(), rule2.getKey(),
+      .containsOnly(tuple(profile1.getRulesProfileUuid(), rule1.getKey(), BLOCKER), tuple(profile1.getRulesProfileUuid(),
+        rule2.getKey(),
         MAJOR));
 
     assertThat(underTest.selectByProfile(dbSession, profile2)).isEmpty();
@@ -700,14 +709,14 @@ class ActiveRuleDaoIT {
       .extracting(IndexedActiveRuleDto::getUuid,
         IndexedActiveRuleDto::getRuleUuid, IndexedActiveRuleDto::getRepository, IndexedActiveRuleDto::getKey,
         IndexedActiveRuleDto::getRuleProfileUuid,
-        IndexedActiveRuleDto::getSeverity, IndexedActiveRuleDto::getInheritance)
+        IndexedActiveRuleDto::getSeverity, IndexedActiveRuleDto::getInheritance, IndexedActiveRuleDto::getImpacts)
       .containsExactlyInAnyOrder(
         tuple(ar1.getUuid(), rule1.getUuid(), ar1.getRuleKey().repository(), ar1.getRuleKey().rule(), profile1.getRulesProfileUuid(),
-          ar1.getSeverity(), ar1.getInheritance()),
+          ar1.getSeverity(), ar1.getInheritance(), ar1.getImpacts()),
         tuple(ar2.getUuid(), rule1.getUuid(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(),
-          ar2.getSeverity(), ar2.getInheritance()),
+          ar2.getSeverity(), ar2.getInheritance(), ar2.getImpacts()),
         tuple(ar3.getUuid(), rule2.getUuid(), ar3.getRuleKey().repository(), ar3.getRuleKey().rule(), profile2.getRulesProfileUuid(),
-          ar3.getSeverity(), ar3.getInheritance()));
+          ar3.getSeverity(), ar3.getInheritance(), ar3.getImpacts()));
   }
 
   @Test
@@ -721,12 +730,12 @@ class ActiveRuleDaoIT {
     assertThat(accumulator.list)
       .extracting(IndexedActiveRuleDto::getUuid,
         IndexedActiveRuleDto::getRuleUuid, IndexedActiveRuleDto::getRepository, IndexedActiveRuleDto::getKey,
-        IndexedActiveRuleDto::getRuleProfileUuid, IndexedActiveRuleDto::getSeverity)
+        IndexedActiveRuleDto::getRuleProfileUuid, IndexedActiveRuleDto::getSeverity, IndexedActiveRuleDto::getImpacts)
       .containsExactlyInAnyOrder(
         tuple(ar1.getUuid(), rule1.getUuid(), ar1.getRuleKey().repository(), ar1.getRuleKey().rule(), profile1.getRulesProfileUuid(),
-          ar1.getSeverity()),
+          ar1.getSeverity(), ar1.getImpacts()),
         tuple(ar2.getUuid(), rule1.getUuid(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(),
-          ar2.getSeverity()));
+          ar2.getSeverity(), ar2.getImpacts()));
   }
 
   @Test
@@ -739,11 +748,12 @@ class ActiveRuleDaoIT {
     underTest.scrollByRuleProfileForIndexing(dbSession, profile2.getRulesProfileUuid(), accumulator);
     assertThat(accumulator.list)
       .extracting(IndexedActiveRuleDto::getUuid, IndexedActiveRuleDto::getRepository, IndexedActiveRuleDto::getKey,
-        IndexedActiveRuleDto::getRuleProfileUuid,
-        IndexedActiveRuleDto::getSeverity)
+        IndexedActiveRuleDto::getRuleProfileUuid, IndexedActiveRuleDto::getSeverity, IndexedActiveRuleDto::getImpacts)
       .containsExactlyInAnyOrder(
-        tuple(ar2.getUuid(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar2.getSeverity()),
-        tuple(ar3.getUuid(), ar3.getRuleKey().repository(), ar3.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar3.getSeverity()));
+        tuple(ar2.getUuid(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar2.getSeverity(),
+          ar2.getImpacts()),
+        tuple(ar3.getUuid(), ar3.getRuleKey().repository(), ar3.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar3.getSeverity(),
+          ar3.getImpacts()));
   }
 
   @Test

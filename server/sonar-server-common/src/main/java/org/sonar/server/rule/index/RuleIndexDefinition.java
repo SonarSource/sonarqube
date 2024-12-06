@@ -66,12 +66,12 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_SANS_TOP_25 = "sansTop25";
   public static final String FIELD_RULE_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   public static final String FIELD_RULE_TAGS = "tags";
-
-  public static final Set<String> SORT_FIELDS = Set.of(
-    FIELD_RULE_NAME,
-    FIELD_RULE_UPDATED_AT,
-    FIELD_RULE_CREATED_AT,
-    FIELD_RULE_KEY);
+  public static final String FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY = "cleanCodeAttributeCategory";
+  public static final String FIELD_RULE_IMPACTS = "impacts";
+  public static final String SUB_FIELD_SOFTWARE_QUALITY = "softwareQuality";
+  public static final String SUB_FIELD_SEVERITY = "severity";
+  public static final String FIELD_RULE_IMPACT_SOFTWARE_QUALITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
+  public static final String FIELD_RULE_IMPACT_SEVERITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SEVERITY;
 
   // Active rule fields
   public static final IndexRelationType TYPE_ACTIVE_RULE = IndexType.relation(TYPE_RULE, "activeRule");
@@ -79,14 +79,16 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "activeRule_inheritance";
   public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "activeRule_ruleProfile";
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "activeRule_severity";
-
-  public static final String FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY = "cleanCodeAttributeCategory";
-  public static final String FIELD_RULE_IMPACTS = "impacts";
-  public static final String SUB_FIELD_SOFTWARE_QUALITY = "softwareQuality";
-  public static final String SUB_FIELD_SEVERITY = "severity";
-  public static final String FIELD_RULE_IMPACT_SOFTWARE_QUALITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
-  public static final String FIELD_RULE_IMPACT_SEVERITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SEVERITY;
   public static final String FIELD_PRIORITIZED_RULE = "activeRule_prioritizedRule";
+  public static final String FIELD_ACTIVE_RULE_IMPACTS = "activeRule_impacts";
+  public static final String FIELD_ACTIVE_RULE_IMPACT_SOFTWARE_QUALITY = FIELD_ACTIVE_RULE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
+  public static final String FIELD_ACTIVE_RULE_IMPACT_SEVERITY = FIELD_ACTIVE_RULE_IMPACTS + "." + SUB_FIELD_SEVERITY;
+
+  public static final Set<String> SORT_FIELDS = Set.of(
+    FIELD_RULE_NAME,
+    FIELD_RULE_UPDATED_AT,
+    FIELD_RULE_CREATED_AT,
+    FIELD_RULE_KEY);
 
   private final Configuration config;
   private final boolean enableSource;
@@ -163,11 +165,15 @@ public class RuleIndexDefinition implements IndexDefinition {
       .build();
 
     // Active rule
-    index.createTypeMapping(TYPE_ACTIVE_RULE)
-      .keywordFieldBuilder(FIELD_ACTIVE_RULE_UUID).disableNorms().build()
-      .keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build()
-      .keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build()
-      .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build()
-      .createBooleanField(FIELD_PRIORITIZED_RULE);
+    TypeMapping activeRuleMapping = index.createTypeMapping(TYPE_ACTIVE_RULE);
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_UUID).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
+    activeRuleMapping.createBooleanField(FIELD_PRIORITIZED_RULE);
+    activeRuleMapping.nestedFieldBuilder(FIELD_ACTIVE_RULE_IMPACTS)
+      .addKeywordField(SUB_FIELD_SOFTWARE_QUALITY)
+      .addKeywordField(SUB_FIELD_SEVERITY).build()
+    ;
   }
 }

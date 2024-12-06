@@ -19,15 +19,25 @@
  */
 package org.sonar.db.qualityprofile;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 
 public class IndexedActiveRuleDto {
+  private static final Gson GSON = new Gson();
+  private static final TypeToken<Map<SoftwareQuality, Severity>> TYPE = new TypeToken<>(){};
+
   private String uuid;
   private String ruleUuid;
   private int severity;
   private String inheritance;
   private String repository;
   private String key;
+  private String impactsString;
   private String ruleProfileUuid;
   private Boolean prioritizedRule;
 
@@ -58,6 +68,10 @@ public class IndexedActiveRuleDto {
 
   public String getKey() {
     return key;
+  }
+
+  public Map<SoftwareQuality, Severity> getImpacts() {
+    return impactsString != null ? GSON.fromJson(impactsString, TYPE) : Map.of();
   }
 
   public String getRuleProfileUuid() {
