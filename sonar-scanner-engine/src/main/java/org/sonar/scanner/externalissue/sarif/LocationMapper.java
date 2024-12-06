@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.predicates.AbstractFilePredicate;
@@ -113,9 +114,19 @@ public class LocationMapper {
   private static File getFileFromAbsoluteUriOrPath(String filePath) {
     URI uri = URI.create(filePath);
     if (uri.isAbsolute()) {
-      return new File(uri);
+      return getFileFromAbsoluteUri(filePath, uri);
     } else {
       return new File(filePath);
+    }
+  }
+
+  @NotNull
+  private static File getFileFromAbsoluteUri(String filePath, URI uri) {
+    String path = uri.getPath();
+    if (StringUtils.isNotBlank(path)) {
+      return new File(path);
+    } else {
+      throw new IllegalArgumentException("Invalid file scheme URI: " + filePath);
     }
   }
 
