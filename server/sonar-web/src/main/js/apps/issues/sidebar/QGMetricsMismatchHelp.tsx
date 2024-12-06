@@ -31,7 +31,7 @@ export default function QGMetricsMismatchHelp() {
       title={intl.formatMessage({ id: 'issues.qg_mismatch.title' })}
       description={intl.formatMessage({ id: 'issues.qg_mismatch.description' }, { isStandardMode })}
       linkText={intl.formatMessage({ id: 'issues.qg_mismatch.link' })}
-      link={DocLink.QualityGates}
+      link={DocLink.ModeOverview}
     />
   );
 }

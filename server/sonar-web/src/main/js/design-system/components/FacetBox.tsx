@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Text } from '@sonarsource/echoes-react';
+import { ButtonIcon, ButtonSize, ButtonVariety, IconX, Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
@@ -28,11 +28,9 @@ import tw from 'twin.macro';
 import { themeColor } from '../helpers';
 import { BareButton } from '../sonar-aligned/components/buttons';
 import { Badge } from './Badge';
-import { DestructiveIcon } from './InteractiveIcon';
 import { Spinner } from './Spinner';
 import { Tooltip as SCTooltip } from './Tooltip';
 import { OpenCloseIndicator } from './icons';
-import { CloseIcon } from './icons/CloseIcon';
 
 export interface FacetBoxProps {
   ariaLabel?: string;
@@ -142,20 +140,21 @@ export function FacetBox(props: FacetBoxProps) {
 
         {counter > 0 && (
           <BadgeAndIcons>
-            <Badge title={countLabel} variant="counter">
+            <Badge className="sw-px-2" title={countLabel} variant="counter">
               {counter}
             </Badge>
 
             {Boolean(clearable) && (
               <Tooltip content={clearIconLabel}>
-                <ClearIcon
-                  Icon={CloseIcon}
-                  aria-label={
+                <ButtonIcon
+                  variety={ButtonVariety.DefaultGhost}
+                  ariaLabel={
                     clearIconLabel ?? intl.formatMessage({ id: 'clear_x_filter' }, { '0': name })
                   }
                   data-testid={`clear-${name}`}
                   onClick={onClear}
-                  size="small"
+                  Icon={IconX}
+                  size={ButtonSize.Medium}
                 />
               </Tooltip>
             )}
@@ -189,6 +188,7 @@ const Accordion = styled.div<{
 
 const BadgeAndIcons = styled.div`
   ${tw`sw-flex`};
+  ${tw`sw-items-center`};
   ${tw`sw-gap-2`};
 `;
 
@@ -213,10 +213,6 @@ const ChevronAndTitle = styled(BareButton)<{
     outline-offset: 4px;
     border-radius: var(--echoes-border-radius-200);
   }
-`;
-
-const ClearIcon = styled(DestructiveIcon)`
-  --color: ${themeColor('dangerButton')};
 `;
 
 const Header = styled.div`

@@ -77,7 +77,7 @@ describe('MQR mode', () => {
       'issues.facet.directories',
       'issues.facet.files',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
       'issues.facet.prioritized_rule.category',
     ]);
@@ -163,7 +163,7 @@ describe('MQR mode', () => {
       'issues.facet.tags',
       'issues.facet.projects',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
     ]);
   });
@@ -189,7 +189,7 @@ describe('MQR mode', () => {
       'issues.facet.tags',
       'issues.facet.projects',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
     ]);
   });
@@ -215,7 +215,7 @@ describe('MQR mode', () => {
       'issues.facet.tags',
       'issues.facet.projects',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
     ]);
   });
@@ -250,7 +250,7 @@ describe('Standard mode', () => {
       'issues.facet.directories',
       'issues.facet.files',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
       'issues.facet.prioritized_rule.category',
     ]);
@@ -338,7 +338,7 @@ describe('Standard mode', () => {
       'issues.facet.tags',
       'issues.facet.projects',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
     ]);
   });
@@ -361,7 +361,7 @@ describe('Standard mode', () => {
       'issues.facet.tags',
       'issues.facet.projects',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
     ]);
   });
@@ -384,7 +384,7 @@ describe('Standard mode', () => {
       'issues.facet.tags',
       'issues.facet.projects',
       'issues.facet.assignees',
-      '',
+      '',
       'issues.facet.authors',
     ]);
   });

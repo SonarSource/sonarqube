@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { TooltipProvider } from '@sonarsource/echoes-react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithContext } from '../../helpers/testUtils';
@@ -67,8 +68,10 @@ it('should render an inner expanded facet box with count', async () => {
 
 function renderComponent({ children, ...props }: Partial<FacetBoxProps> = {}) {
   return renderWithContext(
-    <FacetBox name="Test FacetBox" {...props}>
-      {children}
-    </FacetBox>,
+    <TooltipProvider>
+      <FacetBox name="Test FacetBox" {...props}>
+        {children}
+      </FacetBox>
+    </TooltipProvider>,
   );
 }
