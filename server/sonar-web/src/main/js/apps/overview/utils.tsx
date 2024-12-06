@@ -168,7 +168,7 @@ export const RATING_TO_SEVERITIES_MAPPING = [
 ];
 
 export const MQR_RATING_TO_SEVERITIES_MAPPING = [
-  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High},${SoftwareImpactSeverity.Medium},${SoftwareImpactSeverity.Info}`,
+  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High},${SoftwareImpactSeverity.Medium},${SoftwareImpactSeverity.Low}`,
   `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High},${SoftwareImpactSeverity.Medium}`,
   `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High}`,
   `${SoftwareImpactSeverity.Blocker}`,
