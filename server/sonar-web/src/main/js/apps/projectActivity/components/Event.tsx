@@ -31,10 +31,11 @@ export interface EventProps {
   canAdmin?: boolean;
   event: AnalysisEvent;
   isFirst?: boolean;
+  organization: string;
 }
 
 function Event(props: Readonly<EventProps>) {
-  const { analysisKey, event, canAdmin, isFirst } = props;
+  const { analysisKey, event, canAdmin, isFirst, organization } = props;
 
   const [changing, setChanging] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
@@ -47,7 +48,7 @@ function Event(props: Readonly<EventProps>) {
 
   return (
     <div className="it__project-activity-event sw-flex sw-justify-between">
-      <EventInner event={event} />
+      <EventInner event={event} organization={organization} />
 
       {showActions && (
         <div className="sw-grow-0 sw-shrink-0 sw-ml-2">

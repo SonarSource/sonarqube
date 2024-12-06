@@ -35,9 +35,10 @@ import { SqUpgradeActivityEventMessage } from './SqUpgradeActivityEventMessage';
 export interface EventInnerProps {
   event: AnalysisEvent;
   readonly?: boolean;
+  organization: string;
 }
 
-export default function EventInner({ event, readonly }: EventInnerProps) {
+export default function EventInner({ event, readonly, organization }: EventInnerProps) {
   const { component } = React.useContext(ComponentContext);
   const { data: branchLike } = useCurrentBranchQuery(component);
   if (isRichQualityGateEvent(event)) {
@@ -51,7 +52,7 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
           {translate('event.category', event.category)}
         </Note>
         <Note>
-          <RichQualityProfileEventInner event={event} />
+          <RichQualityProfileEventInner event={event} organization={organization} />
         </Note>
       </div>
     );

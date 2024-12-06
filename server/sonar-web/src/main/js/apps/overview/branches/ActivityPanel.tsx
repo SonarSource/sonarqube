@@ -146,6 +146,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
                   qualifier={component.qualifier}
                   qualityGateStatus={qualityGateStatuses?.[index]?.value}
                   variations={analysisVariations[index]}
+                  organization={component.organization}
                 />
 
                 {index !== displayedAnalyses.length - 1 && <BasicSeparator className="sw-my-3" />}

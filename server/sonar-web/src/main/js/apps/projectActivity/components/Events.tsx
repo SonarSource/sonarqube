@@ -27,10 +27,11 @@ export interface EventsProps {
   canAdmin?: boolean;
   events: AnalysisEvent[];
   isFirst?: boolean;
+  organization: string;
 }
 
 function Events(props: EventsProps) {
-  const { analysisKey, canAdmin, events, isFirst } = props;
+  const { analysisKey, canAdmin, events, isFirst, organization } = props;
 
   const sortedEvents = sortBy(
     events,
@@ -59,6 +60,7 @@ function Events(props: EventsProps) {
           event={event}
           isFirst={isFirst}
           key={event.key}
+          organization={organization}
         />
       ))}
     </div>

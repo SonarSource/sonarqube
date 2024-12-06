@@ -38,10 +38,11 @@ export interface AnalysisProps {
   qualifier: string;
   qualityGateStatus?: string;
   variations?: AnalysisMeasuresVariations;
+  organization?: string;
 }
 
 export function Analysis(props: Readonly<AnalysisProps>) {
-  const { analysis, isFirstAnalysis, qualifier, qualityGateStatus, variations } = props;
+  const { analysis, isFirstAnalysis, qualifier, qualityGateStatus, variations, organization } = props;
 
   const sortedEvents = sortBy(
     analysis.events.filter((event) => {
@@ -99,7 +100,7 @@ export function Analysis(props: Readonly<AnalysisProps>) {
       </div>
 
       {sortedEvents.map((event) => (
-        <Event event={event} key={event.key} />
+        <Event event={event} key={event.key} organization={organization} />
       ))}
 
       {qualifier === ComponentQualifier.Project && variations !== undefined && (

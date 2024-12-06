@@ -32,9 +32,10 @@ import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/proj
 
 interface Props {
   event: AnalysisEvent;
+  organization?: string
 }
 
-export function Event({ event }: Props) {
+export function Event({ event, organization }: Props) {
   if (event.category === ProjectAnalysisEventCategory.Version) {
     return (
       <div>
@@ -55,7 +56,7 @@ export function Event({ event }: Props) {
     return (
       <div className="sw-mb-1">
         <span className="sw-mr-2">{eventCategory}:</span>
-        <RichQualityProfileEventInner event={event} />
+        <RichQualityProfileEventInner event={event} organization={organization} />
       </div>
     );
   }

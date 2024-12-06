@@ -29,6 +29,7 @@ type RichQualityGateEvent = AnalysisEvent &
 
 interface RichQualityProfileEventInnerProps {
   event: RichQualityGateEvent;
+  organization?: string;
 }
 
 export function isRichQualityProfileEvent(event: AnalysisEvent): event is RichQualityGateEvent {
@@ -40,7 +41,7 @@ export function isRichQualityProfileEvent(event: AnalysisEvent): event is RichQu
 }
 
 export function RichQualityProfileEventInner({
-  event,
+  event, organization
 }: Readonly<RichQualityProfileEventInnerProps>) {
   const {
     description,
@@ -63,7 +64,7 @@ export function RichQualityProfileEventInner({
 
       <Link
         aria-label={`${contextForAria}: ${description}`}
-        to={getProfileChangelogPath(qualityProfileName, languageKey)}
+        to={getProfileChangelogPath(qualityProfileName, languageKey, organization)}
         // Needed to make this link work from the Activity tab
         // Because of a click handler on a parent component that is also trigerring a redirection
         onClick={(event) => event.stopPropagation()}

@@ -114,6 +114,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         key={analysis.key}
         selected={analysis.date.valueOf() === selectedDate}
         onUpdateSelectedDate={this.handleUpdateSelectedDate}
+        organization={this.props.project.organization}
       />
     );
   }

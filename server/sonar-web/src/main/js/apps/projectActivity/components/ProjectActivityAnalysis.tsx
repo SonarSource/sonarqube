@@ -51,6 +51,7 @@ export interface ProjectActivityAnalysisProps extends WrappedComponentProps {
   isFirst: boolean;
   onUpdateSelectedDate: (date: Date) => void;
   selected: boolean;
+  organization: string;
 }
 
 export enum Dialog {
@@ -70,6 +71,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
     canCreateVersion,
     selected,
     intl: { formatDate },
+    organization,
   } = props;
 
   React.useEffect(() => {
@@ -201,6 +203,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
               canAdmin={canAdmin}
               events={analysis.events}
               isFirst={isFirst}
+              organization={organization}
             />
           )}
         </ActivityAnalysisListItem>
