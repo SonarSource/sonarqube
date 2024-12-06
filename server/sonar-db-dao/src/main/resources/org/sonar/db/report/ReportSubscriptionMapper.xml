@@ -65,10 +65,23 @@
     WHERE p.qualifier = #{qualifier,jdbcType=VARCHAR}
   </select>
 
-    <delete id="delete" parameterType="map">
+  <select id="countPerProject" resultType="org.sonar.db.report.SubscriptionCount">
+    SELECT
+      p.uuid   as projectUuid,
+      count(1) as count
+    FROM report_subscriptions rs
+    INNER JOIN project_branches pb
+      ON rs.branch_uuid = pb.uuid
+    INNER JOIN projects p
+      ON pb.project_uuid = p.uuid
+    WHERE p.qualifier = 'TRK'
+    GROUP BY p.uuid
+  </select>
+
+  <delete id="delete" parameterType="map">
     delete from report_subscriptions
-      where <include refid="filterConditions"/>
-    </delete>
+    where <include refid="filterConditions"/>
+  </delete>
 
   <sql id="filterConditions">
     user_uuid=#{userUuid,jdbcType=VARCHAR} and

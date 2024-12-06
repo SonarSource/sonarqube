@@ -19,27 +19,20 @@
  */
 package org.sonar.db.report;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import org.apache.ibatis.annotations.Param;
+import org.junit.jupiter.api.Test;
 
-public interface ReportSubscriptionMapper {
-  Optional<ReportSubscriptionDto> selectByUserAndPortfolio(@Param("portfolioUuid") String portfolioUuid, @Param("userUuid") String userUuid);
+import static org.assertj.core.api.Assertions.assertThat;
 
-  Optional<ReportSubscriptionDto> selectByUserAndBranch(@Param("branchUuid") String branchUuid, @Param("userUuid") String userUuid);
+class SubscriptionCountTest {
 
-  List<ReportSubscriptionDto> selectByPortfolio(String portfolioUuid);
+  @Test
+  void testGetters() {
+    SubscriptionCount underTest = new SubscriptionCount("uuid", 42);
+    assertThat(underTest.getProjectUuid()).isEqualTo("uuid");
+    assertThat(underTest.getCount()).isEqualTo(42);
+    underTest = new SubscriptionCount();
+    assertThat(underTest.getProjectUuid()).isNull();
+    assertThat(underTest.getCount()).isZero();
+  }
 
-  List<ReportSubscriptionDto> selectByBranch(String projectBranchUuid);
-
-  Set<ReportSubscriptionDto> selectAll();
-
-  void insert(ReportSubscriptionDto subscriptionDto);
-
-  void delete(ReportSubscriptionDto subscriptionDto);
-
-  int countByQualifier(String qualifier);
-
-  List<SubscriptionCount> countPerProject();
 }

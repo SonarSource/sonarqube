@@ -178,6 +178,30 @@ class ReportSubscriptionDaoIT {
     assertThat(underTest.countByQualifier(db.getSession(), "TRK")).isEqualTo(2);
   }
 
+  @Test
+  void countPerProject_shouldReturnCorrectValue() {
+    ProjectData projectData1 = db.components().insertPrivateProject(p -> p.setQualifier("TRK"));
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPrivateProject(p -> p.setQualifier("TRK"));
+    ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
+
+    ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1);
+    ComponentDto branch2 = db.components().insertProjectBranch(mainBranch2);
+
+    ReportSubscriptionDto subscriptionBranch1 = createSubscriptionDto("uuid2").setBranchUuid(branch1.branchUuid()).setUserUuid("userUuid2");
+    ReportSubscriptionDto subscriptionBranch2 = createSubscriptionDto("uuid3").setBranchUuid(branch2.branchUuid()).setUserUuid("userUuid3");
+    ReportSubscriptionDto subscriptionBranch3 = createSubscriptionDto("uuid4").setBranchUuid(branch2.branchUuid()).setUserUuid("userUuid4");
+    ReportSubscriptionDto subscriptionBranch4 = createSubscriptionDto("uuid").setPortfolioUuid("pf_uuid").setUserUuid("userUuid");
+
+    underTest.insert(db.getSession(), subscriptionBranch1);
+    underTest.insert(db.getSession(), subscriptionBranch2);
+    underTest.insert(db.getSession(), subscriptionBranch3);
+    underTest.insert(db.getSession(), subscriptionBranch4);
+    assertThat(underTest.countPerProject(db.getSession())).hasSize(2)
+      .containsEntry(projectData1.projectUuid(), 1)
+      .containsEntry(projectData2.projectUuid(), 2);
+  }
+
   @NotNull
   private static ReportSubscriptionDto createSubscriptionDto(String uuid) {
     return new ReportSubscriptionDto().setUuid(uuid);

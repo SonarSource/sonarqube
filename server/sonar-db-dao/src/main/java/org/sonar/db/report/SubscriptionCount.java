@@ -19,27 +19,24 @@
  */
 package org.sonar.db.report;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import org.apache.ibatis.annotations.Param;
+public class SubscriptionCount {
+  private String projectUuid;
+  private int count;
 
-public interface ReportSubscriptionMapper {
-  Optional<ReportSubscriptionDto> selectByUserAndPortfolio(@Param("portfolioUuid") String portfolioUuid, @Param("userUuid") String userUuid);
+  public SubscriptionCount() {
+    // used by MyBatis
+  }
 
-  Optional<ReportSubscriptionDto> selectByUserAndBranch(@Param("branchUuid") String branchUuid, @Param("userUuid") String userUuid);
+  public SubscriptionCount(String projectUuid, int count) {
+    this.projectUuid = projectUuid;
+    this.count = count;
+  }
 
-  List<ReportSubscriptionDto> selectByPortfolio(String portfolioUuid);
+  public String getProjectUuid() {
+    return projectUuid;
+  }
 
-  List<ReportSubscriptionDto> selectByBranch(String projectBranchUuid);
-
-  Set<ReportSubscriptionDto> selectAll();
-
-  void insert(ReportSubscriptionDto subscriptionDto);
-
-  void delete(ReportSubscriptionDto subscriptionDto);
-
-  int countByQualifier(String qualifier);
-
-  List<SubscriptionCount> countPerProject();
+  public int getCount() {
+    return count;
+  }
 }
