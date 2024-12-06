@@ -138,7 +138,9 @@ beforeEach(() => {
 it('should allow navigating through the tree', async () => {
   const ui = getPageObject(userEvent.setup());
   renderCode();
-  await ui.appLoaded();
+  // We added timeout to avoid flakiness in cirrus
+  // This needs to be refactored with CodeApp component refactoring.
+  expect(await ui.componentName('Foo').find(undefined, { timeout: 3000 })).toBeInTheDocument();
 
   // Navigate by clicking on an element.
   await ui.clickOnChildComponent(/folderA$/);
