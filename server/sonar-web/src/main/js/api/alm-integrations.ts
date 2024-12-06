@@ -115,7 +115,8 @@ export function getBitbucketServerProjects(
 
 export function getBitbucketServerRepositories(
   almSetting: string,
-  projectName: string,
+  projectName?: string,
+  repositoryName?: string,
   start?: number,
   pageSize?: number,
 ): Promise<{
@@ -127,6 +128,7 @@ export function getBitbucketServerRepositories(
     almSetting,
     pageSize,
     projectName,
+    repositoryName,
     start,
   });
 }
@@ -150,24 +152,6 @@ export function importBitbucketServerProject(data: {
   return postJSON('/api/alm_integrations/import_bitbucketserver_project', data).catch(
     throwGlobalError,
   );
-}
-
-export function searchForBitbucketServerRepositories(
-  almSetting: string,
-  repositoryName: string,
-  start?: number,
-  pageSize?: number,
-): Promise<{
-  isLastPage: boolean;
-  nextPageStart: number;
-  repositories: BitbucketRepository[];
-}> {
-  return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
-    almSetting,
-    pageSize,
-    repositoryName,
-    start,
-  });
 }
 
 export function searchForBitbucketCloudRepositories(

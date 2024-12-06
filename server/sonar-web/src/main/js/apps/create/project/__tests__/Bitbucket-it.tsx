@@ -22,7 +22,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
-import { searchForBitbucketServerRepositories } from '../../../../api/alm-integrations';
+import { getBitbucketServerRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
@@ -170,8 +170,9 @@ it('should show search filter when PAT is already set', async () => {
   await user.keyboard('search');
 
   await waitFor(() =>
-    expect(searchForBitbucketServerRepositories).toHaveBeenLastCalledWith(
+    expect(getBitbucketServerRepositories).toHaveBeenLastCalledWith(
       'conf-bitbucketserver-2',
+      undefined,
       'search',
     ),
   );

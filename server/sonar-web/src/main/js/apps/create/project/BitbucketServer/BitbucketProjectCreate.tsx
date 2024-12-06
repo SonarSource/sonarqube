@@ -25,7 +25,6 @@ import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
-  searchForBitbucketServerRepositories,
 } from '../../../../api/alm-integrations';
 import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -180,7 +179,7 @@ export default function BitbucketProjectCreate({
       defaultRepositorySelect,
       fetchData,
       fetchSearchResults: (query: string, dopKey: string) =>
-        searchForBitbucketServerRepositories(dopKey, query),
+        getBitbucketServerRepositories(dopKey, undefined, query),
       getRepositoryKey: ({ slug }) => slug,
       isMonorepoSetup,
       selectedDopSetting,

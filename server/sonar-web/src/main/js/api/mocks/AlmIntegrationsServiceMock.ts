@@ -56,7 +56,6 @@ import {
   importGitlabProject,
   searchAzureRepositories,
   searchForBitbucketCloudRepositories,
-  searchForBitbucketServerRepositories,
   setAlmPersonalAccessToken,
   setupAzureProjectCreation,
   setupBitbucketCloudProjectCreation,
@@ -222,9 +221,6 @@ export default class AlmIntegrationsServiceMock {
     jest
       .mocked(setupBitbucketServerProjectCreation)
       .mockReturnValue(() => this.importBitbucketServerProject());
-    jest
-      .mocked(searchForBitbucketServerRepositories)
-      .mockImplementation(this.searchForBitbucketServerRepositories);
   }
 
   checkPersonalAccessTokenIsValid = (conf: string) => {
@@ -391,14 +387,6 @@ export default class AlmIntegrationsServiceMock {
         qualifier: 'qualifier',
         visibility: Visibility.Private,
       },
-    });
-  };
-
-  searchForBitbucketServerRepositories = () => {
-    return Promise.resolve({
-      isLastPage: this.bitbucketReposIsLastPage,
-      nextPageStart: this.bitbucketRepositories.length - Number(this.bitbucketReposIsLastPage),
-      repositories: this.bitbucketRepositories,
     });
   };
 
