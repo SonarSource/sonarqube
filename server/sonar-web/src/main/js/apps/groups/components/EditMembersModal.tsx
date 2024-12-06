@@ -59,7 +59,7 @@ export default function EditMembersModal(props: Readonly<Props>) {
   const users: (RestUserBase & { selected?: boolean })[] =
     data?.pages.flatMap((page) => page.users) ?? [];
 
-  const modalHeader = translate('users.update');
+  const modalHeader = translate('users.group.update').replace('{group}', group.name);
 
   const handleSelect = (userId: string) =>
     addUserToGroup({
