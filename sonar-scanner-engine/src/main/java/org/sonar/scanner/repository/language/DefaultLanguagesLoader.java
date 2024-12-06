@@ -42,6 +42,15 @@ public class DefaultLanguagesLoader implements LanguagesLoader {
     "web", "html"
   );
 
+  private static final String CODESCAN_APEX_LANG = "sf";
+  private static final String CODESCAN_APEX_LANG_SUFFIXES_LEGACY_PROP = "sf.apex.suffixes";
+
+  private static final String CODESCAN_SFMETA_LANG = "sfmeta";
+  private static final String CODESCAN_SFMETA_LANG_SUFFIXES_LEGACY_PROP = "sf.sfmeta.suffixes";
+
+  private static final String CODESCAN_VF_LANG = "vf";
+  private static final String CODESCAN_VF_LANG_SUFFIXES_LEGACY_PROP = "sf.vf.suffixes";
+
   private final DefaultScannerWsClient wsClient;
 
   private final Configuration properties;
@@ -78,6 +87,12 @@ public class DefaultLanguagesLoader implements LanguagesLoader {
 
 
   private String[] getFileSuffixes(String languageKey) {
+    String[] codescanDeprecatedFileSuffixes = checkDeprecatedCodescanLanguageFileSuffixes(languageKey);
+    if (codescanDeprecatedFileSuffixes != null) {
+      LOG.debug("Language: {}, file suffixes: {}", languageKey, String.join(",", codescanDeprecatedFileSuffixes));
+      return codescanDeprecatedFileSuffixes;
+    }
+
     return getPropertyForLanguage("sonar.%s.file.suffixes", languageKey);
   }
 
@@ -88,6 +103,28 @@ public class DefaultLanguagesLoader implements LanguagesLoader {
   private String[] getPropertyForLanguage(String propertyPattern, String languageKey) {
     String propName = String.format(propertyPattern, PROPERTY_FRAGMENT_MAP.getOrDefault(languageKey, languageKey));
     return properties.getStringArray(propName);
+  }
+
+  private String[] checkDeprecatedCodescanLanguageFileSuffixes(String languageKey) {
+      return switch (languageKey) {
+          case CODESCAN_APEX_LANG ->
+                  parseDeprecatedCodescanLanguageFileSuffixes(languageKey, CODESCAN_APEX_LANG_SUFFIXES_LEGACY_PROP);
+          case CODESCAN_SFMETA_LANG ->
+                  parseDeprecatedCodescanLanguageFileSuffixes(languageKey, CODESCAN_SFMETA_LANG_SUFFIXES_LEGACY_PROP);
+          case CODESCAN_VF_LANG ->
+                  parseDeprecatedCodescanLanguageFileSuffixes(languageKey, CODESCAN_VF_LANG_SUFFIXES_LEGACY_PROP);
+          default -> null;
+      };
+  }
+
+  private String[] parseDeprecatedCodescanLanguageFileSuffixes(String languageKey, String legacyLangFileSuffixesProp) {
+    String[] legacyValues = properties.getStringArray(legacyLangFileSuffixesProp);
+    if (legacyValues.length > 0) {
+      LOG.warn("The '{}' property is deprecated, please start using 'sonar.{}.file.suffixes' instead.", legacyLangFileSuffixesProp, languageKey);
+      return legacyValues;
+    }
+
+    return null;
   }
 
   private static class LanguagesWSResponse {
