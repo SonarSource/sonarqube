@@ -102,7 +102,7 @@ public class PlatformImpl implements Platform {
     // if AutoDbMigration kicked in or no DB migration was required, startup can be resumed in another thread
     if (dbRequiresMigration()) {
       DocumentationLinkGenerator docLinkGenerator = currentLevel.getContainer().getComponentByType(DocumentationLinkGenerator.class);
-      String documentationLink = docLinkGenerator.getDocumentationLink("/setup/upgrading");
+      String documentationLink = docLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/upgrade-the-server/roadmap");
       LOGGER.info("Database needs to be migrated. Please refer to {}", documentationLink);
     } else {
       this.autoStarter = createAutoStarter();

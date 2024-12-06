@@ -69,17 +69,17 @@ public class DatabaseServerCompatibilityTest {
   public void log_warning_if_requires_upgrade() {
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
-    when(documentationLinkGenerator.getDocumentationLink("/setup/upgrading")).thenReturn("https://docs.sonarsource.com/sonarqube/latest/setup/upgrading");
+    when(documentationLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/upgrade-the-server/roadmap")).thenReturn("[expected doc url]");
 
     compatibility.start();
 
     assertThat(logTester.logs()).hasSize(4);
     assertThat(logTester.logs(Level.WARN)).contains(
       "The database must be manually upgraded. Please backup the database and browse /setup. "
-        + "For more information: https://docs.sonarsource.com/sonarqube/latest/setup/upgrading",
+        + "For more information: [expected doc url]",
       "################################################################################",
       "The database must be manually upgraded. Please backup the database and browse /setup. "
-        + "For more information: https://docs.sonarsource.com/sonarqube/latest/setup/upgrading",
+        + "For more information: [expected doc url]",
       "################################################################################");
   }
 
