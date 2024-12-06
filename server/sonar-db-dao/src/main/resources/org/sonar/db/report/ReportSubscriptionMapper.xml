@@ -65,6 +65,12 @@
     WHERE p.qualifier = #{qualifier,jdbcType=VARCHAR}
   </select>
 
+  <select id="countPortfolioReportSubscriptions" resultType="int">
+    SELECT count(1)
+    FROM report_subscriptions
+    WHERE portfolio_uuid IS NOT NULL
+  </select>
+
   <select id="countPerProject" resultType="org.sonar.db.report.SubscriptionCount">
     SELECT
       p.uuid   as projectUuid,

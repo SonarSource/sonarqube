@@ -68,6 +68,10 @@ public class ReportSubscriptionDao implements Dao {
     return mapper(dbSession).countByQualifier(qualifier);
   }
 
+  public int countPortfolioReportSubscriptions(DbSession dbSession) {
+    return mapper(dbSession).countPortfolioReportSubscriptions();
+  }
+
   public Map<String, Integer> countPerProject(DbSession dbSession) {
     return mapper(dbSession).countPerProject().stream().collect(Collectors.toMap(SubscriptionCount::getProjectUuid, SubscriptionCount::getCount));
   }

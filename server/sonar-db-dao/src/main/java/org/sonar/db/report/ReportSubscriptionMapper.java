@@ -41,5 +41,7 @@ public interface ReportSubscriptionMapper {
 
   int countByQualifier(String qualifier);
 
+  int countPortfolioReportSubscriptions();
+
   List<SubscriptionCount> countPerProject();
 }

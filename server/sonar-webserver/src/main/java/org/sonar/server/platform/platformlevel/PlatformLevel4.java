@@ -182,6 +182,7 @@ import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.email.telemetry.EmailConfigAuthMethodTelemetryProvider;
 import org.sonar.server.notification.email.telemetry.EmailConfigHostTelemetryProvider;
 import org.sonar.server.notification.email.telemetry.TelemetryApplicationSubscriptionsProvider;
+import org.sonar.server.notification.email.telemetry.TelemetryPortfolioSubscriptionsProvider;
 import org.sonar.server.notification.email.telemetry.TelemetryProjectSubscriptionsProvider;
 import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.permission.index.PermissionIndexer;
@@ -687,6 +688,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Reports telemetry
       TelemetryApplicationSubscriptionsProvider.class,
       TelemetryProjectSubscriptionsProvider.class,
+      TelemetryPortfolioSubscriptionsProvider.class,
 
       // telemetry
       TelemetryMetricsLoader.class,

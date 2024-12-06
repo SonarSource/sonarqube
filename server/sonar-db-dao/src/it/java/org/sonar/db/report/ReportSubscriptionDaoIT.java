@@ -202,10 +202,18 @@ class ReportSubscriptionDaoIT {
       .containsEntry(projectData2.projectUuid(), 2);
   }
 
+  @Test
+  void countPortfolioReportSubscriptions_shouldReturnCorrectValue() {
+    underTest.insert(db.getSession(), createSubscriptionDto("uuid1").setPortfolioUuid("pf").setUserUuid("userUuid1"));
+    underTest.insert(db.getSession(), createSubscriptionDto("uuid2").setPortfolioUuid("pf").setUserUuid("userUuid2"));
+    underTest.insert(db.getSession(), createSubscriptionDto("uuid3").setPortfolioUuid("pf").setUserUuid("userUuid3"));
+    underTest.insert(db.getSession(), createSubscriptionDto("uuid4").setBranchUuid("branch").setUserUuid("userUuid2"));
+
+    assertThat(underTest.countPortfolioReportSubscriptions(db.getSession())).isEqualTo(3);
+  }
+
   @NotNull
   private static ReportSubscriptionDto createSubscriptionDto(String uuid) {
     return new ReportSubscriptionDto().setUuid(uuid);
   }
-
-
 }
