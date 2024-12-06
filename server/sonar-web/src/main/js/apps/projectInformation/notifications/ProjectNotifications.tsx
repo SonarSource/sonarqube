@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FlagMessage, SubTitle } from '~design-system';
+import { Heading, Text } from '@sonarsource/echoes-react';
 import NotificationsList from '../../../components/notifications/NotificationsList';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
@@ -32,13 +32,17 @@ export default function ProjectNotifications(props: Props) {
 
   return (
     <form aria-labelledby="notifications-update-title">
-      <SubTitle>{translate('project.info.notifications')}</SubTitle>
+      <Heading as="h2" hasMarginBottom>
+        {translate('project.info.notifications')}
+      </Heading>
 
-      <FlagMessage className="sw-mt-2" variant="info">
-        {translate('notification.dispatcher.information')}
-      </FlagMessage>
+      <Text isSubdued>{translate('notification.dispatcher.information')}</Text>
 
-      <NotificationsList className="sw-mt-6" project={component.key} />
+      <NotificationsList
+        className="sw-mt-6"
+        projectKey={component.key}
+        projectName={component.name}
+      />
     </form>
   );
 }

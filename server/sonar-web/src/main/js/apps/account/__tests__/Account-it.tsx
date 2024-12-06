@@ -476,8 +476,8 @@ describe('notifications page', () => {
     searchInput: byRole('searchbox', { name: 'search.placeholder' }),
     sonarQubeProject: byRole('link', { name: 'SonarQube' }),
     checkbox: (type: NotificationProjectType) =>
-      byRole('checkbox', {
-        name: `notification.dispatcher.description_x.notification.dispatcher.${type}.project`,
+      byRole('switch', {
+        name: `notification.dispatcher.${type}.project`,
       }),
   };
 
@@ -485,8 +485,8 @@ describe('notifications page', () => {
     title: byRole('heading', { name: 'my_profile.overall_notifications.title' }),
     noNotificationForProject: byText('my_account.no_project_notifications'),
     checkbox: (type: NotificationGlobalType) =>
-      byRole('checkbox', {
-        name: `notification.dispatcher.description_x.notification.dispatcher.${type}`,
+      byRole('switch', {
+        name: `notification.dispatcher.${type}`,
       }),
   };
 

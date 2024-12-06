@@ -26,7 +26,9 @@ import { CheckIcon } from './icons';
 
 interface Props {
   ariaDescribedby?: string;
+  ariaLabel?: string;
   disabled?: boolean;
+  id?: string;
   name?: string;
   onChange?: (value: boolean) => void;
   value: boolean | string;
@@ -37,12 +39,12 @@ const getValue = (value: boolean | string) => {
 };
 
 function SwitchWithRef(props: Readonly<Props>, ref: ForwardedRef<HTMLButtonElement>) {
-  const { ariaDescribedby, disabled, name, onChange } = props;
-  const value = getValue(props.value);
+  const { ariaDescribedby, ariaLabel, disabled, name, value: propsValue, onChange, id } = props;
+  const value = getValue(propsValue);
 
   const handleClick = () => {
     if (!disabled && onChange) {
-      const value = getValue(props.value);
+      const value = getValue(propsValue);
       onChange(!value);
     }
   };
@@ -52,8 +54,10 @@ function SwitchWithRef(props: Readonly<Props>, ref: ForwardedRef<HTMLButtonEleme
       active={value}
       aria-checked={value}
       aria-describedby={ariaDescribedby}
+      aria-label={ariaLabel}
       disabled={disabled}
       name={name}
+      id={id}
       onClick={handleClick}
       ref={ref}
       role="switch"

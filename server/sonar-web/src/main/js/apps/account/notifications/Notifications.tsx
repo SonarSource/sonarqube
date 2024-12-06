@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Heading, Spinner } from '@sonarsource/echoes-react';
+import { Heading, Spinner, Text } from '@sonarsource/echoes-react';
 import { Helmet } from 'react-helmet-async';
-import { FlagMessage, GreySeparator } from '~design-system';
+import { GreySeparator } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { useNotificationsQuery } from '../../../queries/notifications';
 import GlobalNotifications from './GlobalNotifications';
@@ -45,18 +45,16 @@ export default function Notifications() {
         {translate('my_account.notifications')}
       </Heading>
 
-      <FlagMessage className="sw-my-2" variant="info">
-        {translate('notification.dispatcher.information')}
-      </FlagMessage>
+      <Text isSubdued>{translate('notification.dispatcher.information')}</Text>
 
       <Spinner isLoading={isLoading}>
         {notifications && (
           <>
-            <GreySeparator className="sw-mb-4 sw-mt-6" />
+            <GreySeparator className="sw-my-4" />
 
             <GlobalNotifications />
 
-            <GreySeparator className="sw-mb-4 sw-mt-6" />
+            <GreySeparator className="sw-my-6" />
 
             <Projects notifications={projectNotifications} />
           </>

@@ -34,7 +34,7 @@ export default function ProjectNotifications({ project }: Readonly<Props>) {
         <Link to={getProjectUrl(project.project)}>{project.projectName}</Link>
       </div>
 
-      <NotificationsList project={project.project} />
+      <NotificationsList projectKey={project.project} projectName={project.projectName} />
     </div>
   );
 }

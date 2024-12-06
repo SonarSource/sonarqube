@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Checkbox, Spinner } from '@sonarsource/echoes-react';
+import { Checkbox, Label, Spinner, Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { useCallback } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { CellComponent, Table, TableRowInteractive } from '~design-system';
-import { hasMessage, translate, translateWithParameters } from '../../helpers/l10n';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { CellComponent, Switch, Table, TableRowInteractive } from '~design-system';
+import { hasMessage, translate } from '../../helpers/l10n';
 import {
   useAddNotificationMutation,
   useNotificationsQuery,
@@ -32,7 +32,8 @@ import {
 
 interface Props {
   className?: string;
-  project?: string;
+  projectKey?: string;
+  projectName?: string;
 }
 
 function getDispatcherLabel(dispatcher: string, project?: string) {
@@ -43,20 +44,25 @@ function getDispatcherLabel(dispatcher: string, project?: string) {
   return shouldUseProjectMessage ? translate(...projectMessageKey) : translate(...globalMessageKey);
 }
 
-export default function NotificationsList({ project, className = '' }: Readonly<Props>) {
+export default function NotificationsList({
+  projectKey,
+  projectName,
+  className = '',
+}: Readonly<Props>) {
+  const intl = useIntl();
   const { data, isLoading } = useNotificationsQuery();
   const { mutate: add, isPending: isPendingAdd } = useAddNotificationMutation();
   const { mutate: remove, isPending: isPendingRemove } = useRemoveNotificationMutation();
-  const types = (project ? data?.perProjectTypes : data?.globalTypes) || [];
+  const types = (projectKey ? data?.perProjectTypes : data?.globalTypes) || [];
   const channels = data?.channels || [];
 
   const checkboxId = useCallback(
     (type: string, channel: string) => {
-      return project === undefined
+      return projectKey === undefined
         ? `global-notification-${type}-${channel}`
-        : `project-notification-${project}-${type}-${channel}`;
+        : `project-notification-${projectKey}-${type}-${channel}`;
     },
-    [project],
+    [projectKey],
   );
 
   const isEnabled = useCallback(
@@ -65,67 +71,101 @@ export default function NotificationsList({ project, className = '' }: Readonly<
         (notification) =>
           notification.type === type &&
           notification.channel === channel &&
-          notification.project === project,
+          notification.project === projectKey,
       ),
-    [data?.notifications, project],
+    [data?.notifications, projectKey],
   );
 
   const handleCheck = useCallback(
     (type: string, channel: string, checked: boolean) => {
       if (checked) {
-        add({ type, channel, project });
+        add({ type, channel, project: projectKey });
       } else {
-        remove({ type, channel, project });
+        remove({ type, channel, project: projectKey });
       }
     },
-    [add, project, remove],
+    [add, projectKey, remove],
   );
+
+  if (channels.length !== 1) {
+    return (
+      <Spinner isLoading={isLoading}>
+        <Table
+          className={classNames('sw-w-full', className)}
+          columnCount={channels.length + 1}
+          header={
+            <tr>
+              <th className="sw-typo-semibold">{translate('notification.for')}</th>
+
+              {channels.map((channel) => (
+                <th className="sw-typo-semibold sw-text-right" key={channel}>
+                  <FormattedMessage
+                    id="notification.by"
+                    values={{
+                      channel: <FormattedMessage id={`notification.channel.${channel}`} />,
+                    }}
+                  />
+                </th>
+              ))}
+            </tr>
+          }
+        >
+          {types.map((type) => (
+            <TableRowInteractive className="sw-h-9" key={type}>
+              <CellComponent className="sw-py-0 sw-border-0">
+                {getDispatcherLabel(type, projectKey)}
+              </CellComponent>
+
+              {channels.map((channel) => (
+                <CellComponent className="sw-py-0 sw-border-0" key={channel}>
+                  <div className="sw-justify-end sw-flex sw-items-center">
+                    <Checkbox
+                      ariaLabel={intl.formatMessage(
+                        { id: 'notification.dispatcher.description_x' },
+                        { project: getDispatcherLabel(type, projectKey) },
+                      )}
+                      isDisabled={isPendingRemove || isPendingAdd}
+                      checked={isEnabled(type, channel)}
+                      id={checkboxId(type, channel)}
+                      onCheck={(checked) => handleCheck(type, channel, checked as boolean)}
+                    />
+                  </div>
+                </CellComponent>
+              ))}
+            </TableRowInteractive>
+          ))}
+        </Table>
+      </Spinner>
+    );
+  }
 
   return (
     <Spinner isLoading={isLoading}>
-      <Table
-        className={classNames('sw-w-full', className)}
-        columnCount={channels.length + 1}
-        header={
-          <tr>
-            <th className="sw-typo-semibold">{translate('notification.for')}</th>
-
-            {channels.map((channel) => (
-              <th className="sw-typo-semibold sw-text-right" key={channel}>
-                <FormattedMessage
-                  id="notification.by"
-                  values={{ channel: <FormattedMessage id={`notification.channel.${channel}`} /> }}
-                />
-              </th>
-            ))}
-          </tr>
+      <ul
+        aria-label={
+          projectName
+            ? intl.formatMessage(
+                { id: 'notification.dispatcher.group.label' },
+                { project: projectName },
+              )
+            : ''
         }
       >
         {types.map((type) => (
-          <TableRowInteractive className="sw-h-9" key={type}>
-            <CellComponent className="sw-py-0 sw-border-0">
-              {getDispatcherLabel(type, project)}
-            </CellComponent>
-
-            {channels.map((channel) => (
-              <CellComponent className="sw-py-0 sw-border-0" key={channel}>
-                <div className="sw-justify-end sw-flex sw-items-center">
-                  <Checkbox
-                    ariaLabel={translateWithParameters(
-                      'notification.dispatcher.description_x',
-                      getDispatcherLabel(type, project),
-                    )}
-                    isDisabled={isPendingRemove || isPendingAdd}
-                    checked={isEnabled(type, channel)}
-                    id={checkboxId(type, channel)}
-                    onCheck={(checked) => handleCheck(type, channel, checked as boolean)}
-                  />
-                </div>
-              </CellComponent>
-            ))}
-          </TableRowInteractive>
+          <li key={type} className="sw-mt-4">
+            <Label className="sw-flex sw-gap-2">
+              {/* For screen readers we want to hide the label and apply aria-label on element to avoid duplication of label */}
+              <Switch
+                id={checkboxId(type, channels[0])}
+                ariaLabel={getDispatcherLabel(type, projectKey)}
+                value={isEnabled(type, channels[0])}
+                onChange={(value) => handleCheck(type, channels[0], value)}
+              />
+              <Text aria-hidden>{getDispatcherLabel(type, projectKey)}</Text>
+            </Label>
+          </li>
         ))}
-      </Table>
+      </ul>
     </Spinner>
   );
 }

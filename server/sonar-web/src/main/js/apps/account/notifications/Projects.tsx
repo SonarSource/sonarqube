@@ -104,11 +104,23 @@ export default class Projects extends React.PureComponent<Props, State> {
             {translate('my_profile.per_project_notifications.title')}
           </Heading>
 
-          <Button onClick={this.openModal} variety={ButtonVariety.Primary}>
-            <span data-test="account__add-project-notification">
-              {translate('my_profile.per_project_notifications.add')}
-            </span>
-          </Button>
+          <div className="sw-flex sw-gap-4">
+            {allProjects.length > 0 && (
+              <div className="sw-mb-4">
+                <InputSearch
+                  size="large"
+                  onChange={this.handleSearch}
+                  placeholder={translate('search.search_for_projects')}
+                />
+              </div>
+            )}
+
+            <Button onClick={this.openModal} variety={ButtonVariety.Primary}>
+              <span data-test="account__add-project-notification">
+                {translate('my_profile.per_project_notifications.add')}
+              </span>
+            </Button>
+          </div>
         </div>
 
         {this.state.showModal && (
@@ -122,15 +134,6 @@ export default class Projects extends React.PureComponent<Props, State> {
         <div>
           {allProjects.length === 0 && (
             <Note>{translate('my_account.no_project_notifications')}</Note>
-          )}
-
-          {allProjects.length > 0 && (
-            <div className="sw-mb-4">
-              <InputSearch
-                onChange={this.handleSearch}
-                placeholder={translate('search.search_for_projects')}
-              />
-            </div>
           )}
 
           {filteredProjects.map((project) => (
