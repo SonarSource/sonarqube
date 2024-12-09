@@ -250,6 +250,32 @@ describe('rendering', () => {
     },
   );
 
+  it.each([
+    ComponentQualifier.Portfolio,
+    ComponentQualifier.SubPortfolio,
+    ComponentQualifier.Application,
+  ])(
+    'should hide efforts to reach maintainability rating a metrics for a %s',
+    async (qualifier) => {
+      const { ui } = getPageObject();
+
+      renderProjectActivityAppContainer(
+        mockComponent({
+          qualifier,
+          breadcrumbs: [{ key: 'breadcrumb', name: 'breadcrumb', qualifier }],
+        }),
+      );
+
+      await ui.changeGraphType(GraphType.custom);
+      await ui.openMetricsDropdown();
+      expect(ui.metricCheckbox(MetricKey.security_review_rating).get()).toBeInTheDocument();
+
+      expect(
+        ui.metricCheckbox(MetricKey.effort_to_reach_maintainability_rating_a).query(),
+      ).not.toBeInTheDocument();
+    },
+  );
+
   it('should render graph gap info message', async () => {
     timeMachineHandler.setMeasureHistory([
       mockMeasureHistory({
@@ -975,6 +1001,7 @@ function renderProjectActivityAppContainer(
           mockMetric({ key: MetricKey.bugs, type: MetricType.Integer }),
           mockMetric({ key: MetricKey.code_smells, type: MetricType.Integer }),
           mockMetric({ key: MetricKey.security_hotspots_reviewed }),
+          mockMetric({ key: MetricKey.effort_to_reach_maintainability_rating_a }),
           mockMetric({ key: MetricKey.security_review_rating, type: MetricType.Rating }),
           mockMetric({ key: MetricKey.reliability_rating, type: MetricType.Rating }),
           mockMetric({

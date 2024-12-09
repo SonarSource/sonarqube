@@ -40,7 +40,7 @@ import { StaleTime } from '../../../queries/common';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
 import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
-import { isApplication, isProject } from '../../../types/component';
+import { isApplication, isApplicationOrPortfolio, isProject } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Query, parseQuery, serializeUrlQuery } from '../utils';
 import ProjectActivityAppRenderer from './ProjectActivityAppRenderer';
@@ -117,6 +117,18 @@ export function ProjectActivityApp() {
       ) {
         return false;
       }
+
+      // Application and Portfolio don't have these metrics
+      if (
+        isApplicationOrPortfolio(component?.qualifier) &&
+        [
+          MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
+          MetricKey.effort_to_reach_maintainability_rating_a,
+        ].includes(metric.key as MetricKey)
+      ) {
+        return false;
+      }
+
       if (isProject(component?.qualifier) && metric.key === MetricKey.security_review_rating) {
         return false;
       }

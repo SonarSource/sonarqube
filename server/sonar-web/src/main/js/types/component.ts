@@ -44,6 +44,12 @@ export interface TreeComponentWithPath extends TreeComponent {
   path: string;
 }
 
+export function isApplicationOrPortfolio(
+  componentQualifier?: string | ComponentQualifier,
+): componentQualifier is ComponentQualifier.Application | ComponentQualifier.Portfolio {
+  return isPortfolioLike(componentQualifier) || isApplication(componentQualifier);
+}
+
 export function isApplication(
   componentQualifier?: string | ComponentQualifier,
 ): componentQualifier is ComponentQualifier.Application {
