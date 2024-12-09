@@ -139,7 +139,7 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
     appState: { canAdmin },
     almCounts,
   } = props;
-  const almTotalCount = Object.values(almCounts).reduce((prev, cur) => prev + cur);
+  const almTotalCount = Object.values(almCounts).reduce((prev, cur) => prev + cur, 0);
   const filteredAlm = separateAvailableOptions(almCounts);
 
   return (
