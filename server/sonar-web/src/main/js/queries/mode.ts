@@ -33,8 +33,8 @@ const useModeQuery = createQueryHook(() => {
   });
 });
 
-export const useStandardExperienceModeQuery = () => {
-  return useModeQuery({ select: (data) => data.mode === Mode.Standard });
+export const useStandardExperienceModeQuery = ({ enabled }: { enabled?: boolean } = {}) => {
+  return useModeQuery({ select: (data) => data.mode === Mode.Standard, enabled });
 };
 
 export const useModeModifiedQuery = () => {

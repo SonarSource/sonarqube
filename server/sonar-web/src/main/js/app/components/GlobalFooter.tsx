@@ -45,7 +45,9 @@ interface GlobalFooterProps {
 
 export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooterProps>) {
   const appState = useAppState();
-  const { data: isStandardMode } = useStandardExperienceModeQuery();
+  const { data: isStandardMode } = useStandardExperienceModeQuery({
+    enabled: appState.version !== '',
+  });
   const currentEdition = appState?.edition && getEdition(appState.edition);
   const intl = useIntl();
   const version = getInstanceVersionNumber(appState.version);
