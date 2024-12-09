@@ -25,7 +25,7 @@ import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { areMyIssuesSelected, parseQuery, serializeQuery } from '../../../apps/issues/utils';
 import { translate } from '../../../helpers/l10n';
-import { getIssuesUrl } from '../../../helpers/urls';
+import { getIssuesUrl, getOrgIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 
@@ -45,6 +45,19 @@ export default function IssueMessage(props: IssueMessageProps) {
 
   const { message, messageFormattings } = issue;
 
+  const orgIssueUrl = () => {
+    if (window.location.toString().includes("myIssues=true")) {
+      return getIssuesUrl(urlQuery);
+    }
+    else if (window.location.toString().includes("/project/issues")) {
+      return getComponentIssuesUrl(component.key, urlQuery);
+    }
+    else {
+      debugger;
+      return getOrgIssuesUrl(urlQuery, issue.organization);
+    }
+  }
+
   const whyIsThisAnIssueUrl = getComponentIssuesUrl(issue.project, {
     ...getBranchLikeQuery(branchLike),
     files: issue.componentLongName,
@@ -59,9 +72,7 @@ export default function IssueMessage(props: IssueMessageProps) {
     open: issue.key,
   };
 
-  const issueUrl = component?.key
-    ? getComponentIssuesUrl(component?.key, urlQuery)
-    : getIssuesUrl(urlQuery);
+  const issueUrl = orgIssueUrl();
 
   return (
     <>
