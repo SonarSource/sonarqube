@@ -20,6 +20,7 @@
 
 import { DropdownMenu, IconSlideshow } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { HighlightRing } from '~design-system';
 import { useCurrentUser } from '../../app/components/current-user/CurrentUserContext';
 import { CustomEvents } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
@@ -102,13 +103,11 @@ export function EmbedDocsPopup() {
 
           <DropdownMenu.GroupLabel>{translate('tours')}</DropdownMenu.GroupLabel>
 
-          <DropdownMenu.ItemButton
-            prefix={<IconSlideshow />}
-            data-guiding-id="mode-tour-2"
-            onClick={runModeTour}
-          >
-            {translate('mode_tour.name')}
-          </DropdownMenu.ItemButton>
+          <HighlightRing data-guiding-id="mode-tour-2">
+            <DropdownMenu.ItemButton prefix={<IconSlideshow />} onClick={runModeTour}>
+              {translate('mode_tour.name')}
+            </DropdownMenu.ItemButton>
+          </HighlightRing>
         </>
       )}
     </>

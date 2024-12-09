@@ -25,7 +25,7 @@ import {
   DropdownMenuAlign,
   IconQuestionMark,
 } from '@sonarsource/echoes-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CustomEvents } from '../../helpers/constants';
 import { translate } from '../../helpers/l10n';
 import { EmbedDocsPopup } from './EmbedDocsPopup';
@@ -44,6 +44,11 @@ export default function EmbedDocsPopupHelper() {
     };
   }, []);
 
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    document.dispatchEvent(new CustomEvent(CustomEvents.HelpMenuClosed));
+  }, []);
+
   return (
     <div className="dropdown">
       <DropdownMenu.Root
@@ -51,7 +56,7 @@ export default function EmbedDocsPopupHelper() {
         id="help-menu-dropdown"
         isOpen={open}
         onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}
         items={<EmbedDocsPopup />}
       >
         <ButtonIcon

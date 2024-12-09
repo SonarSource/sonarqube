@@ -288,5 +288,6 @@ export const ONE_SECOND = 1000;
 export enum CustomEvents {
   OpenHelpMenu = 'open-help-menu',
   CloseHelpMenu = 'close-help-menu',
+  HelpMenuClosed = 'help-menu-closed',
   RunTourMode = 'runTour-mode',
 }

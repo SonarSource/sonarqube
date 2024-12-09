@@ -41,6 +41,7 @@ const ui = {
   close: byRole('button', { name: 'modal.close' }),
   skip: byRole('button', { name: 'skip' }),
   letsgo: byRole('button', { name: 'lets_go' }),
+  gotit: byRole('button', { name: 'got_it' }),
   help: byRole('button', { name: 'help' }),
   guidePopup: byRole('alertdialog'),
   tourTrigger: byRole('menuitem', { name: 'mode_tour.name' }),
@@ -92,6 +93,7 @@ it('renders the tour for admin', async () => {
   expect(ui.guidePopup.query()).not.toHaveTextContent('guiding.step_x_of_y');
   expect(ui.next.query()).not.toBeInTheDocument();
   expect(ui.skip.get()).toBeInTheDocument();
+  expect(ui.gotit.get()).toBeInTheDocument();
   await user.click(ui.skip.get());
 
   expect(ui.tourTrigger.query()).not.toBeInTheDocument();
@@ -140,7 +142,8 @@ it('renders the tour for gateadmins', async () => {
   expect(ui.guidePopup.query()).not.toHaveTextContent('guiding.step_x_of_y');
   expect(ui.next.query()).not.toBeInTheDocument();
   expect(ui.skip.get()).toBeInTheDocument();
-  await user.click(ui.skip.get());
+  expect(ui.gotit.get()).toBeInTheDocument();
+  await user.click(ui.gotit.get());
 
   expect(ui.tourTrigger.query()).not.toBeInTheDocument();
   expect(ui.dialog.query()).not.toBeInTheDocument();
@@ -175,7 +178,11 @@ it('should highlight the replay button on closing the dialog', async () => {
   expect(ui.tourTrigger.get()).toBeInTheDocument();
   expect(await ui.guidePopup.find()).toBeInTheDocument();
   expect(ui.skip.get()).toBeInTheDocument();
-  await user.click(ui.skip.get());
+  expect(ui.gotit.get()).toBeInTheDocument();
+  // Closing the help menu dismisses the tour as well
+  await user.click(ui.help.get());
+
+  expect(ui.guidePopup.query()).not.toBeInTheDocument();
 });
 
 it('should not render the tour for regular users', async () => {

@@ -111,6 +111,18 @@ export default function ModeTour() {
     return () => document.removeEventListener(CustomEvents.RunTourMode, listener);
   }, []);
 
+  useEffect(() => {
+    const listener = () => {
+      // dismiss tour if help menu is closed and user has not completed all steps
+      if (step >= MAX_STEPS) {
+        dismissTour();
+      }
+    };
+    document.addEventListener(CustomEvents.HelpMenuClosed, listener);
+
+    return () => document.removeEventListener(CustomEvents.HelpMenuClosed, listener);
+  }, [dismissTour, step]);
+
   const isAdmin = currentUser.permissions?.global.includes(Permissions.Admin);
   const isAdminOrQGAdmin =
     isAdmin || currentUser.permissions?.global.includes(Permissions.QualityGateAdmin);
@@ -151,7 +163,6 @@ export default function ModeTour() {
       title: intl.formatMessage({ id: 'mode_tour.step5.title' }),
       content: null,
       placement: 'left',
-      hideFooter: true,
     },
   ];
 
@@ -174,10 +185,12 @@ export default function ModeTour() {
                 <Image
                   alt={intl.formatMessage({ id: `mode_tour.step${step}.img_alt` })}
                   className="sw-w-full sw-mb-4"
-                  src={`/images/mode-tour/step${step}.png`}
+                  src={`/images/mode-tour/step${isStandardMode && step === 4 ? step + '_se' : step}.png`}
                 />
                 {intl.formatMessage(
-                  { id: `mode_tour.step${step}.description` },
+                  {
+                    id: `mode_tour.step${step}.description`,
+                  },
                   {
                     mode: intl.formatMessage({
                       id: `settings.mode.${isStandardMode ? 'standard' : 'mqr'}.name`,
@@ -219,12 +232,19 @@ export default function ModeTour() {
         steps={steps}
         run={step > maxModalSteps}
         continuous
-        disableOverlay={false}
+        disableOverlay
         showProgress={step !== 5}
         stepIndex={step - maxModalSteps - 1}
         nextLabel={intl.formatMessage({ id: 'next' })}
+        closeLabel={intl.formatMessage({ id: 'got_it' })}
+        backLabel=""
         stepXofYLabel={(x: number) =>
-          intl.formatMessage({ id: 'guiding.step_x_of_y' }, { 0: x + maxModalSteps, 1: MAX_STEPS })
+          x + maxModalSteps <= MAX_STEPS
+            ? intl.formatMessage(
+                { id: 'guiding.step_x_of_y' },
+                { 0: x + maxModalSteps, 1: MAX_STEPS },
+              )
+            : ''
         }
       />
     </>
