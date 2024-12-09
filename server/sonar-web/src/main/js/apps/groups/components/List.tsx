@@ -21,6 +21,7 @@ import { ContentCell, NumericalCell, TableRow } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { StickyTable } from '../../../app/components/admin/StickyTable';
+import '../../../app/styles/pages/GroupListItem.css';
 import { translate } from '../../../helpers/l10n';
 import { Group, Provider } from '../../../types/types';
 import ListItem from './ListItem';
@@ -46,10 +47,12 @@ export default function List(props: Readonly<Props>) {
   const { organization, groups, manageProvider } = props;
 
   return (
-    <StickyTable columnCount={4} header={<Header />} id="groups-list">
-      {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
-        <ListItem organization={organization} group={group} key={group.name} manageProvider={manageProvider} />
-      ))}
-    </StickyTable>
+    <div className='groups-table'>
+      <StickyTable columnCount={4} header={<Header />} id="groups-list">
+        {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
+          <ListItem organization={organization} group={group} key={group.name} manageProvider={manageProvider} />
+        ))}
+      </StickyTable>
+    </div>
   );
 }

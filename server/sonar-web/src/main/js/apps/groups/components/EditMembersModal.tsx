@@ -20,6 +20,7 @@
 import { Modal, TextMuted } from 'design-system';
 import { find } from 'lodash';
 import * as React from 'react';
+import '../../../app/styles/pages/GroupListItem.css';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
@@ -111,7 +112,7 @@ export default function EditMembersModal(props: Readonly<Props>) {
 
   return (
     <Modal
-      headerTitle={modalHeader}
+      headerTitle={<span style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>{modalHeader}</span>}
       body={
         <SelectList
           elements={users.map((user) => user.id)}

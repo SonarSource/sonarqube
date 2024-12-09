@@ -1,0 +1,18 @@
+.groups-table table{
+  table-layout: fixed;
+  width: 100%;
+
+}
+
+.groups-table tr, groups-table td, groups-table th {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100px;
+  overflow: hidden;
+}
+
+.text-wrap-dia h2{
+  overflow-wrap: break-word;
+}
