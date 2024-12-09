@@ -480,6 +480,7 @@ subprojects {
       }
       dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.174'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.34.0.2766'
+      dependency 'org.sonarsource.classloader:sonar-classloader:1.1.0.1059'
       dependency("org.springframework:spring-context:${springVersion}") {
         exclude 'commons-logging:commons-logging'
       }
