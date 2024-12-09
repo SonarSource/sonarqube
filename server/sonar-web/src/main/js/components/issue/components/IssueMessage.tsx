@@ -53,7 +53,6 @@ export default function IssueMessage(props: IssueMessageProps) {
       return getComponentIssuesUrl(component.key, urlQuery);
     }
     else {
-      debugger;
       return getOrgIssuesUrl(urlQuery, issue.organization);
     }
   }
