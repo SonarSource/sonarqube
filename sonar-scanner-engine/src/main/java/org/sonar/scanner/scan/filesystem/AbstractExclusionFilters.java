@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.notifications.AnalysisWarnings;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.sonar.api.CoreProperties.PROJECT_TESTS_EXCLUSIONS_PROPERTY;
 import static org.sonar.api.CoreProperties.PROJECT_TESTS_INCLUSIONS_PROPERTY;
 import static org.sonar.api.CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY;
@@ -234,14 +235,30 @@ public abstract class AbstractExclusionFilters {
    * @return True if the file should be excluded, false otherwise.
    */
   public boolean isExcludedAsParentDirectoryOfExcludedChildren(Path absolutePath, Path relativePath, Path baseDir, InputFile.Type type) {
+    return isExcludedFromExclusionProperty(absolutePath, relativePath, baseDir, type)
+      || isExcludedFromInclusionProperty(absolutePath, relativePath, baseDir, type);
+  }
+
+  private boolean isExcludedFromExclusionProperty(Path absolutePath, Path relativePath, Path baseDir, InputFile.Type type) {
     PathPattern[] exclusionPatterns = InputFile.Type.MAIN == type ? mainExclusionsPattern : testExclusionsPattern;
+    return exclusionPatterns.length > 0 && matchPathPattern(absolutePath, relativePath, baseDir, exclusionPatterns);
+  }
+
+  private boolean isExcludedFromInclusionProperty(Path absolutePath, Path relativePath, Path baseDir, InputFile.Type type) {
+    PathPattern[] inclusionPatterns = InputFile.Type.MAIN == type ? mainInclusionsPattern : testInclusionsPattern;
+    return inclusionPatterns.length > 0 && !matchPathPattern(absolutePath, relativePath, baseDir, inclusionPatterns);
+  }
+
+  private boolean matchPathPattern(Path absolutePath, Path relativePath, Path baseDir, PathPattern[] exclusionPatterns) {
 
     return Stream.of(exclusionPatterns)
       .map(PathPattern::toString)
-      .filter(ps -> ps.endsWith("/**/*"))
-      .map(ps -> ps.substring(0, ps.length() - 5))
+      .filter(ps -> ps.endsWith("/**/*") || ps.endsWith("/**"))
+      .map(ps -> removeEnd(ps, "/**/*"))
+      .map(ps -> removeEnd(ps, "/**"))
       .map(baseDir::resolve)
       .anyMatch(exclusionRootPath -> absolutePath.startsWith(exclusionRootPath)
         || PathPattern.create(exclusionRootPath.toString()).match(absolutePath, relativePath));
   }
+
 }

@@ -32,21 +32,19 @@ import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
@@ -56,22 +54,24 @@ import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static java.lang.String.format;
+import static java.nio.file.Files.createDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.slf4j.event.Level.DEBUG;
 
-public class FileSystemMediumIT {
+class FileSystemMediumIT {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  private File temp;
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Rule
-  public ScannerMediumTester tester = new ScannerMediumTester()
+  @RegisterExtension
+  private final ScannerMediumTester tester = new ScannerMediumTester()
     .setEdition(SonarEdition.COMMUNITY)
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
@@ -80,10 +80,10 @@ public class FileSystemMediumIT {
   private File baseDir;
   private ImmutableMap.Builder<String, String> builder;
 
-  @Before
-  public void prepare() throws IOException {
-    logTester.setLevel(Level.DEBUG);
-    baseDir = temp.newFolder().getCanonicalFile();
+  @BeforeEach
+  void prepare() throws IOException {
+    logTester.setLevel(DEBUG);
+    baseDir = createDirectory(temp.toPath().resolve("baseDir")).toFile();
 
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -91,9 +91,9 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void scan_project_without_name() throws IOException {
+  void scan_project_without_name() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
@@ -108,6 +108,7 @@ public class FileSystemMediumIT {
     assertThat(result.inputFiles()).hasSize(1);
 
     DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
+    assertThat(file).isNotNull();
     assertThat(file.type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(file.relativePath()).isEqualTo("src/sample.xoo");
     assertThat(file.language()).isEqualTo("xoo");
@@ -118,29 +119,29 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void log_branch_name_and_type() {
+  void log_branch_name_and_type() {
     builder.put("sonar.branch.name", "my-branch");
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
 
     // Using sonar.branch.name when the branch plugin is not installed is an error.
-    assertThatThrownBy(() -> tester.newAnalysis()
+    AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
-        .build())
-      .execute())
+        .build());
+    assertThatThrownBy(analysisBuilder::execute)
       .isInstanceOf(MessageException.class);
   }
 
   @Test
-  public void only_generate_metadata_if_needed() throws IOException {
+  void only_generate_metadata_if_needed() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDir, "sample.java", "Sample xoo\ncontent");
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(DEBUG);
 
     tester.newAnalysis()
       .properties(builder
@@ -154,16 +155,16 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void preload_file_metadata() throws IOException {
+  void preload_file_metadata() throws IOException {
     builder.put("sonar.preloadFileMetadata", "true");
 
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDir, "sample.java", "Sample xoo\ncontent");
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(DEBUG);
 
     tester.newAnalysis()
       .properties(builder
@@ -177,7 +178,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void dont_publish_files_without_detected_language() throws IOException {
+  void dont_publish_files_without_detected_language() throws IOException {
     Path mainDir = baseDir.toPath().resolve("src").resolve("main");
     Files.createDirectories(mainDir);
 
@@ -188,7 +189,7 @@ public class FileSystemMediumIT {
     writeFile(mainDir.toFile(), "sample.xoo", "Sample xoo\ncontent");
     writeFile(mainDir.toFile(), "sample.java", "Sample xoo\ncontent");
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(DEBUG);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -204,23 +205,24 @@ public class FileSystemMediumIT {
     assertThat(logTester.logs()).doesNotContain("'src/test/sample.java' generated metadata", "'src\\test\\sample.java' generated metadata");
     DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
 
+    assertThat(javaInputFile).isNotNull();
     assertThatThrownBy(() -> result.getReportComponent(javaInputFile))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Unable to find report for component");
   }
 
   @Test
-  public void create_issue_on_any_file() throws IOException {
+  void create_issue_on_any_file() throws IOException {
     tester
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerUnknownFile", null, "OneIssuePerUnknownFile", "MAJOR", null, "xoo");
 
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.unknown", "Sample xoo\ncontent");
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(DEBUG);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -232,11 +234,12 @@ public class FileSystemMediumIT {
     assertThat(logTester.logs()).contains("'src/sample.unknown' indexed with no language");
     assertThat(logTester.logs()).contains("'src/sample.unknown' generated metadata with charset 'UTF-8'");
     DefaultInputFile inputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
+    assertThat(inputFile).isNotNull();
     assertThat(result.getReportComponent(inputFile)).isNotNull();
   }
 
   @Test
-  public void lazyIssueExclusion() throws IOException {
+  void lazyIssueExclusion() throws IOException {
     tester
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerFile", null, "OneIssuePerFile", "MAJOR", null, "xoo");
@@ -244,7 +247,7 @@ public class FileSystemMediumIT {
     builder.put("sonar.issue.ignore.allfile", "1")
       .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern");
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
@@ -253,7 +256,7 @@ public class FileSystemMediumIT {
     new Random().nextBytes(b);
     FileUtils.writeByteArrayToFile(unknownFile, b);
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(DEBUG);
 
     tester.newAnalysis()
       .properties(builder
@@ -267,17 +270,17 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void preloadIssueExclusions() throws IOException {
+  void preloadIssueExclusions() throws IOException {
     builder.put("sonar.issue.ignore.allfile", "1")
       .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern")
       .put("sonar.preloadFileMetadata", "true");
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\npattern");
     writeFile(srcDir, "myfile.binary", "some text");
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(DEBUG);
 
     tester.newAnalysis()
       .properties(builder
@@ -290,13 +293,13 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void publishFilesWithIssues() throws IOException {
+  void publishFilesWithIssues() throws IOException {
     tester
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo");
 
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
@@ -308,14 +311,15 @@ public class FileSystemMediumIT {
 
     DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
 
+    assertThat(file).isNotNull();
     assertThat(file.isPublished()).isTrue();
     assertThat(result.getReportComponent(file)).isNotNull();
   }
 
   @Test
-  public void scanProjectWithSourceDir() throws IOException {
+  void scanProjectWithSourceDir() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
@@ -326,21 +330,23 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").type()).isEqualTo(InputFile.Type.MAIN);
-    assertThat(result.inputFile("src/sample.xoo").relativePath()).isEqualTo("src/sample.xoo");
+    InputFile inputFile = result.inputFile("src/sample.xoo");
+    assertThat(inputFile).isNotNull();
+    assertThat(inputFile.type()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(inputFile.relativePath()).isEqualTo("src/sample.xoo");
   }
 
   @Test
-  public void scanBigProject() throws IOException {
+  void scanBigProject() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     int nbFiles = 100;
     int ruleCount = 100000;
     String fileContent = StringUtils.repeat(StringUtils.repeat("a", 100) + "\n", ruleCount / 1000);
     for (int nb = 1; nb <= nbFiles; nb++) {
       File xooFile = new File(srcDir, "sample" + nb + ".xoo");
-      FileUtils.write(xooFile, fileContent);
+      FileUtils.write(xooFile, fileContent, StandardCharsets.UTF_8);
     }
 
     AnalysisResult result = tester.newAnalysis()
@@ -353,9 +359,9 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void scanProjectWithTestDir() throws IOException {
+  void scanProjectWithTestDir() throws IOException {
     File test = new File(baseDir, "test");
-    test.mkdir();
+    assertThat(test.mkdir()).isTrue();
 
     writeFile(test, "sampleTest.xoo", "Sample test xoo\ncontent");
 
@@ -367,22 +373,24 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("test/sampleTest.xoo").type()).isEqualTo(InputFile.Type.TEST);
+    InputFile inputFile = result.inputFile("test/sampleTest.xoo");
+    assertThat(inputFile).isNotNull();
+    assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
   }
 
   /**
    * SONAR-5419
    */
   @Test
-  public void scanProjectWithMixedSourcesAndTests() throws IOException {
+  void scanProjectWithMixedSourcesAndTests() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
     writeFile(baseDir, "another.xoo", "Sample xoo 2\ncontent");
 
     File testDir = new File(baseDir, "test");
-    testDir.mkdir();
+    assertThat(testDir.mkdir()).isTrue();
 
     writeFile(baseDir, "sampleTest2.xoo", "Sample test xoo\ncontent");
     writeFile(testDir, "sampleTest.xoo", "Sample test xoo 2\ncontent");
@@ -398,15 +406,15 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void fileInclusionsExclusions() throws IOException {
+  void fileInclusionsExclusions() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
     writeFile(baseDir, "another.xoo", "Sample xoo 2\ncontent");
 
     File testDir = new File(baseDir, "test");
-    testDir.mkdir();
+    assertThat(testDir.mkdir()).isTrue();
 
     writeFile(baseDir, "sampleTest2.xoo", "Sample test xoo\ncontent");
     writeFile(testDir, "sampleTest.xoo", "Sample test xoo 2\ncontent");
@@ -426,11 +434,11 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void ignoreFilesWhenGreaterThanDefinedSize() throws IOException {
+  void ignoreFilesWhenGreaterThanDefinedSize() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
-    File fileGreaterThanLimit = writeFile(srcDir, "sample.xoo", 1024 * 1024 + 1);
+    File fileGreaterThanLimit = writeFile(srcDir, "sample.xoo");
     writeFile(srcDir, "another.xoo", "Sample xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
@@ -441,17 +449,17 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(logTester.logs())
-      .contains(format("File '%s' is bigger than 1MB and as consequence is removed from the analysis scope.", fileGreaterThanLimit.getAbsolutePath()));
+    String expectedLog = String.format("File '%s' is bigger than 1MB and as consequence is removed from the analysis scope.", fileGreaterThanLimit.toPath().toRealPath());
+    assertThat(logTester.logs()).contains(expectedLog);
   }
 
   @Test
-  public void analysisFailsSymbolicLinkWithoutTargetIsInTheFolder() throws IOException {
+  void analysisFailsSymbolicLinkWithoutTargetIsInTheFolder() throws IOException {
     assumeFalse(SystemUtils.IS_OS_WINDOWS);
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
-    File target = writeFile(srcDir, "target.xoo", 1024 * 1024 + 1);
+    File target = writeFile(srcDir, "target.xoo");
     Path link = Paths.get(srcDir.getPath(), "target_link.xoo");
     Files.createSymbolicLink(link, target.toPath());
     Files.delete(target.toPath());
@@ -465,19 +473,18 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void test_inclusions_on_multi_modules() throws IOException {
-    File baseDir = temp.getRoot();
+  void test_inclusions_on_multi_modules() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "tests");
-    srcDirA.mkdirs();
+    assertThat(srcDirA.mkdirs()).isTrue();
     File srcDirB = new File(baseDirModuleB, "tests");
-    srcDirB.mkdirs();
+    assertThat(srcDirB.mkdirs()).isTrue();
 
     writeFile(srcDirA, "sampleTestA.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sampleTestB.xoo", "Sample xoo\ncontent");
 
-    final ImmutableMap.Builder<String, String> builder = ImmutableMap.<String, String>builder()
+    builder = ImmutableMap.<String, String>builder()
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
       .put("sonar.projectKey", "com.foo.project")
       .put("sonar.sources", "")
@@ -512,19 +519,18 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void test_module_level_inclusions_override_parent_on_multi_modules() throws IOException {
-    File baseDir = temp.getRoot();
+  void test_module_level_inclusions_override_parent_on_multi_modules() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
+    assertThat(srcDirA.mkdirs()).isTrue();
     File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
+    assertThat(srcDirB.mkdirs()).isTrue();
 
     writeFile(srcDirA, "sampleA.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sampleB.xoo", "Sample xoo\ncontent");
 
-    final ImmutableMap.Builder<String, String> builder = ImmutableMap.<String, String>builder()
+    builder = ImmutableMap.<String, String>builder()
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
       .put("sonar.projectKey", "com.foo.project")
       .put("sonar.sources", "src")
@@ -550,14 +556,13 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void warn_user_for_outdated_scanner_side_inherited_exclusions_for_multi_module_project() throws IOException {
-    File baseDir = temp.getRoot();
+  void warn_user_for_outdated_scanner_side_inherited_exclusions_for_multi_module_project() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
+    assertThat(srcDirA.mkdirs()).isTrue();
     File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
+    assertThat(srcDirB.mkdirs()).isTrue();
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -584,14 +589,13 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void support_global_server_side_exclusions_for_multi_module_project() throws IOException {
-    File baseDir = temp.getRoot();
+  void support_global_server_side_exclusions_for_multi_module_project() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
+    assertThat(srcDirA.mkdirs()).isTrue();
     File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
+    assertThat(srcDirB.mkdirs()).isTrue();
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -615,14 +619,13 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void support_global_server_side_global_exclusions_for_multi_module_project() throws IOException {
-    File baseDir = temp.getRoot();
+  void support_global_server_side_global_exclusions_for_multi_module_project() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
+    assertThat(srcDirA.mkdirs()).isTrue();
     File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
+    assertThat(srcDirB.mkdirs()).isTrue();
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -646,14 +649,13 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void warn_user_for_outdated_server_side_inherited_exclusions_for_multi_module_project() throws IOException {
-    File baseDir = temp.getRoot();
+  void warn_user_for_outdated_server_side_inherited_exclusions_for_multi_module_project() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
+    assertThat(srcDirA.mkdirs()).isTrue();
     File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
+    assertThat(srcDirB.mkdirs()).isTrue();
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -681,45 +683,45 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void failForDuplicateInputFile() throws IOException {
+  void failForDuplicateInputFile() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
-    assertThatThrownBy(() -> tester.newAnalysis()
+    AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src,src/sample.xoo")
-        .build())
-      .execute())
+        .build());
+    assertThatThrownBy(analysisBuilder::execute)
       .isInstanceOf(MessageException.class)
       .hasMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-9574
   @Test
-  public void failForDuplicateInputFileInDifferentModules() throws IOException {
+  void failForDuplicateInputFileInDifferentModules() throws IOException {
     File srcDir = new File(baseDir, "module1/src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdirs()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
-    assertThatThrownBy(() -> tester.newAnalysis()
+    AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "module1/src")
         .put("sonar.modules", "module1")
         .put("module1.sonar.sources", "src")
-        .build())
-      .execute())
+        .build());
+    assertThatThrownBy(analysisBuilder::execute)
       .isInstanceOf(MessageException.class)
       .hasMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-5330
   @Test
-  public void scanProjectWithSourceSymlink() {
+  void scanProjectWithSourceSymlink() {
     assumeTrue(!System2.INSTANCE.isOsWindows());
-    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-symlink");
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-symlink").getAbsoluteFile();
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.exclusions", "**/*.xoo.measures,**/*.xoo.scm")
@@ -729,12 +731,12 @@ public class FileSystemMediumIT {
 
     assertThat(result.inputFiles()).hasSize(3);
     // check that symlink was not resolved to target
-    assertThat(result.inputFiles()).extractingResultOf("path").toString().startsWith(projectDir.toString());
+    assertThat(result.inputFiles()).extracting(InputFile::path).allMatch(path -> path.startsWith(projectDir.toPath()));
   }
 
   // SONAR-6719
   @Test
-  public void scanProjectWithWrongCase() {
+  void scanProjectWithWrongCase() {
     // To please the quality gate, don't use assumeTrue, or the test will be reported as skipped
     File projectDir = new File("test-resources/mediumtest/xoo/sample");
     AnalysisBuilder analysis = tester
@@ -770,16 +772,16 @@ public class FileSystemMediumIT {
         "TESTX/ClassOneTest.xoo.scm",
         "XOURCES/hello/HelloJava.xoo");
     } else {
-      assertThatThrownBy(() -> analysis.execute())
+      assertThatThrownBy(analysis::execute)
         .isInstanceOf(MessageException.class)
         .hasMessageContaining("The folder 'TESTX' does not exist for 'sample'");
     }
   }
 
   @Test
-  public void indexAnyFile() throws IOException {
+  void indexAnyFile() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDir, "sample.other", "Sample other\ncontent");
@@ -791,13 +793,15 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(2);
-    assertThat(result.inputFile("src/sample.other").type()).isEqualTo(InputFile.Type.MAIN);
-    assertThat(result.inputFile("src/sample.other").relativePath()).isEqualTo("src/sample.other");
-    assertThat(result.inputFile("src/sample.other").language()).isNull();
+    InputFile inputFile = result.inputFile("src/sample.other");
+    assertThat(inputFile).isNotNull();
+    assertThat(inputFile.type()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(inputFile.relativePath()).isEqualTo("src/sample.other");
+    assertThat(inputFile.language()).isNull();
   }
 
   @Test
-  public void scanMultiModuleProject() {
+  void scanMultiModuleProject() {
     File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
@@ -807,7 +811,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void deprecated_global_sensor_should_see_project_relative_paths() {
+  void deprecated_global_sensor_should_see_project_relative_paths() {
     File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
@@ -823,7 +827,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void global_sensor_should_see_project_relative_paths() {
+  void global_sensor_should_see_project_relative_paths() {
     File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
@@ -839,15 +843,15 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void scan_project_with_comma_in_source_path() throws IOException {
+  void scan_project_with_comma_in_source_path() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample,1.xoo", "Sample xoo\ncontent");
     writeFile(baseDir, "another,2.xoo", "Sample xoo 2\ncontent");
 
     File testDir = new File(baseDir, "test");
-    testDir.mkdir();
+    assertThat(testDir.mkdir()).isTrue();
 
     writeFile(testDir, "sampleTest,1.xoo", "Sample test xoo\ncontent");
     writeFile(baseDir, "sampleTest,2.xoo", "Sample test xoo 2\ncontent");
@@ -863,9 +867,9 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void language_without_publishAllFiles_should_not_auto_publish_files() throws IOException {
+  void language_without_publishAllFiles_should_not_auto_publish_files() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     tester.addLanguage("xoo3", "xoo3", false, ".xoo3");
 
@@ -885,9 +889,9 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void two_languages_with_same_extension() throws IOException {
+  void two_languages_with_same_extension() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDir, "sample.xoo2", "Sample xoo 2\ncontent");
@@ -923,19 +927,18 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void log_all_exclusions_properties_per_modules() throws IOException {
-    File baseDir = temp.getRoot();
+  void log_all_exclusions_properties_per_modules() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
+    assertThat(srcDirA.mkdirs()).isTrue();
     File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
+    assertThat(srcDirB.mkdirs()).isTrue();
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
 
-    AnalysisResult result = tester.newAnalysis()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
@@ -985,13 +988,13 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void ignore_files_outside_project_basedir() throws IOException {
+  void ignore_files_outside_project_basedir() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample1.xoo", "Sample xoo\ncontent");
 
-    File outsideBaseDir = temp.newFolder().getCanonicalFile();
+    File outsideBaseDir = createDirectory(temp.toPath().resolve("outsideBaseDir")).toFile();
     File xooFile2 = writeFile(outsideBaseDir, "another.xoo", "Sample xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
@@ -1001,17 +1004,18 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
+    String expectedLog = String.format("File '%s' is ignored. It is not located in project basedir '%s'.", xooFile2.toPath().toRealPath(), baseDir.toPath().toRealPath());
+    assertThat(logTester.logs(Level.WARN)).contains(expectedLog);
   }
 
   @Test
-  public void dont_log_warn_about_files_out_of_basedir_if_they_arent_included() throws IOException {
+  void dont_log_warn_about_files_out_of_basedir_if_they_arent_included() throws IOException {
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     writeFile(srcDir, "sample1.xoo", "Sample xoo\ncontent");
 
-    File outsideBaseDir = temp.newFolder().getCanonicalFile();
+    File outsideBaseDir = createDirectory(temp.toPath().resolve("outsideBaseDir")).toFile();
     File xooFile2 = new File(outsideBaseDir, "another.xoo");
     FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
 
@@ -1027,9 +1031,9 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void ignore_files_outside_module_basedir() throws IOException {
+  void ignore_files_outside_module_basedir() throws IOException {
     File moduleA = new File(baseDir, "moduleA");
-    moduleA.mkdir();
+    assertThat(moduleA.mkdir()).isTrue();
 
     writeFile(moduleA, "src/sampleA.xoo", "Sample xoo\ncontent");
     File xooFile2 = writeFile(baseDir, "another.xoo", "Sample xoo 2\ncontent");
@@ -1042,12 +1046,14 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
+    Path xooFile2Path = xooFile2.toPath().toRealPath();
+    Path moduleAPath = new File(baseDir, "moduleA").toPath().toRealPath();
     assertThat(logTester.logs(Level.WARN))
-      .contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in module basedir '" + new File(baseDir, "moduleA") + "'.");
+      .contains(String.format("File '%s' is ignored. It is not located in module basedir '%s'.", xooFile2Path, moduleAPath));
   }
 
   @Test
-  public void exclusion_based_on_scm_info() {
+  void exclusion_based_on_scm_info() {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-with-ignored-file");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
@@ -1063,7 +1069,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void no_exclusion_when_scm_exclusions_is_disabled() {
+  void no_exclusion_when_scm_exclusions_is_disabled() {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-with-ignored-file");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
@@ -1081,7 +1087,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void index_basedir_by_default() throws IOException {
+  void index_basedir_by_default() throws IOException {
     writeFile(baseDir, "sample.xoo", "Sample xoo\ncontent");
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -1093,7 +1099,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void givenExclusionEndingWithOneWildcardWhenAnalysedThenOnlyDirectChildrenFilesShouldBeExcluded() throws IOException {
+  void givenExclusionEndingWithOneWildcardWhenAnalysedThenOnlyDirectChildrenFilesShouldBeExcluded() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
     writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
@@ -1117,7 +1123,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void givenPathsWithoutReadPermissionWhenAllChildrenAreExcludedThenScannerShouldSkipIt() throws IOException {
+  void givenPathsWithoutReadPermissionWhenAllChildrenAreExcludedThenScannerShouldSkipIt() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
     writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
@@ -1138,7 +1144,7 @@ public class FileSystemMediumIT {
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
-        .put("sonar.exclusions", "src/srcSubDir/**/*,src/srcSubDir2/**/*")
+        .put("sonar.exclusions", "src/srcSubDir/**/*,src/srcSubDir2/**")
         .build())
       .execute();
 
@@ -1147,7 +1153,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void givenFileWithoutAccessWhenChildrenAreExcludedThenThenScanShouldFail() throws IOException {
+  void givenFileWithoutAccessWhenChildrenAreExcludedThenThenScanShouldFail() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
     boolean fileNotReadable = writeFile(srcDir, "src.xoo", "Sample xoo\ncontent").setReadable(false);
@@ -1161,11 +1167,11 @@ public class FileSystemMediumIT {
 
     assertThatThrownBy(result::execute)
       .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageStartingWith(format("java.lang.IllegalStateException: Unable to read file"));
+      .hasMessageStartingWith("java.lang.IllegalStateException: Unable to read file");
   }
 
   @Test
-  public void givenDirectoryWithoutReadPermissionWhenIncludedThenScanShouldFail() throws IOException {
+  void givenDirectoryWithoutReadPermissionWhenIncludedThenScanShouldFail() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
     writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
@@ -1182,11 +1188,11 @@ public class FileSystemMediumIT {
 
     assertThatThrownBy(result::execute)
       .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageEndingWith(format("Failed to preprocess files"));
+      .hasMessageEndingWith("Failed to preprocess files");
   }
 
   @Test
-  public void givenDirectoryWhenAllChildrenAreExcludedThenSkippedFilesShouldBeReported() throws IOException {
+  void givenDirectoryWhenAllChildrenAreExcludedThenSkippedFilesShouldBeReported() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
     writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
@@ -1211,9 +1217,8 @@ public class FileSystemMediumIT {
     assertThat(logTester.logs()).contains("2 files ignored because of inclusion/exclusion patterns");
   }
 
-  @Ignore("Fails until we can pattern match inclusions to directories, not only files.")
   @Test
-  public void givenDirectoryWithoutReadPermissionWhenNotIncludedThenScanShouldSkipIt() throws IOException {
+  void givenDirectoryWithoutReadPermissionWhenNotIncludedThenScanShouldSkipIt() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
     writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
@@ -1237,7 +1242,7 @@ public class FileSystemMediumIT {
   }
 
   @Test
-  public void givenDirectoryWithoutReadPermissionUnderSourcesWhenAnalysedThenShouldFail() throws IOException {
+  void givenDirectoryWithoutReadPermissionUnderSourcesWhenAnalysedThenShouldFail() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
     writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
@@ -1253,31 +1258,31 @@ public class FileSystemMediumIT {
 
     assertThatThrownBy(result::execute)
       .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageEndingWith(format("Failed to preprocess files"));
+      .hasMessageEndingWith("Failed to preprocess files");
   }
 
   private static void assertAnalysedFiles(AnalysisResult result, String... files) {
     assertThat(result.inputFiles().stream().map(InputFile::toString).toList()).contains(files);
   }
 
-  private File createDir(File parentDir, String name, boolean isReadable) {
+  private static File createDir(File parentDir, String name, boolean isReadable) {
     File dir = new File(parentDir, name);
-    dir.mkdir();
+    assertThat(dir.mkdir()).isTrue();
     boolean fileSystemOperationSucceded = dir.setReadable(isReadable);
-    assumeTrue(fileSystemOperationSucceded); //On windows + java there is no reliable way to play with readable/not readable flag
+    assumeTrue(fileSystemOperationSucceded); // On windows + java there is no reliable way to play with readable/not readable flag
     return dir;
   }
 
-  private File writeFile(File parent, String name, String content) throws IOException {
+  private static File writeFile(File parent, String name, String content) throws IOException {
     File file = new File(parent, name);
     FileUtils.write(file, content, StandardCharsets.UTF_8);
     return file;
   }
 
-  private File writeFile(File parent, String name, long size) throws IOException {
+  private static File writeFile(File parent, String name) throws IOException {
     File file = new File(parent, name);
     RandomAccessFile raf = new RandomAccessFile(file, "rw");
-    raf.setLength(size);
+    raf.setLength(1024 * 1024 + 1);
     raf.close();
     return file;
   }
