@@ -55,7 +55,6 @@ public class CeServerTest {
   private CeServer underTest = null;
   private Thread waitingThread = null;
   private final MinimumViableSystem minimumViableSystem = mock(MinimumViableSystem.class, Mockito.RETURNS_MOCKS);
-  private final CeSecurityManager ceSecurityManager = mock(CeSecurityManager.class);
 
   @After
   public void tearDown() throws Exception {
@@ -74,12 +73,6 @@ public class CeServerTest {
     assertThat(ceThreadExists()).isFalse();
     newCeServer();
     assertThat(ceThreadExists()).isFalse();
-  }
-
-  @Test
-  public void constructor_calls_ceSecurityManager() {
-    newCeServer();
-    verify(ceSecurityManager).apply();
   }
 
   @Test
@@ -269,7 +262,7 @@ public class CeServerTest {
 
   private CeServer newCeServer(ComputeEngine computeEngine) {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
-    this.underTest = new CeServer(computeEngine, minimumViableSystem, ceSecurityManager);
+    this.underTest = new CeServer(computeEngine, minimumViableSystem);
     return underTest;
   }
 

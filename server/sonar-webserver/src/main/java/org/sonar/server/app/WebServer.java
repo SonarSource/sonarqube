@@ -24,7 +24,6 @@ import java.io.File;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
-import org.sonar.process.PluginSecurityManager;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
@@ -98,7 +97,6 @@ public class WebServer implements Monitored {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new WebServerProcessLogging().configure(props);
-    new WebSecurityManager(new PluginSecurityManager(), props).apply();
 
     WebServer server = new WebServer(props);
     entryPoint.launch(server);
