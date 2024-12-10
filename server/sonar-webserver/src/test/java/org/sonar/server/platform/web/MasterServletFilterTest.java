@@ -24,28 +24,24 @@ import java.util.Collections;
 import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.web.HttpFilter;
-import org.sonar.api.web.ServletFilter;
-import org.sonar.api.web.ServletFilter.UrlPattern;
 import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.http.JavaxHttpResponse;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,34 +54,29 @@ import static org.mockito.Mockito.when;
 
 public class MasterServletFilterTest {
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Before
+  @BeforeEach
   public void resetSingleton() {
     MasterServletFilter.setInstance(null);
   }
 
   @Test
-  public void should_init_and_destroy_filters() throws ServletException {
-    ServletFilter servletFilter = createMockServletFilter();
+  void should_init_and_destroy_filters() {
     HttpFilter httpFilter = createMockHttpFilter();
-    FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter master = new MasterServletFilter();
-    master.init(config, singletonList(servletFilter),  singletonList(httpFilter));
+    master.init(singletonList(httpFilter));
 
-    assertThat(master.getFilters()).containsOnly(servletFilter);
     assertThat(master.getHttpFilters()).containsOnly(httpFilter);
-    verify(servletFilter).init(config);
     verify(httpFilter).init();
 
     master.destroy();
-    verify(servletFilter).destroy();
     verify(httpFilter).destroy();
   }
 
   @Test
-  public void servlet_container_should_instantiate_only_a_single_master_instance() {
+  void servlet_container_should_instantiate_only_a_single_master_instance() {
     new MasterServletFilter();
 
     assertThatThrownBy(MasterServletFilter::new)
@@ -94,25 +85,22 @@ public class MasterServletFilterTest {
   }
 
   @Test
-  public void should_propagate_initialization_failure() throws Exception {
-    ServletFilter filter = createMockServletFilter();
-    doThrow(new IllegalStateException("foo")).when(filter).init(any(FilterConfig.class));
+  void should_propagate_initialization_failure() {
+    HttpFilter filter = createMockHttpFilter();
+    doThrow(new IllegalStateException("foo")).when(filter).init();
 
-    FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter filters = new MasterServletFilter();
 
-    List<ServletFilter> servletFilters = singletonList(filter);
-    List<HttpFilter> httpFilters = emptyList();
-    assertThatThrownBy(() -> filters.init(config, servletFilters, httpFilters))
+    List<HttpFilter> httpFilters = singletonList(filter);
+    assertThatThrownBy(() -> filters.init(httpFilters))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("foo");
   }
 
   @Test
-  public void filters_should_be_optional() throws Exception {
-    FilterConfig config = mock(FilterConfig.class);
+  void filters_should_be_optional() throws Exception {
     MasterServletFilter filters = new MasterServletFilter();
-    filters.init(config, Collections.emptyList(), Collections.emptyList());
+    filters.init(Collections.emptyList());
 
     ServletRequest request = mock(HttpServletRequest.class);
     ServletResponse response = mock(HttpServletResponse.class);
@@ -123,7 +111,7 @@ public class MasterServletFilterTest {
   }
 
   @Test
-  public void should_add_scim_filter_first_for_scim_request() throws Exception {
+  void should_add_scim_filter_first_for_scim_request() throws Exception {
     String scimPath = "/api/scim/v2/Groups";
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -137,33 +125,18 @@ public class MasterServletFilterTest {
 
     FilterChain chain = mock(FilterChain.class);
 
-    ServletFilter filter1 = mockFilter(ServletFilter.class, request, response);
-    ServletFilter filter2 = mockFilter(ServletFilter.class, request, response);
     HttpFilter filter3 = mockHttpFilter(WebServiceFilter.class, httpRequest, httpResponse);
     HttpFilter filter4 = mockHttpFilter(HttpFilter.class, httpRequest, httpResponse);
     when(filter3.doGetPattern()).thenReturn(org.sonar.api.web.UrlPattern.builder().includes(scimPath).build());
 
     MasterServletFilter filters = new MasterServletFilter();
-    filters.init(mock(FilterConfig.class), asList(filter1, filter2), asList(filter4, filter3));
+    filters.init(asList(filter4, filter3));
 
     filters.doFilter(request, response, chain);
 
-    InOrder inOrder = Mockito.inOrder(filter1, filter2, filter3, filter4);
+    InOrder inOrder = Mockito.inOrder(filter3, filter4);
     inOrder.verify(filter3).doFilter(any(), any(), any());
     inOrder.verify(filter4).doFilter(any(), any(), any());
-    inOrder.verify(filter1).doFilter(any(), any(), any());
-    inOrder.verify(filter2).doFilter(any(), any(), any());
-  }
-
-  private ServletFilter mockFilter(Class<? extends ServletFilter> filterClazz, HttpServletRequest request, ServletResponse response) throws IOException, ServletException {
-    ServletFilter filter = mock(filterClazz);
-    when(filter.doGetPattern()).thenReturn(UrlPattern.builder().build());
-    doAnswer(invocation -> {
-      FilterChain argument = invocation.getArgument(2, FilterChain.class);
-      argument.doFilter(request, response);
-      return null;
-    }).when(filter).doFilter(any(), any(), any());
-    return filter;
   }
 
   private HttpFilter mockHttpFilter(Class<? extends HttpFilter> filterClazz, HttpRequest request, HttpResponse response) throws IOException {
@@ -178,20 +151,14 @@ public class MasterServletFilterTest {
   }
 
   @Test
-  public void display_servlet_filter_patterns_in_INFO_log() {
+  void display_servlet_filter_patterns_in_INFO_log() {
     HttpFilter filter = new PatternFilter(org.sonar.api.web.UrlPattern.builder().includes("/api/issues").excludes("/batch/projects").build());
     FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter master = new MasterServletFilter();
 
-    master.init(config, emptyList(), singletonList(filter));
+    master.init(singletonList(filter));
 
     assertThat(logTester.logs(Level.INFO)).containsOnly("Initializing servlet filter PatternFilter [pattern=UrlPattern{inclusions=[/api/issues], exclusions=[/batch/projects]}]");
-  }
-
-  private static ServletFilter createMockServletFilter() {
-    ServletFilter filter = mock(ServletFilter.class);
-    when(filter.doGetPattern()).thenReturn(UrlPattern.builder().build());
-    return filter;
   }
 
   private static HttpFilter createMockHttpFilter() {
@@ -215,7 +182,7 @@ public class MasterServletFilterTest {
 
     @Override
     public void doFilter(HttpRequest request, HttpResponse response, org.sonar.api.web.FilterChain chain) {
-      //Not needed for this test
+      // Not needed for this test
     }
 
     @Override

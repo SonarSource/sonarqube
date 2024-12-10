@@ -29,7 +29,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.server.platform.PlatformImpl;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -48,7 +48,7 @@ public class WebPagesFilter implements Filter {
   private static final String CACHE_CONTROL_HEADER = "Cache-Control";
   private static final String CACHE_CONTROL_VALUE = "no-cache, no-store, must-revalidate";
 
-  private static final ServletFilter.UrlPattern URL_PATTERN = ServletFilter.UrlPattern
+  private static final UrlPattern URL_PATTERN = UrlPattern
     .builder()
     .excludes(patterns())
     .excludes("/api/v2/*")
@@ -60,7 +60,8 @@ public class WebPagesFilter implements Filter {
     this(PlatformImpl.getInstance().getContainer().getComponentByType(WebPagesCache.class));
   }
 
-  @VisibleForTesting WebPagesFilter(WebPagesCache webPagesCache) {
+  @VisibleForTesting
+  WebPagesFilter(WebPagesCache webPagesCache) {
     this.webPagesCache = webPagesCache;
   }
 

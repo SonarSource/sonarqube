@@ -19,35 +19,33 @@
  */
 package org.sonar.server.platform.web;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.web.HttpFilter;
-import org.sonar.api.web.ServletFilter;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class RegisterServletFiltersTest {
   @Test
-  public void should_not_fail_if_master_filter_is_not_up() {
+  void should_not_fail_if_master_filter_is_not_up() {
     MasterServletFilter.setInstance(null);
-    new RegisterServletFilters(new ServletFilter[2], new HttpFilter[2]).start();
+
+    RegisterServletFilters underTest = new RegisterServletFilters(new HttpFilter[2]);
+
+    assertThatCode(underTest::start)
+      .doesNotThrowAnyException();
   }
 
   @Test
-  public void should_register_filters_if_master_filter_is_up() {
+  void filters_should_be_optional() {
     MasterServletFilter.setInstance(mock(MasterServletFilter.class));
-    new RegisterServletFilters(new ServletFilter[2], new HttpFilter[2]).start();
 
-    verify(MasterServletFilter.getInstance()).initServletFilters(anyList());
-  }
+    RegisterServletFilters underTest = new RegisterServletFilters();
+    assertThatCode(underTest::start)
+      .doesNotThrowAnyException();
 
-  @Test
-  public void filters_should_be_optional() {
-    MasterServletFilter.setInstance(mock(MasterServletFilter.class));
-    new RegisterServletFilters().start();
-    // do not fail
     verify(MasterServletFilter.getInstance()).initHttpFilters(anyList());
-    verify(MasterServletFilter.getInstance()).initServletFilters(anyList());
   }
 }

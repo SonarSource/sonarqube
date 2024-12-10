@@ -41,7 +41,6 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.web.HttpFilter;
-import org.sonar.api.web.ServletFilter;
 import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.platform.PlatformImpl;
@@ -55,10 +54,7 @@ public class MasterServletFilter implements Filter {
   private static final Logger LOG = LoggerFactory.getLogger(MasterServletFilter.class);
   private static volatile MasterServletFilter instance;
 
-  @Deprecated(forRemoval = true)
-  private ServletFilter[] filters;
   private HttpFilter[] httpFilters;
-  private FilterConfig config;
 
   public MasterServletFilter() {
     if (instance != null) {
@@ -71,9 +67,8 @@ public class MasterServletFilter implements Filter {
   public void init(FilterConfig config) {
     // Filters are already available in the container unless a database migration is required. See
     // org.sonar.server.startup.RegisterServletFilters.
-    List<ServletFilter> servletFilterList = PlatformImpl.getInstance().getContainer().getComponentsByType(ServletFilter.class);
     List<HttpFilter> httpFilterList = PlatformImpl.getInstance().getContainer().getComponentsByType(HttpFilter.class);
-    init(config, servletFilterList, httpFilterList);
+    init(httpFilterList);
   }
 
   @CheckForNull
@@ -86,10 +81,8 @@ public class MasterServletFilter implements Filter {
     MasterServletFilter.instance = instance;
   }
 
-  void init(FilterConfig config, List<ServletFilter> filters, List<HttpFilter> httpFilters) {
-    this.config = config;
+  void init(List<HttpFilter> httpFilters) {
     initHttpFilters(httpFilters);
-    initServletFilters(filters);
   }
 
   public void initHttpFilters(List<HttpFilter> filterExtensions) {
@@ -118,26 +111,10 @@ public class MasterServletFilter implements Filter {
       .anyMatch(s -> s.startsWith(SCIM_FILTER_PATH));
   }
 
-  @Deprecated(forRemoval = true)
-  public void initServletFilters(List<ServletFilter> filterExtensions) {
-    LinkedList<ServletFilter> filterList = new LinkedList<>();
-    for (ServletFilter extension : filterExtensions) {
-      try {
-        LOG.info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
-        extension.init(config);
-        // adding deprecated extensions as last
-        filterList.addLast(extension);
-      } catch (Exception e) {
-        throw new IllegalStateException("Fail to initialize servlet filter: " + extension + ". Message: " + e.getMessage(), e);
-      }
-    }
-    filters = filterList.toArray(new ServletFilter[0]);
-  }
-
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
     HttpServletRequest hsr = (HttpServletRequest) request;
-    if (filters.length == 0 && httpFilters.length == 0) {
+    if (httpFilters.length == 0) {
       chain.doFilter(hsr, response);
     } else {
       String path = hsr.getRequestURI().replaceFirst(hsr.getContextPath(), "");
@@ -151,26 +128,13 @@ public class MasterServletFilter implements Filter {
     Arrays.stream(httpFilters)
       .filter(filter -> filter.doGetPattern().matches(path))
       .forEachOrdered(godChain::addFilter);
-
-    Arrays.stream(filters)
-      .filter(filter -> filter.doGetPattern().matches(path))
-      .forEachOrdered(godChain::addFilter);
   }
 
   @Override
   public void destroy() {
-    for (ServletFilter filter : filters) {
-      filter.destroy();
-    }
-
     for (HttpFilter filter : httpFilters) {
       filter.destroy();
     }
-  }
-
-  @VisibleForTesting
-  ServletFilter[] getFilters() {
-    return filters;
   }
 
   @VisibleForTesting
