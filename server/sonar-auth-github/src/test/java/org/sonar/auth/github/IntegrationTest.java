@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -460,15 +459,6 @@ public class IntegrationTest {
       throw new UnsupportedOperationException("not used");
     }
 
-    @Override
-    public HttpServletRequest getRequest() {
-      throw new UnsupportedOperationException("deprecated");
-    }
-
-    @Override
-    public HttpServletResponse getResponse() {
-      throw new UnsupportedOperationException("deprecated");
-    }
   }
 
   private static class DumbInitContext implements OAuth2IdentityProvider.InitContext {
@@ -504,14 +494,5 @@ public class IntegrationTest {
       return null;
     }
 
-    @Override
-    public HttpServletRequest getRequest() {
-      return null;
-    }
-
-    @Override
-    public HttpServletResponse getResponse() {
-      return null;
-    }
   }
 }

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
@@ -28,8 +26,6 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
 
@@ -73,16 +69,6 @@ public class BaseContextFactory {
     @Override
     public HttpResponse getHttpResponse() {
       return response;
-    }
-
-    @Override
-    public HttpServletRequest getRequest() {
-      return ((JavaxHttpRequest) request).getDelegate();
-    }
-
-    @Override
-    public HttpServletResponse getResponse() {
-      return ((JavaxHttpResponse) response).getDelegate();
     }
 
     @Override

@@ -94,7 +94,7 @@ public class CredentialsExternalAuthentication implements Startable {
   private UserDto doAuthenticate(Credentials credentials, HttpRequest request, AuthenticationEvent.Method method) {
     try {
       HttpServletRequest httpServletRequest = ((JavaxHttpRequest) request).getDelegate();
-      ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(credentials.getLogin(), request, httpServletRequest);
+      ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(credentials.getLogin(), request);
       UserDetails details = externalUsersProvider.doGetUserDetails(externalUsersProviderContext);
       if (details == null) {
         throw AuthenticationException.newBuilder()
@@ -104,7 +104,7 @@ public class CredentialsExternalAuthentication implements Startable {
           .build();
       }
 
-      Authenticator.Context authenticatorContext = new Authenticator.Context(credentials.getLogin(), credentials.getPassword().orElse(null), request, httpServletRequest);
+      Authenticator.Context authenticatorContext = new Authenticator.Context(credentials.getLogin(), credentials.getPassword().orElse(null), request);
       boolean status = authenticator.doAuthenticate(authenticatorContext);
       if (!status) {
         throw AuthenticationException.newBuilder()
@@ -140,8 +140,7 @@ public class CredentialsExternalAuthentication implements Startable {
       .setEmail(trimToNull(details.getEmail()))
       .setProviderLogin(userLogin);
     if (externalGroupsProvider != null) {
-      HttpServletRequest httpServletRequest = ((JavaxHttpRequest) request).getDelegate();
-      ExternalGroupsProvider.Context context = new ExternalGroupsProvider.Context(userLogin, request, httpServletRequest);
+      ExternalGroupsProvider.Context context = new ExternalGroupsProvider.Context(userLogin, request);
       Collection<String> groups = externalGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }

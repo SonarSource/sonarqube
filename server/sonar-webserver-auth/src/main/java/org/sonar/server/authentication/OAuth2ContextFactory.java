@@ -108,16 +108,6 @@ public class OAuth2ContextFactory {
     }
 
     @Override
-    public HttpServletRequest getRequest() {
-      return ((JavaxHttpRequest) request).getDelegate();
-    }
-
-    @Override
-    public HttpServletResponse getResponse() {
-      return ((JavaxHttpResponse) response).getDelegate();
-    }
-
-    @Override
     public void redirectTo(String url) {
       try {
         response.sendRedirect(url);

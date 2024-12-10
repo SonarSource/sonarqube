@@ -90,9 +90,6 @@ public class OAuth2ContextFactoryTest {
     assertThat(context.getHttpRequest()).isEqualTo(httpRequest);
     assertThat(context.getHttpResponse()).isEqualTo(httpResponse);
 
-    assertThat(context.getRequest()).isEqualTo(request);
-    assertThat(context.getResponse()).isEqualTo(response);
-
     assertThat(context.getCallbackUrl()).isEqualTo("https://mydomain.com/oauth2/callback/github");
   }
 

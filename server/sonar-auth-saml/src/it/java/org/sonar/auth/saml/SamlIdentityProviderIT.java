@@ -380,15 +380,6 @@ public class SamlIdentityProviderIT {
       return new JavaxHttpResponse(response);
     }
 
-    @Override
-    public HttpServletRequest getRequest() {
-      throw new UnsupportedOperationException("deprecated");
-    }
-
-    @Override
-    public HttpServletResponse getResponse() {
-      throw new UnsupportedOperationException("deprecated");
-    }
   }
 
   private static class DumbCallbackContext implements OAuth2IdentityProvider.CallbackContext {
@@ -454,14 +445,5 @@ public class SamlIdentityProviderIT {
       return new JavaxHttpResponse(response);
     }
 
-    @Override
-    public HttpServletRequest getRequest() {
-      return null;
-    }
-
-    @Override
-    public HttpServletResponse getResponse() {
-      return null;
-    }
   }
 }

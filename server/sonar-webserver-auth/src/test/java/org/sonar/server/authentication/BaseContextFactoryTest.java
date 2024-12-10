@@ -81,8 +81,6 @@ public class BaseContextFactoryTest {
     assertThat(context.getHttpRequest()).isEqualTo(httpRequest);
     assertThat(context.getHttpResponse()).isEqualTo(httpResponse);
 
-    assertThat(context.getRequest()).isEqualTo(request);
-    assertThat(context.getResponse()).isEqualTo(response);
     assertThat(context.getServerBaseURL()).isEqualTo(PUBLIC_ROOT_URL);
   }
 
