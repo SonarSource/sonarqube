@@ -190,7 +190,7 @@ public abstract class ValidatingRequest extends Request {
 
   private static List<String> validateValues(List<String> values, WebService.Param definition) {
     Integer maximumValues = definition.maxValuesAllowed();
-    checkArgument(maximumValues == null || values.size() <= maximumValues, "'%s' can contains only %s values, got %s", definition.key(), maximumValues, values.size());
+    checkArgument(maximumValues == null || values.size() <= maximumValues, "'%s' can contain only %s values, got %s", definition.key(), maximumValues, values.size());
     values.forEach(value -> validatePossibleValues(definition.key(), value, definition));
     return values;
   }

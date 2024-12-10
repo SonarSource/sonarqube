@@ -46,7 +46,10 @@ message SearchAzureReposWsResponse {
 
 // WS api/alm_integrations/list_bitbucketserver_projects
 message ListBitbucketserverProjectsWsResponse {
-  repeated AlmProject projects = 1;
+  optional sonarqube.ws.commons.Paging paging = 1;
+  optional bool isLastPage = 2;
+  optional int32 nextPageStart = 3;
+  repeated AlmProject projects = 4;
 }
 
 // WS api/alm_integrations/list_azure_projects

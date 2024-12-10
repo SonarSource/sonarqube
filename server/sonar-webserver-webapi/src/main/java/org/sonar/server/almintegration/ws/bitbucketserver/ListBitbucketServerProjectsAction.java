@@ -36,6 +36,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmIntegrations.AlmProject;
 import org.sonarqube.ws.AlmIntegrations.ListBitbucketserverProjectsWsResponse;
+import org.sonarqube.ws.Common;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -44,6 +45,10 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class ListBitbucketServerProjectsAction implements AlmIntegrationsWsAction {
 
   private static final String PARAM_ALM_SETTING = "almSetting";
+  private static final String PARAM_START = "start";
+  private static final String PARAM_PAGE_SIZE = "pageSize";
+  private static final int DEFAULT_PAGE_SIZE = 25;
+  private static final int MAX_PAGE_SIZE = 100;
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -69,6 +74,15 @@ public class ListBitbucketServerProjectsAction implements AlmIntegrationsWsActio
       .setRequired(true)
       .setMaximumLength(200)
       .setDescription("DevOps Platform setting key");
+
+    action.createParam(PARAM_START)
+      .setExampleValue(2154)
+      .setDescription("Start number for the page (inclusive). If not passed, first page is assumed.");
+
+    action.createParam(PARAM_PAGE_SIZE)
+      .setDefaultValue(DEFAULT_PAGE_SIZE)
+      .setMaximumValue(MAX_PAGE_SIZE)
+      .setDescription("Number of items to return.");
   }
 
   @Override
@@ -78,24 +92,31 @@ public class ListBitbucketServerProjectsAction implements AlmIntegrationsWsActio
   }
 
   private ListBitbucketserverProjectsWsResponse doHandle(Request request) {
+    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
+
+    String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
+    Integer start = request.paramAsInt(PARAM_START);
+    int pageSize = Optional.ofNullable(request.paramAsInt(PARAM_PAGE_SIZE)).orElse(DEFAULT_PAGE_SIZE);
+    String userUuid = requireNonNull(userSession.getUuid(), "User UUID is not null");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
-
-      String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
-      String userUuid = requireNonNull(userSession.getUuid(), "User UUID is not null");
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
         .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform Setting '%s' not found", almSettingKey)));
       Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
       String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken).orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
 
       String url = requireNonNull(almSettingDto.getUrl(), "URL cannot be null");
-      ProjectList projectList = bitbucketServerRestClient.getProjects(url, pat);
-
+      ProjectList projectList = bitbucketServerRestClient.getProjects(url, pat, start, pageSize);
       List<AlmProject> values = projectList.getValues().stream().map(ListBitbucketServerProjectsAction::toAlmProject).toList();
-      ListBitbucketserverProjectsWsResponse.Builder builder = ListBitbucketserverProjectsWsResponse.newBuilder()
-        .addAllProjects(values);
-      return builder.build();
+
+      return ListBitbucketserverProjectsWsResponse.newBuilder()
+        .setIsLastPage(projectList.isLastPage())
+        .setNextPageStart(projectList.getNextPageStart())
+        .setPaging(Common.Paging.newBuilder()
+          .setPageSize(projectList.getSize())
+          .build())
+        .addAllProjects(values)
+        .build();
     }
   }
 

@@ -20,36 +20,54 @@
 package org.sonar.alm.client.bitbucketserver;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectList {
 
+  @SerializedName("isLastPage")
+  private boolean lastPage;
+
+  @SerializedName("nextPageStart")
+  private int nextPageStart;
+
+  @SerializedName("size")
+  private int size;
+
   @SerializedName("values")
   private List<Project> values;
 
-  public ProjectList() {
+  private ProjectList() {
     // http://stackoverflow.com/a/18645370/229031
-    this(new ArrayList<>());
+    this(true, 0, 0, List.of());
   }
 
-  public ProjectList(List<Project> values) {
+  public ProjectList(boolean lastPage, int nextPageStart, int size, List<Project> values) {
+    this.lastPage = lastPage;
+    this.nextPageStart = nextPageStart;
+    this.size = size;
     this.values = values;
+  }
+
+  public boolean isLastPage() {
+    return lastPage;
+  }
+
+  public int getNextPageStart() {
+    return nextPageStart;
+  }
+
+  public int getSize() {
+    return size;
   }
 
   public List<Project> getValues() {
     return values;
   }
 
-  public ProjectList setValues(List<Project> values) {
-    this.values = values;
-    return this;
-  }
-
   @Override
   public String toString() {
-    return "{" +
-      "values=" + values +
-      '}';
+    return "{isLastPage=%s, nextPageStart=%s, size=%s, values=%s}"
+      .formatted(lastPage, nextPageStart, size, values);
   }
+
 }

@@ -225,8 +225,7 @@ public class SearchActionIT {
     SearchWsResponse response = call(SearchRequest.builder().build());
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate, Component::getRevision)
       .containsExactlyInAnyOrder(
-        tuple(project.projectKey(), formatDateTime(snapshotBranch.getCreatedAt()), snapshotProject.getRevision())
-      );
+        tuple(project.projectKey(), formatDateTime(snapshotBranch.getCreatedAt()), snapshotProject.getRevision()));
   }
 
   @Test
@@ -261,8 +260,7 @@ public class SearchActionIT {
     when(managedProjectService.getProjectUuidToManaged(any(), eq(Set.of(managedProject.projectUuid(), notManagedProject.projectUuid()))))
       .thenReturn(Map.of(
         managedProject.projectUuid(), true,
-        notManagedProject.projectUuid(), false
-      ));
+        notManagedProject.projectUuid(), false));
 
     SearchWsResponse result = call(SearchRequest.builder().build());
     assertThat(result.getComponentsList())
@@ -337,7 +335,7 @@ public class SearchActionIT {
       .build();
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("'projects' can contains only 1000 values, got 1001");
+      .hasMessage("'projects' can contain only 1000 values, got 1001");
   }
 
   @Test
@@ -377,17 +375,23 @@ public class SearchActionIT {
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
     var definition = ws.getDef();
-    assertThat(definition.params()).extracting(WebService.Param::key, WebService.Param::isRequired, WebService.Param::description, WebService.Param::possibleValues, WebService.Param::defaultValue, WebService.Param::since)
+    assertThat(definition.params())
+      .extracting(WebService.Param::key, WebService.Param::isRequired, WebService.Param::description, WebService.Param::possibleValues, WebService.Param::defaultValue,
+        WebService.Param::since)
       .containsExactlyInAnyOrder(
-        tuple("q", false, "Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that contain the supplied string</li></ul>", null, null, null),
+        tuple("q", false, "Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that contain the supplied string</li></ul>", null, null,
+          null),
         tuple("qualifiers", false, "Comma-separated list of component qualifiers. Filter the results with the specified qualifiers", Set.of("TRK", "VW", "APP"), "TRK", null),
         tuple("p", false, "1-based page number", null, "1", null),
         tuple("projects", false, "Comma-separated list of project keys", null, null, "6.6"),
         tuple("ps", false, "Page size. Must be greater than 0 and less or equal than 500", null, "100", null),
-        tuple("visibility", false, "Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>If no visibility is specified, the default project visibility will be used.", Set.of("private", "public"), null, "6.4"),
-        tuple("analyzedBefore", false, "Filter the projects for which the last analysis of all branches are older than the given date (exclusive).<br> Either a date (server timezone) or datetime can be provided.", null, null, "6.6"),
-        tuple("onProvisionedOnly", false, "Filter the projects that are provisioned", Set.of("true", "false", "yes", "no"), "false", "6.6")
-      );
+        tuple("visibility", false,
+          "Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>If no visibility is specified, the default project visibility will be used.",
+          Set.of("private", "public"), null, "6.4"),
+        tuple("analyzedBefore", false,
+          "Filter the projects for which the last analysis of all branches are older than the given date (exclusive).<br> Either a date (server timezone) or datetime can be provided.",
+          null, null, "6.6"),
+        tuple("onProvisionedOnly", false, "Filter the projects that are provisioned", Set.of("true", "false", "yes", "no"), "false", "6.6"));
   }
 
   @Test

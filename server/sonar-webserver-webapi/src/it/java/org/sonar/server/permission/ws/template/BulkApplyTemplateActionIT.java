@@ -24,14 +24,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -39,15 +38,16 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.permission.DefaultTemplatesResolver;
+import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.management.ManagedProjectService;
-import org.sonar.server.common.permission.DefaultTemplatesResolver;
-import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
-import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsIT;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,10 +56,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.ComponentQualifiers.VIEW;
-import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -150,7 +150,7 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("'projects' can contains only 1000 values, got 1001");
+      .hasMessage("'projects' can contain only 1000 values, got 1001");
   }
 
   @Test
