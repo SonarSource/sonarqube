@@ -195,6 +195,8 @@ import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
+import org.sonar.server.platform.telemetry.TelemetryPortfolioSelectionModeProvider;
+import org.sonar.server.platform.telemetry.TelemetrySubportfolioSelectionModeProvider;
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
 import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
@@ -682,6 +684,8 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryNclocProvider.class,
       TelemetryUserEnabledProvider.class,
       TelemetryFipsEnabledProvider.class,
+      TelemetrySubportfolioSelectionModeProvider.class,
+      TelemetryPortfolioSelectionModeProvider.class,
 
       // Reports telemetry
       TelemetryApplicationSubscriptionsProvider.class,

@@ -20,16 +20,18 @@
 package org.sonar.db.portfolio;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.project.ApplicationProjectDto;
 
@@ -93,6 +95,16 @@ public class PortfolioDao implements Dao {
 
   public List<KeyWithUuidDto> selectUuidsByKey(DbSession dbSession, String rootKey) {
     return mapper(dbSession).selectUuidsByKey(rootKey);
+  }
+
+  public Map<String, Integer> countPortfoliosByMode(DbSession dbSession) {
+    return mapper(dbSession).countPortfoliosByMode().stream().collect(Collectors.toMap(ModeCount::getSelectionMode,
+      ModeCount::getCount));
+  }
+
+  public Map<String, Integer> countSubportfoliosByMode(DbSession dbSession) {
+    return mapper(dbSession).countSubportfoliosByMode().stream().collect(Collectors.toMap(ModeCount::getSelectionMode,
+      ModeCount::getCount));
   }
 
   /*

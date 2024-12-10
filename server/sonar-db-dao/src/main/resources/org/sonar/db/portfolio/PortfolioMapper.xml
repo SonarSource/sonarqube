@@ -454,6 +454,24 @@
     WHERE pr.reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="countPortfoliosByMode" resultType="org.sonar.db.portfolio.ModeCount">
+    SELECT
+      selection_mode AS selectionMode,
+      count(1) AS count
+    FROM portfolios
+    WHERE parent_uuid IS NULL
+    GROUP BY selection_mode
+  </select>
+
+    <select id="countSubportfoliosByMode" resultType="org.sonar.db.portfolio.ModeCount">
+    SELECT
+      selection_mode AS selectionMode,
+      count(1) AS count
+    FROM portfolios
+    WHERE parent_uuid IS NOT NULL
+    GROUP BY selection_mode
+  </select>
+
   <delete id="deleteReferencesTo" parameterType="String">
     DELETE FROM portfolio_references
     WHERE reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}

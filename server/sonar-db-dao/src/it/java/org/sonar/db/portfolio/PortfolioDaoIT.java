@@ -21,6 +21,7 @@ package org.sonar.db.portfolio;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -48,6 +49,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.MANUAL;
+import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.REGEXP;
+import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.REST;
+import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.TAGS;
 
 class PortfolioDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1L, 1);
@@ -738,6 +743,29 @@ class PortfolioDaoIT {
     portfolioDao.deleteAllProjects(session);
     assertThat(db.countRowsOfTable(session, "portfolio_projects")).isZero();
     assertThat(db.countRowsOfTable(session, "portfolio_proj_branches")).isZero();
+  }
+
+  @Test
+  void countPortfoliosByMode_shouldReturnCorrectData() {
+    PortfolioDto portfolio1 = ComponentTesting.newPortfolioDto("uuid1", "ptf1", "Portfolio 1", null)
+      .setSelectionMode(REGEXP);
+    PortfolioDto subPortfolio1 = ComponentTesting.newPortfolioDto("sub_uuid11", "sub_ptf1", "SubPortfolio 1", portfolio1)
+      .setSelectionMode(MANUAL);
+    PortfolioDto subSubPortfolio1 = ComponentTesting.newPortfolioDto("sub_uuid12", "sub_sub_ptf1", "SubSubPortfolio 1", portfolio1)
+      .setSelectionMode(REST);
+    PortfolioDto portfolio2 = ComponentTesting.newPortfolioDto("uuid2", "ptf2", "Portfolio 2", null)
+      .setSelectionMode(REGEXP);
+    PortfolioDto subPortfolio2 = ComponentTesting.newPortfolioDto("sub_uuid21", "sub_ptd2", "SubPortfolio 2", portfolio2)
+      .setSelectionMode(TAGS);
+    Arrays.asList(portfolio1, subPortfolio1, subSubPortfolio1, portfolio2, subPortfolio2)
+      .forEach(portfolio -> portfolioDao.insertWithAudit(db.getSession(), portfolio));
+
+    Map<String, Integer> expectedForRoot = Map.of(REGEXP.name(), 2);
+    assertThat(portfolioDao.countPortfoliosByMode(db.getSession()))
+      .containsExactlyInAnyOrderEntriesOf(expectedForRoot);
+    Map<String, Integer> expectedForSub = Map.of(MANUAL.name(), 1, REST.name(), 1, TAGS.name(), 1);
+    assertThat(portfolioDao.countSubportfoliosByMode(db.getSession()))
+      .containsExactlyInAnyOrderEntriesOf(expectedForSub);
   }
 
   private PortfolioDto addPortfolio(PortfolioDto parent) {
