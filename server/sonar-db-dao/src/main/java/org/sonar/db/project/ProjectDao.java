@@ -160,6 +160,10 @@ public class ProjectDao implements Dao {
     return mapper(session).countProjects();
   }
 
+  public int countApplications(DbSession session) {
+    return mapper(session).countApplications();
+  }
+
   public int countAiCodeFixEnabledProjects(DbSession session) {
     return mapper(session).countProjectsByAiCodeFixEnablement(true);
   }

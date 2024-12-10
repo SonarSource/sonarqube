@@ -78,5 +78,7 @@ public interface ProjectMapper {
 
   int countProjects();
 
+  int countApplications();
+
   int countProjectsByAiCodeFixEnablement(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
 }

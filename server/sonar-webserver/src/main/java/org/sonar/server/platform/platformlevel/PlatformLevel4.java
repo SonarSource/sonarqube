@@ -182,6 +182,7 @@ import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.email.telemetry.EmailConfigAuthMethodTelemetryProvider;
 import org.sonar.server.notification.email.telemetry.EmailConfigHostTelemetryProvider;
 import org.sonar.server.notification.email.telemetry.TelemetryApplicationSubscriptionsProvider;
+import org.sonar.server.notification.email.telemetry.TelemetryApplicationsCountProvider;
 import org.sonar.server.notification.email.telemetry.TelemetryPortfolioSubscriptionsProvider;
 import org.sonar.server.notification.email.telemetry.TelemetryProjectSubscriptionsProvider;
 import org.sonar.server.notification.ws.NotificationWsModule;
@@ -686,6 +687,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryFipsEnabledProvider.class,
       TelemetrySubportfolioSelectionModeProvider.class,
       TelemetryPortfolioSelectionModeProvider.class,
+      TelemetryApplicationsCountProvider.class,
 
       // Reports telemetry
       TelemetryApplicationSubscriptionsProvider.class,

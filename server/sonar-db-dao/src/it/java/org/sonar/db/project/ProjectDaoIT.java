@@ -490,6 +490,16 @@ class ProjectDaoIT {
   }
 
   @Test
+  void countApplications_shouldReturn_correctValue() {
+    assertThat(projectDao.countProjects(db.getSession())).isZero();
+
+    IntStream.range(0, 3).forEach(x -> db.components().insertPrivateProject());
+    IntStream.range(0, 5).forEach(x -> db.components().insertPrivateApplication());
+
+    assertThat(projectDao.countApplications(db.getSession())).isEqualTo(5);
+  }
+
+  @Test
   void countProjects_by_ai_codefix_enablement() {
     var dto1 = createProject("o1", "p1").setAiCodeFixEnabled(true);
     var dto2 = createProject("o1", "p2");

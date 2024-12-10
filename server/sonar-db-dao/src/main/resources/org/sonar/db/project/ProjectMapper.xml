@@ -226,6 +226,12 @@
     where p.qualifier = 'TRK'
   </select>
 
+  <select id="countApplications" resultType="int">
+    select count(p.uuid)
+    from projects p
+    where p.qualifier = 'APP'
+  </select>
+
   <select id="countProjectsByAiCodeFixEnablement" resultType="int">
     select count(p.uuid)
     from projects p
