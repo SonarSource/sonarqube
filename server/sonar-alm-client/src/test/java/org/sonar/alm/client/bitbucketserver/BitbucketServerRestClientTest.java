@@ -123,7 +123,7 @@ public class BitbucketServerRestClientTest {
         }
         """));
 
-    RepositoryList gsonBBSRepoList = underTest.getRepos(server.url("/").toString(), "token", "", "");
+    RepositoryList gsonBBSRepoList = underTest.getRepos(server.url("/").toString(), "token", "", "", null, 25);
     assertThat(gsonBBSRepoList.isLastPage()).isTrue();
     assertThat(gsonBBSRepoList.getValues()).hasSize(2);
     assertThat(gsonBBSRepoList.getValues()).extracting(Repository::getId, Repository::getName, Repository::getSlug,
@@ -698,6 +698,61 @@ public class BitbucketServerRestClientTest {
     assertThat(BitbucketServerRestClient.equals(null, MediaType.parse("application/json"))).isFalse();
     assertThat(BitbucketServerRestClient.equals(MediaType.parse("application/ json"), MediaType.parse("text/html; charset=UTF-8"))).isFalse();
     assertThat(BitbucketServerRestClient.equals(MediaType.parse("application/Json"), MediaType.parse("application/JSON"))).isTrue();
+  }
+
+  @Test
+  @UseDataProvider("validStartAndPageSizeProvider")
+  public void get_repositories_with_pagination(int start, int pageSize, boolean isLastPage, int totalRepos) {
+    String body = generateRepositoriesResponse(totalRepos, start, pageSize, isLastPage);
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody(body));
+
+    RepositoryList gsonBBSRepoList = underTest.getRepos(server.url("/").toString(), "token", null, null, start, pageSize);
+
+    int expectedSize = Math.min(pageSize, totalRepos - start + 1);
+    assertThat(gsonBBSRepoList.getValues()).hasSize(expectedSize);
+
+    // Verify that the correct items are returned
+    IntStream.rangeClosed(start, start + expectedSize - 1).forEach(i -> {
+      assertThat(gsonBBSRepoList.getValues())
+        .extracting(Repository::getId, Repository::getName, Repository::getSlug)
+        .contains(tuple((long) i, "Repository_" + i, "repo_" + i));
+    });
+
+    assertThat(gsonBBSRepoList.isLastPage()).isEqualTo(isLastPage);
+    assertThat(gsonBBSRepoList.getNextPageStart()).isEqualTo(isLastPage ? start : start + expectedSize);
+  }
+
+  private String generateRepositoriesResponse(int totalRepos, int start, int pageSize, boolean isLastPage) {
+    int end = Math.min(totalRepos, start + pageSize - 1);
+
+    StringBuilder values = new StringBuilder();
+    for (int i = start; i <= end; i++) {
+      values.append("""
+        {
+          "slug": "repo_%d",
+          "id": %d,
+          "name": "Repository_%d",
+          "project": {
+            "key": "KEY_%d",
+            "id": %d,
+            "name": "Project_%d"
+          }
+        }
+        """.formatted(i, i, i, i, i, i));
+      if (i < end) {
+        values.append(",");
+      }
+    }
+
+    return """
+      {
+        "isLastPage": %s,
+        "nextPageStart": %s,
+        "values": [%s]
+      }
+      """.formatted(isLastPage, isLastPage ? start : end + 1, values.toString());
   }
 
   @Test

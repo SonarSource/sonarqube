@@ -122,6 +122,32 @@ public class ListBitbucketServerProjectsActionIT {
   }
 
   @Test
+  public void handle_should_list_projects_when_zero_page_size() {
+    UserDto user = createUserWithPermissions();
+    AlmSettingDto almSetting = createAlmSettingWithPat(user);
+
+    ListBitbucketserverProjectsWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, almSetting.getKey())
+      .setParam(PARAM_PAGE_SIZE, "0")
+      .executeProtobuf(ListBitbucketserverProjectsWsResponse.class);
+
+    validateResponse(response, DEFAULT_START, DEFAULT_PAGE_SIZE, false, DEFAULT_PAGE_SIZE + DEFAULT_START);
+  }
+
+  @Test
+  public void handle_should_list_projects_when_negative_page_size() {
+    UserDto user = createUserWithPermissions();
+    AlmSettingDto almSetting = createAlmSettingWithPat(user);
+
+    ListBitbucketserverProjectsWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, almSetting.getKey())
+      .setParam(PARAM_PAGE_SIZE, "-1")
+      .executeProtobuf(ListBitbucketserverProjectsWsResponse.class);
+
+    validateResponse(response, DEFAULT_START, DEFAULT_PAGE_SIZE, false, DEFAULT_PAGE_SIZE + DEFAULT_START);
+  }
+
+  @Test
   public void handle_should_return_empty_list_when_out_of_bounds_start() {
     totalMockedProjects = 30;
     UserDto user = createUserWithPermissions();

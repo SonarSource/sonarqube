@@ -46,6 +46,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmIntegrations.BBSRepo;
 import org.sonarqube.ws.AlmIntegrations.SearchBitbucketserverReposWsResponse;
+import org.sonarqube.ws.Common;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
@@ -57,6 +58,10 @@ public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction
   private static final String PARAM_ALM_SETTING = "almSetting";
   private static final String PARAM_REPO_NAME = "repositoryName";
   private static final String PARAM_PROJECT_NAME = "projectName";
+  private static final String PARAM_START = "start";
+  private static final String PARAM_PAGE_SIZE = "pageSize";
+  private static final int DEFAULT_PAGE_SIZE = 25;
+  private static final int MAX_PAGE_SIZE = 100;
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -95,6 +100,15 @@ public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction
       .setRequired(false)
       .setMaximumLength(200)
       .setDescription("Repository name filter");
+
+    action.createParam(PARAM_START)
+      .setExampleValue(2154)
+      .setDescription("Start number for the page (inclusive). If not passed, the first page is assumed.");
+
+    action.createParam(PARAM_PAGE_SIZE)
+      .setDefaultValue(DEFAULT_PAGE_SIZE)
+      .setMaximumValue(MAX_PAGE_SIZE)
+      .setDescription("Number of items to return.");
   }
 
   @Override
@@ -104,30 +118,40 @@ public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction
   }
 
   private SearchBitbucketserverReposWsResponse doHandle(Request request) {
+    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
+
+    String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
+    Integer start = request.paramAsInt(PARAM_START);
+    int pageSize = Optional.ofNullable(request.paramAsInt(PARAM_PAGE_SIZE))
+      // non-positive should fallback to default
+      .filter(ps -> ps > 0)
+      .orElse(DEFAULT_PAGE_SIZE);
+    String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
+    String projectKey = request.param(PARAM_PROJECT_NAME);
+    String repoName = request.param(PARAM_REPO_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
-
-      String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
-      String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
         .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform Setting '%s' not found", almSettingKey)));
       Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
 
-      String projectKey = request.param(PARAM_PROJECT_NAME);
-      String repoName = request.param(PARAM_REPO_NAME);
       String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken).orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
       String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
-      RepositoryList gsonBBSRepoList = bitbucketServerRestClient.getRepos(url, pat, projectKey, repoName);
+      RepositoryList gsonBBSRepoList = bitbucketServerRestClient.getRepos(url, pat, projectKey, repoName, start, pageSize);
 
       Map<String, String> sqProjectsKeyByBBSKey = getSqProjectsKeyByBBSKey(dbSession, almSettingDto, gsonBBSRepoList);
-      List<BBSRepo> bbsRepos = gsonBBSRepoList.getValues().stream().map(gsonBBSRepo -> toBBSRepo(gsonBBSRepo, sqProjectsKeyByBBSKey))
+      List<BBSRepo> bbsRepos = gsonBBSRepoList.getValues().stream()
+        .map(gsonBBSRepo -> toBBSRepo(gsonBBSRepo, sqProjectsKeyByBBSKey))
         .toList();
 
-      SearchBitbucketserverReposWsResponse.Builder builder = SearchBitbucketserverReposWsResponse.newBuilder()
+      return SearchBitbucketserverReposWsResponse.newBuilder()
         .setIsLastPage(gsonBBSRepoList.isLastPage())
-        .addAllRepositories(bbsRepos);
-      return builder.build();
+        .setNextPageStart(gsonBBSRepoList.getNextPageStart())
+        .setPaging(Common.Paging.newBuilder()
+          .setPageSize(gsonBBSRepoList.getSize())
+          .build())
+        .addAllRepositories(bbsRepos)
+        .build();
     }
   }
 
@@ -151,7 +175,8 @@ public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction
       .setSlug(gsonBBSRepo.getSlug())
       .setId(gsonBBSRepo.getId())
       .setName(gsonBBSRepo.getName())
-      .setProjectKey(gsonBBSRepo.getProject().getKey());
+      .setProjectKey(gsonBBSRepo.getProject().getKey())
+      .setProjectName(gsonBBSRepo.getProject().getName());
 
     String sqProjectKey = sqProjectsKeyByBBSKey.get(customKey(gsonBBSRepo));
     if (sqProjectKey != null) {

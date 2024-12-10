@@ -77,7 +77,7 @@ public class ListBitbucketServerProjectsAction implements AlmIntegrationsWsActio
 
     action.createParam(PARAM_START)
       .setExampleValue(2154)
-      .setDescription("Start number for the page (inclusive). If not passed, first page is assumed.");
+      .setDescription("Start number for the page (inclusive). If not passed, the first page is assumed.");
 
     action.createParam(PARAM_PAGE_SIZE)
       .setDefaultValue(DEFAULT_PAGE_SIZE)
@@ -96,7 +96,10 @@ public class ListBitbucketServerProjectsAction implements AlmIntegrationsWsActio
 
     String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
     Integer start = request.paramAsInt(PARAM_START);
-    int pageSize = Optional.ofNullable(request.paramAsInt(PARAM_PAGE_SIZE)).orElse(DEFAULT_PAGE_SIZE);
+    int pageSize = Optional.ofNullable(request.paramAsInt(PARAM_PAGE_SIZE))
+      // non-positive should fallback to default
+      .filter(ps -> ps > 0)
+      .orElse(DEFAULT_PAGE_SIZE);
     String userUuid = requireNonNull(userSession.getUuid(), "User UUID is not null");
 
     try (DbSession dbSession = dbClient.openSession(false)) {

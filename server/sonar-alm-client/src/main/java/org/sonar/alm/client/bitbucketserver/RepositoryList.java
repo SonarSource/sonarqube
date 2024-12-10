@@ -19,56 +19,59 @@
  */
 package org.sonar.alm.client.bitbucketserver;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RepositoryList {
 
   @SerializedName("isLastPage")
-  private boolean isLastPage;
+  private boolean lastPage;
+
+  @SerializedName("nextPageStart")
+  private int nextPageStart;
+
+  @SerializedName("size")
+  private int size;
 
   @SerializedName("values")
   private List<Repository> values;
 
-  public RepositoryList() {
+  private RepositoryList() {
     // http://stackoverflow.com/a/18645370/229031
-    this(false, new ArrayList<>());
+    this(true, 0, 0, List.of());
   }
 
-  public RepositoryList(boolean isLastPage, List<Repository> values) {
-    this.isLastPage = isLastPage;
+  public RepositoryList(boolean lastPage, int nextPageStart, int size, List<Repository> values) {
+    this.lastPage = lastPage;
+    this.nextPageStart = nextPageStart;
+    this.size = size;
     this.values = values;
   }
 
-  static RepositoryList parse(String json) {
-    return new Gson().fromJson(json, RepositoryList.class);
-  }
-
   public boolean isLastPage() {
-    return isLastPage;
+    return lastPage;
   }
 
-  public RepositoryList setLastPage(boolean lastPage) {
-    isLastPage = lastPage;
-    return this;
+  public int getNextPageStart() {
+    return nextPageStart;
+  }
+
+  public int getSize() {
+    return size;
   }
 
   public List<Repository> getValues() {
     return values;
   }
 
-  public RepositoryList setValues(List<Repository> values) {
+  public void setValues(List<Repository> values) {
     this.values = values;
-    return this;
   }
 
   @Override
   public String toString() {
-    return "{" +
-      "isLastPage=" + isLastPage +
-      ", values=" + values +
-      '}';
+    return "{isLastPage=%s, nextPageStart=%s, size=%s, values=%s}"
+      .formatted(lastPage, nextPageStart, size, values);
   }
+
 }

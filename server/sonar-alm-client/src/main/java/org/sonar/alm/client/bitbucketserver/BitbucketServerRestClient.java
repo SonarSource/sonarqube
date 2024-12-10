@@ -84,10 +84,11 @@ public class BitbucketServerRestClient {
     doGet(personalAccessToken, url, body -> buildGson().fromJson(body, RepositoryList.class));
   }
 
-  public RepositoryList getRepos(String serverUrl, String token, @Nullable String project, @Nullable String repo) {
+  public RepositoryList getRepos(String serverUrl, String token, @Nullable String project, @Nullable String repo, @Nullable Integer start, int pageSize) {
     String projectOrEmpty = Optional.ofNullable(project).orElse("");
     String repoOrEmpty = Optional.ofNullable(repo).orElse("");
-    HttpUrl url = buildUrl(serverUrl, format("/rest/api/1.0/repos?projectname=%s&name=%s", projectOrEmpty, repoOrEmpty));
+    String startOrEmpty = Optional.ofNullable(start).map(String::valueOf).orElse("");
+    HttpUrl url = buildUrl(serverUrl, format("/rest/api/1.0/repos?projectname=%s&name=%s&start=%s&limit=%s", projectOrEmpty, repoOrEmpty, startOrEmpty, pageSize));
     return doGet(token, url, body -> buildGson().fromJson(body, RepositoryList.class));
   }
 

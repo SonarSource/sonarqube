@@ -28,8 +28,10 @@ option optimize_for = SPEED;
 
 // WS api/alm_integrations/search_bitbucketserver_repos
 message SearchBitbucketserverReposWsResponse {
-  optional bool isLastPage = 1;
-  repeated BBSRepo repositories = 2;
+  optional sonarqube.ws.commons.Paging paging = 1;
+  optional bool isLastPage = 2;
+  optional int32 nextPageStart = 3;
+  repeated BBSRepo repositories = 4;
 }
 
 // WS api/alm_integrations/search_bitbucketcloud_repos
@@ -63,6 +65,7 @@ message BBSRepo {
   optional string name = 3;
   optional string sqProjectKey = 4;
   optional string projectKey = 5;
+  optional string projectName = 6;
 }
 
 message BBCRepo {
