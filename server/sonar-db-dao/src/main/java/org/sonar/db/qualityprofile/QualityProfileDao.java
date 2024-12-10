@@ -168,7 +168,11 @@ public class QualityProfileDao implements Dao {
   }
 
   public List<QProfileDto> selectAssociatedToProjectAndLanguages(DbSession dbSession, ProjectDto project, Collection<String> languages) {
-    return executeLargeInputs(languages, partition -> mapper(dbSession).selectAssociatedToProjectUuidAndLanguages(project.getUuid(), partition));
+    return selectAssociatedToProjectAndLanguages(dbSession, project.getUuid(), languages);
+  }
+
+  public List<QProfileDto> selectAssociatedToProjectAndLanguages(DbSession dbSession, String projectUuid, Collection<String> languages) {
+    return executeLargeInputs(languages, partition -> mapper(dbSession).selectAssociatedToProjectUuidAndLanguages(projectUuid, partition));
   }
 
   public List<QProfileDto> selectQProfilesByProjectUuid(DbSession dbSession, String projectUuid) {
@@ -251,6 +255,7 @@ public class QualityProfileDao implements Dao {
   public List<ProjectQProfileLanguageAssociationDto> selectAllProjectAssociations(DbSession dbSession) {
     return mapper(dbSession).selectAllProjectAssociations();
   }
+
   public Collection<String> selectUuidsOfCustomRulesProfiles(DbSession dbSession, String language, String name) {
     return mapper(dbSession).selectUuidsOfCustomRuleProfiles(language, name);
   }

@@ -58,9 +58,13 @@ public class ActiveRuleDto {
   // These fields do not exist in db, it's only retrieve by joins
   private String repository;
   private String ruleField;
-  private String ruleProfileUuid;
   private String securityStandards;
   private boolean isExternal;
+
+  private String name;
+  private String configKey;
+  private String templateUuid;
+  private String language;
 
   public ActiveRuleDto() {
     // nothing to do here
@@ -69,12 +73,12 @@ public class ActiveRuleDto {
   public ActiveRuleDto setKey(ActiveRuleKey key) {
     this.repository = key.getRuleKey().repository();
     this.ruleField = key.getRuleKey().rule();
-    this.ruleProfileUuid = key.getRuleProfileUuid();
+    this.profileUuid = key.getRuleProfileUuid();
     return this;
   }
 
   public ActiveRuleKey getKey() {
-    return new ActiveRuleKey(ruleProfileUuid, RuleKey.of(repository, ruleField));
+    return new ActiveRuleKey(profileUuid, RuleKey.of(repository, ruleField));
   }
 
   public RuleKey getRuleKey() {
@@ -207,6 +211,43 @@ public class ActiveRuleDto {
     return this;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public ActiveRuleDto setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getConfigKey() {
+    return configKey;
+  }
+
+  public ActiveRuleDto setConfigKey(String configKey) {
+    this.configKey = configKey;
+    return this;
+  }
+
+  @CheckForNull
+  public String getTemplateUuid() {
+    return templateUuid;
+  }
+
+  public ActiveRuleDto setTemplateUuid(@Nullable String templateUuid) {
+    this.templateUuid = templateUuid;
+    return this;
+  }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public ActiveRuleDto setLanguage(String language) {
+    this.language = language;
+    return this;
+  }
+
   public static ActiveRuleDto createFor(QProfileDto profile, RuleDto ruleDto) {
     requireNonNull(profile.getRulesProfileUuid(), "Profile is not persisted");
     requireNonNull(ruleDto.getUuid(), "Rule is not persisted");
@@ -214,6 +255,10 @@ public class ActiveRuleDto {
     dto.setProfileUuid(profile.getRulesProfileUuid());
     dto.setRuleUuid(ruleDto.getUuid());
     dto.setKey(ActiveRuleKey.of(profile, ruleDto.getKey()));
+    dto.setName(ruleDto.getName());
+    dto.setConfigKey(ruleDto.getConfigKey());
+    dto.setTemplateUuid(ruleDto.getTemplateUuid());
+    dto.setLanguage(ruleDto.getLanguage());
     dto.setImpacts(ruleDto.getDefaultImpactsMap());
     return dto;
   }

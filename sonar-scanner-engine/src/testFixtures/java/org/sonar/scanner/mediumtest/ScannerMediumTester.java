@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -223,6 +225,7 @@ public class ScannerMediumTester extends ExternalResource implements BeforeTestE
     r.setLanguage(language);
     r.setSeverity(severity);
     r.setDeprecatedKeys(emptySet());
+    r.setQProfileKey("whatever");
 
     activeRules.addActiveRule(r);
     return this;
@@ -279,6 +282,7 @@ public class ScannerMediumTester extends ExternalResource implements BeforeTestE
       throw new IllegalStateException(e);
     }
   }
+
 
   public AnalysisBuilder newAnalysis() {
     return new AnalysisBuilder(this);

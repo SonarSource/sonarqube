@@ -19,46 +19,49 @@
  */
 package org.sonar.scanner.rule;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Collection;
+import com.google.gson.Gson;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.scanner.rule.LoadedActiveRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Rules;
-import org.sonarqube.ws.Rules.Active;
-import org.sonarqube.ws.Rules.ActiveList;
-import org.sonarqube.ws.Rules.Actives;
-import org.sonarqube.ws.Rules.Rule;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.scanner.rule.DefaultActiveRulesLoader.ActiveRuleGson;
+import static org.sonar.scanner.rule.DefaultActiveRulesLoader.ParamGson;
+import static org.sonar.scanner.rule.DefaultActiveRulesLoader.RuleKeyGson;
 
-public class DefaultActiveRulesLoaderTest {
+class DefaultActiveRulesLoaderTest {
 
-  private static final int PAGE_SIZE_1 = 150;
-  private static final int PAGE_SIZE_2 = 76;
+  private static final int NUMBER_OF_RULES = 150;
   private static final RuleKey EXAMPLE_KEY = RuleKey.of("java", "S108");
+  private static final RuleKey CUSTOM_RULE_KEY = RuleKey.of("java", "my-custom-rule");
   private static final String FORMAT_KEY = "format";
   private static final String FORMAT_VALUE = "^[a-z][a-zA-Z0-9]*$";
+  private static final String PROJECT_KEY = "myProjectKey";
   private static final String SEVERITY_VALUE = Severity.MINOR;
 
   private DefaultActiveRulesLoader loader;
   private DefaultScannerWsClient wsClient;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     wsClient = mock(DefaultScannerWsClient.class);
     BranchConfiguration branchConfig = mock(BranchConfiguration.class);
     when(branchConfig.isPullRequest()).thenReturn(false);
@@ -66,78 +69,131 @@ public class DefaultActiveRulesLoaderTest {
   }
 
   @Test
-  public void load_shouldRequestRulesAndParseResponse() {
-    int total = PAGE_SIZE_1 + PAGE_SIZE_2;
+  void load_shouldRequestRulesAndParseResponse() {
+    WsTestUtil.mockReader(wsClient, getUrl(), response());
 
-    WsTestUtil.mockStream(wsClient, urlOfPage(1), responseOfSize(1, PAGE_SIZE_1, total));
-    WsTestUtil.mockStream(wsClient, urlOfPage(2), responseOfSize(2, PAGE_SIZE_2, total));
+    Map<RuleKey, LoadedActiveRule> activeRulesByKey = loader.load(PROJECT_KEY).stream().collect(Collectors.toMap(LoadedActiveRule::getRuleKey, r -> r));
+    assertThat(activeRulesByKey).hasSize(NUMBER_OF_RULES);
 
-    Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445");
-    assertThat(activeRules).hasSize(total);
-    assertThat(activeRules)
-      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
-      .extracting(LoadedActiveRule::getParams)
-      .extracting(p -> p.get(FORMAT_KEY))
-      .containsExactly(FORMAT_VALUE);
-    assertThat(activeRules)
-      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
-      .extracting(LoadedActiveRule::getSeverity)
-      .containsExactly(SEVERITY_VALUE);
-    assertThat(activeRules)
-      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
-      .extracting(LoadedActiveRule::getImpacts)
-      .containsExactlyInAnyOrder(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
+    var exampleRule = activeRulesByKey.get(EXAMPLE_KEY);
+    assertThat(exampleRule.getParams()).containsEntry(FORMAT_KEY, FORMAT_VALUE);
+    assertThat(exampleRule.getSeverity()).isEqualTo(SEVERITY_VALUE);
+    assertThat(exampleRule.getImpacts()).containsExactly(entry(SoftwareQuality.MAINTAINABILITY, HIGH));
 
-    WsTestUtil.verifyCall(wsClient, urlOfPage(1));
-    WsTestUtil.verifyCall(wsClient, urlOfPage(2));
+    var customRule = activeRulesByKey.get(CUSTOM_RULE_KEY);
+    assertThat(customRule.getTemplateRuleKey()).isEqualTo("ruleTemplate");
+
+    WsTestUtil.verifyCall(wsClient, getUrl());
 
     verifyNoMoreInteractions(wsClient);
   }
 
-  private String urlOfPage(int page) {
-    return "/api/rules/list.protobuf?qprofile=c%2B-test_c%2B-values-17445&ps=500&p=" + page + "";
+  private String getUrl() {
+    return "/api/v2/analysis/active_rules?projectKey=" + PROJECT_KEY;
   }
 
-  /**
-   * Generates an imaginary protobuf result.
-   *
-   * @param pageIndex page index, that the response should contain
-   * @param numberOfRules the number of rules, that the response should contain
-   * @param total the number of results on all pages
-   * @return the binary stream
-   */
-  private InputStream responseOfSize(int pageIndex, int numberOfRules, int total) {
-    Rules.ListResponse.Builder rules = Rules.ListResponse.newBuilder();
-    Actives.Builder actives = Actives.newBuilder();
+  private Reader response() {
+    List<ActiveRuleGson> activeRules = new ArrayList<>();
 
-    IntStream.rangeClosed(1, numberOfRules)
+    IntStream.rangeClosed(1, NUMBER_OF_RULES - 1)
       .mapToObj(i -> RuleKey.of("java", "S" + i))
       .forEach(key -> {
+        ActiveRuleGsonBuilder builder = new ActiveRuleGsonBuilder();
 
-        Rule.Builder ruleBuilder = Rule.newBuilder();
-        ruleBuilder.setKey(key.toString());
-        rules.addRules(ruleBuilder);
+        builder.setRuleKey(new RuleKeyGson(key.repository(), key.rule()));
 
-        Active.Builder activeBuilder = Active.newBuilder();
-        activeBuilder.setCreatedAt("2014-05-27T15:50:45+0100");
-        activeBuilder.setUpdatedAt("2014-05-27T15:50:45+0100");
+        builder.setCreatedAt("2014-05-27T15:50:45+0100");
+        builder.setUpdatedAt("2014-05-27T15:50:45+0100");
         if (EXAMPLE_KEY.equals(key)) {
-          activeBuilder.addParams(Rules.Active.Param.newBuilder().setKey(FORMAT_KEY).setValue(FORMAT_VALUE));
-          activeBuilder.setSeverity(SEVERITY_VALUE);
-          activeBuilder.setImpacts(Rules.Impacts.newBuilder().addImpacts(Common.Impact.newBuilder()
-            .setSoftwareQuality(Common.SoftwareQuality.MAINTAINABILITY)
-            .setSeverity(Common.ImpactSeverity.HIGH).build()).build());
+          builder.setParams(List.of(new ParamGson(FORMAT_KEY, FORMAT_VALUE)));
+          builder.setSeverity(SEVERITY_VALUE);
+          builder.setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, HIGH));
         }
-        ActiveList activeList = Rules.ActiveList.newBuilder().addActiveList(activeBuilder).build();
-        actives.putAllActives(Map.of(key.toString(), activeList));
+
+        activeRules.add(builder.build());
       });
 
-    rules.setActives(actives);
-    rules.setPaging(Common.Paging.newBuilder()
-      .setTotal(total)
-      .setPageIndex(pageIndex)
-      .setPageSize(numberOfRules)
-      .build());
-    return new ByteArrayInputStream(rules.build().toByteArray());
+    ActiveRuleGsonBuilder builder = new ActiveRuleGsonBuilder();
+    builder.setRuleKey(new RuleKeyGson(CUSTOM_RULE_KEY.repository(), CUSTOM_RULE_KEY.rule()));
+    builder.setCreatedAt("2014-05-27T15:50:45+0100");
+    builder.setUpdatedAt("2014-05-27T15:50:45+0100");
+    builder.setTemplateRuleKey("java:ruleTemplate");
+    activeRules.add(builder.build());
+
+    return toReader(activeRules);
+  }
+
+  private static Reader toReader(List<ActiveRuleGson> activeRules) {
+    String json = new Gson().toJson(activeRules);
+    return new StringReader(json);
+  }
+
+  private static class ActiveRuleGsonBuilder {
+    private RuleKeyGson ruleKey;
+    private String name;
+    private String severity;
+    private String createdAt;
+    private String updatedAt;
+    private String internalKey;
+    private String language;
+    private String templateRuleKey;
+    private String qProfilKey;
+    private final List<RuleKeyGson> deprecatedKeys = new ArrayList<>();
+    private final List<ParamGson> params = new ArrayList<>();
+    private final Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+
+    public void setRuleKey(RuleKeyGson ruleKey) {
+      this.ruleKey = ruleKey;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public void setSeverity(String severity) {
+      this.severity = severity;
+    }
+
+    public void setCreatedAt(String createdAt) {
+      this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+      this.updatedAt = updatedAt;
+    }
+
+    public void setInternalKey(String internalKey) {
+      this.internalKey = internalKey;
+    }
+
+    public void setLanguage(String language) {
+      this.language = language;
+    }
+
+    public void setTemplateRuleKey(String templateRuleKey) {
+      this.templateRuleKey = templateRuleKey;
+    }
+
+    public void setQProfilKey(String qProfilKey) {
+      this.qProfilKey = qProfilKey;
+    }
+
+    public void setParams(List<ParamGson> params) {
+      this.params.clear();
+      this.params.addAll(params);
+    }
+
+    public void addAllDeprecatedKeys(List<RuleKeyGson> deprecatedKeys) {
+      this.deprecatedKeys.addAll(deprecatedKeys);
+    }
+
+    public void setImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+      this.impacts.clear();
+      this.impacts.putAll(impacts);
+    }
+
+    public ActiveRuleGson build() {
+      return new ActiveRuleGson(ruleKey, name, severity, createdAt, updatedAt, internalKey, language, templateRuleKey, qProfilKey, deprecatedKeys, params, impacts);
+    }
   }
 }

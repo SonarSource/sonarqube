@@ -72,7 +72,7 @@ public class RuleDto {
   private RuleDto.Format descriptionFormat = null;
   private RuleStatus status = null;
 
-  private Set<ImpactDto> defaultImpacts = new HashSet<>();
+  private final Set<ImpactDto> defaultImpacts = new HashSet<>();
 
   private String name = null;
   private String configKey = null;
@@ -375,7 +375,6 @@ public class RuleDto {
     return this;
   }
 
-  @CheckForNull
   public String getLanguage() {
     return language;
   }
@@ -650,13 +649,12 @@ public class RuleDto {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof RuleDto)) {
+    if (!(obj instanceof RuleDto other)) {
       return false;
     }
     if (this == obj) {
       return true;
     }
-    RuleDto other = (RuleDto) obj;
     return Objects.equals(this.uuid, other.uuid);
   }
 

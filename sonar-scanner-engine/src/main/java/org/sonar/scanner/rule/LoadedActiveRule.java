@@ -39,6 +39,7 @@ public class LoadedActiveRule {
   private String templateRuleKey;
   private String internalKey;
   private Set<RuleKey> deprecatedKeys;
+  private String qProfileKey;
 
   public LoadedActiveRule() {
     // nothing to do here
@@ -117,11 +118,12 @@ public class LoadedActiveRule {
     this.templateRuleKey = templateRuleKey;
   }
 
+  @CheckForNull
   public String getInternalKey() {
     return internalKey;
   }
 
-  public void setInternalKey(String internalKey) {
+  public void setInternalKey(@Nullable String internalKey) {
     this.internalKey = internalKey;
   }
 
@@ -131,5 +133,13 @@ public class LoadedActiveRule {
 
   public void setDeprecatedKeys(Set<RuleKey> deprecatedKeys) {
     this.deprecatedKeys = deprecatedKeys;
+  }
+
+  public String getQProfileKey() {
+    return qProfileKey;
+  }
+
+  public void setQProfileKey(String qProfileKey) {
+    this.qProfileKey = qProfileKey;
   }
 }

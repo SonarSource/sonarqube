@@ -64,8 +64,21 @@ public class NewActiveRule {
     this.deprecatedKeys = builder.deprecatedKeys;
   }
 
+
   public RuleKey ruleKey() {
     return this.ruleKey;
+  }
+
+  public Map<String, String> getParams() {
+    return params;
+  }
+
+  public String getSeverity() {
+    return severity;
+  }
+
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> getImpacts() {
+    return impacts;
   }
 
   public static class Builder {
@@ -150,5 +163,6 @@ public class NewActiveRule {
     public NewActiveRule build() {
       return new NewActiveRule(this);
     }
+
   }
 }

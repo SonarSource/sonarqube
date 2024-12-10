@@ -84,8 +84,15 @@ public class ActiveRuleDao implements Dao {
   /**
    * Active rule on removed rule are NOT returned
    */
-  public List<OrgActiveRuleDto> selectByProfileUuid(DbSession dbSession, String uuid) {
-    return mapper(dbSession).selectByProfileUuid(uuid);
+  public List<OrgActiveRuleDto> selectByProfileUuid(DbSession dbSession, String profileUuid) {
+    return selectByProfileUuids(dbSession, List.of(profileUuid));
+  }
+
+  /**
+   * Active rule on removed rule are NOT returned
+   */
+  public List<OrgActiveRuleDto> selectByProfileUuids(DbSession dbSession, Collection<String> profileUuids) {
+    return mapper(dbSession).selectByProfileUuids(profileUuids);
   }
 
   public List<OrgActiveRuleDto> selectByTypeAndProfileUuids(DbSession dbSession, List<Integer> types, List<String> uuids) {
@@ -160,6 +167,10 @@ public class ActiveRuleDao implements Dao {
 
   public List<ActiveRuleParamDto> selectParamsByActiveRuleUuids(final DbSession dbSession, List<String> activeRuleUuids) {
     return executeLargeInputs(activeRuleUuids, mapper(dbSession)::selectParamsByActiveRuleUuids);
+  }
+
+  public List<ActiveRuleParamDto> selectAllParamsByProfileUuids(final DbSession dbSession, Collection<String> profileUuids) {
+    return mapper(dbSession).selectAllParamsByProfileUuids(profileUuids);
   }
 
   public ActiveRuleParamDto insertParam(DbSession dbSession, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {

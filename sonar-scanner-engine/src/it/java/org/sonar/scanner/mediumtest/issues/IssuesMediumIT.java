@@ -30,13 +30,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.event.Level;
-import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
+import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.OneExternalIssueOnProjectSensor;
@@ -414,9 +414,9 @@ public class IssuesMediumIT {
     r.setName("TODO");
     r.setLanguage("xoo");
     r.setSeverity("MAJOR");
-    r.setDeprecatedKeys(emptySet()
-    );
+    r.setDeprecatedKeys(emptySet());
     r.setParams(ImmutableMap.of("tag", "TODO"));
+    r.setQProfileKey("whatever");
     tester.activateRule(r);
   }
 

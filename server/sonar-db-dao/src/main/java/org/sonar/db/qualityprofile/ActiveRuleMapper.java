@@ -52,7 +52,7 @@ public interface ActiveRuleMapper {
 
   List<OrgActiveRuleDto> selectByRuleUuids(@Param("ruleUuids") List<String> partitionOfRuleUuids);
 
-  List<OrgActiveRuleDto> selectByProfileUuid(String uuid);
+  List<OrgActiveRuleDto> selectByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
 
   List<OrgActiveRuleDto> selectByTypeAndProfileUuids(@Param("types") List<Integer> types, @Param("profileUuids") List<String> uuids);
 
@@ -90,4 +90,6 @@ public interface ActiveRuleMapper {
   void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler<IndexedActiveRuleDto> handler);
 
   int countMissingRules(@Param("rulesProfileUuid") String rulesProfileUuid, @Param("compareToRulesProfileUuid") String compareToRulesProfileUuid);
+
+  List<ActiveRuleParamDto> selectAllParamsByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
 }

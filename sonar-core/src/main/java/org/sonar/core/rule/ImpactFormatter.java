@@ -52,4 +52,5 @@ public class ImpactFormatter {
       case UNKNOWN_IMPACT_SEVERITY -> throw new UnsupportedOperationException("Impact severity not supported");
     };
   }
+
 }

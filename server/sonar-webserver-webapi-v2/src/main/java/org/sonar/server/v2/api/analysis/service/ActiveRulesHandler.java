@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.rule;
+package org.sonar.server.v2.api.analysis.service;
 
 import java.util.List;
+import org.sonar.server.rule.ActiveRuleRestReponse;
 
-public interface ActiveRulesLoader {
-  List<LoadedActiveRule> load(String projectKey);
+public interface ActiveRulesHandler {
+  List<ActiveRuleRestReponse.ActiveRule> getActiveRules(String projectKey);
 }

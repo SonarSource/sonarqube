@@ -19,13 +19,12 @@
  */
 package org.sonar.scanner.rule;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
@@ -36,16 +35,17 @@ import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
-import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.CoreProperties.PROJECT_KEY_PROPERTY;
 
 public class ActiveRulesProviderTest {
+  public static final String PROJECT_KEY = "my-awesome-project";
   private final ActiveRulesProvider provider = new ActiveRulesProvider();
   private final DefaultActiveRulesLoader loader = mock(DefaultActiveRulesLoader.class);
 
@@ -57,20 +57,18 @@ public class ActiveRulesProviderTest {
 
     r1.setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
 
-    List<LoadedActiveRule> qp1Rules = ImmutableList.of(r1, r2);
-    List<LoadedActiveRule> qp2Rules = ImmutableList.of(r2, r3);
-    List<LoadedActiveRule> qp3Rules = ImmutableList.of(r1, r3);
+    when(loader.load(PROJECT_KEY)).thenReturn(List.of(r1, r2, r3));
 
-    when(loader.load("qp1")).thenReturn(qp1Rules);
-    when(loader.load("qp2")).thenReturn(qp2Rules);
-    when(loader.load("qp3")).thenReturn(qp3Rules);
-
-    QualityProfiles profiles = mockProfiles("qp1", "qp2", "qp3");
-    DefaultActiveRules activeRules = provider.provide(loader, profiles);
+    HashMap<String, String> propertiesMap = new HashMap<>();
+    propertiesMap.put(PROJECT_KEY_PROPERTY, PROJECT_KEY);
+    ScannerProperties scannerProperties = new ScannerProperties(propertiesMap);
+    DefaultActiveRules activeRules = provider.provide(loader, scannerProperties);
 
     assertThat(activeRules.findAll()).hasSize(3);
     assertThat(activeRules.findAll()).extracting("ruleKey").containsOnly(
       RuleKey.of("rule1", "rule1"), RuleKey.of("rule2", "rule2"), RuleKey.of("rule3", "rule3"));
+
+    verify(loader).load(PROJECT_KEY);
 
     Map<String, ActiveRule> activeRuleByKey = activeRules.findAll().stream().collect(Collectors.toMap(e -> e.ruleKey().rule(), e -> e));
     assertThat(((DefaultActiveRule) activeRuleByKey.get("rule1")).impacts())
@@ -79,10 +77,6 @@ public class ActiveRulesProviderTest {
     assertThat(((DefaultActiveRule) activeRuleByKey.get("rule2")).impacts()).isEmpty();
     assertThat(((DefaultActiveRule) activeRuleByKey.get("rule3")).impacts()).isEmpty();
 
-    verify(loader).load("qp1");
-    verify(loader).load("qp2");
-    verify(loader).load("qp3");
-
     assertThat(activeRules.getDeprecatedRuleKeys(RuleKey.of("rule1", "rule1"))).containsOnly("rule1old:rule1old");
     verifyNoMoreInteractions(loader);
   }
@@ -90,40 +84,33 @@ public class ActiveRulesProviderTest {
   @Test
   public void testParamsAreTransformed() {
     LoadedActiveRule r1 = mockRule("rule1");
-    LoadedActiveRule r2 = mockRule("rule2");
-    r2.setParams(ImmutableMap.of("foo1", "bar1", "foo2", "bar2"));
+    LoadedActiveRule r2 = mockRule("rule2", b -> b.setParams(Map.of("foo1", "bar1", "foo2", "bar2")));
 
-    List<LoadedActiveRule> qpRules = ImmutableList.of(r1, r2);
-    when(loader.load("qp")).thenReturn(qpRules);
+    when(loader.load(PROJECT_KEY)).thenReturn(List.of(r1, r2));
 
-    QualityProfiles profiles = mockProfiles("qp");
-    ActiveRules activeRules = provider.provide(loader, profiles);
+    HashMap<String, String> propertiesMap = new HashMap<>();
+    propertiesMap.put(PROJECT_KEY_PROPERTY, PROJECT_KEY);
+    ScannerProperties scannerProperties = new ScannerProperties(propertiesMap);
+    ActiveRules activeRules = provider.provide(loader, scannerProperties);
 
     assertThat(activeRules.findAll()).hasSize(2);
     assertThat(activeRules.findAll()).extracting("ruleKey", "params").containsOnly(
       Tuple.tuple(RuleKey.of("rule1", "rule1"), ImmutableMap.of()),
       Tuple.tuple(RuleKey.of("rule2", "rule2"), ImmutableMap.of("foo1", "bar1", "foo2", "bar2")));
 
-    verify(loader).load("qp");
+    verify(loader).load(PROJECT_KEY);
     verifyNoMoreInteractions(loader);
   }
 
-  private static QualityProfiles mockProfiles(String... keys) {
-    List<QualityProfile> profiles = new LinkedList<>();
-
-    for (String k : keys) {
-      QualityProfile p = QualityProfile.newBuilder().setKey(k).setLanguage(k).setRulesUpdatedAt(DateUtils.formatDateTime(new Date())).build();
-      profiles.add(p);
+  @SafeVarargs
+  private static LoadedActiveRule mockRule(String name, Consumer<LoadedActiveRule>... consumers) {
+    LoadedActiveRule rule = new LoadedActiveRule();
+    rule.setName(name);
+    rule.setRuleKey(RuleKey.of(name, name));
+    rule.setDeprecatedKeys(ImmutableSet.of(RuleKey.of(name + "old", name + "old")));
+    for (Consumer<LoadedActiveRule> consumer : consumers) {
+      consumer.accept(rule);
     }
-
-    return new QualityProfiles(profiles);
-  }
-
-  private static LoadedActiveRule mockRule(String name) {
-    LoadedActiveRule r = new LoadedActiveRule();
-    r.setName(name);
-    r.setRuleKey(RuleKey.of(name, name));
-    r.setDeprecatedKeys(ImmutableSet.of(RuleKey.of(name + "old", name + "old")));
-    return r;
+    return rule;
   }
 }

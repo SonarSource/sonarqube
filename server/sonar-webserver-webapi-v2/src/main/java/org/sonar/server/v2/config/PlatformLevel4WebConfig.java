@@ -48,16 +48,21 @@ import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.qualitygate.QualityGateConditionsValidator;
+import org.sonar.server.rule.ActiveRuleService;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.analysis.controller.ActiveRulesController;
+import org.sonar.server.v2.api.analysis.controller.DefaultActiveRulesController;
 import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
 import org.sonar.server.v2.api.analysis.controller.DefaultScannerEngineController;
 import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
 import org.sonar.server.v2.api.analysis.controller.JresController;
 import org.sonar.server.v2.api.analysis.controller.ScannerEngineController;
 import org.sonar.server.v2.api.analysis.controller.VersionController;
+import org.sonar.server.v2.api.analysis.service.ActiveRulesHandler;
+import org.sonar.server.v2.api.analysis.service.ActiveRulesHandlerImpl;
 import org.sonar.server.v2.api.analysis.service.JresHandler;
 import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
 import org.sonar.server.v2.api.analysis.service.ScannerEngineHandler;
@@ -225,6 +230,21 @@ public class PlatformLevel4WebConfig {
   public ModeController modeController(UserSession userSession, org.sonar.api.config.Configuration configuration, DbClient dbClient,
     SettingsChangeNotifier settingsChangeNotifier, NotificationManager notificationManager, QualityGateConditionsValidator qualityGateConditionsValidator) {
     return new DefaultModeController(userSession, dbClient, configuration, settingsChangeNotifier, notificationManager, qualityGateConditionsValidator);
+  }
+
+  @Bean
+  public ActiveRuleService activeRuleService(DbClient dbClient, Languages languages) {
+    return new ActiveRuleService(dbClient, languages);
+  }
+
+  @Bean
+  public ActiveRulesHandler activeRulesHandler(DbClient dbClient, ActiveRuleService activeRuleService) {
+    return new ActiveRulesHandlerImpl(dbClient, activeRuleService);
+  }
+
+  @Bean
+  public ActiveRulesController activeRulesController(ActiveRulesHandler activeRulesHandler) {
+    return new DefaultActiveRulesController(activeRulesHandler);
   }
 
 }

@@ -19,34 +19,27 @@
  */
 package org.sonar.scanner.rule;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedList;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.io.IOUtils;
-import org.sonar.api.impl.utils.ScannerUtils;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.rule.ImpactFormatter;
 import org.sonar.scanner.http.ScannerWsClient;
-import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Common.Paging;
-import org.sonarqube.ws.Rules;
-import org.sonarqube.ws.Rules.Active;
-import org.sonarqube.ws.Rules.Active.Param;
-import org.sonarqube.ws.Rules.ActiveList;
-import org.sonarqube.ws.Rules.ListResponse;
-import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.client.GetRequest;
 
+import static java.util.Optional.ofNullable;
+
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/list.protobuf?";
+  private static final String RULES_ACTIVE_URL = "/api/v2/analysis/active_rules?";
 
   private final ScannerWsClient wsClient;
 
@@ -55,101 +48,83 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   }
 
   @Override
-  public List<LoadedActiveRule> load(String qualityProfileKey) {
-    List<LoadedActiveRule> ruleList = new LinkedList<>();
-    int page = 1;
-    int pageSize = 500;
-    long loaded = 0;
-
-    while (true) {
-      GetRequest getRequest = new GetRequest(getUrl(qualityProfileKey, page, pageSize));
-      ListResponse response = loadFromStream(wsClient.call(getRequest).contentStream());
-      List<LoadedActiveRule> pageRules = readPage(response);
-      ruleList.addAll(pageRules);
-
-      Paging paging = response.getPaging();
-      loaded += paging.getPageSize();
-
-      if (paging.getTotal() <= loaded) {
-        break;
-      }
-      page++;
+  public List<LoadedActiveRule> load(String projectKey) {
+    GetRequest getRequest = new GetRequest(getUrl(projectKey));
+    List<ActiveRuleGson> jsonResponse;
+    try (Reader reader = wsClient.call(getRequest).contentReader()) {
+      jsonResponse = new Gson().fromJson(reader, new TypeToken<ArrayList<ActiveRuleGson>>() {
+      }.getType());
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to load active rules", e);
     }
-
-    return ruleList;
+    return convert(jsonResponse);
   }
 
-  private static String getUrl(String qualityProfileKey, int page, int pageSize) {
-    StringBuilder builder = new StringBuilder(1024);
-    builder.append(RULES_SEARCH_URL);
-    builder.append("qprofile=").append(ScannerUtils.encodeForUrl(qualityProfileKey));
-    builder.append("&ps=").append(pageSize);
-    builder.append("&p=").append(page);
-    return builder.toString();
+  private static String getUrl(String projectKey) {
+    return RULES_ACTIVE_URL + "projectKey=" + projectKey;
   }
 
-  private static ListResponse loadFromStream(InputStream is) {
-    try {
-      return ListResponse.parseFrom(is);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to load quality profiles", e);
-    } finally {
-      IOUtils.closeQuietly(is);
-    }
+  private static List<LoadedActiveRule> convert(List<ActiveRuleGson> activeRuleGsonList) {
+    return activeRuleGsonList.stream()
+      .map(DefaultActiveRulesLoader::convertActiveRule)
+      .toList();
   }
 
-  private static List<LoadedActiveRule> readPage(ListResponse response) {
-    List<LoadedActiveRule> loadedRules = new LinkedList<>();
+  private static LoadedActiveRule convertActiveRule(ActiveRuleGson activeRule) {
+    LoadedActiveRule loadedRule = new LoadedActiveRule();
+    loadedRule.setRuleKey(convertRuleKey(activeRule.ruleKey()));
+    loadedRule.setName(activeRule.name());
+    loadedRule.setSeverity(activeRule.severity());
+    loadedRule.setCreatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(activeRule.createdAt())));
+    loadedRule.setUpdatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(activeRule.updatedAt())));
+    loadedRule.setLanguage(activeRule.language());
+    loadedRule.setInternalKey(activeRule.internalKey());
+    loadedRule.setQProfileKey(activeRule.qProfileKey());
+    ofNullable(activeRule.templateRuleKey())
+      .map(RuleKey::parse)
+      .map(RuleKey::rule)
+      .ifPresent(loadedRule::setTemplateRuleKey);
+    loadedRule.setParams(activeRule.params() != null ? convertParams(activeRule.params()) : Map.of());
+    loadedRule.setImpacts(activeRule.impacts() != null ? activeRule.impacts() : Map.of());
+    loadedRule.setDeprecatedKeys(convertDeprecatedKeys(activeRule.deprecatedKeys()));
+    return loadedRule;
+  }
 
-    List<Rule> rulesList = response.getRulesList();
-    Map<String, ActiveList> actives = response.getActives().getActivesMap();
+  private static Map<String, String> convertParams(List<ParamGson> params) {
+    return params.stream().collect(Collectors.toMap(ParamGson::key, ParamGson::value));
+  }
 
-    for (Rule r : rulesList) {
-      ActiveList activeList = actives.get(r.getKey());
-      Active active = activeList.getActiveList(0);
+  private static Set<RuleKey> convertDeprecatedKeys(@Nullable List<RuleKeyGson> deprecatedKeysList) {
+    return ofNullable(deprecatedKeysList)
+      .orElse(List.of())
+      .stream()
+      .map(value -> RuleKey.of(value.repository(), value.rule()))
+      .collect(Collectors.toSet());
+  }
 
-      LoadedActiveRule loadedRule = new LoadedActiveRule();
+  private static RuleKey convertRuleKey(RuleKeyGson ruleKey) {
+    return RuleKey.of(ruleKey.repository(), ruleKey.rule());
+  }
 
-      loadedRule.setRuleKey(RuleKey.parse(r.getKey()));
-      loadedRule.setName(r.getName());
-      loadedRule.setSeverity(active.getSeverity());
+  record ActiveRuleGson(
+    @SerializedName("ruleKey") RuleKeyGson ruleKey,
+    @SerializedName("name") String name,
+    @SerializedName("severity") String severity,
+    @SerializedName("createdAt") String createdAt,
+    @SerializedName("updatedAt") String updatedAt,
+    @SerializedName("internalKey") @Nullable String internalKey,
+    @SerializedName("language") String language,
+    @SerializedName("templateRuleKey") @Nullable String templateRuleKey,
+    @SerializedName("qProfileKey") String qProfileKey,
+    @SerializedName("deprecatedKeys") @Nullable List<RuleKeyGson> deprecatedKeys,
+    @SerializedName("params") @Nullable List<ParamGson> params,
+    @SerializedName("impacts") @Nullable Map<SoftwareQuality, Severity> impacts) {
+  }
 
-      loadedRule.setCreatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(active.getCreatedAt())));
-      loadedRule.setUpdatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(active.getUpdatedAt())));
-      loadedRule.setLanguage(r.getLang());
-      loadedRule.setInternalKey(r.getInternalKey());
-      if (r.hasTemplateKey()) {
-        RuleKey templateRuleKey = RuleKey.parse(r.getTemplateKey());
-        loadedRule.setTemplateRuleKey(templateRuleKey.rule());
-      }
+  record RuleKeyGson(@SerializedName("repository") String repository, @SerializedName("rule") String rule) {
+  }
 
-      Map<String, String> params = new HashMap<>();
-
-      for (Rules.Rule.Param param : r.getParams().getParamsList()) {
-        params.put(param.getKey(), param.getDefaultValue());
-      }
-
-      // overrides defaultValue if the key is the same
-      for (Param param : active.getParamsList()) {
-        params.put(param.getKey(), param.getValue());
-      }
-
-      loadedRule.setParams(params);
-
-      Map<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
-      for (Common.Impact impact : active.getImpacts().getImpactsList()) {
-        impacts.put(SoftwareQuality.valueOf(impact.getSoftwareQuality().name()), ImpactFormatter.mapImpactSeverity(impact.getSeverity()));
-      }
-      loadedRule.setImpacts(impacts);
-
-      loadedRule.setDeprecatedKeys(r.getDeprecatedKeys().getDeprecatedKeyList()
-        .stream()
-        .map(RuleKey::parse)
-        .collect(Collectors.toSet()));
-      loadedRules.add(loadedRule);
-    }
-
-    return loadedRules;
+  record ParamGson(@SerializedName("key") String key, @SerializedName("value") String value) {
   }
 
 }

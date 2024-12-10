@@ -35,7 +35,6 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.scanner.bootstrap.ScannerMain;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Qualityprofiles;
-import org.sonarqube.ws.Rules;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -81,10 +80,10 @@ class BootstrapMediumIT {
             .build())
           .build()))));
 
-    sonarqube.stubFor(get("/api/rules/list.protobuf?qprofile=" + QPROFILE_KEY + "&ps=500&p=1")
-      .willReturn(aResponse()
-        .withResponseBody(protobufBody(Rules.ListResponse.newBuilder()
-          .build()))));
+    sonarqube.stubFor(get("/api/v2/analysis/active_rules?projectKey=" + PROJECT_KEY)
+      .willReturn(okJson("""
+        []
+        """)));
 
     sonarqube.stubFor(get("/api/languages/list")
       .willReturn(okJson("""

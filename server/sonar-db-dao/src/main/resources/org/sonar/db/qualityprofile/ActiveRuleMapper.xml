@@ -26,14 +26,19 @@
     a.inheritance as "inheritance",
     a.impacts as "impactsString",
     a.prioritized_rule as "prioritizedRule",
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt",
+
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
     r.security_standards as "securityStandards",
-    rp.uuid as "ruleProfileUuid",
-    a.created_at as "createdAt",
-    a.updated_at as "updatedAt",
-    oqp.uuid as "orgProfileUuid",
-    r.is_external as "isExternal"
+    r.is_external as "isExternal",
+    r.name as "name",
+    r.plugin_config_key as "configKey",
+    r.template_uuid as "templateUuid",
+    r.language as "language",
+
+    oqp.uuid as "orgProfileUuid"
   </sql>
 
   <sql id="activeRuleKeyJoin">
@@ -113,14 +118,18 @@
     and r.plugin_name = #{repository, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+  <select id="selectByProfileUuids" parameterType="string" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
     <include refid="orgActiveRuleColumns"/>
     from active_rules a
     inner join rules_profiles rp on rp.uuid = a.profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
-    where oqp.uuid = #{id, jdbcType=VARCHAR}
+    where
+    oqp.uuid in
+    <foreach collection="profileUuids" item="profileUuid" separator="," open="(" close=")">
+      #{profileUuid, jdbcType=VARCHAR}
+    </foreach>
   </select>
 
   <select id="selectByTypeAndProfileUuids" parameterType="Map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
@@ -303,6 +312,22 @@
       <foreach collection="uuids" item="uuid" open="(" separator=" or " close=")">
         p.active_rule_uuid=#{uuid, jdbcType=VARCHAR}
       </foreach>
+    </where>
+  </select>
+
+  <select id="selectAllParamsByProfileUuids" parameterType="map" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
+    inner join active_rules ar on ar.uuid = p.active_rule_uuid
+    inner join rules_profiles rp on rp.uuid = ar.profile_uuid
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
+    inner join rules r on r.uuid = ar.rule_uuid
+    <where>
+      <foreach collection="profileUuids" item="profileUuid" open="(" separator=" or " close=")">
+        oqp.uuid = #{profileUuid, jdbcType=VARCHAR}
+      </foreach>
+      and r.status != 'REMOVED'
     </where>
   </select>
 
