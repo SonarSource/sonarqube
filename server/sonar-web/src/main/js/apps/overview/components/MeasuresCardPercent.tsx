@@ -18,16 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import { LinkHighlight, LinkStandalone, Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
-import { CoverageIndicator, DuplicationsIndicator, LightLabel, TextError } from '~design-system';
+import { CoverageIndicator, DuplicationsIndicator } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { duplicationRatingConverter, getLeakValue } from '../../../components/measure/utils';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, localizeMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
@@ -113,12 +112,11 @@ export default function MeasuresCardPercent(
       {shouldRenderRequiredLabel && (
         <span className="sw-typo-sm sw-mt-3">
           {conditionFailed ? (
-            <TextError
-              className="sw-font-regular sw-inline"
-              text={getConditionRequiredLabel(condition, intl, true)}
-            />
+            <Text colorOverride="echoes-color-text-danger" className="sw-font-regular sw-inline">
+              {getConditionRequiredLabel(condition, intl, true)}
+            </Text>
           ) : (
-            <LightLabel>{getConditionRequiredLabel(condition, intl)}</LightLabel>
+            <Text isSubdued>{getConditionRequiredLabel(condition, intl)}</Text>
           )}
         </span>
       )}
@@ -128,28 +126,34 @@ export default function MeasuresCardPercent(
           'sw-mt-3': !shouldRenderRequiredLabel,
         })}
       >
-        <LightLabel className="sw-flex sw-gap-1">
-          <FormattedMessage
-            defaultMessage={translate(linesLabel)}
-            id={linesLabel}
-            values={{
-              link: (
-                <LinkStandalone
-                  highlight={LinkHighlight.Default}
-                  aria-label={translateWithParameters(
-                    'overview.see_more_details_on_x_y',
-                    isDefined(linesValue) ? `${formattedMeasure} (${linesValue})` : '0',
-                    localizeMetric(linesMetric),
-                  )}
-                  className="sw-typo-semibold sw--mt-[3px]"
-                  to={linesUrl}
-                >
-                  {formattedMeasure}
-                </LinkStandalone>
-              ),
-            }}
-          />
-        </LightLabel>
+        <Text isSubdued className="sw-flex sw-gap-1">
+          {isDefined(value) ? (
+            <FormattedMessage
+              defaultMessage={intl.formatMessage({ id: linesLabel }, { link: '' })}
+              id={linesLabel}
+              values={{
+                link: (
+                  <LinkStandalone
+                    highlight={LinkHighlight.Default}
+                    aria-label={intl.formatMessage(
+                      { id: 'overview.see_more_details_on_x_y' },
+                      {
+                        0: isDefined(linesValue) ? `${formattedMeasure} (${linesValue})` : '0',
+                        1: localizeMetric(linesMetric),
+                      },
+                    )}
+                    className="sw-typo-semibold"
+                    to={linesUrl}
+                  >
+                    {formattedMeasure}
+                  </LinkStandalone>
+                ),
+              }}
+            />
+          ) : (
+            intl.formatMessage({ id: 'overview.metric_not_computed' })
+          )}
+        </Text>
       </div>
       {overallConditionMetric && isPullRequest(branchLike) && (
         <AfterMergeNote measures={measures} overallMetric={overallConditionMetric} />
