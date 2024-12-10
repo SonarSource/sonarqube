@@ -19,13 +19,11 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -300,13 +298,12 @@ class SearchActionIT {
   }
 
   @ParameterizedTest
-  @MethodSource("aiCodeAssuranceParams")
-  void return_ai_code_assurance(boolean containsAiCode, boolean aiCodeSupportedByQg, AiCodeAssurance expected) {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(aiCodeSupportedByQg));
+  @ValueSource(booleans = {true, false})
+  void return_ai_code_assurance(boolean containsAiCode) {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project = db.components().insertPublicProject(componentDto -> componentDto.setName("proj1"),
       projectDto -> projectDto.setContainsAiCode(containsAiCode)).getProjectDto();
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
-    when(aiCodeAssuranceVerifier.getAiCodeAssurance(project.getContainsAiCode(), qualityGate.isAiCodeSupported())).thenReturn(expected);
 
     SearchResponse response = ws.newRequest()
       .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
@@ -314,18 +311,9 @@ class SearchActionIT {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response.getResultsList())
-      .extracting(Result::getName, Result::getKey, result -> result.getAiCodeAssurance().name())
+      .extracting(Result::getName, Result::getKey, Result::getContainsAiCode)
       .containsExactlyInAnyOrder(
-        tuple(project.getName(), project.getKey(), expected.name()));
-  }
-
-  private static Stream<Arguments> aiCodeAssuranceParams() {
-    return Stream.of(
-      Arguments.of(false, false, AiCodeAssurance.NONE),
-      Arguments.of(false, true, AiCodeAssurance.NONE),
-      Arguments.of(true, false, AiCodeAssurance.CONTAINS_AI_CODE),
-      Arguments.of(true, true, AiCodeAssurance.AI_CODE_ASSURED)
-    );
+        tuple(project.getName(), project.getKey(), containsAiCode));
   }
 
   @Test
