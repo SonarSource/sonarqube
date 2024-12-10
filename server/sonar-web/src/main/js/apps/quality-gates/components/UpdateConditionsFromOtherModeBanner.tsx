@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety, IconRefresh } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, Heading, IconRefresh } from '@sonarsource/echoes-react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { CardWithPrimaryBackground, SubHeadingHighlight } from '~design-system';
+import { CardWithPrimaryBackground } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { useStandardExperienceModeQuery } from '../../../queries/mode';
@@ -38,16 +38,16 @@ export default function UpdateConditionsFromOtherModeBanner(props: Readonly<Prop
   const intl = useIntl();
   return (
     <CardWithPrimaryBackground className="sw-mt-9 sw-p-8">
-      <SubHeadingHighlight className="sw-mb-2">
+      <Heading as="h3" className="sw-mb-2 sw-max-w-full">
         {intl.formatMessage(
           { id: 'quality_gates.mode_banner.title' },
           {
             mode: intl.formatMessage({
-              id: `settings.mode.${isStandard ? 'standard' : 'mqr'}.name`,
+              id: `settings.mode.${isStandard ? 'mqr' : 'standard'}.name`, // Inverted to show the other mode
             }),
           },
         )}
-      </SubHeadingHighlight>
+      </Heading>
       <div>
         <FormattedMessage
           id="quality_gates.mode_banner.description"

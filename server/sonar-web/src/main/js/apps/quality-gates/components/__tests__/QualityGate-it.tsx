@@ -1017,6 +1017,9 @@ describe('Mode transition', () => {
       ).toBeInTheDocument();
       await user.click(ui.qualityGateListItem('SonarSource way default').get());
       expect(byText('quality_gates.cayc.banner.title').query()).not.toBeInTheDocument();
+      expect(
+        byText('quality_gates.mode_banner.title.settings.mode.standard.name').get(),
+      ).toBeInTheDocument();
       expect(ui.batchUpdate.get()).toBeInTheDocument();
       expect(ui.singleUpdate.getAll()).toHaveLength(5);
       expect(ui.standardBadge.getAll()).toHaveLength(5);
@@ -1126,6 +1129,9 @@ describe('Mode transition', () => {
         ui.qualityGateListItem('QG with MQR conditions').by(ui.requiresUpdateIndicator).get(),
       ).toBeInTheDocument();
       await user.click(ui.qualityGateListItem('QG with MQR conditions').get());
+      expect(
+        byText('quality_gates.mode_banner.title.settings.mode.mqr.name').get(),
+      ).toBeInTheDocument();
       expect(ui.batchUpdate.get()).toBeInTheDocument();
       expect(ui.singleUpdate.getAll()).toHaveLength(4);
       expect(ui.mqrBadge.getAll()).toHaveLength(4);
