@@ -137,6 +137,7 @@ import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
 import org.sonar.ce.task.projectanalysis.source.FileSourceDataWarnings;
 import org.sonar.ce.task.projectanalysis.source.LastCommitVisitor;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
+import org.sonar.ce.task.projectanalysis.source.OriginalFileResolver;
 import org.sonar.ce.task.projectanalysis.source.SignificantCodeRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLineReadersFactory;
@@ -201,6 +202,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
 
       FileStatusesImpl.class,
       IndexDiffResolverImpl.class,
+      OriginalFileResolver.class,
       new MetricModule(),
 
       // holders

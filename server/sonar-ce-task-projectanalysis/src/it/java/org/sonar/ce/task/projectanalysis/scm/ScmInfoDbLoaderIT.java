@@ -40,6 +40,7 @@ import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRul
 import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
+import org.sonar.ce.task.projectanalysis.source.OriginalFileResolver;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -49,6 +50,7 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.TRACE;
@@ -80,9 +82,10 @@ public class ScmInfoDbLoaderIT {
   private final Branch branch = mock(Branch.class);
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
   private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids = mock(NewCodeReferenceBranchComponentUuids.class);
+  private final OriginalFileResolver originalFileResolver = new OriginalFileResolver(analysisMetadataHolder, movedFiles, referenceBranchComponentUuids,
+    newCodeReferenceBranchComponentUuids, periodHolder);
 
-  private final ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, movedFiles, dbTester.getDbClient(), referenceBranchComponentUuids,
-      newCodeReferenceBranchComponentUuids, periodHolder);
+  private final ScmInfoDbLoader underTest = new ScmInfoDbLoader(dbTester.getDbClient(), originalFileResolver);
 
   @Before
   public void before() {
@@ -98,7 +101,7 @@ public class ScmInfoDbLoaderIT {
     String hash = computeSourceHash(1);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
 
@@ -116,7 +119,7 @@ public class ScmInfoDbLoaderIT {
     when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(referenceFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, referenceFileUuid);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'referenceFileUuid'");
@@ -124,7 +127,6 @@ public class ScmInfoDbLoaderIT {
 
   @Test
   public void read_from_target_if_pullrequest() {
-    Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
@@ -135,7 +137,7 @@ public class ScmInfoDbLoaderIT {
     when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'targetBranchFileUuid'");
@@ -145,7 +147,6 @@ public class ScmInfoDbLoaderIT {
   public void read_from_target_if_reference_branch() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), null, null));
 
-    Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.BRANCH);
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
@@ -156,7 +157,7 @@ public class ScmInfoDbLoaderIT {
     when(newCodeReferenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'targetBranchFileUuid'");
@@ -166,7 +167,6 @@ public class ScmInfoDbLoaderIT {
   public void read_from_db_if_not_exist_in_reference_branch() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), null, null));
 
-    Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.BRANCH);
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
@@ -175,7 +175,7 @@ public class ScmInfoDbLoaderIT {
 
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, FILE.getUuid());
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'FILE_UUID'");
@@ -194,7 +194,6 @@ public class ScmInfoDbLoaderIT {
 
   @Test
   public void do_not_read_from_db_on_first_analysis_if_there_is_no_reference_branch() {
-    Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);

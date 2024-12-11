@@ -57,8 +57,10 @@ class SourceLinesDiffImplTest {
   @RegisterExtension
   private final MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
 
-  private final SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash,
-    referenceBranchComponentUuids, movedFiles, analysisMetadataHolder, periodHolder, newCodeReferenceBranchComponentUuids);
+  private final OriginalFileResolver originalFileResolver = new OriginalFileResolver(analysisMetadataHolder, movedFiles, referenceBranchComponentUuids,
+    newCodeReferenceBranchComponentUuids, periodHolder);
+
+  private final SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash, originalFileResolver);
 
   private static final int FILE_REF = 1;
 
