@@ -50,6 +50,7 @@ public class RulesWsParameters {
 
   public static final String PARAM_IMPACT_SOFTWARE_QUALITIES = "impactSoftwareQualities";
   public static final String PARAM_IMPACT_SEVERITIES = "impactSeverities";
+  public static final String PARAM_ACTIVE_IMPACT_SEVERITIES = "active_impactSeverities";
   public static final String PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES = "cleanCodeAttributeCategories";
   public static final String PARAM_PRIORITIZED_RULE = "prioritizedRule";
 

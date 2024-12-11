@@ -159,7 +159,7 @@ class SearchActionIT {
     assertThat(def.since()).isEqualTo("4.4");
     assertThat(def.isInternal()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
-    assertThat(def.params()).hasSize(32);
+    assertThat(def.params()).hasSize(33);
 
     WebService.Param compareToProfile = def.param("compareToProfile");
     assertThat(compareToProfile.since()).isEqualTo("6.5");

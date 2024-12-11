@@ -34,6 +34,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.rule.ws.EnumUtils.toEnums;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
@@ -112,6 +113,7 @@ public class RuleQueryFactory {
     query.setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES));
     query.setImpactSeverities(request.paramAsStrings(PARAM_IMPACT_SEVERITIES));
     query.setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES));
+    query.setActiveImpactSeverities(request.paramAsStrings(PARAM_ACTIVE_IMPACT_SEVERITIES));
 
     String sortParam = request.param(WebService.Param.SORT);
     if (sortParam != null) {

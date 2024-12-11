@@ -94,7 +94,8 @@ public class DeactivateRulesActionIT {
       "sonarsourceSecurity",
       "cleanCodeAttributeCategories",
       "impactSoftwareQualities",
-      "impactSeverities");
+      "impactSeverities",
+      "active_impactSeverities");
   }
 
   @Test

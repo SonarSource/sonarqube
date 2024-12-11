@@ -81,7 +81,6 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "activeRule_severity";
   public static final String FIELD_PRIORITIZED_RULE = "activeRule_prioritizedRule";
   public static final String FIELD_ACTIVE_RULE_IMPACTS = "activeRule_impacts";
-  public static final String FIELD_ACTIVE_RULE_IMPACT_SOFTWARE_QUALITY = FIELD_ACTIVE_RULE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
   public static final String FIELD_ACTIVE_RULE_IMPACT_SEVERITY = FIELD_ACTIVE_RULE_IMPACTS + "." + SUB_FIELD_SEVERITY;
 
   public static final Set<String> SORT_FIELDS = Set.of(

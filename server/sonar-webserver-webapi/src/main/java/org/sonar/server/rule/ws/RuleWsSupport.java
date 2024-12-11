@@ -51,6 +51,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
@@ -187,6 +188,12 @@ public class RuleWsSupport {
     action.createParam(PARAM_IMPACT_SEVERITIES)
       .setSince("10.2")
       .setDescription("Comma-separated list of Software Quality Severities")
+      .setExampleValue(org.sonar.api.issue.impact.Severity.HIGH + "," + org.sonar.api.issue.impact.Severity.MEDIUM)
+      .setPossibleValues(org.sonar.api.issue.impact.Severity.values());
+
+    action.createParam(PARAM_ACTIVE_IMPACT_SEVERITIES)
+      .setSince("2025.1")
+      .setDescription("Comma-separated list of Activation Software Quality Severities, i.e the impact severity of rules in Quality profiles.")
       .setExampleValue(org.sonar.api.issue.impact.Severity.HIGH + "," + org.sonar.api.issue.impact.Severity.MEDIUM)
       .setPossibleValues(org.sonar.api.issue.impact.Severity.values());
 

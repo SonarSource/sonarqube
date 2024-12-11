@@ -60,6 +60,7 @@ public class RuleQuery {
   private Collection<String> sonarsourceSecurity;
   private Collection<String> impactSeverities;
   private Collection<String> impactSoftwareQualities;
+  private Collection<String> activeImpactSeverities;
   private Collection<String> cleanCodeAttributesCategories;
   private Boolean prioritizedRule;
 
@@ -201,6 +202,16 @@ public class RuleQuery {
       }
     }
     this.activeSeverities = severities;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getActiveImpactSeverities() {
+    return activeImpactSeverities;
+  }
+
+  public RuleQuery setActiveImpactSeverities(@Nullable Collection<String> activeImpactSeverities) {
+    this.activeImpactSeverities = activeImpactSeverities;
     return this;
   }
 

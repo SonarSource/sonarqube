@@ -66,9 +66,12 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
-import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -468,10 +471,10 @@ class RuleIndexIT {
   void search_by_security_cwe_return_correct_data_based_on_mode(boolean mqrMode) {
     doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     RuleDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")),
-      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("cwe:543", "owaspTop10:a1")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("owaspTop10:a1")),
-      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setCwe(of("543"));
@@ -484,10 +487,10 @@ class RuleIndexIT {
   void search_by_security_owaspTop10_2017_return_correct_data_based_on_mode(boolean mqrMode) {
     doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")),
-      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("cwe:543")),
-      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10(of("a5", "a10"));
@@ -500,10 +503,10 @@ class RuleIndexIT {
   void search_by_security_owaspTop10_2021_return_correct_data_based_on_mode(boolean mqrMode) {
     doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10-2021:a1", "owaspTop10-2021:a10", "cwe:543")),
-      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10-2021:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("cwe:543")),
-      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10For2021(of("a5", "a10"));
@@ -516,10 +519,10 @@ class RuleIndexIT {
   void search_by_security_sansTop25_return_correct_data_based_on_mode(boolean mqrMode) {
     doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")),
-      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("cwe:306")),
-      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setSansTop25(of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE));
@@ -532,9 +535,9 @@ class RuleIndexIT {
   void search_by_security_sonarsource_return_correct_data_based_on_mode(boolean mqrMode) {
     doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")),
-      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
     createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")),
-      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, Severity.HIGH))));
     RuleDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
     index();
 
@@ -551,7 +554,7 @@ class RuleIndexIT {
 
     //Should not be counted in Standard mode because it is not a Vulnerability type
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")),
-      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
 
     //Hotspots should be counted in both modes
     RuleDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
@@ -582,7 +585,7 @@ class RuleIndexIT {
 
     // Should be ignore because it is not a hotspot, and not a vulnerability (in Standard mode) and not having Security impact (in MQR mode)
     createRule(setSecurityStandards(of("cwe:787")),
-      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery();
@@ -633,10 +636,10 @@ class RuleIndexIT {
   @Test
   void search_by_any_of_severities() {
     createRule(setSeverity(BLOCKER));
-    RuleDto info = createRule(setSeverity(INFO));
+    RuleDto info = createRule(setSeverity(org.sonar.api.rule.Severity.INFO));
     index();
 
-    RuleQuery query = new RuleQuery().setSeverities(asList(INFO, MINOR));
+    RuleQuery query = new RuleQuery().setSeverities(asList(org.sonar.api.rule.Severity.INFO, MINOR));
     SearchIdResult<String> results = underTest.search(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(info.getUuid());
 
@@ -774,7 +777,7 @@ class RuleIndexIT {
   void search_by_activation_and_severity() {
     RuleDto major = createRule(setSeverity(MAJOR));
     RuleDto minor = createRule(setSeverity(MINOR));
-    createRule(setSeverity(INFO));
+    createRule(setSeverity(org.sonar.api.rule.Severity.INFO));
     QProfileDto profile1 = createJavaProfile();
     QProfileDto profile2 = createJavaProfile();
     db.qualityProfiles().activateRule(profile1, major, ar -> ar.setSeverity(BLOCKER));
@@ -802,6 +805,100 @@ class RuleIndexIT {
 
     RuleQuery query = newRuleQuery();
     verifyNoFacet(query, RuleIndex.FACET_ACTIVE_SEVERITIES);
+  }
+
+  @Test
+  void search_by_activation_returns_impact_severity_facet() {
+    RuleDto rule1 = createRule();
+    RuleDto rule2 = createRule(setSeverity(MINOR));
+    RuleDto rule3 = createRule();
+    RuleDto rule4 = createRule();
+    QProfileDto profile1 = createJavaProfile();
+    QProfileDto profile2 = createJavaProfile();
+    db.qualityProfiles().activateRule(profile1, rule1, ar -> ar.setImpacts(Map.of(SECURITY, Severity.BLOCKER, MAINTAINABILITY,
+      Severity.INFO)));
+    db.qualityProfiles().activateRule(profile1, rule2, ar -> ar.setImpacts(Map.of(SECURITY, Severity.LOW, MAINTAINABILITY, Severity.INFO,
+      RELIABILITY, HIGH)));
+    db.qualityProfiles().activateRule(profile1, rule3, ar -> ar.setImpacts(Map.of(SECURITY, Severity.BLOCKER, MAINTAINABILITY,
+      Severity.BLOCKER, RELIABILITY, Severity.BLOCKER)));
+    db.qualityProfiles().activateRule(profile1, rule4, ar -> ar.setImpacts(Map.of(SECURITY, Severity.MEDIUM, RELIABILITY,
+      Severity.MEDIUM)));
+
+    // Ignored because on profile2 which is not part of the query
+    db.qualityProfiles().activateRule(profile2, rule1, ar -> ar.setImpacts(Map.of(SECURITY, Severity.BLOCKER, MAINTAINABILITY,
+      Severity.INFO)));
+    index();
+
+    RuleQuery query = newRuleQuery().setActivation(true).setQProfile(profile1);
+
+    SearchIdResult result = underTest.search(query,
+      new SearchOptions().addFacets(singletonList("active_impactSeverities")));
+
+    assertThat(result.getFacets().getAll()).hasSize(1);
+    assertThat(result.getFacets().getAll().get("active_impactSeverities"))
+      .containsOnly(
+        entry("BLOCKER", 2L),
+        entry("HIGH", 1L),
+        entry("MEDIUM", 1L),
+        entry("LOW", 1L),
+        entry("INFO", 2L)
+      );
+  }
+
+  @Test
+  void search_by_activation_and_impact_severity_returns_impact_severity_facet() {
+    RuleDto rule1 = createRule(setImpacts(List.of(new ImpactDto(SECURITY, Severity.MEDIUM))));
+    RuleDto rule2 = createRule(setImpacts(List.of(new ImpactDto(SECURITY, Severity.BLOCKER))));
+    RuleDto rule3 = createRule();
+    RuleDto rule4 = createRule();
+    QProfileDto profile1 = createJavaProfile();
+    QProfileDto profile2 = createJavaProfile();
+    db.qualityProfiles().activateRule(profile1, rule1, ar -> ar.setImpacts(Map.of(SECURITY, Severity.BLOCKER, MAINTAINABILITY,
+      Severity.INFO)).setSeverity("INFO"));
+    db.qualityProfiles().activateRule(profile1, rule2, ar -> ar.setImpacts(Map.of(SECURITY, Severity.LOW, MAINTAINABILITY, Severity.INFO,
+      RELIABILITY, HIGH)).setSeverity("INFO"));
+    db.qualityProfiles().activateRule(profile1, rule3, ar -> ar.setImpacts(Map.of(SECURITY, Severity.BLOCKER, MAINTAINABILITY,
+      Severity.BLOCKER, RELIABILITY, Severity.BLOCKER)).setSeverity("MAJOR"));
+    db.qualityProfiles().activateRule(profile1, rule4, ar -> ar.setImpacts(Map.of(SECURITY, Severity.MEDIUM, RELIABILITY,
+      Severity.MEDIUM)).setSeverity("MAJOR"));
+
+    // Should be ignored because it is on profile2 which is not part of the query
+    db.qualityProfiles().activateRule(profile2, rule1, ar -> ar.setImpacts(Map.of(SECURITY, Severity.BLOCKER, MAINTAINABILITY,
+      Severity.INFO)));
+    index();
+
+    RuleQuery query =
+      newRuleQuery().setActivation(true).setQProfile(profile1).setActiveImpactSeverities(List.of("BLOCKER"));
+
+    SearchIdResult result1 = underTest.search(query, new SearchOptions().addFacets(singletonList("active_impactSeverities")));
+
+    // Filtering on active Impact Severity should have no effect on the Active Severity Facets
+    assertThat(result1.getFacets().getAll()).hasSize(1);
+    assertThat(result1.getFacets().getAll().get("active_impactSeverities"))
+      .containsOnly(
+        entry("BLOCKER", 2L),
+        entry("HIGH", 1L),
+        entry("MEDIUM", 1L),
+        entry("LOW", 1L),
+        entry("INFO", 2L)
+      );
+    assertThat(result1.getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule3.getUuid());
+
+    query = query.setActiveSeverities(List.of("MAJOR"));
+
+    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("active_impactSeverities")));
+
+    // Filters other than "active impact severity" should affect the counts
+    assertThat(result2.getFacets().getAll()).hasSize(1);
+    assertThat(result2.getFacets().getAll().get("active_impactSeverities"))
+      .containsOnly(
+        entry("BLOCKER", 1L),
+        entry("HIGH", 0L),
+        entry("MEDIUM", 1L),
+        entry("LOW", 0L),
+        entry("INFO", 0L)
+      );
+    assertThat(result2.getUuids()).containsExactlyInAnyOrder(rule3.getUuid());
   }
 
   private void verifyFacet(RuleQuery query, String facet, Map.Entry<String, Long>... expectedBuckets) {
@@ -870,24 +967,24 @@ class RuleIndexIT {
 
   @Test
   void search_by_software_quality() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.HIGH);
     RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     index();
 
     RuleQuery query = new RuleQuery();
-    SearchIdResult result1 = underTest.search(query.setImpactSoftwareQualities(List.of(SoftwareQuality.MAINTAINABILITY.name())),
+    SearchIdResult result1 = underTest.search(query.setImpactSoftwareQualities(List.of(MAINTAINABILITY.name())),
       new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
 
     query = new RuleQuery();
-    SearchIdResult result2 = underTest.search(query.setImpactSoftwareQualities(List.of(SoftwareQuality.SECURITY.name())),
+    SearchIdResult result2 = underTest.search(query.setImpactSoftwareQualities(List.of(SECURITY.name())),
       new SearchOptions());
     assertThat(result2.getUuids()).containsOnly(phpRule.getUuid());
   }
 
   @Test
   void search_by_severity() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.BLOCKER);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.BLOCKER);
     RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     index();
 
@@ -934,8 +1031,8 @@ class RuleIndexIT {
 
   @Test
   void search_should_support_software_quality_facet() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     index();
@@ -954,8 +1051,8 @@ class RuleIndexIT {
 
   @Test
   void search_should_support_software_quality_facet_with_filtering() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     index();
@@ -975,11 +1072,11 @@ class RuleIndexIT {
 
   @Test
   void search_whenFilteringOnSeverityAndSoftwareQuality_shouldReturnFacet() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH);
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.LOW);
     ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW);
     ImpactDto impactDto4 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.BLOCKER);
-    ImpactDto impactDto5 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.BLOCKER);
+    ImpactDto impactDto5 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.BLOCKER);
     ImpactDto impactDto6 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.INFO);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
@@ -992,7 +1089,7 @@ class RuleIndexIT {
     RuleQuery query = new RuleQuery();
 
     SearchIdResult result = underTest.search(
-      query.setImpactSeverities(of(Severity.LOW.name())).setImpactSoftwareQualities(List.of(SoftwareQuality.MAINTAINABILITY.name())),
+      query.setImpactSeverities(of(Severity.LOW.name())).setImpactSoftwareQualities(List.of(MAINTAINABILITY.name())),
       new SearchOptions().addFacets(List.of("impactSoftwareQualities", "impactSeverities")));
 
     assertThat(result.getFacets().getAll()).hasSize(2);
@@ -1013,8 +1110,8 @@ class RuleIndexIT {
 
   @Test
   void search_should_support_severity_facet() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.LOW);
     ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.BLOCKER);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2, impactDto3)));
@@ -1036,11 +1133,11 @@ class RuleIndexIT {
 
   @Test
   void search_should_support_severity_facet_with_filters() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
-    ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.INFO);
-    ImpactDto impactDto4 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.INFO);
-    ImpactDto impactDto5 = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.BLOCKER);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.LOW);
+    ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.INFO);
+    ImpactDto impactDto4 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.INFO);
+    ImpactDto impactDto5 = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.BLOCKER);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2, impactDto3)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto4, impactDto5)));
@@ -1063,16 +1160,16 @@ class RuleIndexIT {
 
   @Test
   void search_should_support_software_quality_and_severity_facets_with_filtering() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
-    ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.BLOCKER);
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.LOW);
+    ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(Severity.BLOCKER);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto3)));
     index();
 
     RuleQuery query = new RuleQuery().setImpactSeverities(of("LOW"))
-      .setImpactSoftwareQualities(of(SoftwareQuality.MAINTAINABILITY.name()));
+      .setImpactSoftwareQualities(of(MAINTAINABILITY.name()));
     SearchOptions searchOptions = new SearchOptions().addFacets(List.of("impactSeverities", "impactSoftwareQualities"));
     SearchIdResult result2 = underTest.search(query, searchOptions);
 
@@ -1085,8 +1182,8 @@ class RuleIndexIT {
         entry("INFO", 0L),
         entry("BLOCKER", 1L));
     assertThat(result2.getFacets().getAll().get("impactSoftwareQualities")).containsOnly(
-      entry(SoftwareQuality.SECURITY.name(), 0L),
-      entry(SoftwareQuality.MAINTAINABILITY.name(), 1L),
+      entry(SECURITY.name(), 0L),
+      entry(MAINTAINABILITY.name(), 1L),
       entry(SoftwareQuality.RELIABILITY.name(), 0L));
   }
 

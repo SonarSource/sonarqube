@@ -68,6 +68,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
+import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_IMPACT_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CWE;
@@ -85,6 +86,7 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
@@ -123,7 +125,8 @@ public class SearchAction implements RulesWsAction {
     FACET_SONARSOURCE_SECURITY,
     FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY,
     FACET_IMPACT_SEVERITY,
-    FACET_IMPACT_SOFTWARE_QUALITY
+    FACET_IMPACT_SOFTWARE_QUALITY,
+    FACET_ACTIVE_IMPACT_SEVERITY
   };
 
   private final RuleQueryFactory ruleQueryFactory;
@@ -194,7 +197,8 @@ public class SearchAction implements RulesWsAction {
         new Change("10.8", format("The parameters '%s','%s and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)),
         new Change("10.8", "The values 'severity' and 'types' for the 'facets' parameter are not deprecated anymore."),
         new Change("10.8", "The fields 'type' and 'severity' in the response are not deprecated anymore."),
-        new Change("10.8", "The value 'severity' for the 'f' parameter is not deprecated anymore."));
+        new Change("10.8", "The value 'severity' for the 'f' parameter is not deprecated anymore."),
+        new Change("2025.2", format("The facet '%s' has been added.", FACET_ACTIVE_IMPACT_SEVERITY)));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -365,6 +369,7 @@ public class SearchAction implements RulesWsAction {
     facetValuesByFacetKey.put(FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, request.getCleanCodeAttributesCategories());
     facetValuesByFacetKey.put(FACET_IMPACT_SOFTWARE_QUALITY, request.getImpactSoftwareQualities());
     facetValuesByFacetKey.put(FACET_IMPACT_SEVERITY, request.getImpactSeverities());
+    facetValuesByFacetKey.put(FACET_ACTIVE_IMPACT_SEVERITY, request.getActiveImpactSeverities());
 
     for (String facetName : context.getFacets()) {
       facet.clear().setProperty(facetName);
@@ -439,7 +444,8 @@ public class SearchAction implements RulesWsAction {
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
-      .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
+      .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE))
+      .setActiveImpactSeverities(request.paramAsStrings(PARAM_ACTIVE_IMPACT_SEVERITIES));
   }
 
   private static class SearchRequest {
@@ -463,6 +469,7 @@ public class SearchAction implements RulesWsAction {
     private List<String> impactSeverities;
     private List<String> impactSoftwareQualities;
     private List<String> cleanCodeAttributesCategories;
+    private List<String> activeImpactSeverities;
     private Boolean prioritizedRule;
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
@@ -649,6 +656,16 @@ public class SearchAction implements RulesWsAction {
     public SearchRequest setPrioritizedRule(@Nullable Boolean prioritizedRule) {
       this.prioritizedRule = prioritizedRule;
       return this;
+    }
+
+    public SearchRequest setActiveImpactSeverities(@Nullable List<String> activeImpactSeverities) {
+      this.activeImpactSeverities = activeImpactSeverities;
+      return this;
+    }
+
+    @CheckForNull
+    public List<String> getActiveImpactSeverities() {
+      return activeImpactSeverities;
     }
   }
 }
