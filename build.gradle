@@ -454,7 +454,7 @@ subprojects {
         exclude 'org.slf4j:slf4j-api'
       }
       dependency 'com.fasterxml.staxmate:staxmate:2.4.1'
-      dependencySet(group: 'org.eclipse.jetty', version: '9.4.6.v20170531') {
+      dependencySet(group: 'org.eclipse.jetty', version: '11.0.24') {
         entry 'jetty-proxy'
         entry 'jetty-server'
         entry 'jetty-servlet'

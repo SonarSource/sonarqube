@@ -95,42 +95,16 @@ public class AttributeHolderServletContextTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getRequestDispatcher_is_not_supported() {
     servletContext.getRequestDispatcher(SOME_STRING);
-
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void getNamedDispatcher_is_not_supported() {
     servletContext.getNamedDispatcher(SOME_STRING);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getServlet_is_not_supported() {
-    servletContext.getServlet(SOME_STRING);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getServlets_is_not_supported() {
-    servletContext.getServlets();
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getServletNames_is_not_supported() {
-    servletContext.getServletNames();
-
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void log_is_not_supported() {
     servletContext.log(SOME_STRING);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void log1_is_not_supported() {
-    servletContext.log(SOME_EXCEPTION, SOME_STRING);
   }
 
   @Test(expected = UnsupportedOperationException.class)

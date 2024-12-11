@@ -103,27 +103,7 @@ class AttributeHolderServletContext implements ServletContext {
   }
 
   @Override
-  public Servlet getServlet(String s) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Enumeration<Servlet> getServlets() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Enumeration<String> getServletNames() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void log(String s) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void log(Exception e, String s) {
     throw new UnsupportedOperationException();
   }
 
