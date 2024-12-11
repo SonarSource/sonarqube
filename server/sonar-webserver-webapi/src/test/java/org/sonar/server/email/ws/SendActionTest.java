@@ -20,7 +20,7 @@
 package org.sonar.server.email.ws;
 
 import javax.annotation.Nullable;
-import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail2.core.EmailException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;

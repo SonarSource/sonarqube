@@ -518,7 +518,11 @@ subprojects {
         exclude 'commons-logging:commons-logging'
       }
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.7.0'
-      dependency 'org.subethamail:subethasmtp:3.1.7'
+      dependencySet(group: 'com.icegreen', version: '2.1.2') {
+        entry 'greenmail'
+        entry 'greenmail-junit4'
+        entry 'greenmail-junit5'
+      }
       dependency 'org.yaml:snakeyaml:2.3'
       dependency 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
       dependency 'jakarta.el:jakarta.el-api:5.0.1'

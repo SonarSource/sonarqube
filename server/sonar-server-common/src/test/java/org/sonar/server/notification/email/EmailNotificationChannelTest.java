@@ -19,20 +19,23 @@
  */
 package org.sonar.server.notification.email;
 
+import com.icegreen.greenmail.junit4.GreenMailRule;
+import com.icegreen.greenmail.smtp.SmtpServer;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail2.core.EmailException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,8 +51,6 @@ import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 import org.sonar.server.oauth.OAuthMicrosoftRestClient;
-import org.subethamail.wiser.Wiser;
-import org.subethamail.wiser.WiserMessage;
 
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -70,7 +71,9 @@ public class EmailNotificationChannelTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private Wiser smtpServer;
+  @Rule
+  public final GreenMailRule smtpServer = new GreenMailRule(new ServerSetup[]{ServerSetupTest.SMTP, ServerSetupTest.SMTPS});
+
   private EmailSmtpConfiguration configuration;
   private Server server;
   private EmailNotificationChannel underTest;
@@ -78,8 +81,6 @@ public class EmailNotificationChannelTest {
   @Before
   public void setUp() {
     logTester.setLevel(LoggerLevel.DEBUG);
-    smtpServer = new Wiser(0);
-    smtpServer.start();
 
     configuration = mock(EmailSmtpConfiguration.class);
     server = mock(Server.class);
@@ -118,10 +119,10 @@ public class EmailNotificationChannelTest {
     configure();
     underTest.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
 
-    List<WiserMessage> messages = smtpServer.getMessages();
+    MimeMessage[] messages = smtpServer.getReceivedMessages();
     assertThat(messages).hasSize(1);
 
-    MimeMessage email = messages.get(0).getMimeMessage();
+    MimeMessage email = messages[0];
     assertThat(email.getHeader("Content-Type", null)).isEqualTo("text/plain; charset=UTF-8");
     assertThat(email.getHeader("From", ",")).isEqualTo("SonarQube from NoWhere <server@nowhere>");
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
@@ -160,7 +161,7 @@ public class EmailNotificationChannelTest {
       .setSubject("Foo")
       .setPlainTextMessage("Bar");
     boolean delivered = underTest.deliver(emailMessage);
-    assertThat(smtpServer.getMessages()).isEmpty();
+    assertThat(smtpServer.getReceivedMessages()).isEmpty();
     assertThat(delivered).isFalse();
   }
 
@@ -175,10 +176,10 @@ public class EmailNotificationChannelTest {
       .setPlainTextMessage("I'll take care of this violation.");
     boolean delivered = underTest.deliver(emailMessage);
 
-    List<WiserMessage> messages = smtpServer.getMessages();
+    MimeMessage[] messages = smtpServer.getReceivedMessages();
     assertThat(messages).hasSize(1);
 
-    MimeMessage email = messages.get(0).getMimeMessage();
+    MimeMessage email = messages[0];
 
     assertThat(email.getHeader("Content-Type", null)).isEqualTo("text/plain; charset=UTF-8");
 
@@ -204,10 +205,10 @@ public class EmailNotificationChannelTest {
       .setPlainTextMessage("Bar");
     boolean delivered = underTest.deliver(emailMessage);
 
-    List<WiserMessage> messages = smtpServer.getMessages();
+    MimeMessage[] messages = smtpServer.getReceivedMessages();
     assertThat(messages).hasSize(1);
 
-    MimeMessage email = messages.get(0).getMimeMessage();
+    MimeMessage email = messages[0];
 
     assertThat(email.getHeader("Content-Type", null)).isEqualTo("text/plain; charset=UTF-8");
 
@@ -240,17 +241,14 @@ public class EmailNotificationChannelTest {
 
   @Test
   public void shouldSendTestEmailWithSTARTTLS() {
-    smtpServer.getServer().setEnableTLS(true);
-    smtpServer.getServer().setRequireTLS(true);
-    configure();
-    when(configuration.getSecureConnection()).thenReturn("STARTTLS");
+    configure(true);
 
     try {
       underTest.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
       fail("An SSL exception was expected a a proof that STARTTLS is enabled");
     } catch (EmailException e) {
       // We don't have a SSL certificate so we are expecting a SSL error
-      assertThat(e.getCause().getMessage()).isEqualTo("Could not convert socket to TLS");
+      assertThat(e.getCause().getMessage()).contains("Exception reading response");
     }
   }
 
@@ -263,7 +261,7 @@ public class EmailNotificationChannelTest {
 
     assertThat(count).isZero();
     verifyNoInteractions(emailSettings);
-    assertThat(smtpServer.getMessages()).isEmpty();
+    assertThat(smtpServer.getReceivedMessages()).isEmpty();
   }
 
   @Test
@@ -280,7 +278,7 @@ public class EmailNotificationChannelTest {
     assertThat(count).isZero();
     verify(emailSettings).getSmtpHost();
     verifyNoMoreInteractions(emailSettings);
-    assertThat(smtpServer.getMessages()).isEmpty();
+    assertThat(smtpServer.getReceivedMessages()).isEmpty();
   }
 
   @Test
@@ -298,7 +296,7 @@ public class EmailNotificationChannelTest {
     assertThat(count).isZero();
     verify(emailSettings).getSmtpHost();
     verifyNoMoreInteractions(emailSettings);
-    assertThat(smtpServer.getMessages()).isEmpty();
+    assertThat(smtpServer.getReceivedMessages()).isEmpty();
   }
 
   @Test
@@ -317,21 +315,14 @@ public class EmailNotificationChannelTest {
     Set<EmailDeliveryRequest> requests = Stream.of(notification1, notification2, notification3)
       .map(t -> new EmailDeliveryRequest(recipientEmail, t))
       .collect(toSet());
-    EmailNotificationChannel emailNotificationChannel =
-      new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template1, template3}, null, mock(OAuthMicrosoftRestClient.class));
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[]{template1, template3}, null,
+      mock(OAuthMicrosoftRestClient.class));
 
     int count = emailNotificationChannel.deliverAll(requests);
 
     assertThat(count).isEqualTo(2);
-    assertThat(smtpServer.getMessages()).hasSize(2);
-    Map<String, MimeMessage> messagesBySubject = smtpServer.getMessages().stream()
-      .map(t -> {
-        try {
-          return t.getMimeMessage();
-        } catch (MessagingException e) {
-          throw new RuntimeException(e);
-        }
-      })
+    assertThat(smtpServer.getReceivedMessages()).hasSize(2);
+    Map<String, MimeMessage> messagesBySubject = Stream.of(smtpServer.getReceivedMessages())
       .collect(toMap(t -> {
         try {
           return t.getSubject();
@@ -358,20 +349,20 @@ public class EmailNotificationChannelTest {
     when(template11.format(notification1)).thenReturn(emailMessage11);
     when(template12.format(notification1)).thenReturn(emailMessage12);
     EmailDeliveryRequest request = new EmailDeliveryRequest(recipientEmail, notification1);
-    EmailNotificationChannel emailNotificationChannel =
-      new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template11, template12}, null, mock(OAuthMicrosoftRestClient.class));
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[]{template11, template12}, null,
+      mock(OAuthMicrosoftRestClient.class));
 
     int count = emailNotificationChannel.deliverAll(Collections.singleton(request));
 
     assertThat(count).isOne();
-    assertThat(smtpServer.getMessages()).hasSize(1);
-    assertThat((String) smtpServer.getMessages().iterator().next().getMimeMessage().getContent())
+    assertThat(smtpServer.getReceivedMessages()).hasSize(1);
+    assertThat((String) smtpServer.getReceivedMessages()[0].getContent())
       .contains(emailMessage11.getMessage());
   }
 
   @DataProvider
   public static Object[][] emptyStrings() {
-    return new Object[][] {
+    return new Object[][]{
       {""},
       {"  "},
       {" \n "}
@@ -379,9 +370,14 @@ public class EmailNotificationChannelTest {
   }
 
   private void configure() {
-    when(configuration.getSmtpHost()).thenReturn("localhost");
-    when(configuration.getSmtpPort()).thenReturn(smtpServer.getServer().getPort());
-    when(configuration.getSecureConnection()).thenReturn("NONE");
+    configure(false);
+  }
+
+  private void configure(boolean isSecure) {
+    SmtpServer localSmtpServer = isSecure ? smtpServer.getSmtps() : smtpServer.getSmtp();
+    when(configuration.getSmtpHost()).thenReturn(localSmtpServer.getBindTo());
+    when(configuration.getSmtpPort()).thenReturn(localSmtpServer.getPort());
+    when(configuration.getSecureConnection()).thenReturn(isSecure ? "STARTTLS" : "NONE");
     when(configuration.getFrom()).thenReturn("server@nowhere");
     when(configuration.getFromName()).thenReturn("SonarQube from NoWhere");
     when(configuration.getPrefix()).thenReturn(SUBJECT_PREFIX);
