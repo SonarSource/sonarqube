@@ -323,7 +323,7 @@ subprojects {
       dependency 'org.sonarsource.text:sonar-text-plugin:2.19.0.4883'
       dependency 'com.sonarsource.text:sonar-text-developer-plugin:2.19.0.4883'
       dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.19.0.4883'
-      dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.3.0.1243'
+      dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.4.0.1375'
       dependency 'com.sonarsource.architecture:sonar-architecture-plugin:1.4.0.2329'
       dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:1.4.0.2329'
 
