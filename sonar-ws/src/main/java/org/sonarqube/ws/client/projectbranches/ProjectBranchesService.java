@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.projectbranches;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ProjectBranches.ListWsResponse;
 import org.sonarqube.ws.client.BaseService;

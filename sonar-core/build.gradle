@@ -10,7 +10,7 @@ dependencies {
   api 'commons-io:commons-io'
   api 'org.apache.commons:commons-lang3'
   api 'jakarta.annotation:jakarta.annotation-api'
-  api 'javax.inject:javax.inject'
+  api 'jakarta.inject:jakarta.inject-api'
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api 'org.sonarsource.update-center:sonar-update-center-common'

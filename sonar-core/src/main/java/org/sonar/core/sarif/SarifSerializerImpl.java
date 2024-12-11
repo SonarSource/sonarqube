@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.sarif.pojo.SarifSchema210;

@@ -20,7 +20,7 @@
 package org.sonar.scanner.repository.settings;
 
 import java.util.Map;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.sonar.scanner.http.DefaultScannerWsClient;
 
 public class DefaultGlobalSettingsLoader extends AbstractSettingsLoader implements GlobalSettingsLoader {

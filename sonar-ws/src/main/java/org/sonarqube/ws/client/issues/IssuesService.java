@@ -21,7 +21,7 @@ package org.sonarqube.ws.client.issues;
 
 import java.io.InputStream;
 import java.util.stream.Collectors;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.Issues.AddCommentResponse;
 import org.sonarqube.ws.Issues.AssignResponse;
 import org.sonarqube.ws.Issues.AuthorsResponse;

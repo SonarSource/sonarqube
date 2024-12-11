@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.duplications;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;

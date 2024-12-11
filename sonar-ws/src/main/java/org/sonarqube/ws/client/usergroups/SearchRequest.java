@@ -20,7 +20,7 @@
 package org.sonarqube.ws.client.usergroups;
 
 import java.util.List;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 /**
  * This is part of the internal API.

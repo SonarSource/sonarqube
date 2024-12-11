@@ -20,7 +20,7 @@
 package org.sonarqube.ws.client.ce;
 
 import java.util.stream.Collectors;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.Ce.ActivityResponse;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
 import org.sonarqube.ws.Ce.AnalysisStatusWsResponse;

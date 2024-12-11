@@ -20,7 +20,7 @@
 package org.sonarqube.ws.client.hotspots;
 
 import java.util.stream.Collectors;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.MediaTypes;

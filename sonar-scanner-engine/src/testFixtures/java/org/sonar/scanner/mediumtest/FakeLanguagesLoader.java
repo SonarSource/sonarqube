@@ -21,7 +21,7 @@ package org.sonar.scanner.mediumtest;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.sonar.api.resources.Languages;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.repository.language.LanguagesLoader;

@@ -22,7 +22,7 @@ package org.sonar.server.common.almsettings;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;

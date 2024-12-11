@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.annotation.CheckForNull;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;

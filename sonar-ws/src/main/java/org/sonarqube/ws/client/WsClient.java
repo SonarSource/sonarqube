@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.client.almintegrations.AlmIntegrationsService;
 import org.sonarqube.ws.client.almsettings.AlmSettingsService;
 import org.sonarqube.ws.client.analysiscache.AnalysisCacheService;

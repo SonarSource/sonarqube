@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;

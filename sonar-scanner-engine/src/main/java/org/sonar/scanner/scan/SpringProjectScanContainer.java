@@ -21,7 +21,7 @@ package org.sonar.scanner.scan;
 
 import java.util.Collection;
 import java.util.Set;
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;

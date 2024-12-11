@@ -19,10 +19,10 @@
  */
 package org.sonar.core.platform;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import org.junit.Test;
 import org.sonar.api.Property;
 import org.sonar.api.Startable;

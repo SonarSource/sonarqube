@@ -20,7 +20,7 @@
 package org.sonarqube.ws.client.analysiscache;
 
 import java.io.InputStream;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.PostRequest;

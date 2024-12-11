@@ -20,7 +20,7 @@
 package org.sonar.server.ce.ws;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;

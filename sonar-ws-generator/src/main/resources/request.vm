@@ -20,7 +20,7 @@
 package $helper.packageName($webService.path.asString);
 
 import java.util.List;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 /**
 #if ($action.internal)

@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;

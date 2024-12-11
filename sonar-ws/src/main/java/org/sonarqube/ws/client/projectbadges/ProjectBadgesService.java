@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.projectbadges;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ProjectBadgeToken.TokenWsResponse;
 import org.sonarqube.ws.client.BaseService;

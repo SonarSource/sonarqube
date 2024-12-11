@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.hotspots;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 /**
  * This is part of the internal API.

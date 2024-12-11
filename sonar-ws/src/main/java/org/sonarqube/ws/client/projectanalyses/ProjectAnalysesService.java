@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.projectanalyses;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;

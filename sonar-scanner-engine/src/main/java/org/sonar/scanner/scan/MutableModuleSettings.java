@@ -22,7 +22,7 @@ package org.sonar.scanner.scan;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.sonar.api.config.internal.Settings;
 
 import static java.util.Objects.requireNonNull;

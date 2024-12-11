@@ -22,8 +22,8 @@ package org.sonar.scanner.scan.filesystem;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
+import jakarta.annotation.Priority;
+import jakarta.inject.Inject;
 
 @Priority(2)
 public class DefaultProjectFileSystem extends MutableFileSystem {

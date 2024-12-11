@@ -25,7 +25,7 @@ import java.util.Optional;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 import static java.util.Objects.requireNonNull;
 

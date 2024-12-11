@@ -23,7 +23,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.ce.task.projectanalysis.util.cache.ProtobufIssueDiskCache;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.File;
 
 /**

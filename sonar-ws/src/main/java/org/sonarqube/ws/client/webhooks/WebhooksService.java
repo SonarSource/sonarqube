@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.webhooks;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Webhooks.CreateWsResponse;
 import org.sonarqube.ws.Webhooks.DeliveriesWsResponse;

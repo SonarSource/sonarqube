@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.scanner.protocol.output.ScannerReport;

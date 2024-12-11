@@ -22,7 +22,6 @@ package org.sonar.server.common.platform;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.sonar.server.common.health.DbConnectionNodeCheck;
-import org.sonar.server.common.platform.SafeModeLivenessCheckerImpl;
 import org.sonar.server.health.Health;
 
 import static org.mockito.Mockito.mock;

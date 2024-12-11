@@ -36,7 +36,7 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class ComponentIndexDefinition implements IndexDefinition {
 

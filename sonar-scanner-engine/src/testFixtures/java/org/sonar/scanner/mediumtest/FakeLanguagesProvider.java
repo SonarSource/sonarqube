@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.springframework.context.annotation.Bean;

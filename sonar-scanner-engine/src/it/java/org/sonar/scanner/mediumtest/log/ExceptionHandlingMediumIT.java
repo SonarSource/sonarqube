@@ -21,7 +21,7 @@ package org.sonar.scanner.mediumtest.log;
 
 import java.util.Collections;
 import java.util.Map;
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;

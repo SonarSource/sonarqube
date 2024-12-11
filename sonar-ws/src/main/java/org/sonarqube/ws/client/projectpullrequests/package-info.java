@@ -22,4 +22,4 @@
 package org.sonarqube.ws.client.projectpullrequests;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;

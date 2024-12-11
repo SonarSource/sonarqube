@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.Index;

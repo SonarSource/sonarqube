@@ -23,7 +23,7 @@ import com.google.common.collect.MoreCollectors;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 

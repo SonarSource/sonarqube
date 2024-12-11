@@ -19,7 +19,7 @@
  */
 package org.sonar.core.platform;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;

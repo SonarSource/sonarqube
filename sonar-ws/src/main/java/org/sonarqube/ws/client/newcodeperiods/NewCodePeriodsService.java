@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.newcodeperiods;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.client.BaseService;

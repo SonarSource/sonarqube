@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.almintegrations;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import org.sonarqube.ws.AlmIntegrations;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Projects;

@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;

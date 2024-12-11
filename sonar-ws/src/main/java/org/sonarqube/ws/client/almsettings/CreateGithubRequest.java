@@ -20,7 +20,7 @@
 package org.sonarqube.ws.client.almsettings;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import javax.annotation.Nullable;
 
 /**

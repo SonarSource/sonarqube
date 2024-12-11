@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.analysis.response.JreInfoRestResponse;
 

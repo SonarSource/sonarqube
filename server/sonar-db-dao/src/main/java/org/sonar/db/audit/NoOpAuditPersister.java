@@ -19,7 +19,7 @@
  */
 package org.sonar.db.audit;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;

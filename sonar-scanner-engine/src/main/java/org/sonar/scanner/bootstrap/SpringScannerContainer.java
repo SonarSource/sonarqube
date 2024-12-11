@@ -20,7 +20,7 @@
 package org.sonar.scanner.bootstrap;
 
 import javax.annotation.Nullable;
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.FileMetadata;

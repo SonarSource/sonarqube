@@ -22,5 +22,5 @@
 package org.sonarqube.ws.client.updatecenter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 

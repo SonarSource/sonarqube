@@ -21,6 +21,6 @@
 @Generated("sonar-ws-generator")
 package org.sonarqube.ws.client.developers;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import javax.annotation.ParametersAreNonnullByDefault;
 

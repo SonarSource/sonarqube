@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client.usertokens;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 import javax.annotation.Nullable;
 
 /**
