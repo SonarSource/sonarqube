@@ -20,7 +20,7 @@
 package org.sonar.server.pushapi.sonarlint;
 
 import java.util.Set;
-import javax.servlet.AsyncContext;
+import jakarta.servlet.AsyncContext;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

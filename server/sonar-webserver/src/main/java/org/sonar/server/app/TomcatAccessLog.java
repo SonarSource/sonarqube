@@ -19,7 +19,7 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.access.PatternLayoutEncoder;
+import ch.qos.logback.access.common.PatternLayoutEncoder;
 import ch.qos.logback.core.FileAppender;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;

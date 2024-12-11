@@ -20,11 +20,11 @@
 package org.sonar.server.ws;
 
 import java.io.IOException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ public class ServletResponseTest {
   private final ServletOutputStream output = mock(ServletOutputStream.class);
   private final HttpServletResponse response = mock(HttpServletResponse.class);
 
-  private final ServletResponse underTest = new ServletResponse(new JavaxHttpResponse(response));
+  private final ServletResponse underTest = new ServletResponse(new JakartaHttpResponse(response));
 
   @Before
   public void setUp() throws Exception {

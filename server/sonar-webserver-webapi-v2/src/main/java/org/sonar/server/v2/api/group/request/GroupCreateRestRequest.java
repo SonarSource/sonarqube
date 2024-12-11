@@ -21,8 +21,8 @@ package org.sonar.server.v2.api.group.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 

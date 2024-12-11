@@ -31,7 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -176,7 +176,7 @@ public class OAuth2AuthenticationParametersImplTest {
     assertThat(redirection).isEqualTo(Optional.ofNullable(expectedSanitizedUrl));
   }
 
-  private JavaxHttpRequest.JavaxCookie wrapCookie(String name, String value) {
-    return new JavaxHttpRequest.JavaxCookie(new javax.servlet.http.Cookie(name, value));
+  private JakartaHttpRequest.JakartaCookie wrapCookie(String name, String value) {
+    return new JakartaHttpRequest.JakartaCookie(new jakarta.servlet.http.Cookie(name, value));
   }
 }

@@ -22,20 +22,20 @@ package org.sonar.server.platform.web;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import javax.annotation.Nullable;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.PlatformImpl;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -79,7 +79,7 @@ public class UserSessionFilter implements Filter {
   private static void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
     @Nullable UserSessionInitializer userSessionInitializer) throws IOException, ServletException {
     try {
-      if (userSessionInitializer == null || userSessionInitializer.initUserSession(new JavaxHttpRequest(request), new JavaxHttpResponse(response))) {
+      if (userSessionInitializer == null || userSessionInitializer.initUserSession(new JakartaHttpRequest(request), new JakartaHttpResponse(response))) {
         chain.doFilter(request, response);
       }
     } finally {

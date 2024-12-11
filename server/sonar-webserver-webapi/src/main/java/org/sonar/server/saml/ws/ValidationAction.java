@@ -22,8 +22,8 @@ package org.sonar.server.saml.ws;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
@@ -38,7 +38,7 @@ import org.sonar.server.authentication.OAuthCsrfVerifier;
 import org.sonar.server.authentication.SamlValidationCspHeaders;
 import org.sonar.server.authentication.SamlValidationRedirectionFilter;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
@@ -82,7 +82,7 @@ public class ValidationAction extends HttpFilter implements SamlAction {
       return;
     }
 
-    HttpServletRequest httpRequest = new HttpServletRequestWrapper(((JavaxHttpRequest) request).getDelegate()) {
+    HttpServletRequest httpRequest = new HttpServletRequestWrapper(((JakartaHttpRequest) request).getDelegate()) {
       @Override
       public StringBuffer getRequestURL() {
         return new StringBuffer(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY));
@@ -91,7 +91,7 @@ public class ValidationAction extends HttpFilter implements SamlAction {
 
     response.setContentType("text/html");
 
-    String htmlResponse = samlAuthenticator.getAuthenticationStatusPage(new JavaxHttpRequest(httpRequest), response);
+    String htmlResponse = samlAuthenticator.getAuthenticationStatusPage(new JakartaHttpRequest(httpRequest), response);
     String nonce = SamlValidationCspHeaders.addCspHeadersWithNonceToResponse(response);
     htmlResponse = htmlResponse.replace("%NONCE%", nonce);
     response.getWriter().print(htmlResponse);

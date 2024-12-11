@@ -22,8 +22,8 @@ package org.sonar.server.http;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.sonar.api.server.http.Cookie;
 
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class JavaxHttpResponseTest {
+public class JakartaHttpResponseTest {
 
   @Test
   public void delegate_methods() throws IOException {
@@ -46,7 +46,7 @@ public class JavaxHttpResponseTest {
     PrintWriter writer = mock(PrintWriter.class);
     when(responseMock.getWriter()).thenReturn(writer);
 
-    JavaxHttpResponse underTest = new JavaxHttpResponse(responseMock);
+    JakartaHttpResponse underTest = new JakartaHttpResponse(responseMock);
 
     assertThat(underTest.getDelegate()).isSameAs(responseMock);
     assertThat(underTest.getHeader("h1")).isEqualTo("hvalue1");
@@ -72,6 +72,6 @@ public class JavaxHttpResponseTest {
     verify(responseMock).setContentType("text/plain");
     verify(responseMock).sendRedirect("http://redirect");
     verify(responseMock).setCharacterEncoding("UTF-8");
-    verify(responseMock).addCookie(any(javax.servlet.http.Cookie.class));
+    verify(responseMock).addCookie(any(jakarta.servlet.http.Cookie.class));
   }
 }

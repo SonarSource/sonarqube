@@ -22,7 +22,7 @@ package org.sonar.server.platform.web;
 import java.io.IOException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -30,7 +30,7 @@ import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.web.FilterChain;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -98,7 +98,7 @@ public class SonarLintConnectionFilterIT {
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     when(httpRequest.getHeader("User-Agent")).thenReturn("sonarlint");
     FilterChain chain = mock(FilterChain.class);
-    underTest.doFilter(new JavaxHttpRequest(httpRequest), mock(HttpResponse.class), chain);
+    underTest.doFilter(new JakartaHttpRequest(httpRequest), mock(HttpResponse.class), chain);
     verify(chain).doFilter(any(), any());
   }
 
@@ -128,7 +128,7 @@ public class SonarLintConnectionFilterIT {
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     when(httpRequest.getHeader("User-Agent")).thenReturn(agent);
     FilterChain chain = mock(FilterChain.class);
-    underTest.doFilter(new JavaxHttpRequest(httpRequest), mock(HttpResponse.class), chain);
+    underTest.doFilter(new JakartaHttpRequest(httpRequest), mock(HttpResponse.class), chain);
     verify(chain).doFilter(any(), any());
   }
 }

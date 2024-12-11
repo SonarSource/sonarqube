@@ -20,8 +20,8 @@
 package org.sonar.server.v2.common.model;
 
 import javax.annotation.Nullable;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class NullOrNotEmptyValidator implements ConstraintValidator<NullOrNotEmpty, String> {
   @Override

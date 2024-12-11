@@ -20,8 +20,8 @@
 package org.sonar.server.authentication;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,8 +31,8 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -66,8 +66,8 @@ public class OAuth2ContextFactoryTest {
   private final HttpServletRequest request = mock(HttpServletRequest.class);
   private final HttpServletResponse response = mock(HttpServletResponse.class);
 
-  private final HttpRequest httpRequest = new JavaxHttpRequest(request);
-  private final HttpResponse httpResponse = new JavaxHttpResponse(response);
+  private final HttpRequest httpRequest = new JakartaHttpRequest(request);
+  private final HttpResponse httpResponse = new JakartaHttpResponse(response);
 
   private final OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
 

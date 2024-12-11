@@ -19,9 +19,9 @@
  */
 package org.sonar.server.v2.api.validation;
 
-import javax.validation.valueextraction.ExtractedValue;
-import javax.validation.valueextraction.UnwrapByDefault;
-import javax.validation.valueextraction.ValueExtractor;
+import jakarta.validation.valueextraction.ExtractedValue;
+import jakarta.validation.valueextraction.UnwrapByDefault;
+import jakarta.validation.valueextraction.ValueExtractor;
 import org.sonar.server.v2.common.model.UpdateField;
 
 @UnwrapByDefault

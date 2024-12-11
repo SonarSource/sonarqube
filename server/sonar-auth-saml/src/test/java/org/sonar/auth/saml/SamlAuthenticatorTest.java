@@ -19,16 +19,16 @@
  */
 package org.sonar.auth.saml;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.junit.Assert.assertFalse;
@@ -45,8 +45,8 @@ public class SamlAuthenticatorTest {
 
   @Test
   public void authentication_status_with_errors_returned_when_init_fails() {
-    HttpRequest request = new JavaxHttpRequest(mock(HttpServletRequest.class));
-    HttpResponse response = new JavaxHttpResponse(mock(HttpServletResponse.class));
+    HttpRequest request = new JakartaHttpRequest(mock(HttpServletRequest.class));
+    HttpResponse response = new JakartaHttpResponse(mock(HttpServletResponse.class));
     when(request.getContextPath()).thenReturn("context");
 
     String authenticationStatus = underTest.getAuthenticationStatusPage(request, response);
@@ -63,7 +63,7 @@ public class SamlAuthenticatorTest {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "Not a PKCS8 key");
 
     assertThatIllegalStateException()
-      .isThrownBy(() -> underTest.initLogin("","", mock(JavaxHttpRequest.class), mock(JavaxHttpResponse.class)))
+      .isThrownBy(() -> underTest.initLogin("","", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
       .withMessage("Failed to create a SAML Auth")
       .havingCause()
       .withMessage("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
@@ -77,7 +77,7 @@ public class SamlAuthenticatorTest {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "PRIVATE_KEY");
 
     assertThatIllegalStateException()
-      .isThrownBy(() -> underTest.initLogin("","", mock(JavaxHttpRequest.class), mock(JavaxHttpResponse.class)))
+      .isThrownBy(() -> underTest.initLogin("","", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
       .withMessage("Failed to create a SAML Auth")
       .havingCause()
       .withMessage("Service provider certificate is missing");

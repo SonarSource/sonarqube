@@ -19,11 +19,11 @@
  */
 package org.sonar.server.v2.api.controller;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.request.RestSearchRequest;
 import org.sonar.server.v2.api.response.RestSearchResponse;
-import org.springdoc.api.annotations.ParameterObject;
+import org.springdoc.core.annotations.ParameterObject;
 
 public interface Searchable<T, U extends RestSearchRequest> {
 

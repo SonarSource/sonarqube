@@ -20,9 +20,7 @@
 package org.sonar.server.v2.config;
 
 import org.sonar.db.Database;
-import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.common.platform.LivenessChecker;
-import org.sonar.server.common.platform.SafeModeLivenessCheckerImpl;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
@@ -40,11 +38,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 @Import(CommonWebConfig.class)
 public class SafeModeWebConfig {
-
-  @Bean
-  public LivenessChecker livenessChecker(DbConnectionNodeCheck dbConnectionNodeCheck) {
-    return new SafeModeLivenessCheckerImpl(dbConnectionNodeCheck);
-  }
 
   @Bean
   public LivenessController livenessController(LivenessChecker livenessChecker, SystemPasscode systemPasscode) {

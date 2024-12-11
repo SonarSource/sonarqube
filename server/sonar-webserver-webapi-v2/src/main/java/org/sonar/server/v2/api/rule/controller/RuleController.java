@@ -22,7 +22,7 @@ package org.sonar.server.v2.api.rule.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.sonar.server.v2.api.rule.request.RuleCreateRestRequest;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 import org.springframework.http.HttpStatus;

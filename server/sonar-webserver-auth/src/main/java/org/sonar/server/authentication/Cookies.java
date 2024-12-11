@@ -24,15 +24,15 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.server.http.JavaxHttpRequest.JavaxCookie;
+import org.sonar.server.http.JakartaHttpRequest.JakartaCookie;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Helper class to create a {@link javax.servlet.http.Cookie}.
+ * Helper class to create a {@link jakarta.servlet.http.Cookie}.
  *
- * The {@link javax.servlet.http.Cookie#setSecure(boolean)} will automatically be set to true.
+ * The {@link jakarta.servlet.http.Cookie#setSecure(boolean)} will automatically be set to true.
  */
 public class Cookies {
   public static final String SET_COOKIE = "Set-Cookie";
@@ -115,12 +115,12 @@ public class Cookies {
     }
 
     public Cookie build() {
-      javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie(requireNonNull(name), value);
+      jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie(requireNonNull(name), value);
       cookie.setPath(getContextPath(request));
       cookie.setSecure(isHttps(request));
       cookie.setHttpOnly(httpOnly);
       cookie.setMaxAge(expiry);
-      return new JavaxCookie(cookie);
+      return new JakartaCookie(cookie);
     }
 
     public String toValueString() {

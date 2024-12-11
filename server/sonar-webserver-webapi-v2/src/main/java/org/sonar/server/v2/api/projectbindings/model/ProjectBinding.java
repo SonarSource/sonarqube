@@ -20,7 +20,7 @@
 package org.sonar.server.v2.api.projectbindings.model;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public record ProjectBinding (
 

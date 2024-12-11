@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

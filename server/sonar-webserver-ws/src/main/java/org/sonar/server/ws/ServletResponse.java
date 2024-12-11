@@ -24,12 +24,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonarqube.ws.MediaTypes.JSON;
@@ -40,7 +40,7 @@ public class ServletResponse implements Response {
   private final ServletStream stream;
 
   public ServletResponse(HttpResponse response) {
-    HttpServletResponse httpServletResponse = ((JavaxHttpResponse) response).getDelegate();
+    HttpServletResponse httpServletResponse = ((JakartaHttpResponse) response).getDelegate();
     stream = new ServletStream(httpServletResponse);
   }
 

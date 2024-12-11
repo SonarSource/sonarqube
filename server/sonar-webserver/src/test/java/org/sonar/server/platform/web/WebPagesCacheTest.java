@@ -20,7 +20,7 @@
 package org.sonar.server.platform.web;
 
 import java.io.InputStream;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;

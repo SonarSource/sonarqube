@@ -21,11 +21,11 @@ package org.sonar.server.platform.web;
 
 import java.io.IOException;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +33,8 @@ import org.mockito.InOrder;
 import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.setting.ThreadLocalSettings;
 
@@ -76,7 +76,7 @@ public class UserSessionFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
-    verify(userSessionInitializer).initUserSession(any(JavaxHttpRequest.class), any(JavaxHttpResponse.class));
+    verify(userSessionInitializer).initUserSession(any(JakartaHttpRequest.class), any(JakartaHttpResponse.class));
   }
 
   @Test
@@ -86,7 +86,7 @@ public class UserSessionFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(chain, never()).doFilter(request, response);
-    verify(userSessionInitializer).initUserSession(any(JavaxHttpRequest.class), any(JavaxHttpResponse.class));
+    verify(userSessionInitializer).initUserSession(any(JakartaHttpRequest.class), any(JakartaHttpResponse.class));
   }
 
   @Test
@@ -167,7 +167,7 @@ public class UserSessionFilterTest {
 
   private void mockUserSessionInitializer(boolean value) {
     when(container.getOptionalComponentByType(UserSessionInitializer.class)).thenReturn(Optional.of(userSessionInitializer));
-    when(userSessionInitializer.initUserSession(any(JavaxHttpRequest.class), any(JavaxHttpResponse.class))).thenReturn(value);
+    when(userSessionInitializer.initUserSession(any(JakartaHttpRequest.class), any(JakartaHttpResponse.class))).thenReturn(value);
   }
 
   private RuntimeException mockUserSessionInitializerRemoveUserSessionFailing() {

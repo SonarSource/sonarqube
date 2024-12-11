@@ -22,7 +22,7 @@ package org.sonar.server.v2.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
-import org.springdoc.core.SpringDocConfigProperties;
+import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -45,7 +45,7 @@ public class CommonWebConfig implements WebMvcConfigurer {
   public void configurePathMatch(PathMatchConfigurer configurer) {
     UrlPathHelper urlPathHelper = new UrlPathHelper();
     urlPathHelper.setUrlDecode(false);
-    configurer.setUrlPathHelper(urlPathHelper);
+    configurer.setUrlPathHelper(urlPathHelper).setUseTrailingSlashMatch(true);
   }
 
   @Bean

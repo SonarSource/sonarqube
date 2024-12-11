@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationCreateRestRequest;
 import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationUpdateRestRequest;
 import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResource;

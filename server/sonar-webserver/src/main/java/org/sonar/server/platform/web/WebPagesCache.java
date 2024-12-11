@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.Platform;

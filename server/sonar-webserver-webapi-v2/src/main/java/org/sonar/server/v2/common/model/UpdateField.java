@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.validation.valueextraction.UnwrapByDefault;
+import jakarta.validation.valueextraction.UnwrapByDefault;
 import org.sonar.server.common.NonNullUpdatedValue;
 import org.sonar.server.common.UpdatedValue;
 

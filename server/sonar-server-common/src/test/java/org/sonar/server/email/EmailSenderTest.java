@@ -21,8 +21,8 @@ package org.sonar.server.email;
 
 import java.util.Properties;
 import java.util.Set;
-import org.apache.commons.mail.HtmlEmail;
-import org.apache.commons.mail.MultiPartEmail;
+import org.apache.commons.mail2.jakarta.HtmlEmail;
+import org.apache.commons.mail2.jakarta.MultiPartEmail;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.server.oauth.OAuthMicrosoftRestClient;
@@ -41,7 +41,8 @@ public class EmailSenderTest {
   private final Server server = mock();
   private final OAuthMicrosoftRestClient oAuthMicrosoftRestClient = mock();
   private final EmailSender<BasicEmail> sender = new EmailSender<>(emailSmtpConfiguration, server, oAuthMicrosoftRestClient) {
-    @Override protected void addReportContent(HtmlEmail email, BasicEmail report) {
+    @Override
+    protected void addReportContent(HtmlEmail email, BasicEmail report) {
       email.setSubject("Email Subject");
     }
   };
@@ -71,7 +72,6 @@ public class EmailSenderTest {
     assertThat(email.isStartTLSEnabled()).isFalse();
     assertThat(email.isStartTLSRequired()).isFalse();
   }
-
 
   @Test
   public void support_empty_body() throws Exception {

@@ -21,9 +21,9 @@ package org.sonar.server.platform.web;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
@@ -31,8 +31,8 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.FilterChain;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.WebServiceEngine;
 
@@ -103,7 +103,7 @@ public class WebServiceFilterTest {
   public void execute_ws() {
     underTest = new WebServiceFilter(webServiceEngine);
 
-    underTest.doFilter(new JavaxHttpRequest(request), new JavaxHttpResponse(response), chain);
+    underTest.doFilter(new JakartaHttpRequest(request), new JakartaHttpResponse(response), chain);
 
     verify(webServiceEngine).execute(any(), any());
   }

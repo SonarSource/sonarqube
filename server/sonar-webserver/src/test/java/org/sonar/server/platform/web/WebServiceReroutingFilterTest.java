@@ -19,14 +19,14 @@
  */
 package org.sonar.server.platform.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.web.FilterChain;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
 import org.sonar.server.ws.WebServiceEngine;
@@ -65,7 +65,7 @@ public class WebServiceReroutingFilterTest {
     when(request.getServletPath()).thenReturn("/api/components/update_key");
     when(request.getMethod()).thenReturn("POST");
 
-    underTest.doFilter(new JavaxHttpRequest(request), new JavaxHttpResponse(response), chain);
+    underTest.doFilter(new JakartaHttpRequest(request), new JakartaHttpResponse(response), chain);
 
     assertRedirection("/api/projects/update_key", "POST");
   }

@@ -19,22 +19,22 @@
  */
 package org.sonar.server.http;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
-import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpRequest;
 
 /**
  * Implementation of {@link HttpRequest} based on a delegate of {@link HttpServletRequest} from the Javax Servlet API.
  */
-public class JavaxHttpRequest implements HttpRequest {
+public class JakartaHttpRequest implements HttpRequest {
 
   private final HttpServletRequest delegate;
 
-  public JavaxHttpRequest(HttpServletRequest delegate) {
+  public JakartaHttpRequest(HttpServletRequest delegate) {
     this.delegate = delegate;
   }
 
@@ -134,19 +134,19 @@ public class JavaxHttpRequest implements HttpRequest {
 
   @Override
   public Cookie[] getCookies() {
-    javax.servlet.http.Cookie[] cookies = delegate.getCookies();
+    jakarta.servlet.http.Cookie[] cookies = delegate.getCookies();
     if (cookies != null) {
       return Arrays.stream(cookies)
-        .map(JavaxCookie::new)
+        .map(JakartaCookie::new)
         .toArray(Cookie[]::new);
     }
     return new Cookie[0];
   }
 
-  public static class JavaxCookie implements Cookie {
-    private final javax.servlet.http.Cookie delegate;
+  public static class JakartaCookie implements Cookie {
+    private final jakarta.servlet.http.Cookie delegate;
 
-    public JavaxCookie(javax.servlet.http.Cookie delegate) {
+    public JakartaCookie(jakarta.servlet.http.Cookie delegate) {
       this.delegate = delegate;
     }
 

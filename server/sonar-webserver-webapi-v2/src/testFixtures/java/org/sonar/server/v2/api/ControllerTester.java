@@ -36,6 +36,7 @@ public class ControllerTester {
       .standaloneSetup(controllers)
       .setCustomHandlerMapping(() -> resolveRequestMappingHandlerMapping(handlerInterceptors))
       .setControllerAdvice(new RestResponseEntityExceptionHandler())
+      .setUseTrailingSlashPatternMatch(true)
       .build();
   }
 

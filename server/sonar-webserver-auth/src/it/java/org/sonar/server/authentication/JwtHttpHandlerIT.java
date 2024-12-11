@@ -22,11 +22,11 @@ package org.sonar.server.authentication;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.impl.DefaultClaimsBuilder;
+import jakarta.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +41,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -278,7 +278,7 @@ public class JwtHttpHandlerIT {
 
   @Test
   public void validate_token_does_nothing_when_empty_value_in_jwt_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new JavaxHttpRequest.JavaxCookie(new javax.servlet.http.Cookie("JWT-SESSION", ""))});
+    when(request.getCookies()).thenReturn(new Cookie[] {new JakartaHttpRequest.JakartaCookie(new jakarta.servlet.http.Cookie("JWT-SESSION", ""))});
 
     underTest.validateToken(request, response);
 
@@ -434,7 +434,7 @@ public class JwtHttpHandlerIT {
   }
 
   private Cookie addJwtCookie() {
-    Cookie cookie = new JavaxHttpRequest.JavaxCookie(new javax.servlet.http.Cookie("JWT-SESSION", JWT_TOKEN));
+    Cookie cookie = new JakartaHttpRequest.JakartaCookie(new jakarta.servlet.http.Cookie("JWT-SESSION", JWT_TOKEN));
     when(request.getCookies()).thenReturn(new Cookie[] {cookie});
     return cookie;
   }

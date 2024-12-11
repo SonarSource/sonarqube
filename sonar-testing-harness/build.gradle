@@ -9,7 +9,7 @@ dependencies {
 
   api 'com.google.code.gson:gson'
   api 'com.googlecode.json-simple:json-simple'
-  api 'com.sun.mail:jakarta.mail'
+  api 'jakarta.mail:jakarta.mail-api'
   api 'commons-io:commons-io'
   api 'junit:junit'
   api 'org.assertj:assertj-core'

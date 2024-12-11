@@ -28,21 +28,21 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.web.HttpFilter;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.platform.PlatformImpl;
 
 /**
@@ -186,8 +186,8 @@ public class MasterServletFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-      HttpRequest javaxHttpRequest = new JavaxHttpRequest((HttpServletRequest) servletRequest);
-      HttpResponse javaxHttpResponse = new JavaxHttpResponse((HttpServletResponse) servletResponse);
+      HttpRequest javaxHttpRequest = new JakartaHttpRequest((HttpServletRequest) servletRequest);
+      HttpResponse javaxHttpResponse = new JakartaHttpResponse((HttpServletResponse) servletResponse);
       httpFilter.doFilter(javaxHttpRequest, javaxHttpResponse, new HttpFilterChainAdapter(chain));
     }
   }
@@ -202,7 +202,7 @@ public class MasterServletFilter implements Filter {
     @Override
     public void doFilter(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
       try {
-        filterChain.doFilter(((JavaxHttpRequest) httpRequest).getDelegate(), ((JavaxHttpResponse) httpResponse).getDelegate());
+        filterChain.doFilter(((JakartaHttpRequest) httpRequest).getDelegate(), ((JakartaHttpResponse) httpResponse).getDelegate());
       } catch (ServletException e) {
         throw new RuntimeException(e);
       }

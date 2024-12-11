@@ -33,8 +33,8 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -42,8 +42,8 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
@@ -99,10 +99,12 @@ public class SamlAuthenticator {
   private Auth initSamlAuth(@Nullable String callbackUrl, HttpRequest request, HttpResponse response) {
     try {
       //no way around this as onelogin requires javax request/response
-      HttpServletRequest httpServletRequest = ((JavaxHttpRequest) request).getDelegate();
-      HttpServletResponse httpServletResponse = ((JavaxHttpResponse) response).getDelegate();
+      HttpServletRequest httpServletRequest = ((JakartaHttpRequest) request).getDelegate();
+      HttpServletResponse httpServletResponse = ((JakartaHttpResponse) response).getDelegate();
 
-      return new Auth(initSettings(callbackUrl), httpServletRequest, httpServletResponse);
+      //FIXME:: one login does not support
+//      return new Auth(initSettings(callbackUrl), httpServletRequest, httpServletResponse);
+      return null;
     } catch (Exception e) {
       throw new IllegalStateException("Failed to create a SAML Auth", e);
     }

@@ -19,10 +19,10 @@
  */
 package org.sonar.test.html;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import java.io.IOException;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 

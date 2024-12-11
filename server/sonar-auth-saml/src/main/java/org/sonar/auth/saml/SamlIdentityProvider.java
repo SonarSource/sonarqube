@@ -20,14 +20,14 @@
 package org.sonar.auth.saml;
 
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 
 @ServerSide
 public class SamlIdentityProvider implements OAuth2IdentityProvider {
@@ -101,7 +101,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
   private static HttpRequest useProxyHeadersInRequest(HttpRequest request) {
     String forwardedScheme = request.getHeader("X-Forwarded-Proto");
     if (forwardedScheme != null) {
-      HttpServletRequest httpServletRequest = new HttpServletRequestWrapper(((JavaxHttpRequest) request).getDelegate()) {
+      HttpServletRequest httpServletRequest = new HttpServletRequestWrapper(((JakartaHttpRequest) request).getDelegate()) {
         @Override
         public String getScheme() {
           return forwardedScheme;
@@ -113,7 +113,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
           return new StringBuffer(HTTPS_PATTERN.matcher(originalURL.toString()).replaceFirst(forwardedScheme + "://"));
         }
       };
-      return new JavaxHttpRequest(httpServletRequest);
+      return new JakartaHttpRequest(httpServletRequest);
     }
 
     return request;

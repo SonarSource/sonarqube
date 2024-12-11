@@ -19,22 +19,22 @@
  */
 package org.sonar.server.http;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpResponse;
 
 /**
  * Implementation of {@link HttpResponse} based on a delegate of {@link HttpServletResponse} from the Javax Servlet API.
  */
-public class JavaxHttpResponse implements HttpResponse {
+public class JakartaHttpResponse implements HttpResponse {
 
   private final HttpServletResponse delegate;
 
-  public JavaxHttpResponse(HttpServletResponse delegate) {
+  public JakartaHttpResponse(HttpServletResponse delegate) {
     this.delegate = delegate;
   }
 
@@ -89,12 +89,12 @@ public class JavaxHttpResponse implements HttpResponse {
 
   @Override
   public void addCookie(Cookie cookie) {
-    javax.servlet.http.Cookie javaxCookie = new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue());
-    javaxCookie.setPath(cookie.getPath());
-    javaxCookie.setSecure(cookie.isSecure());
-    javaxCookie.setHttpOnly(cookie.isHttpOnly());
-    javaxCookie.setMaxAge(cookie.getMaxAge());
-    delegate.addCookie(javaxCookie);
+    jakarta.servlet.http.Cookie jakartaCookie = new jakarta.servlet.http.Cookie(cookie.getName(), cookie.getValue());
+    jakartaCookie.setPath(cookie.getPath());
+    jakartaCookie.setSecure(cookie.isSecure());
+    jakartaCookie.setHttpOnly(cookie.isHttpOnly());
+    jakartaCookie.setMaxAge(cookie.getMaxAge());
+    delegate.addCookie(jakartaCookie);
   }
 
   @Override

@@ -30,13 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.http.HttpServletRequest;
 import org.sonar.api.impl.ws.PartImpl;
 import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.server.http.HttpRequest;
 import org.slf4j.LoggerFactory;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -54,7 +54,7 @@ public class ServletRequest extends ValidatingRequest {
   private final HttpServletRequest source;
 
   public ServletRequest(HttpRequest source) {
-    this.source = ((JavaxHttpRequest) source).getDelegate();
+    this.source = ((JakartaHttpRequest) source).getDelegate();
   }
 
   @Override
@@ -114,7 +114,7 @@ public class ServletRequest extends ValidatingRequest {
       if (!isMultipartContent()) {
         return null;
       }
-      javax.servlet.http.Part part = source.getPart(key);
+      jakarta.servlet.http.Part part = source.getPart(key);
       if (part == null || part.getSize() == 0) {
         return null;
       }

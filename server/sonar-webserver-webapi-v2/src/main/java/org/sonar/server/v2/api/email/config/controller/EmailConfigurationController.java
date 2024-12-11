@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.sonar.server.v2.api.email.config.request.EmailConfigurationCreateRestRequest;
 import org.sonar.server.v2.api.email.config.request.EmailConfigurationUpdateRestRequest;
 import org.sonar.server.v2.api.email.config.resource.EmailConfigurationResource;

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.authentication;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -32,7 +32,7 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Arrays.asList;
@@ -66,7 +66,7 @@ public class CredentialsExternalAuthenticationTest {
   private final TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
   private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private final HttpRequest request = new JavaxHttpRequest(mock(HttpServletRequest.class));
+  private final HttpRequest request = new JakartaHttpRequest(mock(HttpServletRequest.class));
 
   private final CredentialsExternalAuthentication underTest = new CredentialsExternalAuthentication(settings.asConfig(), securityRealmFactory, userIdentityAuthenticator,
     authenticationEvent);

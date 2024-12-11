@@ -20,7 +20,7 @@
 package org.sonar.server.authentication;
 
 import java.util.Optional;
-import javax.servlet.FilterConfig;
+import jakarta.servlet.FilterConfig;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;

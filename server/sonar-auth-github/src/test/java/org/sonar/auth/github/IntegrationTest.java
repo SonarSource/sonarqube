@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -43,7 +43,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 import org.sonar.db.DbTester;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.InternalPropertiesImpl;
 
@@ -451,7 +451,7 @@ public class IntegrationTest {
 
     @Override
     public HttpRequest getHttpRequest() {
-      return new JavaxHttpRequest(request);
+      return new JakartaHttpRequest(request);
     }
 
     @Override

@@ -19,12 +19,11 @@
  */
 package org.sonar.server.app;
 
+import jakarta.servlet.ServletContext;
 import org.apache.tomcat.JarScanFilter;
 import org.apache.tomcat.JarScanType;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.JarScannerCallback;
-
-import javax.servlet.ServletContext;
 
 /**
  * Disable taglib and web-fragment.xml scanning of Tomcat. Should speed up startup.
@@ -32,9 +31,10 @@ import javax.servlet.ServletContext;
 
 class NullJarScanner implements JarScanner {
 
+
   @Override
   public void scan(JarScanType jarScanType, ServletContext servletContext, JarScannerCallback jarScannerCallback) {
-    // doing nothing is fast!
+
   }
 
   @Override

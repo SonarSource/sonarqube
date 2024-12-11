@@ -20,7 +20,7 @@
 package org.sonar.server.v2.api.group.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 import org.sonar.server.v2.common.model.UpdateField;
 
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;

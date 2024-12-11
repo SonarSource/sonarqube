@@ -18,7 +18,7 @@ processResources {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  api 'ch.qos.logback:logback-access'
+  api 'ch.qos.logback.access:common'
   api 'ch.qos.logback:logback-classic'
   api 'ch.qos.logback:logback-core'
   api 'com.google.code.gson:gson'

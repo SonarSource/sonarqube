@@ -21,7 +21,7 @@ package org.sonar.server.authentication;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.sonar.api.server.http.HttpResponse;
 
 import static java.lang.String.format;

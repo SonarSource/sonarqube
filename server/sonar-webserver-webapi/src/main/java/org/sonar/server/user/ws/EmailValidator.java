@@ -19,9 +19,9 @@
  */
 package org.sonar.server.user.ws;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import javax.annotation.Nullable;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 

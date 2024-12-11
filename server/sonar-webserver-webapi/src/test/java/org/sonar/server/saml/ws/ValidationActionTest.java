@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.http.HttpRequest;
@@ -37,8 +37,8 @@ import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.authentication.OAuthCsrfVerifier;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.http.JavaxHttpRequest;
-import org.sonar.server.http.JavaxHttpResponse;
+import org.sonar.server.http.JakartaHttpRequest;
+import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,7 +94,7 @@ public class ValidationActionTest {
     final String mockedHtmlContent = "mocked html content";
     doReturn(mockedHtmlContent).when(samlAuthenticator).getAuthenticationStatusPage(any(), any());
 
-    underTest.doFilter(new JavaxHttpRequest(servletRequest), new JavaxHttpResponse(servletResponse), filterChain);
+    underTest.doFilter(new JakartaHttpRequest(servletRequest), new JakartaHttpResponse(servletResponse), filterChain);
 
     verify(samlAuthenticator).getAuthenticationStatusPage(any(), any());
     verify(servletResponse).getWriter();

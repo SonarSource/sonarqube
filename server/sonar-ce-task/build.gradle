@@ -27,7 +27,7 @@ dependencies {
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  testImplementation 'ch.qos.logback:logback-access'
+  testImplementation 'ch.qos.logback.access:logback-access-tomcat'
   testImplementation 'ch.qos.logback:logback-classic'
   testImplementation 'ch.qos.logback:logback-core'
   testImplementation 'com.github.spotbugs:spotbugs-annotations'

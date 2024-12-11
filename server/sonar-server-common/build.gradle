@@ -15,7 +15,7 @@ dependencies {
   api 'com.github.scribejava:scribejava-core'
   api 'com.google.guava:guava'
   api 'com.squareup.okhttp3:okhttp'
-  api 'org.apache.commons:commons-email'
+  api 'org.apache.commons:commons-email2-jakarta'
   api 'org.apache.commons:commons-lang3'
   api 'org.bouncycastle:bcprov-jdk18on'
   api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'

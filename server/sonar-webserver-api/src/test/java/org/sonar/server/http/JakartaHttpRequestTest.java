@@ -19,11 +19,11 @@
  */
 package org.sonar.server.http;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
 import org.sonar.api.server.http.Cookie;
 
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class JavaxHttpRequestTest {
+public class JakartaHttpRequestTest {
 
   @Test
   public void delegate_methods() throws IOException {
@@ -43,7 +43,7 @@ public class JavaxHttpRequestTest {
     when(requestMock.getServletPath()).thenReturn("/servlet-path");
     BufferedReader bufferedReader = mock(BufferedReader.class);
     when(requestMock.getReader()).thenReturn(bufferedReader);
-    javax.servlet.http.Cookie[] cookies = new javax.servlet.http.Cookie[0];
+    jakarta.servlet.http.Cookie[] cookies = new jakarta.servlet.http.Cookie[0];
     when(requestMock.getCookies()).thenReturn(cookies);
     when(requestMock.getServerPort()).thenReturn(80);
     when(requestMock.isSecure()).thenReturn(true);
@@ -60,7 +60,7 @@ public class JavaxHttpRequestTest {
     Enumeration<String> headers = mock(Enumeration.class);
     when(requestMock.getHeaders("header1")).thenReturn(headers);
 
-    JavaxHttpRequest underTest = new JavaxHttpRequest(requestMock);
+    JakartaHttpRequest underTest = new JakartaHttpRequest(requestMock);
 
     assertThat(underTest.getDelegate()).isSameAs(requestMock);
     assertThat(underTest.getServerPort()).isEqualTo(80);
@@ -88,13 +88,13 @@ public class JavaxHttpRequestTest {
 
   @Test
   public void delegate_methods_for_cookie() {
-    javax.servlet.http.Cookie mockCookie = new javax.servlet.http.Cookie("name", "value");
+    jakarta.servlet.http.Cookie mockCookie = new jakarta.servlet.http.Cookie("name", "value");
     mockCookie.setSecure(true);
     mockCookie.setPath("path");
     mockCookie.setHttpOnly(true);
     mockCookie.setMaxAge(100);
 
-    Cookie cookie = new JavaxHttpRequest.JavaxCookie(mockCookie);
+    Cookie cookie = new JakartaHttpRequest.JakartaCookie(mockCookie);
     assertThat(cookie.getName()).isEqualTo("name");
     assertThat(cookie.getValue()).isEqualTo("value");
     assertThat(cookie.getPath()).isEqualTo("path");

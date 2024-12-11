@@ -20,7 +20,7 @@
 package org.sonar.server.v2.api.projects.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.sonar.server.v2.api.projects.request.BoundProjectCreateRestRequest;
 import org.sonar.server.v2.api.projects.response.BoundProjectCreateRestResponse;
 import org.springframework.http.HttpStatus;

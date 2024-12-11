@@ -33,7 +33,7 @@ dependencies {
   api 'com.fasterxml.staxmate:staxmate'
   implementation 'io.github.hakky54:sslcontext-kickstart'
   implementation 'org.bouncycastle:bcprov-jdk18on'
-  api 'javax.annotation:javax.annotation-api'
+  api 'jakarta.annotation:jakarta.annotation-api'
   api 'org.eclipse.jgit:org.eclipse.jgit'
   api 'org.tmatesoft.svnkit:svnkit'
   api 'org.slf4j:jcl-over-slf4j'

@@ -26,10 +26,10 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import org.junit.Test;
-import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JakartaHttpRequest;
 import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ public class ServletRequestTest {
 
   private final HttpServletRequest source = mock(HttpServletRequest.class);
 
-  private final ServletRequest underTest = new ServletRequest(new JavaxHttpRequest(source));
+  private final ServletRequest underTest = new ServletRequest(new JakartaHttpRequest(source));
 
   @Test
   public void call_method() {
@@ -77,7 +77,7 @@ public class ServletRequestTest {
   @Test
   public void has_param_from_source() {
     when(source.getParameterMap()).thenReturn(Map.of("param", new String[] {"value"}));
-    ServletRequest request = new ServletRequest(new JavaxHttpRequest(source));
+    ServletRequest request = new ServletRequest(new JakartaHttpRequest(source));
     assertThat(request.hasParam("param")).isTrue();
   }
 
