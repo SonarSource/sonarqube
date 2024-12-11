@@ -86,11 +86,21 @@ public class ActiveVersionEvaluator {
   }
 
   private static Release findPreviousReleaseIgnoringPatch(SortedSet<Release> releases) {
-    Release refRelease = releases.last();
-    List<Release> sublist = Lists.reverse(releases.stream().toList());
-    for (Release release : sublist) {
-      if (compareWithoutPatchVersion(release.getVersion(), refRelease.getVersion()) < 0) {
-        return release;
+    if (!releases.isEmpty()) {
+      Release refRelease = releases.last();
+      int patchesOfRefRelease = 0;
+      List<Release> sublist = Lists.reverse(releases.stream().toList());
+      for (Release release : sublist) {
+        int versionComparison = compareWithoutPatchVersion(release.getVersion(), refRelease.getVersion());
+        if (versionComparison < 0) {
+          return release;
+        } else if (versionComparison == 0) {
+          patchesOfRefRelease++;
+        }
+      }
+      // if all releases have the same version, return the last one
+      if (patchesOfRefRelease == releases.size()) {
+        return refRelease;
       }
     }
     throw new IllegalStateException("Unable to find previous release in releases");
