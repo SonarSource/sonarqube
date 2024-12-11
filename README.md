@@ -9,6 +9,7 @@ SonarQube provides the capability to not only show the health of an application 
 - [Website](https://www.sonarsource.com/products/sonarqube)
 - [Download](https://www.sonarsource.com/products/sonarqube/downloads)
 - [Documentation](https://docs.sonarsource.com/sonarqube)
+- [Webapp source code](https://github.com/SonarSource/sonarqube-webapp)
 - [X](https://twitter.com/SonarQube)
 - [SonarSource](https://www.sonarsource.com), author of SonarQube
 - [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
@@ -67,6 +68,55 @@ Then open the root file `build.gradle` as a project in IntelliJ or Eclipse.
 | `dependencies`                   | list dependencies                         |
 | `licenseFormat --rerun-tasks`    | fix source headers by applying HEADER.txt |
 | `wrapper --gradle-version 5.2.1` | upgrade wrapper                           |
+
+## Building with UI changes
+
+The SonarQube UI (or webapp as we call it), is located in another repository: [sonarqube-webapp](https://github.com/SonarSource/sonarqube-webapp).
+
+When building the `sonarqube` repository, the webapp is automatically downloaded from Maven Central as a dependency, it makes it easy for you to contribute backend changes without having to care about the webapp.
+
+But if your contribution also contains UI changes, you must clone the `sonarqube-webapp` repository, do your changes there, build it locally and then build the `sonarqube` repository using the `WEBAPP_BUILD_PATH` environment variable to target your custom build of the UI.
+
+Here is an example of how to do it:
+
+```bash
+cd /path/to/sonarqube-webapp/server/sonar-web
+# do your changes
+
+# install dependencies, only needed the first time
+yarn
+
+# build the webapp
+yarn build
+
+
+cd /path/to/sonarqube
+
+# build the sonarqube repository using the custom build of the webapp
+WEBAPP_BUILD_PATH=/path/to/sonarqube-webapp/server/sonar-web/build/webapp ./gradlew build
+```
+
+You can also target a specific version of the webapp by updating the `webappVersion` property in the `./gradle.properties` file and then building the `sonarqube` repository normally.
+
+## Translations files
+
+Historically our translations were stored in `sonar-core/src/main/resources/org/sonar/l10n/core.properties`, but this file is now deprecated and not updated anymore.
+Default translations (in English) are now defined in the webapp repository, here:
+https://github.com/SonarSource/sonarqube-webapp/blob/master/server/sonar-web/src/main/js/l10n/default.ts
+
+The format has changed but you can still have it as a `.properties` file format by running the following command:
+
+```bash
+cd /path/to/sonarqube-webapp/server/sonar-web
+
+# install dependencies, only needed the first time
+yarn
+
+# generate a backward compatible .properties file with all the translation keys
+yarn generate-translation-keys
+```
+
+Note that contributing extensions for translations into other languages still work the same way as before. It's just the source of truth for the default translations that changed.
 
 ## License
 
