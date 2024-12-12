@@ -70,9 +70,11 @@ public class OriginalFileResolver {
 
       }
 
-      String componentUuidFromReferenceBranch = referenceBranchComponentUuids.getComponentUuid(file.getKey());
-      if (componentUuidFromReferenceBranch != null) {
-        return Optional.of(componentUuidFromReferenceBranch);
+      if (!analysisMetadataHolder.getBranch().isMain()) {
+        String componentUuidFromReferenceBranch = referenceBranchComponentUuids.getComponentUuid(file.getKey());
+        if (componentUuidFromReferenceBranch != null) {
+          return Optional.of(componentUuidFromReferenceBranch);
+        }
       }
 
     }
