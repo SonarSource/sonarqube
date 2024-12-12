@@ -66,6 +66,7 @@ public class QProfileParser {
   private static final String ATTRIBUTE_TEMPLATE_KEY = "templateKey";
   private static final String ATTRIBUTE_TYPE = "type";
   private static final String ATTRIBUTE_DESCRIPTION = "description";
+  private static final String ATTRIBUTE_CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
 
   private static final String ATTRIBUTE_PARAMETERS = "parameters";
   private static final String ATTRIBUTE_PARAMETER = "parameter";
@@ -103,6 +104,7 @@ public class QProfileParser {
         xml.prop(ATTRIBUTE_NAME, ruleToExport.getName());
         xml.prop(ATTRIBUTE_TEMPLATE_KEY, ruleToExport.getTemplateRuleKey().rule());
         xml.prop(ATTRIBUTE_DESCRIPTION, ruleToExport.getDescriptionOrThrow());
+        xml.prop(ATTRIBUTE_CLEAN_CODE_ATTRIBUTE, ruleToExport.getCleanCodeAttribute());
       }
 
       xml.begin(ATTRIBUTE_PARAMETERS);
@@ -198,6 +200,8 @@ public class QProfileParser {
         rule.setType(StringUtils.trim(ruleCursor.collectDescendantText(false)));
       } else if (StringUtils.equals(ATTRIBUTE_DESCRIPTION, nodeName)) {
         rule.setDescription(StringUtils.trim(ruleCursor.collectDescendantText(false)));
+      } else if (StringUtils.equals(ATTRIBUTE_CLEAN_CODE_ATTRIBUTE, nodeName)) {
+        rule.setCleanCodeAttribute(StringUtils.trim(ruleCursor.collectDescendantText(false)));
       } else if (StringUtils.equals(ATTRIBUTE_PRIORITY, nodeName)) {
         rule.setSeverity(StringUtils.trim(ruleCursor.collectDescendantText(false)));
       } else if (StringUtils.equals(ATTRIBUTE_IMPACTS, nodeName)) {

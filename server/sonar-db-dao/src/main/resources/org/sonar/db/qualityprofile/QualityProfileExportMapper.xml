@@ -21,6 +21,7 @@
     a.failure_level as "severity",
     a.impacts as "impacts",
     a.prioritized_rule as "prioritizedRule",
+    r.clean_code_attribute as "cleanCodeAttribute",
     r.plugin_rule_key as "rule",
     r.plugin_name as "repository",
     r.priority as "defaultSeverity",
@@ -45,6 +46,7 @@
     <result property="severity" column="severity"/>
     <result property="impacts" column="impacts"/>
     <result property="prioritizedRule" column="prioritizedRule"/>
+    <result property="cleanCodeAttribute" column="cleanCodeAttribute"/>
     <result property="rule" column="rule"/>
     <result property="repository" column="repository"/>
     <result property="name" column="name"/>

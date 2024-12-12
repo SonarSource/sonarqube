@@ -73,6 +73,7 @@ public class RulesService extends BaseService {
         .setParam("severity", request.getSeverity())
         .setParam("status", request.getStatus())
         .setParam("templateKey", request.getTemplateKey())
+        .setParam("cleanCodeAttribute", request.getCleanCodeAttribute())
         .setParam("type", request.getType()),
       CreateResponse.parser());
   }

@@ -35,6 +35,7 @@ class ImportedRule {
   private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = Map.of();
   private Boolean prioritizedRule = false;
   private String description = null;
+  private String cleanCodeAttribute = null;
   private Map<String, String> parameters = null;
 
   public Map<String, String> getParameters() {
@@ -73,6 +74,10 @@ class ImportedRule {
     return description;
   }
 
+  public String getCleanCodeAttribute() {
+    return cleanCodeAttribute;
+  }
+
   ImportedRule setType(String type) {
     this.type = type;
     return this;
@@ -96,6 +101,10 @@ class ImportedRule {
   ImportedRule setDescription(String description) {
     this.description = description;
     return this;
+  }
+
+  public void setCleanCodeAttribute(String cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
   }
 
   ImportedRule setParameters(Map<String, String> parameters) {

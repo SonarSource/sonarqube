@@ -25,7 +25,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -39,6 +38,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
@@ -51,6 +51,7 @@ import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.common.rule.RuleCreator;
+import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -227,6 +228,7 @@ class QProfileBackuperImplIT {
       "<name>" + rule.getName() + "</name>" +
       "<templateKey>" + templateRule.getKey().rule() + "</templateKey>" +
       "<description>" + rule.getDefaultRuleDescriptionSection().getContent() + "</description>" +
+      "<cleanCodeAttribute>" + rule.getCleanCodeAttribute() + "</cleanCodeAttribute>" +
       "<parameters><parameter>" +
       "<key>" + param.getName() + "</key>" +
       "<value>20</value>" +
@@ -430,7 +432,15 @@ class QProfileBackuperImplIT {
 
   @Test
   void restore_custom_rule() {
-    when(ruleCreator.restore(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001"))));
+    when(ruleCreator.restore(any(), anyList())).then(invocation -> {
+      List<NewCustomRule> newRuleList = invocation.getArgument(1);
+      return newRuleList.stream().map(newRule -> {
+        RuleDto rule = db.rules().insert(newRule.ruleKey())
+            .setCleanCodeAttribute(newRule.getCleanCodeAttribute())
+            .setName(newRule.name());
+        return db.rules().update(rule);
+      }).toList();
+    });
 
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
@@ -444,6 +454,7 @@ class QProfileBackuperImplIT {
       "<name>custom rule name</name>" +
       "<templateKey>rule_mc8</templateKey>" +
       "<description>custom rule description</description>" +
+      "<cleanCodeAttribute>MODULAR</cleanCodeAttribute>" +
       "<parameters><parameter>" +
       "<key>bar</key>" +
       "<value>baz</value>" +
@@ -457,6 +468,9 @@ class QProfileBackuperImplIT {
     RuleActivation activation = reset.calledActivations.get(0);
     assertThat(activation.getSeverity()).isEqualTo("CRITICAL");
     assertThat(activation.getParameter("bar")).isEqualTo("baz");
+    RuleDto rule = db.getDbClient().ruleDao().selectByKey( db.getSession(), RuleKey.of("sonarjs", "s001")).get();
+    assertThat(rule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.MODULAR);
+    assertThat(rule.getName()).isEqualTo("custom rule name");
   }
 
   @Test

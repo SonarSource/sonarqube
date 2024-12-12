@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
@@ -100,6 +101,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       if (exportRuleDto.isCustomRule()) {
         importedRule.setTemplate(exportRuleDto.getTemplateRuleKey().rule());
         importedRule.setDescription(exportRuleDto.getDescriptionOrThrow());
+        importedRule.setCleanCodeAttribute(exportRuleDto.getCleanCodeAttribute());
       }
       importedRule.setType(exportRuleDto.getRuleType().name());
       importedRule.setParameters(exportRuleDto.getParams().stream().collect(Collectors.toMap(ExportRuleParamDto::getKey, ExportRuleParamDto::getValue)));
@@ -220,6 +222,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .setPreventReactivation(true)
       .setType(RuleType.valueOf(r.getType()))
       .setMarkdownDescription(r.getDescription())
+      .setCleanCodeAttribute(CleanCodeAttribute.valueOf(r.getCleanCodeAttribute()))
       .setParameters(r.getParameters());
   }
 
