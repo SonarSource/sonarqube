@@ -20,7 +20,19 @@
 package org.sonar.server.ai.code.assurance;
 
 public enum AiCodeAssurance {
-  CONTAINS_AI_CODE,
-  AI_CODE_ASSURED,
-  NONE
+  AI_CODE_ASSURANCE_OFF(false),
+  AI_CODE_ASSURANCE_ON(true),
+  AI_CODE_ASSURANCE_PASS(true),
+  AI_CODE_ASSURANCE_FAIL(true),
+  NONE(false);
+
+  private boolean isAiCodeAssured;
+
+  AiCodeAssurance(boolean isAiCodeAssured) {
+    this.isAiCodeAssured = isAiCodeAssured;
+  }
+
+  public boolean isAiCodeAssured() {
+    return isAiCodeAssured;
+  }
 }

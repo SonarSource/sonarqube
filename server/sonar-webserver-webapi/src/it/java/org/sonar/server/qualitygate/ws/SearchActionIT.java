@@ -66,15 +66,9 @@ class SearchActionIT {
   DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
-  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
   private final SearchAction underTest = new SearchAction(dbClient, userSession,
-    new QualityGatesWsSupport(dbClient, userSession, TestComponentFinder.from(db)), aiCodeAssuranceVerifier);
+    new QualityGatesWsSupport(dbClient, userSession, TestComponentFinder.from(db)));
   private final WsActionTester ws = new WsActionTester(underTest);
-
-  @BeforeEach
-  void setUp() {
-    when(aiCodeAssuranceVerifier.getAiCodeAssurance(anyBoolean(), anyBoolean())).thenReturn(AiCodeAssurance.NONE);
-  }
 
   @Test
   void search_projects_of_a_quality_gate() {

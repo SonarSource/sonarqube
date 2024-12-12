@@ -52,13 +52,11 @@ public class SearchAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGatesWsSupport wsSupport;
-  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport wsSupport, AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
+  public SearchAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
-    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   @Override

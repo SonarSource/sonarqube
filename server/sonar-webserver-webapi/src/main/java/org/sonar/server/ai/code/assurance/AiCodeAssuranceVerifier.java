@@ -19,11 +19,19 @@
  */
 package org.sonar.server.ai.code.assurance;
 
+import java.util.Optional;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.exceptions.NotFoundException;
+
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 
 /**
  * Make sure that for {@link EditionProvider.Edition#COMMUNITY} we'll always get false or {@link AiCodeAssurance#NONE}, no matter of the
@@ -34,38 +42,62 @@ public class AiCodeAssuranceVerifier {
   private final DbClient dbClient;
   private final AiCodeAssuranceEntitlement entitlement;
 
+  enum QualityGateStatus {
+    OK, ERROR
+  }
+
   public AiCodeAssuranceVerifier(AiCodeAssuranceEntitlement entitlement, DbClient dbClient) {
     this.dbClient = dbClient;
     this.entitlement = entitlement;
   }
 
-  public AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto) {
-    if (!entitlement.isEnabled() || !projectDto.getContainsAiCode()) {
-      return AiCodeAssurance.NONE;
-    }
+  public AiCodeAssurance getAiCodeAssuranceForBranch(ProjectDto projectDto, String branchKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, projectDto.getUuid());
-      if (qualityGate == null) {
-        qualityGate = dbClient.qualityGateDao().selectDefault(dbSession);
-      }
-      if (qualityGate != null && qualityGate.isAiCodeSupported()) {
-        return AiCodeAssurance.AI_CODE_ASSURED;
-      }
-      return AiCodeAssurance.CONTAINS_AI_CODE;
+      BranchDto branch =
+        dbClient.branchDao().selectByBranchKey(dbSession, projectDto.getUuid(), branchKey)
+          .orElseThrow(() -> new NotFoundException("Branch " + branchKey + " does not exist for project " + projectDto.getUuid()));
+      return getAiCodeAssurance(dbSession, projectDto, branch.getUuid());
+    }
+  }
+
+  public AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return getAiCodeAssurance(dbSession, projectDto, getMainBranch(dbSession, projectDto).getUuid());
     }
   }
 
   public boolean isAiCodeAssured(ProjectDto projectDto) {
-    return AiCodeAssurance.AI_CODE_ASSURED.equals(getAiCodeAssurance(projectDto));
+    return getAiCodeAssurance(projectDto).isAiCodeAssured();
   }
 
-  public AiCodeAssurance getAiCodeAssurance(boolean containsAiCode, boolean aiCodeSupportedQg) {
-    if (!entitlement.isEnabled() || !containsAiCode) {
+  private AiCodeAssurance getAiCodeAssurance(DbSession dbSession, ProjectDto projectDto, String branchUuid) {
+    if (!entitlement.isEnabled() || !projectDto.getContainsAiCode()) {
       return AiCodeAssurance.NONE;
     }
-    if (aiCodeSupportedQg) {
-      return AiCodeAssurance.AI_CODE_ASSURED;
+    QualityGateDto qualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, projectDto.getUuid());
+    if (qualityGate == null) {
+      qualityGate = dbClient.qualityGateDao().selectDefault(dbSession);
     }
-    return AiCodeAssurance.CONTAINS_AI_CODE;
+    if (qualityGate == null || !qualityGate.isAiCodeSupported()) {
+      return AiCodeAssurance.AI_CODE_ASSURANCE_OFF;
+    }
+    Optional<MeasureDto> qualityGateMeasure = dbClient.measureDao().selectByComponentUuidAndMetricKeys(dbSession, branchUuid,
+      singletonList(ALERT_STATUS_KEY));
+    if (qualityGateMeasure.isEmpty()) {
+      return AiCodeAssurance.AI_CODE_ASSURANCE_ON;
+    }
+    String qualityGateStatus = qualityGateMeasure.get().getString(ALERT_STATUS_KEY);
+    if (qualityGateStatus == null) {
+      return AiCodeAssurance.AI_CODE_ASSURANCE_ON;
+    }
+    if (QualityGateStatus.OK.name().equals(qualityGateStatus)) {
+      return AiCodeAssurance.AI_CODE_ASSURANCE_PASS;
+    }
+    return AiCodeAssurance.AI_CODE_ASSURANCE_FAIL;
+  }
+
+  private BranchDto getMainBranch(DbSession dbSession, ProjectDto project) {
+    return dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid())
+      .orElseThrow(() -> new NotFoundException(format("Main branch in project '%s' is not found", project.getKey())));
   }
 }

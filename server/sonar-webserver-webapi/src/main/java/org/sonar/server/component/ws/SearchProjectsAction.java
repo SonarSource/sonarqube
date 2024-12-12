@@ -494,7 +494,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
         .setVisibility(Visibility.getLabel(dbProject.isPrivate()))
-        .setIsAiCodeAssured(AiCodeAssurance.AI_CODE_ASSURED.equals(aiCodeAssurance))
+//     .setIsAiCodeAssured(AiCodeAssurance.AI_CODE_ASSURED.equals(aiCodeAssurance)) //TODO SONAR-23925 Clean it!
         .setAiCodeAssurance(Components.AiCodeAssurance.valueOf(aiCodeAssurance.name()))
         .setIsAiCodeFixEnabled(dbProject.getAiCodeFixEnabled());
       wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
