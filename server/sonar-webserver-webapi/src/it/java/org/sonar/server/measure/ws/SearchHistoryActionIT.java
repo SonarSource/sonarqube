@@ -20,10 +20,11 @@
 package org.sonar.server.measure.ws;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.LongStream;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -33,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.ProjectMeasureDto;
@@ -41,6 +43,8 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.ws.SearchHistoryAction.SearchHistoryRequest;
+import org.sonar.server.telemetry.TelemetryPortfolioActivityGraphTypeProvider;
+import org.sonar.server.telemetry.TelemetryPortfolioActivityRequestedMetricProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -52,6 +56,7 @@ import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
 import static java.lang.Double.parseDouble;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Map.entry;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -72,17 +77,23 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQU
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_TO;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class SearchHistoryActionIT {
+class SearchHistoryActionIT {
 
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
+  private final TelemetryPortfolioActivityRequestedMetricProvider telemetryActivityRequestedMetricsProvider =
+    new TelemetryPortfolioActivityRequestedMetricProvider();
+  private final TelemetryPortfolioActivityGraphTypeProvider telemetryActivityGraphTypeProvider =
+    new TelemetryPortfolioActivityGraphTypeProvider();
 
-  private final WsActionTester ws = new WsActionTester(new SearchHistoryAction(dbClient, TestComponentFinder.from(db), userSession));
+  private final WsActionTester ws = new WsActionTester(
+    new SearchHistoryAction(dbClient, TestComponentFinder.from(db), userSession, telemetryActivityRequestedMetricsProvider,
+      telemetryActivityGraphTypeProvider));
 
   private ProjectData project;
   private SnapshotDto analysis;
@@ -92,7 +103,7 @@ public class SearchHistoryActionIT {
   private MetricDto stringMetric;
   private MetricDto acceptedIssuesMetric;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     project = db.components().insertPrivateProject();
     analysis = db.components().insertSnapshot(project.getProjectDto());
@@ -106,7 +117,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void empty_response() {
+  void empty_response() {
     project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
@@ -126,7 +137,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void analyses_but_no_measure() {
+  void analyses_but_no_measure() {
     project = db.components().insertPrivateProject();
     analysis = db.components().insertSnapshot(project.getProjectDto());
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
@@ -145,7 +156,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void return_metrics() {
+  void return_metrics() {
     dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(42.0d));
     dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
     db.commit();
@@ -163,7 +174,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void return_renamed_and_deprecated_metric() {
+  void return_renamed_and_deprecated_metric() {
     dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
     db.commit();
 
@@ -180,7 +191,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void return_measures() {
+  void return_measures() {
     SnapshotDto laterAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project.getMainBranchDto()).setCreatedAt(analysis.getCreatedAt() + 42_000));
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     dbClient.projectMeasureDao().insert(dbSession,
@@ -222,7 +233,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void pagination_applies_to_analyses() {
+  void pagination_applies_to_analyses() {
     project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
@@ -247,7 +258,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void inclusive_from_and_to_dates() {
+  void inclusive_from_and_to_dates() {
     project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
@@ -272,7 +283,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void return_best_values_for_files() {
+  void return_best_values_for_files() {
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("optimized").setValueType(ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(456d));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("new_optimized").setValueType(ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(789d));
     db.commit();
@@ -300,7 +311,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void do_not_return_unprocessed_analyses() {
+  void do_not_return_unprocessed_analyses() {
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project.getMainBranchDto()).setStatus(STATUS_UNPROCESSED));
     db.commit();
 
@@ -315,7 +326,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void branch() {
+  void branch() {
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("my_branch"));
@@ -339,7 +350,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void pull_request() {
+  void pull_request() {
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
@@ -363,7 +374,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void fail_if_unknown_metric() {
+  void fail_if_unknown_metric() {
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.projectKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), "METRIC_42", "42_METRIC"))
@@ -375,7 +386,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void fail_if_not_enough_permissions() {
+  void fail_if_not_enough_permissions() {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.projectKey())
@@ -387,7 +398,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void fail_if_not_enough_permissions_for_application() {
+  void fail_if_not_enough_permissions_for_application() {
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project1 = db.components().insertPrivateProject();
     ProjectData project2 = db.components().insertPrivateProject();
@@ -409,7 +420,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void fail_if_unknown_component() {
+  void fail_if_unknown_component() {
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent("__UNKNOWN__")
       .setMetrics(singletonList(complexityMetric.getKey()))
@@ -420,7 +431,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void fail_when_component_is_removed() {
+  void fail_when_component_is_removed() {
     ProjectData projectData = db.components().insertPrivateProject();
     db.components().insertComponent(newFileDto(project.getMainBranchComponent()).setKey("file-key").setEnabled(false));
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
@@ -434,7 +445,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void fail_if_branch_does_not_exist() {
+  void fail_if_branch_does_not_exist() {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
@@ -450,7 +461,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("search_history");
@@ -467,7 +478,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void json_example() {
+  void json_example() {
     project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
@@ -489,7 +500,7 @@ public class SearchHistoryActionIT {
   }
 
   @Test
-  public void measure_without_values() {
+  void measure_without_values() {
     dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(stringMetric, project.mainBranchUuid(), analysis).setValue(null).setData(null));
     db.commit();
 
@@ -507,9 +518,55 @@ public class SearchHistoryActionIT {
     assertThat(measure.getHistory(0).hasValue()).isFalse();
   }
 
-  private SearchHistoryResponse call(SearchHistoryRequest request) {
-    TestRequest testRequest = ws.newRequest();
+  @Test
+  void handle_shouldUpdateTelemetryProviders() {
+    PortfolioData portfolioData = db.components().insertPrivatePortfolioData();
+    userSession.addPortfolioPermission(UserRole.USER, portfolioData.getPortfolioDto());
 
+    project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
+    db.commit();
+    // Request for a portfolio
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(portfolioData.getPortfolioDto().getKee())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
+      .build();
+    callWithHeaders(request, Map.of("referer",
+      "sonarqube/project/activity?id=foo"));
+    callWithHeaders(request, Map.of("referer",
+      "sonarqube/project/activity?graph=coverage&id=foo"));
+    callWithHeaders(request, Map.of("referer",
+      "sonarqube/project/activity?graph=duplications&id=foo"));
+    callWithHeaders(request, Map.of("referer",
+      "sonarqube/project/activity?graph=duplications&id=foo"));
+    callWithHeaders(request, Map.of("referer",
+      "sonarqube/project/activity?custom_metrics=classes%2Ccognitive_complexity&graph=custom&id=foo"));
+    // Request for a project
+    request = SearchHistoryRequest.builder()
+      .setComponent(project.projectKey())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey(), acceptedIssuesMetric.getKey()))
+      .build();
+    call(request);
+
+    assertThat(telemetryActivityRequestedMetricsProvider.getValues()).hasSize(3).contains(
+      entry("complexity", true),
+      entry("ncloc", true),
+      entry("new_violations", true));
+    assertThat(telemetryActivityGraphTypeProvider.getValues()).contains(entry("issues", 1));
+    assertThat(telemetryActivityGraphTypeProvider.getValues()).contains(entry("coverage", 1));
+    assertThat(telemetryActivityGraphTypeProvider.getValues()).contains(entry("duplications", 2));
+    assertThat(telemetryActivityGraphTypeProvider.getValues()).contains(entry("custom", 1));
+  }
+
+  private SearchHistoryResponse call(SearchHistoryRequest request) {
+
+    return callWithHeaders(request, Map.of());
+  }
+
+  private SearchHistoryResponse callWithHeaders(SearchHistoryRequest request, Map<String, String> headers) {
+    TestRequest testRequest = ws.newRequest();
+    headers.forEach(testRequest::setHeader);
     testRequest.setParam(PARAM_COMPONENT, request.getComponent());
     testRequest.setParam(PARAM_METRICS, String.join(",", request.getMetrics()));
     ofNullable(request.getFrom()).ifPresent(from -> testRequest.setParam(PARAM_FROM, from));

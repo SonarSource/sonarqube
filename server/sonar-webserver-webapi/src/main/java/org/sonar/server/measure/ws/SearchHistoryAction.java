@@ -23,9 +23,12 @@ import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -49,6 +52,8 @@ import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.RemovedMetricConverter;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.telemetry.TelemetryPortfolioActivityGraphTypeProvider;
+import org.sonar.server.telemetry.TelemetryPortfolioActivityRequestedMetricProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
@@ -57,6 +62,8 @@ import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
@@ -73,15 +80,22 @@ public class SearchHistoryAction implements MeasuresWsAction {
 
   private static final int MAX_PAGE_SIZE = 1_000;
   private static final int DEFAULT_PAGE_SIZE = 100;
+  public static final Pattern GRAPH_REGEX = Pattern.compile("graph=([^&]+)");
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
+  private final TelemetryPortfolioActivityRequestedMetricProvider telemetryRequestedMetricProvider;
+  private final TelemetryPortfolioActivityGraphTypeProvider telemetryGraphTypeProvider;
 
-  public SearchHistoryAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public SearchHistoryAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
+    TelemetryPortfolioActivityRequestedMetricProvider telemetryRequestedMetricProvider,
+    TelemetryPortfolioActivityGraphTypeProvider telemetryGraphTypeProvider) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
+    this.telemetryRequestedMetricProvider = telemetryRequestedMetricProvider;
+    this.telemetryGraphTypeProvider = telemetryGraphTypeProvider;
   }
 
   @Override
@@ -158,13 +172,29 @@ public class SearchHistoryAction implements MeasuresWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchHistoryResponse searchHistoryResponse = Optional.of(request)
+    Optional<SearchHistoryResult> searchHistoryResult = Optional.of(request)
       .map(SearchHistoryAction::toWsRequest)
-      .map(search())
+      .map(search());
+    SearchHistoryResponse searchHistoryResponse = searchHistoryResult
       .map(result -> new SearchHistoryResponseFactory(result).apply())
       .orElseThrow();
 
     writeProtobuf(searchHistoryResponse, request, response);
+    searchHistoryResult.ifPresent(r -> writeTelemetry(request, r));
+  }
+
+  private void writeTelemetry(Request request, SearchHistoryResult searchResult) {
+    Map<String, String> headers = request.getHeaders();
+    String referer = headers.getOrDefault("referer", "");
+    if (referer.contains("project/activity") && List.of(VIEW, SUBVIEW).contains(searchResult.getComponent().qualifier())) {
+      toWsRequest(request).metrics.forEach(telemetryRequestedMetricProvider::metricRequested);
+      getGraphType(referer).ifPresent(telemetryGraphTypeProvider::incrementCount);
+    }
+  }
+
+  private static Optional<String> getGraphType(String url) {
+    Matcher matcher = GRAPH_REGEX.matcher(url);
+    return matcher.find() ? Optional.of(matcher.group(1)) : Optional.of("issues");
   }
 
   private static SearchHistoryRequest toWsRequest(Request request) {

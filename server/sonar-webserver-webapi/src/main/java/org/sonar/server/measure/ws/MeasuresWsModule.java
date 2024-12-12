@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.Module;
+import org.sonar.server.telemetry.TelemetryPortfolioActivityGraphTypeProvider;
+import org.sonar.server.telemetry.TelemetryPortfolioActivityRequestedMetricProvider;
 
 public class MeasuresWsModule extends Module {
   @Override
@@ -33,7 +35,11 @@ public class MeasuresWsModule extends Module {
       ComponentTreeAction.class,
       ComponentAction.class,
       SearchAction.class,
-      SearchHistoryAction.class);
+      SearchHistoryAction.class,
+      // Telemetry
+      TelemetryPortfolioActivityGraphTypeProvider.class,
+      TelemetryPortfolioActivityRequestedMetricProvider.class
+    );
   }
 
   public static String getDeprecatedMetricsInSonarQube93() {
