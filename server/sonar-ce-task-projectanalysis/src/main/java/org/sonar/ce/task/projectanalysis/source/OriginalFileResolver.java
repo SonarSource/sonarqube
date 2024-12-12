@@ -54,33 +54,29 @@ public class OriginalFileResolver {
   }
 
   public Optional<String> getFileUuid(Component file) {
-
     if (analysisMetadataHolder.isPullRequest()) {
       return Optional.ofNullable(referenceBranchComponentUuids.getComponentUuid(file.getKey()));
     }
-
     if (analysisMetadataHolder.isFirstAnalysis()) {
-
-      if (isNewCodePeriodReferenceBranch()) {
-
-        String componentUuidFromNewCodeReference = newCodeReferenceBranchComponentUuids.getComponentUuid(file.getKey());
-        if (componentUuidFromNewCodeReference != null) {
-          return Optional.of(componentUuidFromNewCodeReference);
-        }
-
-      }
-
-      if (!analysisMetadataHolder.getBranch().isMain()) {
-        String componentUuidFromReferenceBranch = referenceBranchComponentUuids.getComponentUuid(file.getKey());
-        if (componentUuidFromReferenceBranch != null) {
-          return Optional.of(componentUuidFromReferenceBranch);
-        }
-      }
-
+      return getFileUuidForFirstAnalysis(file);
     }
-
     return getOrignalFileIfMoved(file);
+  }
 
+  private Optional<String> getFileUuidForFirstAnalysis(Component file) {
+    if (isNewCodePeriodReferenceBranch()) {
+      String componentUuidFromNewCodeReference = newCodeReferenceBranchComponentUuids.getComponentUuid(file.getKey());
+      if (componentUuidFromNewCodeReference != null) {
+        return Optional.of(componentUuidFromNewCodeReference);
+      }
+    }
+    if (!analysisMetadataHolder.getBranch().isMain()) {
+      String componentUuidFromReferenceBranch = referenceBranchComponentUuids.getComponentUuid(file.getKey());
+      if (componentUuidFromReferenceBranch != null) {
+        return Optional.of(componentUuidFromReferenceBranch);
+      }
+    }
+    return getOrignalFileIfMoved(file);
   }
 
   private boolean isNewCodePeriodReferenceBranch() {
