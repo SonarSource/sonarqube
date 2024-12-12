@@ -16,7 +16,8 @@
       ],
       "visibility": "public",
       "isAiCodeFixEnabled": false,
-      "aiCodeAssurance": "NONE"
+      "aiCodeAssurance": "NONE",
+      "containsAiCode": false
     },
     {
       "key": "another_project",
@@ -26,7 +27,8 @@
       "tags": [],
       "visibility": "public",
       "isAiCodeFixEnabled": false,
-      "aiCodeAssurance": "NONE"
+      "aiCodeAssurance": "NONE",
+      "containsAiCode": false
     },
     {
       "key": "third_project",
@@ -40,7 +42,8 @@
       ],
       "visibility": "public",
       "isAiCodeFixEnabled": false,
-      "aiCodeAssurance": "NONE"
+      "aiCodeAssurance": "NONE",
+      "containsAiCode": false
     }
   ],
   "facets": [

@@ -114,9 +114,10 @@ message Component {
   optional string version = 19;
   optional string pullRequest = 20;
   optional bool needIssueSync = 21;
-  optional bool isAiCodeAssured = 22;
+  //reserved 22
   optional bool isAiCodeFixEnabled = 23;
   optional AiCodeAssurance aiCodeAssurance = 24;
+  optional bool containsAiCode = 25;
 
   message Tags {
     repeated string tags = 1;
@@ -125,8 +126,12 @@ message Component {
 
 enum AiCodeAssurance {
   UNKNOWN_AI_CODE_ASSURANCE = 0;
-  CONTAINS_AI_CODE = 1;
-  AI_CODE_ASSURED = 2;
+  //reserved 1;
+  //reserved 2;
   NONE = 3;
+  AI_CODE_ASSURANCE_ON = 4;
+  AI_CODE_ASSURANCE_OFF = 5;
+  AI_CODE_ASSURANCE_PASS = 6;
+  AI_CODE_ASSURANCE_FAIL = 7;
 }
 
