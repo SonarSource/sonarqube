@@ -25,15 +25,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
-import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
@@ -56,7 +55,7 @@ import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.TRACE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
-public class ScmInfoDbLoaderIT {
+class ScmInfoDbLoaderIT {
   static final int FILE_REF = 1;
   static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
   static final long DATE_1 = 123456789L;
@@ -66,18 +65,16 @@ public class ScmInfoDbLoaderIT {
     .setCreatedAt(123456789L)
     .build();
 
-  @Rule
-  public LogTester logTester = new LogTester();
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-  @Rule
-  public MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
-  @Rule
-  public PeriodHolderRule periodHolder = new PeriodHolderRule();
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  @RegisterExtension
+  private final AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
+  @RegisterExtension
+  private final PeriodHolderRule periodHolder = new PeriodHolderRule();
 
   private final Branch branch = mock(Branch.class);
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
@@ -87,14 +84,14 @@ public class ScmInfoDbLoaderIT {
 
   private final ScmInfoDbLoader underTest = new ScmInfoDbLoader(dbTester.getDbClient(), originalFileResolver);
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     logTester.setLevel(TRACE);
     periodHolder.setPeriod(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), null, null));
   }
 
   @Test
-  public void returns_ScmInfo_from_DB() {
+  void returns_ScmInfo_from_DB() {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);
 
@@ -109,7 +106,7 @@ public class ScmInfoDbLoaderIT {
   }
 
   @Test
-  public void read_from_reference_branch_if_no_base() {
+  void read_from_reference_branch_if_no_base() {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
 
@@ -126,7 +123,7 @@ public class ScmInfoDbLoaderIT {
   }
 
   @Test
-  public void read_from_target_if_pullrequest() {
+  void read_from_target_if_pullrequest() {
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
@@ -144,7 +141,7 @@ public class ScmInfoDbLoaderIT {
   }
 
   @Test
-  public void read_from_target_if_reference_branch() {
+  void read_from_target_if_reference_branch() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), null, null));
 
     when(branch.getType()).thenReturn(BranchType.BRANCH);
@@ -164,7 +161,7 @@ public class ScmInfoDbLoaderIT {
   }
 
   @Test
-  public void read_from_db_if_not_exist_in_reference_branch() {
+  void read_from_db_if_not_exist_in_reference_branch() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), null, null));
 
     when(branch.getType()).thenReturn(BranchType.BRANCH);
@@ -182,7 +179,7 @@ public class ScmInfoDbLoaderIT {
   }
 
   @Test
-  public void return_empty_if_no_dto_available() {
+  void return_empty_if_no_dto_available() {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);
 
@@ -193,7 +190,7 @@ public class ScmInfoDbLoaderIT {
   }
 
   @Test
-  public void do_not_read_from_db_on_first_analysis_if_there_is_no_reference_branch() {
+  void do_not_read_from_db_on_first_analysis_if_there_is_no_reference_branch() {
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
