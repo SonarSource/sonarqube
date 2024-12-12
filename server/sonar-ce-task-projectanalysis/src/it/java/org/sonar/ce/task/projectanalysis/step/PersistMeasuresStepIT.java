@@ -53,6 +53,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA;
+import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -255,6 +259,26 @@ class PersistMeasuresStepIT {
 
     verifyInsertsOrUpdates(1);
     verifyUnchanged(0);
+  }
+
+  @Test
+  void do_not_persist_excluded_metrics() {
+    MetricDto nclocDto = db.measures().insertMetric(m -> m.setKey(NCLOC_DATA.getKey()).setValueType(Metric.ValueType.DATA.name()));
+    MetricDto executableDto = db.measures().insertMetric(m -> m.setKey(EXECUTABLE_LINES_DATA.getKey()).setValueType(Metric.ValueType.DATA.name()));
+
+    metricRepository.add(nclocDto.getUuid(), NCLOC_DATA);
+    metricRepository.add(executableDto.getUuid(), EXECUTABLE_LINES_DATA);
+
+    prepareProject();
+
+    // the computed measures
+    measureRepository.addRawMeasure(REF_1, NCLOC_DATA_KEY, newMeasureBuilder().create(10_000));
+    measureRepository.addRawMeasure(REF_1, EXECUTABLE_LINES_DATA_KEY, newMeasureBuilder().create(5_000));
+
+    step().execute(context);
+
+    // no excluded measures are persisted
+    verifyInsertsOrUpdates(0);
   }
 
   private void insertMeasure(String componentUuid, String projectUuid, Metric<?> metric, Object obj) {
