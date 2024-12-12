@@ -68,6 +68,11 @@ public class RulesWsParameters {
   public static final String FIELD_SYSTEM_TAGS = "sysTags";
   public static final String FIELD_LANGUAGE = "lang";
   public static final String FIELD_LANGUAGE_NAME = "langName";
+  /**
+   * For backward compatibility with SonarLint we still accept this field in the request, but we won't return it
+   * @deprecated since 2025.1
+   */
+  @Deprecated(since = "2025.1")
   public static final String FIELD_HTML_DESCRIPTION = "htmlDesc";
   public static final String FIELD_MARKDOWN_DESCRIPTION = "mdDesc";
 

@@ -88,7 +88,8 @@ public class ShowAction implements RulesWsAction {
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."),
         new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", INFO.name(), BLOCKER.name())),
-        new Change("10.8", "The field 'severity' and 'type' in the response  are not deprecated anymore."));
+        new Change("10.8", "The field 'severity' and 'type' in the response  are not deprecated anymore."),
+        new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'f' parameter."));
 
     action
       .createParam(PARAM_KEY)

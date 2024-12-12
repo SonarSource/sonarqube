@@ -115,7 +115,6 @@ public class CreateActionIT {
           "key": "java:MY_CUSTOM",
           "repo": "java",
           "name": "My custom rule",
-          "htmlDesc": "Description",
           "severity": "MAJOR",
           "status": "BETA",
           "type": "BUG",
@@ -175,7 +174,6 @@ public class CreateActionIT {
           "key": "java:MY_CUSTOM",
           "repo": "java",
           "name": "My custom rule",
-          "htmlDesc": "Description",
           "severity": "INFO",
           "status": "BETA",
           "type": "VULNERABILITY",
@@ -231,7 +229,6 @@ public class CreateActionIT {
       "    \"key\": \"java:MY_CUSTOM\",\n" +
       "    \"repo\": \"java\",\n" +
       "    \"name\": \"My custom rule\",\n" +
-      "    \"htmlDesc\": \"Description\",\n" +
       "    \"severity\": \"MAJOR\",\n" +
       "    \"status\": \"REMOVED\",\n" +
       "    \"isTemplate\": false\n" +

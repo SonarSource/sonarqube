@@ -378,7 +378,6 @@ class SearchActionIT {
 
     // not returned fields
     assertThat(result.hasGapDescription()).isFalse();
-    assertThat(result.hasHtmlDesc()).isFalse();
     assertThat(result.hasIsTemplate()).isFalse();
     assertThat(result.hasLang()).isFalse();
     assertThat(result.hasName()).isFalse();

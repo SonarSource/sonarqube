@@ -73,7 +73,6 @@ message Rule {
   optional string repo = 2;
   optional string name = 3;
   optional string createdAt = 4;
-  optional string htmlDesc = 5 [deprecated = true];
   optional string htmlNote = 6;
   optional string mdDesc = 7;
   optional string mdNote = 8;

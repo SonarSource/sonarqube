@@ -63,7 +63,6 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DESCRIPTION_SECTIONS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EDUCATION_PRINCIPLES;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GAP_DESCRIPTION;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_HTML_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_INTERNAL_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_IS_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_IS_TEMPLATE;
@@ -179,10 +178,6 @@ public class RuleMapper {
 
   private void setAdHocDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     String adHocDescription = ruleDto.getAdHocDescription();
-    if (adHocDescription != null && shouldReturnField(fieldsToReturn, FIELD_HTML_DESCRIPTION)) {
-      ruleResponse.setHtmlDesc(macroInterpreter.interpret(adHocDescription));
-    }
-
     if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS) && adHocDescription != null) {
       ruleResponse.clearDescriptionSections();
       ruleResponse.getDescriptionSectionsBuilder().addDescriptionSectionsBuilder()
@@ -361,17 +356,9 @@ public class RuleMapper {
   }
 
   private void setDescriptionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_HTML_DESCRIPTION)) {
-      String htmlDescription = ruleDescriptionFormatter.getDescriptionAsHtml(ruleDto);
-      if (htmlDescription != null) {
-        ruleResponse.setHtmlDesc(macroInterpreter.interpret(htmlDescription));
-      }
-    }
-
     if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS)) {
       Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = ruleDto.getRuleDescriptionSectionDtos();
       Set<Rules.Rule.DescriptionSection> sections = ruleDescriptionSectionDtos.stream()
-        .filter(sectionDto -> !isDefaultAndMoreThanOneSectionPresent(ruleDescriptionSectionDtos, sectionDto))
         .map(sectionDto -> toDescriptionSection(ruleDto, sectionDto))
         .collect(Collectors.toSet());
       ruleResponse.setDescriptionSections(Rules.Rule.DescriptionSections.newBuilder().addAllDescriptionSections(sections).build());
@@ -382,20 +369,8 @@ public class RuleMapper {
         Optional.ofNullable(ruleDto.getDefaultRuleDescriptionSection())
           .map(RuleDescriptionSectionDto::getContent)
           .ifPresent(ruleResponse::setMdDesc);
-      } else {
-        ruleResponse.setMdDesc(ruleResponse.getHtmlDesc());
       }
     }
-  }
-
-  /**
-   * This was done to preserve backward compatibility with SonarLint until they stop using htmlDesc field in api/rules/[show|search] endpoints, see SONAR-16635
-   *
-   * @deprecated the method should be removed once SonarLint supports rules.descriptionSections fields, I.E in 10.x and DB is cleaned up of non-necessary default sections.
-   */
-  @Deprecated(since = "9.6", forRemoval = true)
-  private static boolean isDefaultAndMoreThanOneSectionPresent(Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos, RuleDescriptionSectionDto s) {
-    return ruleDescriptionSectionDtos.size() > 1 && s.isDefault();
   }
 
   private Rules.Rule.DescriptionSection toDescriptionSection(RuleDto ruleDto, RuleDescriptionSectionDto section) {

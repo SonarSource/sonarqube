@@ -329,9 +329,13 @@ class ShowActionIT {
       .setParam("key", customRule.getKey().toString())
       .executeProtobuf(ShowResponse.class);
 
-    assertThat(result.getRule().getHtmlDesc()).isEqualTo(INTERPRETED);
+    assertThat(result.getRule().getMdDesc()).isEqualTo("<div>line1\nline2</div>");
     assertThat(result.getRule().getTemplateKey()).isEqualTo(templateRule.getKey().toString());
-    verify(macroInterpreter, times(2)).interpret("&lt;div&gt;line1<br/>line2&lt;/div&gt;");
+    verify(macroInterpreter, times(1)).interpret("&lt;div&gt;line1<br/>line2&lt;/div&gt;");
+
+    assertThat(result.getRule().getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactly(tuple(DEFAULT_KEY, INTERPRETED));
   }
 
   @Test
@@ -370,8 +374,8 @@ class ShowActionIT {
 
     Rule resultRule = result.getRule();
     assertThat(resultRule)
-      .extracting(Rule::getName, Rule::getHtmlDesc, Rule::getSeverity, Rule::getType)
-      .containsExactlyInAnyOrder("adhoc name", "&lt;div&gt;desc2&lt;/div&gt;", Severity.BLOCKER, VULNERABILITY);
+      .extracting(Rule::getName, Rule::getSeverity, Rule::getType)
+      .containsExactlyInAnyOrder("adhoc name", Severity.BLOCKER, VULNERABILITY);
 
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
       .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
@@ -398,8 +402,6 @@ class ShowActionIT {
       .executeProtobuf(ShowResponse.class);
 
     Rule resultRule = result.getRule();
-    assertThat(resultRule.getHtmlDesc()).isEmpty();
-    assertThat(resultRule.getMdDesc()).isEqualTo(resultRule.getHtmlDesc());
 
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
       .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent, section -> section.getContext().getKey(), section -> section.getContext().getDisplayName())
@@ -424,7 +426,6 @@ class ShowActionIT {
       .executeProtobuf(ShowResponse.class);
     Rule resultRule = result.getRule();
 
-    assertThat(resultRule.getHtmlDesc()).isEqualTo(INTERPRETED);
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
       .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
       .containsExactly(tuple(DEFAULT_KEY, INTERPRETED));
@@ -444,36 +445,9 @@ class ShowActionIT {
       .executeProtobuf(ShowResponse.class);
     Rule resultRule = result.getRule();
 
-    assertThat(resultRule.getHtmlDesc()).isEqualTo(INTERPRETED);
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
       .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
       .containsExactly(tuple(DEFAULT_KEY, INTERPRETED));
-  }
-
-  @Test
-  void show_if_advanced_sections_and_default_filters_out_default() {
-    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
-
-    RuleDescriptionSectionDto section1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
-    RuleDescriptionSectionDto defaultSection = createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the default section");
-
-    RuleDto rule = createRuleWithDescriptionSections(section1, defaultSection);
-    rule.setType(RuleType.SECURITY_HOTSPOT);
-    rule.setNoteUserUuid(userDto.getUuid());
-    db.rules().insert(rule);
-
-    ShowResponse result = ws.newRequest()
-      .setParam(PARAM_KEY, rule.getKey().toString())
-      .executeProtobuf(ShowResponse.class);
-
-    Rule resultRule = result.getRule();
-    assertThat(resultRule.getHtmlDesc()).contains(defaultSection.getContent());
-
-    assertThat(resultRule.getMdDesc()).isEqualTo(resultRule.getHtmlDesc());
-
-    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
-      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
-      .containsExactlyInAnyOrder(tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"));
   }
 
   @Test
@@ -493,12 +467,20 @@ class ShowActionIT {
 
     Rule resultRule = result.getRule();
 
-    assertThat(resultRule.getHtmlDesc()).contains("<strong>toto is toto</strong>");
+    assertThat(getDefaultSection(resultRule)).contains("<strong>toto is toto</strong>");
     assertThat(resultRule.getMdDesc()).contains("*toto is toto*");
 
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
       .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
       .contains(tuple(DEFAULT_KEY, "<strong>toto is toto</strong>"));
+  }
+
+  private static String getDefaultSection(Rule rule) {
+    return rule.getDescriptionSections().getDescriptionSectionsList().stream()
+      .filter(s -> "default".equals(s.getKey()))
+      .findFirst()
+      .map(Rule.DescriptionSection::getContent)
+      .orElse(null);
   }
 
   @Test
@@ -524,7 +506,7 @@ class ShowActionIT {
 
     Rule resultRule = result.getRule();
     assertThat(resultRule)
-      .extracting(Rule::getName, Rule::getHtmlDesc, Rule::getSeverity, Rule::getType)
+      .extracting(Rule::getName, ShowActionIT::getDefaultSection, Rule::getSeverity, Rule::getType)
       .containsExactlyInAnyOrder("adhoc name", "&lt;div&gt;adhoc desc&lt;/div&gt;", Severity.MAJOR, Common.RuleType.CODE_SMELL);
   }
 
@@ -550,8 +532,12 @@ class ShowActionIT {
 
     Rule resultRule = result.getRule();
     assertThat(resultRule)
-      .extracting(Rule::hasName, Rule::hasHtmlDesc, Rule::hasSeverity, Rule::getType)
-      .containsExactlyInAnyOrder(false, false, false, UNKNOWN);
+      .extracting(Rule::hasName, ShowActionIT::getDescriptionSectionsCount, Rule::hasSeverity, Rule::getType)
+      .containsExactlyInAnyOrder(false, 1, false, UNKNOWN);
+  }
+
+  private static int getDescriptionSectionsCount(Rule r) {
+    return r.getDescriptionSections().getDescriptionSectionsCount();
   }
 
   @Test

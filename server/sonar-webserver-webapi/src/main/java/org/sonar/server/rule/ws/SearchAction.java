@@ -198,7 +198,8 @@ public class SearchAction implements RulesWsAction {
         new Change("10.8", "The values 'severity' and 'types' for the 'facets' parameter are not deprecated anymore."),
         new Change("10.8", "The fields 'type' and 'severity' in the response are not deprecated anymore."),
         new Change("10.8", "The value 'severity' for the 'f' parameter is not deprecated anymore."),
-        new Change("2025.2", format("The facet '%s' has been added.", FACET_ACTIVE_IMPACT_SEVERITY)));
+        new Change("2025.1", format("The facet '%s' has been added.", FACET_ACTIVE_IMPACT_SEVERITY)),
+        new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'f' parameter."));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")

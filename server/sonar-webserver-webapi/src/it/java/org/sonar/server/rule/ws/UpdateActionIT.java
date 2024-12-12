@@ -139,25 +139,27 @@ class UpdateActionIT {
       .setParam("params", "regex=a.*")
       .execute();
 
-    assertJson(request.getInput()).isSimilarTo("{\n" +
-      "  \"rule\": {\n" +
-      "    \"key\": \"java:MY_CUSTOM\",\n" +
-      "    \"repo\": \"java\",\n" +
-      "    \"name\": \"My custom rule\",\n" +
-      "    \"htmlDesc\": \"Description\",\n" +
-      "    \"severity\": \"MAJOR\",\n" +
-      "    \"status\": \"BETA\",\n" +
-      "    \"isTemplate\": false,\n" +
-      "    \"templateKey\": \"java:S001\",\n" +
-      "    \"params\": [\n" +
-      "      {\n" +
-      "        \"key\": \"regex\",\n" +
-      "        \"htmlDesc\": \"Reg ex\",\n" +
-      "        \"defaultValue\": \"a.*\"\n" +
-      "      }\n" +
-      "    ]\n" +
-      "  }\n" +
-      "}\n");
+    assertJson(request.getInput()).isSimilarTo("""
+      {
+        "rule": {
+          "key": "java:MY_CUSTOM",
+          "repo": "java",
+          "name": "My custom rule",
+          "mdDesc": "Description",
+          "severity": "MAJOR",
+          "status": "BETA",
+          "isTemplate": false,
+          "templateKey": "java:S001",
+          "params": [
+            {
+              "key": "regex",
+              "htmlDesc": "Reg ex",
+              "defaultValue": "a.*"
+            }
+          ]
+        }
+      }
+      """);
   }
 
   @Test
