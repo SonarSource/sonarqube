@@ -25,7 +25,7 @@
     "d3-zoom": "3.0.0",
     "date-fns": "4.1.0",
     "diff": "7.0.0",
-    "dompurify": "3.1.7",
+    "dompurify": "3.2.3",
     "formik": "2.4.6",
     "highlight.js": "11.10.0",
     "highlightjs-apex": "1.4.0",
