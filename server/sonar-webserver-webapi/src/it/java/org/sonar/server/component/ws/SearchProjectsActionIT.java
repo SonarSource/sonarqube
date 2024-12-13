@@ -123,7 +123,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUA
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_QUALIFIER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
-public class SearchProjectsActionIT {
+class SearchProjectsActionIT {
 
   private static final String NCLOC = "ncloc";
   private static final String COVERAGE = "coverage";
@@ -133,7 +133,7 @@ public class SearchProjectsActionIT {
   private static final String ANALYSIS_DATE = "analysisDate";
 
   @RegisterExtension
-  public final UserSessionRule userSession = UserSessionRule.standalone();
+  final UserSessionRule userSession = UserSessionRule.standalone();
   @RegisterExtension
   public final EsTester es = EsTester.create();
   @RegisterExtension
@@ -222,7 +222,8 @@ public class SearchProjectsActionIT {
   void setUp() {
     when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
     AiCodeAssuranceVerifier aiCodeAssuranceVerifier = new AiCodeAssuranceVerifier(aiCodeAssuranceEntitlement, db.getDbClient());
-    underTest = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock, aiCodeAssuranceVerifier));
+    underTest = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock, aiCodeAssuranceEntitlement
+      , aiCodeAssuranceVerifier));
   }
 
   @Test
@@ -1410,6 +1411,22 @@ public class SearchProjectsActionIT {
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getContainsAiCode, Component::getAiCodeAssurance)
       .containsExactly(
         tuple(project.getKey(), containsAiCode, Components.AiCodeAssurance.valueOf(expected.name())));
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void contains_ai_code_is_false_for_community_edition(boolean containsAiCode) {
+    userSession.logIn();
+    when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(false);
+    ProjectData projectData = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
+      projectDto -> projectDto.setContainsAiCode(containsAiCode));
+    ProjectDto project = projectData.getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(project);
+    index();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getContainsAiCode).containsExactly(false);
   }
 
   private static Stream<Arguments> aiCodeAssuranceParams() {
