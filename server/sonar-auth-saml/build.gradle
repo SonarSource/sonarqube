@@ -17,6 +17,8 @@ dependencies {
     compileOnlyApi project(':server:sonar-webserver-api')
     compileOnlyApi project(':sonar-core')
 
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
