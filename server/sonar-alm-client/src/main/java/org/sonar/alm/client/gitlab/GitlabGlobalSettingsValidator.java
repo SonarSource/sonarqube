@@ -21,6 +21,7 @@ package org.sonar.alm.client.gitlab;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
@@ -28,6 +29,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
+@ComputeEngineSide
 @ServerSide
 public class GitlabGlobalSettingsValidator {
 
