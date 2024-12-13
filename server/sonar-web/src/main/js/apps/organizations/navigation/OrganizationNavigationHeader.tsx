@@ -46,6 +46,9 @@ export default function OrganizationNavigationHeader({ organization, organizatio
 
         {other.length ? (
           <DropdownMenu.Root
+            onClose={() => {
+              setIsMenuOpen(false);
+            }}
             isOpen={isMenuOpen}
             align={DropdownMenuAlign.Start}
             className="sw-p-3"
