@@ -174,6 +174,7 @@ public class RestResponseEntityExceptionHandler {
   protected ResponseEntity<RestError> handleServerException(ServerException ex) {
     final HttpStatus httpStatus = Optional.ofNullable(HttpStatus.resolve(ex.httpCode())).orElse(HttpStatus.INTERNAL_SERVER_ERROR);
     final String errorMessage = Optional.ofNullable(ex.getMessage()).orElse(ErrorMessages.INTERNAL_SERVER_ERROR.getMessage());
+    LOGGER.error(errorMessage, ex);
     return buildResponse(httpStatus, errorMessage);
   }
 

@@ -332,6 +332,9 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().message()).isEqualTo(ex.getMessage());
+
+    // Verify logging
+    assertThat(logs.logs(Level.ERROR)).contains(ex.getMessage());
   }
 
   static Stream<Arguments> serverExceptionsProvider() {
