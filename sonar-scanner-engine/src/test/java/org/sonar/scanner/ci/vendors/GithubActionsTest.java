@@ -77,7 +77,7 @@ class GithubActionsTest {
 
   @Test
   void loadConfiguration_whenIsAPullRequest_ThenGetRevisionFromPullRequest() throws IOException {
-    prepareEvent("org/sonar/scanner/ci/providers/GithubActionsTest/pull_request_event.json", "pull_request");
+    prepareEvent("pull_request_event.json", "pull_request");
     setEnvVariable(GITHUB_SHA, "abd12fc");
     setEnvVariable(GITHUB_API_URL_ENV_VAR, GITHUB_API_URL);
     setEnvVariable(GITHUB_REPOSITORY_ENV_VAR, REPOSITORY);
@@ -131,6 +131,6 @@ class GithubActionsTest {
   }
 
   private static String readTestResource(String filename) throws IOException {
-    return IOUtils.toString(Objects.requireNonNull(GithubActionsTest.class.getClassLoader().getResource(filename)), UTF_8);
+    return IOUtils.toString(Objects.requireNonNull(GithubActionsTest.class.getResource(filename)), UTF_8);
   }
 }
