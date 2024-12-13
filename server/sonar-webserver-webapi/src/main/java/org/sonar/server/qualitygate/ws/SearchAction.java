@@ -33,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
@@ -52,11 +52,13 @@ public class SearchAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGatesWsSupport wsSupport;
+  private final AiCodeAssuranceEntitlement aiCodeAssuranceEntitlement;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport wsSupport) {
+  public SearchAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport wsSupport, AiCodeAssuranceEntitlement aiCodeAssuranceEntitlement) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
+    this.aiCodeAssuranceEntitlement = aiCodeAssuranceEntitlement;
   }
 
   @Override
@@ -141,7 +143,7 @@ public class SearchAction implements QualityGatesWsAction {
           .setName(project.getName())
           .setKey(project.getKey())
           .setSelected(project.getGateUuid() != null)
-          .setContainsAiCode(project.getContainsAiCode());
+          .setContainsAiCode(project.getContainsAiCode() && aiCodeAssuranceEntitlement.isEnabled());
       }
 
       writeProtobuf(createResponse.build(), request, response);
