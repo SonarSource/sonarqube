@@ -85,12 +85,12 @@ class AiCodeAssuranceVerifierTest {
     mockProjectAndQualityGate(containsAiCode, aiCodeSupportedQg);
     mockQualityGateStatus(qualityGateMeasure);
 
-    assertThat(underTest.getAiCodeAssurance(projectDto)).isEqualTo(expected);
+    assertThat(underTest.getAiCodeAssurance(projectDto, null)).isEqualTo(expected);
   }
 
   @ParameterizedTest
   @MethodSource("paramsForGetAiCodeAssurance")
-  void getAiCodeAssuranceABranch(boolean isFeatureEnabled, boolean containsAiCode, boolean aiCodeSupportedQg,
+  void getAiCodeAssuranceForBranch(boolean isFeatureEnabled, boolean containsAiCode, boolean aiCodeSupportedQg,
     MeasureDto qualityGateMeasure, AiCodeAssurance expected) {
     when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(isFeatureEnabled);
     underTest = new AiCodeAssuranceVerifier(aiCodeAssuranceEntitlement, dbClient);
@@ -98,7 +98,7 @@ class AiCodeAssuranceVerifierTest {
     mockBranch(BRANCH_KEY);
     mockQualityGateStatus(qualityGateMeasure);
 
-    assertThat(underTest.getAiCodeAssuranceForBranch(projectDto, BRANCH_KEY)).isEqualTo(expected);
+    assertThat(underTest.getAiCodeAssurance(projectDto, BRANCH_KEY)).isEqualTo(expected);
   }
 
   @ParameterizedTest

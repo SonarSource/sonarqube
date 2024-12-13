@@ -20,6 +20,7 @@
 package org.sonar.server.ai.code.assurance;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -51,12 +52,11 @@ public class AiCodeAssuranceVerifier {
     this.entitlement = entitlement;
   }
 
-  public AiCodeAssurance getAiCodeAssuranceForBranch(ProjectDto projectDto, String branchKey) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      BranchDto branch =
-        dbClient.branchDao().selectByBranchKey(dbSession, projectDto.getUuid(), branchKey)
-          .orElseThrow(() -> new NotFoundException("Branch " + branchKey + " does not exist for project " + projectDto.getUuid()));
-      return getAiCodeAssurance(dbSession, projectDto, branch.getUuid());
+  public AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto, @Nullable String branchKey) {
+    if (branchKey == null) {
+      return getAiCodeAssurance(projectDto);
+    } else {
+      return getAiCodeAssuranceForBranch(projectDto, branchKey);
     }
   }
 
@@ -68,6 +68,15 @@ public class AiCodeAssuranceVerifier {
 
   public boolean isAiCodeAssured(ProjectDto projectDto) {
     return getAiCodeAssurance(projectDto).isAiCodeAssured();
+  }
+
+  private AiCodeAssurance getAiCodeAssuranceForBranch(ProjectDto projectDto, String branchKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      BranchDto branch =
+        dbClient.branchDao().selectByBranchKey(dbSession, projectDto.getUuid(), branchKey)
+          .orElseThrow(() -> new NotFoundException("Branch " + branchKey + " does not exist for project " + projectDto.getUuid()));
+      return getAiCodeAssurance(dbSession, projectDto, branch.getUuid());
+    }
   }
 
   private AiCodeAssurance getAiCodeAssurance(DbSession dbSession, ProjectDto projectDto, String branchUuid) {
