@@ -528,8 +528,6 @@ subprojects {
       }
       dependency 'org.yaml:snakeyaml:2.3'
       dependency 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
-      dependency 'jakarta.el:jakarta.el-api:5.0.1'
-      dependency 'org.glassfish.expressly:expressly:5.0.0'
       dependency 'org.kohsuke:github-api:1.326'
       dependency 'org.wiremock:wiremock-standalone:3.10.0'
       dependency 'org.skyscreamer:jsonassert:1.5.3'

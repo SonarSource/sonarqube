@@ -19,10 +19,14 @@
  */
 package org.sonar.server.v2.api;
 
+import jakarta.validation.Validation;
+import jakarta.validation.ValidatorFactory;
 import java.util.List;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -32,8 +36,13 @@ public class ControllerTester {
   }
 
   public static MockMvc getMockMvcWithHandlerInterceptors(List<HandlerInterceptor> handlerInterceptors, Object... controllers) {
+    ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+      .configure()
+      .messageInterpolator(new ParameterMessageInterpolator())
+      .buildValidatorFactory();
     return MockMvcBuilders
       .standaloneSetup(controllers)
+      .setValidator(new SpringValidatorAdapter(validatorFactory.getValidator()))
       .setCustomHandlerMapping(() -> resolveRequestMappingHandlerMapping(handlerInterceptors))
       .setControllerAdvice(new RestResponseEntityExceptionHandler())
       .setUseTrailingSlashPatternMatch(true)
