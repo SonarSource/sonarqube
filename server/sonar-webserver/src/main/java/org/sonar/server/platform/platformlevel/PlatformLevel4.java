@@ -60,6 +60,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
+import org.sonar.server.ai.code.assurance.NoOpAiCodeAssuranceVerifier;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -348,7 +349,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DelegatingDevOpsProjectCreatorFactory.class,
 
       // ai code assurance
-      AiCodeAssuranceVerifier.class,
+      NoOpAiCodeAssuranceVerifier.class,
       AiCodeAssuranceEntitlement.class,
 
       // batch

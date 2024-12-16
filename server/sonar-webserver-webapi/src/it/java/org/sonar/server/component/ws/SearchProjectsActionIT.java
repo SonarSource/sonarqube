@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.measures.Metric;
@@ -45,8 +46,6 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
@@ -55,7 +54,6 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.ai.code.assurance.AiCodeAssurance;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
@@ -110,10 +108,6 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALIT
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
-import static org.sonar.server.ai.code.assurance.AiCodeAssurance.AI_CODE_ASSURANCE_FAIL;
-import static org.sonar.server.ai.code.assurance.AiCodeAssurance.AI_CODE_ASSURANCE_OFF;
-import static org.sonar.server.ai.code.assurance.AiCodeAssurance.AI_CODE_ASSURANCE_ON;
-import static org.sonar.server.ai.code.assurance.AiCodeAssurance.AI_CODE_ASSURANCE_PASS;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_003;
@@ -212,6 +206,7 @@ class SearchProjectsActionIT {
     System2.INSTANCE);
   private final ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
 
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
   private final AiCodeAssuranceEntitlement aiCodeAssuranceEntitlement = mock(AiCodeAssuranceEntitlement.class);
 
   private WsActionTester underTest;
@@ -221,9 +216,9 @@ class SearchProjectsActionIT {
   @BeforeEach
   void setUp() {
     when(aiCodeAssuranceEntitlement.isEnabled()).thenReturn(true);
-    AiCodeAssuranceVerifier aiCodeAssuranceVerifier = new AiCodeAssuranceVerifier(aiCodeAssuranceEntitlement, db.getDbClient());
-    underTest = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock, aiCodeAssuranceEntitlement
-      , aiCodeAssuranceVerifier));
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(any())).thenReturn(false);
+    when(aiCodeAssuranceVerifier.getAiCodeAssurance(any())).thenReturn(AiCodeAssurance.NONE);
+    underTest = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock, aiCodeAssuranceEntitlement, aiCodeAssuranceVerifier));
   }
 
   @Test
@@ -1393,24 +1388,20 @@ class SearchProjectsActionIT {
   }
 
   @ParameterizedTest
-  @MethodSource("aiCodeAssuranceParams")
-  void return_ai_code_assurance(boolean containsAiCode, boolean aiCodeSupportedByQg, String qualityGateStatus, AiCodeAssurance expected) {
+  @EnumSource(value = AiCodeAssurance.class)
+  void delegate_ai_code_assurance_computation_to_ai_code_assurance_verifier(AiCodeAssurance aiCodeAssurance) {
     userSession.logIn();
 
-    ProjectData projectData = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
-      projectDto -> projectDto.setContainsAiCode(containsAiCode));
+    ProjectData projectData = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"));
     ProjectDto project = projectData.getProjectDto();
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setAiCodeSupported(aiCodeSupportedByQg));
-    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
-    db.measures().insertMeasure(projectData.getMainBranchDto(), m -> m.addValue(ALERT_STATUS_KEY, qualityGateStatus));
+    when(aiCodeAssuranceVerifier.getAiCodeAssurance(project)).thenReturn(aiCodeAssurance);
     authorizationIndexerTester.allowOnlyAnyone(project);
     index();
 
     SearchProjectsWsResponse result = call(request);
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getContainsAiCode, Component::getAiCodeAssurance)
-      .containsExactly(
-        tuple(project.getKey(), containsAiCode, Components.AiCodeAssurance.valueOf(expected.name())));
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getAiCodeAssurance)
+      .containsExactly(tuple(project.getKey(), Components.AiCodeAssurance.valueOf(aiCodeAssurance.name())));
   }
 
   @ParameterizedTest
@@ -1429,22 +1420,6 @@ class SearchProjectsActionIT {
     assertThat(result.getComponentsList()).extracting(Component::getContainsAiCode).containsExactly(false);
   }
 
-  private static Stream<Arguments> aiCodeAssuranceParams() {
-    return Stream.of(
-      Arguments.of(false, false, "OK", AiCodeAssurance.NONE),
-      Arguments.of(false, false, "ERROR", AiCodeAssurance.NONE),
-      Arguments.of(false, false, null, AiCodeAssurance.NONE),
-      Arguments.of(false, true, "OK", AiCodeAssurance.NONE),
-      Arguments.of(false, true, "ERROR", AiCodeAssurance.NONE),
-      Arguments.of(false, true, null, AiCodeAssurance.NONE),
-      Arguments.of(true, false, "OK", AI_CODE_ASSURANCE_OFF),
-      Arguments.of(true, false, "ERROR", AI_CODE_ASSURANCE_OFF),
-      Arguments.of(true, false, null, AI_CODE_ASSURANCE_OFF),
-      Arguments.of(true, true, null, AI_CODE_ASSURANCE_ON),
-      Arguments.of(true, true, "OK", AI_CODE_ASSURANCE_PASS),
-      Arguments.of(true, true, "ERROR", AI_CODE_ASSURANCE_FAIL)
-    );
-  }
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})

@@ -19,14 +19,23 @@
  */
 package org.sonar.server.ai.code.assurance;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.db.project.ProjectDto;
 
-public interface AiCodeAssuranceVerifier {
+public class NoOpAiCodeAssuranceVerifier implements AiCodeAssuranceVerifier {
 
-  AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto, @Nullable String branchKey);
+  @Override
+  public AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto, @Nullable String branchKey) {
+    return AiCodeAssurance.NONE;
+  }
 
-  AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto);
+  @Override
+  public AiCodeAssurance getAiCodeAssurance(ProjectDto projectDto) {
+    return AiCodeAssurance.NONE;
+  }
 
-  boolean isAiCodeAssured(ProjectDto projectDto);
+  @Override
+  public boolean isAiCodeAssured(ProjectDto projectDto) {
+    return false;
+  }
 }
