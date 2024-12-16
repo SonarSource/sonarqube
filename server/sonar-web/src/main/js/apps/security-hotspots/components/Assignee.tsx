@@ -71,7 +71,7 @@ export default function Assignee(props: Props) {
     : [UNASSIGNED];
 
   const canEdit =
-    status === HotspotStatus.TO_REVIEW || resolution === HotspotResolution.ACKNOWLEDGED;
+    status === HotspotStatus.TO_REVIEW || resolution === HotspotResolution.ACKNOWLEDGED || resolution === HotspotResolution.EXCEPTION;
 
   const controlLabel = assigneeUser ? (
     <>
