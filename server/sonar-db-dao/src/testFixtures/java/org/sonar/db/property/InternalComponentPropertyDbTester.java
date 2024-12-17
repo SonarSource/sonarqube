@@ -21,7 +21,6 @@ package org.sonar.db.property;
 
 import java.util.Optional;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 public class InternalComponentPropertyDbTester {

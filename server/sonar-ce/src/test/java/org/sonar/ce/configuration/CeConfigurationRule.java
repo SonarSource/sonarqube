@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.configuration;
 
-import org.junit.rules.ExternalResource;
-
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**

@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 
@@ -37,7 +36,7 @@ public class ProjectLinkDbTester {
     this.db = db;
     this.dbClient = db.getDbClient();
   }
-  
+
   @SafeVarargs
   public final ProjectLinkDto insertProvidedLink(ProjectDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
     return insertLink(project, newProvidedLinkDto(), dtoPopulators);

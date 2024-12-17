@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
@@ -66,7 +65,7 @@ public class EventDbTester {
       .setComponentName(component.name())
       .setComponentBranchKey(Optional.ofNullable(branch).map(BranchDto::getKey).orElse(null));
     EventPurgeData eventPurgeData = new EventPurgeData(analysis.getRootComponentUuid(), analysis.getUuid());
-    
+
     dbClient.eventComponentChangeDao().insert(db.getSession(), eventComponentChange, eventPurgeData);
     db.commit();
 

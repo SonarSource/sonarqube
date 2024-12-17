@@ -22,7 +22,6 @@ package org.sonar.db.permission.template;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -97,9 +96,9 @@ public class PermissionTemplateDbTester {
 
   public void addProjectCreatorToTemplate(String templateUuid, String permission, String templateName) {
     dbClient.permissionTemplateCharacteristicDao().insert(db.getSession(), newPermissionTemplateCharacteristicDto()
-        .setWithProjectCreator(true)
-        .setTemplateUuid(templateUuid)
-        .setPermission(permission),
+      .setWithProjectCreator(true)
+      .setTemplateUuid(templateUuid)
+      .setPermission(permission),
       templateName);
     db.commit();
   }

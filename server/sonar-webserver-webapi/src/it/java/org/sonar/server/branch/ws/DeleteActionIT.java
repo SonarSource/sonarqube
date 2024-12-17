@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -111,8 +110,8 @@ public class DeleteActionIT {
       .setParam("project", project.getKey())
       .setParam("branch", "branch1")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Branch 'branch1' not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Branch 'branch1' not found");
   }
 
   @Test
@@ -123,8 +122,8 @@ public class DeleteActionIT {
       .setParam("project", "foo")
       .setParam("branch", "branch1")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Project 'foo' not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Project 'foo' not found");
   }
 
   @Test

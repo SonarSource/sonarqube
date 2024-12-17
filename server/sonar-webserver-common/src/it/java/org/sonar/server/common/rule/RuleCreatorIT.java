@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.assertj.core.api.Fail;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;

@@ -35,7 +35,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
@@ -83,7 +82,6 @@ public class AdvancedRuleDescriptionSectionsGeneratorTest {
     .content(SECTION_3_WITH_CTX_2.getHtmlContent())
     .context(RuleDescriptionSectionContextDto.of(CONTEXT_2.getKey(), CONTEXT_2.getDisplayName()))
     .build();
-
 
   @Mock
   private UuidFactory uuidFactory;

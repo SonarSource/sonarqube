@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.rules.ExternalResource;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static com.google.common.base.Preconditions.checkState;

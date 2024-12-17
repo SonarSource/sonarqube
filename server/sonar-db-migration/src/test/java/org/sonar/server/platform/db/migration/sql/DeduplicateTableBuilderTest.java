@@ -20,14 +20,13 @@
 package org.sonar.server.platform.db.migration.sql;
 
 import java.util.List;
-import junit.framework.TestCase;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class DeduplicateTableBuilderTest {
 
   @Test
-  public void build_shouldReturnExpectedSql(){
+  public void build_shouldReturnExpectedSql() {
     List<String> queries = new DeduplicateTableBuilder("example_table")
       .addReferenceColumn("reference_column1")
       .addReferenceColumn("reference_column2")
@@ -39,7 +38,7 @@ public class DeduplicateTableBuilderTest {
   }
 
   @Test
-  public void build_shouldThrowException_whenIdentityColumnUndefined(){
+  public void build_shouldThrowException_whenIdentityColumnUndefined() {
     DeduplicateTableBuilder builder = new DeduplicateTableBuilder("example_table")
       .addReferenceColumn("reference_column1")
       .addReferenceColumn("reference_column2");
@@ -49,7 +48,7 @@ public class DeduplicateTableBuilderTest {
   }
 
   @Test
-  public void build_shouldThrowException_whenReferenceColumnUndefined(){
+  public void build_shouldThrowException_whenReferenceColumnUndefined() {
     DeduplicateTableBuilder builder = new DeduplicateTableBuilder("example_table")
       .setIdentityColumn("identity_column");
 

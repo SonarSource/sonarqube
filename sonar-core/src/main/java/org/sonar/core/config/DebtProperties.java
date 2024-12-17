@@ -21,9 +21,7 @@ package org.sonar.core.config;
 
 import java.util.List;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyFieldDefinition;
 
 class DebtProperties {
 

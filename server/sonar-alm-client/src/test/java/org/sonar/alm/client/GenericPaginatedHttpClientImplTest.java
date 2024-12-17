@@ -22,7 +22,6 @@ package org.sonar.alm.client;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
@@ -34,8 +33,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
-import org.sonar.auth.github.security.AccessToken;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.auth.github.security.AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -151,7 +150,7 @@ public class GenericPaginatedHttpClientImplTest {
     assertThatIllegalStateException()
       .isThrownBy(() -> underTest.get(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE)))
       .withMessage("SonarQube was not able to retrieve resources from external system. Error while executing a paginated call to https://github.com/, endpoint:/next-endpoint. "
-                   + "Error while executing a call to https://github.com/. Return code 400. Error message: failed.");
+        + "Error while executing a call to https://github.com/. Return code 400. Error message: failed.");
   }
 
   private static GetResponse mockFailedResponse(String content) {
@@ -186,11 +185,11 @@ public class GenericPaginatedHttpClientImplTest {
       .isThrownBy(() -> underTest.get(APP_URL, accessToken, "query", mock()))
       .isInstanceOf(IllegalStateException.class)
       .withMessage("SonarQube was not able to retrieve resources from external system. Error while executing a paginated call to https://github.com/, "
-                   + "endpoint:query?per_page=100. error");
+        + "endpoint:query?per_page=100. error");
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(Level.WARN))
       .containsExactly("SonarQube was not able to retrieve resources from external system. "
-                       + "Error while executing a paginated call to https://github.com/, endpoint:query?per_page=100.");
+        + "Error while executing a paginated call to https://github.com/, endpoint:query?per_page=100.");
   }
 }

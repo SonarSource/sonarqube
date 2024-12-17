@@ -21,7 +21,6 @@ package org.sonar.db.favorite;
 
 import java.util.List;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
@@ -40,9 +39,9 @@ public class FavoriteDbTester {
 
   public void add(EntityDto entity, String userUuid, String userLogin) {
     dbClient.propertiesDao().saveProperty(db.getSession(), new PropertyDto()
-        .setKey(PROP_FAVORITE_KEY)
-        .setUserUuid(userUuid)
-        .setEntityUuid(entity.getUuid()),
+      .setKey(PROP_FAVORITE_KEY)
+      .setUserUuid(userUuid)
+      .setEntityUuid(entity.getUuid()),
       userLogin, entity.getKey(), entity.getName(), entity.getQualifier());
     db.commit();
   }

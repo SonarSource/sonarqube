@@ -21,7 +21,6 @@ package org.sonar.db.qualityprofile;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.issue.impact.Severity;
@@ -29,7 +28,8 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 
 public class IndexedActiveRuleDto {
   private static final Gson GSON = new Gson();
-  private static final TypeToken<Map<SoftwareQuality, Severity>> TYPE = new TypeToken<>(){};
+  private static final TypeToken<Map<SoftwareQuality, Severity>> TYPE = new TypeToken<>() {
+  };
 
   private String uuid;
   private String ruleUuid;

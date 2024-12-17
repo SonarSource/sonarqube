@@ -22,8 +22,6 @@ package org.sonar.server.v2.api.model;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RestPageTest {
 

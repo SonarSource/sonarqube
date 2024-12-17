@@ -21,7 +21,6 @@ package org.sonar.server.hotspot.ws;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -300,7 +299,7 @@ public class ShowAction implements HotspotsWsAction {
     ProjectAndBranch projectAndBranch = hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
     BranchDto branch = projectAndBranch.getBranch();
     ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid)
-        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+      .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
     return new Components(projectAndBranch.getProject(), component, branch);
   }
 

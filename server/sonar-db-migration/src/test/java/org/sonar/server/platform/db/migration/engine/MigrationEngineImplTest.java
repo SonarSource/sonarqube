@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +31,8 @@ import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.NoOpMigrationStatusListener;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static java.util.Collections.singletonList;

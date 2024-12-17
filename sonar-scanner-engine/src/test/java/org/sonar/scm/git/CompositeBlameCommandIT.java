@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -68,7 +67,7 @@ class CompositeBlameCommandIT {
 
   // In JUnit4, if the cleanup cannot be performed, the test would not fail. This has changed with JUnit5
   // As we cannot find the cause of failure during cleanup, we disable it for now
-  @TempDir (cleanup = NEVER)
+  @TempDir(cleanup = NEVER)
   private File temp;
 
   @BeforeAll
@@ -105,15 +104,13 @@ class CompositeBlameCommandIT {
       "one-file-many-merges-and-renames",
       "two-merge-commits",
       "dummy-git",
-      "dummy-git-few-comitters"
-      );
+      "dummy-git-few-comitters");
 
     List<BlameAlgorithmEnum> blameStrategies = Arrays.stream(BlameAlgorithmEnum.values()).toList();
     return testCases.stream()
       .flatMap(t -> blameStrategies.stream().map(b -> arguments(t, b)))
       .toList().stream();
   }
-
 
   private void assertBlameMatchesExpectedBlame(Map<InputFile, List<BlameLine>> blame, File gitFolder) throws Exception {
     Map<Path, List<BlameLine>> expectedBlame = readExpectedBlame(gitFolder.getName());

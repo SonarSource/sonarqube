@@ -20,7 +20,6 @@
 package org.sonar.server.user;
 
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.security.Authenticator;
 import org.sonar.api.security.SecurityRealm;
